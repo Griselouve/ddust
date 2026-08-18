@@ -1,0 +1,996 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    orb:
+      class: DvOrb
+      name: Ddust
+      home_page: home
+      window_width: 400
+      window_height: 700
+      #screenshots: ":download:/ddust/screenshots" #GUM décommenter avant mise en prod
+      registry:
+        - home
+        - region_screen
+        - player_name_screen
+        - age_screen
+        - parentalgate_screen
+        - ddvideo
+        - documents_acceptance_screen
+        - link_account_screen
+        - new_or_pick_clan
+        - create_clan
+        - decisiontree
+        - invite_clan
+        - accept_invitation_clan
+        - kid_wants_clan
+        - accept_request_clan
+        - dashboard
+        - testme
+        #- burn_page
+        - profile
+        - shop
+        - clan_page
+        - tutoriels
+        - log_page
+        - butin_page
+        - butin_note_page
+        - combat
+        - personnage
+        - player_rename_screen
+        - avatar_explorer
+        - clan_avatar_explorer
+        - salon_tasks
+        - animaux_tasks
+        - bureau_tasks
+        - chambre_enfant_tasks
+        - chambre_parentale_tasks
+        - courses_tasks
+        - cuisine_tasks
+        - dechets_tasks
+        - entree_tasks
+        - extras_tasks
+        - garage_tasks
+        - jardin_tasks
+        - linge_tasks
+        - repas_tasks
+        - vaisselle_tasks
+        - salle_de_bain_tasks
+        - terrasse_tasks
+        - toilettes_tasks
+        - vehicules_tasks
+        - rename_task
+        - butin_rewards_page
+        - butin_open_page
+        - money_page
+        - give_page
+        - item_view_page
+        - create_player_screen
+        - butin_notes_page
+        - butin_tale_page
+
+    page:
+      class: DvPage
+      show_appbar: true
+      appbar_height: 4%
+      layers: ["background", "content", "overlay", "popup"]
+      # Injectés dans TOUTES les pages (masks: [page]) via l'union de listes du mask() du
+      # framework (Dvidle.mask : les Lists sont FUSIONNÉES, pas remplacées) → pas de répétition
+      # par écran. Portent l'anim de montée de niveau (worker._checkPlayerLevelUp) : brûle la
+      # page COURANTE, quelle qu'elle soit, sans navigation (cf. commons/levelup_view/label).
+      # Idem pour l'anim de soin (worker._checkPlayerHealed) : onde de croix vertes + voile blanc.
+      registry:
+        - commons/levelup_view
+        - commons/levelup_label
+        - commons/heal_view
+        - commons/heal_label
+        - commons/giftxp_view
+        - commons/giftxp_label
+        - commons/giftgold_view
+        - commons/giftgold_label
+        - commons/gameover_view
+        - commons/gameover_label
+        - commons/victory_view
+        - commons/butin_view
+        - commons/butin_label
+
+    # Écran de JEU (= écran à taskbar) : hérite de "page" et injecte, dans les écrans qui le
+    # masquent, la taskbar + l'overlay de mort (crâne/gage/scrim/résurrection) — via la même union
+    # de listes du mask(). Un nouvel écran de jeu se résume donc à "masks: [page_taskbar]".
+    # L'ordre de cette liste est celui d'ajout des shapes : death_scrim AVANT death_revive → le
+    # bouton Résurrection, listé après le scrim, reçoit bien ses taps (cf. commons/death_revive).
+    page_taskbar:
+      masks:
+        - page
+      registry:
+        - commons/taskbar
+        - commons/death_scrim
+        - commons/death_skull
+        - commons/death_gage
+        - commons/death_revive
+        # Bandeau d'impersonation (« prendre la place d'un joueur »), widget unique masqué par défaut,
+        # révélé par worker._applyImpersonation. Listé APRÈS death_scrim → il reçoit ses taps même si
+        # la cible est morte (scrim n'avale que ses propres taps, cf. commons/death_revive).
+        - commons/impersonation_back
+
+    # Écran À TIROIR (combat + les 19 <domaine>_tasks) : hérite de page_taskbar et injecte le
+    # dispositif d'ADMINISTRATION du chef de clan — le switch « Jeu | Admin » en bas du tiroir et
+    # le menu contextuel des icônes. Déclarés UNE fois pour les 20 écrans (union de listes du
+    # mask()), invisibles par défaut : c'est le worker qui révèle le switch aux seuls chefs
+    # (worker._syncChiefUi). La tuile « + » (ajouter), elle, n'est pas une shape : c'est une icône
+    # injectée DANS le tiroir en mode admin (canal dvtiroir.update_extras). Elle ne sert qu'à créer
+    # une TÂCHE : les 19 <domaine>_tasks l'affichent, la grille des domaines la refuse par conf
+    # (combat/tiroir → extras_enabled: false), un chef ne créant jamais de domaine.
+    # `appear` : les 19 écrans <domaine>_tasks n'avaient aucune action d'entrée — ils héritent
+    # donc de celle-ci, qui pose le switch/« + » une fois leurs shapes montées. combat, lui, a la
+    # sienne (on_combat_appear, qui finit par _refreshTaskStatuses → _syncChiefUi) : elle gagne,
+    # car resolveRegistryItem applique la conf de la PAGE après celle du masque (deva.dart:179).
+    page_admin:
+      masks:
+        - page_taskbar
+      actions:
+        appear: worker.on_tiroir_appear
+      registry:
+        - commons/mode_game
+        - commons/mode_admin
+        - commons/tiroir_menu
+
+    # ---- Theme commons: déclarations structurelles uniquement ----------------
+    # Les valeurs visuelles (couleurs, images, fonts) sont dans theme-default-global.yml
+
+    commons/shape:
+      shape:
+        border: true
+        text_align: CENTER
+
+    commons/nobordershape:
+      shape:
+        border: false
+        text_align: CENTER
+
+    commons/splash_background:
+      class: DvLabel
+      layer: background
+      shape:
+        x: 0
+        y: 0
+        w: 100%
+        h: 100%
+
+    commons/label_label:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        w: 90%
+        h: 5%
+        text_align: LEFT
+
+    commons/icon_background:
+      class: DvLabel
+      layer: background
+      shape:
+        x: 10%
+        y: 24%
+        w: 80%
+        h: 35%
+
+    commons/table:
+      masks:
+        - commons/nobordershape
+      class: DvTable
+      layer: content
+      shape:
+        x: 3%
+        y: 3%
+        w: 94%
+        h: 96%
+        show_header: false
+        column_spacing: 20
+
+    commons/frame:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 15%
+        w: 90%
+        h: 60%
+        border: true
+
+    commons/entry:
+      class: DvEntry
+      layer: content
+      shape:
+        border: true
+
+    commons/dark_button:
+      masks:
+        - commons/shape
+
+    #//------------------------------- NAME FORM (modèle partagé) --------------------------
+    # Structure/positions d'un formulaire de saisie de nom (fond + label + champ + bouton),
+    # source unique masquée par player_name_screen (onboarding) et player_rename_screen.
+    # Nodes non rendus directement : chaque écran maske ces templates et ne surcharge que
+    # son libellé + son handler.
+    commons/nameform_bg:
+      masks:
+        - commons/icon_background
+      shape:
+        y: 0
+
+    commons/nameform_label:
+      masks:
+        - commons/label_label
+      shape:
+        y: 59%
+
+    commons/nameform_entry:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 65%
+        w: 90%
+        h: 8%
+        events:
+          changed: true
+
+    commons/nameform_confirm:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 85%
+        w: 90%
+        h: 8%
+        events:
+          tap: true
+
+    #//------------------------------- CONSENTEMENT PARENTAL (modèle partagé) -------------
+    # Mise en page commune des mentions de consentement affichées à l'adulte au moment où il
+    # fait entrer quelqu'un dans son clan : création d'un profil joueur (create_player_screen),
+    # invitation d'un membre (clan_page/invite_panel) ou acceptation d'une adhésion
+    # (accept_invitation_clan). Le consentement RGPD art. 8 doit être éclairé AU MOMENT de
+    # l'acte, pas seulement dans les CGU acceptées à l'installation.
+    # Le LIBELLÉ par défaut est celui de la CRÉATION d'un profil, seul cas où le déclarant est
+    # forcément le responsable légal de l'enfant. Les écrans d'invitation et d'admission, où
+    # l'on ignore qui viendra (adulte ? enfant déjà rattaché à un autre clan ?), surchargent
+    # `label` avec invite_consent_notice — cf. CGU art. 6.
+    # Le segment (( … | documents.open_doc?cgu@a )) est un lien inline : il ouvre les CGU
+    # ADULTE (@a) de la région et de la langue de la session dans le navigateur.
+    # Chaque écran ne surcharge que son `y`.
+    # ⚠️ Ne PAS déclarer events.tap ici : le GestureDetector de la shape capterait le tap
+    # avant le lien (cf. readme dvorb).
+    commons/parental_consent:
+      masks:
+        - commons/label_label
+      shape:
+        h: 14%
+        font_size: 11
+        text_align: JUSTIFY
+        link_color: "amber_200"
+        label: "@@@T:parental_consent_notice@@@"
+
+    #//------------------------------- INSPIRE FORM (modèle partagé) ----------------------
+    # Formulaire « nom + description + Inspire moi (IA) », source unique masquée par create_clan
+    # (naissance d'un clan) et rename_task (édition d'une tâche par le chef). Chaque écran ne
+    # surcharge que ses libellés et ses handlers (changed / inspire / replay / confirm). Le fond
+    # est une image (bouclier pour le clan, image de la tâche pour l'édition).
+    commons/inspireform_bg:
+      masks:
+        - commons/icon_background
+      shape:
+        y: 0
+
+    commons/inspireform_name_label:
+      masks:
+        - commons/label_label
+      shape:
+        y: 16%
+
+    commons/inspireform_name:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 22%
+        w: 90%
+        h: 8%
+        hint: ""
+        events:
+          changed: true
+
+    commons/inspireform_desc_label:
+      masks:
+        - commons/label_label
+      shape:
+        y: 31%
+
+    commons/inspireform_desc:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 38%
+        w: 90%
+        h: 35%
+        hint: ""
+        multiline: true
+        events:
+          changed: ~
+
+    commons/inspireform_inspire:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 55%
+        y: 72%
+        w: 40%
+        h: 6%
+        label: "@@@T:inspire_me@@@"
+        text_align: RIGHT
+        events:
+          tap: true
+
+    commons/inspireform_replay:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 40%
+        y: 72%
+        w: 40%
+        h: 6%
+        label: "@@@T:replay@@@"
+        visible: false
+        text_align: LEFT
+        events:
+          tap: true
+
+    commons/inspireform_confirm:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 85%
+        w: 90%
+        h: 8%
+        events:
+          tap: true
+
+    commons/intro_text:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 5%
+        w: 90%
+        h: 18%
+        text_align: CENTER
+        border: true
+
+    commons/btn_wide:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        w: 90%
+        h: 10%
+
+    commons/btn_medium:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        w: 80%
+        h: 10%
+
+    commons/btn_profile:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        w: 80%
+        h: 7%
+        text_align: LEFT
+
+    commons/taskbar:
+      class: DvTaskbar
+      layer: front
+      shape:
+        x: 0%
+        y: 88%
+        w: 100%
+        h: 11%
+        border: true
+        orientation: horizontal
+        anchoring: bottom
+        back_target: dashboard
+        icons_shape:
+          border: false
+        icons:
+          shop_open:
+            rank: 1
+            label: "@@@T:Boutique@@@"
+            shape:
+              events:
+                tap: true
+              actions:
+                tap: navigate_new.shop
+          clan_open:
+            rank: 2
+            label: "@@@T:Clan@@@"
+            shape:
+              events:
+                tap: true
+              actions:
+                tap: navigate_new.clan_page
+          combat_open:
+            rank: 3
+            label: "@@@T:Combat@@@"
+            shape:
+              events:
+                tap: true
+              actions:
+                tap: navigate_new.combat
+          personnage_open:
+            rank: 4
+            label: "@@@T:Personnage@@@"
+            shape:
+              events:
+                tap: true
+              actions:
+                tap: navigate_new.personnage
+          testme_open:
+            rank: 5
+            label: "@@@T:Items@@@"
+            shape:
+              events:
+                tap: true
+              actions:
+                tap: navigate_new.testme
+
+    #//------------------------------- LEVEL-UP OVERLAY (célébration) ----------------------
+    # Injectées sur TOUTE page (masks: [page], via le registry du template "page" ci-dessus) :
+    # brûlent la page COURANTE, quelle qu'elle soit, sans navigation. Pilotées par
+    # worker._checkPlayerLevelUp / _showLevelUpAnimation.
+    commons/levelup_view:
+      class: DvSceneView
+      # popup (comme heal/giftxp/giftgold/gameover_view) et non overlay : sur overlay, la scène
+      # burn est injectée AVANT le switch « Jeu | Admin » (masque page vs page_admin) et se
+      # dessine donc dessous, le laissant visible par-dessus l'animation. popup couvre tout.
+      layer: popup
+      scene: burn
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # DvSplash (pas DvLabel) : gère lui-même son cycle fade-in / hold / fade-out, déclenché par
+    # worker._showLevelUpAnimation via .splash(text) — pas de show()/hide() manuel nécessaire.
+    commons/levelup_label:
+      class: DvSplash
+      layer: popup
+      shape:
+        x: 5%
+        y: 28%
+        w: 90%
+        h: 34%
+        fadein: 2000
+        duration: 2000
+        fadeout: 2000
+        font_size: 26.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "amber_400"
+        highlight_color: "#EF5350" # le niveau (encadré [[…]] par le worker) en rouge vif + gras
+        text_align: CENTER
+        border: false
+        background_color: "transparent"
+
+    #//------------------------------- HEAL OVERLAY (célébration de soin) ------------------
+    # Même mécanique que le level-up (injectées sur TOUTE page via le registry du template
+    # "page"), mais scène "heal" : onde de croix vertes + voile blanc. Pilotées par
+    # worker._checkPlayerHealed / _showHealAnimation.
+    # layer: popup → le voile se rend AU-DESSUS de l'overlay de mort (crâne/scrim, passés en
+    # layer: overlay) : pendant le soin, le voile masque le crâne avant que le worker ne le retire
+    # (cf. worker._celebrateHeal). popup > overlay dans le template "page" (layers: [...,overlay,popup]).
+    commons/heal_view:
+      class: DvSceneView
+      layer: popup
+      scene: heal
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # DvSplash comme levelup_label. Affiché en vert (soin) sur le voile blanc : le texte
+    # apparaît quand l'écran a blanchi (fadein 2000 ≈ durée de l'onde), tient, puis disparaît.
+    commons/heal_label:
+      class: DvSplash
+      layer: popup
+      shape:
+        x: 5%
+        y: 28%
+        w: 90%
+        h: 34%
+        fadein: 2000
+        duration: 2000
+        fadeout: 2000
+        font_size: 26.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#1B5E20" # vert profond (lisible sur le voile blanc)
+        highlight_color: "#2E7D32" # nom du joueur (encadré [[…]]) en vert franc + gras
+        text_align: CENTER
+        border: false
+        background_color: "transparent"
+
+    #//------------------------------- GIFT XP OVERLAY (cadeau de la guilde) ---------------
+    # Même mécanique que level-up/heal (injectées sur TOUTE page via le registry du template
+    # "page"), mais scène "giftxp" : pluie de symboles dorés + voile doré. Pilotées par
+    # worker._showGiftAnimation (xp+ à last_task inchangé = bonus offert).
+    commons/giftxp_view:
+      class: DvSceneView
+      layer: popup
+      scene: giftxp
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # Overlay de l'anim de victoire (tâche accomplie/validée), injecté sur TOUTE page via le registry
+    # du template "page". Scène "victory" : image victory_nobg.png en fondu. Piloté par
+    # worker._showVictoryAnimation (XP de tâche validée = last_task changé, ≠ cadeau).
+    commons/victory_view:
+      class: DvSceneView
+      layer: popup
+      scene: victory
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # DvSplash comme levelup_label/heal_label. Message en NOIR, "XP" (encadrés [[…]]) en ROUGE.
+    # Shape haut (h:76%) pour loger la pluie de "XP" au-dessus/dessous du message.
+    commons/giftxp_label:
+      class: DvSplash
+      layer: popup
+      shape:
+        x: 4%
+        y: 12%
+        w: 92%
+        h: 76%
+        fadein: 2000 # le texte paraît pendant que l'écran dore
+        duration: 1500
+        fadeout: 2000
+        font_size: 22.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#000000" # message en noir
+        highlight_color: "#D32F2F" # les "XP" (encadrés [[…]]) en rouge
+        text_align: CENTER
+        border: false
+        background_color: "transparent"
+
+    #//------------------------------- GIFT GOLD OVERLAY (cadeau d'or) ---------------------
+    # Même mécanique que giftxp (injectées sur TOUTE page via le registry du template "page"),
+    # mais scène "giftgold" : pluie de pièces dorées remplissant l'écran. Pilotées par
+    # worker._showGiftGoldAnimation (hausse du champ gold du joueur = or offert).
+    commons/giftgold_view:
+      class: DvSceneView
+      layer: popup
+      scene: giftgold
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # DvSplash comme giftxp_label. Message en NOIR sur l'or, le NOMBRE de pièces (encadré [[…]])
+    # en ROUGE. Centré verticalement (message court, pas de pluie décorative de texte).
+    commons/giftgold_label:
+      class: DvSplash
+      layer: popup
+      shape:
+        x: 6%
+        y: 38%
+        w: 88%
+        h: 24%
+        fadein: 2000 # le texte paraît pendant que l'écran dore
+        duration: 1500
+        fadeout: 2000
+        font_size: 24.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#000000" # message en noir
+        highlight_color: "#D32F2F" # le nombre de pièces (encadré [[…]]) en rouge
+        text_align: CENTER
+        border: false
+        background_color: "transparent"
+
+    #//------------------------------- GAME OVER OVERLAY (0 PV) ----------------------------
+    # MIROIR de l'overlay de soin : même mécanique (injectées sur TOUTE page via le registry du
+    # template "page"), mais scène "gameover" : écran qui NOIRCIT → burst de cendres noires. Pilotées
+    # par worker._celebrateDeath (transition écran de jeu → écran de mort, cf. _evaluateDeath `dying`).
+    # layer: popup → le voile se rend AU-DESSUS de l'overlay de mort (crâne/scrim, layer:overlay) pour
+    # MASQUER l'apparition du crâne : _celebrateDeath applique le crâne SOUS le noir, puis le noir se
+    # brise en cendres et le révèle (symétrique de _celebrateHeal qui retire le crâne sous le blanc).
+    commons/gameover_view:
+      class: DvSceneView
+      layer: popup
+      scene: gameover
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # DvSplash comme heal_label. Texte "GAME OVER" en BLANC (statique, toutes langues confondues) +
+    # image du squelette faucheur (cadre img_* : occupe la moitié haute, texte GAME OVER dessous).
+    # Rendu par-dessus le voile noir (listé APRÈS gameover_view dans le registry). fadein 2000 → le
+    # texte paraît quand l'écran a noirci ; duration/fadeout couvrent le hold + le fondu du noir.
+    commons/gameover_label:
+      class: DvSplash
+      layer: popup
+      shape:
+        x: 5%
+        y: 54%
+        w: 90%
+        h: 14%
+        # Cadre image ~carré (l'image est carrée, fond NOIR) : évite le rognage du faucheur par le
+        # BoxFit.cover du DvSplash, et son fond noir se fond dans le voile noir de la scène.
+        img_x: 10%
+        img_y: 6%
+        img_w: 80%
+        img_h: 45%
+        image: "images/big/gameover.png"
+        label: "GAME OVER" # statique : même texte pour toutes les langues
+        # Déclenché par _celebrateDeath APRÈS la phase 1 (écran devenu noir). fadein+duration+fadeout
+        # (~3,4 s) tiennent DANS le hold noir (act5, 3,5 s) → le splash disparaît AVANT que le noir
+        # ne se dissipe (sinon son fond noir masquerait l'écran de mort en cours d'apparition).
+        fadein: 900
+        duration: 1800
+        fadeout: 700
+        font_size: 30.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#FFFFFF" # GAME OVER en blanc
+        text_align: CENTER
+        border: false
+        background_color: "transparent"
+
+    #//------------------------------- BUTIN OVERLAY (ouverture du coffre) -----------------
+    # La plus fournie des célébrations (scène "butin" : le coffre surgit, éclate en confettis et
+    # pièces, puis une nappe d'or inonde l'écran). Injectées sur TOUTE page comme les autres :
+    # l'ouverture se détecte à n'importe quel moment (watch du doc joueur), donc depuis n'importe
+    # quel écran. Pilotée par worker._celebrateButin.
+    # Particularité : la scène NAVIGUE en cours de route (worker.butin_reveal, tiré quand l'or
+    # couvre tout) → la vue de l'écran de récompenses s'attache à la scène déjà en vol, et c'est
+    # pour elle que l'acte de maintien pilote la nappe par des tweens constants (cf. le thème).
+    commons/butin_view:
+      class: DvSceneView
+      layer: popup
+      scene: butin
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # DvSplash de l'ouverture : message en OR sur la nuit du donjon, le mot encadré [[…]] en braise
+    # (la couleur des étincelles de la scène). Les fondus tiennent dans les actes 3 et 4 (l'éclat et le
+    # spectacle, ~3 s) : le texte est éteint AVANT que la nappe d'or ne monte (acte 5, à ~5,85 s),
+    # sinon il resterait lisible par-dessus l'écran de récompenses en train d'être empilé.
+    commons/butin_label:
+      class: DvSplash
+      layer: popup
+      shape:
+        x: 5%
+        y: 30%
+        w: 90%
+        h: 24%
+        fadein: 700 # le texte paraît avec l'éclat, pas avant
+        duration: 3000
+        fadeout: 900
+        font_size: 26.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#FFD54F" # or clair, lisible sur la nuit du donjon
+        highlight_color: "#FF6D00" # le mot encadré [[…]] en braise (cf. les étincelles)
+        text_align: CENTER
+        border: false
+        background_color: "transparent"
+
+    #//------------------------------- DEATH OVERLAY (0 PV) --------------------------------
+    # Overlay de mort : affiché quand pvShown <= 0 sur tous les écrans à taskbar. Déclaré ICI une
+    # seule fois et injecté dans ces écrans par le registry du template "page_taskbar" (union de
+    # listes du mask()) → chaque page en instancie sa propre copie, comme commons/levelup_view.
+    # Shapes persistantes sur layer:overlay (au-dessus du contenu), bornées à h:88% pour NE PAS
+    # recouvrir la taskbar (navigation préservée). Basculées globalement par worker._applyDeath.
+    # layer:overlay (et NON popup) → le voile de soin (commons/heal_view, layer:popup) se rend
+    # AU-DESSUS de cet overlay et peut le masquer pendant la transition de guérison.
+    commons/death_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 88%
+        background_color: "#FF000000"
+        opacity: 0.7
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop # avale les taps du contenu → aucune tâche sélectionnable
+
+    commons/death_skull:
+      class: DvImage
+      layer: overlay
+      shape:
+        x: 18%
+        y: 6%
+        w: 64%
+        h: 44%
+        stretch: "RATIO_IN"
+        image: "images/big/skull_nobg.png"
+        opacity: 0.7
+        border: false
+        visible: false
+
+    commons/death_gage:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        x: 5%
+        y: 45%
+        w: 90%
+        h: 31% # remonté et agrandi de 5% pour éviter les textes tronqués
+        font_size: 14.0
+        text_align: CENTER
+        label: "" # rempli à l'exécution : @@@T:gage_NN@@@
+        opacity: 0.7
+        visible: false
+
+    # Bouton « Résurrection » : n'apparaît QUE pour l'admin solo mort (piloté par worker._applyDeath,
+    # flag showRevive). Placé sous le gage, dans la borne h:88% (taskbar préservée). Le scrim n'avale
+    # que SES propres taps → ce bouton (shape distincte, listée APRÈS le scrim dans le registry de
+    # page_taskbar) reçoit bien les siens.
+    commons/death_revive:
+      masks:
+        - commons/btn_wide # réutilise le style dark_button (comme le gage)
+      layer: overlay # override : btn_wide est en layer content (death overlay = overlay)
+      shape:
+        x: 15%
+        y: 78%
+        w: 70%
+        h: 8%
+        text_align: CENTER
+        label: "@@@T:resurrection@@@"
+        opacity: 0.7
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.resurrect_self
+
+    #//------------------------- IMPERSONATION BANNER (prendre la place) -------------------
+    # Bandeau UNIQUE et compact affiché quand un admin « prend la place » d'un joueur (option roster
+    # take_place) : « Vous incarnez X — touchez pour revenir ». Touche = retour (worker.restore_self),
+    # glisser = déplacement (draggable → panupdate → shape.move). Déclaré ICI une seule fois, injecté
+    # dans tous les écrans à taskbar par page_taskbar. Basculé + libellé posé par worker._applyImpersonation
+    # (mémoire seule : non persisté, un kill repart en admin). Placé en BAS À GAUCHE, juste au-dessus de
+    # l'icône Boutique (1re de la taskbar), pour ne pas masquer l'avatar/XP/PV centrés. Cible de la
+    # leçon dvtuto « impersonation_back » (spotlightKey automatique) ; listé après death_scrim → reçoit
+    # ses taps même si la cible est morte.
+    commons/impersonation_back:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 1%
+        y: 79.5%
+        w: 50%
+        h: 8%
+        text_align: CENTER
+        valign: CENTER
+        text_padding: 4.0
+        font_size: 12.0
+        font_weight: bold
+        label: "" # rempli à l'exécution : @@@T:impersonating_as@@@ <nom> — @@@T:impersonation_tap_return@@@
+        background_color: "0xF01A1A1A"
+        font_color: "#C8A84B"
+        border: true
+        border_color: "#C8A84B"
+        border_size: 1.0
+        border_radius: 6.0
+        visible: false
+        draggable: true          # glisser pour déplacer (panupdate → shape.move, positions en %)
+        events:
+          tap: true              # touche = retour au compte
+          panupdate: true        # requis pour que le GestureDetector câble le drag (cf. DvImageView)
+        actions:
+          tap: worker.restore_self
+
+    # --- Administration du chef de clan (masque page_admin) --------------------
+    # Switch « Jeu | Admin » en bas du tiroir : la dernière rangée d'icônes est presque toujours
+    # incomplète, donc la place est libre (contrairement aux coins, où un bouton se noie dans la
+    # grille). Deux segments jointifs — le sélectionné est peint en or, l'autre reste sombre
+    # (worker._syncChiefUi). Visible des seuls chefs de clan, et seulement vivants.
+    commons/mode_game:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 24%
+        y: 82.5%
+        w: 26%
+        h: 4%
+        text_align: CENTER
+        valign: CENTER
+        # DvLabel pose text_padding: 8.0 par défaut (dvlabel.dart) → 16 px mangés en hauteur, ce
+        # qui rogne la ligne dans une boîte fine. Comme partout ailleurs dans ddust : on l'annule.
+        text_padding: 0.0
+        font_size: 13.0
+        font_weight: bold
+        label: "@@@T:mode_game@@@"
+        background_color: "0xF01A1A1A"
+        font_color: "#C8A84B"
+        border: true
+        border_color: "#C8A84B"
+        border_size: 1.0
+        border_radius: 6.0
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.set_mode_game
+
+    commons/mode_admin:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 50%
+        y: 82.5%
+        w: 26%
+        h: 4%
+        text_align: CENTER
+        valign: CENTER
+        # DvLabel pose text_padding: 8.0 par défaut (dvlabel.dart) → 16 px mangés en hauteur, ce
+        # qui rogne la ligne dans une boîte fine. Comme partout ailleurs dans ddust : on l'annule.
+        text_padding: 0.0
+        font_size: 13.0
+        font_weight: bold
+        label: "@@@T:mode_admin@@@"
+        background_color: "0xF01A1A1A"
+        font_color: "#C8A84B"
+        border: true
+        border_color: "#C8A84B"
+        border_size: 1.0
+        border_radius: 6.0
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.set_mode_admin
+
+    # Menu contextuel des icônes de tiroir (domaines ET tâches). Ouvert par DvTiroir lui-même au
+    # tap (cf. handleIconTap) : le tiroir appelle le selector, puis passe au menu les clefs DÉJÀ
+    # résolues + les icônes des options. En mode JEU le selector ne renvoie aucune option → le
+    # menu ne s'ouvre pas et la tâche se lance directement (comportement historique).
+    # Les options décrivent l'ÉTAT D'ARRIVÉE, pas l'action : ⌀ « deviendra désactivée » (donc
+    # présente depuis « active » ET depuis « cachée »), V « deviendra active », œil barré
+    # « deviendra cachée ». Transitions autorisées : active <-> désactivée <-> cachée.
+    commons/tiroir_menu:
+      class: DvMenu
+      layer: popup
+      show_label: false
+      # Pas de `selector:` ici : DvTiroir a déjà appelé worker.task_selector et transmet ses clefs.
+      shape:
+        w: 55%
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        adm_enable:
+          image: "images/small/adm_enable.png"
+          desc: "@@@T:adm_menu_enable_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_enable@@@"
+          actions:
+            tap: worker.adm_enable
+        adm_disable:
+          image: "images/small/adm_disable.png"
+          desc: "@@@T:adm_menu_disable_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_disable@@@"
+          actions:
+            tap: worker.adm_disable
+        adm_hide:
+          image: "images/small/adm_hide.png"
+          desc: "@@@T:adm_menu_hide_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_hide@@@"
+          actions:
+            tap: worker.adm_hide
+        adm_show:
+          image: "images/small/adm_show.png"
+          desc: "@@@T:adm_menu_show_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_show@@@"
+          actions:
+            tap: worker.adm_show
+        adm_edit:
+          image: "images/medium/icon_edit.png"
+          desc: "@@@T:adm_menu_edit_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_edit@@@"
+          actions:
+            tap: worker.adm_edit
+        adm_tasks:
+          image: "images/small/scroll_nobg.png"
+          desc: "@@@T:adm_menu_tasks_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_tasks@@@"
+          actions:
+            tap: worker.adm_tasks
+        adm_revive:
+          image: "images/small/cure_nobg.png"
+          desc: "@@@T:adm_menu_revive_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_revive@@@"
+          actions:
+            tap: worker.adm_revive
+        adm_recommend:
+          image: "images/small/xp_nobg.png"
+          desc: "@@@T:adm_menu_recommend_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_recommend@@@"
+          actions:
+            tap: worker.on_recommend_task
+        # « Ne plus recommander » : retire le statut boss. Même icône que « Recommander » — les deux
+        # options ne coexistent jamais (l'une OU l'autre, selon que la tâche est déjà recommandée).
+        adm_unrecommend:
+          image: "images/small/xp_nobg.png"
+          desc: "@@@T:adm_menu_unrecommend_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_unrecommend@@@"
+          actions:
+            tap: worker.on_unrecommend_task
+        # « Laisser tomber » : la tâche tenue par un joueur redevient libre (comme si personne
+        # ne l'avait sélectionnée). Proposée uniquement sur une tâche assigned/validating.
+        adm_release:
+          image: "images/small/flee_nobg.png"
+          desc: "@@@T:adm_menu_release_desc@@@"
+          shape:
+            label: "@@@T:adm_menu_release@@@"
+          actions:
+            tap: worker.adm_release
+

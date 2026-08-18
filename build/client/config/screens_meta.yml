@@ -1,0 +1,185 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  # --- documents config (masque flutter/modules/dvdocuments/config.yml) --------
+  documents:
+    # Bucket d'AMORÇAGE seulement : à cet instant le joueur n'a pas encore de région, il
+    # faut donc bien en désigner un en dur pour aller chercher index.json. Cet index liste
+    # les documents de TOUTES les régions (pudocuments l'écrit à l'identique dans chaque
+    # bucket), et les documents eux-mêmes sont ensuite lus à leur URL régionale. Un joueur
+    # américain fait donc un seul aller-retour vers l'Europe, au tout premier lancement.
+    bucket_base_url: "https://storage.googleapis.com/dvddust-eu-documents-storage"
+    region:
+      enabled: true
+      default: "eu"
+      options:
+        eu:
+          label: "@@@T:documents_region_europe@@@"
+          # Drapeau EMBARQUÉ (build/resources/icon/eu.png) : sur cet écran la région n'est pas
+          # encore choisie, donc aucun asset cloud n'a pu être téléchargé.
+          image: "assets/icon/eu.png"
+        us:
+          label: "@@@T:documents_region_us@@@"
+          image: "assets/icon/us.png"
+    birthdate:
+      enabled: true
+      display: 26
+    lang:
+      default: "fr"
+    acceptance:
+      cgu:
+        mode: "checkbox"
+        title: "@@@T:documents_acceptance_title@@@"
+    parentalgate:
+      eu:
+        a: "parentalgate.invoke_gate"
+        k: ""
+      us:
+        a: "parentalgate.invoke_gate"
+        k: ""
+    # Un SEUL seuil opère, des deux côtés de l'Atlantique : 18 ans, l'âge de la majorité
+    # contractuelle. Tout mineur, quel que soit son âge, relève du consentement de son
+    # responsable légal : ddust n'exploite jamais le consentement propre du mineur que
+    # l'article 8 du RGPD autorise à partir de 13-16 ans selon l'État membre (15 ans en
+    # France). COPPA (moins de 13 ans aux États-Unis) est porté par la rédaction des
+    # documents us-*, pas par un palier applicatif.
+    # ⚠ Le seuil bas reste déclaré à 0 : la clé `k` DOIT exister, car _computeLegalState
+    # (dvdocuments_motor) initialise l'état légal à la clé du plus petit seuil. La
+    # supprimer ferait basculer le défaut sur `a` et rendrait adulte un enfant de cinq ans.
+    # À garder synchrone avec backend/config.yml.
+    age_thresholds:
+      eu:
+        k: 0
+        a: 18
+      us:
+        k: 0
+        a: 18
+    actions:
+      on_session_ready: "worker.on_documents_ready"
+      on_acceptance_complete: "worker.on_acceptance_complete"
+      on_delete_complete: ""
+      on_region_confirmed: "worker.on_region_screen_done"
+    # Tant que la session Firebase est anonyme, dvdocuments n'écrit rien : la session légale
+    # reste locale et l'acceptation des CGU attend en mémoire. Tout part en base d'un coup au
+    # flush (worker._flushOnboarding), l'acceptation étant rejouée avec son horodatage réel.
+    deferred:
+      when_action: "worker.is_anonymous"
+
+  # DUPLIQUÉ de build/backend/config.yml — les deux doivent rester synchrones. Le client
+  # lit ce bloc pour balayer les régions au login (worker_session : _resolveUserId,
+  # _findBestSession) et retrouver seul la région d'un joueur qui réinstalle l'app.
+  regions:
+    EU:
+      label: "Europe"
+      backend: "europe-west9"
+    US:
+      label: "United States"
+      backend: "us-central1"
+
+  settings:
+    configurations:
+      android_mobile:
+        os: android
+        disposition: mobile
+      windows_desktop:
+        os: windows
+        disposition: desktop
+    parameters:
+      lang:
+        type: select
+        modifiable: true
+        default: "fr"
+        action: "lang.set"
+        options:
+          fr: "Français"
+          en: "English"
+          es: "Español"
+
+  virtuallobby:
+    ttl_hours: 72
+    actions:
+      on_management_created: "worker.on_management_created"
+      on_consent_required: "worker.on_consent_required_clan"
+      on_submission_created: ""
+      on_accepted: "worker.on_virtuallobby_accepted"
+      on_rejected: ""
+      on_cancelled: ""
+      on_status_changed: "worker.on_submission_status_changed"
+
+  lock:
+    # Expiration par défaut d'un verrou, en millisecondes (override possible par appel).
+    default_ttl_ms: 30000
+
+  deeplink:
+    routes:
+      "ddust://invite": "worker.on_invite_clan_link"
+      "ddust://request": "worker.on_request_link"
+      # Invitation à distance : le couple {group_id, lobby_id} est chiffré par un PIN (vive voix).
+      "ddust://invitepin": "worker.on_invite_pin_link"
+
+  share:
+    testmessage:
+      text: "@@@T:create_clan_confirm@@@"
+    # region= : un clan ne vit que dans sa région de stockage. Sans elle, un joueur d'une autre
+    # région suivrait le lien et tomberait sur un « clan introuvable » sans explication.
+    clan_invite:
+      text: "@@@T:share_clan_invite_text@@@\nddust://invite?group_id=@@@worker.pending_group_id@@@&lobby_id=@@@worker.pending_lobby_id@@@&region=@@@worker.pending_region@@@"
+    clan_request:
+      text: "@@@T:share_clan_request_text@@@\nddust://request?lobby_id=@@@worker.pending_lobby_id@@@"
+    # Invitation à distance : token chiffré posé au runtime dans worker.pending_invite_token.
+    # Le PIN est dicté de vive voix, jamais dans le lien.
+    clan_invite_pin:
+      text: "@@@T:share_clan_invite_pin_text@@@\nddust://invitepin?token=@@@worker.pending_invite_token@@@"
+    # Journal (joueur, clan, ou récit IA du conte du butin) : logo (image) + accroche + corps, tous
+    # deux posés au runtime par worker.on_log_appear dans log.share_intro / log.share_text.
+    # L'accroche VARIE selon ce qui est partagé (journal brut vs récit narratif IA) — c'est pour ça
+    # qu'elle est indirectée par @@@log.share_intro@@@ et non écrite en dur ici comme avant.
+    # Résolu par dvsocialshare (Android).
+    log:
+      text: "@@@log.share_intro@@@\n\n@@@log.share_text@@@"
+      image: "images/big/logo.png"
+
+  # --- Interludes : ce qui EXISTE ---------------------------------------------------
+  # Les cinq célébrations que le worker sait déclencher (dvinterlude.play.<id>). On ne déclare ICI
+  # que ce qui relève de l'APPLICATION : le DvSplash où poser le texte (une shape du registry) et
+  # les actions à tirer à la fin (les verrous du worker).
+  #
+  # Tout le CONTENU — la scène dvflame, le son, la vibration, et leurs définitions — vit dans le
+  # THÈME (resources_cloud/layers/theme-donjon-global.yml). Un autre univers y redéfinit les
+  # animations à son goût sans toucher une ligne d'ici.
+  interludes:
+    # Montée de niveau ET bienvenue clan. Le `on_finished` ne relâche aucun garde : il réveille
+    # l'attente de on_dashboard_appear, qui ne rend la main au tutoriel qu'une fois la bienvenue
+    # terminée (sans quoi le voile du tuto se poserait par-dessus la scène `burn`). Une vraie
+    # montée de niveau tire le même hook et ne trouve simplement rien à réveiller.
+    levelup:
+      splash: commons/levelup_label
+      on_finished:
+        worker: { order: 1, action: "worker.on_celebration_end" }
+    giftxp: { splash: commons/giftxp_label }
+    giftgold: { splash: commons/giftgold_label }
+    # Victoire de tâche validée : image seule (aucun texte → pas de splash), pas de verrou worker.
+    # Scène + son vivent dans le thème (interludes.victory / flame.scenes.victory).
+    victory: {}
+
+    # Le soin et la mort ne déclarent pas de splash : leur texte n'est connu qu'après une lecture
+    # réseau (le soigneur), le worker le pose lui-même quand il l'a.
+    # Ils relâchent en revanche le verrou de leur célébration à la fin — que la scène ait fini
+    # normalement, que le garde-fou ait dû la terminer, ou qu'un autre interlude l'ait préemptée.
+    heal:
+      on_finished:
+        worker: { order: 1, action: "worker.on_celebration_end" }
+    gameover:
+      on_finished:
+        worker: { order: 1, action: "worker.on_celebration_end" }
+
+    # Ouverture du butin : splash doré + relâche du verrou worker à la fin. La scène navigue en
+    # cours de route (worker.butin_reveal, tiré à l'acte qui couvre l'écran d'or) : c'est SOUS la
+    # nappe que l'écran de récompenses est empilé.
+    butin:
+      splash: commons/butin_label
+      on_finished:
+        worker: { order: 1, action: "worker.on_celebration_end" }
+

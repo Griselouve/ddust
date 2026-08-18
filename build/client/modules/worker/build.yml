@@ -1,0 +1,8 @@
+build:
+  modules:
+  - dvcloud
+
+registry:
+  main:
+    import: "../worker/worker.dart"
+    invoke: "worker().make();"

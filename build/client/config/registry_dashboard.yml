@@ -1,0 +1,212 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- Dashboard (still tests) ---------------------------------------------
+
+    dashboard:
+      masks:
+        - page_taskbar
+      show_back: false
+      block_back: true
+      title: "@@@T:dashboard@@@"
+      actions:
+        # PAS de `- dvtuto.enter` ici (même raison que l'écran `combat`) : une liste d'actions n'est
+        # pas awaitée, le tuto tournerait DONC EN PARALLÈLE de on_dashboard_appear. Il gagnait
+        # systématiquement la course contre l'animation de bienvenue clan — qui ne part qu'après
+        # ~1 s d'I/O (vigilance + infos du clan) — et posait son voile PAR-DESSUS la scène `burn`,
+        # sur un compte neuf où la leçon `dashboard_intro` n'est pas encore vue.
+        # C'est on_dashboard_appear qui appelle dvtuto.enter, une fois la bienvenue TERMINÉE.
+        # Liste (et non scalaire) conservée : les listes s'unionnent entre layers, un thème peut
+        # donc ajouter son action d'apparition sans écraser celle-ci.
+        appear:
+          - worker.on_dashboard_appear
+      registry:
+        - commons/splash_background
+
+    #//------------------------------- Items Screen (id interne : testme) ----------------------
+
+    testme:
+      masks:
+        - page_taskbar
+      show_back: false
+      block_back: true
+      title: "@@@T:testme_title@@@"
+      # Anti-fuite : coupe la boucle batte_swords si on quitte le combat vers cet écran
+      # ET rend la musique d'ambiance (via _stopCombatSiege, gardé).
+      # Écran ouvert à TOUS les joueurs : chacun y voit ses propres items. Ce qui appartient au
+      # CLAN (le coffre et sa bourse) reste filtré aux seuls admins par worker._pushClanItems.
+      actions:
+        appear:
+          - worker.on_leave_combat_tab
+          - worker.on_items_appear
+      registry:
+        - commons/splash_background
+        - items/explorer
+        - items/menu
+
+    #//------------------------------- Profile Screen ------------------------------------------
+
+    profile:
+      masks:
+        - page
+      title: "@@@T:profile_title@@@"
+      registry:
+        - first_session/logo
+        - dvcloud/profile_avatar
+        - dvcloud/user_email_label
+        - profile/separator
+        - profile/lang_label
+        - profile/lang_button
+        - profile/reset_button
+        - profile/logout_button
+        - profile/mydata_button
+
+    profile/separator:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 35%
+        w: 90%
+        h: 0.3%
+        border: false
+
+    profile/lang_label:
+      masks:
+        - commons/btn_profile
+      shape:
+        y: 40%
+        label: "@@@T:language_label@@@"
+
+    profile/lang_button:
+      class: DvLangButton
+      layer: content
+      shape:
+        x: 55%
+        y: 40%
+        w: 16%
+        h: 7%
+        border: false
+        events:
+          tap: true
+
+    profile/reset_button:
+      masks:
+        - commons/btn_profile
+      shape:
+        y: 51%
+        label: "@@@T:reset@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.do_reset
+
+    profile/logout_button:
+      masks:
+        - commons/btn_profile
+      shape:
+        y: 61%
+        label: "@@@T:sign_out@@@"
+        events:
+          tap: true
+        actions:
+          tap: dvcloud.do_logout
+
+    profile/mydata_button:
+      masks:
+        - commons/btn_profile
+      shape:
+        y: 71%
+        label: "@@@T:my_data@@@"
+        events:
+          tap: true
+
+    #//------------------------------- Dashboard2 (dev/test) ---------------------------------
+
+    dashboard2:
+      masks:
+        - page_taskbar
+      title: "@@@T:dashboard@@@"
+      registry:
+        - commons/splash_background
+        - lang/flag_icon
+        - dashboard2/ready
+        - dashboard2/test_messaging
+
+    dashboard2/ready:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 55%
+        label: "@@@T:ready@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.do_count_sessions
+
+    dashboard2/test_messaging:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 67%
+        label: "@@@T:test_messaging@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.do_test_messaging
+
+    #//------------------------------- Shop Screen ---------------------------------
+
+    shop:
+      masks:
+        - page_taskbar
+      show_appbar: true
+      show_back: false
+      title: "@@@T:Boutique@@@"
+      # Anti-fuite : si le joueur quitte le combat via la taskbar (sans cliquer vaincu/retraite),
+      # on coupe la boucle batte_swords à l'arrivée sur cet écran ET on rend l'ambiance
+      # (via _stopCombatSiege, gardé).
+      actions:
+        appear: worker.on_leave_combat_tab
+      registry:
+        - commons/splash_background
+        - shop/icon
+        - shop/label
+        - shop/coming_soon
+
+    shop/coming_soon:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        x: 5%
+        y: 30%
+        w: 90%
+        h: 50%
+        font_size: 14.0
+        text_align: CENTER
+        label: "@@@T:coming_soon@@@"
+
+    shop/icon:
+      class: DvLabel
+      shape:
+        x: 35%
+        w: 30%
+        y: 0%
+        h: 20%
+
+    shop/label:
+      mask: commons/intro_text
+      layer: content
+      shape:
+        x: 5%
+        y: 16%
+        w: 90%
+        h: 10%
+        text_align: CENTER
+        label: "@@@T:shopname@@@"
+        border: true
+

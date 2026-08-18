@@ -1,0 +1,589 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- NEW OR PICK CLAN SCREEN ----------------------------
+
+    new_or_pick_clan:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:new_or_pick_clan_title@@@"
+      registry:
+        - new_or_pick_clan/icon_background
+        - new_or_pick_clan/join
+        - new_or_pick_clan/create
+        - new_or_pick_clan/confirm_scrim
+        - new_or_pick_clan/confirm_panel
+        - new_or_pick_clan/confirm_yes
+        - new_or_pick_clan/confirm_no
+
+    new_or_pick_clan/icon_background:
+      masks:
+        - commons/icon_background
+      shape:
+        y: 18%
+
+    new_or_pick_clan/join:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 60%
+        h: 15%
+        label: "@@@T:join_clan@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: steps.navigate.join
+
+    new_or_pick_clan/create:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 80%
+        h: 15%
+        label: "@@@T:create_clan_btn@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_ask_create_clan
+
+    # Overlay de confirmation « Créer un clan » — invisible par défaut, révélé par worker.on_ask_create_clan
+    # (même idiome que l'overlay de mort commons/death_* : layer: overlay + visible: false + scrim worker.noop).
+    # Listé APRÈS create → rendu au-dessus des deux boutons.
+    new_or_pick_clan/confirm_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.8
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop # avale les taps derrière le panneau
+
+    # y: 4% — HAUT de l'écran, et non le milieu : dvpops attache ses illustrations en `layer: popup`,
+    # peint APRÈS `overlay` (cf. l'ordre de page.layers), donc l'elfe et le chevalier passent
+    # par-dessus le voile ET le texte. Ils occupent 35→59 % (pick/illus_*) : le panneau doit rester
+    # au-dessus de 35 % pour rester lisible.
+    new_or_pick_clan/confirm_panel:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 8%
+        y: 4%
+        w: 84%
+        h: 24%
+        text_align: CENTER
+        font_size: 16.0
+        font_color: "amber_200" # lisible sur le voile noir
+        # DvLabel se rend via DvImageView, qui enveloppe TOUT le widget (texte compris) dans un
+        # Opacity : ce 0.6 n'est pas décoratif, il reproduit celui que confirm_yes/confirm_no
+        # héritent de commons/shape. Sans lui, la question sort en or vif et les boutons en or
+        # éteint — deux jaunes pour un seul token amber_200.
+        opacity: 0.6
+        border: false
+        label: "@@@T:confirm_create_clan_msg@@@"
+        visible: false
+
+    new_or_pick_clan/confirm_yes:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 58%
+        h: 12%
+        text_align: CENTER
+        label: "@@@T:confirm_create_yes@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_confirm_create_clan_choice
+
+    new_or_pick_clan/confirm_no:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 72%
+        h: 12%
+        text_align: CENTER
+        label: "@@@T:confirm_create_no@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_cancel_create_clan
+
+    #//------------------------------- CREATE CLAN SCREEN ----------------------------------
+
+    create_clan:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:create_clan_screen_title@@@"
+      keyboard_scrollable: true
+      shape:
+        actions:
+          appear: worker.on_create_clan_appear
+      registry:
+        - create_clan/icon_background
+        - create_clan/name_label
+        - create_clan/name
+        - create_clan/desc_label
+        - create_clan/desc
+        - create_clan/inspire
+        - create_clan/replay
+        - create_clan/confirm
+
+    create_clan/icon_background:
+      masks:
+        - commons/inspireform_bg
+
+    create_clan/name_label:
+      masks:
+        - commons/inspireform_name_label
+      shape:
+        label: "@@@T:clan_name_label@@@"
+
+    create_clan/name:
+      masks:
+        - commons/inspireform_name
+      shape:
+        actions:
+          changed: worker.on_create_clan_name_changed
+
+    create_clan/desc_label:
+      masks:
+        - commons/inspireform_desc_label
+      shape:
+        label: "@@@T:clan_description_label@@@"
+
+    create_clan/desc:
+      masks:
+        - commons/inspireform_desc
+      shape:
+        actions:
+          changed: worker.on_create_clan_desc_changed
+
+    create_clan/inspire:
+      masks:
+        - commons/inspireform_inspire
+      shape:
+        freezing_actions:
+          tap: worker.on_inspire_clan
+
+    create_clan/replay:
+      masks:
+        - commons/inspireform_replay
+      shape:
+        freezing_actions:
+          tap: worker.on_replay_clan
+
+    create_clan/confirm:
+      masks:
+        - commons/inspireform_confirm
+      shape:
+        label: "@@@T:create_clan_confirm@@@"
+        freezing_actions:
+          tap: steps.navigate
+
+    #//------------------------------- DECISIONTREE SCREEN ------------------------------------
+
+    decisiontree:
+      class: DvDecisionTree
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:decisiontree_title@@@"
+      questions_asset: "configs/decisiontree.yml"
+      default: keep
+      exhaustive_blacklist: false
+      exhaustive_whitelist: false
+      options_shape:
+        border: true
+        text_align: CENTER
+      registry:
+        - decisiontree/icon_background
+        - decisiontree/intro
+        - decisiontree/options
+      shape:
+        freezing_actions:
+          done:
+            - worker.storetasks
+            - steps.navigate
+
+    decisiontree/icon_background:
+      masks:
+        - commons/icon_background
+      shape:
+        y: 40%
+        #h: 35%
+
+    decisiontree/intro:
+      shape:
+        border: true
+        y: 5%
+        h: 30%
+
+    #//------------------------------- Invite clan screen ------------------------------------
+
+    invite_clan:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:invite_clan_title@@@"
+      registry:
+        - invite_clan/qrcode
+        - invite_clan/share
+
+    invite_clan/qrcode:
+      class: DvQrCode
+      layer: content
+      shape:
+        x: 10%
+        y: 15%
+        w: 80%
+        h: 50%
+        content: ""
+
+    invite_clan/share:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 20%
+        y: 75%
+        w: 60%
+        h: 10%
+        label: "@@@T:share_invite_btn@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: share.clan_invite
+
+    #//------------------------------- Invite clan (à distance, PIN) — côté admin -----------
+    # Variante « sans QR » : au lieu du QR, on affiche un PIN à dicter de vive voix et un bouton
+    # de partage du lien chiffré. Le PIN (invite_clan_pin/pin.label) est posé au runtime par
+    # worker.on_management_created (mode pin). Le workflow virtuallobby est identique au QR.
+
+    invite_clan_pin:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:invite_clan_pin_title@@@"
+      registry:
+        - invite_clan_pin/instructions
+        - invite_clan_pin/pin
+        - invite_clan_pin/share
+
+    invite_clan_pin/instructions:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 8%
+        y: 18%
+        w: 84%
+        h: 18%
+        label: "@@@T:invite_clan_pin_instructions@@@"
+        text_align: CENTER
+        font_size: 15.0
+
+    invite_clan_pin/pin:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 40%
+        w: 80%
+        h: 14%
+        label: ""
+        text_align: CENTER
+        font_size: 42.0
+        font_color: "amber_200"
+
+    invite_clan_pin/share:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 20%
+        y: 75%
+        w: 60%
+        h: 10%
+        label: "@@@T:share_invite_pin_btn@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: share.clan_invite_pin
+
+    #//------------------------------- Enter invite PIN — côté candidat ---------------------
+    # Saisie manuelle : coller le lien reçu (pré-rempli si arrivé via deeplink) + taper le PIN
+    # dicté de vive voix. worker.on_confirm_pin déchiffre via dvvirtuallobby.openInvite puis
+    # rejoint le clan par le chemin d'acceptation habituel.
+
+    enter_invite_pin:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:enter_invite_pin_title@@@"
+      registry:
+        - enter_invite_pin/token
+        - enter_invite_pin/pin
+        - enter_invite_pin/confirm
+        - enter_invite_pin/error
+
+    enter_invite_pin/token:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 22%
+        w: 90%
+        h: 10%
+        type: TEXT
+        hint: "@@@T:enter_invite_pin_token_hint@@@"
+        font_size: 13.0
+
+    enter_invite_pin/pin:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 40%
+        w: 90%
+        h: 10%
+        type: INTEGER
+        hint: "@@@T:enter_invite_pin_pin_hint@@@"
+        text_align: CENTER
+        font_size: 20.0
+
+    enter_invite_pin/confirm:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 10%
+        y: 60%
+        w: 80%
+        h: 8%
+        label: "@@@T:enter_invite_pin_confirm@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_confirm_pin
+
+    enter_invite_pin/error:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 72%
+        w: 90%
+        h: 6%
+        label: "@@@T:pin_wrong@@@"
+        text_align: CENTER
+        font_color: "0xFFCC4444"
+        visible: false
+
+    #//------------------------------- Accept invitation clan screen -------------------------
+
+    accept_invitation_clan:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:accept_invitation_clan_title@@@"
+      registry:
+        - accept_invitation_clan/title
+        - accept_invitation_clan/consent
+        - accept_invitation_clan/confirm
+
+    accept_invitation_clan/title:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 30%
+        w: 90%
+        h: 10%
+        label: "@@@T:accept_invitation_title@@@"
+        text_align: CENTER
+
+    # Entre le titre (30 % → 40 %) et le bouton d'acceptation (75 %) : admettre un candidat dans
+    # un clan, c'est potentiellement y faire entrer un mineur — la mention et le lien vers les
+    # CGU adulte doivent être sous les yeux à cet instant. Même libellé que l'overlay
+    # d'invitation (et non celui, inconditionnel, du masque) : à ce stade le candidat peut aussi
+    # bien être un adulte qu'un enfant déjà rattaché au chef d'un autre clan.
+    accept_invitation_clan/consent:
+      masks:
+        - commons/parental_consent
+      shape:
+        y: 52%
+        label: "@@@T:invite_consent_notice@@@"
+
+    accept_invitation_clan/confirm:
+      masks:
+        - commons/btn_medium
+      shape:
+        y: 75%
+        label: "@@@T:accept_invitation_confirm@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_accept_invitation_clan
+
+    #//------------------------------- Kid wants clan screen (candidat) ---------------------
+
+    kid_wants_clan:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:join_clan_title@@@"
+      shape:
+        actions:
+          appear: worker.on_kid_wants_clan_appear
+      registry:
+        - commons/icon_background
+        - kid_wants_clan/scan_qr
+        - kid_wants_clan/send_request
+        - kid_wants_clan/back
+        - kid_wants_clan/region_error
+
+    # Bouton « marche arrière » — invisible par défaut, révélé pour l'ADULTE seulement (worker.on_kid_wants_clan_appear).
+    # Permet à un adulte venu de new_or_pick_clan (« Rejoindre » cliqué trop vite) de revenir choisir « Créer ».
+    kid_wants_clan/back:
+      masks:
+        - commons/btn_medium
+      shape:
+        y: 8%
+        h: 8%
+        text_align: CENTER
+        font_size: 13.0
+        label: "@@@T:back_to_choice@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_back_to_choice
+
+    kid_wants_clan/scan_qr:
+      masks:
+        - commons/btn_medium
+      shape:
+        y: 75%
+        h: 15%
+        label: "@@@T:scan_qr_btn@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_scan_qr
+
+    # Invitation venue d'une autre région de stockage : le clan n'existe pas dans la base du
+    # candidat, la jointure échouerait sans rien dire. Révélé par worker._inviteRegionMismatch,
+    # sur le même modèle que enter_invite_pin/error (jamais de fenêtre modale).
+    kid_wants_clan/region_error:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 62%
+        w: 90%
+        h: 10%
+        label: "@@@T:invite_wrong_region@@@"
+        text_align: CENTER
+        font_size: 13.0
+        font_color: "0xFFCC4444"
+        visible: false
+
+    # « Je n'ai pas le QR code » — le candidat a reçu un lien chiffré par PIN sur les réseaux
+    # sociaux : ce label ouvre l'écran de saisie manuelle (coller le lien + taper le PIN),
+    # utile quand le deeplink ne s'ouvre pas tout seul. (Remplace l'ancien flux « demande ».)
+    kid_wants_clan/send_request:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 30%
+        y: 89%
+        w: 40%
+        h: 6%
+        label: "@@@T:send_request_btn@@@"
+        text_align: CENTER
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_no_qr
+
+    #//------------------------------- Accept request clan screen (admin) -------------------
+
+    accept_request_clan:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:accept_request_clan_title@@@"
+      registry:
+        - accept_request_clan/title
+        - accept_request_clan/confirm
+        - accept_request_clan/reject
+
+    accept_request_clan/title:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 30%
+        w: 90%
+        h: 10%
+        label: "@@@T:accept_request_title@@@"
+        text_align: CENTER
+
+    accept_request_clan/confirm:
+      masks:
+        - commons/btn_medium
+      shape:
+        y: 65%
+        label: "@@@T:accept_request_confirm@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_accept_request_clan
+
+    accept_request_clan/reject:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 78%
+        w: 80%
+        h: 10%
+        label: "@@@T:accept_request_reject@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: steps.navigate
+

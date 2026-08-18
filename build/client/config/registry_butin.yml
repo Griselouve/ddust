@@ -1,0 +1,792 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- Butin Screen (contenu du coffre) -----------------------
+    # Écran AUTONOME (hors dvsteps, comme rename_task / log_page), ouvert au tap sur le coffre
+    # (navigate_new). L'écran est un BROUILLON : taper un objet le marque comme sorti, retaper
+    # annule, taper la bourse promet de l'argent — mais rien n'est écrit en base avant « Valider »,
+    # qui commet tout d'un coup et rentre. La flèche retour, elle, abandonne le brouillon.
+    # Aucun mode : une seule ligne d'aide fixe annonce les deux gestes, que rien d'autre ne signale.
+
+    butin_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true # retour → onglet Items (écran empilé via navigate_new) = abandon du brouillon
+      title: "@@@T:it_t_butin@@@"
+      actions:
+        appear: worker.on_butin_page_appear
+      registry:
+        - commons/splash_background
+        - butin_page/hint
+        - butin_page/list
+        - butin_page/ok
+
+    butin_page/hint:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 3%
+        y: 1%
+        w: 94%
+        h: 8%
+        text_align: CENTER
+        border: false
+        font_size: 12.0
+        font_color: "#C8A84B"
+        label: "@@@T:butin_hint@@@"
+
+    # Liste du contenu : alimentée à chaud par worker.on_butin_page_appear (dvlist.set_rows).
+    # Une ligne = icône de l'item + son nom (et sa quantité) + sa description.
+    butin_page/list:
+      class: DvList
+      layer: content
+      action: worker.on_butin_row_tap
+      shape:
+        x: 3%
+        y: 9%
+        w: 94%
+        h: 78%
+        row_height: 56.0
+        icon_size: 40.0
+        font_size: 14.0
+        font_color: "#C8A84B"
+        empty_label: "@@@T:butin_empty@@@"
+        background_color: "0xB3000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+
+    # « Valider » : le SEUL endroit qui écrit en base (un batchWrite avec les objets sortis et
+    # l'argent promis), puis retour à l'inventaire.
+    butin_page/ok:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 88%
+        h: 9%
+        label: "@@@T:butin_validate@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_butin_ok
+
+    #//------------------------------- Butin Note Screen (annonce d'un chef) -------------------
+    # Écran AUTONOME, empilé (navigate_new) par la ligne « Ajouter une note » du contenu du coffre
+    # (worker.item_note, DANS butin_page — pas depuis le menu extérieur du coffre). CREATE-ONLY :
+    # toujours vierge, un chef peut en déposer plusieurs. Aucune édition — une note déjà déposée
+    # se retire d'un tap directement dans le contenu du coffre (worker._deleteButinNote).
+    # Rien n'est écrit avant « Valider » (worker.on_butin_note_ok) ; la flèche retour abandonne.
+    # keyboard_scrollable : le champ multiligne prend la moitié de l'écran, le clavier ne doit pas
+    # le couvrir sans recours (même réglage que rename_task).
+
+    butin_note_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true # retour → le coffre (pop d'un niveau, écran empilé) = abandon
+      title: "@@@T:butin_note_title@@@"
+      keyboard_scrollable: true
+      actions:
+        appear: worker.on_butin_note_appear
+      registry:
+        - commons/splash_background
+        - butin_note_page/hint
+        - butin_note_page/entry
+        - butin_note_page/ok
+
+    # Dit ce que l'écran ne montre pas de lui-même : la note sera lue par TOUT le clan à la
+    # prochaine ouverture du coffre, et jusque-là personne ne la voit — pas même les autres chefs.
+    # C'est l'endroit pour une annonce ou une surprise générique ("on va tous à un super parc
+    # d'attractions") : rien de local, l'app est parlée partout dans le monde.
+    butin_note_page/hint:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 2%
+        w: 90%
+        h: 20%
+        text_padding: 10.0
+        font_size: 12.0
+        scrollable: true
+        label: "@@@T:butin_note_hint@@@"
+
+    # Le champ, seul élément métier de l'écran. Même mask que la description d'une tâche
+    # (commons/inspireform_desc), le seul champ de texte libre multiligne du jeu. Pas d'action
+    # `changed` : sans `events.changed: true` (absent ici, comme sur rename_task/desc) elle ne se
+    # déclencherait jamais — le texte est relu directement sur le champ au Valider.
+    butin_note_page/entry:
+      masks:
+        - commons/inspireform_desc
+      shape:
+        x: 5%
+        y: 24%
+        w: 90%
+        h: 55%
+
+    # « Valider » : le SEUL endroit qui écrit (relit le document du coffre, y AJOUTE une note —
+    # texte vide = renoncement — préserve les autres, siennes et de tout autre auteur), rafraîchit
+    # le contenu du coffre, puis retour à celui-ci : la note déposée doit être sous les yeux.
+    butin_note_page/ok:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 88%
+        h: 9%
+        label: "@@@T:butin_note_ok@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_butin_note_ok
+
+    #//------------------------------- Money Screen (saisie d'une somme) ----------------------
+    # Écran AUTONOME, empilé (navigate_new) par deux chemins qui posent d'abord le mode côté worker :
+    #   - la ligne de la bourse dans butin_page → promesse d'argent RÉEL versée au coffre, qui
+    #     rejoint le BROUILLON de cet écran (rien n'est écrit ici) ;
+    #   - l'option « remettre dans le coffre » sur sa propre bourse (grille d'items, chefs) →
+    #     retour immédiat d'argent de poche vers le coffre, plafonné au solde, écrit sur-le-champ.
+    # Un écran plutôt qu'un overlay : le décor (fond, illustration) se déclare par ÉCRAN, le second
+    # appelant n'a pas de page à lui, et le retour se fait par un simple pop — sans que le worker
+    # ait à retenir d'où l'on vient. Revenir sur butin_page n'émet qu'un `show` : le brouillon y
+    # survit intact, et c'est le worker qui redessine la ligne du coffre avant de rendre la main.
+    # AUCUN DvList ici : dvlist.set_rows est une action GLOBALE (toutes les instances vivantes) —
+    # une liste sur cet écran volerait les lignes du coffre.
+    # PAS de fond splash.png : un écran de SAISIE se lit, il ne se contemple pas — le doré des
+    # libellés disparaissait sur l'or du dragon. Comme les autres écrans-formulaires (age_screen,
+    # new_or_pick_clan, decisiontree), il vit sur le noir du masque `page` et c'est dvpops qui
+    # l'anime (entrée `money` de la section pops, illustrations de part et d'autre de la bourse).
+
+    money_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true # abandon : rien n'a été promis ni écrit
+      title: "@@@T:money_title@@@"
+      actions:
+        appear: worker.on_money_appear
+      registry:
+        - money_page/purse
+        - money_page/warning
+        - money_page/label
+        - money_page/amount
+        - money_page/numpad
+        - money_page/ok
+
+    # La bourse, en illustration : centrée en haut, elle laisse à sa gauche et à sa droite les deux
+    # bandes où dvpops fait apparaître ses personnages (cf. money/illus_*).
+    money_page/purse:
+      class: DvLabel
+      layer: background
+      shape:
+        x: 30%
+        y: 4.5%
+        w: 40%
+        h: 13%
+
+    # Avertissement, posé à chaud par le worker selon le mode : « argent RÉEL » pour une promesse,
+    # « il quitte ta bourse » pour un retour. Une promesse faite à un enfant n'est pas un chiffre :
+    # elle se dit. Le mode promesse y ajoute le conseil de la tirelire (butin_money_warning) — d'où
+    # la boîte remontée à 18 % et l'illustration de la bourse resserrée à 13 % au-dessus.
+    money_page/warning:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 18%
+        w: 90%
+        h: 20%
+        text_padding: 10.0
+        font_size: 13.0
+        label: ""
+
+    # Ce qu'on est en train de faire (et, en mode retour, le maximum disponible).
+    money_page/label:
+      masks:
+        - commons/label_label
+      shape:
+        y: 39%
+        text_align: CENTER
+        label: ""
+
+    # Cible du pavé numérique (clef `display` du DvNumpad) : c'est CETTE shape qui porte la vérité
+    # du montant — le worker la relit au « Valider » plutôt que d'en tenir un miroir, ce qui rend
+    # la touche BACK (qui n'émet pas de `submit`) sans conséquence.
+    money_page/amount:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 25%
+        y: 44.5%
+        w: 50%
+        h: 8%
+        text_align: CENTER
+        valign: CENTER
+        # DvLabel pose text_padding: 8.0 par défaut (dvlabel.dart) → 16 px mangés en hauteur, ce
+        # qui décentrait le chiffre et le faisait rogner par le bas de la boîte (border_radius
+        # ⇒ Clip.antiAlias). Comme partout ailleurs dans ddust : on l'annule.
+        text_padding: 0.0
+        label: "0"
+
+    # show_ok: false → CHAQUE chiffre émet `submit`, donc le worker normalise la saisie en direct,
+    # sous les yeux de celui qui tape, au lieu de la raboter en silence au moment de valider.
+    # show_back: true → la correction d'une frappe ; un pavé sans retour est inutilisable.
+    # Sans OK, DvNumpad se dessine en 4 lignes × 3 colonnes (0 sous le 2, retour arrière sous le
+    # 3) : il lui faut donc de la hauteur, d'où les 32 % — quatre rangées de 8 %.
+    money_page/numpad:
+      class: DvNumpad
+      layer: content
+      shape:
+        x: 12%
+        y: 54%
+        w: 76%
+        h: 32%
+        display: "money_page/amount"
+        show_ok: false
+        show_back: true
+        gap: 6.0
+        # Touche MAX, sous le 1 et à gauche du 0 (la case restée vide de la 4e rangée). Elle
+        # n'apparaît que si `max` > 0 : le worker y pose _moneyCap à l'appear, donc jamais en
+        # mode promesse — une promesse n'a pas de plafond.
+        max: 0
+        max_label: "@@@T:money_key_max@@@"
+        events:
+          submit: true
+        actions:
+          submit: worker.on_money_digit
+
+    money_page/ok:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 88%
+        h: 9%
+        label: "@@@T:butin_validate@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_money_ok # gèle l'écran : en mode retour, ce bouton ÉCRIT
+
+    #//------------------------------- Butin : écran de récompenses -----------------------
+    # Ce que CE joueur a gagné à l'ouverture du butin — jamais la part des autres : la surprise
+    # appartient à chacun. Empilée par worker.butin_reveal PENDANT que la nappe d'or de la scène
+    # couvre l'écran ; son fondu la découvre. Le contenu est déjà écrit en base à ce moment-là
+    # (worker._claimButin), l'écran ne fait qu'afficher.
+    butin_rewards_page:
+      masks:
+        - page
+      show_appbar: true
+      # Pas de flèche retour : on ne « revient » pas d'un butin, on le referme. Le seul chemin est
+      # le bouton « ok », qui ramène au dashboard.
+      # `block_back` en plus de `show_back` : sans lui le geste de retour système sortait quand même,
+      # et la musique de fond serait restée muette pour le reste de la session (c'est « ok » qui la
+      # rend, l'interlude étant en `music: hold`).
+      show_back: false
+      block_back: true
+      title: "@@@T:butin_rewards_title@@@"
+      actions:
+        appear: worker.on_butin_rewards_appear
+      registry:
+        - commons/splash_background
+        - butin_rewards_page/list
+        - butin_rewards_page/kiss
+        - butin_rewards_page/ok
+
+    # Ce qui a été gagné : une ligne par objet (icône du type + nom), et l'argent de poche en tête,
+    # sous la forme de son propre item — une bourse avec le montant en pastille, comme dans le
+    # coffre. Alimentée par worker.on_butin_rewards_appear (dvlist.set_rows) ; aucune action au
+    # tap : on regarde.
+    # Hauteur laissée à 68 % (et non 84) : le bas de l'écran appartient à l'attaque de bisous. La
+    # place est réservée en permanence, même quand le message ne s'affiche pas — une liste qui
+    # changerait de taille selon le destinataire ferait sauter l'écran au sortir de l'animation.
+    # Largeur alignée sur `commons/btn_wide` (5 % / 90 %), le gabarit du bouton « ok » plus bas et
+    # de tous les boutons de l'app : les trois cadres de l'écran (liste, bisous, bouton) partagent
+    # ainsi exactement les mêmes bords. À 3 % / 94 % la liste et les bisous débordaient du bouton,
+    # et le décrochement se voyait.
+    butin_rewards_page/list:
+      class: DvList
+      layer: content
+      action: worker.noop
+      shape:
+        x: 5%
+        y: 2%
+        w: 90%
+        h: 68%
+        row_height: 64.0
+        icon_size: 48.0
+        font_size: 14.0
+        font_color: "#C8A84B"
+        empty_label: "@@@T:butin_rewards_empty@@@"
+        background_color: "0xB3000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+
+    # L'attaque de bisous : le clan apprend qui a le moins rapporté d'XP et va lui sauter dessus.
+    # Posée à chaud par worker.on_butin_rewards_appear (texte + visibilité), et CACHÉE chez celui
+    # qu'elle nomme — on le dit aux autres, pas à lui. Elle reste invisible quand le clan n'a que
+    # des chefs (personne à encourager).
+    # Même parchemin ambre que butin_open_page/text : c'est le ton du rituel, pas celui d'une alerte.
+    butin_rewards_page/kiss:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 72%
+        w: 90%
+        h: 14%
+        text_padding: 8.0
+        font_size: 12.0
+        scrollable: true
+        label: ""
+        visible: false
+
+    # « ok » : referme le butin. navigate_reset (et non un retour) : la page a été empilée par
+    # l'animation par-dessus n'importe quel écran, on ne sait pas d'où l'on vient et on n'a aucune
+    # raison d'y retourner. Elle mène à l'écran des notes des chefs s'il y en a (butin_notes_page),
+    # sinon directement au conte (butin_tale_page) — c'est worker.on_butin_rewards_ok qui décide.
+    # Passe par le worker et non par `navigate_reset.dashboard` : c'est ICI que l'ambiance du donjon
+    # est rendue, l'interlude du butin étant déclaré `music: hold` pour laisser sa musique déborder
+    # sur cet écran (cf. worker.on_butin_rewards_ok).
+    butin_rewards_page/ok:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 88%
+        h: 9%
+        label: "@@@T:butin_ok@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_butin_rewards_ok
+
+    #//------------------------------- Butin : les notes des chefs -----------------------------
+    # Intercalée entre « ta part du butin » et le conte, SEULEMENT si un chef a déposé au moins une
+    # note (worker.on_butin_rewards_ok saute cet écran sinon). Le texte est déjà figé à la
+    # réclamation (worker._claimButin → _butinNotesText), comme la part : l'écran ne lit rien.
+    # Pas de flèche retour, comme butin_rewards_page : la pile a été réinitialisée par l'animation.
+    # Le bouton « ok » naît CACHÉ et n'apparaît qu'après 10 secondes (worker.on_butin_notes_appear) :
+    # le temps que tout le monde ait vraiment lu, avant de pouvoir filer vers le conte.
+    butin_notes_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: false
+      block_back: true
+      title: "@@@T:butin_notes_title@@@"
+      actions:
+        appear: worker.on_butin_notes_appear
+      registry:
+        - commons/splash_background
+        - butin_notes_page/halo
+        - butin_notes_page/story
+        - butin_notes_page/ok
+
+    # Vue transparente de la scène dvflame `notehalo` (même procédé que clan_page/butin_aura) :
+    # un halo doré qui respire, lentement, DERRIÈRE le parchemin — déclarée avant lui dans le
+    # registry pour se dessiner dessous. Sa boîte déborde volontairement celle du texte de
+    # quelques pourcents sur chaque bord : c'est ce débord qui EST le halo. Démarrée/arrêtée par
+    # le worker (dvflame.start/stop.notehalo), `interactive` reste au défaut (false) : les taps
+    # traversent jusqu'à rien, l'écran n'a aucune action tant que « ok » est caché.
+    butin_notes_page/halo:
+      class: DvSceneView
+      layer: content
+      scene: notehalo
+      shape:
+        x: 0%
+        y: 5%
+        w: 100%
+        h: 84%
+        border: false
+
+    # Le parchemin des notes : même livrée que log_page/story (noir bordé d'or, opacité 0.8) —
+    # c'est cette opacité qui ne laisse voir du halo que sa frange, exactement comme prévu.
+    # Un bloc par note, en-tête centré (le prénom de son auteur) puis le texte, même idiome que
+    # les en-têtes de date du journal (worker._StoryBuffer) — posé par worker.on_butin_notes_appear.
+    butin_notes_page/story:
+      class: DvRichLabel
+      layer: content
+      shape:
+        x: 3%
+        y: 8%
+        w: 94%
+        h: 78%
+        text_align: LEFT
+        valign: TOP
+        scrollable: true
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        background_color: "black"
+        opacity: 0.8
+        font_color: "#C8A84B"
+        font_size: 11.0
+        text_padding: 10.0
+        label: ""
+
+    # Caché à la naissance de l'écran, révélé par worker.on_butin_notes_appear dix secondes après
+    # l'apparition — le temps de lecture imposé avant de pouvoir passer au conte.
+    butin_notes_page/ok:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 90%
+        h: 8%
+        label: "@@@T:butin_notes_ok@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_butin_notes_ok
+
+    #//------------------------------- Butin : le conte ---------------------------------------
+    # Dernière marche de la cérémonie, juste après « ta part du butin » : le clan vient de vivre
+    # quelque chose, on lui propose de le raconter. Écran volontairement nu — un parchemin, une
+    # icône, un bouton — pour ne pas retenir ceux qui veulent juste refermer.
+    # L'icône de partage est visible pour TOUT joueur (pas réservée aux chefs) : c'est déclencher
+    # l'appel IA, pas partager en soi — le partage effectif reste un geste conscient au moment du
+    # share sheet Android.
+    # block_back comme la page de récompenses : on sort par le bouton, pas par le geste système
+    # (la pile a été réinitialisée sur cet écran, un retour ne mènerait nulle part).
+    butin_tale_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: false
+      block_back: true
+      title: "@@@T:butin_tale_title@@@"
+      registry:
+        - butin_tale_page/bg
+        - butin_tale_page/text
+        - butin_tale_page/share
+        - butin_tale_page/ok
+
+    # Même coffre en pleine page que la cérémonie d'ouverture : les deux écrans encadrent le même
+    # moment, ils partagent son décor. Ici il occupe TOUT ce que le parchemin raccourci lui laisse
+    # (27 % → 88 %) : cet écran n'a qu'une phrase à dire, autant que le coffre y règne.
+    # 88 % et non 90 % : 2 % de respiration avant le bouton, la même marge que partout ailleurs sur
+    # cet écran (cf. butin_open_page/bg).
+    butin_tale_page/bg:
+      class: DvImage
+      layer: background
+      shape:
+        x: 0
+        y: 27%
+        w: 100%
+        h: 61%
+        stretch: "RATIO_IN"
+        image: "images/big/CoffreRitual.png"
+        border: false
+
+    # « Les mérites de votre clan méritent d'être contés. » Même parchemin ambre que le rituel.
+    # Hauteur au plus juste (11 %) : une seule phrase, deux lignes le plus souvent — les 49 %
+    # d'origine (hérités du parchemin de la cérémonie, qui lui porte cinq consignes) laissaient un
+    # cadre presque vide sur la moitié de l'écran. `scrollable` reste le filet des petits écrans,
+    # où la phrase peut passer à trois lignes.
+    butin_tale_page/text:
+      masks:
+        - commons/btn_wide
+      shape:
+        x: 5%
+        y: 3%
+        w: 90%
+        h: 11%
+        text_padding: 10.0
+        font_size: 13.0
+        scrollable: true
+        label: "@@@T:butin_tale_text@@@"
+
+    # Icône « Partager », copie conforme de log_page/share (pastille circulaire fond sombre +
+    # bordure or), visible pour TOUT joueur — pas de garde admin. Elle ne partage RIEN directement :
+    # elle demande le récit à l'IA puis ouvre le journal en mode conte, où l'icône de partage
+    # habituelle prend le relais.
+    # `freezing_actions` : la génération du récit est un aller-retour réseau, l'écran doit être gelé
+    # le temps qu'elle parte (sans quoi un double tap lancerait deux inférences).
+    # Posée SOUS le parchemin (16 %, soit 2 % après sa fin) et non plus par-dessus : tant que le
+    # cadre du texte faisait 49 % de haut, l'icône flottait dans son ventre. La pastille est
+    # autonome (fond sombre + bordure or), elle se tient très bien seule entre le texte et le coffre.
+    butin_tale_page/share:
+      class: DvIcon
+      layer: content
+      shape:
+        x: 42.5%
+        y: 16%
+        w: 15%
+        h: 9%
+        icon: "share"
+        icon_color: "#C8A84B"
+        icon_size: 26
+        background_color: "0xCC1A1A1A"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.5
+        border_radius: 30.0
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_butin_tale_share
+
+    butin_tale_page/ok:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 90%
+        h: 9%
+        label: "@@@T:butin_tale_ok@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_butin_tale_ok
+
+    #//------------------------------- Butin : cérémonie d'ouverture ----------------------
+    # Écran AUTONOME (hors dvsteps), empilé de DEUX façons selon le rôle — c'est le même écran, seuls
+    # le texte et le libellé du bouton changent, posés à chaud par worker.on_opening_appear :
+    #
+    #  - le MAÎTRE : le chef qui a touché le coffre doré de l'écran Clan et gagné le verrou dvlock.
+    #    Il lit le rituel (réunir le clan, que chacun raconte ce qu'il a fait, sortir la tirelire)
+    #    puis appuie sur « Prêt ! Ouvrons le coffre ! », ce qui APPELLE les autres.
+    #  - les JOUEURS : leur app a vu `pending_opening` sur leur doc clans_players et les a amenés
+    #    ici toute seule. Ils lisent le récit de la bataille et appuient à leur tour.
+    #
+    # Quand le dernier a appuyé, l'appareil du maître déclenche la distribution : l'animation du
+    # butin recouvre cet écran sur tous les appareils, puis butin_rewards_page le remplace.
+    # show_back: false — on ne quitte pas une cérémonie par la flèche ; on en sort par le butin.
+    butin_open_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: false
+      title: "@@@T:opening_title@@@"
+      actions:
+        appear: worker.on_opening_appear
+      registry:
+        - butin_open_page/bg
+        - butin_open_page/text
+        - butin_open_page/list
+        - butin_open_page/ok
+
+    # Le coffre du rituel en pleine page. RATIO_IN : il tient ENTIER dans sa boîte en respectant son
+    # ratio (rien du coffre n'est tronqué). Sa boîte étant bien plus large que son ratio, c'est la
+    # HAUTEUR qui le borne : la hauteur visible du coffre est exactement `h`, et le régler règle
+    # l'image elle-même.
+    # 36 % et non 38 % : le coffre s'arrête à 88 %, soit 2 % avant le bouton (90 %) — la même
+    # respiration que celle qui le sépare du parchemin au-dessus (texte jusqu'à 50 %, coffre à 52 %).
+    # Sans cela l'image était COLLÉE au bouton, seule des trois marges de l'écran à l'être.
+    butin_open_page/bg:
+      class: DvImage
+      layer: background
+      shape:
+        x: 0
+        y: 52%
+        w: 100%
+        h: 36%
+        stretch: "RATIO_IN"
+        image: "images/big/CoffreRitual.png"
+        border: false
+
+    # Le texte de la cérémonie (rituel pour le maître, récit de la bataille pour les joueurs), posé
+    # à chaud. Même parchemin ambre que money_page/warning (mask commons/intro_text, stylé par le
+    # thème) : c'est lui qui rend le texte lisible par-dessus l'image du coffre, et on ne redéfinit
+    # ni son fond ni sa couleur de police — les deux vont ensemble.
+    butin_open_page/text:
+      masks:
+        - commons/btn_wide
+      shape:
+        x: 5%
+        y: 1%
+        w: 90%
+        h: 49%
+        text_padding: 10.0
+        # Le rituel du meneur est long (cinq consignes) et le parchemin ne peut pas grandir :
+        # la liste d'attente commence à 46%. Police resserrée, et `scrollable` en filet pour
+        # les petits écrans — sans lui DvLabel rognerait le texte sans rien dire.
+        font_size: 11.0
+        scrollable: true
+        label: ""
+
+    # Liste d'attente du MAÎTRE seulement, révélée quand il a appelé le clan : un joueur par ligne
+    # (avatar + nom), coche verte en bout de ligne dès qu'il a répondu. Même livrée que give_page.
+    # Le tap force la validation d'un joueur qui ne viendra pas — sans quoi un seul absent gèlerait
+    # l'ouverture pour toujours.
+    butin_open_page/list:
+      class: DvList
+      layer: content
+      action: worker.on_opening_row_tap
+      shape:
+        x: 5%
+        y: 46%
+        w: 90%
+        h: 40%
+        row_height: 64.0
+        icon_size: 48.0
+        font_size: 14.0
+        font_color: "#C8A84B"
+        empty_label: "@@@T:opening_wait_empty@@@"
+        background_color: "0xCC000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+        visible: false
+
+    # Le bouton de la cérémonie. Libellé posé à chaud (maître ou joueur) ; il disparaît une fois
+    # appuyé — chacun n'appelle, ou ne répond, qu'une fois.
+    # `actions` et NON `freezing_actions` : quand le maître est le seul joueur en ligne, son appui
+    # enchaîne DIRECTEMENT sur la distribution puis sur l'animation du butin — et la fin d'une
+    # action gelante effacerait le gel que l'animation vient de poser, laissant l'écran cliquable
+    # en plein spectacle (même raison que l'ancien bouton de test). Le double appui est écarté
+    # autrement, par les gardes du worker.
+    butin_open_page/ok:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 90%
+        h: 9%
+        label: ""
+        events:
+          tap: true
+        actions:
+          tap: worker.on_opening_ready
+
+    #//------------------------------- Burn Screen (démo dvflame) -------------------------------
+    # L'écran se consume à l'apparition, le contenu réapparaît après l'effritement. "Rebrûler"
+    # relance la scène (reset implicite).
+    # Les boutons passent par dvinterlude.play.<interlude> et NON par dvflame.start.<scène> : c'est
+    # l'interlude COMPLET qui se joue (son 0,5 s avant le visuel + vibration, écran confisqué,
+    # musique coupée puis rendue). dvflame.start seul ne jouerait que le visuel, en silence — le banc
+    # ne testerait alors pas ce que voit (et entend) le joueur.
+
+    # burn_page:
+      # masks:
+        # - page
+      # show_appbar: true
+      # title: "Démo dvflame"
+      # layers: ["background", "content", "overlay"]
+      # actions:
+        # appear: dvinterlude.play.levelup
+      # registry:
+        # - burn_page/title
+        # - burn_page/replay
+        # - burn_page/heal
+        # - burn_page/giftxp
+        # - burn_page/giftgold
+        # - burn_page/gameover
+        # - burn_page/back
+        # - burn_page/view
+        # - burn_page/heal_view
+
+    # burn_page/title:
+      # class: DvLabel
+      # layer: content
+      # shape:
+        # x: 5%
+        # y: 15%
+        # w: 90%
+        # h: 10%
+        # label: "Ceci est le contenu de l'écran.\nIl va brûler, puis renaître de ses cendres."
+        # text_align: CENTER
+        # border: false
+
+    # burn_page/replay:
+      # masks:
+        # - commons/btn_wide
+      # shape:
+        # y: 30%
+        # label: "Rebrûler"
+        # events:
+          # tap: true
+        # actions:
+          # tap: dvinterlude.play.levelup
+
+    # burn_page/heal:
+      # masks:
+        # - commons/btn_wide
+      # shape:
+        # y: 41%
+        # label: "Se soigner"
+        # events:
+          # tap: true
+        # actions:
+          # tap: dvinterlude.play.heal
+
+    # Les 3 autres scènes de célébration : leurs vues (commons/giftxp_view,
+    # commons/giftgold_view, commons/gameover_view) sont injectées par le mask "page"
+    # (union des registres) → rejouables ici sans jouer la partie. Sert de banc de test
+    # aux partitions haptiques (cf. conf.vibrations) et aux sons : chaque scène doit vibrer,
+    # sonner, geler l'écran, puis rendre la main et la musique.
+    # burn_page/giftxp:
+      # masks:
+        # - commons/btn_wide
+      # shape:
+        # y: 52%
+        # label: "Cadeau d'XP"
+        # events:
+          # tap: true
+        # actions:
+          # tap: dvinterlude.play.giftxp
+
+    # burn_page/giftgold:
+      # masks:
+        # - commons/btn_wide
+      # shape:
+        # y: 63%
+        # label: "Cadeau d'or"
+        # events:
+          # tap: true
+        # actions:
+          # tap: dvinterlude.play.giftgold
+
+    # burn_page/gameover:
+      # masks:
+        # - commons/btn_wide
+      # shape:
+        # y: 74%
+        # label: "Mourir"
+        # events:
+          # tap: true
+        # actions:
+          # tap: dvinterlude.play.gameover
+
+    # burn_page/back:
+      # masks:
+        # - commons/btn_wide
+      # shape:
+        # y: 85%
+        # label: "Retour"
+        # events:
+          # tap: true
+        # actions:
+          # tap: navigate_back.testme
+
+    # burn_page/view:
+      # class: DvSceneView
+      # layer: overlay
+      # scene: burn
+      # shape:
+        # x: 0%
+        # y: 0%
+        # w: 100%
+        # h: 100%
+
+    # burn_page/heal_view:
+      # class: DvSceneView
+      # layer: overlay
+      # scene: heal
+      # shape:
+        # x: 0%
+        # y: 0%
+        # w: 100%
+        # h: 100%
+

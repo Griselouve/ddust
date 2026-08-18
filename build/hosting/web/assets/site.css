@@ -1,0 +1,270 @@
+/* Donjons & Savons — thème commun du site (donjon sombre + or) */
+
+:root {
+  --bg: #14110f;
+  --bg2: #1a1613;
+  --card: #211c18;
+  --card2: #292219;
+  --ink: #efe7db;
+  --muted: #a99e8e;
+  --accent: #c9a24b;
+  --accent-soft: rgba(201, 162, 75, .35);
+  --danger: #c0483a;
+  --maxw: 1080px;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(201,162,75,.07), transparent 60%),
+    radial-gradient(900px 500px at 0% 100%, rgba(201,162,75,.05), transparent 60%),
+    var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.65;
+}
+
+h1, h2, h3, .brand-title { font-family: "Cinzel", Georgia, serif; letter-spacing: .02em; }
+h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); line-height: 1.2; margin: 0 0 .6em; }
+h2 { font-size: clamp(1.25rem, 3vw, 1.6rem); color: var(--accent); margin: 2.2em 0 .5em; }
+h3 { font-size: 1.05rem; margin: 1.6em 0 .4em; }
+p { margin: 0 0 1em; }
+a { color: var(--accent); }
+a:hover { color: #e0bc66; }
+img, video { max-width: 100%; height: auto; }
+.muted { color: var(--muted); }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+
+/* ---- Barre de navigation -------------------------------------------- */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(20, 17, 15, .92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(201,162,75,.18);
+}
+.topbar .wrap {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  padding-top: 10px; padding-bottom: 10px;
+}
+.brand { display: flex; align-items: center; text-decoration: none; }
+.brand img { height: 44px; width: auto; border-radius: 6px; }
+#site-nav { display: flex; gap: 4px 14px; flex-wrap: wrap; flex: 1; }
+#site-nav a {
+  text-decoration: none; color: var(--muted); font-weight: 600; font-size: .95rem;
+  padding: 6px 2px; border-bottom: 2px solid transparent;
+}
+#site-nav a:hover { color: var(--ink); }
+#site-nav a.current { color: var(--accent); border-bottom-color: var(--accent); }
+#lang-switch { display: flex; gap: 8px; font-size: .85rem; }
+#lang-switch a, #lang-switch span {
+  text-decoration: none; color: var(--muted); padding: 3px 8px;
+  border: 1px solid transparent; border-radius: 6px;
+}
+#lang-switch a:hover { color: var(--ink); border-color: var(--accent-soft); }
+#lang-switch .current { color: var(--accent); border-color: var(--accent-soft); }
+
+/* ---- Héros (accueil) ------------------------------------------------ */
+.hero { text-align: center; padding: 48px 0 12px; }
+.hero .banner { max-width: 640px; width: 100%; border-radius: 14px; box-shadow: 0 12px 60px rgba(0,0,0,.5); }
+.hero p.lead { font-size: 1.15rem; color: var(--ink); max-width: 640px; margin: 22px auto 8px; }
+.hero p.sub { color: var(--muted); max-width: 640px; margin: 0 auto 26px; }
+
+.cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 18px 0 8px; }
+.btn {
+  display: inline-block; text-decoration: none; font-weight: 700;
+  border-radius: 10px; padding: 13px 22px;
+  background: var(--accent); color: #1a1410; border: 1px solid var(--accent);
+}
+.btn:hover { background: #e0bc66; color: #1a1410; }
+.btn.outline { background: transparent; color: var(--accent); }
+.btn.outline:hover { background: rgba(201,162,75,.12); color: #e0bc66; }
+
+.badge {
+  display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--accent);
+  border: 1px solid var(--accent-soft); border-radius: 999px; padding: 4px 14px;
+}
+
+/* ---- Cartes et grilles ---------------------------------------------- */
+.card {
+  background: var(--card); border: 1px solid rgba(201,162,75,.14);
+  border-radius: 14px; padding: 22px 24px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.35);
+}
+.grid { display: grid; gap: 18px; margin: 24px 0; }
+.grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.card h3 { margin-top: 0; color: var(--accent); }
+.card p:last-child { margin-bottom: 0; }
+
+/* ---- Chapitres immersifs (page expérience) -------------------------- */
+.chapter { display: flex; gap: 32px; align-items: center; margin: 56px 0; flex-wrap: wrap; }
+.chapter > .txt { flex: 1 1 320px; }
+.chapter > .media { flex: 1 1 320px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.chapter.flip { flex-direction: row-reverse; }
+
+/* À partir de trois vignettes, la colonne d'illustrations devient plus haute que
+   le paragraphe qu'elle illustre : le texte se retrouve seul en haut à gauche et
+   il faut faire défiler pour voir les écrans. Ces chapitres-là passent donc en
+   bandeau — texte pleine largeur, puis les illustrations sur une seule ligne. */
+.chapter:has(.media > :nth-child(3)) { display: block; }
+.chapter:has(.media > :nth-child(3)) > .txt { max-width: 760px; margin: 0 auto 26px; }
+.chapter:has(.media > :nth-child(3)) > .media { width: 100%; }
+
+.chapter .kicker {
+  font-family: "Cinzel", Georgia, serif; font-size: .85rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+}
+.chapter h2 { margin-top: 0; }
+/* Toutes les illustrations d'un chapitre tiennent dans la même boîte : même
+   largeur ET même hauteur. Les captures sont en 720×1236 (rapport 1,717), les
+   vidéos en 328×720 — à largeur égale une vidéo est un tiers plus haute qu'une
+   capture, d'où la hauteur commune imposée ci-dessous. */
+.media { --tile-w: min(240px, 22vw); --tile-h: calc(var(--tile-w) * 1.717); }
+
+.shot {
+  width: var(--tile-w, min(240px, 42vw)); border-radius: 18px;
+  border: 1px solid rgba(201,162,75,.25);
+  box-shadow: 0 10px 40px rgba(0,0,0,.55);
+}
+.shot.lg { width: min(300px, 70vw); }
+
+/* Au repos, une vidéo occupe exactement la place d'une capture (c'est la hauteur
+   qui la borne, la largeur suit). Elle s'agrandit dès qu'on lance la lecture
+   (classe posée par site.js) et retrouve sa taille à la fin. */
+.videobox { width: fit-content; }
+.videobox video {
+  width: auto;
+  max-width: var(--tile-w, min(240px, 42vw));
+  max-height: var(--tile-h, 412px);
+  border-radius: 18px;
+  border: 1px solid rgba(201,162,75,.25);
+  box-shadow: 0 10px 40px rgba(0,0,0,.55);
+  transition: max-width .35s ease, max-height .35s ease;
+}
+.videobox.playing video { max-width: min(460px, 92vw); max-height: min(80vh, 760px); }
+/* La bande-annonce de l'épilogue est seule au centre : elle a droit à plus. */
+.videobox.feature video { max-width: min(300px, 84vw); max-height: min(70vh, 620px); }
+.videobox p { text-align: center; font-size: .85rem; color: var(--muted); margin-top: 8px; }
+
+.divider {
+  border: 0; height: 1px; margin: 40px auto; max-width: 420px;
+  background: linear-gradient(90deg, transparent, var(--accent-soft), transparent);
+}
+
+/* ---- Frise roadmap --------------------------------------------------- */
+.timeline { list-style: none; margin: 30px 0; padding: 0; position: relative; }
+.timeline::before {
+  content: ""; position: absolute; left: 11px; top: 6px; bottom: 6px; width: 2px;
+  background: linear-gradient(var(--accent-soft), transparent);
+}
+.timeline li { position: relative; padding: 0 0 30px 44px; }
+.timeline li::before {
+  content: ""; position: absolute; left: 3px; top: 6px; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--bg); border: 3px solid var(--accent);
+}
+.timeline li.future::before { border-color: var(--muted); }
+.timeline .when {
+  font-family: "Cinzel", Georgia, serif; font-size: .85rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--accent);
+}
+.timeline li.future .when { color: var(--muted); }
+.timeline h3 { margin: 2px 0 6px; }
+.timeline p { color: var(--muted); margin: 0; max-width: 640px; }
+
+/* ---- Presse ---------------------------------------------------------- */
+.pitch { position: relative; }
+.pitch blockquote { margin: 0; font-size: 1.05rem; }
+.factlist { list-style: none; padding: 0; margin: 0; }
+.factlist li { padding: 7px 0; border-bottom: 1px solid rgba(201,162,75,.10); display: flex; gap: 12px; }
+.factlist li:last-child { border-bottom: 0; }
+.factlist .k { min-width: 130px; color: var(--muted); font-weight: 600; }
+.assets-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); margin: 18px 0; }
+.assets-grid img { border-radius: 10px; border: 1px solid rgba(201,162,75,.18); }
+
+/* ---- Légal ----------------------------------------------------------- */
+table.data { border-collapse: collapse; width: 100%; margin: 14px 0 24px; font-size: .95rem; }
+table.data th, table.data td {
+  border: 1px solid rgba(201,162,75,.18); padding: 9px 12px; text-align: left; vertical-align: top;
+}
+table.data th { color: var(--accent); background: rgba(201,162,75,.06); font-family: "Cinzel", Georgia, serif; font-size: .85rem; letter-spacing: .05em; }
+.doc-links { list-style: none; padding: 0; margin: 10px 0 0; }
+.doc-links li { padding: 6px 0; }
+.notice {
+  border-left: 3px solid var(--accent); background: rgba(201,162,75,.07);
+  padding: 12px 16px; border-radius: 8px; margin: 18px 0;
+}
+.warn {
+  border-left: 3px solid var(--danger); background: rgba(192,72,58,.10);
+  padding: 12px 16px; border-radius: 8px; margin: 18px 0;
+}
+
+/* ---- Pied de page ---------------------------------------------------- */
+main { padding-bottom: 40px; }
+#site-footer {
+  border-top: 1px solid rgba(201,162,75,.14); margin-top: 40px;
+  padding: 26px 0 36px; color: var(--muted); font-size: .9rem;
+}
+#site-footer .wrap { display: flex; gap: 10px 26px; flex-wrap: wrap; align-items: center; }
+#site-footer a { color: var(--muted); }
+#site-footer a:hover { color: var(--accent); }
+#site-footer a.badge { color: var(--accent); }
+#site-footer a.badge:hover { background: rgba(201,162,75,.12); }
+
+/* ---- Mobile : bannière pleine largeur, menu sous la bannière ---------- */
+@media (max-width: 760px) {
+  /* Le header empilé est trop haut pour rester collé en haut : on le libère. */
+  .topbar { position: static; }
+  .topbar .wrap {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px 14px;
+  }
+
+  .brand { width: 100%; }
+  .brand img {
+    display: block;
+    width: 100%;
+    max-width: 460px;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 10px;
+  }
+
+  #site-nav {
+    flex: none;
+    width: 100%;
+    justify-content: center;
+    gap: 2px 20px;
+  }
+  #site-nav a { padding: 5px 2px; }
+
+  #lang-switch { justify-content: center; }
+
+  /* L'accueil porte déjà la bannière dans son en-tête : pas de doublon. */
+  body:has(.topbar) .hero .banner { display: none; }
+  body:has(.topbar) .hero { padding-top: 6px; }
+
+  .chapter { margin: 40px 0; }
+  /* Vignettes plus petites : deux par ligne au lieu d'une, la page de chapitre
+     est deux fois moins longue à faire défiler. */
+  .media { --tile-w: min(170px, 43vw); }
+  .chapter:has(.media > :nth-child(3)) > .txt { margin-bottom: 18px; }
+
+  table.data { font-size: .88rem; }
+  table.data th, table.data td { padding: 7px 8px; }
+  .card { padding: 18px 18px; }
+  .factlist li { flex-direction: column; gap: 2px; }
+  .factlist .k { min-width: 0; }
+}

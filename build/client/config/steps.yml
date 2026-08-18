@@ -1,0 +1,253 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  # --- dvsteps: enchaînement des écrans ----------------------------------------
+  steps:
+    # Ordre d'onboarding : royaume → âge → vidéo → CGU → LIAISON DU COMPTE → nom → clan.
+    # Tout ce qui précède la liaison se déroule en session anonyme, sans une seule écriture
+    # en base ; le nom vient après, quand le joueur a une identité durable.
+    home:
+      navigate: reset
+      routes:
+        region: region_screen
+        player_name: player_name_screen
+        age: age_screen
+        link: link_account_screen
+        join: kid_wants_clan
+        clan: new_or_pick_clan
+        dashboard: dashboard
+
+    region_screen:
+      navigate: reset
+      routes:
+        default: age_screen
+
+    # Le nom est demandé APRÈS la liaison du compte, pour tout le monde. Le routeur décide
+    # de la suite selon que le joueur est déjà dans un clan (mineur admis) ou non (adulte).
+    player_name_screen:
+      routeur: worker.on_confirm_player_name
+      navigate: reset
+      routes:
+        dashboard: dashboard
+        clan: new_or_pick_clan
+        cancel: player_name_screen
+        default: new_or_pick_clan
+
+    age_screen:
+      navigate: reset
+      routes:
+        default: ddvideo
+
+    ddvideo:
+      routeur: documents.show_cgu
+      actions:
+        routed: dvsound.loop.ambiant
+
+    # Trois issues : le mineur va demander son entrée dans un clan (il liera son compte
+    # après l'admission), l'adulte encore anonyme doit lier son compte tout de suite, et
+    # l'adulte déjà authentifié — compte supprimé qui refait son onboarding — enchaîne
+    # directement sur le nom.
+    # Les trois premières routes sont celles de l'ONBOARDING. Les deux dernières servent la
+    # RÉ-acceptation : une nouvelle version de document repose cet écran à tout le monde, et un
+    # joueur déjà enrôlé doit retrouver son dashboard (ou finir la saisie de son nom) au lieu
+    # d'être renvoyé dans le funnel de jointure — cf. worker.legalstate.
+    documents_acceptance_screen:
+      routeur: worker.legalstate
+      navigate: reset
+      routes:
+        k: kid_wants_clan
+        a: link_account_screen
+        a_linked: player_name_screen
+        dashboard: dashboard
+        player_name: player_name_screen
+
+    # Écran bloquant : aucune route de sortie « plus tard ». La navigation qui en part est
+    # décidée par worker.on_account_linked, qui rejoue on_login une fois le flush réussi.
+    link_account_screen:
+      navigate: reset
+      routes:
+        player_name: player_name_screen
+        clan: new_or_pick_clan
+        dashboard: dashboard
+        default: link_account_screen
+
+    new_or_pick_clan:
+      navigate: new
+      routes:
+        join: kid_wants_clan
+        create: create_clan
+        default: new_or_pick_clan
+
+    create_clan:
+      routeur: worker.on_confirm_create_clan
+      navigate: reset
+      routes:
+        ok: decisiontree
+        default: create_clan
+
+    decisiontree:
+      navigate: reset
+      routes:
+        default: dashboard
+
+    dashboard:
+      navigate: reset
+      routes:
+        default: decisiontree
+
+    testme:
+      navigate: new
+      routes:
+        default: testme
+
+    kid_wants_clan:
+      navigate: reset
+      routes:
+        default: dashboard
+
+    accept_request_clan:
+      navigate: reset
+      routes:
+        default: dashboard
+
+    shop:
+      navigate: new
+      routes:
+        default: shop
+
+    clan_page:
+      navigate: new
+      routes:
+        default: clan_page
+
+    log_page:
+      navigate: new
+      routes:
+        default: log_page
+
+    butin_page:
+      navigate: new
+      routes:
+        default: butin_page
+
+    money_page:
+      navigate: new
+      routes:
+        default: money_page
+
+    give_page:
+      navigate: new
+      routes:
+        default: give_page
+
+    item_view_page:
+      navigate: new
+      routes:
+        default: item_view_page
+
+    combat:
+      navigate: new
+      routes:
+        default: combat
+
+    salon_tasks:
+      navigate: new
+      routes:
+        default: salon_tasks
+
+    animaux_tasks:
+      navigate: new
+      routes:
+        default: animaux_tasks
+
+    bureau_tasks:
+      navigate: new
+      routes:
+        default: bureau_tasks
+
+    chambre_enfant_tasks:
+      navigate: new
+      routes:
+        default: chambre_enfant_tasks
+
+    chambre_parentale_tasks:
+      navigate: new
+      routes:
+        default: chambre_parentale_tasks
+
+    courses_tasks:
+      navigate: new
+      routes:
+        default: courses_tasks
+
+    cuisine_tasks:
+      navigate: new
+      routes:
+        default: cuisine_tasks
+
+    dechets_tasks:
+      navigate: new
+      routes:
+        default: dechets_tasks
+
+    entree_tasks:
+      navigate: new
+      routes:
+        default: entree_tasks
+
+    extras_tasks:
+      navigate: new
+      routes:
+        default: extras_tasks
+
+    garage_tasks:
+      navigate: new
+      routes:
+        default: garage_tasks
+
+    jardin_tasks:
+      navigate: new
+      routes:
+        default: jardin_tasks
+
+    linge_tasks:
+      navigate: new
+      routes:
+        default: linge_tasks
+
+    repas_tasks:
+      navigate: new
+      routes:
+        default: repas_tasks
+
+    vaisselle_tasks:
+      navigate: new
+      routes:
+        default: vaisselle_tasks
+
+    salle_de_bain_tasks:
+      navigate: new
+      routes:
+        default: salle_de_bain_tasks
+
+    terrasse_tasks:
+      navigate: new
+      routes:
+        default: terrasse_tasks
+
+    toilettes_tasks:
+      navigate: new
+      routes:
+        default: toilettes_tasks
+
+    vehicules_tasks:
+      navigate: new
+      routes:
+        default: vehicules_tasks
+
+    personnage:
+      navigate: new
+      routes:
+        default: personnage

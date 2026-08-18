@@ -1,0 +1,184 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  pops:
+    gen:
+      duration: 6
+      fade: 1
+      shapes:
+        - gen/illus_elfe
+        - gen/illus_hobbit
+        - gen/illus_knight
+      screens:
+        - accept_invitation_clan
+        #- kid_wants_clan
+        - accept_request_clan
+
+    age:
+      duration: 6
+      fade: 1
+      shapes:
+        - age/illus_elfe
+        - age/illus_hobbit
+        - age/illus_knight
+      screens:
+        - age_screen
+        - player_name_screen
+
+    clan:
+      duration: 6
+      fade: 1
+      shapes:
+        - pick/illus_elfe
+        - pick/illus_knight
+      screens:
+        - new_or_pick_clan
+
+    decisiontree:
+      duration: 6
+      fade: 1
+      shapes:
+        - decisiontree/illus_elfe
+        - decisiontree/illus_hobbit
+        - decisiontree/illus_knight
+      screens:
+        - decisiontree
+
+    # Écran de saisie d'une somme : il a perdu son fond au profit du noir, ce sont ces
+    # illustrations qui l'habitent.
+    money:
+      duration: 6
+      fade: 1
+      shapes:
+        - money/illus_elfe
+        - money/illus_hobbit
+        - money/illus_knight
+      screens:
+        - money_page
+  registry:
+    #//------------------------------- Animations ---------------------------------
+
+    pops/illustration:
+      class: DvLabel
+      shape:
+        w: 30%
+        h: 24%
+
+    pops/illus_elfe:
+      masks:
+        - pops/illustration
+      shape:
+        x: 2%
+
+    pops/illus_hobbit:
+      masks:
+        - pops/illustration
+      shape:
+        x: 35%
+
+    pops/illus_knight:
+      masks:
+        - pops/illustration
+      shape:
+        x: 68%
+
+    pick/illus_elfe:
+      masks:
+        - pops/illus_elfe
+      shape:
+        y: 35%
+
+    pick/illus_knight:
+      masks:
+        - pops/illus_knight
+      shape:
+        y: 35%
+
+    age/illus_elfe:
+      masks:
+        - pops/illus_elfe
+      shape:
+        y: 40%
+
+    age/illus_hobbit:
+      masks:
+        - pops/illus_hobbit
+      shape:
+        y: 20%
+
+    age/illus_knight:
+      masks:
+        - pops/illus_knight
+      shape:
+        y: 40%
+
+    gen/illus_elfe:
+      masks:
+        - pops/illus_elfe
+      shape:
+        y: 40%
+
+    gen/illus_hobbit:
+      masks:
+        - pops/illus_hobbit
+      shape:
+        y: 68%
+
+    gen/illus_knight:
+      masks:
+        - pops/illus_knight
+      shape:
+        y: 40%
+
+    decisiontree/illus_elfe:
+      masks:
+        - pops/illus_elfe
+      shape:
+        y: 38%
+        h: 18%
+
+    decisiontree/illus_hobbit:
+      masks:
+        - pops/illus_hobbit
+      shape:
+        y: 38%
+        h: 18%
+
+    decisiontree/illus_knight:
+      masks:
+        - pops/illus_knight
+      shape:
+        y: 38%
+        h: 18%
+
+    # money_page : les deux bandes libres de part et d'autre de la bourse (x 30 → 70 %), en haut
+    # d'écran. dvpops ne montre qu'un personnage à la fois : ils apparaissent alternativement à
+    # gauche et à droite, sans jamais recouvrir l'avertissement ni la saisie.
+    money/illus_elfe:
+      masks:
+        - pops/illus_elfe
+      shape:
+        x: 1%
+        y: 4.5%
+        w: 27%
+        h: 16%
+
+    money/illus_hobbit:
+      masks:
+        - pops/illus_hobbit
+      shape:
+        x: 72%
+        y: 4.5%
+        w: 27%
+        h: 16%
+
+    money/illus_knight:
+      masks:
+        - pops/illus_knight
+      shape:
+        x: 1%
+        y: 4.5%
+        w: 27%
+        h: 16%

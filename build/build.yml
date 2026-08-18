@@ -1,0 +1,80 @@
+build:
+  sequence:
+  - backend
+  - client
+  reset:
+    local_paths:
+      - "%APPDATA%/com.grisloup/ddust_client"
+      - "%LOCALAPPDATA%/com.grisloup/ddust_client"
+      - "{workspace}/client/assets"
+      - "{workspace}/backend/assets"
+    # Une entrée par région déclarée (backend/config.yml → conf.regions) : sans cela un
+    # reset ne viderait que la moitié des données et laisserait des sessions fantômes
+    # que le balayage multi-région du login retrouverait.
+    firestore:
+      - project: dvddust
+        database: eu-workers
+        collections: &worker_collections
+          - clans
+          - clans_tasks
+          - clans_items
+          - clans_chest_history
+          - clans_logs
+          - clans_players
+          # Sans cette purge, un clan recréé après un reset retrouverait l'abonnement du
+          # précédent : état payant, crédits de mois et timers de défaut de paiement
+          # ressuscités sur des données de jeu vides.
+          - clans_billing
+          - userindexes
+          - users
+      - project: dvddust
+        database: us-workers
+        collections: *worker_collections
+      - project: dvddust
+        database: eu-virtuallobby
+        collections: &lobby_collections
+          - virtuallobbylock
+          - virtuallobbymanagement
+          - virtuallobbysubmission
+          - virtuallobbyexit
+          - virtuallobbysecret
+      - project: dvddust
+        database: us-virtuallobby
+        collections: *lobby_collections
+      # documents_sessions a pour doc-id l'uid Firebase, stable pour un compte Google donné :
+      # sans cette purge un compte réutilisé après un reset retrouve sa région, son état légal
+      # et ses CGU acceptées, et saute une partie de l'onboarding alors que son héros n'existe plus.
+      - project: dvddust
+        database: eu-documents
+        collections: &documents_collections
+          - documents_sessions
+          - documents_acceptance
+      - project: dvddust
+        database: us-documents
+        collections: *documents_collections
+      - project: dvddust
+        database: eu-messaging
+        collections: &messaging_collections
+          - msgregistry
+          - msgindex
+          - msgevents
+          - msgdata
+          - msgdesktops
+      - project: dvddust
+        database: us-messaging
+        collections: *messaging_collections
+      - project: dvddust
+        database: eu-sessions
+        collections: &sessions_collections
+          - sessions
+      - project: dvddust
+        database: us-sessions
+        collections: *sessions_collections
+    storage:
+      - bucket: dvddust-eu-assets-storage
+      - bucket: dvddust-us-assets-storage
+    # L'annuaire Firebase Auth : sans cette purge, le compte Google reste lié à l'uid de la
+    # partie précédente et le prochain onboarding tombe sur l'écran de conflit « ce compte
+    # Google est déjà lié à un autre héros » — alors que Firestore est vide.
+    auth:
+      - project: dvddust

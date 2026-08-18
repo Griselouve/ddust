@@ -1,0 +1,33 @@
+build:
+  type: pulumi
+  modules:
+  - dvcore
+  - dvutils
+  - pucore
+  - puproject
+  - puapis
+  - pufirebase
+  - pufirestore
+  - pustorage
+  - puassets
+  - puoauth
+  - pusecrets
+  - puoauthcreds
+  - pusvcaccount
+  - pucloudfunction
+  - pumessaging
+  - pudocuments
+  - puhosting
+  - puvertexai
+  - pubudget
+  - puvirtuallobby
+  - pulock
+  # Balayage quotidien des timers de facturation. Les echeances de defaut de paiement
+  # (grace 10j, locked j50, suppression j90) ne peuvent pas dependre d'une ouverture de
+  # l'app : un clan en defaut est justement un clan que plus personne n'ouvre.
+  - puscheduler
+  resources:
+  - legal
+  - hosting
+  - resources_cloud
+  state: backend

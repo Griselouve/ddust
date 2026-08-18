@@ -1,0 +1,2535 @@
+name: decisiontree-donjon
+above: conf
+strategy: default
+tenant: global
+data:
+
+  lang:
+    translations:
+
+      #------------- Réponses génériques -------------------------------
+
+      dt_yes:
+        fr: "Oui"
+        en: "Yes"
+        es: "Sí"
+      dt_no:
+        fr: "Non"
+        en: "No"
+        es: "No"
+
+      #------------- Options partagées ---------------------------------
+
+      dt_opt_aucun:
+        fr: "Aucun(e)"
+        en: "None"
+        es: "Ninguno"
+      dt_opt_les_deux:
+        fr: "Les deux"
+        en: "Both"
+        es: "Ambos"
+      dt_opt_terrasse:
+        fr: "Une terrasse"
+        en: "A terrace"
+        es: "Una terraza"
+      dt_opt_balcon:
+        fr: "Un balcon"
+        en: "A balcony"
+        es: "Un balcón"
+      dt_opt_douche:
+        fr: "Une douche"
+        en: "A shower"
+        es: "Una ducha"
+      dt_opt_baignoire:
+        fr: "Une baignoire"
+        en: "A bathtub"
+        es: "Una bañera"
+      dt_opt_voiture:
+        fr: "Une voiture"
+        en: "A car"
+        es: "Un coche"
+      dt_opt_moto:
+        fr: "Une moto"
+        en: "A motorbike"
+        es: "Una moto"
+      dt_opt_machine_laver:
+        fr: "Un lave-linge"
+        en: "A washing machine"
+        es: "Una lavadora"
+      dt_opt_etendoir:
+        fr: "Un étendoir"
+        en: "A clothes airer"
+        es: "Un tendedero"
+      dt_opt_lave_vaisselle:
+        fr: "Un lave-vaisselle"
+        en: "A dishwasher"
+        es: "Un lavavajillas"
+      dt_opt_four:
+        fr: "Un four"
+        en: "An oven"
+        es: "Un horno"
+      dt_opt_jardin:
+        fr: "Un jardin"
+        en: "A garden"
+        es: "Un jardín"
+      dt_opt_plantes_interieur:
+        fr: "Des plantes d'intérieur"
+        en: "Houseplants"
+        es: "Plantas de interior"
+
+      #------------- Logement & espaces --------------------------------
+
+      dt_q_jardin_plantes:
+        fr: "Avez-vous un jardin ou des plantes d'intérieur ?"
+        en: "Do you have a garden or houseplants?"
+        es: "¿Tienes jardín o plantas de interior?"
+
+      dt_q_terrasse_balcon:
+        fr: "Avez-vous une terrasse ou un balcon ?"
+        en: "Do you have a terrace or balcony?"
+        es: "¿Tienes terraza o balcón?"
+
+      dt_q_bureau:
+        fr: "Y a-t-il un bureau à entretenir ?"
+        en: "Is there an office to maintain?"
+        es: "¿Hay un despacho que mantener?"
+
+      #------------- Cuisine (équipements) -----------------------------
+
+      dt_q_lave_vaisselle_four:
+        fr: "Avez-vous un lave-vaisselle ou un four ?"
+        en: "Do you have a dishwasher or an oven?"
+        es: "¿Tienes lavavajillas u horno?"
+
+      #------------- Salle de bain -------------------------------------
+
+      dt_q_douche_baignoire:
+        fr: "Avez-vous une douche ou une baignoire ?"
+        en: "Do you have a shower or bathtub?"
+        es: "¿Tienes ducha o bañera?"
+
+      #------------- Linge ---------------------------------------------
+
+      dt_q_machine_etendoir:
+        fr: "Avez-vous un lave-linge ou un étendoir ?"
+        en: "Do you have a washing machine or clothes airer?"
+        es: "¿Tienes lavadora o tendedero?"
+
+      #------------- Ménage & déchets ----------------------------------
+
+      dt_q_aspirateur:
+        fr: "Avez-vous un aspirateur ?"
+        en: "Do you have a vacuum cleaner?"
+        es: "¿Tienes aspiradora?"
+
+      dt_q_composteur:
+        fr: "Avez-vous un composteur ?"
+        en: "Do you have a compost bin?"
+        es: "¿Tienes compostera?"
+
+      #------------- Véhicules -----------------------------------------
+
+      dt_q_voiture_moto:
+        fr: "Avez-vous une voiture ou une moto ?"
+        en: "Do you have a car or motorbike?"
+        es: "¿Tienes coche o moto?"
+
+      dt_q_garage:
+        fr: "Avez-vous un garage ?"
+        en: "Do you have a garage?"
+        es: "¿Tienes garaje?"
+
+      #------------- Animaux -------------------------------------------
+
+      dt_q_animal:
+        fr: "Avez-vous un animal de compagnie ?"
+        en: "Do you have a pet?"
+        es: "¿Tienes mascota?"
+
+      #------------- Tâches — salon ------------------------------------
+
+      dt_t_salon_01:
+        fr: "Aspirer ou balayer"
+        en: "Vacuum or sweep"
+        es: "Aspirar o barrer"
+      dt_a_salon_01:
+        fr: "Les moutons-gobelins de poussière envahissent le salon ! Aspire ou balaie jusqu'à ce que le sol soit net, recoins et dessous des meubles compris."
+        en: "Dust-bunny goblins are overrunning the living room! Vacuum or sweep until the floor is spotless, corners and under the furniture included."
+        es: "¡Los duendes de pelusa invaden el salón! Aspira o barre hasta que el suelo quede impecable, rincones y debajo de los muebles incluidos."
+      dt_d_salon_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins du salon !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the living room!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del salón!"
+      dt_c_salon_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins du salon."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the living room."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del salón."
+      dt_t_salon_02:
+        fr: "Faire les poussières"
+        en: "Dust"
+        es: "Quitar el polvo"
+      dt_a_salon_02:
+        fr: "Des spectres de poussière se posent sur chaque surface du salon. Dépoussière étagères, meubles et bibelots jusqu'à les faire disparaître."
+        en: "Dust wraiths settle on every surface of the living room. Dust the shelves, furniture and trinkets until they vanish."
+        es: "Espectros de polvo se posan en cada superficie del salón. Quita el polvo de estantes, muebles y adornos hasta hacerlos desaparecer."
+      dt_d_salon_02:
+        fr: "@@@session.user.name@@@ vient de dissiper les spectres de poussière du salon !"
+        en: "@@@session.user.name@@@ has just banished the dust wraiths of the living room!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del salón!"
+      dt_c_salon_02:
+        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière du salon."
+        en: "@@@session.user.name@@@ gave up against the dust wraiths of the living room."
+        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del salón."
+      dt_t_salon_03:
+        fr: "Laver le sol"
+        en: "Mop the floor"
+        es: "Fregar el suelo"
+      dt_a_salon_03:
+        fr: "Des limaces de crasse laissent des traînées sur le sol du salon. Lave jusqu'à ce que le sol brille, sans auréole ni trace collante."
+        en: "Grime slugs leave trails across the living room floor. Mop until the floor shines, with no streaks or sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo del salón. Friega hasta que el suelo brille, sin cercos ni zonas pegajosas."
+      dt_d_salon_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse du salon !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the living room!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del salón!"
+      dt_c_salon_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse du salon."
+        en: "@@@session.user.name@@@ slipped back in retreat from the grime slugs of the living room."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del salón."
+      dt_t_salon_04:
+        fr: "Nettoyer les vitres"
+        en: "Clean the windows"
+        es: "Limpiar las ventanas"
+      dt_a_salon_04:
+        fr: "Des lutins de traces grasses brouillent les vitres du salon. Nettoie jusqu'à une transparence parfaite, sans trace ni coulure."
+        en: "Greasy-smudge imps blur the living room windows. Clean until perfectly clear, with no smears or drips."
+        es: "Duendes de manchas grasientas empañan las ventanas del salón. Limpia hasta una transparencia perfecta, sin marcas ni regueros."
+      dt_d_salon_04:
+        fr: "@@@session.user.name@@@ vient de chasser les lutins des vitres du salon !"
+        en: "@@@session.user.name@@@ has just driven off the smudge imps from the living room windows!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas del salón!"
+      dt_c_salon_04:
+        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres du salon."
+        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the living room windows."
+        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas del salón."
+      dt_t_salon_05:
+        fr: "Laver les murs"
+        en: "Wash the walls"
+        es: "Lavar las paredes"
+      dt_a_salon_05:
+        fr: "Le moisi rampant gagne les murs du salon. Lave-les jusqu'à retrouver une surface propre et nette, sans tache ni voile gris."
+        en: "Creeping mould spreads over the living room walls. Wash them until the surface is clean and clear, with no stains or grey film."
+        es: "El moho reptante avanza por las paredes del salón. Lávalas hasta dejar la superficie limpia y nítida, sin manchas ni velo gris."
+      dt_d_salon_05:
+        fr: "@@@session.user.name@@@ vient de repousser le moisi rampant des murs du salon !"
+        en: "@@@session.user.name@@@ has just pushed back the creeping mould of the living room walls!"
+        es: "¡@@@session.user.name@@@ acaba de repeler el moho reptante de las paredes del salón!"
+      dt_c_salon_05:
+        fr: "@@@session.user.name@@@ a cédé du terrain au moisi rampant des murs du salon."
+        en: "@@@session.user.name@@@ lost ground to the creeping mould of the living room walls."
+        es: "@@@session.user.name@@@ cedió terreno ante el moho reptante de las paredes del salón."
+      dt_t_salon_06:
+        fr: "Nettoyer le miroir"
+        en: "Clean the mirror"
+        es: "Limpiar el espejo"
+      dt_a_salon_06:
+        fr: "Des reflets ternes obscurcissent le miroir du salon. Nettoie-le jusqu'à un reflet clair et net, sans trace ni buée."
+        en: "Dull reflections cloud the living room mirror. Clean it until the reflection is clear and sharp, with no smears or haze."
+        es: "Reflejos turbios empañan el espejo del salón. Límpialo hasta un reflejo claro y nítido, sin marcas ni vaho."
+      dt_d_salon_06:
+        fr: "@@@session.user.name@@@ vient de dissiper les reflets ternes du miroir du salon !"
+        en: "@@@session.user.name@@@ has just dispelled the dull reflections of the living room mirror!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los reflejos turbios del espejo del salón!"
+      dt_c_salon_06:
+        fr: "@@@session.user.name@@@ a renoncé face aux reflets ternes du miroir du salon."
+        en: "@@@session.user.name@@@ gave up against the dull reflections of the living room mirror."
+        es: "@@@session.user.name@@@ renunció ante los reflejos turbios del espejo del salón."
+      dt_t_salon_07:
+        fr: "Ranger"
+        en: "Tidy"
+        es: "Ordenar"
+      dt_a_salon_07:
+        fr: "Les gobelins du désordre ont semé le chaos dans le salon. Range chaque objet à sa place jusqu'à un salon ordonné."
+        en: "Clutter goblins have spread chaos through the living room. Put every object back in its place until the room is tidy."
+        es: "Los trasgos del desorden han sembrado el caos en el salón. Coloca cada objeto en su sitio hasta dejar el salón ordenado."
+      dt_d_salon_07:
+        fr: "@@@session.user.name@@@ vient de mater les gobelins du désordre du salon !"
+        en: "@@@session.user.name@@@ has just subdued the clutter goblins of the living room!"
+        es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden del salón!"
+      dt_c_salon_07:
+        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre du salon."
+        en: "@@@session.user.name@@@ gave up before the clutter goblins of the living room."
+        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden del salón."
+      dt_t_salon_08:
+        fr: "Aspirer ou dépoussiérer le canapé"
+        en: "Vacuum or dust the sofa"
+        es: "Aspirar o desempolvar el sofá"
+      dt_a_salon_08:
+        fr: "Des miettes-rampantes se nichent dans le canapé. Aspire ou dépoussière coussins et recoins jusqu'à un canapé impeccable."
+        en: "Crumb-crawlers nest in the sofa. Vacuum or dust the cushions and crevices until the sofa is spotless."
+        es: "Migas reptantes anidan en el sofá. Aspira o desempolva cojines y rincones hasta dejar el sofá impecable."
+      dt_d_salon_08:
+        fr: "@@@session.user.name@@@ vient de déloger les miettes-rampantes du canapé !"
+        en: "@@@session.user.name@@@ has just dislodged the crumb-crawlers from the sofa!"
+        es: "¡@@@session.user.name@@@ acaba de expulsar las migas reptantes del sofá!"
+      dt_c_salon_08:
+        fr: "@@@session.user.name@@@ a renoncé face aux miettes-rampantes du canapé."
+        en: "@@@session.user.name@@@ gave up against the crumb-crawlers of the sofa."
+        es: "@@@session.user.name@@@ renunció ante las migas reptantes del sofá."
+      dt_t_salon_09:
+        fr: "Shampouiner ou nettoyer le canapé"
+        en: "Shampoo or clean the sofa"
+        es: "Lavar o limpiar el sofá"
+      dt_a_salon_09:
+        fr: "Des taches-trolls se sont incrustées dans le canapé. Shampouine ou nettoie jusqu'à un tissu propre, sans tache ni odeur."
+        en: "Stain-trolls have lodged themselves in the sofa. Shampoo or clean until the fabric is clean, with no stains or smell."
+        es: "Manchas-troles se han incrustado en el sofá. Lava o limpia hasta dejar la tela limpia, sin manchas ni olor."
+      dt_d_salon_09:
+        fr: "@@@session.user.name@@@ vient de terrasser les taches-trolls du canapé !"
+        en: "@@@session.user.name@@@ has just slain the stain-trolls of the sofa!"
+        es: "¡@@@session.user.name@@@ acaba de derrotar a las manchas-troles del sofá!"
+      dt_c_salon_09:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les taches-trolls du canapé."
+        en: "@@@session.user.name@@@ retreated before the stain-trolls of the sofa."
+        es: "@@@session.user.name@@@ se retiró ante las manchas-troles del sofá."
+
+      #------------- Tâches — chambre parentale ------------------------
+
+      dt_t_chambre_parentale_01:
+        fr: "Aspirer ou balayer"
+        en: "Vacuum or sweep"
+        es: "Aspirar o barrer"
+      dt_a_chambre_parentale_01:
+        fr: "Les moutons-gobelins de poussière envahissent la chambre parentale ! Aspire ou balaie jusqu'à un sol net, recoins compris."
+        en: "Dust-bunny goblins overrun the master bedroom! Vacuum or sweep until the floor is spotless, corners included."
+        es: "¡Los duendes de pelusa invaden el dormitorio principal! Aspira o barre hasta dejar el suelo impecable, rincones incluidos."
+      dt_d_chambre_parentale_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the master bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del dormitorio principal!"
+      dt_c_chambre_parentale_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de la chambre parentale."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the master bedroom."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del dormitorio principal."
+      dt_t_chambre_parentale_02:
+        fr: "Faire les poussières"
+        en: "Dust"
+        es: "Quitar el polvo"
+      dt_a_chambre_parentale_02:
+        fr: "Des spectres de poussière se posent partout dans la chambre parentale. Dépoussière chaque surface jusqu'à les faire disparaître."
+        en: "Dust wraiths settle all over the master bedroom. Dust every surface until they vanish."
+        es: "Espectros de polvo se posan por todo el dormitorio principal. Quita el polvo de cada superficie hasta hacerlos desaparecer."
+      dt_d_chambre_parentale_02:
+        fr: "@@@session.user.name@@@ vient de dissiper les spectres de poussière de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just banished the dust wraiths of the master bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del dormitorio principal!"
+      dt_c_chambre_parentale_02:
+        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière de la chambre parentale."
+        en: "@@@session.user.name@@@ gave up against the dust wraiths of the master bedroom."
+        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del dormitorio principal."
+      dt_t_chambre_parentale_03:
+        fr: "Laver le sol"
+        en: "Mop the floor"
+        es: "Fregar el suelo"
+      dt_a_chambre_parentale_03:
+        fr: "Des limaces de crasse traînent sur le sol de la chambre parentale. Lave jusqu'à ce qu'il brille, sans trace collante."
+        en: "Grime slugs trail across the master bedroom floor. Mop until it shines, with no sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo del dormitorio principal. Friega hasta que brille, sin zonas pegajosas."
+      dt_d_chambre_parentale_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the master bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del dormitorio principal!"
+      dt_c_chambre_parentale_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de la chambre parentale."
+        en: "@@@session.user.name@@@ slipped back from the grime slugs of the master bedroom."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del dormitorio principal."
+      dt_t_chambre_parentale_04:
+        fr: "Nettoyer les vitres"
+        en: "Clean the windows"
+        es: "Limpiar las ventanas"
+      dt_a_chambre_parentale_04:
+        fr: "Des lutins de traces grasses brouillent les vitres de la chambre parentale. Nettoie jusqu'à une transparence parfaite."
+        en: "Greasy-smudge imps blur the master bedroom windows. Clean until perfectly clear."
+        es: "Duendes de manchas empañan las ventanas del dormitorio principal. Limpia hasta una transparencia perfecta."
+      dt_d_chambre_parentale_04:
+        fr: "@@@session.user.name@@@ vient de chasser les lutins des vitres de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just driven off the smudge imps from the master bedroom windows!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas del dormitorio principal!"
+      dt_c_chambre_parentale_04:
+        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres de la chambre parentale."
+        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the master bedroom windows."
+        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas del dormitorio principal."
+      dt_t_chambre_parentale_05:
+        fr: "Nettoyer le miroir"
+        en: "Clean the mirror"
+        es: "Limpiar el espejo"
+      dt_a_chambre_parentale_05:
+        fr: "Des reflets ternes obscurcissent le miroir de la chambre parentale. Nettoie-le jusqu'à un reflet clair et net."
+        en: "Dull reflections cloud the master bedroom mirror. Clean it until the reflection is clear and sharp."
+        es: "Reflejos turbios empañan el espejo del dormitorio principal. Límpialo hasta un reflejo claro y nítido."
+      dt_d_chambre_parentale_05:
+        fr: "@@@session.user.name@@@ vient de dissiper les reflets ternes du miroir de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just dispelled the dull reflections of the master bedroom mirror!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los reflejos turbios del espejo del dormitorio principal!"
+      dt_c_chambre_parentale_05:
+        fr: "@@@session.user.name@@@ a renoncé face aux reflets ternes du miroir de la chambre parentale."
+        en: "@@@session.user.name@@@ gave up against the dull reflections of the master bedroom mirror."
+        es: "@@@session.user.name@@@ renunció ante los reflejos turbios del espejo del dormitorio principal."
+      dt_t_chambre_parentale_06:
+        fr: "Ranger"
+        en: "Tidy"
+        es: "Ordenar"
+      dt_a_chambre_parentale_06:
+        fr: "Les gobelins du désordre règnent sur la chambre parentale. Range chaque chose à sa place jusqu'à une pièce ordonnée."
+        en: "Clutter goblins rule the master bedroom. Put everything back in its place until the room is tidy."
+        es: "Los trasgos del desorden reinan en el dormitorio principal. Coloca cada cosa en su sitio hasta ordenar la habitación."
+      dt_d_chambre_parentale_06:
+        fr: "@@@session.user.name@@@ vient de mater les gobelins du désordre de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just subdued the clutter goblins of the master bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden del dormitorio principal!"
+      dt_c_chambre_parentale_06:
+        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre de la chambre parentale."
+        en: "@@@session.user.name@@@ gave up before the clutter goblins of the master bedroom."
+        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden del dormitorio principal."
+      dt_t_chambre_parentale_08:
+        fr: "Changer les draps"
+        en: "Change the sheets"
+        es: "Cambiar las sábanas"
+      dt_a_chambre_parentale_08:
+        fr: "Les acariens-vampires ont colonisé les draps de la chambre parentale. Change-les pour des draps propres et frais."
+        en: "Mite-vampires have colonised the master bedroom sheets. Change them for clean, fresh sheets."
+        es: "Ácaros vampiro han colonizado las sábanas del dormitorio principal. Cámbialas por sábanas limpias y frescas."
+      dt_d_chambre_parentale_08:
+        fr: "@@@session.user.name@@@ vient de bannir les acariens-vampires des draps de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just banished the mite-vampires from the master bedroom sheets!"
+        es: "¡@@@session.user.name@@@ acaba de desterrar a los ácaros vampiro de las sábanas del dormitorio principal!"
+      dt_c_chambre_parentale_08:
+        fr: "@@@session.user.name@@@ a renoncé face aux acariens-vampires de la chambre parentale."
+        en: "@@@session.user.name@@@ gave up against the mite-vampires of the master bedroom."
+        es: "@@@session.user.name@@@ renunció ante los ácaros vampiro del dormitorio principal."
+      dt_t_chambre_parentale_09:
+        fr: "Retourner ou aérer le matelas"
+        en: "Flip or air the mattress"
+        es: "Dar la vuelta o airear el colchón"
+      dt_a_chambre_parentale_09:
+        fr: "Les miasmes du matelas s'accumulent dans la chambre parentale. Retourne ou aère le matelas jusqu'à le rendre sain et frais."
+        en: "Mattress miasmas build up in the master bedroom. Flip or air the mattress until it is fresh and healthy."
+        es: "Los miasmas del colchón se acumulan en el dormitorio principal. Da la vuelta o airea el colchón hasta dejarlo fresco y sano."
+      dt_d_chambre_parentale_09:
+        fr: "@@@session.user.name@@@ vient de chasser les miasmes du matelas de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just driven off the mattress miasmas of the master bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar los miasmas del colchón del dormitorio principal!"
+      dt_c_chambre_parentale_09:
+        fr: "@@@session.user.name@@@ a renoncé face aux miasmes du matelas de la chambre parentale."
+        en: "@@@session.user.name@@@ gave up against the mattress miasmas of the master bedroom."
+        es: "@@@session.user.name@@@ renunció ante los miasmas del colchón del dormitorio principal."
+      dt_t_chambre_parentale_10:
+        fr: "Laver les murs"
+        en: "Wash the walls"
+        es: "Lavar las paredes"
+      dt_a_chambre_parentale_10:
+        fr: "Des traces-fantômes et des éclaboussures maculent les murs de la chambre parentale. Lave-les jusqu'à des parois nettes."
+        en: "Ghostly marks and splatters stain the master bedroom walls. Wash them until the walls are spotless."
+        es: "Marcas fantasma y salpicaduras manchan las paredes del dormitorio principal. Lávalas hasta dejar las paredes impecables."
+      dt_d_chambre_parentale_10:
+        fr: "@@@session.user.name@@@ vient d'effacer les traces-fantômes des murs de la chambre parentale !"
+        en: "@@@session.user.name@@@ has just wiped the ghostly marks off the master bedroom walls!"
+        es: "¡@@@session.user.name@@@ acaba de borrar las marcas fantasma de las paredes del dormitorio principal!"
+      dt_c_chambre_parentale_10:
+        fr: "@@@session.user.name@@@ a renoncé à laver les murs de la chambre parentale."
+        en: "@@@session.user.name@@@ gave up washing the master bedroom walls."
+        es: "@@@session.user.name@@@ renunció a lavar las paredes del dormitorio principal."
+
+      #------------- Tâches — chambre enfant ---------------------------
+
+      dt_t_chambre_enfant_01:
+        fr: "Aspirer ou balayer"
+        en: "Vacuum or sweep"
+        es: "Aspirar o barrer"
+      dt_a_chambre_enfant_01:
+        fr: "Les moutons-gobelins de poussière envahissent la chambre enfant ! Aspire ou balaie jusqu'à un sol net, recoins compris."
+        en: "Dust-bunny goblins overrun the children's bedroom! Vacuum or sweep until the floor is spotless, corners included."
+        es: "¡Los duendes de pelusa invaden la habitación infantil! Aspira o barre hasta dejar el suelo impecable, rincones incluidos."
+      dt_d_chambre_enfant_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the children's bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa de la habitación infantil!"
+      dt_c_chambre_enfant_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de la chambre enfant."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the children's bedroom."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa de la habitación infantil."
+      dt_t_chambre_enfant_02:
+        fr: "Faire les poussières"
+        en: "Dust"
+        es: "Quitar el polvo"
+      dt_a_chambre_enfant_02:
+        fr: "Des spectres de poussière se posent partout dans la chambre enfant. Dépoussière chaque surface jusqu'à les faire disparaître."
+        en: "Dust wraiths settle all over the children's bedroom. Dust every surface until they vanish."
+        es: "Espectros de polvo se posan por toda la habitación infantil. Quita el polvo de cada superficie hasta hacerlos desaparecer."
+      dt_d_chambre_enfant_02:
+        fr: "@@@session.user.name@@@ vient de dissiper les spectres de poussière de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just banished the dust wraiths of the children's bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo de la habitación infantil!"
+      dt_c_chambre_enfant_02:
+        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière de la chambre enfant."
+        en: "@@@session.user.name@@@ gave up against the dust wraiths of the children's bedroom."
+        es: "@@@session.user.name@@@ renunció ante los espectros de polvo de la habitación infantil."
+      dt_t_chambre_enfant_03:
+        fr: "Laver le sol"
+        en: "Mop the floor"
+        es: "Fregar el suelo"
+      dt_a_chambre_enfant_03:
+        fr: "Des limaces de crasse traînent sur le sol de la chambre enfant. Lave jusqu'à ce qu'il brille, sans trace collante."
+        en: "Grime slugs trail across the children's bedroom floor. Mop until it shines, with no sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo de la habitación infantil. Friega hasta que brille, sin zonas pegajosas."
+      dt_d_chambre_enfant_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the children's bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre de la habitación infantil!"
+      dt_c_chambre_enfant_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de la chambre enfant."
+        en: "@@@session.user.name@@@ slipped back from the grime slugs of the children's bedroom."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre de la habitación infantil."
+      dt_t_chambre_enfant_04:
+        fr: "Nettoyer les vitres"
+        en: "Clean the windows"
+        es: "Limpiar las ventanas"
+      dt_a_chambre_enfant_04:
+        fr: "Des lutins de traces grasses brouillent les vitres de la chambre enfant. Nettoie jusqu'à une transparence parfaite."
+        en: "Greasy-smudge imps blur the children's bedroom windows. Clean until perfectly clear."
+        es: "Duendes de manchas empañan las ventanas de la habitación infantil. Limpia hasta una transparencia perfecta."
+      dt_d_chambre_enfant_04:
+        fr: "@@@session.user.name@@@ vient de chasser les lutins des vitres de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just driven off the smudge imps from the children's bedroom windows!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas de la habitación infantil!"
+      dt_c_chambre_enfant_04:
+        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres de la chambre enfant."
+        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the children's bedroom windows."
+        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas de la habitación infantil."
+      dt_t_chambre_enfant_05:
+        fr: "Nettoyer le miroir"
+        en: "Clean the mirror"
+        es: "Limpiar el espejo"
+      dt_a_chambre_enfant_05:
+        fr: "Des reflets ternes obscurcissent le miroir de la chambre enfant. Nettoie-le jusqu'à un reflet clair et net."
+        en: "Dull reflections cloud the children's bedroom mirror. Clean it until the reflection is clear and sharp."
+        es: "Reflejos turbios empañan el espejo de la habitación infantil. Límpialo hasta un reflejo claro y nítido."
+      dt_d_chambre_enfant_05:
+        fr: "@@@session.user.name@@@ vient de dissiper les reflets ternes du miroir de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just dispelled the dull reflections of the children's bedroom mirror!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los reflejos turbios del espejo de la habitación infantil!"
+      dt_c_chambre_enfant_05:
+        fr: "@@@session.user.name@@@ a renoncé face aux reflets ternes du miroir de la chambre enfant."
+        en: "@@@session.user.name@@@ gave up against the dull reflections of the children's bedroom mirror."
+        es: "@@@session.user.name@@@ renunció ante los reflejos turbios del espejo de la habitación infantil."
+      dt_t_chambre_enfant_06:
+        fr: "Ranger"
+        en: "Tidy"
+        es: "Ordenar"
+      dt_a_chambre_enfant_06:
+        fr: "Les gobelins du désordre règnent sur la chambre enfant. Range chaque chose à sa place jusqu'à une pièce ordonnée."
+        en: "Clutter goblins rule the children's bedroom. Put everything back in its place until the room is tidy."
+        es: "Los trasgos del desorden reinan en la habitación infantil. Coloca cada cosa en su sitio hasta ordenar la habitación."
+      dt_d_chambre_enfant_06:
+        fr: "@@@session.user.name@@@ vient de mater les gobelins du désordre de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just subdued the clutter goblins of the children's bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden de la habitación infantil!"
+      dt_c_chambre_enfant_06:
+        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre de la chambre enfant."
+        en: "@@@session.user.name@@@ gave up before the clutter goblins of the children's bedroom."
+        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden de la habitación infantil."
+      dt_t_chambre_enfant_09:
+        fr: "Changer les draps"
+        en: "Change the sheets"
+        es: "Cambiar las sábanas"
+      dt_a_chambre_enfant_09:
+        fr: "Les acariens-vampires ont colonisé les draps de la chambre enfant. Change-les pour des draps propres et frais."
+        en: "Mite-vampires have colonised the children's bedroom sheets. Change them for clean, fresh sheets."
+        es: "Ácaros vampiro han colonizado las sábanas de la habitación infantil. Cámbialas por sábanas limpias y frescas."
+      dt_d_chambre_enfant_09:
+        fr: "@@@session.user.name@@@ vient de bannir les acariens-vampires des draps de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just banished the mite-vampires from the children's bedroom sheets!"
+        es: "¡@@@session.user.name@@@ acaba de desterrar a los ácaros vampiro de las sábanas de la habitación infantil!"
+      dt_c_chambre_enfant_09:
+        fr: "@@@session.user.name@@@ a renoncé face aux acariens-vampires de la chambre enfant."
+        en: "@@@session.user.name@@@ gave up against the mite-vampires of the children's bedroom."
+        es: "@@@session.user.name@@@ renunció ante los ácaros vampiro de la habitación infantil."
+      dt_t_chambre_enfant_10:
+        fr: "Laver les murs"
+        en: "Wash the walls"
+        es: "Lavar las paredes"
+      dt_a_chambre_enfant_10:
+        fr: "Des traces-fantômes et des éclaboussures maculent les murs de la chambre enfant. Lave-les jusqu'à des parois nettes."
+        en: "Ghostly marks and splatters stain the children's bedroom walls. Wash them until the walls are spotless."
+        es: "Marcas fantasma y salpicaduras manchan las paredes de la habitación infantil. Lávalas hasta dejar las paredes impecables."
+      dt_d_chambre_enfant_10:
+        fr: "@@@session.user.name@@@ vient d'effacer les traces-fantômes des murs de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just wiped the ghostly marks off the children's bedroom walls!"
+        es: "¡@@@session.user.name@@@ acaba de borrar las marcas fantasma de las paredes de la habitación infantil!"
+      dt_c_chambre_enfant_10:
+        fr: "@@@session.user.name@@@ a renoncé à laver les murs de la chambre enfant."
+        en: "@@@session.user.name@@@ gave up washing the children's bedroom walls."
+        es: "@@@session.user.name@@@ renunció a lavar las paredes de la habitación infantil."
+      dt_t_chambre_enfant_11:
+        fr: "Retourner ou aérer le matelas"
+        en: "Flip or air the mattress"
+        es: "Dar la vuelta o airear el colchón"
+      dt_a_chambre_enfant_11:
+        fr: "Les miasmes du matelas s'accumulent dans la chambre enfant. Aère le matelas jusqu'à le rendre sain et frais."
+        en: "Mattress miasmas build up in the children's bedroom. Air the mattress until it is fresh and healthy."
+        es: "Los miasmas del colchón se acumulan en la habitación infantil. Airea el colchón hasta dejarlo fresco y sano."
+      dt_d_chambre_enfant_11:
+        fr: "@@@session.user.name@@@ vient de chasser les miasmes du matelas de la chambre enfant !"
+        en: "@@@session.user.name@@@ has just driven off the mattress miasmas of the children's bedroom!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar los miasmas del colchón de la habitación infantil!"
+      dt_c_chambre_enfant_11:
+        fr: "@@@session.user.name@@@ a renoncé face aux miasmes du matelas de la chambre enfant."
+        en: "@@@session.user.name@@@ gave up against the mattress miasmas of the children's bedroom."
+        es: "@@@session.user.name@@@ renunció ante los miasmas del colchón de la habitación infantil."
+
+      #------------- Tâches — cuisine ----------------------------------
+
+      dt_t_cuisine_01:
+        fr: "Aspirer ou balayer"
+        en: "Vacuum or sweep"
+        es: "Aspirar o barrer"
+      dt_a_cuisine_01:
+        fr: "Les moutons-gobelins de poussière envahissent la cuisine ! Aspire ou balaie jusqu'à un sol net, recoins compris."
+        en: "Dust-bunny goblins overrun the kitchen! Vacuum or sweep until the floor is spotless, corners included."
+        es: "¡Los duendes de pelusa invaden la cocina! Aspira o barre hasta dejar el suelo impecable, rincones incluidos."
+      dt_d_cuisine_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins de la cuisine !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the kitchen!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa de la cocina!"
+      dt_c_cuisine_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de la cuisine."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the kitchen."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa de la cocina."
+      dt_t_cuisine_03:
+        fr: "Laver le sol"
+        en: "Mop the floor"
+        es: "Fregar el suelo"
+      dt_a_cuisine_03:
+        fr: "Des limaces de crasse traînent sur le sol de la cuisine. Lave jusqu'à ce qu'il brille, sans trace collante."
+        en: "Grime slugs trail across the kitchen floor. Mop until it shines, with no sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo de la cocina. Friega hasta que brille, sin zonas pegajosas."
+      dt_d_cuisine_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse de la cuisine !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the kitchen!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre de la cocina!"
+      dt_c_cuisine_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de la cuisine."
+        en: "@@@session.user.name@@@ slipped back from the grime slugs of the kitchen."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre de la cocina."
+      dt_t_cuisine_04:
+        fr: "Nettoyer les vitres"
+        en: "Clean the windows"
+        es: "Limpiar las ventanas"
+      dt_a_cuisine_04:
+        fr: "Des lutins de traces grasses brouillent les vitres de la cuisine. Nettoie jusqu'à une transparence parfaite."
+        en: "Greasy-smudge imps blur the kitchen windows. Clean until perfectly clear."
+        es: "Duendes de manchas empañan las ventanas de la cocina. Limpia hasta una transparencia perfecta."
+      dt_d_cuisine_04:
+        fr: "@@@session.user.name@@@ vient de chasser les lutins des vitres de la cuisine !"
+        en: "@@@session.user.name@@@ has just driven off the smudge imps from the kitchen windows!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas de la cocina!"
+      dt_c_cuisine_04:
+        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres de la cuisine."
+        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the kitchen windows."
+        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas de la cocina."
+      dt_t_cuisine_05:
+        fr: "Nettoyer le plan de travail"
+        en: "Clean the worktop"
+        es: "Limpiar la encimera"
+      dt_a_cuisine_05:
+        fr: "Des croûtes graisseuses recouvrent le plan de travail. Nettoie jusqu'à une surface nette, sans miette ni gras."
+        en: "Greasy crusts coat the worktop. Clean until the surface is spotless, with no crumbs or grease."
+        es: "Costras grasientas cubren la encimera. Limpia hasta una superficie impecable, sin migas ni grasa."
+      dt_d_cuisine_05:
+        fr: "@@@session.user.name@@@ vient de récurer les croûtes graisseuses du plan de travail !"
+        en: "@@@session.user.name@@@ has just scoured the greasy crusts off the worktop!"
+        es: "¡@@@session.user.name@@@ acaba de fregar las costras grasientas de la encimera!"
+      dt_c_cuisine_05:
+        fr: "@@@session.user.name@@@ a renoncé face aux croûtes graisseuses du plan de travail."
+        en: "@@@session.user.name@@@ gave up against the greasy crusts of the worktop."
+        es: "@@@session.user.name@@@ renunció ante las costras grasientas de la encimera."
+      dt_t_cuisine_06:
+        fr: "Nettoyer l'évier"
+        en: "Clean the sink"
+        es: "Limpiar el fregadero"
+      dt_a_cuisine_06:
+        fr: "Des golems de calcaire et de dépôts gluants encombrent l'évier. Récure jusqu'à un évier net et brillant."
+        en: "Limescale golems and slimy deposits clog the sink. Scrub until the sink is clean and shining."
+        es: "Gólems de cal y depósitos viscosos atascan el fregadero. Frota hasta dejar el fregadero limpio y brillante."
+      dt_d_cuisine_06:
+        fr: "@@@session.user.name@@@ vient de briser les golems de calcaire de l'évier !"
+        en: "@@@session.user.name@@@ has just shattered the limescale golems of the sink!"
+        es: "¡@@@session.user.name@@@ acaba de romper los gólems de cal del fregadero!"
+      dt_c_cuisine_06:
+        fr: "@@@session.user.name@@@ a renoncé face aux golems de calcaire de l'évier."
+        en: "@@@session.user.name@@@ gave up against the limescale golems of the sink."
+        es: "@@@session.user.name@@@ renunció ante los gólems de cal del fregadero."
+      dt_t_cuisine_07:
+        fr: "Nettoyer les placards"
+        en: "Clean the cupboards"
+        es: "Limpiar los armarios"
+      dt_a_cuisine_07:
+        fr: "Des traces grasses maculent les placards de la cuisine. Nettoie portes et poignées jusqu'à des façades nettes."
+        en: "Greasy marks stain the kitchen cupboards. Clean the doors and handles until the fronts are spotless."
+        es: "Marcas de grasa manchan los armarios de la cocina. Limpia puertas y tiradores hasta dejar los frentes impecables."
+      dt_d_cuisine_07:
+        fr: "@@@session.user.name@@@ vient d'effacer les traces grasses des placards de la cuisine !"
+        en: "@@@session.user.name@@@ has just wiped away the greasy marks of the kitchen cupboards!"
+        es: "¡@@@session.user.name@@@ acaba de borrar las marcas de grasa de los armarios de la cocina!"
+      dt_c_cuisine_07:
+        fr: "@@@session.user.name@@@ a renoncé face aux traces grasses des placards de la cuisine."
+        en: "@@@session.user.name@@@ gave up against the greasy marks of the kitchen cupboards."
+        es: "@@@session.user.name@@@ renunció ante las marcas de grasa de los armarios de la cocina."
+      dt_t_cuisine_09:
+        fr: "Nettoyer le micro-ondes"
+        en: "Clean the microwave"
+        es: "Limpiar el microondas"
+      dt_a_cuisine_09:
+        fr: "Des éclaboussures fossilisées tapissent le micro-ondes. Nettoie l'intérieur jusqu'à une cavité propre, sans projection ni odeur."
+        en: "Fossilised splatters line the microwave. Clean the inside until the cavity is clean, with no splashes or smell."
+        es: "Salpicaduras fosilizadas recubren el microondas. Limpia el interior hasta una cavidad limpia, sin salpicaduras ni olor."
+      dt_d_cuisine_09:
+        fr: "@@@session.user.name@@@ vient de pulvériser les éclaboussures fossilisées du micro-ondes !"
+        en: "@@@session.user.name@@@ has just blasted the fossilised splatters of the microwave!"
+        es: "¡@@@session.user.name@@@ acaba de pulverizar las salpicaduras fosilizadas del microondas!"
+      dt_c_cuisine_09:
+        fr: "@@@session.user.name@@@ a renoncé face aux éclaboussures fossilisées du micro-ondes."
+        en: "@@@session.user.name@@@ gave up against the fossilised splatters of the microwave."
+        es: "@@@session.user.name@@@ renunció ante las salpicaduras fosilizadas del microondas."
+      dt_t_cuisine_10:
+        fr: "Nettoyer la hotte"
+        en: "Clean the extractor hood"
+        es: "Limpiar la campana extractora"
+      dt_a_cuisine_10:
+        fr: "Un graisse-troll s'est incrusté dans la hotte de cuisine. Nettoie filtres et surfaces jusqu'à une hotte dégraissée."
+        en: "A grease-troll has lodged in the kitchen extractor hood. Clean the filters and surfaces until the hood is degreased."
+        es: "Un troll de grasa se ha incrustado en la campana de la cocina. Limpia filtros y superficies hasta desengrasar la campana."
+      dt_d_cuisine_10:
+        fr: "@@@session.user.name@@@ vient de terrasser le graisse-troll de la hotte de cuisine !"
+        en: "@@@session.user.name@@@ has just slain the grease-troll of the kitchen hood!"
+        es: "¡@@@session.user.name@@@ acaba de derrotar al troll de grasa de la campana de la cocina!"
+      dt_c_cuisine_10:
+        fr: "@@@session.user.name@@@ a battu en retraite devant le graisse-troll de la hotte de cuisine."
+        en: "@@@session.user.name@@@ retreated before the grease-troll of the kitchen hood."
+        es: "@@@session.user.name@@@ se retiró ante el troll de grasa de la campana de la cocina."
+      dt_t_cuisine_11:
+        fr: "Nettoyer l'intérieur du four"
+        en: "Clean the inside of the oven"
+        es: "Limpiar el interior del horno"
+      dt_a_cuisine_11:
+        fr: "Des démons de graisse carbonisée tapissent l'intérieur du four. Récure jusqu'à un four propre, sans dépôt brûlé."
+        en: "Charred-grease demons coat the inside of the oven. Scrub until the oven is clean, with no burnt residue."
+        es: "Demonios de grasa carbonizada recubren el interior del horno. Frota hasta un horno limpio, sin residuos quemados."
+      dt_d_cuisine_11:
+        fr: "@@@session.user.name@@@ vient d'exorciser les démons de graisse du four !"
+        en: "@@@session.user.name@@@ has just exorcised the grease demons of the oven!"
+        es: "¡@@@session.user.name@@@ acaba de exorcizar a los demonios de grasa del horno!"
+      dt_c_cuisine_11:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les démons de graisse du four."
+        en: "@@@session.user.name@@@ retreated before the grease demons of the oven."
+        es: "@@@session.user.name@@@ se retiró ante los demonios de grasa del horno."
+      dt_t_cuisine_12:
+        fr: "Nettoyer la plaque de cuisson"
+        en: "Clean the hob"
+        es: "Limpiar la placa de cocción"
+      dt_a_cuisine_12:
+        fr: "Des croûtes carbonisées s'agrippent à la plaque de cuisson. Nettoie jusqu'à une plaque nette et brillante."
+        en: "Charred crusts cling to the hob. Clean until the hob is spotless and shining."
+        es: "Costras carbonizadas se aferran a la placa de cocción. Limpia hasta dejar la placa impecable y brillante."
+      dt_d_cuisine_12:
+        fr: "@@@session.user.name@@@ vient de décrocher les croûtes carbonisées de la plaque de cuisson !"
+        en: "@@@session.user.name@@@ has just scraped off the charred crusts of the hob!"
+        es: "¡@@@session.user.name@@@ acaba de arrancar las costras carbonizadas de la placa de cocción!"
+      dt_c_cuisine_12:
+        fr: "@@@session.user.name@@@ a renoncé face aux croûtes carbonisées de la plaque de cuisson."
+        en: "@@@session.user.name@@@ gave up against the charred crusts of the hob."
+        es: "@@@session.user.name@@@ renunció ante las costras carbonizadas de la placa de cocción."
+      dt_t_cuisine_13:
+        fr: "Nettoyer l'intérieur du réfrigérateur"
+        en: "Clean the inside of the fridge"
+        es: "Limpiar el interior del frigorífico"
+      dt_a_cuisine_13:
+        fr: "Des créatures oubliées et des moisissures rampantes hantent l'intérieur du réfrigérateur. Vide, nettoie et désinfecte jusqu'à un frigo sain."
+        en: "Forgotten creatures and creeping mould haunt the inside of the fridge. Empty, clean and disinfect until the fridge is wholesome."
+        es: "Criaturas olvidadas y moho reptante acechan en el interior del frigorífico. Vacía, limpia y desinfecta hasta un frigorífico sano."
+      dt_d_cuisine_13:
+        fr: "@@@session.user.name@@@ vient de purger les créatures oubliées du réfrigérateur !"
+        en: "@@@session.user.name@@@ has just purged the forgotten creatures of the fridge!"
+        es: "¡@@@session.user.name@@@ acaba de purgar las criaturas olvidadas del frigorífico!"
+      dt_c_cuisine_13:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les créatures oubliées du réfrigérateur."
+        en: "@@@session.user.name@@@ retreated before the forgotten creatures of the fridge."
+        es: "@@@session.user.name@@@ se retiró ante las criaturas olvidadas del frigorífico."
+      dt_t_cuisine_15:
+        fr: "Détartrer la bouilloire ou la cafetière"
+        en: "Descale the kettle or coffee maker"
+        es: "Descalcificar el hervidor o la cafetera"
+      dt_a_cuisine_15:
+        fr: "Des golems de tartre durcissent dans la bouilloire ou la cafetière. Détartre jusqu'à un intérieur propre et clair."
+        en: "Limescale golems harden inside the kettle or coffee maker. Descale until the inside is clean and clear."
+        es: "Gólems de cal se endurecen en el hervidor o la cafetera. Descalcifica hasta un interior limpio y claro."
+      dt_d_cuisine_15:
+        fr: "@@@session.user.name@@@ vient de dissoudre les golems de tartre de la bouilloire !"
+        en: "@@@session.user.name@@@ has just dissolved the limescale golems of the kettle!"
+        es: "¡@@@session.user.name@@@ acaba de disolver los gólems de cal del hervidor!"
+      dt_c_cuisine_15:
+        fr: "@@@session.user.name@@@ a renoncé face aux golems de tartre de la bouilloire."
+        en: "@@@session.user.name@@@ gave up against the limescale golems of the kettle."
+        es: "@@@session.user.name@@@ renunció ante los gólems de cal del hervidor."
+      dt_t_cuisine_18:
+        fr: "Détartrer la robinetterie"
+        en: "Descale the taps"
+        es: "Descalcificar la grifería"
+      dt_a_cuisine_18:
+        fr: "Des dépôts calcaires entartrent la robinetterie de la cuisine. Détartre jusqu'à une robinetterie brillante, sans trace blanche."
+        en: "Limescale deposits crust the kitchen taps. Descale until the taps shine, with no white marks."
+        es: "Depósitos de cal incrustan la grifería de la cocina. Descalcifica hasta una grifería brillante, sin marcas blancas."
+      dt_d_cuisine_18:
+        fr: "@@@session.user.name@@@ vient de briser les dépôts calcaires de la robinetterie de la cuisine !"
+        en: "@@@session.user.name@@@ has just shattered the limescale deposits of the kitchen taps!"
+        es: "¡@@@session.user.name@@@ acaba de romper los depósitos de cal de la grifería de la cocina!"
+      dt_c_cuisine_18:
+        fr: "@@@session.user.name@@@ a renoncé face aux dépôts calcaires de la robinetterie de la cuisine."
+        en: "@@@session.user.name@@@ gave up against the limescale deposits of the kitchen taps."
+        es: "@@@session.user.name@@@ renunció ante los depósitos de cal de la grifería de la cocina."
+      dt_t_cuisine_19:
+        fr: "Nettoyer l'extérieur du réfrigérateur"
+        en: "Clean the outside of the fridge"
+        es: "Limpiar el exterior del frigorífico"
+      dt_a_cuisine_19:
+        fr: "Des traces grasses ternissent l'extérieur du réfrigérateur. Nettoie portes et poignées jusqu'à une surface nette."
+        en: "Greasy marks dull the outside of the fridge. Clean the doors and handles until the surface is spotless."
+        es: "Marcas de grasa empañan el exterior del frigorífico. Limpia puertas y tiradores hasta una superficie impecable."
+      dt_d_cuisine_19:
+        fr: "@@@session.user.name@@@ vient d'effacer les traces grasses de l'extérieur du réfrigérateur !"
+        en: "@@@session.user.name@@@ has just wiped away the greasy marks of the outside of the fridge!"
+        es: "¡@@@session.user.name@@@ acaba de borrar las marcas de grasa del exterior del frigorífico!"
+      dt_c_cuisine_19:
+        fr: "@@@session.user.name@@@ a renoncé face aux traces grasses de l'extérieur du réfrigérateur."
+        en: "@@@session.user.name@@@ gave up against the greasy marks of the outside of the fridge."
+        es: "@@@session.user.name@@@ renunció ante las marcas de grasa del exterior del frigorífico."
+      dt_t_cuisine_08:
+        fr: "Vider les restes du frigo"
+        en: "Clear out the fridge leftovers"
+        es: "Vaciar las sobras del frigorífico"
+      dt_a_cuisine_08:
+        fr: "Des créatures oubliées prolifèrent au fond du frigo. Trie et vide les restes périmés jusqu'à un frigo sain."
+        en: "Forgotten creatures multiply at the back of the fridge. Sort and clear out the expired leftovers until the fridge is wholesome."
+        es: "Criaturas olvidadas se multiplican al fondo del frigorífico. Clasifica y retira las sobras caducadas hasta un frigorífico sano."
+      dt_d_cuisine_08:
+        fr: "@@@session.user.name@@@ vient de purger les restes oubliés du frigo !"
+        en: "@@@session.user.name@@@ has just purged the forgotten leftovers from the fridge!"
+        es: "¡@@@session.user.name@@@ acaba de purgar las sobras olvidadas del frigorífico!"
+      dt_c_cuisine_08:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les restes oubliés du frigo."
+        en: "@@@session.user.name@@@ retreated before the forgotten leftovers of the fridge."
+        es: "@@@session.user.name@@@ se retiró ante las sobras olvidadas del frigorífico."
+
+      #------------- Tâches — repas (plats) ----------------------------
+
+      dt_t_repas_06:
+        fr: "Cuisiner un plat simple"
+        en: "Cook a simple meal"
+        es: "Cocinar un plato sencillo"
+      dt_a_repas_06:
+        fr: "La faim de la guilde gronde. Cuisine un plat simple et sers-le chaud à la tablée."
+        en: "The guild's hunger growls. Cook a simple meal and serve it hot to the table."
+        es: "El hambre del gremio ruge. Cocina un plato sencillo y sírvelo caliente a la mesa."
+      dt_d_repas_06:
+        fr: "@@@session.user.name@@@ vient de cuisiner un plat pour rassasier la guilde !"
+        en: "@@@session.user.name@@@ has just cooked a meal to feed the guild!"
+        es: "¡@@@session.user.name@@@ acaba de cocinar un plato para saciar al gremio!"
+      dt_c_repas_06:
+        fr: "@@@session.user.name@@@ a renoncé à cuisiner le plat de la guilde."
+        en: "@@@session.user.name@@@ gave up cooking the guild's meal."
+        es: "@@@session.user.name@@@ renunció a cocinar el plato del gremio."
+      dt_t_repas_07:
+        fr: "Réchauffer un plat"
+        en: "Reheat a dish"
+        es: "Calentar un plato"
+      dt_a_repas_07:
+        fr: "Un plat froid attend son sortilège de chaleur. Réchauffe-le et sers-le à bonne température."
+        en: "A cold dish awaits its heat spell. Reheat it and serve it at the right temperature."
+        es: "Un plato frío espera su hechizo de calor. Caliéntalo y sírvelo a la temperatura adecuada."
+      dt_d_repas_07:
+        fr: "@@@session.user.name@@@ vient de réchauffer le plat d'un sortilège de chaleur !"
+        en: "@@@session.user.name@@@ has just reheated the dish with a spell of warmth!"
+        es: "¡@@@session.user.name@@@ acaba de calentar el plato con un hechizo de calor!"
+      dt_c_repas_07:
+        fr: "@@@session.user.name@@@ a renoncé à réchauffer le plat."
+        en: "@@@session.user.name@@@ gave up reheating the dish."
+        es: "@@@session.user.name@@@ renunció a calentar el plato."
+      dt_t_repas_10:
+        fr: "Faire un plat du quotidien"
+        en: "Cook an everyday meal"
+        es: "Cocinar un plato de diario"
+      dt_a_repas_10:
+        fr: "La faim quotidienne de la guilde réclame son dû. Prépare un plat du quotidien, sain et nourrissant, et sers-le chaud à la tablée."
+        en: "The guild's daily hunger claims its due. Prepare a wholesome everyday meal and serve it hot to the table."
+        es: "El hambre diaria del gremio reclama lo suyo. Prepara un plato de diario, sano y nutritivo, y sírvelo caliente a la mesa."
+      dt_d_repas_10:
+        fr: "@@@session.user.name@@@ vient de mitonner le plat du quotidien pour rassasier la guilde !"
+        en: "@@@session.user.name@@@ has just cooked up the everyday meal to feed the guild!"
+        es: "¡@@@session.user.name@@@ acaba de preparar el plato de diario para saciar al gremio!"
+      dt_c_repas_10:
+        fr: "@@@session.user.name@@@ a renoncé à préparer le plat du quotidien."
+        en: "@@@session.user.name@@@ gave up preparing the everyday meal."
+        es: "@@@session.user.name@@@ renunció a preparar el plato de diario."
+      dt_t_repas_11:
+        fr: "Faire un repas gastronomique"
+        en: "Prepare a gourmet meal"
+        es: "Preparar una comida gastronómica"
+      dt_a_repas_11:
+        fr: "Un festin de légende est attendu. Compose un repas gastronomique à plusieurs plats, digne d'un banquet, et dresse-le avec soin."
+        en: "A legendary feast is expected. Compose a multi-course gourmet meal worthy of a banquet, and plate it with care."
+        es: "Se espera un festín de leyenda. Compón una comida gastronómica de varios platos, digna de un banquete, y emplátala con esmero."
+      dt_d_repas_11:
+        fr: "@@@session.user.name@@@ vient de dresser un festin gastronomique digne des légendes !"
+        en: "@@@session.user.name@@@ has just laid out a gourmet feast worthy of legend!"
+        es: "¡@@@session.user.name@@@ acaba de servir un festín gastronómico digno de leyenda!"
+      dt_c_repas_11:
+        fr: "@@@session.user.name@@@ a renoncé face au festin gastronomique."
+        en: "@@@session.user.name@@@ gave up on the gourmet feast."
+        es: "@@@session.user.name@@@ renunció ante el festín gastronómico."
+
+      #------------- Tâches — vaisselle --------------------------------
+
+      dt_t_vaisselle_01:
+        fr: "Faire une petite vaisselle"
+        en: "Do a small washing-up"
+        es: "Lavar unos pocos platos"
+      dt_a_vaisselle_01:
+        fr: "Une pile d'assiettes-golems crasseuses s'entasse dans l'évier. Fais la vaisselle jusqu'à ce que tout soit propre et rangé à sécher."
+        en: "A stack of grimy plate-golems piles up in the sink. Do the washing-up until everything is clean and set to dry."
+        es: "Una pila de platos-gólem mugrientos se amontona en el fregadero. Lava los platos hasta que todo quede limpio y puesto a secar."
+      dt_d_vaisselle_01:
+        fr: "@@@session.user.name@@@ vient de terrasser la pile d'assiettes-golems de l'évier !"
+        en: "@@@session.user.name@@@ has just slain the stack of plate-golems in the sink!"
+        es: "¡@@@session.user.name@@@ acaba de derrotar la pila de platos-gólem del fregadero!"
+      dt_c_vaisselle_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant la pile d'assiettes-golems de l'évier."
+        en: "@@@session.user.name@@@ retreated before the stack of plate-golems in the sink."
+        es: "@@@session.user.name@@@ se retiró ante la pila de platos-gólem del fregadero."
+      dt_t_vaisselle_02:
+        fr: "Faire une grosse vaisselle"
+        en: "Do a big washing-up"
+        es: "Lavar muchos platos"
+      dt_a_vaisselle_02:
+        fr: "Une montagne d'assiettes-golems crasseuses déborde de l'évier après le festin. Lave toute la grosse vaisselle jusqu'à ce que tout soit propre et rangé à sécher."
+        en: "A mountain of grimy plate-golems overflows the sink after the feast. Tackle the whole big washing-up until everything is clean and set to dry."
+        es: "Una montaña de platos-gólem mugrientos desborda el fregadero tras el festín. Lava toda la vajilla hasta que todo quede limpio y puesto a secar."
+      dt_d_vaisselle_02:
+        fr: "@@@session.user.name@@@ vient de terrasser la montagne d'assiettes-golems de l'évier !"
+        en: "@@@session.user.name@@@ has just slain the mountain of plate-golems in the sink!"
+        es: "¡@@@session.user.name@@@ acaba de derrotar la montaña de platos-gólem del fregadero!"
+      dt_c_vaisselle_02:
+        fr: "@@@session.user.name@@@ a battu en retraite devant la montagne d'assiettes-golems de l'évier."
+        en: "@@@session.user.name@@@ retreated before the mountain of plate-golems in the sink."
+        es: "@@@session.user.name@@@ se retiró ante la montaña de platos-gólem del fregadero."
+      dt_t_vaisselle_03:
+        fr: "Remplir le lave-vaisselle"
+        en: "Load the dishwasher"
+        es: "Llenar el lavavajillas"
+      dt_a_vaisselle_03:
+        fr: "La vaisselle sale s'amoncelle en horde devant le lave-vaisselle. Charge-le entièrement et lance le cycle."
+        en: "Dirty dishes gather in a horde by the dishwasher. Load it fully and start the cycle."
+        es: "Los platos sucios se reúnen en horda junto al lavavajillas. Cárgalo por completo y pon el ciclo."
+      dt_d_vaisselle_03:
+        fr: "@@@session.user.name@@@ vient d'enfermer la horde de vaisselle dans le lave-vaisselle !"
+        en: "@@@session.user.name@@@ has just locked the horde of dishes into the dishwasher!"
+        es: "¡@@@session.user.name@@@ acaba de encerrar la horda de platos en el lavavajillas!"
+      dt_c_vaisselle_03:
+        fr: "@@@session.user.name@@@ a renoncé devant la horde de vaisselle du lave-vaisselle."
+        en: "@@@session.user.name@@@ gave up before the horde of dishes by the dishwasher."
+        es: "@@@session.user.name@@@ renunció ante la horda de platos del lavavajillas."
+      dt_t_vaisselle_04:
+        fr: "Vider le lave-vaisselle"
+        en: "Unload the dishwasher"
+        es: "Vaciar el lavavajillas"
+      dt_a_vaisselle_04:
+        fr: "Le lave-vaisselle regorge de vaisselle propre prisonnière. Vide-le et range chaque pièce à sa place."
+        en: "The dishwasher is full of trapped clean dishes. Unload it and put every piece back in its place."
+        es: "El lavavajillas está lleno de vajilla limpia atrapada. Vacíalo y guarda cada pieza en su sitio."
+      dt_d_vaisselle_04:
+        fr: "@@@session.user.name@@@ vient de libérer la vaisselle prisonnière du lave-vaisselle !"
+        en: "@@@session.user.name@@@ has just freed the trapped dishes from the dishwasher!"
+        es: "¡@@@session.user.name@@@ acaba de liberar la vajilla atrapada del lavavajillas!"
+      dt_c_vaisselle_04:
+        fr: "@@@session.user.name@@@ a renoncé à vider le lave-vaisselle."
+        en: "@@@session.user.name@@@ gave up unloading the dishwasher."
+        es: "@@@session.user.name@@@ renunció a vaciar el lavavajillas."
+      dt_t_vaisselle_05:
+        fr: "Sécher la vaisselle"
+        en: "Dry the dishes"
+        es: "Secar los platos"
+      dt_a_vaisselle_05:
+        fr: "La vaisselle propre ruisselle encore, prisonnière d'une nuée de gouttes. Sèche chaque pièce au torchon jusqu'à ce que tout soit sec et rangé."
+        en: "The clean dishes are still dripping, held captive by a swarm of droplets. Dry every piece with a cloth until everything is dry and put away."
+        es: "La vajilla limpia aún chorrea, prisionera de un enjambre de gotas. Seca cada pieza con un paño hasta que todo quede seco y guardado."
+      dt_d_vaisselle_05:
+        fr: "@@@session.user.name@@@ vient de chasser la nuée de gouttes de la vaisselle !"
+        en: "@@@session.user.name@@@ has just driven the swarm of droplets off the dishes!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar el enjambre de gotas de la vajilla!"
+      dt_c_vaisselle_05:
+        fr: "@@@session.user.name@@@ a renoncé à sécher la vaisselle ruisselante."
+        en: "@@@session.user.name@@@ gave up drying the dripping dishes."
+        es: "@@@session.user.name@@@ renunció a secar la vajilla chorreante."
+      dt_t_vaisselle_06:
+        fr: "Ranger la vaisselle"
+        en: "Put away the dishes"
+        es: "Guardar la vajilla"
+      dt_a_vaisselle_06:
+        fr: "La vaisselle propre et sèche s'entasse en pile branlante sur l'égouttoir. Range chaque pièce dans les placards jusqu'à un plan de travail dégagé."
+        en: "The clean, dry dishes pile up in a wobbly stack on the rack. Put every piece away in the cupboards until the worktop is clear."
+        es: "La vajilla limpia y seca se amontona en una pila tambaleante en el escurridor. Guarda cada pieza en los armarios hasta despejar la encimera."
+      dt_d_vaisselle_06:
+        fr: "@@@session.user.name@@@ vient de faire s'effondrer la pile de vaisselle dans les placards !"
+        en: "@@@session.user.name@@@ has just cleared the wobbling stack of dishes into the cupboards!"
+        es: "¡@@@session.user.name@@@ acaba de guardar la tambaleante pila de vajilla en los armarios!"
+      dt_c_vaisselle_06:
+        fr: "@@@session.user.name@@@ a renoncé à ranger la pile de vaisselle."
+        en: "@@@session.user.name@@@ gave up putting away the stack of dishes."
+        es: "@@@session.user.name@@@ renunció a guardar la pila de vajilla."
+      dt_t_vaisselle_07:
+        fr: "Mettre la table"
+        en: "Set the table"
+        es: "Poner la mesa"
+      dt_a_vaisselle_07:
+        fr: "Le festin approche et la table est nue. Dresse-la complètement : couverts, assiettes et verres pour chaque convive."
+        en: "The feast is coming and the table is bare. Set it fully: cutlery, plates and glasses for every guest."
+        es: "El festín se acerca y la mesa está desnuda. Ponla por completo: cubiertos, platos y vasos para cada comensal."
+      dt_d_vaisselle_07:
+        fr: "@@@session.user.name@@@ vient de dresser la table pour le festin !"
+        en: "@@@session.user.name@@@ has just set the table for the feast!"
+        es: "¡@@@session.user.name@@@ acaba de poner la mesa para el festín!"
+      dt_c_vaisselle_07:
+        fr: "@@@session.user.name@@@ a renoncé à dresser la table du festin."
+        en: "@@@session.user.name@@@ gave up setting the table for the feast."
+        es: "@@@session.user.name@@@ renunció a poner la mesa del festín."
+      dt_t_vaisselle_08:
+        fr: "Débarrasser la table"
+        en: "Clear the table"
+        es: "Quitar la mesa"
+      dt_a_vaisselle_08:
+        fr: "Après le festin, la table croule sous les reliefs. Débarrasse tout jusqu'à une table nette."
+        en: "After the feast, the table is buried under leftovers. Clear everything until the table is bare and clean."
+        es: "Tras el festín, la mesa se hunde bajo las sobras. Recógelo todo hasta dejar la mesa despejada y limpia."
+      dt_d_vaisselle_08:
+        fr: "@@@session.user.name@@@ vient de débarrasser la table du festin !"
+        en: "@@@session.user.name@@@ has just cleared the table after the feast!"
+        es: "¡@@@session.user.name@@@ acaba de recoger la mesa del festín!"
+      dt_c_vaisselle_08:
+        fr: "@@@session.user.name@@@ a renoncé à débarrasser la table du festin."
+        en: "@@@session.user.name@@@ gave up clearing the table after the feast."
+        es: "@@@session.user.name@@@ renunció a recoger la mesa del festín."
+      dt_t_vaisselle_09:
+        fr: "Entretenir le lave-vaisselle"
+        en: "Maintain the dishwasher"
+        es: "Mantener el lavavajillas"
+      dt_a_vaisselle_09:
+        fr: "Un golem de filtre encrassé ralentit le lave-vaisselle. Nettoie le filtre et lance un cycle à vide jusqu'à un appareil sain."
+        en: "A clogged-filter golem slows the dishwasher. Clean the filter and run an empty cycle until the machine is fresh."
+        es: "Un gólem de filtro atascado ralentiza el lavavajillas. Limpia el filtro y pon un ciclo en vacío hasta dejar la máquina sana."
+      dt_d_vaisselle_09:
+        fr: "@@@session.user.name@@@ vient de terrasser le golem de filtre du lave-vaisselle !"
+        en: "@@@session.user.name@@@ has just slain the filter golem of the dishwasher!"
+        es: "¡@@@session.user.name@@@ acaba de derrotar al gólem de filtro del lavavajillas!"
+      dt_c_vaisselle_09:
+        fr: "@@@session.user.name@@@ a renoncé face au golem de filtre du lave-vaisselle."
+        en: "@@@session.user.name@@@ gave up against the filter golem of the dishwasher."
+        es: "@@@session.user.name@@@ renunció ante el gólem de filtro del lavavajillas."
+
+      #------------- Tâches — salle de bain ----------------------------
+
+      dt_t_salle_de_bain_01:
+        fr: "Aspirer ou balayer"
+        en: "Vacuum or sweep"
+        es: "Aspirar o barrer"
+      dt_a_salle_de_bain_01:
+        fr: "Les moutons-gobelins de poussière envahissent la salle de bain ! Aspire ou balaie jusqu'à un sol net, recoins compris."
+        en: "Dust-bunny goblins overrun the bathroom! Vacuum or sweep until the floor is spotless, corners included."
+        es: "¡Los duendes de pelusa invaden el cuarto de baño! Aspira o barre hasta dejar el suelo impecable, rincones incluidos."
+      dt_d_salle_de_bain_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins de la salle de bain !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the bathroom!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del cuarto de baño!"
+      dt_c_salle_de_bain_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de la salle de bain."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the bathroom."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del cuarto de baño."
+      dt_t_salle_de_bain_02:
+        fr: "Faire les poussières"
+        en: "Dust"
+        es: "Quitar el polvo"
+      dt_a_salle_de_bain_02:
+        fr: "Des spectres de poussière se posent partout dans la salle de bain. Dépoussière chaque surface jusqu'à les faire disparaître."
+        en: "Dust wraiths settle all over the bathroom. Dust every surface until they vanish."
+        es: "Espectros de polvo se posan por todo el cuarto de baño. Quita el polvo de cada superficie hasta hacerlos desaparecer."
+      dt_d_salle_de_bain_02:
+        fr: "@@@session.user.name@@@ vient de dissiper les spectres de poussière de la salle de bain !"
+        en: "@@@session.user.name@@@ has just banished the dust wraiths of the bathroom!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del cuarto de baño!"
+      dt_c_salle_de_bain_02:
+        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière de la salle de bain."
+        en: "@@@session.user.name@@@ gave up against the dust wraiths of the bathroom."
+        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del cuarto de baño."
+      dt_t_salle_de_bain_03:
+        fr: "Laver le sol"
+        en: "Mop the floor"
+        es: "Fregar el suelo"
+      dt_a_salle_de_bain_03:
+        fr: "Des limaces de crasse traînent sur le sol de la salle de bain. Lave jusqu'à ce qu'il brille, sans trace collante."
+        en: "Grime slugs trail across the bathroom floor. Mop until it shines, with no sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo del cuarto de baño. Friega hasta que brille, sin zonas pegajosas."
+      dt_d_salle_de_bain_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse de la salle de bain !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the bathroom!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del cuarto de baño!"
+      dt_c_salle_de_bain_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de la salle de bain."
+        en: "@@@session.user.name@@@ slipped back from the grime slugs of the bathroom."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del cuarto de baño."
+      dt_t_salle_de_bain_04:
+        fr: "Nettoyer les vitres"
+        en: "Clean the windows"
+        es: "Limpiar las ventanas"
+      dt_a_salle_de_bain_04:
+        fr: "Des lutins de traces grasses brouillent les vitres de la salle de bain. Nettoie jusqu'à une transparence parfaite."
+        en: "Greasy-smudge imps blur the bathroom windows. Clean until perfectly clear."
+        es: "Duendes de manchas empañan las ventanas del cuarto de baño. Limpia hasta una transparencia perfecta."
+      dt_d_salle_de_bain_04:
+        fr: "@@@session.user.name@@@ vient de chasser les lutins des vitres de la salle de bain !"
+        en: "@@@session.user.name@@@ has just driven off the smudge imps from the bathroom windows!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas del cuarto de baño!"
+      dt_c_salle_de_bain_04:
+        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres de la salle de bain."
+        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the bathroom windows."
+        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas del cuarto de baño."
+      dt_t_salle_de_bain_05:
+        fr: "Nettoyer le lavabo"
+        en: "Clean the washbasin"
+        es: "Limpiar el lavabo"
+      dt_a_salle_de_bain_05:
+        fr: "Des golems de calcaire encroûtent le lavabo. Récure cuvette et robinet jusqu'à un lavabo net et brillant."
+        en: "Limescale golems crust the washbasin. Scrub the bowl and tap until the basin is clean and shining."
+        es: "Gólems de cal incrustan el lavabo. Frota la pila y el grifo hasta dejar el lavabo limpio y brillante."
+      dt_d_salle_de_bain_05:
+        fr: "@@@session.user.name@@@ vient de briser les golems de calcaire du lavabo !"
+        en: "@@@session.user.name@@@ has just shattered the limescale golems of the washbasin!"
+        es: "¡@@@session.user.name@@@ acaba de romper los gólems de cal del lavabo!"
+      dt_c_salle_de_bain_05:
+        fr: "@@@session.user.name@@@ a renoncé face aux golems de calcaire du lavabo."
+        en: "@@@session.user.name@@@ gave up against the limescale golems of the washbasin."
+        es: "@@@session.user.name@@@ renunció ante los gólems de cal del lavabo."
+      dt_t_salle_de_bain_06:
+        fr: "Nettoyer le miroir"
+        en: "Clean the mirror"
+        es: "Limpiar el espejo"
+      dt_a_salle_de_bain_06:
+        fr: "Des buée-spectres ternissent le miroir de la salle de bain. Nettoie-le jusqu'à un reflet clair et net."
+        en: "Steam-wraiths cloud the bathroom mirror. Clean it until the reflection is clear and sharp."
+        es: "Espectros de vaho empañan el espejo del cuarto de baño. Límpialo hasta un reflejo claro y nítido."
+      dt_d_salle_de_bain_06:
+        fr: "@@@session.user.name@@@ vient de dissiper les buée-spectres du miroir de la salle de bain !"
+        en: "@@@session.user.name@@@ has just dispelled the steam-wraiths of the bathroom mirror!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de vaho del espejo del cuarto de baño!"
+      dt_c_salle_de_bain_06:
+        fr: "@@@session.user.name@@@ a renoncé face aux buée-spectres du miroir de la salle de bain."
+        en: "@@@session.user.name@@@ gave up against the steam-wraiths of the bathroom mirror."
+        es: "@@@session.user.name@@@ renunció ante los espectros de vaho del espejo del cuarto de baño."
+      dt_t_salle_de_bain_07:
+        fr: "Nettoyer la douche"
+        en: "Clean the shower"
+        es: "Limpiar la ducha"
+      dt_a_salle_de_bain_07:
+        fr: "Une hydre de calcaire et de moisi s'agrippe à la douche. Récure parois, joints et bonde jusqu'à une douche nette."
+        en: "A hydra of limescale and mould clings to the shower. Scrub the walls, seals and drain until the shower is spotless."
+        es: "Una hidra de cal y moho se aferra a la ducha. Frota paredes, juntas y desagüe hasta dejar la ducha impecable."
+      dt_d_salle_de_bain_07:
+        fr: "@@@session.user.name@@@ vient de décapiter l'hydre de calcaire de la douche !"
+        en: "@@@session.user.name@@@ has just beheaded the limescale hydra of the shower!"
+        es: "¡@@@session.user.name@@@ acaba de decapitar a la hidra de cal de la ducha!"
+      dt_c_salle_de_bain_07:
+        fr: "@@@session.user.name@@@ a battu en retraite devant l'hydre de calcaire de la douche."
+        en: "@@@session.user.name@@@ retreated before the limescale hydra of the shower."
+        es: "@@@session.user.name@@@ se retiró ante la hidra de cal de la ducha."
+      dt_t_salle_de_bain_08:
+        fr: "Nettoyer la baignoire"
+        en: "Clean the bathtub"
+        es: "Limpiar la bañera"
+      dt_a_salle_de_bain_08:
+        fr: "Des cernes-trolls encerclent la baignoire. Récure jusqu'à une baignoire nette, sans dépôt ni anneau."
+        en: "Ring-trolls encircle the bathtub. Scrub until the tub is clean, with no deposits or rings."
+        es: "Troles de cerco rodean la bañera. Frota hasta una bañera limpia, sin depósitos ni cercos."
+      dt_d_salle_de_bain_08:
+        fr: "@@@session.user.name@@@ vient de chasser les cernes-trolls de la baignoire !"
+        en: "@@@session.user.name@@@ has just driven off the ring-trolls of the bathtub!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar a los troles de cerco de la bañera!"
+      dt_c_salle_de_bain_08:
+        fr: "@@@session.user.name@@@ a renoncé face aux cernes-trolls de la baignoire."
+        en: "@@@session.user.name@@@ gave up against the ring-trolls of the bathtub."
+        es: "@@@session.user.name@@@ renunció ante los troles de cerco de la bañera."
+      dt_t_salle_de_bain_10:
+        fr: "Changer les serviettes"
+        en: "Change the towels"
+        es: "Cambiar las toallas"
+      dt_a_salle_de_bain_10:
+        fr: "Les serviettes-zombies humides traînent dans la salle de bain. Remplace-les par des serviettes propres et sèches."
+        en: "Damp towel-zombies linger in the bathroom. Replace them with clean, dry towels."
+        es: "Toallas-zombi húmedas pululan por el cuarto de baño. Sustitúyelas por toallas limpias y secas."
+      dt_d_salle_de_bain_10:
+        fr: "@@@session.user.name@@@ vient de bannir les serviettes-zombies de la salle de bain !"
+        en: "@@@session.user.name@@@ has just banished the towel-zombies of the bathroom!"
+        es: "¡@@@session.user.name@@@ acaba de desterrar a las toallas-zombi del cuarto de baño!"
+      dt_c_salle_de_bain_10:
+        fr: "@@@session.user.name@@@ a renoncé face aux serviettes-zombies de la salle de bain."
+        en: "@@@session.user.name@@@ gave up against the towel-zombies of the bathroom."
+        es: "@@@session.user.name@@@ renunció ante las toallas-zombi del cuarto de baño."
+      dt_t_salle_de_bain_11:
+        fr: "Nettoyer les joints et le carrelage"
+        en: "Clean the tiles and grout"
+        es: "Limpiar las juntas y los azulejos"
+      dt_a_salle_de_bain_11:
+        fr: "Une moisissure noire colonise les joints et le carrelage de la salle de bain. Récure jusqu'à des joints nets et clairs."
+        en: "Black mould colonises the bathroom tiles and grout. Scrub until the grout is clean and bright."
+        es: "Moho negro coloniza las juntas y los azulejos del cuarto de baño. Frota hasta dejar las juntas limpias y claras."
+      dt_d_salle_de_bain_11:
+        fr: "@@@session.user.name@@@ vient d'éradiquer la moisissure noire des joints de la salle de bain !"
+        en: "@@@session.user.name@@@ has just eradicated the black mould of the bathroom grout!"
+        es: "¡@@@session.user.name@@@ acaba de erradicar el moho negro de las juntas del cuarto de baño!"
+      dt_c_salle_de_bain_11:
+        fr: "@@@session.user.name@@@ a battu en retraite devant la moisissure noire des joints de la salle de bain."
+        en: "@@@session.user.name@@@ retreated before the black mould of the bathroom grout."
+        es: "@@@session.user.name@@@ se retiró ante el moho negro de las juntas del cuarto de baño."
+      dt_t_salle_de_bain_12:
+        fr: "Détartrer la robinetterie"
+        en: "Descale the taps"
+        es: "Descalcificar la grifería"
+      dt_a_salle_de_bain_12:
+        fr: "Des golems de calcaire entartrent la robinetterie de la salle de bain. Détartre jusqu'à une robinetterie brillante."
+        en: "Limescale golems crust the bathroom taps. Descale until the taps shine."
+        es: "Gólems de cal incrustan la grifería del cuarto de baño. Descalcifica hasta una grifería brillante."
+      dt_d_salle_de_bain_12:
+        fr: "@@@session.user.name@@@ vient de briser les golems de calcaire de la robinetterie de la salle de bain !"
+        en: "@@@session.user.name@@@ has just shattered the limescale golems of the bathroom taps!"
+        es: "¡@@@session.user.name@@@ acaba de romper los gólems de cal de la grifería del cuarto de baño!"
+      dt_c_salle_de_bain_12:
+        fr: "@@@session.user.name@@@ a renoncé face aux golems de calcaire de la robinetterie de la salle de bain."
+        en: "@@@session.user.name@@@ gave up against the limescale golems of the bathroom taps."
+        es: "@@@session.user.name@@@ renunció ante los gólems de cal de la grifería del cuarto de baño."
+
+      #------------- Tâches — toilettes --------------------------------
+
+      dt_t_toilettes_01:
+        fr: "Aspirer ou balayer"
+        en: "Vacuum or sweep"
+        es: "Aspirar o barrer"
+      dt_a_toilettes_01:
+        fr: "Les moutons-gobelins de poussière envahissent les toilettes ! Aspire ou balaie jusqu'à un sol net, recoins compris."
+        en: "Dust-bunny goblins overrun the toilet! Vacuum or sweep until the floor is spotless, corners included."
+        es: "¡Los duendes de pelusa invaden el baño! Aspira o barre hasta dejar el suelo impecable, rincones incluidos."
+      dt_d_toilettes_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins des toilettes !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the toilet!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del baño!"
+      dt_c_toilettes_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins des toilettes."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the toilet."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del baño."
+      dt_t_toilettes_02:
+        fr: "Faire les poussières"
+        en: "Dust"
+        es: "Quitar el polvo"
+      dt_a_toilettes_02:
+        fr: "Des spectres de poussière se posent partout dans les toilettes. Dépoussière chaque surface jusqu'à les faire disparaître."
+        en: "Dust wraiths settle all over the toilet. Dust every surface until they vanish."
+        es: "Espectros de polvo se posan por todo el baño. Quita el polvo de cada superficie hasta hacerlos desaparecer."
+      dt_d_toilettes_02:
+        fr: "@@@session.user.name@@@ vient de dissiper les spectres de poussière des toilettes !"
+        en: "@@@session.user.name@@@ has just banished the dust wraiths of the toilet!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del baño!"
+      dt_c_toilettes_02:
+        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière des toilettes."
+        en: "@@@session.user.name@@@ gave up against the dust wraiths of the toilet."
+        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del baño."
+      dt_t_toilettes_03:
+        fr: "Laver le sol"
+        en: "Mop the floor"
+        es: "Fregar el suelo"
+      dt_a_toilettes_03:
+        fr: "Des limaces de crasse traînent sur le sol des toilettes. Lave jusqu'à ce qu'il brille, sans trace collante."
+        en: "Grime slugs trail across the toilet floor. Mop until it shines, with no sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo del baño. Friega hasta que brille, sin zonas pegajosas."
+      dt_d_toilettes_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse des toilettes !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the toilet!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del baño!"
+      dt_c_toilettes_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse des toilettes."
+        en: "@@@session.user.name@@@ slipped back from the grime slugs of the toilet."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del baño."
+      dt_t_toilettes_04:
+        fr: "Nettoyer la cuvette"
+        en: "Clean the bowl"
+        es: "Limpiar la taza del inodoro"
+      dt_a_toilettes_04:
+        fr: "Un monstre de tartre et de bactéries niche dans la cuvette. Récure jusqu'à une cuvette nette et désinfectée."
+        en: "A monster of limescale and bacteria nests in the toilet bowl. Scrub until the bowl is clean and disinfected."
+        es: "Un monstruo de cal y bacterias anida en la taza del inodoro. Frota hasta dejar la taza limpia y desinfectada."
+      dt_d_toilettes_04:
+        fr: "@@@session.user.name@@@ vient de terrasser le monstre de la cuvette des toilettes !"
+        en: "@@@session.user.name@@@ has just slain the monster of the toilet bowl!"
+        es: "¡@@@session.user.name@@@ acaba de derrotar al monstruo de la taza del inodoro!"
+      dt_c_toilettes_04:
+        fr: "@@@session.user.name@@@ a battu en retraite devant le monstre de la cuvette des toilettes."
+        en: "@@@session.user.name@@@ retreated before the monster of the toilet bowl."
+        es: "@@@session.user.name@@@ se retiró ante el monstruo de la taza del inodoro."
+      dt_t_toilettes_06:
+        fr: "Nettoyer les murs"
+        en: "Clean the walls"
+        es: "Limpiar las paredes"
+      dt_a_toilettes_06:
+        fr: "Des éclaboussures invisibles maculent les murs des toilettes. Nettoie-les jusqu'à des parois nettes."
+        en: "Invisible splashes stain the toilet walls. Clean them until the walls are spotless."
+        es: "Salpicaduras invisibles manchan las paredes del baño. Límpialas hasta dejar las paredes impecables."
+      dt_d_toilettes_06:
+        fr: "@@@session.user.name@@@ vient d'effacer les éclaboussures des murs des toilettes !"
+        en: "@@@session.user.name@@@ has just wiped away the splashes of the toilet walls!"
+        es: "¡@@@session.user.name@@@ acaba de borrar las salpicaduras de las paredes del baño!"
+      dt_c_toilettes_06:
+        fr: "@@@session.user.name@@@ a renoncé face aux éclaboussures des murs des toilettes."
+        en: "@@@session.user.name@@@ gave up against the splashes of the toilet walls."
+        es: "@@@session.user.name@@@ renunció ante las salpicaduras de las paredes del baño."
+
+      #------------- Tâches — couloir ----------------------------------
+
+      dt_t_couloir_01:
+        fr: "Aspirer ou balayer le couloir"
+        en: "Vacuum or sweep the hallway"
+        es: "Aspirar o barrer el pasillo"
+      dt_a_couloir_01:
+        fr: "Les moutons-gobelins de poussière envahissent le couloir ! Aspire ou balaie jusqu'à un sol net, recoins compris."
+        en: "Dust-bunny goblins overrun the hallway! Vacuum or sweep until the floor is spotless, corners included."
+        es: "¡Los duendes de pelusa invaden el pasillo! Aspira o barre hasta dejar el suelo impecable, rincones incluidos."
+      dt_d_couloir_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins du couloir !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the hallway!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del pasillo!"
+      dt_c_couloir_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins du couloir."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the hallway."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del pasillo."
+      dt_t_couloir_02:
+        fr: "Faire les poussières du couloir"
+        en: "Dust the hallway"
+        es: "Quitar el polvo del pasillo"
+      dt_a_couloir_02:
+        fr: "Des spectres de poussière se posent le long du couloir. Dépoussière chaque surface jusqu'à les faire disparaître."
+        en: "Dust wraiths settle along the hallway. Dust every surface until they vanish."
+        es: "Espectros de polvo se posan a lo largo del pasillo. Quita el polvo de cada superficie hasta hacerlos desaparecer."
+      dt_d_couloir_02:
+        fr: "@@@session.user.name@@@ vient de dissiper les spectres de poussière du couloir !"
+        en: "@@@session.user.name@@@ has just banished the dust wraiths of the hallway!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del pasillo!"
+      dt_c_couloir_02:
+        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière du couloir."
+        en: "@@@session.user.name@@@ gave up against the dust wraiths of the hallway."
+        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del pasillo."
+      dt_t_couloir_03:
+        fr: "Laver le sol du couloir"
+        en: "Mop the hallway floor"
+        es: "Fregar el suelo del pasillo"
+      dt_a_couloir_03:
+        fr: "Des limaces de crasse traînent sur le sol du couloir. Lave jusqu'à ce qu'il brille, sans trace collante."
+        en: "Grime slugs trail across the hallway floor. Mop until it shines, with no sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo del pasillo. Friega hasta que brille, sin zonas pegajosas."
+      dt_d_couloir_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse du couloir !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the hallway!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del pasillo!"
+      dt_c_couloir_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse du couloir."
+        en: "@@@session.user.name@@@ slipped back from the grime slugs of the hallway."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del pasillo."
+      dt_t_couloir_04:
+        fr: "Laver les murs du couloir"
+        en: "Wash the hallway walls"
+        es: "Lavar las paredes del pasillo"
+      dt_a_couloir_04:
+        fr: "Des traces-fantômes et des éclaboussures maculent les murs du couloir. Lave-les jusqu'à des parois nettes."
+        en: "Ghostly marks and splatters stain the hallway walls. Wash them until the walls are spotless."
+        es: "Marcas fantasma y salpicaduras manchan las paredes del pasillo. Lávalas hasta dejar las paredes impecables."
+      dt_d_couloir_04:
+        fr: "@@@session.user.name@@@ vient d'effacer les traces-fantômes des murs du couloir !"
+        en: "@@@session.user.name@@@ has just wiped the ghostly marks off the hallway walls!"
+        es: "¡@@@session.user.name@@@ acaba de borrar las marcas fantasma de las paredes del pasillo!"
+      dt_c_couloir_04:
+        fr: "@@@session.user.name@@@ a renoncé à laver les murs du couloir."
+        en: "@@@session.user.name@@@ gave up washing the hallway walls."
+        es: "@@@session.user.name@@@ renunció a lavar las paredes del pasillo."
+
+      #------------- Tâches — entrée -----------------------------------
+
+      dt_t_entree_01:
+        fr: "Aspirer ou balayer l'entrée"
+        en: "Vacuum or sweep the entrance"
+        es: "Aspirar o barrer la entrada"
+      dt_a_entree_01:
+        fr: "Les moutons-gobelins de poussière envahissent l'entrée ! Aspire ou balaie jusqu'à un sol net, recoins compris."
+        en: "Dust-bunny goblins overrun the entrance hall! Vacuum or sweep until the floor is spotless, corners included."
+        es: "¡Los duendes de pelusa invaden la entrada! Aspira o barre hasta dejar el suelo impecable, rincones incluidos."
+      dt_d_entree_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins de l'entrée !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the entrance hall!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa de la entrada!"
+      dt_c_entree_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de l'entrée."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the entrance hall."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa de la entrada."
+      dt_t_entree_02:
+        fr: "Faire les poussières de l'entrée"
+        en: "Dust the entrance"
+        es: "Quitar el polvo de la entrada"
+      dt_a_entree_02:
+        fr: "Des spectres de poussière se posent dans l'entrée. Dépoussière chaque surface jusqu'à les faire disparaître."
+        en: "Dust wraiths settle in the entrance hall. Dust every surface until they vanish."
+        es: "Espectros de polvo se posan en la entrada. Quita el polvo de cada superficie hasta hacerlos desaparecer."
+      dt_d_entree_02:
+        fr: "@@@session.user.name@@@ vient de dissiper les spectres de poussière de l'entrée !"
+        en: "@@@session.user.name@@@ has just banished the dust wraiths of the entrance hall!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo de la entrada!"
+      dt_c_entree_02:
+        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière de l'entrée."
+        en: "@@@session.user.name@@@ gave up against the dust wraiths of the entrance hall."
+        es: "@@@session.user.name@@@ renunció ante los espectros de polvo de la entrada."
+      dt_t_entree_03:
+        fr: "Laver le sol de l'entrée"
+        en: "Mop the entrance floor"
+        es: "Fregar el suelo de la entrada"
+      dt_a_entree_03:
+        fr: "Des limaces de crasse traînent sur le sol de l'entrée. Lave jusqu'à ce qu'il brille, sans trace collante."
+        en: "Grime slugs trail across the entrance hall floor. Mop until it shines, with no sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo de la entrada. Friega hasta que brille, sin zonas pegajosas."
+      dt_d_entree_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse de l'entrée !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the entrance hall!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre de la entrada!"
+      dt_c_entree_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de l'entrée."
+        en: "@@@session.user.name@@@ slipped back from the grime slugs of the entrance hall."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre de la entrada."
+      dt_t_entree_04:
+        fr: "Laver les murs de l'entrée"
+        en: "Wash the entrance walls"
+        es: "Lavar las paredes de la entrada"
+      dt_a_entree_04:
+        fr: "Des traces-fantômes et des éclaboussures maculent les murs de l'entrée. Lave-les jusqu'à des parois nettes."
+        en: "Ghostly marks and splatters stain the entrance walls. Wash them until the walls are spotless."
+        es: "Marcas fantasma y salpicaduras manchan las paredes de la entrada. Lávalas hasta dejar las paredes impecables."
+      dt_d_entree_04:
+        fr: "@@@session.user.name@@@ vient d'effacer les traces-fantômes des murs de l'entrée !"
+        en: "@@@session.user.name@@@ has just wiped the ghostly marks off the entrance walls!"
+        es: "¡@@@session.user.name@@@ acaba de borrar las marcas fantasma de las paredes de la entrada!"
+      dt_c_entree_04:
+        fr: "@@@session.user.name@@@ a renoncé à laver les murs de l'entrée."
+        en: "@@@session.user.name@@@ gave up washing the entrance walls."
+        es: "@@@session.user.name@@@ renunció a lavar las paredes de la entrada."
+
+      #------------- Tâches — bureau -----------------------------------
+
+      dt_t_bureau_01:
+        fr: "Aspirer ou balayer"
+        en: "Vacuum or sweep"
+        es: "Aspirar o barrer"
+      dt_a_bureau_01:
+        fr: "Les moutons-gobelins de poussière envahissent le bureau ! Aspire ou balaie jusqu'à un sol net, recoins compris."
+        en: "Dust-bunny goblins overrun the office! Vacuum or sweep until the floor is spotless, corners included."
+        es: "¡Los duendes de pelusa invaden el despacho! Aspira o barre hasta dejar el suelo impecable, rincones incluidos."
+      dt_d_bureau_01:
+        fr: "@@@session.user.name@@@ vient de pulvériser les moutons-gobelins du bureau !"
+        en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the office!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del despacho!"
+      dt_c_bureau_01:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins du bureau."
+        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the office."
+        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del despacho."
+      dt_t_bureau_02:
+        fr: "Faire les poussières"
+        en: "Dust"
+        es: "Quitar el polvo"
+      dt_a_bureau_02:
+        fr: "Des spectres de poussière se posent sur le bureau et ses étagères. Dépoussière jusqu'à les faire disparaître."
+        en: "Dust wraiths settle on the office desk and shelves. Dust until they vanish."
+        es: "Espectros de polvo se posan en el escritorio y las estanterías del despacho. Quita el polvo hasta hacerlos desaparecer."
+      dt_d_bureau_02:
+        fr: "@@@session.user.name@@@ vient de dissiper les spectres de poussière du bureau !"
+        en: "@@@session.user.name@@@ has just banished the dust wraiths of the office!"
+        es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del despacho!"
+      dt_c_bureau_02:
+        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière du bureau."
+        en: "@@@session.user.name@@@ gave up against the dust wraiths of the office."
+        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del despacho."
+      dt_t_bureau_03:
+        fr: "Laver le sol"
+        en: "Mop the floor"
+        es: "Fregar el suelo"
+      dt_a_bureau_03:
+        fr: "Des limaces de crasse traînent sur le sol du bureau. Lave jusqu'à ce qu'il brille, sans trace collante."
+        en: "Grime slugs trail across the office floor. Mop until it shines, with no sticky patches."
+        es: "Babosas de mugre dejan rastros en el suelo del despacho. Friega hasta que brille, sin zonas pegajosas."
+      dt_d_bureau_03:
+        fr: "@@@session.user.name@@@ vient d'écraser les limaces de crasse du bureau !"
+        en: "@@@session.user.name@@@ has just squashed the grime slugs of the office!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del despacho!"
+      dt_c_bureau_03:
+        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse du bureau."
+        en: "@@@session.user.name@@@ slipped back from the grime slugs of the office."
+        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del despacho."
+      dt_t_bureau_04:
+        fr: "Nettoyer les vitres"
+        en: "Clean the windows"
+        es: "Limpiar las ventanas"
+      dt_a_bureau_04:
+        fr: "Des lutins de traces grasses brouillent les vitres du bureau. Nettoie jusqu'à une transparence parfaite."
+        en: "Greasy-smudge imps blur the office windows. Clean until perfectly clear."
+        es: "Duendes de manchas empañan las ventanas del despacho. Limpia hasta una transparencia perfecta."
+      dt_d_bureau_04:
+        fr: "@@@session.user.name@@@ vient de chasser les lutins des vitres du bureau !"
+        en: "@@@session.user.name@@@ has just driven off the smudge imps from the office windows!"
+        es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas del despacho!"
+      dt_c_bureau_04:
+        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres du bureau."
+        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the office windows."
+        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas del despacho."
+      dt_t_bureau_05:
+        fr: "Nettoyer le plan de travail"
+        en: "Clean the worktop"
+        es: "Limpiar la superficie de trabajo"
+      dt_a_bureau_05:
+        fr: "Des croûtes grasses et des miettes recouvrent le plan de travail du bureau. Nettoie jusqu'à une surface nette."
+        en: "Greasy crusts and crumbs cover the office worktop. Clean until the surface is spotless."
+        es: "Costras grasientas y migas cubren la superficie de trabajo del despacho. Limpia hasta una superficie impecable."
+      dt_d_bureau_05:
+        fr: "@@@session.user.name@@@ vient de récurer les croûtes du plan de travail du bureau !"
+        en: "@@@session.user.name@@@ has just scoured the crusts off the office worktop!"
+        es: "¡@@@session.user.name@@@ acaba de fregar las costras de la superficie de trabajo del despacho!"
+      dt_c_bureau_05:
+        fr: "@@@session.user.name@@@ a renoncé face aux croûtes du plan de travail du bureau."
+        en: "@@@session.user.name@@@ gave up against the crusts of the office worktop."
+        es: "@@@session.user.name@@@ renunció ante las costras de la superficie de trabajo del despacho."
+      dt_t_bureau_06:
+        fr: "Ranger"
+        en: "Tidy"
+        es: "Ordenar"
+      dt_a_bureau_06:
+        fr: "Les gobelins du désordre ont semé le chaos sur le bureau. Range papiers et objets jusqu'à un espace ordonné."
+        en: "Clutter goblins have spread chaos across the office. Sort papers and objects until the space is tidy."
+        es: "Los trasgos del desorden han sembrado el caos en el despacho. Ordena papeles y objetos hasta un espacio ordenado."
+      dt_d_bureau_06:
+        fr: "@@@session.user.name@@@ vient de mater les gobelins du désordre du bureau !"
+        en: "@@@session.user.name@@@ has just subdued the clutter goblins of the office!"
+        es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden del despacho!"
+      dt_c_bureau_06:
+        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre du bureau."
+        en: "@@@session.user.name@@@ gave up before the clutter goblins of the office."
+        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden del despacho."
+
+      #------------- Tâches — terrasse ---------------------------------
+
+      dt_t_terrasse_01:
+        fr: "Balayer la terrasse"
+        en: "Sweep the terrace"
+        es: "Barrer la terraza"
+      dt_a_terrasse_01:
+        fr: "Feuilles mortes et débris s'amassent en tas-gobelins sur la terrasse. Balaie jusqu'à un sol dégagé."
+        en: "Dead leaves and debris pile into goblin-heaps on the terrace. Sweep until the floor is clear."
+        es: "Hojas secas y restos se amontonan en montones-trasgo en la terraza. Barre hasta dejar el suelo despejado."
+      dt_d_terrasse_01:
+        fr: "@@@session.user.name@@@ vient de balayer les tas-gobelins de la terrasse !"
+        en: "@@@session.user.name@@@ has just swept away the goblin-heaps of the terrace!"
+        es: "¡@@@session.user.name@@@ acaba de barrer los montones-trasgo de la terraza!"
+      dt_c_terrasse_01:
+        fr: "@@@session.user.name@@@ a renoncé face aux tas-gobelins de la terrasse."
+        en: "@@@session.user.name@@@ gave up against the goblin-heaps of the terrace."
+        es: "@@@session.user.name@@@ renunció ante los montones-trasgo de la terraza."
+      dt_t_terrasse_02:
+        fr: "Laver la terrasse"
+        en: "Wash the terrace"
+        es: "Lavar la terraza"
+      dt_a_terrasse_02:
+        fr: "Une croûte de crasse incrustée recouvre la terrasse. Lave à grande eau jusqu'à un sol propre."
+        en: "An ingrained crust of grime coats the terrace. Wash it down until the floor is clean."
+        es: "Una costra de mugre incrustada cubre la terraza. Lava con agua abundante hasta un suelo limpio."
+      dt_d_terrasse_02:
+        fr: "@@@session.user.name@@@ vient de décaper la croûte de crasse de la terrasse !"
+        en: "@@@session.user.name@@@ has just stripped the grime crust off the terrace!"
+        es: "¡@@@session.user.name@@@ acaba de decapar la costra de mugre de la terraza!"
+      dt_c_terrasse_02:
+        fr: "@@@session.user.name@@@ a renoncé face à la croûte de crasse de la terrasse."
+        en: "@@@session.user.name@@@ gave up against the grime crust of the terrace."
+        es: "@@@session.user.name@@@ renunció ante la costra de mugre de la terraza."
+
+      #------------- Tâches — balcon -----------------------------------
+
+      dt_t_balcon_01:
+        fr: "Balayer le balcon"
+        en: "Sweep the balcony"
+        es: "Barrer el balcón"
+      dt_a_balcon_01:
+        fr: "Feuilles mortes et débris s'amassent en tas-gobelins sur le balcon. Balaie jusqu'à un sol dégagé."
+        en: "Dead leaves and debris pile into goblin-heaps on the balcony. Sweep until the floor is clear."
+        es: "Hojas secas y restos se amontonan en montones-trasgo en el balcón. Barre hasta dejar el suelo despejado."
+      dt_d_balcon_01:
+        fr: "@@@session.user.name@@@ vient de balayer les tas-gobelins du balcon !"
+        en: "@@@session.user.name@@@ has just swept away the goblin-heaps of the balcony!"
+        es: "¡@@@session.user.name@@@ acaba de barrer los montones-trasgo del balcón!"
+      dt_c_balcon_01:
+        fr: "@@@session.user.name@@@ a renoncé face aux tas-gobelins du balcon."
+        en: "@@@session.user.name@@@ gave up against the goblin-heaps of the balcony."
+        es: "@@@session.user.name@@@ renunció ante los montones-trasgo del balcón."
+      dt_t_balcon_02:
+        fr: "Laver le balcon"
+        en: "Wash the balcony"
+        es: "Lavar el balcón"
+      dt_a_balcon_02:
+        fr: "Une croûte de crasse incrustée recouvre le balcon. Lave à grande eau jusqu'à un sol propre."
+        en: "An ingrained crust of grime coats the balcony. Wash it down until the floor is clean."
+        es: "Una costra de mugre incrustada cubre el balcón. Lava con agua abundante hasta un suelo limpio."
+      dt_d_balcon_02:
+        fr: "@@@session.user.name@@@ vient de décaper la croûte de crasse du balcon !"
+        en: "@@@session.user.name@@@ has just stripped the grime crust off the balcony!"
+        es: "¡@@@session.user.name@@@ acaba de decapar la costra de mugre del balcón!"
+      dt_c_balcon_02:
+        fr: "@@@session.user.name@@@ a renoncé face à la croûte de crasse du balcon."
+        en: "@@@session.user.name@@@ gave up against the grime crust of the balcony."
+        es: "@@@session.user.name@@@ renunció ante la costra de mugre del balcón."
+      dt_t_terrasse_03:
+        fr: "Arroser les plantes"
+        en: "Water the plants"
+        es: "Regar las plantas"
+      dt_a_terrasse_03:
+        fr: "Les plantes du balcon et de la terrasse se dessèchent au soleil. Arrose-les toutes jusqu'à une terre bien humide."
+        en: "The balcony and terrace plants are drying out in the sun. Water them all until the soil is well moistened."
+        es: "Las plantas del balcón y la terraza se secan al sol. Riégalas todas hasta que la tierra quede bien húmeda."
+      dt_d_terrasse_03:
+        fr: "@@@session.user.name@@@ vient d'abreuver les plantes assoiffées du balcon et de la terrasse !"
+        en: "@@@session.user.name@@@ has just quenched the thirsty balcony and terrace plants!"
+        es: "¡@@@session.user.name@@@ acaba de saciar a las plantas sedientas del balcón y la terraza!"
+      dt_c_terrasse_03:
+        fr: "@@@session.user.name@@@ a renoncé à arroser les plantes du balcon et de la terrasse."
+        en: "@@@session.user.name@@@ gave up watering the balcony and terrace plants."
+        es: "@@@session.user.name@@@ renunció a regar las plantas del balcón y la terraza."
+
+      #------------- Tâches — jardin -----------------------------------
+
+      dt_t_jardin_01:
+        fr: "Ramasser les feuilles mortes"
+        en: "Rake up the dead leaves"
+        es: "Recoger las hojas secas"
+      dt_a_jardin_01:
+        fr: "Feuilles mortes et brindilles s'amassent en tas-gobelins dans le jardin. Ramasse-les jusqu'à un sol net."
+        en: "Dead leaves and twigs pile into goblin-heaps in the garden. Rake and gather them until the ground is clear."
+        es: "Hojas secas y ramitas se amontonan en montones-trasgo en el jardín. Recógelas hasta un suelo despejado."
+      dt_d_jardin_01:
+        fr: "@@@session.user.name@@@ vient de ramasser les tas-gobelins de feuilles du jardin !"
+        en: "@@@session.user.name@@@ has just raked up the goblin-heaps of leaves in the garden!"
+        es: "¡@@@session.user.name@@@ acaba de recoger los montones-trasgo de hojas del jardín!"
+      dt_c_jardin_01:
+        fr: "@@@session.user.name@@@ a renoncé face aux tas-gobelins de feuilles du jardin."
+        en: "@@@session.user.name@@@ gave up against the goblin-heaps of leaves in the garden."
+        es: "@@@session.user.name@@@ renunció ante los montones-trasgo de hojas del jardín."
+      dt_t_jardin_02:
+        fr: "Tondre la pelouse"
+        en: "Mow the lawn"
+        es: "Cortar el césped"
+      dt_a_jardin_02:
+        fr: "L'herbe-hydre a poussé en désordre sur la pelouse. Tonds jusqu'à une pelouse égale et nette."
+        en: "The grass-hydra has grown wild over the lawn. Mow until the lawn is even and neat."
+        es: "La hierba-hidra ha crecido salvaje en el césped. Corta hasta dejar el césped uniforme y limpio."
+      dt_d_jardin_02:
+        fr: "@@@session.user.name@@@ vient de dompter l'herbe-hydre de la pelouse !"
+        en: "@@@session.user.name@@@ has just tamed the grass-hydra of the lawn!"
+        es: "¡@@@session.user.name@@@ acaba de domar la hierba-hidra del césped!"
+      dt_c_jardin_02:
+        fr: "@@@session.user.name@@@ a renoncé face à l'herbe-hydre de la pelouse."
+        en: "@@@session.user.name@@@ gave up against the grass-hydra of the lawn."
+        es: "@@@session.user.name@@@ renunció ante la hierba-hidra del césped."
+      dt_t_jardin_03:
+        fr: "Arroser les plantes"
+        en: "Water the plants"
+        es: "Regar las plantas"
+      dt_a_jardin_03:
+        fr: "Les plantes du jardin dépérissent de soif. Arrose-les toutes jusqu'à une terre bien humide."
+        en: "The garden plants are withering with thirst. Water them all until the soil is well moistened."
+        es: "Las plantas del jardín se marchitan de sed. Riégalas todas hasta que la tierra quede bien húmeda."
+      dt_d_jardin_03:
+        fr: "@@@session.user.name@@@ vient d'abreuver les plantes assoiffées du jardin !"
+        en: "@@@session.user.name@@@ has just quenched the thirsty plants of the garden!"
+        es: "¡@@@session.user.name@@@ acaba de saciar a las plantas sedientas del jardín!"
+      dt_c_jardin_03:
+        fr: "@@@session.user.name@@@ a renoncé à arroser les plantes du jardin."
+        en: "@@@session.user.name@@@ gave up watering the garden plants."
+        es: "@@@session.user.name@@@ renunció a regar las plantas del jardín."
+      dt_t_jardin_04:
+        fr: "Nettoyer les allées"
+        en: "Clean the paths"
+        es: "Limpiar los caminos"
+      dt_a_jardin_04:
+        fr: "Mousse et saletés encombrent les allées du jardin. Nettoie-les jusqu'à des chemins dégagés."
+        en: "Moss and dirt clog the garden paths. Clean them until the paths are clear."
+        es: "Musgo y suciedad obstruyen los caminos del jardín. Límpialos hasta dejar los senderos despejados."
+      dt_d_jardin_04:
+        fr: "@@@session.user.name@@@ vient de dégager les allées du jardin !"
+        en: "@@@session.user.name@@@ has just cleared the garden paths!"
+        es: "¡@@@session.user.name@@@ acaba de despejar los caminos del jardín!"
+      dt_c_jardin_04:
+        fr: "@@@session.user.name@@@ a renoncé face à la mousse des allées du jardin."
+        en: "@@@session.user.name@@@ gave up against the moss of the garden paths."
+        es: "@@@session.user.name@@@ renunció ante el musgo de los caminos del jardín."
+      dt_t_jardin_05:
+        fr: "Désherber"
+        en: "Weed"
+        es: "Desherbar"
+      dt_a_jardin_05:
+        fr: "Des herbes-gobelines envahissent les massifs du jardin. Désherbe jusqu'à des parterres nets."
+        en: "Weed-goblins invade the garden beds. Weed until the beds are clear."
+        es: "Hierbas-trasgo invaden los parterres del jardín. Desherba hasta dejar los macizos limpios."
+      dt_d_jardin_05:
+        fr: "@@@session.user.name@@@ vient d'arracher les herbes-gobelines du jardin !"
+        en: "@@@session.user.name@@@ has just torn out the weed-goblins of the garden!"
+        es: "¡@@@session.user.name@@@ acaba de arrancar las hierbas-trasgo del jardín!"
+      dt_c_jardin_05:
+        fr: "@@@session.user.name@@@ a renoncé face aux herbes-gobelines du jardin."
+        en: "@@@session.user.name@@@ gave up against the weed-goblins of the garden."
+        es: "@@@session.user.name@@@ renunció ante las hierbas-trasgo del jardín."
+      dt_t_jardin_06:
+        fr: "Tailler les haies ou les plantes"
+        en: "Trim the hedges or plants"
+        es: "Recortar los setos o las plantas"
+      dt_a_jardin_06:
+        fr: "Les haies-trolls poussent en broussaille dans le jardin. Taille haies et plantes jusqu'à des formes nettes."
+        en: "Hedge-trolls grow wild and bushy in the garden. Trim the hedges and plants until they are neatly shaped."
+        es: "Los setos-trol crecen enmarañados en el jardín. Recorta setos y plantas hasta darles forma limpia."
+      dt_d_jardin_06:
+        fr: "@@@session.user.name@@@ vient de dompter les haies-trolls du jardin !"
+        en: "@@@session.user.name@@@ has just tamed the hedge-trolls of the garden!"
+        es: "¡@@@session.user.name@@@ acaba de domar a los setos-trol del jardín!"
+      dt_c_jardin_06:
+        fr: "@@@session.user.name@@@ a renoncé face aux haies-trolls du jardin."
+        en: "@@@session.user.name@@@ gave up against the hedge-trolls of the garden."
+        es: "@@@session.user.name@@@ renunció ante los setos-trol del jardín."
+
+      #------------- Tâches — linge ------------------------------------
+
+      dt_t_linge_01:
+        fr: "Trier le linge sale"
+        en: "Sort the dirty laundry"
+        es: "Clasificar la ropa sucia"
+      dt_a_linge_01:
+        fr: "Un tas-troll de linge sale grandit dans le panier. Trie blanc, couleur et délicat en piles distinctes."
+        en: "A laundry-troll of dirty clothes grows in the basket. Sort whites, colours and delicates into separate piles."
+        es: "Un troll de ropa sucia crece en el cesto. Clasifica blancos, colores y delicados en montones separados."
+      dt_d_linge_01:
+        fr: "@@@session.user.name@@@ vient de trier le tas-troll de linge sale !"
+        en: "@@@session.user.name@@@ has just sorted the laundry-troll of dirty clothes!"
+        es: "¡@@@session.user.name@@@ acaba de clasificar el troll de ropa sucia!"
+      dt_c_linge_01:
+        fr: "@@@session.user.name@@@ a renoncé face au tas-troll de linge sale."
+        en: "@@@session.user.name@@@ gave up against the laundry-troll of dirty clothes."
+        es: "@@@session.user.name@@@ renunció ante el troll de ropa sucia."
+      dt_t_linge_02:
+        fr: "Lancer une machine à laver"
+        en: "Run a washing machine cycle"
+        es: "Poner una lavadora"
+      dt_a_linge_02:
+        fr: "Le tas-troll de linge sale réclame le bain purificateur. Lance une machine à laver adaptée et démarre le cycle."
+        en: "The laundry-troll of dirty clothes demands the cleansing bath. Start a suitable washing machine cycle."
+        es: "El troll de ropa sucia reclama el baño purificador. Pon una lavadora adecuada y arranca el ciclo."
+      dt_d_linge_02:
+        fr: "@@@session.user.name@@@ vient de jeter le linge sale dans le bain purificateur !"
+        en: "@@@session.user.name@@@ has just cast the dirty laundry into the cleansing bath!"
+        es: "¡@@@session.user.name@@@ acaba de arrojar la ropa sucia al baño purificador!"
+      dt_c_linge_02:
+        fr: "@@@session.user.name@@@ a renoncé à lancer la machine à laver."
+        en: "@@@session.user.name@@@ gave up starting the washing machine."
+        es: "@@@session.user.name@@@ renunció a poner la lavadora."
+      dt_t_linge_02_alt:
+        fr: "Emporter le linge à la laverie"
+        en: "Take the laundry to the launderette"
+        es: "Llevar la ropa a la lavandería"
+      dt_a_linge_02_alt:
+        fr: "Le tas-troll de linge sale doit voyager. Emporte-le à la laverie et lance le lavage."
+        en: "The laundry-troll of dirty clothes must travel. Take it to the launderette and start the wash."
+        es: "El troll de ropa sucia debe viajar. Llévalo a la lavandería y pon el lavado."
+      dt_d_linge_02_alt:
+        fr: "@@@session.user.name@@@ vient de porter le linge sale jusqu'à la laverie !"
+        en: "@@@session.user.name@@@ has just carried the dirty laundry to the launderette!"
+        es: "¡@@@session.user.name@@@ acaba de llevar la ropa sucia a la lavandería!"
+      dt_c_linge_02_alt:
+        fr: "@@@session.user.name@@@ a renoncé à porter le linge à la laverie."
+        en: "@@@session.user.name@@@ gave up taking the laundry to the launderette."
+        es: "@@@session.user.name@@@ renunció a llevar la ropa a la lavandería."
+      dt_t_linge_03:
+        fr: "Étendre le linge"
+        en: "Hang out the laundry"
+        es: "Tender la ropa"
+      dt_a_linge_03:
+        fr: "Le linge mouillé sort du bain et risque le moisi. Étends-le entièrement pour qu'il sèche."
+        en: "The wet laundry leaves the bath and risks mould. Hang it all out to dry."
+        es: "La ropa mojada sale del baño y corre riesgo de moho. Tiéndela toda para que se seque."
+      dt_d_linge_03:
+        fr: "@@@session.user.name@@@ vient d'étendre le linge mouillé à sécher !"
+        en: "@@@session.user.name@@@ has just hung out the wet laundry to dry!"
+        es: "¡@@@session.user.name@@@ acaba de tender la ropa mojada para secar!"
+      dt_c_linge_03:
+        fr: "@@@session.user.name@@@ a renoncé à étendre le linge mouillé."
+        en: "@@@session.user.name@@@ gave up hanging out the wet laundry."
+        es: "@@@session.user.name@@@ renunció a tender la ropa mojada."
+      dt_t_linge_04:
+        fr: "Ramasser le linge sec"
+        en: "Collect the dry laundry"
+        es: "Recoger la ropa seca"
+      dt_a_linge_04:
+        fr: "Le linge sec attend sur le fil. Ramasse-le entièrement avant qu'il ne reprenne la poussière."
+        en: "The dry laundry waits on the line. Collect it all before it gathers dust again."
+        es: "La ropa seca espera en el tendedero. Recógela toda antes de que vuelva a coger polvo."
+      dt_d_linge_04:
+        fr: "@@@session.user.name@@@ vient de ramasser le linge sec du fil !"
+        en: "@@@session.user.name@@@ has just collected the dry laundry from the line!"
+        es: "¡@@@session.user.name@@@ acaba de recoger la ropa seca del tendedero!"
+      dt_c_linge_04:
+        fr: "@@@session.user.name@@@ a renoncé à ramasser le linge sec."
+        en: "@@@session.user.name@@@ gave up collecting the dry laundry."
+        es: "@@@session.user.name@@@ renunció a recoger la ropa seca."
+      dt_t_linge_05:
+        fr: "Plier le linge"
+        en: "Fold the laundry"
+        es: "Doblar la ropa"
+      dt_a_linge_05:
+        fr: "Le linge sec s'entasse en monticule chaotique. Plie chaque pièce jusqu'à des piles nettes."
+        en: "The dry laundry piles into a chaotic mound. Fold every piece into neat stacks."
+        es: "La ropa seca se amontona en un montón caótico. Dobla cada prenda en pilas ordenadas."
+      dt_d_linge_05:
+        fr: "@@@session.user.name@@@ vient de plier le monticule de linge sec !"
+        en: "@@@session.user.name@@@ has just folded the mound of dry laundry!"
+        es: "¡@@@session.user.name@@@ acaba de doblar el montón de ropa seca!"
+      dt_c_linge_05:
+        fr: "@@@session.user.name@@@ a renoncé à plier le linge sec."
+        en: "@@@session.user.name@@@ gave up folding the dry laundry."
+        es: "@@@session.user.name@@@ renunció a doblar la ropa seca."
+      dt_t_linge_06:
+        fr: "Ranger le linge"
+        en: "Put away the laundry"
+        es: "Guardar la ropa"
+      dt_a_linge_06:
+        fr: "Le linge plié attend d'être mis à l'abri. Range chaque pile dans son armoire ou tiroir."
+        en: "The folded laundry waits to be stored. Put every stack away in its wardrobe or drawer."
+        es: "La ropa doblada espera ser guardada. Coloca cada pila en su armario o cajón."
+      dt_d_linge_06:
+        fr: "@@@session.user.name@@@ vient de ranger tout le linge plié !"
+        en: "@@@session.user.name@@@ has just put away all the folded laundry!"
+        es: "¡@@@session.user.name@@@ acaba de guardar toda la ropa doblada!"
+      dt_c_linge_06:
+        fr: "@@@session.user.name@@@ a renoncé à ranger le linge plié."
+        en: "@@@session.user.name@@@ gave up putting away the folded laundry."
+        es: "@@@session.user.name@@@ renunció a guardar la ropa doblada."
+      dt_t_linge_08:
+        fr: "Repasser le linge"
+        en: "Iron the laundry"
+        es: "Planchar la ropa"
+      dt_a_linge_08:
+        fr: "Des plis-gremlins froissent le linge propre. Repasse jusqu'à un linge lisse et net."
+        en: "Wrinkle-gremlins crease the clean laundry. Iron until the clothes are smooth and crisp."
+        es: "Gremlins de arrugas estrujan la ropa limpia. Plancha hasta dejar la ropa lisa y nítida."
+      dt_d_linge_08:
+        fr: "@@@session.user.name@@@ vient d'écraser les plis-gremlins du linge !"
+        en: "@@@session.user.name@@@ has just flattened the wrinkle-gremlins of the laundry!"
+        es: "¡@@@session.user.name@@@ acaba de aplastar a los gremlins de arrugas de la ropa!"
+      dt_c_linge_08:
+        fr: "@@@session.user.name@@@ a renoncé face aux plis-gremlins du linge."
+        en: "@@@session.user.name@@@ gave up against the wrinkle-gremlins of the laundry."
+        es: "@@@session.user.name@@@ renunció ante los gremlins de arrugas de la ropa."
+      dt_t_linge_09:
+        fr: "Entretenir la machine à laver (joint, bac, cycle à vide)"
+        en: "Maintain the washing machine (seal, tray, empty cycle)"
+        es: "Mantener la lavadora (junta, cajón, ciclo en vacío)"
+      dt_a_linge_09:
+        fr: "Un golem de moisi s'installe dans le joint et le bac de la machine à laver. Nettoie et lance un cycle à vide."
+        en: "A mould-golem settles in the seal and tray of the washing machine. Clean them and run an empty cycle."
+        es: "Un gólem de moho se instala en la junta y el cajón de la lavadora. Límpialos y pon un ciclo en vacío."
+      dt_d_linge_09:
+        fr: "@@@session.user.name@@@ vient de purger le golem de moisi de la machine à laver !"
+        en: "@@@session.user.name@@@ has just purged the mould-golem of the washing machine!"
+        es: "¡@@@session.user.name@@@ acaba de purgar al gólem de moho de la lavadora!"
+      dt_c_linge_09:
+        fr: "@@@session.user.name@@@ a renoncé face au golem de moisi de la machine à laver."
+        en: "@@@session.user.name@@@ gave up against the mould-golem of the washing machine."
+        es: "@@@session.user.name@@@ renunció ante el gólem de moho de la lavadora."
+
+      #------------- Tâches — déchets ----------------------------------
+
+      dt_t_dechets_01:
+        fr: "Sortir les poubelles"
+        en: "Take out the bins"
+        es: "Sacar la basura"
+      dt_a_dechets_01:
+        fr: "Les nauséabonds blob-ordures contaminent la maison ! Sors les poubelles et remets un sac neuf. Attention aux petits déchets qu'ils laissent derrière, ce sont des pièges."
+        en: "The stinking garbage blobs are contaminating the house! Take out the bins and fit a new bag. Beware the little scraps they leave behind, they are traps."
+        es: "¡Los apestosos blobs de basura contaminan la casa! Saca la basura y pon una bolsa nueva. Cuidado con los pequeños restos que dejan, son trampas."
+      dt_d_dechets_01:
+        fr: "@@@session.user.name@@@ vient d'éliminer les blob-ordures de la maison !"
+        en: "@@@session.user.name@@@ has just wiped out the garbage blobs of the house!"
+        es: "¡@@@session.user.name@@@ acaba de eliminar los blobs de basura de la casa!"
+      dt_c_dechets_01:
+        fr: "@@@session.user.name@@@ a dû sonner la retraite devant la puanteur extrême des blob-ordures."
+        en: "@@@session.user.name@@@ had to sound the retreat before the foul stench of the garbage blobs."
+        es: "@@@session.user.name@@@ tuvo que tocar retirada ante el hedor extremo de los blobs de basura."
+      dt_t_dechets_02:
+        fr: "Changer les sacs poubelle"
+        en: "Change the bin bags"
+        es: "Cambiar las bolsas de basura"
+      dt_a_dechets_02:
+        fr: "Les sacs pleins débordent et nourrissent les blob-ordures. Remplace-les par des sacs neufs bien fermés."
+        en: "The full bags overflow and feed the garbage blobs. Replace them with fresh, well-tied bags."
+        es: "Las bolsas llenas rebosan y alimentan a los blobs de basura. Sustitúyelas por bolsas nuevas bien cerradas."
+      dt_d_dechets_02:
+        fr: "@@@session.user.name@@@ vient de couper les vivres aux blob-ordures en changeant les sacs !"
+        en: "@@@session.user.name@@@ has just starved the garbage blobs by changing the bags!"
+        es: "¡@@@session.user.name@@@ acaba de cortar el suministro a los blobs de basura cambiando las bolsas!"
+      dt_c_dechets_02:
+        fr: "@@@session.user.name@@@ a renoncé à changer les sacs poubelle."
+        en: "@@@session.user.name@@@ gave up changing the bin bags."
+        es: "@@@session.user.name@@@ renunció a cambiar las bolsas de basura."
+      dt_t_dechets_03:
+        fr: "Trier les déchets"
+        en: "Sort the recycling"
+        es: "Separar los residuos"
+      dt_a_dechets_03:
+        fr: "Les déchets s'amassent en un magma indistinct. Trie-les par bac de recyclage jusqu'au dernier."
+        en: "The waste gathers into an indistinct magma. Sort it into the right recycling bins, down to the last item."
+        es: "Los residuos se acumulan en un magma indistinto. Sepáralos en los contenedores de reciclaje hasta el último."
+      dt_d_dechets_03:
+        fr: "@@@session.user.name@@@ vient de trier le magma de déchets !"
+        en: "@@@session.user.name@@@ has just sorted the magma of waste!"
+        es: "¡@@@session.user.name@@@ acaba de separar el magma de residuos!"
+      dt_c_dechets_03:
+        fr: "@@@session.user.name@@@ a renoncé à trier le magma de déchets."
+        en: "@@@session.user.name@@@ gave up sorting the magma of waste."
+        es: "@@@session.user.name@@@ renunció a separar el magma de residuos."
+      dt_t_dechets_04:
+        fr: "Descendre le verre ou le recyclage au point de collecte"
+        en: "Take glass or recycling to the collection point"
+        es: "Bajar el vidrio o el reciclaje al punto de recogida"
+      dt_a_dechets_04:
+        fr: "Verre et recyclage s'accumulent en pile branlante. Descends-les au point de collecte et vide tout."
+        en: "Glass and recycling stack into a wobbling pile. Take them to the collection point and empty everything."
+        es: "Vidrio y reciclaje se apilan en un montón tambaleante. Bájalos al punto de recogida y vacíalo todo."
+      dt_d_dechets_04:
+        fr: "@@@session.user.name@@@ vient de porter le verre et le recyclage au point de collecte !"
+        en: "@@@session.user.name@@@ has just hauled the glass and recycling to the collection point!"
+        es: "¡@@@session.user.name@@@ acaba de llevar el vidrio y el reciclaje al punto de recogida!"
+      dt_c_dechets_04:
+        fr: "@@@session.user.name@@@ a renoncé à descendre le verre et le recyclage."
+        en: "@@@session.user.name@@@ gave up taking the glass and recycling down."
+        es: "@@@session.user.name@@@ renunció a bajar el vidrio y el reciclaje."
+      dt_t_dechets_05:
+        fr: "Vider les bio-déchets dans le composteur"
+        en: "Empty food waste into the compost bin"
+        es: "Vaciar los residuos orgánicos en el compostador"
+      dt_a_dechets_05:
+        fr: "Les bio-déchets fermentent et attirent les mouches-lutins. Vide-les dans le composteur et referme bien."
+        en: "The food waste ferments and draws fly-imps. Empty it into the compost bin and close it tight."
+        es: "Los residuos orgánicos fermentan y atraen a los duendes-mosca. Vacíalos en el compostador y ciérralo bien."
+      dt_d_dechets_05:
+        fr: "@@@session.user.name@@@ vient de vider les bio-déchets dans le composteur !"
+        en: "@@@session.user.name@@@ has just emptied the food waste into the compost bin!"
+        es: "¡@@@session.user.name@@@ acaba de vaciar los residuos orgánicos en el compostador!"
+      dt_c_dechets_05:
+        fr: "@@@session.user.name@@@ a renoncé à vider les bio-déchets dans le composteur."
+        en: "@@@session.user.name@@@ gave up emptying the food waste into the compost bin."
+        es: "@@@session.user.name@@@ renunció a vaciar los residuos orgánicos en el compostador."
+      dt_t_dechets_06:
+        fr: "Vider les corbeilles et petites poubelles"
+        en: "Empty the small bins and wastepaper baskets"
+        es: "Vaciar las papeleras y cubos pequeños"
+      dt_a_dechets_06:
+        fr: "Les petites poubelles et corbeilles débordent dans chaque pièce. Vide-les toutes jusqu'à la dernière."
+        en: "The small bins and wastepaper baskets overflow in every room. Empty them all, down to the last one."
+        es: "Las papeleras y cubos pequeños rebosan en cada habitación. Vacíalos todos hasta el último."
+      dt_d_dechets_06:
+        fr: "@@@session.user.name@@@ vient de vider toutes les corbeilles de la maison !"
+        en: "@@@session.user.name@@@ has just emptied every wastepaper basket in the house!"
+        es: "¡@@@session.user.name@@@ acaba de vaciar todas las papeleras de la casa!"
+      dt_c_dechets_06:
+        fr: "@@@session.user.name@@@ a renoncé à vider les corbeilles et petites poubelles."
+        en: "@@@session.user.name@@@ gave up emptying the small bins and baskets."
+        es: "@@@session.user.name@@@ renunció a vaciar las papeleras y cubos pequeños."
+      dt_t_dechets_07:
+        fr: "Nettoyer la poubelle"
+        en: "Clean the bin"
+        es: "Limpiar el cubo de basura"
+      dt_a_dechets_07:
+        fr: "Les blob-ordures suintent dans la poubelle de cuisine. Vide, lave et désinfecte jusqu'à une poubelle propre et sans odeur."
+        en: "Garbage blobs ooze in the kitchen bin. Empty, wash and disinfect until the bin is clean and odourless."
+        es: "Los blobs de basura rezuman en el cubo de la cocina. Vacía, lava y desinfecta hasta un cubo limpio y sin olor."
+      dt_d_dechets_07:
+        fr: "@@@session.user.name@@@ vient de dissoudre les blob-ordures de la poubelle de cuisine !"
+        en: "@@@session.user.name@@@ has just dissolved the garbage blobs of the kitchen bin!"
+        es: "¡@@@session.user.name@@@ acaba de disolver los blobs de basura del cubo de la cocina!"
+      dt_c_dechets_07:
+        fr: "@@@session.user.name@@@ a battu en retraite devant les blob-ordures de la poubelle de cuisine."
+        en: "@@@session.user.name@@@ retreated before the garbage blobs of the kitchen bin."
+        es: "@@@session.user.name@@@ se retiró ante los blobs de basura del cubo de la cocina."
+
+      #------------- Tâches — animaux ----------------------------------
+
+      dt_t_animaux_01:
+        fr: "Nourrir la bête"
+        en: "Feed the beast"
+        es: "Alimentar a la bestia"
+      dt_a_animaux_01:
+        fr: "Le familier de la maisonnée a faim et réclame sa pitance. Nourris-le avec la juste ration."
+        en: "The household familiar is hungry and demands its meal. Feed it the right portion."
+        es: "El familiar de la casa tiene hambre y reclama su comida. Dale la ración adecuada."
+      dt_d_animaux_01:
+        fr: "@@@session.user.name@@@ vient de nourrir le familier affamé !"
+        en: "@@@session.user.name@@@ has just fed the hungry familiar!"
+        es: "¡@@@session.user.name@@@ acaba de alimentar al familiar hambriento!"
+      dt_c_animaux_01:
+        fr: "@@@session.user.name@@@ a renoncé à nourrir le familier."
+        en: "@@@session.user.name@@@ gave up feeding the familiar."
+        es: "@@@session.user.name@@@ renunció a alimentar al familiar."
+      dt_t_animaux_02:
+        fr: "Changer l'eau de la bête"
+        en: "Change the beast's water"
+        es: "Cambiar el agua de la bestia"
+      dt_a_animaux_02:
+        fr: "L'eau du familier est trouble et croupie. Change-la pour une eau claire et fraîche."
+        en: "The familiar's water is cloudy and stale. Change it for clean, fresh water."
+        es: "El agua del familiar está turbia y estancada. Cámbiala por agua limpia y fresca."
+      dt_d_animaux_02:
+        fr: "@@@session.user.name@@@ vient de renouveler l'eau du familier !"
+        en: "@@@session.user.name@@@ has just refreshed the familiar's water!"
+        es: "¡@@@session.user.name@@@ acaba de renovar el agua del familiar!"
+      dt_c_animaux_02:
+        fr: "@@@session.user.name@@@ a renoncé à changer l'eau du familier."
+        en: "@@@session.user.name@@@ gave up changing the familiar's water."
+        es: "@@@session.user.name@@@ renunció a cambiar el agua del familiar."
+      dt_t_animaux_03:
+        fr: "Nettoyer l'antre de la bête"
+        en: "Clean the beast's lair"
+        es: "Limpiar la guarida de la bestia"
+      dt_a_animaux_03:
+        fr: "La litière, la cage ou l'aquarium du familier vire au repaire nauséabond. Nettoie jusqu'à un espace sain."
+        en: "The familiar's litter box, cage or aquarium is turning into a foul lair. Clean it until the space is wholesome."
+        es: "El arenero, la jaula o el acuario del familiar se vuelve una guarida apestosa. Limpia hasta un espacio sano."
+      dt_d_animaux_03:
+        fr: "@@@session.user.name@@@ vient d'assainir le repaire du familier !"
+        en: "@@@session.user.name@@@ has just cleansed the familiar's lair!"
+        es: "¡@@@session.user.name@@@ acaba de sanear la guarida del familiar!"
+      dt_c_animaux_03:
+        fr: "@@@session.user.name@@@ a battu en retraite devant le repaire nauséabond du familier."
+        en: "@@@session.user.name@@@ retreated before the foul lair of the familiar."
+        es: "@@@session.user.name@@@ se retiró ante la guarida apestosa del familiar."
+      dt_t_animaux_05:
+        fr: "Nettoyer ou brosser les poils de la bête"
+        en: "Clean or brush the beast's fur"
+        es: "Limpiar o cepillar el pelo de la bestia"
+      dt_a_animaux_05:
+        fr: "Le pelage du familier s'emmêle en nœuds-lutins. Brosse ou nettoie jusqu'à un poil net et démêlé."
+        en: "The familiar's coat tangles into knot-imps. Brush or clean until the fur is clean and untangled."
+        es: "El pelaje del familiar se enreda en duendes-nudo. Cepilla o limpia hasta un pelo limpio y desenredado."
+      dt_d_animaux_05:
+        fr: "@@@session.user.name@@@ vient de démêler les nœuds-lutins du familier !"
+        en: "@@@session.user.name@@@ has just untangled the knot-imps of the familiar!"
+        es: "¡@@@session.user.name@@@ acaba de desenredar los duendes-nudo del familiar!"
+      dt_c_animaux_05:
+        fr: "@@@session.user.name@@@ a renoncé à brosser le familier."
+        en: "@@@session.user.name@@@ gave up brushing the familiar."
+        es: "@@@session.user.name@@@ renunció a cepillar al familiar."
+
+      #------------- Tâches — voiture ----------------------------------
+
+      dt_t_voiture_01:
+        fr: "Nettoyer l'intérieur de la voiture"
+        en: "Clean the inside of the car"
+        es: "Limpiar el interior del coche"
+      dt_a_voiture_01:
+        fr: "Miettes et poussières colonisent l'intérieur de la voiture. Nettoie l'habitacle jusqu'à un intérieur net."
+        en: "Crumbs and dust colonise the inside of the car. Clean the cabin until the interior is spotless."
+        es: "Migas y polvo colonizan el interior del coche. Limpia el habitáculo hasta un interior impecable."
+      dt_d_voiture_01:
+        fr: "@@@session.user.name@@@ vient de nettoyer l'intérieur de la voiture !"
+        en: "@@@session.user.name@@@ has just cleaned the inside of the car!"
+        es: "¡@@@session.user.name@@@ acaba de limpiar el interior del coche!"
+      dt_c_voiture_01:
+        fr: "@@@session.user.name@@@ a renoncé à nettoyer l'intérieur de la voiture."
+        en: "@@@session.user.name@@@ gave up cleaning the inside of the car."
+        es: "@@@session.user.name@@@ renunció a limpiar el interior del coche."
+      dt_t_voiture_02:
+        fr: "Nettoyer l'extérieur de la voiture"
+        en: "Clean the outside of the car"
+        es: "Limpiar el exterior del coche"
+      dt_a_voiture_02:
+        fr: "Une croûte de crasse et d'insectes recouvre la carrosserie. Lave l'extérieur de la voiture jusqu'à une carrosserie brillante."
+        en: "A crust of grime and insects coats the bodywork. Wash the outside of the car until the bodywork shines."
+        es: "Una costra de mugre e insectos cubre la carrocería. Lava el exterior del coche hasta una carrocería brillante."
+      dt_d_voiture_02:
+        fr: "@@@session.user.name@@@ vient de décaper la croûte de crasse de la voiture !"
+        en: "@@@session.user.name@@@ has just stripped the grime crust off the car!"
+        es: "¡@@@session.user.name@@@ acaba de decapar la costra de mugre del coche!"
+      dt_c_voiture_02:
+        fr: "@@@session.user.name@@@ a renoncé à laver l'extérieur de la voiture."
+        en: "@@@session.user.name@@@ gave up washing the outside of the car."
+        es: "@@@session.user.name@@@ renunció a lavar el exterior del coche."
+
+      #------------- Tâches — moto -------------------------------------
+
+      dt_t_moto_01:
+        fr: "Nettoyer la moto"
+        en: "Clean the motorbike"
+        es: "Limpiar la moto"
+      dt_a_moto_01:
+        fr: "Une croûte de boue et d'insectes recouvre la moto. Nettoie-la jusqu'à une machine brillante."
+        en: "A crust of mud and insects coats the motorbike. Clean it until the machine shines."
+        es: "Una costra de barro e insectos cubre la moto. Límpiala hasta una máquina brillante."
+      dt_d_moto_01:
+        fr: "@@@session.user.name@@@ vient de décaper la croûte de boue de la moto !"
+        en: "@@@session.user.name@@@ has just stripped the mud crust off the motorbike!"
+        es: "¡@@@session.user.name@@@ acaba de decapar la costra de barro de la moto!"
+      dt_c_moto_01:
+        fr: "@@@session.user.name@@@ a renoncé à nettoyer la moto."
+        en: "@@@session.user.name@@@ gave up cleaning the motorbike."
+        es: "@@@session.user.name@@@ renunció a limpiar la moto."
+
+      #------------- Tâches — garage -----------------------------------
+
+      dt_t_garage_01:
+        fr: "Balayer"
+        en: "Sweep"
+        es: "Barrer"
+      dt_a_garage_01:
+        fr: "Poussière et débris s'amassent en tas-gobelins sur le sol du garage. Balaie jusqu'à un sol dégagé."
+        en: "Dust and debris pile into goblin-heaps on the garage floor. Sweep until the floor is clear."
+        es: "Polvo y restos se amontonan en montones-trasgo en el suelo del garaje. Barre hasta un suelo despejado."
+      dt_d_garage_01:
+        fr: "@@@session.user.name@@@ vient de balayer les tas-gobelins du garage !"
+        en: "@@@session.user.name@@@ has just swept away the goblin-heaps of the garage!"
+        es: "¡@@@session.user.name@@@ acaba de barrer los montones-trasgo del garaje!"
+      dt_c_garage_01:
+        fr: "@@@session.user.name@@@ a renoncé face aux tas-gobelins du garage."
+        en: "@@@session.user.name@@@ gave up against the goblin-heaps of the garage."
+        es: "@@@session.user.name@@@ renunció ante los montones-trasgo del garaje."
+      dt_t_garage_02:
+        fr: "Nettoyer le sol"
+        en: "Clean the floor"
+        es: "Limpiar el suelo"
+      dt_a_garage_02:
+        fr: "Des taches d'huile et de crasse maculent le sol du garage. Nettoie jusqu'à un sol net."
+        en: "Oil stains and grime mark the garage floor. Clean until the floor is spotless."
+        es: "Manchas de aceite y mugre marcan el suelo del garaje. Limpia hasta un suelo impecable."
+      dt_d_garage_02:
+        fr: "@@@session.user.name@@@ vient de récurer les taches du sol du garage !"
+        en: "@@@session.user.name@@@ has just scoured the stains off the garage floor!"
+        es: "¡@@@session.user.name@@@ acaba de fregar las manchas del suelo del garaje!"
+      dt_c_garage_02:
+        fr: "@@@session.user.name@@@ a renoncé à nettoyer le sol du garage."
+        en: "@@@session.user.name@@@ gave up cleaning the garage floor."
+        es: "@@@session.user.name@@@ renunció a limpiar el suelo del garaje."
+      dt_t_garage_03:
+        fr: "Ranger l'établi"
+        en: "Tidy the workbench"
+        es: "Ordenar el banco de trabajo"
+      dt_a_garage_03:
+        fr: "Les gobelins du désordre ont envahi l'établi. Range outils et pièces jusqu'à un plan de travail dégagé."
+        en: "Clutter goblins have invaded the workbench. Sort tools and parts until the bench is clear."
+        es: "Los trasgos del desorden han invadido el banco de trabajo. Ordena herramientas y piezas hasta despejar el banco."
+      dt_d_garage_03:
+        fr: "@@@session.user.name@@@ vient de mater les gobelins du désordre de l'établi !"
+        en: "@@@session.user.name@@@ has just subdued the clutter goblins of the workbench!"
+        es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden del banco de trabajo!"
+      dt_c_garage_03:
+        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre de l'établi."
+        en: "@@@session.user.name@@@ gave up before the clutter goblins of the workbench."
+        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden del banco de trabajo."
+      dt_t_garage_04:
+        fr: "Désencombrer"
+        en: "Declutter"
+        es: "Despejar"
+      dt_a_garage_04:
+        fr: "Un amas-troll d'objets encombre le garage. Désencombre et range jusqu'à des passages dégagés."
+        en: "A clutter-troll of objects fills the garage. Declutter and tidy until the walkways are clear."
+        es: "Un troll de trastos abarrota el garaje. Despeja y ordena hasta dejar los pasillos libres."
+      dt_d_garage_04:
+        fr: "@@@session.user.name@@@ vient de réduire l'amas-troll du garage !"
+        en: "@@@session.user.name@@@ has just cut down the clutter-troll of the garage!"
+        es: "¡@@@session.user.name@@@ acaba de reducir el troll de trastos del garaje!"
+      dt_c_garage_04:
+        fr: "@@@session.user.name@@@ a renoncé face à l'amas-troll du garage."
+        en: "@@@session.user.name@@@ gave up against the clutter-troll of the garage."
+        es: "@@@session.user.name@@@ renunció ante el troll de trastos del garaje."
+      dt_t_garage_05:
+        fr: "Nettoyer les outils"
+        en: "Clean the tools"
+        es: "Limpiar las herramientas"
+      dt_a_garage_05:
+        fr: "Rouille et crasse gagnent les outils du garage. Nettoie-les jusqu'à des outils nets et prêts à servir."
+        en: "Rust and grime creep over the garage tools. Clean them until the tools are spotless and ready to use."
+        es: "Óxido y mugre avanzan sobre las herramientas del garaje. Límpialas hasta dejarlas impecables y listas para usar."
+      dt_d_garage_05:
+        fr: "@@@session.user.name@@@ vient de nettoyer les outils du garage !"
+        en: "@@@session.user.name@@@ has just cleaned the garage tools!"
+        es: "¡@@@session.user.name@@@ acaba de limpiar las herramientas del garaje!"
+      dt_c_garage_05:
+        fr: "@@@session.user.name@@@ a renoncé à nettoyer les outils du garage."
+        en: "@@@session.user.name@@@ gave up cleaning the garage tools."
+        es: "@@@session.user.name@@@ renunció a limpiar las herramientas del garaje."
+      dt_t_garage_06:
+        fr: "Aider un parent à bricoler"
+        en: "Help a parent with DIY"
+        es: "Ayudar a un padre/madre a bricolaje"
+      dt_a_garage_06:
+        fr: "Une quête de bricolage attend un coéquipier. Aide un parent jusqu'à la fin du chantier."
+        en: "A DIY quest awaits a teammate. Help a parent until the job is done."
+        es: "Una misión de bricolaje espera a un compañero. Ayuda a un padre o madre hasta terminar el trabajo."
+      dt_d_garage_06:
+        fr: "@@@session.user.name@@@ vient d'épauler un parent jusqu'au bout du chantier !"
+        en: "@@@session.user.name@@@ has just backed up a parent to the end of the DIY job!"
+        es: "¡@@@session.user.name@@@ acaba de apoyar a un familiar hasta el final del trabajo!"
+      dt_c_garage_06:
+        fr: "@@@session.user.name@@@ a renoncé à aider au bricolage."
+        en: "@@@session.user.name@@@ gave up helping with the DIY."
+        es: "@@@session.user.name@@@ renunció a ayudar con el bricolaje."
+
+      #------------- Tâches — courses ----------------------------------
+
+      dt_t_courses_01:
+        fr: "Faire les courses"
+        en: "Do the shopping"
+        es: "Hacer la compra"
+      dt_a_courses_01:
+        fr: "Le garde-manger se vide et la guilde gronde. Fais les courses selon la liste jusqu'au dernier article."
+        en: "The pantry is running empty and the guild grumbles. Do the shopping from the list, down to the last item."
+        es: "La despensa se vacía y el gremio refunfuña. Haz la compra según la lista hasta el último artículo."
+      dt_d_courses_01:
+        fr: "@@@session.user.name@@@ vient de ravitailler la guilde en faisant les courses !"
+        en: "@@@session.user.name@@@ has just resupplied the guild by doing the shopping!"
+        es: "¡@@@session.user.name@@@ acaba de abastecer al gremio haciendo la compra!"
+      dt_c_courses_01:
+        fr: "@@@session.user.name@@@ a renoncé à faire les courses."
+        en: "@@@session.user.name@@@ gave up doing the shopping."
+        es: "@@@session.user.name@@@ renunció a hacer la compra."
+      dt_t_courses_02:
+        fr: "Porter les courses"
+        en: "Carry the shopping"
+        es: "Llevar la compra"
+      dt_a_courses_02:
+        fr: "Le butin des courses pèse une tonne. Porte tous les sacs jusqu'à la cuisine."
+        en: "The shopping haul weighs a ton. Carry all the bags up to the kitchen."
+        es: "El botín de la compra pesa una tonelada. Lleva todas las bolsas hasta la cocina."
+      dt_d_courses_02:
+        fr: "@@@session.user.name@@@ vient de porter tout le butin des courses jusqu'à la cuisine !"
+        en: "@@@session.user.name@@@ has just carried the whole shopping haul up to the kitchen!"
+        es: "¡@@@session.user.name@@@ acaba de llevar todo el botín de la compra hasta la cocina!"
+      dt_c_courses_02:
+        fr: "@@@session.user.name@@@ a renoncé à porter les courses."
+        en: "@@@session.user.name@@@ gave up carrying the shopping."
+        es: "@@@session.user.name@@@ renunció a llevar la compra."
+      dt_t_courses_03:
+        fr: "Ranger les courses"
+        en: "Put away the shopping"
+        es: "Guardar la compra"
+      dt_a_courses_03:
+        fr: "Le butin des courses traîne sur le plan de travail. Range chaque article à sa place, frais au frigo."
+        en: "The shopping haul lies across the worktop. Put every item in its place, fresh goods in the fridge."
+        es: "El botín de la compra está esparcido por la encimera. Guarda cada artículo en su sitio, lo fresco en el frigorífico."
+      dt_d_courses_03:
+        fr: "@@@session.user.name@@@ vient de ranger tout le butin des courses !"
+        en: "@@@session.user.name@@@ has just put away the whole shopping haul!"
+        es: "¡@@@session.user.name@@@ acaba de guardar todo el botín de la compra!"
+      dt_c_courses_03:
+        fr: "@@@session.user.name@@@ a renoncé à ranger les courses."
+        en: "@@@session.user.name@@@ gave up putting away the shopping."
+        es: "@@@session.user.name@@@ renunció a guardar la compra."
+      dt_t_courses_04:
+        fr: "Faire la liste des courses"
+        en: "Make the shopping list"
+        es: "Hacer la lista de la compra"
+      dt_a_courses_04:
+        fr: "Le garde-manger se vide et nul ne sait quoi acheter. Inspecte les réserves et dresse la liste des courses complète."
+        en: "The pantry empties and no one knows what to buy. Check the stocks and draw up the full shopping list."
+        es: "La despensa se vacía y nadie sabe qué comprar. Revisa las reservas y elabora la lista de la compra completa."
+      dt_d_courses_04:
+        fr: "@@@session.user.name@@@ vient de dresser la liste des courses complète !"
+        en: "@@@session.user.name@@@ has just drawn up the full shopping list!"
+        es: "¡@@@session.user.name@@@ acaba de elaborar la lista de la compra completa!"
+      dt_c_courses_04:
+        fr: "@@@session.user.name@@@ a renoncé à faire la liste des courses."
+        en: "@@@session.user.name@@@ gave up making the shopping list."
+        es: "@@@session.user.name@@@ renunció a hacer la lista de la compra."
+      dt_t_courses_05:
+        fr: "Faire une petite course"
+        en: "Run a quick errand"
+        es: "Hacer un pequeño recado"
+      dt_a_courses_05:
+        fr: "Un besoin pressant manque à l'appel et le garde-manger réclame son dû. File faire une petite course pour le combler."
+        en: "A pressing need is missing and the pantry demands its due. Dash out on a quick errand to fill the gap."
+        es: "Falta algo urgente y la despensa reclama lo suyo. Sal a hacer un pequeño recado para cubrirlo."
+      dt_d_courses_05:
+        fr: "@@@session.user.name@@@ vient de rapporter la petite course manquante !"
+        en: "@@@session.user.name@@@ has just brought back the missing errand!"
+        es: "¡@@@session.user.name@@@ acaba de traer el recado que faltaba!"
+      dt_c_courses_05:
+        fr: "@@@session.user.name@@@ a renoncé à faire la petite course."
+        en: "@@@session.user.name@@@ gave up on the quick errand."
+        es: "@@@session.user.name@@@ renunció a hacer el pequeño recado."
+
+      #------------- Tâches — extras -----------------------------------
+
+      dt_t_extras_01:
+        fr: "Arroser les plantes d'intérieur"
+        en: "Water the houseplants"
+        es: "Regar las plantas de interior"
+      dt_a_extras_01:
+        fr: "Les plantes d'intérieur dépérissent de soif. Arrose-les toutes jusqu'à une terre bien humide."
+        en: "The houseplants are withering with thirst. Water them all until the soil is well moistened."
+        es: "Las plantas de interior se marchitan de sed. Riégalas todas hasta que la tierra quede bien húmeda."
+      dt_d_extras_01:
+        fr: "@@@session.user.name@@@ vient d'abreuver les plantes d'intérieur assoiffées !"
+        en: "@@@session.user.name@@@ has just quenched the thirsty houseplants!"
+        es: "¡@@@session.user.name@@@ acaba de saciar a las plantas de interior sedientas!"
+      dt_c_extras_01:
+        fr: "@@@session.user.name@@@ a renoncé à arroser les plantes d'intérieur."
+        en: "@@@session.user.name@@@ gave up watering the houseplants."
+        es: "@@@session.user.name@@@ renunció a regar las plantas de interior."
+      dt_t_extras_02:
+        fr: "Ramasser le courrier"
+        en: "Collect the post"
+        es: "Recoger el correo"
+      dt_a_extras_02:
+        fr: "Le courrier s'entasse en pile chaotique dans la boîte. Ramasse-le et trie-le jusqu'à la boîte vide."
+        en: "The post piles into a chaotic heap in the box. Collect and sort it until the box is empty."
+        es: "El correo se amontona en un montón caótico en el buzón. Recógelo y clasifícalo hasta vaciar el buzón."
+      dt_d_extras_02:
+        fr: "@@@session.user.name@@@ vient de ramasser et trier tout le courrier !"
+        en: "@@@session.user.name@@@ has just collected and sorted all the post!"
+        es: "¡@@@session.user.name@@@ acaba de recoger y clasificar todo el correo!"
+      dt_c_extras_02:
+        fr: "@@@session.user.name@@@ a renoncé à ramasser le courrier."
+        en: "@@@session.user.name@@@ gave up collecting the post."
+        es: "@@@session.user.name@@@ renunció a recoger el correo."
+      dt_t_extras_03:
+        fr: "Vider et nettoyer l'aspirateur"
+        en: "Empty and clean the vacuum cleaner"
+        es: "Vaciar y limpiar el aspirador"
+      dt_a_extras_03:
+        fr: "L'aspirateur, gavé de poussière, perd sa puissance. Vide et nettoie bac et filtre jusqu'à un appareil prêt."
+        en: "The vacuum cleaner, gorged with dust, loses its power. Empty and clean the bin and filter until the device is ready."
+        es: "El aspirador, atiborrado de polvo, pierde fuerza. Vacía y limpia el depósito y el filtro hasta dejarlo listo."
+      dt_d_extras_03:
+        fr: "@@@session.user.name@@@ vient de revigorer l'aspirateur en le vidant !"
+        en: "@@@session.user.name@@@ has just revived the vacuum cleaner by emptying it!"
+        es: "¡@@@session.user.name@@@ acaba de revitalizar el aspirador vaciándolo!"
+      dt_c_extras_03:
+        fr: "@@@session.user.name@@@ a renoncé à vider et nettoyer l'aspirateur."
+        en: "@@@session.user.name@@@ gave up emptying and cleaning the vacuum cleaner."
+        es: "@@@session.user.name@@@ renunció a vaciar y limpiar el aspirador."
+      dt_t_extras_04:
+        fr: "Changer une ampoule"
+        en: "Change a light bulb"
+        es: "Cambiar una bombilla"
+      dt_a_extras_04:
+        fr: "Une ampoule a rendu l'âme et plonge la pièce dans l'ombre. Remplace-la pour rendre la lumière."
+        en: "A light bulb has died and plunges the room into shadow. Replace it to restore the light."
+        es: "Una bombilla se ha fundido y sume la habitación en la sombra. Cámbiala para devolver la luz."
+      dt_d_extras_04:
+        fr: "@@@session.user.name@@@ vient de rendre la lumière en changeant l'ampoule !"
+        en: "@@@session.user.name@@@ has just restored the light by changing the bulb!"
+        es: "¡@@@session.user.name@@@ acaba de devolver la luz cambiando la bombilla!"
+      dt_c_extras_04:
+        fr: "@@@session.user.name@@@ a renoncé à changer l'ampoule."
+        en: "@@@session.user.name@@@ gave up changing the light bulb."
+        es: "@@@session.user.name@@@ renunció a cambiar la bombilla."
+      dt_t_extras_05:
+        fr: "Nettoyer les interrupteurs"
+        en: "Clean light switches"
+        es: "Limpiar los interruptores"
+      dt_a_extras_05:
+        fr: "Des germes-rampants couvrent interrupteurs. Nettoie et désinfecte chacun d'eux."
+        en: "Crawling germs cover the light switches. Clean and disinfect every one."
+        es: "Gérmenes reptantes cubren los interruptores. Limpia y desinfecta cada uno."
+      dt_d_extras_05:
+        fr: "@@@session.user.name@@@ vient d'éradiquer les germes-rampants des interrupteurs!"
+        en: "@@@session.user.name@@@ has just eradicated the crawling germs of the switches!"
+        es: "¡@@@session.user.name@@@ acaba de erradicar los gérmenes reptantes de interruptores!"
+      dt_c_extras_05:
+        fr: "@@@session.user.name@@@ a renoncé à nettoyer les interrupteurs."
+        en: "@@@session.user.name@@@ gave up cleaning the switches."
+        es: "@@@session.user.name@@@ renunció a limpiar los interruptores."
+      dt_t_extras_06:
+        fr: "Nettoyer les portes"
+        en: "Clean the doors"
+        es: "Limpiar las puertas"
+      dt_a_extras_06:
+        fr: "Des traces de doigts et de la crasse maculent les portes. Nettoie-les jusqu'à des battants nets."
+        en: "Fingerprints and grime stain the doors. Clean them until the panels are spotless."
+        es: "Huellas y mugre manchan las puertas. Límpialas hasta dejar las hojas impecables."
+      dt_d_extras_06:
+        fr: "@@@session.user.name@@@ vient d'effacer les traces des portes !"
+        en: "@@@session.user.name@@@ has just wiped the marks off the doors!"
+        es: "¡@@@session.user.name@@@ acaba de borrar las marcas de las puertas!"
+      dt_c_extras_06:
+        fr: "@@@session.user.name@@@ a renoncé à nettoyer les portes."
+        en: "@@@session.user.name@@@ gave up cleaning the doors."
+        es: "@@@session.user.name@@@ renunció a limpiar las puertas."
+      dt_t_extras_07:
+        fr: "Aérer la maison"
+        en: "Air out the house"
+        es: "Ventilar la casa"
+      dt_a_extras_07:
+        fr: "L'air vicié et les miasmes stagnent dans les pièces. Aère pour chasser l'air corrompu."
+        en: "Stale air and miasmas stagnate in the rooms. Air them out to drive off the corrupted air."
+        es: "El aire viciado y los miasmas se estancan en las habitaciones. Ventila para expulsar el aire corrompido."
+      dt_d_extras_07:
+        fr: "@@@session.user.name@@@ vient de chasser l'air vicié des pièces !"
+        en: "@@@session.user.name@@@ has just driven the stale air from the rooms!"
+        es: "¡@@@session.user.name@@@ acaba de expulsar el aire viciado de las habitaciones!"
+      dt_c_extras_07:
+        fr: "@@@session.user.name@@@ a renoncé à aérer les pièces."
+        en: "@@@session.user.name@@@ gave up airing out the rooms."
+        es: "@@@session.user.name@@@ renunció a ventilar las habitaciones."
+      dt_t_extras_08:
+        fr: "Rendre un service"
+        en: "Do a favour"
+        es: "Hacer un favor"
+      dt_a_extras_08:
+        fr: "Un proche est dans l'embarras et guette ton aide. Rends-lui le service qu'il attend avant que la détresse ne s'installe."
+        en: "Someone close is in a bind and awaits your help. Do them the favour they need before the distress sets in."
+        es: "Un ser querido está en apuros y espera tu ayuda. Hazle el favor que necesita antes de que se instale la angustia."
+      dt_d_extras_08:
+        fr: "@@@session.user.name@@@ vient de rendre le service attendu !"
+        en: "@@@session.user.name@@@ has just done the awaited favour!"
+        es: "¡@@@session.user.name@@@ acaba de hacer el favor esperado!"
+      dt_c_extras_08:
+        fr: "@@@session.user.name@@@ a renoncé à rendre le service."
+        en: "@@@session.user.name@@@ gave up on doing the favour."
+        es: "@@@session.user.name@@@ renunció a hacer el favor."
+
+      #------------- Domaines ------------------------------------------
+
+      dt_domain_salon:
+        fr: "Salon"
+        en: "Living room"
+        es: "Salón"
+      dt_domain_chambre_parentale:
+        fr: "Chambre parentale"
+        en: "Master bedroom"
+        es: "Dormitorio principal"
+      dt_domain_chambre_enfant:
+        fr: "Chambre enfant"
+        en: "Children's bedroom"
+        es: "Habitación infantil"
+      dt_domain_cuisine:
+        fr: "Cuisine"
+        en: "Kitchen"
+        es: "Cocina"
+      dt_domain_repas:
+        fr: "Repas"
+        en: "Meals"
+        es: "Comidas"
+      dt_domain_vaisselle:
+        fr: "Vaisselle"
+        en: "Dishes"
+        es: "Vajilla"
+      dt_domain_salle_de_bain:
+        fr: "Salle de bain"
+        en: "Bathroom"
+        es: "Cuarto de baño"
+      dt_domain_toilettes:
+        fr: "Toilettes"
+        en: "Toilet"
+        es: "Baño"
+      dt_domain_entree:
+        fr: "Entrée et couloir"
+        en: "Entrance & hallway"
+        es: "Entrada y pasillo"
+      dt_domain_bureau:
+        fr: "Bureau"
+        en: "Office"
+        es: "Despacho"
+      dt_domain_terrasse:
+        fr: "Balcon et terrasse"
+        en: "Balcony & terrace"
+        es: "Balcón y terraza"
+      dt_domain_jardin:
+        fr: "Jardin"
+        en: "Garden"
+        es: "Jardín"
+      dt_domain_linge:
+        fr: "Linge"
+        en: "Laundry"
+        es: "Ropa"
+      dt_domain_dechets:
+        fr: "Déchets"
+        en: "Waste"
+        es: "Residuos"
+      dt_domain_animaux:
+        fr: "Les bêtes"
+        en: "The beasts"
+        es: "Las bestias"
+      dt_domain_garage:
+        fr: "Garage"
+        en: "Garage"
+        es: "Garaje"
+      dt_domain_vehicules:
+        fr: "Véhicules"
+        en: "Vehicles"
+        es: "Vehículos"
+      dt_domain_courses:
+        fr: "Courses"
+        en: "Shopping"
+        es: "Compras"
+      dt_domain_extras:
+        fr: "Extras"
+        en: "Extras"
+        es: "Extras"
+
+      #------------- Niveaux d'effort ----------------------------------
+
+      dt_effort_1:
+        fr: "Facile"
+        en: "Easy"
+        es: "Fácil"
+      dt_effort_2:
+        fr: "Normal"
+        en: "Normal"
+        es: "Normal"
+      dt_effort_3:
+        fr: "Risqué"
+        en: "Risky"
+        es: "Arriesgado"
+      dt_effort_4:
+        fr: "Difficile"
+        en: "Hard"
+        es: "Difícil"
+      dt_effort_5:
+        fr: "Extrême"
+        en: "Extreme"
+        es: "Extremo"
+      dt_effort_6:
+        fr: "Héroïque"
+        en: "Heroic"
+        es: "Heroico"
+      dt_effort_7:
+        fr: "Légendaire"
+        en: "Legendary"
+        es: "Legendario"
+      dt_effort_8:
+        fr: "Cauchemar"
+        en: "Nightmare"
+        es: "Pesadilla"

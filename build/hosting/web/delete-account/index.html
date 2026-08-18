@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Donjons &amp; Savons — Account deletion</title>
+  <style>
+    :root { --bg:#14110f; --card:#211c18; --ink:#efe7db; --muted:#a99e8e; --accent:#c9a24b; --danger:#c0483a; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--bg); color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5;
+    }
+    .card {
+      background: var(--card); max-width: 640px; width: calc(100% - 32px);
+      margin: 24px; padding: 24px 32px 32px; border-radius: 14px; box-shadow: 0 8px 40px rgba(0,0,0,.45);
+    }
+    .banner { display: block; width: 100%; height: auto; border-radius: 10px; margin: 0 0 22px; }
+    h1 { font-size: 1.5rem; margin: 0 0 8px; }
+    p { margin: 0 0 16px; }
+    .muted { color: var(--muted); font-size: .95rem; }
+    ul { color: var(--muted); padding-left: 20px; margin: 0 0 16px; }
+    .warn {
+      border-left: 3px solid var(--danger); background: rgba(192,72,58,.10);
+      padding: 12px 14px; border-radius: 6px; margin: 0 0 16px;
+    }
+    .row { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 20px; }
+    .row input { margin-top: 4px; }
+    button {
+      font: inherit; border: 0; border-radius: 8px; padding: 12px 18px; cursor: pointer;
+      background: var(--accent); color: #1a1410; font-weight: 600;
+    }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+    button.danger { background: var(--danger); color: #fff; }
+    .link { background: none; color: var(--muted); text-decoration: underline; padding: 8px 0; font-weight: 400; }
+    .hidden { display: none; }
+    .who { font-weight: 600; }
+    .spinner {
+      width: 26px; height: 26px; border: 3px solid rgba(255,255,255,.2); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 1s linear infinite; margin: 8px 0 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #gsi-btn { margin: 8px 0 4px; color-scheme: light; }
+  </style>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#14110f"></head>
+<body>
+  <main class="card">
+    <img class="banner" src="/logo.png" alt="Donjons &amp; Savons">
+    <h1 id="t-title"></h1>
+
+    <!-- Etat : connexion -->
+    <section id="state-signin">
+      <p id="t-intro"></p>
+      <ul>
+        <li id="t-item1"></li>
+        <li id="t-item2"></li>
+        <li id="t-item3"></li>
+      </ul>
+      <p class="muted" id="t-signin-hint"></p>
+      <div id="gsi-btn"></div>
+    </section>
+
+    <!-- Etat : confirmation -->
+    <section id="state-confirm" class="hidden">
+      <p><span id="t-connected-as"></span> <span class="who" id="who"></span></p>
+      <div class="warn" id="t-warn"></div>
+      <label class="row">
+        <input type="checkbox" id="ack">
+        <span id="t-ack"></span>
+      </label>
+      <button id="btn-delete" class="danger" disabled></button>
+      <button id="btn-cancel" class="link"></button>
+    </section>
+
+    <!-- Etat : en cours -->
+    <section id="state-working" class="hidden">
+      <div class="spinner"></div>
+      <p id="t-working"></p>
+    </section>
+
+    <!-- Etat : succes -->
+    <section id="state-done" class="hidden">
+      <p id="t-done"></p>
+    </section>
+
+    <!-- Etat : erreur -->
+    <section id="state-error" class="hidden">
+      <div class="warn" id="err-msg"></div>
+      <button id="btn-retry"></button>
+    </section>
+  </main>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script>
+    // --- Config injectee au deploiement (puhosting/deploy.py) ---------------
+    var FIREBASE_CONFIG = {
+      apiKey:     "@@@firebase_api_key@@@",
+      authDomain: "@@@firebase_auth_domain@@@",
+      projectId:  "@@@firebase_project_id@@@",
+      appId:      "@@@firebase_app_id@@@"
+    };
+    var WEB_CLIENT_ID   = "@@@web_client_id@@@";
+    var DELETE_ENDPOINT = "/api/delete";   // meme origine -> pas de CORS
+    var DELETE_REGIONS  = "@@@hosting_regions@@@";   // "eu,us" injecte au deploiement
+
+    // --- i18n ---------------------------------------------------------------
+    var I18N = {
+      en: {
+        title: "Delete my Donjons & Savons account",
+        intro: "Deleting your account immediately removes your data from Donjons & Savons:",
+        item1: "your character, levels, experience and gold;",
+        item2: "your membership in every clan you belong to;",
+        item3: "if you are a clan chief: your clan, and the profiles of the children who play in it without an account of their own.",
+        signinHint: "Sign in with the Google account you use in the app to continue.",
+        connectedAs: "Signed in as",
+        warn: "This action is final. Your data leaves the game immediately, is kept for 30 days outside the service (mistakes, support, fraud only), then is permanently erased. You cannot recover it, and if you play again later you will start over from scratch. Only the records of your acceptance of the terms are kept for 5 years, as proof that valid consent was obtained. Cancel your subscription from your Google account FIRST: deleting your account here does not cancel it, and it would keep being billed. Content bought in the shop is lost along with the account, with no refund.",
+        ack: "I understand that deleting my account is permanent.",
+        del: "Delete my account",
+        cancel: "Cancel",
+        working: "Deleting your account…",
+        done: "Your account has been deleted and your data removed from the game. You have been signed out.",
+        errAuth: "Authentication failed. Please sign in again.",
+        errPerm: "You can only delete your own account.",
+        errGeneric: "Something went wrong. Please try again.",
+        retry: "Try again"
+      },
+      fr: {
+        title: "Supprimer mon compte Donjons & Savons",
+        intro: "La suppression de votre compte retire immédiatement vos données de Donjons & Savons :",
+        item1: "votre personnage, vos niveaux, votre expérience et votre or ;",
+        item2: "votre appartenance à tous les clans dont vous êtes membre ;",
+        item3: "si vous êtes chef de clan : votre clan, et les profils des enfants qui y jouent sans compte propre.",
+        signinHint: "Connectez-vous avec le compte Google que vous utilisez dans l'application pour continuer.",
+        connectedAs: "Connecté en tant que",
+        warn: "Cette action est définitive. Vos données sortent du jeu immédiatement, sont conservées 30 jours hors du service (erreur, support, fraude uniquement), puis effacées définitivement. Vous ne pourrez pas les récupérer et, si vous rejouez plus tard, vous repartirez de zéro. Seuls les enregistrements de votre acceptation des conditions sont conservés 5 ans, à titre de preuve du consentement recueilli. Résiliez votre abonnement depuis votre compte Google AVANT de continuer : la suppression de votre compte ici ne le résilie pas, et il continuerait d'être facturé. Les contenus achetés dans la boutique sont perdus avec le compte, sans remboursement.",
+        ack: "Je comprends que la suppression de mon compte est définitive.",
+        del: "Supprimer mon compte",
+        cancel: "Annuler",
+        working: "Suppression de votre compte…",
+        done: "Votre compte a été supprimé et vos données retirées du jeu. Vous avez été déconnecté.",
+        errAuth: "L'authentification a échoué. Reconnectez-vous.",
+        errPerm: "Vous ne pouvez supprimer que votre propre compte.",
+        errGeneric: "Une erreur est survenue. Veuillez réessayer.",
+        retry: "Réessayer"
+      },
+      es: {
+        title: "Eliminar mi cuenta de Donjons & Savons",
+        intro: "Eliminar tu cuenta retira inmediatamente tus datos de Donjons & Savons:",
+        item1: "tu personaje, niveles, experiencia y oro;",
+        item2: "tu pertenencia a todos los clanes de los que formas parte;",
+        item3: "si eres jefe de clan: tu clan y los perfiles de los niños que juegan en él sin cuenta propia.",
+        signinHint: "Inicia sesión con la cuenta de Google que usas en la aplicación para continuar.",
+        connectedAs: "Sesión iniciada como",
+        warn: "Esta acción es definitiva. Tus datos salen del juego inmediatamente, se conservan 30 días fuera del servicio (solo error, soporte o fraude) y después se borran definitivamente. No podrás recuperarlos y, si vuelves a jugar más tarde, empezarás de cero. Solo se conservan 5 años los registros de tu aceptación de las condiciones, como prueba del consentimiento recabado. Cancela tu suscripción desde tu cuenta de Google ANTES de continuar: eliminar tu cuenta aquí no la cancela y seguiría facturándose. Los contenidos comprados en la tienda se pierden junto con la cuenta, sin reembolso.",
+        ack: "Entiendo que eliminar mi cuenta es permanente.",
+        del: "Eliminar mi cuenta",
+        cancel: "Cancelar",
+        working: "Eliminando tu cuenta…",
+        done: "Tu cuenta ha sido eliminada y tus datos retirados del juego. Se ha cerrado tu sesión.",
+        errAuth: "Falló la autenticación. Vuelve a iniciar sesión.",
+        errPerm: "Solo puedes eliminar tu propia cuenta.",
+        errGeneric: "Algo salió mal. Inténtalo de nuevo.",
+        retry: "Reintentar"
+      }
+    };
+    var LANG = (navigator.language || "en").slice(0, 2).toLowerCase();
+    var T = I18N[LANG] || I18N.en;
+
+    function txt(id, key) { document.getElementById(id).textContent = T[key]; }
+    txt("t-title", "title"); txt("t-intro", "intro");
+    txt("t-item1", "item1"); txt("t-item2", "item2"); txt("t-item3", "item3");
+    txt("t-signin-hint", "signinHint"); txt("t-connected-as", "connectedAs");
+    txt("t-warn", "warn"); txt("t-ack", "ack"); txt("t-working", "working"); txt("t-done", "done");
+    document.getElementById("btn-delete").textContent = T.del;
+    document.getElementById("btn-cancel").textContent = T.cancel;
+    document.getElementById("btn-retry").textContent = T.retry;
+    document.documentElement.lang = (I18N[LANG] ? LANG : "en");
+
+    // --- Etats UI -----------------------------------------------------------
+    var STATES = ["signin", "confirm", "working", "done", "error"];
+    function show(state) {
+      STATES.forEach(function (s) {
+        document.getElementById("state-" + s).classList.toggle("hidden", s !== state);
+      });
+    }
+
+    // --- Firebase + Google Identity Services --------------------------------
+    firebase.initializeApp(FIREBASE_CONFIG);
+
+    function onGoogleCredential(response) {
+      var cred = firebase.auth.GoogleAuthProvider.credential(response.credential);
+      firebase.auth().signInWithCredential(cred).then(function (userCred) {
+        document.getElementById("who").textContent =
+          (userCred.user && userCred.user.email) || "";
+        document.getElementById("ack").checked = false;
+        document.getElementById("btn-delete").disabled = true;
+        show("confirm");
+      }).catch(function () {
+        showError(T.errAuth);
+      });
+    }
+
+    function initGsi() {
+      if (!window.google || !google.accounts || !google.accounts.id) {
+        setTimeout(initGsi, 200);
+        return;
+      }
+      google.accounts.id.initialize({ client_id: WEB_CLIENT_ID, callback: onGoogleCredential });
+      google.accounts.id.renderButton(
+        document.getElementById("gsi-btn"),
+        { theme: "outline", size: "large", type: "standard", text: "continue_with" }
+      );
+    }
+    initGsi();
+
+    // --- Interactions -------------------------------------------------------
+    document.getElementById("ack").addEventListener("change", function (e) {
+      document.getElementById("btn-delete").disabled = !e.target.checked;
+    });
+
+    document.getElementById("btn-cancel").addEventListener("click", function () {
+      firebase.auth().signOut().finally(function () { show("signin"); });
+    });
+
+    document.getElementById("btn-retry").addEventListener("click", function () {
+      firebase.auth().signOut().finally(function () { show("signin"); });
+    });
+
+    function showError(msg) {
+      document.getElementById("err-msg").textContent = msg;
+      show("error");
+    }
+
+    // Les donnees sont partitionnees par region et rien, cote web, ne dit ou vit
+    // l'utilisateur : on interroge donc CHAQUE region. Celles qui n'hebergent pas ce
+    // compte repondent sans rien ecrire (garde-fou "not-in-region" cote Cloud Function).
+    // Si le placeholder n'a pas ete substitue (test local), on retombe sur l'endpoint nu.
+    function deleteEndpoints() {
+      var raw = DELETE_REGIONS.indexOf("@@@") === 0 ? "" : DELETE_REGIONS;
+      var regions = raw.split(",").filter(function (r) { return r.trim() !== ""; });
+      if (!regions.length) { return [DELETE_ENDPOINT]; }
+      return regions.map(function (r) { return DELETE_ENDPOINT + "/" + r.trim(); });
+    }
+
+    function callDelete(url, idToken, ownerId) {
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+        body: JSON.stringify({ data: { ownerId: ownerId } })
+      }).then(function (r) {
+        return r.json().then(
+          function (body) { return { ok: r.ok, body: body }; },
+          function ()     { return { ok: r.ok, body: null }; }
+        );
+      });
+    }
+
+    document.getElementById("btn-delete").addEventListener("click", function () {
+      var user = firebase.auth().currentUser;
+      if (!user) { showError(T.errAuth); return; }
+      show("working");
+      var urls = deleteEndpoints();
+      user.getIdToken().then(function (idToken) {
+        // Sequentiel : une region a la fois, et la premiere erreur reelle interrompt la
+        // chaine plutot que de laisser croire a une suppression complete.
+        return urls.reduce(function (chain, url) {
+          return chain.then(function (acc) {
+            if (acc.failed) { return acc; }
+            return callDelete(url, idToken, user.uid).then(function (res) {
+              if (!res.ok || (res.body && res.body.error)) {
+                acc.failed = (res.body && res.body.error && res.body.error.status) || "GENERIC";
+              }
+              return acc;
+            });
+          });
+        }, Promise.resolve({ failed: null }));
+      }).then(function (acc) {
+        if (acc.failed) {
+          if (acc.failed === "UNAUTHENTICATED") { showError(T.errAuth); }
+          else if (acc.failed === "PERMISSION_DENIED") { showError(T.errPerm); }
+          else { showError(T.errGeneric); }
+          return;
+        }
+        firebase.auth().signOut().finally(function () { show("done"); });
+      }).catch(function () {
+        showError(T.errGeneric);
+      });
+    });
+
+    show("signin");
+  </script>
+</body>
+</html>

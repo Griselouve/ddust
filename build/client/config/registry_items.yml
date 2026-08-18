@@ -1,0 +1,277 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    # Grille des items. Alimentée par worker.on_items_appear (clans_items), typée par
+    # le catalogue `items` (items-base-global.yml + images du thème). Colonnes FIXES : la place
+    # qu'un joueur donne à ses items reste la même quels que soient l'écran et l'orientation.
+    # Le rangement est écrit par le widget dans le layer runtime du joueur (donc par appareil).
+    # Onglets : un par famille de `item_families`, et chaque onglet est une grille en soi avec son
+    # propre rangement. Une famille sans item ne donne pas d'onglet ; les deux tuiles épinglées sont
+    # présentes dans tous — le coffre au centre (ce qui garde le dépôt au butin possible depuis
+    # n'importe où) et la bourse du joueur à gauche (son argent est toujours sous les yeux).
+    # Le coffre n'existe QUE pour les admins : un joueur ordinaire n'y voit que sa propre bourse
+    # et ses propres items (filtre worker._pushClanItems).
+    items/explorer:
+      class: DvExplorer
+      layer: content
+      selector:     worker.items_selector
+      menu:         items/menu
+      menu_enabled: true
+      shape:
+        x: 3%
+        y: 3%
+        w: 94%
+        h: 82%
+        source: data
+        columns: 4
+        types: items
+        tabs: true
+        families: item_families
+        gutter: 4
+        # Pastille : champ `badge` de la donnée (posé par le worker, vide si un seul exemplaire)
+        # et non `quantity` brut — un « 1 » sur chaque tuile ne serait que du bruit.
+        badge_field: badge
+        show_filename: false
+        # Fond noir à 70 % (alpha 0xB3) : détache les items du décor de donjon sans masquer
+        # complètement l'ambiance. border_color sert aussi de teinte de surbrillance au dépôt.
+        background_color: "0xB3000000"
+        border_radius: 10.0
+        border_color: "amber_200"
+
+    # Menu contextuel d'un item : déclare TOUTES les options possibles ; le type de l'item
+    # restreint la liste (clef `options` du catalogue), le worker arbitre le reste.
+    items/menu:
+      class: DvMenu
+      layer: popup
+      show_label: false
+      shape:
+        w: 55%
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        # « Voir » : commune à TOUT type (cf. items-base-global.yml, clef `options`). Ouvre
+        # item_view_page — grande image, description, bouton Appliquer s'il y a lieu.
+        # Icône réutilisée (pas d'œil dédié) : c'est déjà l'icône « montrer » du mode chef,
+        # déjà préchargée, et sémantiquement juste.
+        item_view:
+          image: "images/small/adm_show.png"
+          shape:
+            label: "@@@T:it_o_view@@@"
+          actions:
+            tap: worker.item_view
+        item_give:
+          image: "images/small/cadeau.png"
+          shape:
+            label: "@@@T:it_o_give@@@"
+          actions:
+            tap: worker.item_give
+        # Remettre de son argent de poche dans le coffre du clan. Réservée aux chefs, et à LEUR
+        # bourse : c'est worker.items_selector qui l'arbitre, la conf ne connaît pas les rôles.
+        item_to_chest:
+          image: "images/big/chest_item_nobg.png"
+          shape:
+            label: "@@@T:it_o_to_chest@@@"
+          actions:
+            tap: worker.item_to_chest
+        # Titres. Quatre options (porter/ne plus porter, perso/clan) pour DEUX ICÔNES : celle du
+        # menu doit être la même que celle de la tuile (titre_perso.png / titre_clan.png), et
+        # l'image d'une option est statique en conf — le worker ne peut pas la choisir. Chaque
+        # paire (apply/unapply) partage donc son icône. worker.items_selector n'en propose jamais
+        # qu'UNE des deux à la fois pour un titre donné (porté ou non). Le droit d'appliquer un
+        # titre de CLAN est arbitré par worker.items_selector (chefs seulement) : la conf ne
+        # connaît pas les rôles.
+        title_apply_player:
+          image: "images/big/titre_perso.png"
+          shape:
+            label: "@@@T:it_o_title_apply@@@"
+          actions:
+            tap: worker.title_apply_player
+        title_unapply_player:
+          image: "images/big/titre_perso.png"
+          shape:
+            label: "@@@T:it_o_title_unapply@@@"
+          actions:
+            tap: worker.title_unapply_player
+        title_apply_clan:
+          image: "images/big/titre_clan.png"
+          shape:
+            label: "@@@T:it_o_title_apply@@@"
+          actions:
+            tap: worker.title_apply_clan
+        title_unapply_clan:
+          image: "images/big/titre_clan.png"
+          shape:
+            label: "@@@T:it_o_title_unapply@@@"
+          actions:
+            tap: worker.title_unapply_clan
+        # Jeter un item. Sans confirmation (aucune popup dans ce jeu) : le document est SUPPRIMÉ
+        # (pas de sentinelle « corbeille », il n'y a pas de rattrapage qui pourrait le ressusciter).
+        item_trash:
+          image: "images/small/poubelle.png"
+          shape:
+            label: "@@@T:it_o_trash@@@"
+          actions:
+            tap: worker.item_trash
+        # Le COFFRE DU BUTIN n'a qu'une seule option : ouvrir son contenu. Une seule option déclarée
+        # (cf. items-base-global.yml) → worker.items_selector la renvoie en « option seule » et le
+        # tap exécute directement cette action, sans passer par ce menu. « Ajouter une note » vit
+        # DANS le coffre (butin_page/list), pas ici.
+        item_open:
+          image: "images/big/chest_item_nobg.png"
+          shape:
+            label: "@@@T:it_o_open@@@"
+          actions:
+            tap: worker.butin_show
+
+    #//------------------------------- Give Screen (donner un objet à un joueur) -------------
+    # Écran AUTONOME (hors dvsteps, comme money_page / log_page), empilé par worker.item_give au
+    # choix de l'option « Donner » d'un objet d'INVENTAIRE. Il ne fait qu'une chose : montrer les
+    # joueurs du clan (avatar + nom) et attendre un tap. La flèche retour abandonne le don.
+    # Le joueur courant N'EST PAS dans la liste (on ne se donne rien à soi-même) : c'est
+    # worker.on_give_appear qui l'écarte, la conf ne connaît pas le donneur.
+    # Une DvList et non un DvRoster : on ne demande ici qu'une icône + un nom, et le tap doit
+    # DONNER, pas ouvrir un menu d'options — niveau, PV, crâne et couronne seraient du bruit.
+
+    give_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true # abandon : l'objet n'a pas changé de mains
+      title: "@@@T:it_give_title@@@"
+      actions:
+        appear: worker.on_give_appear
+      registry:
+        - commons/splash_background
+        - give_page/list
+
+    # Une ligne = l'avatar du joueur + son nom ; le tap donne l'objet. Alimentée à chaud par
+    # worker.on_give_appear (dvlist.set_rows), comme la liste du coffre.
+    # Même précaution que money_page : dvlist.set_rows est une action GLOBALE (toutes les
+    # instances vivantes) — mais aucune autre DvList ne peut être à l'écran en même temps
+    # (on n'ouvre le don que depuis la grille des items, jamais depuis le coffre).
+    give_page/list:
+      class: DvList
+      layer: content
+      action: worker.give_to_player
+      shape:
+        x: 3%
+        y: 2%
+        w: 94%
+        h: 84%
+        row_height: 64.0
+        icon_size: 48.0
+        font_size: 14.0
+        font_color: "#C8A84B"
+        empty_label: "@@@T:it_give_empty@@@"
+        background_color: "0xB3000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+
+    #//------------------------------- Item View Screen (fiche d'un objet) --------------------
+    # Écran AUTONOME (hors dvsteps, comme give_page), empilé par worker.item_view au choix de
+    # l'option « Voir » d'un item — la SEULE option commune à tout le catalogue (cf.
+    # items-base-global.yml). Grande image, nom, description, et un bouton « Appliquer »
+    # optionnel qui rejoue la première option métier que worker.items_selector accorde à cet
+    # item (porter un titre, remettre dans le coffre, ouvrir le coffre…) — absent/cache si
+    # aucune n'est accordée : la fiche redevient alors purement descriptive.
+    # La flèche retour (appbar) referme la fiche sans rien écrire.
+
+    item_view_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      # Pas de bandeau titre statique : item_view_page/name affiche déjà le nom de l'item, un
+      # second texte générique ("L'objet") ne ferait que doubler l'info.
+      title: ""
+      actions:
+        appear: worker.on_item_view_appear
+      registry:
+        # Pas de commons/splash_background ici : l'illustration plein écran rendait l'image de
+        # l'item et la description illisibles (cf. capture) — cette fiche n'a besoin que de
+        # l'image PROPRE à l'item.
+        - item_view_page/image
+        - item_view_page/name
+        - item_view_page/desc
+        - item_view_page/apply
+
+    # Grande image de l'objet — gabarit `big` des 3 miniatures d'items concernées (cf. thème),
+    # posée à chaud par worker.on_item_view_appear comme le fond de rename_task (set + appear()
+    # + refreshUI : le appear() re-résout le ImageProvider, sinon l'image précédente resterait
+    # affichée en cache).
+    item_view_page/image:
+      masks:
+        - commons/nobordershape
+      class: DvImage
+      layer: content
+      shape:
+        x: 20%
+        y: 6%
+        w: 60%
+        h: 30%
+        stretch: "RATIO_IN"
+        opacity: 1.0
+
+    item_view_page/name:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 38%
+        w: 90%
+        h: 7%
+        font_size: 18.0
+        font_color: "amber_200"
+        text_align: CENTER
+        label: ""
+
+    item_view_page/desc:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 47%
+        w: 90%
+        h: 34%
+        text_padding: 10.0
+        font_size: 13.0
+        scrollable: true
+        label: ""
+        # Style inversé par rapport à commons/intro_text (fond noir/texte ambre au lieu de fond
+        # ambre/texte noir) pour reprendre l'apparence sobre des boutons de l'app (cf.
+        # new_or_pick_clan/create, commons/dark_button) — le fond ambre rempli n'a de sens que
+        # posé sur une illustration, cette fiche n'en a plus.
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+
+    # Bouton « Appliquer » : libellé et action posés à chaud par worker.on_item_view_appear
+    # (relit worker.items_selector), caché quand l'item n'accorde aucune option métier. Pour un
+    # titre déjà porté, items_selector bascule directement vers l'option « ne plus porter » : le
+    # bouton affiche donc ce libellé, pas un état grisé. Le grisage (sans être caché) reste
+    # disponible pour un futur type qui aurait une option réellement indisponible plutôt que
+    # remplacée.
+    item_view_page/apply:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 88%
+        h: 9%
+        label: ""
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_item_view_apply
+

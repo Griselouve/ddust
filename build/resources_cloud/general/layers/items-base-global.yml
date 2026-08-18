@@ -1,0 +1,416 @@
+name: items-base
+above: conf
+strategy: default
+tenant: global
+data:
+
+  # ===========================================================================
+  # CATALOGUE DES TYPES D'ITEMS
+  # ---------------------------------------------------------------------------
+  # Un document de `clans_items` ne porte que le FAIT (type, quantité, propriétaire…) ;
+  # tout ce qui relève de l'apparence et du comportement est déclaré ici :
+  #   image      : miniature (posée dans le layer de THÈME, pas ici)
+  #   label      : nom affiché (menu, journal) — token de traduction
+  #   description: texte long — token de traduction. OBLIGATOIRE pour tout type : c'est le texte
+  #                de la fiche « Voir » (item_view_page), ouverte par l'option `item_view` que tout
+  #                type déclare — SAUF le coffre (`butin`), qui s'ouvre directement au tap (une
+  #                seule option restante, cf. plus bas) — un type sans description ouvrirait une
+  #                fiche muette pour qui y accède quand même.
+  #   span_x/y   : nombre de cases occupées dans la grille (défaut 1)
+  #   draggable  : l'item peut être saisi et déplacé (rangement) ou déposé sur un autre
+  #   pin        : place FIXE tenue du TYPE ("top_center", "top_left", "top_right") : la tuile
+  #                n'est ni déplaçable ni mémorisée dans le rangement personnel du joueur
+  #   options    : options de menu ACCEPTÉES par ce type (sous-ensemble de items/menu) ;
+  #                le worker peut encore en griser au cas par cas.
+  #                `item_view` (voir la fiche : grande image + description) est la règle pour
+  #                TOUT type, sans exception — mobilier compris (cf. `butin`).
+  #                `item_give` (donner à un joueur du clan) est la règle pour tout OBJET
+  #                D'INVENTAIRE : le mobilier — le coffre (`pin`é) et la bourse — ne se donne
+  #                pas, il appartient au clan ou à la place qu'il occupe.
+  #   drops      : ce que ce type accepte de RECEVOIR — { type_source: action worker }.
+  #                La clef "*" est un joker (accepte n'importe quel type).
+  #                Absent/vide = rien ne peut être déposé dessus.
+  #   family     : famille (onglet) du type — cf. CATALOGUE DES FAMILLES plus bas. Absente ou
+  #                inconnue → première famille déclarée (`general` fait fourre-tout).
+  #   shared     : l'item appartient au CLAN (owner = clanId) mais se montre à TOUS ses membres,
+  #                pas aux seuls chefs (défaut d'un item de clan, cf. worker._pushClanItems). Ne
+  #                donne aucun droit : c'est worker.items_selector qui décide de ce qu'un non-chef
+  #                peut en faire — pour le titre de clan, rien.
+  #
+  # PAS de `cost` ici : la valeur de butin d'un objet est un FAIT de ce document précis (cet
+  # écu-là vaut tant), pas une propriété de son type — elle vit donc sur `clans_items`, et
+  # elle y est seule. Un nominal par type serait une seconde source de vérité pour le même
+  # nombre, avec la dérive qui va avec. Cf. worker._itemCostOf.
+  #
+  # RÈGLE DU MODÈLE : un item = UNE SEULE CHOSE, jamais un tas. `quantity` ne compte pas des
+  # exemplaires : elle décrit le CONTENU d'un contenant (doses d'une fiole, argent d'un
+  # portefeuille, items d'un coffre). Deux objets identiques = deux documents.
+  # ===========================================================================
+
+  # ===========================================================================
+  # CATALOGUE DES FAMILLES D'ITEMS (onglets de la grille)
+  # ---------------------------------------------------------------------------
+  # Une famille est une catégorie de TYPES : classer un type suffit à classer tous ses items.
+  # Avec `tabs: true` sur la grille, chaque famille devient un ONGLET, et chaque onglet est une
+  # grille EN SOI — le joueur y range ses items indépendamment des autres onglets. Deux items de
+  # familles différentes peuvent donc occuper la même case sans jamais se gêner.
+  #   label : libellé de l'onglet — token de traduction, résolu à l'affichage
+  #   order : rang de l'onglet (défaut : ordre de déclaration ci-dessous)
+  #   image : pictogramme optionnel (irait dans le layer de THÈME, comme les miniatures)
+  # `general` est déclarée PREMIÈRE : elle sert de fourre-tout à tout type qui oublierait sa
+  # clef `family`. Les familles encore vides (potions, magie, skills) ne coûtent rien — un onglet
+  # sans item n'est pas dessiné : elles disent seulement où ira ce qui vient.
+  # Clefs sans accent : l'accent appartient au libellé traduit, pas à l'identifiant.
+  # ===========================================================================
+
+  # NB : l'ordre d'écriture ci-dessous ne fait PAS l'ordre des onglets à l'affichage — l'assemblage
+  # des layers (yaml.dump) trie les clefs, l'ordre réel est donc alphabétique (cf. worker/readme,
+  # section 12). Une famille sans item ne produit de toute façon aucun onglet.
+  item_families:
+    general:
+      label: "@@@T:it_f_general@@@"
+    equipement:
+      label: "@@@T:it_f_equipement@@@"
+    potions:
+      label: "@@@T:it_f_potions@@@"
+    magie:
+      label: "@@@T:it_f_magie@@@"
+    skills:
+      label: "@@@T:it_f_skills@@@"
+    titres:
+      label: "@@@T:it_f_titres@@@"
+
+  items:
+
+    # --- Titres : la PREMIÈRE famille de vrais items du jeu ------------------
+    # Un titre n'est plus une propriété dérivée du niveau : c'est un OBJET qu'on gagne au passage
+    # d'un palier (un tous les 5 niveaux) et qu'on décide, ou non, de porter — la mécanique que les
+    # textes de célébration annonçaient déjà (« tu peux PRÉTENDRE au titre de … »). `title_idx`
+    # (rang du titre, 0..19) vit sur le document de l'item, pas ici : c'est un fait de CET objet,
+    # comme `cost`. Le libellé du titre lui-même (« Mange-poussière », etc.) est une traduction du
+    # THÈME (player_title_<idx> / clan_title_<idx>), pas du catalogue d'items — cf. worker.dart
+    # (_titleKeyOf).
+    # PAS de `item_give` (un titre se gagne, il ne se donne pas) ni de `drops` (non saisissable,
+    # donc jamais cible ni source d'un dépôt) ; `draggable: false` empêche aussi bien le rangement
+    # que le dépôt au coffre — un titre saisissable serait redistribuable à qui ne l'a pas mérité.
+    titre_perso:
+      label:       "@@@T:it_t_titre_perso@@@"
+      description: "@@@T:it_d_titre_perso@@@"
+      span_x: 1
+      span_y: 1
+      draggable: false
+      family: titres
+      options:
+        - item_view
+        - title_apply_player
+        - title_unapply_player
+        - item_trash
+
+    # --- Titre de CLAN : appartient à tout le monde, ne s'applique que par un chef -----------
+    # owner = clanId, comme le coffre, mais `shared: true` : worker._pushClanItems lève alors le
+    # filtre « items du clan = chefs seulement » et la tuile paraît chez TOUS les membres — la
+    # fierté du clan est collective. Seul le DROIT d'agir reste aux chefs : worker.items_selector
+    # ne renvoie aucune option à un joueur ordinaire, son tap reste inerte.
+    titre_clan:
+      label:       "@@@T:it_t_titre_clan@@@"
+      description: "@@@T:it_d_titre_clan@@@"
+      span_x: 1
+      span_y: 1
+      draggable: false
+      shared: true
+      family: titres
+      options:
+        - item_view
+        - title_apply_clan
+        - title_unapply_clan
+        - item_trash
+
+    # --- Coffre du butin : contenant permanent du clan (un seul par clan) -----
+    # Créé à la naissance du clan (worker._ensureButinDocs), owner = clanId → visible des seuls
+    # admins. Épinglé en haut au centre sur deux cases, jamais déplaçable, accepte le dépôt de
+    # n'importe quel item (joker "*") : y déposer un item lui pose owner = "butin", il quitte
+    # alors l'inventaire de tout le monde sans quitter la base.
+    # Pas de quantité ni de pastille : ce que contient le coffre est un secret (un enfant qui
+    # regarde par-dessus l'épaule ne doit pas voir s'il est plein).
+    # `options` ne porte qu'Ouvrir : le coffre n'a qu'une action, renvoyée en « option seule » par
+    # worker.items_selector — le tap déclenche directement `item_open` (worker.butin_show) sans
+    # passer par un menu. « Ajouter une note » vit maintenant DANS le coffre (butin_page/list),
+    # pas dans ce menu extérieur — un clic sur la tuile doit ouvrir le coffre, point. Pas de
+    # `item_view` ici : contrairement au reste du catalogue, une fiche « Voir » n'apporterait rien
+    # pour le coffre (son contenu est déjà secret, cf. plus bas) et ajouterait un tap pour rien.
+    butin:
+      label:       "@@@T:it_t_butin@@@"
+      description: "@@@T:it_d_butin@@@"
+      span_x: 2
+      span_y: 1
+      draggable: false
+      pin: top_center
+      # Épinglé, donc MOBILIER : le coffre est dessiné dans TOUS les onglets et sa case y est
+      # réservée — sinon `drops: "*"` deviendrait inatteignable depuis l'onglet Équipement, alors
+      # que le joker veut dire « n'importe quoi, d'où que ça vienne ». Sa famille ne sert donc
+      # qu'aux grilles sans onglets, et ne fait pas apparaître d'onglet Général à elle seule.
+      family: general
+      options:
+        - item_open
+      drops:
+        "*": worker.item_to_butin
+
+    # --- Portefeuille : l'argent de poche ------------------------------------
+    # DEUX documents portent ce type, et ils ne se ressemblent pas :
+    #   - le portefeuille DU COFFRE (docId `wallet`), owner = "butin" dès sa naissance : il vit
+    #     dans le coffre, n'apparaît donc jamais dans la grille, et n'a qu'une ligne dans la liste
+    #     de contenu. Sa quantité ne fait que MONTER par ce chemin — on ajoute de l'argent en
+    #     tapant sa ligne dans le coffre, on n'en retire jamais : une promesse faite à un enfant
+    #     ne se reprend pas. (Un chef peut en revanche y REMETTRE le sien, cf. item_to_chest.)
+    #   - la bourse D'UN JOUEUR (docId `wallet_<userId>`), owner = son userId : créée en même
+    #     temps que lui (worker._ensurePlayerWallet), elle est la tuile ci-dessous.
+    # Ni l'un ni l'autre n'est jamais supprimé, même vide.
+    argent_poche:
+      label:       "@@@T:it_t_argent@@@"
+      description: "@@@T:it_d_argent@@@"
+      span_x: 1
+      span_y: 1
+      draggable: false
+      # PLUS de `pin` (2026-07-28) : la bourse était un MOBILIER ubiquitaire (tuile épinglée
+      # top_left, dessinée dans tous les onglets, hors décompte de visibilité) — ce qui privait la
+      # famille `general` du moindre item ordinaire, donc de tout onglet. Elle redevient un item
+      # normal de la famille Général, rangée comme les autres (première case libre à l'affichage,
+      # rangement mémorisé ensuite comme tout autre item).
+      family: general
+      options:
+        - item_view
+        - item_to_chest
+
+  lang:
+    translations:
+
+      #------------- Items ---------------------------------------------
+
+      it_t_titre_perso:
+        fr: "Titre de personnage"
+        en: "Character title"
+        es: "Título de personaje"
+      it_d_titre_perso:
+        fr: "Un titre gagné à la sueur de l'éponge. À toi de décider si tu le portes."
+        en: "A title earned by the sweat of your sponge. Up to you whether you wear it."
+        es: "Un título ganado con el sudor de la esponja. Tú decides si lo llevas."
+
+      it_t_titre_clan:
+        fr: "Titre de clan"
+        en: "Clan title"
+        es: "Título de clan"
+      it_d_titre_clan:
+        fr: "Un titre gagné par le clan tout entier. Seul un chef décide de l'arborer."
+        en: "A title earned by the whole clan. Only a chief decides to bear it."
+        es: "Un título ganado por todo el clan. Solo un jefe decide lucirlo."
+
+      it_t_butin:
+        fr: "Coffre du butin"
+        en: "Loot chest"
+        es: "Cofre del botín"
+      it_d_butin:
+        fr: "Le coffre du clan : les récompenses y dorment jusqu'à l'ouverture du butin."
+        en: "The clan's chest: rewards sleep here until the loot is opened."
+        es: "El cofre del clan: las recompensas duermen aquí hasta que se abra el botín."
+
+      it_t_argent:
+        fr: "Argent de poche"
+        en: "Pocket money"
+        es: "Dinero de bolsillo"
+      # en/es pas encore resynchronisés avec le fr (2026-07-28) : à retraduire si besoin.
+      it_d_argent:
+        fr: "Argent obtenu à troquer contre de l'argent réel avec tes chefs de clan."
+        en: "The loot's purse: the money promised to the adventurers."
+        es: "La bolsa del botín: el dinero prometido a los aventureros."
+
+      #------------- Familles d'items (onglets) ------------------------
+
+      it_f_general:
+        fr: "Général"
+        en: "General"
+        es: "General"
+      it_f_equipement:
+        fr: "Équipement"
+        en: "Gear"
+        es: "Equipo"
+      it_f_potions:
+        fr: "Potions"
+        en: "Potions"
+        es: "Pociones"
+      it_f_magie:
+        fr: "Magie"
+        en: "Magic"
+        es: "Magia"
+      it_f_skills:
+        fr: "Talents"
+        en: "Skills"
+        es: "Talentos"
+      it_f_titres:
+        fr: "Titres"
+        en: "Titles"
+        es: "Títulos"
+
+      #------------- Options du menu des items -------------------------
+
+      # Les deux options « porter » (perso / clan) partagent CE libellé et ne diffèrent que par leur
+      # icône : l'image d'une option de menu est statique en conf, il faut donc deux clefs d'option
+      # pour deux icônes différentes — mais un seul texte, qui dit la même chose dans les deux cas.
+      it_o_title_apply:
+        fr: "Porter ce titre"
+        en: "Wear this title"
+        es: "Llevar este título"
+      it_o_title_unapply:
+        fr: "Ne plus porter ce titre"
+        en: "Stop wearing this title"
+        es: "Dejar de llevar este título"
+      it_o_trash:
+        fr: "À la poubelle"
+        en: "In the bin"
+        es: "A la basura"
+      it_o_give:
+        fr: "Donner"
+        en: "Give"
+        es: "Dar"
+      it_o_to_chest:
+        fr: "Remettre dans le coffre"
+        en: "Put back in the chest"
+        es: "Devolver al cofre"
+      it_o_view:
+        fr: "Voir"
+        en: "View"
+        es: "Ver"
+      it_o_open:
+        fr: "Ouvrir le coffre"
+        en: "Open the chest"
+        es: "Abrir el cofre"
+
+      #------------- Fiche d'un objet (écran item_view_page) -----------
+
+      it_view_title:
+        fr: "L'objet"
+        en: "The item"
+        es: "El objeto"
+
+      #------------- Don d'un objet à un joueur (option item_give) -----
+
+      # Titre de l'écran de choix du destinataire (give_page).
+      it_give_title:
+        fr: "À qui donner ?"
+        en: "Give to whom?"
+        es: "¿A quién dárselo?"
+      # Liste vide : le donneur est le seul membre du clan (il ne s'y voit pas lui-même).
+      it_give_empty:
+        fr: "Tu es seul dans ce clan : personne à qui donner."
+        en: "You are alone in this clan: no one to give to."
+        es: "Estás solo en este clan: no hay a quién dárselo."
+      # Notification poussée au DESTINATAIRE, dans SA langue (worker._notifyItemGift) :
+      # {item} = l'objet donné (nom propre s'il en a un, sinon le libellé de son type, résolu
+      # lui aussi dans la langue du destinataire), {name} = le donneur. Substitutions en code —
+      # surtout pas de @@@T:…@@@ ici, qui se résoudrait dans la langue de l'expéditeur.
+      it_give_notif:
+        fr: "Prend bien soin de {item} (signé {name})"
+        en: "Take good care of {item} (signed {name})"
+        es: "Cuida bien de {item} (firmado {name})"
+
+      #------------- Écran du coffre -----------------------------------
+
+      # Le coffre n'a pas de mode : une seule ligne d'aide, fixe, qui annonce les deux gestes
+      # possibles (rien d'autre ne les signale).
+      butin_hint:
+        fr: "Touchez un objet pour le sortir du coffre, touchez la bourse pour promettre de l'argent."
+        en: "Tap an item to take it out of the chest, tap the purse to promise money."
+        es: "Toca un objeto para sacarlo del cofre, toca la bolsa para prometer dinero."
+      butin_validate:
+        fr: "Valider"
+        en: "Confirm"
+        es: "Confirmar"
+      butin_empty:
+        fr: "Le coffre est vide."
+        en: "The chest is empty."
+        es: "El cofre está vacío."
+      #------------- Note du coffre (butin_note_page) -------------
+      # Un chef y dépose un mot lu par tout le clan à la prochaine ouverture — secret jusque-là,
+      # y compris des autres chefs.
+      butin_note_title:
+        fr: "Une note dans le coffre"
+        en: "A note in the chest"
+        es: "Una nota en el cofre"
+      butin_note_hint:
+        fr: "Cette note sera lue par tout le clan à l'ouverture du coffre — personne ne la voit avant, pas même les autres chefs. C'est l'endroit rêvé pour une annonce ou une surprise : « on va tous à un super parc d'attractions, vous l'avez mérité »."
+        en: "This note will be read by the whole clan when the chest is opened — nobody sees it before then, not even the other chiefs. It's the perfect place for an announcement or a surprise: “we're all going to an amazing amusement park, you've earned it.”"
+        es: "Esta nota será leída por todo el clan al abrir el cofre — nadie la ve antes, ni siquiera los demás jefes. Es el lugar perfecto para un anuncio o una sorpresa: «vamos todos a un parque de atracciones increíble, os lo habéis ganado»."
+      butin_note_ok:
+        fr: "Valider"
+        en: "Confirm"
+        es: "Confirmar"
+      # Ligne « Ajouter une note », TOUJOURS présente en tête du contenu du coffre (avant mes
+      # notes existantes, s'il y en a) → butin_note_page, toujours vierge.
+      butin_note_add_label:
+        fr: "Ajouter une note"
+        en: "Add a note"
+        es: "Añadir una nota"
+      # Ligne d'une de MES notes dans le contenu du coffre (butin_page/list) : visible du seul
+      # auteur, touchée pour la SUPPRIMER directement (pas d'édition, cf. worker._deleteButinNote).
+      butin_note_row_label:
+        fr: "Votre note"
+        en: "Your note"
+        es: "Tu nota"
+      # Bouton de l'écran de récompenses (butin_rewards_page/ok).
+      butin_ok:
+        fr: "ok"
+        en: "ok"
+        es: "ok"
+      # Deuxième phrase : le conseil de la tirelire. Le jour de l'ouverture, l'argent se distribue
+      # séance tenante — mieux vaut qu'il soit déjà là, sous les yeux, plutôt que promis.
+      butin_money_warning:
+        fr: "Attention : c'est une promesse d'argent RÉEL, à distribuer entre les joueurs le jour où le butin sera ouvert. Prévois une tirelire ou un vrai coffre où déposer cet argent au fur et à mesure : le jour de l'ouverture, la distribution sera immédiate."
+        en: "Careful: this is a promise of REAL money, to be shared among the players on the day the loot is opened. Keep a piggy bank or a real chest and put the money in as you go: on opening day, sharing it out will be immediate."
+        es: "Atención: es una promesa de dinero REAL, para repartir entre los jugadores el día en que se abra el botín. Ten una hucha o un cofre de verdad donde ir metiendo ese dinero: el día de la apertura, el reparto será inmediato."
+
+      #------------- Écran de saisie d'une somme (money_page) -----------
+
+      money_title:
+        fr: "Argent de poche"
+        en: "Pocket money"
+        es: "Dinero de bolsillo"
+      # Ce qu'on est en train de faire : ajouter au coffre, ou y remettre le sien.
+      money_lbl_add:
+        fr: "Somme à ajouter"
+        en: "Amount to add"
+        es: "Cantidad a añadir"
+      money_lbl_back:
+        fr: "Somme à remettre dans le coffre"
+        en: "Amount to put back in the chest"
+        es: "Cantidad a devolver al cofre"
+      # Paiement du tribut : le chef déclare ce qu'il verse POUR DE VRAI au joueur.
+      money_lbl_pay:
+        fr: "Somme versée au joueur"
+        en: "Amount paid to the player"
+        es: "Cantidad entregada al jugador"
+      # Accolé au libellé ci-dessus, suivi du solde : uniquement quand un maximum existe.
+      money_lbl_max:
+        fr: "maximum :"
+        en: "maximum:"
+        es: "máximo:"
+      # Touche du pavé : trois lettres maximum, la case est carrée.
+      money_key_max:
+        fr: "MAX"
+        en: "MAX"
+        es: "MÁX"
+      money_warn_back:
+        fr: "Cet argent quitte ta bourse et retourne dans le coffre du clan : il sera repartagé à la prochaine ouverture du butin."
+        en: "This money leaves your purse and goes back into the clan's chest: it will be shared again the next time the loot is opened."
+        es: "Este dinero sale de tu bolsa y vuelve al cofre del clan: se repartirá de nuevo en la próxima apertura del botín."
+      # Versement du tribut. {name} = le joueur payé. Le jeu ne peut pas constater le versement :
+      # c'est le chef qui le déclare, et l'avertissement est là pour qu'il ne le déclare pas à vide.
+      money_warn_pay:
+        fr: "Cette somme est l'argent RÉEL que vous devez remettre à {name}, de la main à la main. Elle sera retirée de sa bourse."
+        en: "This amount is the REAL money you must hand over to {name}. It will be taken out of their purse."
+        es: "Esta cantidad es el dinero REAL que debes entregar a {name} en mano. Se descontará de su bolsa."
+      # Notification au joueur payé. {amount} = la somme versée. « argent de poche » et non
+      # « pièces » : c'est de l'argent réel, et l'app doit le dire du même mot partout. Unité
+      # d'argot (balles/bucks/pavos) pour que {amount} ne sonne pas comme un nombre nu.
+      tribute_notif:
+        fr: "Ton tribut t'attend : {amount} balles d'argent de poche bien réel !"
+        en: "Your tribute awaits: {amount} very real bucks of pocket money!"
+        es: "¡Tu tributo te espera: {amount} pavos de dinero de bolsillo bien real!"

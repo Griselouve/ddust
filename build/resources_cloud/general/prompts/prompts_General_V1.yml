@@ -1,0 +1,11 @@
+# Prompts « inspire » (VertexAI). Le corps de chaque prompt vit désormais dans
+# lang.translations (clés prompt_inspire_*), rédigé nativement par langue et résolu
+# par get_prompt via @@@T:...@@@ (repli fr pour toute langue non traduite). Les
+# placeholders données @@@worker.inspire_input@@@ / @@@worker.inspire_lang@@@ sont
+# résolus après la traduction.
+prompts:
+  agents:
+    inspire_clan: "@@@T:prompt_inspire_clan@@@"
+    inspire_task: "@@@T:prompt_inspire_task@@@"
+    # Conte du butin (worker._narrateClanStory) : récit narratif du clan, tiré du journal.
+    narrate_clan: "@@@T:prompt_narrate_clan@@@"

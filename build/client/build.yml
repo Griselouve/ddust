@@ -1,0 +1,78 @@
+build:
+  type: flutter
+  modules:
+    - dvcore
+    - dvlang
+    - dvsettings
+    - dvorb
+    - dvmarkdown
+    - dvapp
+    - dvtable
+    - dvcloud
+    - dvcloudassets
+    - dvlayers
+    - dvtheme
+    - dvprompts
+    - dvmessaging
+    - dventries
+    - dvtaskbar
+    - dvdocuments
+    - dvparentalgate
+    - dvvideo
+    - dvdecisiontree
+    - dvvertexai
+    - dvsocialshare
+    - dvvirtuallobby
+    - dvlock
+    - dvqrcode
+    - dvqrcodereader
+    - dvcamera
+    - dvdeeplink
+    - dvvibrations
+    - dvsound
+    - dvpops
+    - dvsteps
+    - dvsession
+    - dvflame
+    - dvinterlude
+    - dvtuto
+    - worker
+  resources:
+    - base
+    - resources
+  onboard:
+    assets:
+      target: layers
+      source: resources_cloud/general/layers/assets-global.yml
+    theme-donjon:
+      target: layers
+      source: resources_cloud/donjon/layers/theme-donjon-global.yml
+    tasks:
+      target: layers
+      source: resources_cloud/general/layers/tasks-base-global.yml
+    items:
+      target: layers
+      source: resources_cloud/general/layers/items-base-global.yml
+    decisiontree:
+      target: layers
+      source: resources_cloud/donjon/layers/decisiontree-donjon-global.yml
+  appsettings:
+    permissions:
+      internet: true
+    orientation: portrait
+  cloud:
+    enabled: true
+    oauth:
+      - desktop
+      - android
+      - web
+  flutterspecs:
+    pubspec:
+      dependencies:
+        flutter_localizations:
+          sdk: flutter
+      flutter:
+        fonts:
+          - family: MedievalSharp
+            fonts:
+              - asset: assets/fonts/MedievalSharp-Regular.ttf

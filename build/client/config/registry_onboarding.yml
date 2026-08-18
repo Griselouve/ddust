@@ -1,0 +1,584 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- HOME SCREEN -----------------------------------------
+
+    # Deux portes explicites, et c'est tout l'enjeu de cet écran : un nouveau joueur ouvre une
+    # session ANONYME et traverse tout l'onboarding (royaume, âge, vidéo, CGU) sans que Firebase
+    # Auth ne détienne son email, son nom ou sa photo — le compte Google n'est lié qu'à la fin.
+    # Un joueur existant, lui, s'authentifie tout de suite. Sans cette seconde porte, toute
+    # réinstallation créerait un compte anonyme jetable et tomberait dans le parcours de conflit,
+    # qui deviendrait le cas nominal au lieu d'un cas de bord.
+    home:
+      masks:
+        - page
+      title: "@@@T:application_name@@@"
+      registry:
+        - home/icon_background
+        - home/connect
+        - home/already_have_account
+        - home/lang_text
+        - home/lang_flag
+        - home/rejected_scrim
+        - home/rejected_text
+        - home/rejected_close
+
+    home/icon_background:
+      masks:
+        - commons/icon_background
+      shape:
+        y: 15%
+        h: 45%
+
+    home/connect:
+      masks:
+        - commons/shape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 62%
+        w: 90%
+        h: 10%
+        label: "@@@T:start_adventure@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: dvcloud.do_start_anonymous
+
+    home/already_have_account:
+      masks:
+        - commons/shape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 73%
+        w: 90%
+        h: 10%
+        label: "@@@T:already_have_account@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: dvcloud.do_login_existing
+
+    # Sélecteur de langue descendu sous les deux portes (sur region_screen il reste à 75%).
+    home/lang_text:
+      masks:
+        - region_screen/lang_text
+      shape:
+        y: 88%
+
+    home/lang_flag:
+      masks:
+        - region_screen/lang_flag
+      shape:
+        y: 88%
+
+    #//---- Compte refusé (« J'ai déjà un compte » sans compte en base) ----------------------
+    # Overlay de widgets invisibles→visibles révélé par worker.on_account_rejected — jamais de
+    # showDialog. Deux messages selon la raison : compte introuvable (l'entrée Firebase Auth
+    # vient d'être supprimée) ou incident de lecture (rien n'a été touché, on peut réessayer).
+
+    home/rejected_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.8
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop
+
+    home/rejected_text:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 34%
+        h: 24%
+        font_size: 14.0
+        text_align: CENTER
+        label: ""     # rempli à l'exécution selon la raison du refus
+        visible: false
+
+    home/rejected_close:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 62%
+        label: "@@@T:link_rejected_close@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_rejected_close
+
+    #//------------------------------- REGION SCREEN -----------------------------------
+
+    region_screen:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:region_screen_title@@@"
+      registry:
+        - commons/icon_background
+        - region_screen/intro_text
+        - region_screen/lang_text
+        - region_screen/lang_flag
+        - documents/region_label
+        # region_confirm avant le bouton : à la reprise de session le bouton rejoue le choix
+        # dès son appear, et ce rejeu allume la confirmation — qui doit donc déjà exister.
+        - documents/region_confirm
+        - documents/region_button
+        - documents/region_menu
+        #- region_screen/skip_fast_test
+
+    region_screen/lang_flag:
+      class: DvLangButton
+      layer: content
+      shape:
+        x: 35%
+        y: 75%
+        w: 13%
+        h: 6%
+        events:
+          tap: true
+
+    region_screen/lang_text:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 44%
+        y: 75%
+        w: 30%
+        h: 6%
+        label: "@@@T:lang_label@@@"
+
+    region_screen/intro_text:
+      masks:
+        - commons/intro_text
+      shape:
+        label: "@@@T:game_intro_text@@@"
+
+    documents/region_label:
+      masks:
+        - commons/label_label
+      shape:
+        y: 59%
+        label: "@@@T:region_label@@@"
+
+    # Bouton de choix du royaume : vide au départ (« Consulter la carte... »), il porte ensuite
+    # le drapeau et le nom du royaume. Cadre donjon, comme le kebab de l'écran Personnage.
+    documents/region_button:
+      button_style: commons/donjon_button
+      shape:
+        x: 5%
+        w: 90%
+        y: 64%
+        h: 7%
+        icon_size: 30.0
+        empty_label: "@@@T:region_select_label@@@"
+
+    # Popup des royaumes : la largeur du bouton qui l'ouvre.
+    documents/region_menu:
+      shape:
+        w: 90%
+
+    documents/region_confirm:
+      masks:
+        - commons/dark_button
+      shape:
+        x: 5%
+        y: 85%
+        w: 90%
+        h: 7%
+        label: "@@@T:region_confirm@@@"
+
+    # region_screen/skip_fast_test:
+      # class: DvLabel
+      # layer: content
+      # shape:
+        # x: 70%
+        # y: 2%
+        # w: 25%
+        # h: 5%
+        # label: "@@@T:skip_fast_test@@@"
+        # text_align: CENTER
+        # events:
+          # tap: true
+        # freezing_actions:
+          # tap: worker.on_fast_test_skip
+
+    #//------------------------------- PLAYER NAME SCREEN ----------------------------------
+
+    player_name_screen:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:player_name_screen_title@@@"
+      keyboard_scrollable: true
+      shape:
+        actions:
+          appear: worker.on_player_name_appear
+      registry:
+        - player_name_screen/icon_background
+        - player_name_screen/name_label
+        - player_name_screen/name
+        - player_name_screen/confirm
+
+    player_name_screen/icon_background:
+      masks:
+        - commons/nameform_bg
+
+    player_name_screen/name_label:
+      masks:
+        - commons/nameform_label
+      shape:
+        label: "@@@T:player_name_label@@@"
+
+    player_name_screen/name:
+      masks:
+        - commons/nameform_entry
+      shape:
+        actions:
+          changed: worker.on_player_name_changed
+
+    player_name_screen/confirm:
+      masks:
+        - commons/nameform_confirm
+      shape:
+        label: "@@@T:player_name_confirm@@@"
+        freezing_actions:
+          tap: steps.navigate
+
+    #//------------------------------- AGE SCREEN -----------------------------------
+
+    age_screen:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:age_screen_title@@@"
+      registry:
+        - commons/icon_background
+        - age_screen/intro_text
+        - documents/birthday_label
+        - documents/birthday_date
+        - documents/age_confirm
+        #- age_screen/skip_fast_test
+
+    age_screen/intro_text:
+      masks:
+        - commons/intro_text
+      shape:
+        label: "@@@T:age_intro_text@@@"
+
+    documents/birthday_label:
+      masks:
+        - commons/label_label
+      shape:
+        y: 60%
+        label: "@@@T:birthday_label@@@"
+
+    documents/birthday_date:
+      masks:
+        - commons/shape
+      shape:
+        x: 5%
+        w: 90%
+        y: 65%
+        h: 7%
+        date: "2000-06-15"
+        events:
+          change: true
+        actions:
+          change: documents.on_birthdate_changed
+
+    documents/age_confirm:
+      masks:
+        - commons/dark_button
+      shape:
+        x: 5%
+        w: 90%
+        y: 85%
+        h: 7%
+        label: "@@@T:confirm@@@"
+
+    # age_screen/skip_fast_test:
+      # class: DvLabel
+      # layer: content
+      # shape:
+        # x: 70%
+        # y: 2%
+        # w: 25%
+        # h: 5%
+        # label: "@@@T:skip_fast_test@@@"
+        # text_align: CENTER
+        # events:
+          # tap: true
+        # freezing_actions:
+          # tap: worker.on_fast_test_skip
+
+    #//------------------------------- PARENTAL GATE SCREEN ----------------------------------
+
+    parentalgate_screen:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:parentalgate_title@@@"
+      registry:
+        - parentalgate_screen/icon_background
+
+    parentalgate_screen/icon_background:
+      masks:
+        - commons/icon_background
+      shape:
+        y: 10%
+        h: 35%
+
+    parentalgate/instruction:
+      masks:
+        - commons/intro_text
+      shape:
+        y: 10%
+        h: 35%
+
+    parentalgate/expression:
+      shape:
+        x: 5%
+        y: 50%
+        w: 72%
+        h: 8%
+
+    parentalgate/countdown:
+      shape:
+        x: 80%
+        y: 50%
+        w: 15%
+        h: 8%
+
+    parentalgate/answer_display:
+      shape:
+        x: 5%
+        y: 60%
+        w: 90%
+        h: 7%
+
+    parentalgate/numpad:
+      shape:
+        x: 5%
+        y: 69%
+        w: 90%
+        h: 29%
+        show_ok: false
+        show_back: false
+
+    #//------------------------------- DDVIDEO SCREEN -----------------------------------------
+
+    ddvideo:
+      masks:
+        - page
+      title: "@@@T:ddvideo_title@@@"
+      show_appbar: false
+      registry:
+        - ddvideo/player
+
+    ddvideo/player:
+      class: DvVideo
+      layer: content
+      shape:
+        x: 0
+        y: 0
+        w: 100%
+        h: 100%
+        fullscreen: true
+        skip: true
+        loop: false
+        skip_shape:
+          border: true
+        actions:
+          skip:
+            - steps.navigate
+          end:
+            - steps.navigate
+
+    #//------------------------------- DOCUMENTS ACCEPTANCE SCREEN ----------------------------
+
+    documents_acceptance_screen:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:documents_acceptance_title@@@"
+      registry:
+        - documents/acceptance_title
+        - documents/acceptance_content
+        - documents/acceptance_hint
+        - documents/acceptance_checkbox
+        - documents/acceptance_accept
+
+    documents/acceptance_title:
+      masks:
+        - commons/nobordershape
+
+    documents/acceptance_hint:
+      masks:
+        - commons/nobordershape
+
+    documents/acceptance_checkbox:
+      masks:
+        - commons/nobordershape
+      shape:
+        text_align: LEFT
+
+    documents/acceptance_accept:
+      masks:
+        - commons/dark_button
+
+    #//------------------------------- LINK ACCOUNT SCREEN ------------------------------------
+    # Dernière étape de l'onboarding et PREMIÈRE écriture en base : jusqu'ici tout s'est passé
+    # en session anonyme. Écran bloquant — pas d'appbar, donc pas de retour, et aucun bouton
+    # « plus tard » : sans compte lié, le héros ne survivrait ni à une réinstallation ni à un
+    # changement d'appareil. L'adulte y arrive après les CGU, le mineur après son admission
+    # dans un clan.
+
+    link_account_screen:
+      masks:
+        - page
+      show_appbar: false
+      title: "@@@T:link_account_title@@@"
+      shape:
+        actions:
+          appear: worker.on_link_account_appear
+      registry:
+        - link_account/background
+        - link_account/title
+        - link_account/google_button
+        - link_account/google_icon
+        - link_account/error
+        - link_account/conflict_scrim
+        - link_account/conflict_text
+        - link_account/conflict_confirm
+        - link_account/conflict_cancel
+
+    link_account/background:
+      masks:
+        - commons/icon_background
+      shape:
+        y: 8%
+        h: 32%
+
+    link_account/title:
+      masks:
+        - commons/intro_text
+      shape:
+        y: 43%
+        h: 8%
+        label: "@@@T:link_account_title@@@"
+
+    link_account/google_button:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 78%
+        label: "@@@T:link_account_google@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: dvcloud.do_link_account
+
+    # Logo Google, posé DANS le bouton : commons/btn_wide est un DvLabel, il n'a pas de
+    # gouttière d'icône réservée. Aucun event déclaré ici, donc aucun GestureDetector n'est
+    # construit et le tap traverse jusqu'au bouton. Déclaré après lui pour passer dessus.
+    link_account/google_icon:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 80.5%
+        w: 9%
+        h: 5%
+        label: ""
+        border: false
+        image: "assets/icon/google.png"
+        stretch: RATIO_IN
+
+    link_account/error:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 89%
+        h: 9%
+        font_size: 12.0
+        label: ""
+        visible: false
+
+    #//---- Conflit : le compte Google porte déjà un héros ----------------------------------
+    # Overlay de widgets invisibles→visibles, idiome commons/death_* — jamais de showDialog.
+    # Adulte : adoption possible (rien n'a encore été écrit sous l'uid anonyme). Mineur déjà
+    # dans un clan : blocage pur, seul conflict_cancel est révélé.
+
+    link_account/conflict_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.85
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop
+
+    link_account/conflict_text:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 28%
+        h: 30%
+        font_size: 14.0
+        label: ""
+        visible: false
+
+    link_account/conflict_confirm:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 62%
+        label: ""
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_link_conflict_confirm
+
+    link_account/conflict_cancel:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 74%
+        label: ""
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_link_conflict_cancel
+

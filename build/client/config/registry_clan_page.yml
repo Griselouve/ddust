@@ -1,0 +1,775 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- Clan Screen ---------------------------------
+
+    clan_page:
+      masks:
+        - page_taskbar
+      show_appbar: true
+      show_back: false
+      title: "@@@T:Clan@@@"
+      actions:
+        appear:
+          - worker.on_clan_appear
+          - dvtuto.enter
+      registry:
+        - commons/splash_background
+        - clan_page/icon
+        - clan_page/label
+        - clan_page/title_label
+        - clan_page/lvl_track
+        - clan_page/lvl_fill
+        - clan_page/lvl_flame
+        - clan_page/lvl_label
+        - clan_page/xp_label
+        - clan_page/butin_track
+        - clan_page/butin_fill
+        - clan_page/butin_chest_ip
+        - clan_page/butin_chest_ok
+        - clan_page/butin_label
+        - clan_page/roster
+        - clan_page/roster_menu
+        - clan_page/settings
+        - clan_page/settings_menu
+        - clan_page/edit_toggle
+        - clan_page/edit_avatar_big
+        - clan_page/edit_name_big
+        # Ordre = z-order : l'aura SOUS le coffre, et les deux au-dessus de tout le reste.
+        - clan_page/butin_aura
+        - clan_page/butin_open
+        # Overlay de consentement du chef au recrutement — listé en DERNIER : le voile et son
+        # panneau doivent couvrir jusqu'au coffre.
+        - clan_page/invite_scrim
+        - clan_page/invite_panel
+        - clan_page/invite_yes
+        - clan_page/invite_no
+
+    clan_page/lvl_track:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 4%
+        w: 29%
+        h: 2.4%
+        background_color: "0xFF99864E"
+        border_radius: 6.0
+        border: false
+
+    clan_page/lvl_fill:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 4%
+        w: 1%
+        h: 2.4%
+        background_color: "0xFFB11226"
+        border_radius: 6.0
+        border: false
+
+    clan_page/lvl_flame:
+      class: DvImage
+      layer: content
+      shape:
+        x: 1%
+        y: -1%
+        w: 10%
+        h: 10%
+        stretch: "RATIO_IN"
+        image: "images/small/flamme_nobg.png"
+        border: false
+
+    clan_page/lvl_label:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 32%
+        y: 0%
+        w: 16%
+        h: 7%
+        text_align: CENTER
+        text_padding: 0.0
+        font_size: 19.0
+        font_color: "WHITE"
+        label: "1"
+        border: false
+        stretch: "RATIO_IN"
+        image: "images/medium/shield.png"
+
+    clan_page/xp_label:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 4%
+        w: 28%
+        h: 2.4%
+        text_align: RIGHT
+        text_padding: 0.0
+        font_size: 10.0
+        font_color: "BLACK"
+        label: ""
+        border: false
+
+    # --- Barre de BUTIN (miroir à droite de la barre d'XP du clan) ---------------
+    # Piste/remplissage = copies de lvl_track/lvl_fill, mais à droite (miroir autour
+    # de x=50%). Le remplissage est ANCRÉ À DROITE : x/w sont recalculés à chaud par
+    # on_clan_appear. À la place de la flamme : un coffre (chestip), remplacé par
+    # chestok quand le butin atteint son max → deux DvImage empilées dont on bascule
+    # la visibilité (show/hide), car reload() écraserait un shape.image posé à chaud.
+    clan_page/butin_track:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 66%
+        y: 4%
+        w: 29%
+        h: 2.4%
+        background_color: "0xFF99864E"
+        border_radius: 6.0
+        border: false
+
+    clan_page/butin_fill:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 66%
+        y: 4%
+        w: 1%
+        h: 2.4%
+        background_color: "0xFFB11226"
+        border_radius: 6.0
+        border: false
+
+    clan_page/butin_chest_ip:
+      class: DvImage
+      layer: content
+      shape:
+        x: 89%
+        y: 1%
+        w: 8%
+        h: 8%
+        stretch: "RATIO_IN"
+        image: "images/small/chestip.png"
+        visible: true
+        border: false
+
+    clan_page/butin_chest_ok:
+      class: DvImage
+      layer: content
+      shape:
+        x: 89%
+        y: 1%
+        w: 8%
+        h: 8%
+        stretch: "RATIO_IN"
+        image: "images/medium/chestok.png"
+        visible: false
+        border: false
+
+    clan_page/butin_label:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 67%
+        y: 4%
+        w: 28%
+        h: 2.4%
+        text_align: LEFT
+        text_padding: 0.0
+        font_size: 10.0
+        font_color: "BLACK"
+        label: ""
+        border: false
+
+    # --- Ouverture du butin : le coffre doré et son aura ------------------------
+    # Révélés ENSEMBLE par worker.on_clan_appear quand le butin est au plafond ET que le joueur est
+    # un chef (visible:false par défaut, idiome items/explorer). L'aura est déclarée AVANT le coffre
+    # dans le registry de clan_page : elle se dessine donc SOUS lui.
+    #
+    # Vue transparente de la scène dvflame `chestaura` (halo qui respire + rayons). Elle déborde
+    # volontairement le coffre de tous les côtés — c'est là que vivent les rayons. `interactive`
+    # reste à false (défaut) : IgnorePointer, les taps traversent jusqu'au coffre.
+    clan_page/butin_aura:
+      class: DvSceneView
+      layer: content
+      scene: chestaura
+      shape:
+        x: 75%
+        y: 4%
+        w: 25%
+        h: 15%
+        visible: false
+        border: false
+
+    # Le coffre plein, dans la bande de droite laissée libre par le kebab (rapetissé et calé en
+    # 67-77 %). C'est LE déclencheur de la cérémonie d'ouverture : il prend le verrou dvlock et
+    # empile butin_open_page.
+    # `actions` et NON `freezing_actions` : le gel d'une page est un booléen, pas un compteur
+    # (DvPage.freeze). La cérémonie s'achève par une animation qui pose son propre gel, et la fin
+    # d'une action gelante l'effacerait. Le double tap est écarté par la garde du worker.
+    clan_page/butin_open:
+      class: DvImage
+      layer: content
+      shape:
+        x: 81%
+        y: 8%
+        w: 14%
+        h: 7%
+        stretch: "RATIO_IN"
+        image: "images/medium/chestok.png"
+        visible: false
+        border: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_butin_open_tap
+
+    clan_page/icon:
+      class: DvLabel
+      shape:
+        x: 35%
+        w: 30%
+        y: 0%
+        h: 20%
+        image_fallback: "images/medium/nope.png"
+
+    clan_page/label:
+      mask: commons/intro_text
+      layer: content
+      shape:
+        x: 5%
+        y: 16%
+        w: 90%
+        h: 10%
+        text_align: CENTER
+        label: "@@@session.clan.name@@@"
+        border: true
+
+    # Titre du clan : posé en bas du panneau du nom, change toutes les 5 niveaux de clan.
+    # Rempli à chaud par on_clan_appear (write d'un token @@@T:clan_title_N@@@).
+    clan_page/title_label:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 22.5%
+        w: 90%
+        h: 4%
+        text_align: CENTER
+        text_padding: 0.0
+        font_size: 11.0
+        font_color: "0xFFB11226"
+        label: ""
+        border: false
+
+    # --- Édition du clan (miroir de l'édition du personnage) -------------------
+    # Petite icône edit discrète (haut droite) → toggle_clan_edit révèle les 2
+    # grosses icônes edit (avatar + nom du clan).
+    clan_page/edit_toggle:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 55%
+        y: 1%
+        w: 8%
+        h: 5%    
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+        border: false
+        label: ""
+        events:
+          tap: true
+        actions:
+          tap: worker.toggle_clan_edit
+
+    # Bouton settings de l'en-tête (kebab « … » doré, identique à celui des tuiles du roster).
+    # Ouvre le menu clan_page/settings_menu.
+    clan_page/settings:
+      class: DvMenuButton
+      layer: content
+      menu: clan_page/settings_menu
+      menu_enabled: true
+      # Même cadre doré que les boutons du roster (fond noir ~60 % + cadre doré).
+      button_style: commons/donjon_button
+      # Bande libre à droite, SOUS la barre de butin (y4-9 %) et le coffre (y1-9 %), au-dessus du
+      # bandeau du nom (y16 %). Coincé entre l'avatar du clan (qui finit à x65 %) et le coffre doré
+      # d'ouverture du butin (qui commence à x81 %) : la zone tient en 67-77 %.
+      # ATTENTION : DvMenuButton peint un carré de côté min(w,h) CENTRÉ dans la zone, mais la zone
+      # entière reste cliquable — c'est w qui déborderait sur l'avatar, pas le dessin. Pour
+      # rapetisser le kebab il faut donc baisser w ET h (sinon la dimension déjà minimale gagne).
+      shape:
+        x: 67%
+        y: 9%
+        w: 10%
+        h: 5%
+        border: false
+
+    # Menu du bouton settings de l'écran Clan (Journal, QR, invitation, tutoriels + « Créer un
+    # joueur »). Le selector clan_settings_selector filtre les options réservées au chef : recruter
+    # (QR, invitation à distance) et « Créer un joueur » n'apparaissent que pour un admin ; seuls le
+    # journal et les tutoriels sont visibles par tous.
+    clan_page/settings_menu:
+      class: DvMenu
+      layer: popup
+      selector: worker.clan_settings_selector
+      show_label: false
+      shape:
+        w: 55%
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        clan_log:
+          image: "images/small/scroll_nobg.png"
+          desc: "@@@T:clan_menu_log_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_log@@@"
+          actions:
+            tap: worker.open_clan_log
+        # Fait entrer un joueur dans le clan par QR code. Réservé au chef (clan_settings_selector),
+        # avec double garde dans worker.on_invite_clan.
+        clan_qr:
+          image: "images/small/qr-code.png"
+          desc: "@@@T:clan_menu_qr_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_qr@@@"
+          actions:
+            tap: worker.on_invite_clan
+        # Invitation à distance : lien chiffré par PIN, partagé sur les réseaux sociaux (pas de QR).
+        # Icône Material Flutter (partage) au lieu d'un asset — colorée par le thème du menu.
+        # Réservé au chef (clan_settings_selector), double garde dans worker.on_invite_clan_remote.
+        clan_invite_remote:
+          icon: "share"
+          desc: "@@@T:clan_menu_invite_remote_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_invite_remote@@@"
+          actions:
+            tap: worker.on_invite_clan_remote
+        tutorials:
+          image: "images/medium/nope.png"
+          desc: "@@@T:clan_menu_tutorials_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_tutorials@@@"
+          actions:
+            tap: navigate_new.tutoriels
+        # Créer un joueur enfant (sans téléphone ni compte Google), admis directement dans le
+        # clan. Réservé au chef (clan_settings_selector). Icône Material group_add (colorée par
+        # le thème, pas d'asset). Ouvre l'écran create_player_screen.
+        create_player:
+          icon: "group_add"
+          desc: "@@@T:clan_menu_create_player_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_create_player@@@"
+          actions:
+            tap: worker.create_player
+
+    #//------------------------------- Overlay CONSENTEMENT du chef (recrutement) ---------
+    # Révélé par worker.on_invite_clan / on_invite_clan_remote AVANT que le lobby ne soit créé :
+    # le chef qui recrute fait potentiellement entrer un enfant dans son clan, il doit avoir la
+    # mention de responsabilité légale et le lien vers les CGU adulte sous les yeux À CET INSTANT
+    # (RGPD art. 8 : le consentement doit être éclairé au moment de l'acte, pas seulement à
+    # l'installation). Un seul point de passage pour le QR et pour l'invitation à distance : c'est
+    # la DEMANDE de recrutement qui est gardée, pas l'écran qui en découle.
+    # Idiome maison — jamais de fenêtre modale : widgets posés en layer:overlay, invisibles par
+    # défaut, révélés/masqués à la volée (cf. overlay « Créer un clan », registry_clan_join.yml).
+    # L'option kebab se déclenche sur CET écran (DvMenu a déjà refermé son menu).
+    clan_page/invite_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.8
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop # avale les taps derrière le panneau
+
+    # Le masque commons/parental_consent fournit la mise en page (JUSTIFY, link_color, lien inline
+    # vers les CGU adulte) ; le LIBELLÉ, lui, est surchargé. Son texte par défaut est
+    # inconditionnel (« vous déclarez être son responsable légal »), ce qui n'est vrai que sur
+    # l'écran de création d'un profil d'enfant : ici, on ne sait pas qui scannera le QR — un
+    # adulte, un enfant sans clan, ou un enfant déjà pris en charge par le chef d'un autre clan.
+    # invite_consent_notice énonce les trois cas et ne fait déclarer que celui qui s'applique.
+    # ⚠️ Aucun events.tap ici : le GestureDetector de la shape capterait le tap avant le lien.
+    clan_page/invite_panel:
+      masks:
+        - commons/parental_consent
+      layer: overlay
+      shape:
+        x: 8%
+        y: 16%
+        w: 84%
+        h: 34%
+        font_size: 13.0
+        font_color: "amber_200" # lisible sur le voile noir
+        label: "@@@T:invite_consent_notice@@@"
+        visible: false
+
+    clan_page/invite_yes:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 56%
+        h: 12%
+        text_align: CENTER
+        label: "@@@T:invite_consent_yes@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_confirm_invite_consent
+
+    clan_page/invite_no:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 70%
+        h: 12%
+        text_align: CENTER
+        label: "@@@T:invite_consent_no@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_cancel_invite_consent
+
+    #//------------------------------- Tutoriels (dvtuto) ------------------------------
+    # Page listant les leçons (accès via le menu settings du Clan). DvTiroir SANS selector → un tap
+    # sur une leçon exécute directement dvtuto.replay.<id> : navigue vers l'écran de la leçon et la
+    # rejoue en forçant (ignore la porte « vue »). Ajouter une icône par nouvelle leçon.
+    tutoriels:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:tutoriels_title@@@"
+      background_color: black
+      registry:
+        - tutoriels/list
+
+    tutoriels/list:
+      class: DvTutoList          # liste scrollable de titres (auto-alimentée par conf.dvtuto.lessons)
+      layer: content
+      shape:
+        x: 4%
+        y: 3%
+        w: 92%
+        h: 93%
+
+    clan_page/edit_avatar_big:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 42%
+        y: 5%
+        w: 16%
+        h: 10%
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+        border: false
+        label: ""
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.open_clan_avatar_explorer
+
+    clan_page/edit_name_big:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 42%
+        y: 17%
+        w: 16%
+        h: 8%
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+        border: false
+        label: ""
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.edit_clan_name
+
+    #//------------------------------- Clan avatar explorer ------------------------------
+    # Explorateur d'avatars de clan : grille (DvExplorer) filtrée sur icon_XX_C_XX.png.
+    clan_avatar_explorer:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:choose_avatar@@@"
+      background_color: black
+      registry:
+        - clan_avatar_explorer/grid
+
+    clan_avatar_explorer/grid:
+      class: DvExplorer
+      layer: content
+      selector: worker.on_clan_avatar_selected
+      shape:
+        x: 3%
+        y: 3%
+        w: 94%
+        h: 90%
+        show_filename: false
+        show_miniature: true
+        selection: single
+        folder: "images/medium"
+        regex_filter: "icon_[0-9]+_C_[0-9]+[.]png"
+        border_color: "0xFFEAD9A6"
+
+    # Liste scrollable des membres du clan (une tuile par joueur). Peuplée à chaud
+    # par worker.on_clan_appear via l'action dvroster.set_members. y 28% → sous le
+    # titre du clan ; jusqu'à ~86% (au-dessus de la taskbar à 88%). L'entête reste fixe.
+    clan_page/roster:
+      class: DvRoster
+      layer: content
+      # Menu contextuel ouvert au tap sur une tuile (DvRoster le gère lui-même : ouverture +
+      # bascule d'un joueur à l'autre). L'app ne fournit que les données, le menu et ses actions.
+      menu: clan_page/roster_menu
+      # Menu activé au tap (comportement DvRoster). false → exécuterait l'option seule du selector.
+      menu_enabled: true
+      # Tri métier des tuiles (optionnel) : action worker → admins d'abord (alpha), puis les autres (alpha).
+      sort: worker.clan_roster_sort
+      # Mode boutons : au lieu d'ouvrir le menu au tap, afficher les options du menu (mêmes clefs,
+      # même selector, mêmes actions) en icônes cliquables sous le nom. L'icône de chaque option
+      # est déclarée dans `menu` (clef `image:` par option).
+      buttons: true
+      # Replier toutes les options derrière l'icône « … » : aucune icône d'option directe sur la
+      # tuile, seul le kebab 3 points s'affiche → tap ouvre le menu vertical de toutes les options.
+      buttons_collapsed: true
+      # Nombre max d'icônes en ligne. Au-delà : les 4 premières + une icône « … » qui ouvre le
+      # menu vertical (liste de TOUTES les options, icône à gauche + libellé à droite).
+      buttons_max: 5
+      # Taille (px) des icônes d'action en ligne (plus grosses = plus lisibles pour les enfants).
+      buttons_size: 52
+      # Style de thème du cadre des boutons (fond noir ~60 % + cadre doré).
+      button_style: commons/donjon_button
+      shape:
+        x: 3%
+        y: 28%
+        w: 94%
+        h: 58%
+        border: false
+        # Flammèche au bout de la barre de progrès « butin » de chaque joueur (sous le nom).
+        # Sert aussi de badge « tâche en cours » (bas-droit de l'avatar).
+        flame_image: "images/small/flamme_nobg.png"
+        # Badge « demande de validation » (bas-droit de l'avatar) : la main.
+        hand_image: "images/small/hand_nobg.png"
+        # Les 5 clefs suivantes SURCHARGENT les défauts codés en dur de DvRoster (dvroster.dart),
+        # tous en `images/big/…` : sans elles, le framework irait chercher ces 5 fichiers dans
+        # `big/` alors qu'ils ont été reclassés (reclassement des images, cf. readme.md §12).
+        nope_image:  "images/medium/nope.png"        # repli avatar introuvable
+        ecu_image:   "images/medium/shield.png"      # écu de niveau
+        heart_image: "images/small/heart_nobg.png"   # cœur de PV
+        skull_image: "images/big/skull_nobg.png"     # crâne (mort) — reste en big (voile de mort, 256 dp)
+        crown_image: "images/small/crown.png"        # couronne d'admin
+        # Bourse du bord droit de la tuile (montant = champ `wallet` poussé par le worker). En la
+        # déclarant, on demande le badge : sans cette clef, DvRoster n'en dessine aucun. Elle prend
+        # le bord droit et repousse le kebab à sa gauche — l'argent se lit à la même place pour
+        # tout le monde, y compris les joueurs qui n'ont pas de kebab (aucune option).
+        purse_image: "images/medium/bourse.png"
+        # Raccourci : taper la bourse joue directement l'option `pay_tribute` du roster_menu, au
+        # lieu de passer par le kebab. Même clef, même selector (worker.clan_selector) → inerte
+        # pour qui n'y a pas droit (non-chef) ou n'a rien à encaisser (bourse vide, option grisée).
+        purse_option: "pay_tribute"
+
+    # Menu contextuel ouvert au clic sur une tuile joueur (worker.dvroster.tap appelle
+    # act("show", {x,y})). Trigger invisible (show_label:false) : c'est un « fantôme »
+    # dans le layer popup, l'overlay s'ouvre à la position du tap. Chaque entrée (map
+    # clef → shape.label + actions.tap) est ÉDITABLE ici ; les actions ciblent le handler
+    # préfixé rostermenu.<clef>, qui lit le joueur cliqué dans session.selected_player_*.
+    clan_page/roster_menu:
+      class: DvMenu
+      layer: popup
+      show_label: false
+      # Sélecteur : appelé avec `data` (infos du joueur cliqué) juste avant l'ouverture ;
+      # retourne la liste des clefs d'options valides (seules celles-ci s'affichent).
+      selector: worker.clan_selector
+      shape:
+        w: 55%
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      # Chaque option porte une `image:` (icône du bouton en mode `buttons` du roster), en plus
+      # de son label (repli mode menu) et de son action de tap. L'ordre d'affichage effectif est
+      # décidé par le selector (worker.clan_selector) ; l'ordre ci-dessous n'est qu'indicatif.
+      options:
+        player_log:
+          image: "images/small/scroll_nobg.png"
+          desc: "@@@T:roster_menu_log_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_log@@@"
+          actions:
+            tap: worker.open_player_log
+        revive_player:
+          image: "images/small/pharma.png"
+          desc: "@@@T:roster_menu_revive_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_revive@@@"
+          actions:
+            tap: worker.revive_player
+        support_player:
+          image: "images/small/xp_nobg.png"
+          desc: "@@@T:roster_menu_support_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_support@@@"
+          actions:
+            tap: worker.support_player
+        declare_offline:
+          image: "images/small/notconnected_nobg.png"
+          desc: "@@@T:roster_menu_offline_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_offline@@@"
+          actions:
+            tap: worker.declare_offline
+        take_place:
+          image: "images/small/switch_nobg.png"
+          desc: "@@@T:roster_menu_takeplace_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_takeplace@@@"
+          actions:
+            tap: worker.take_place
+        promote_chief:
+          image: "images/small/chef_nobg.png"
+          desc: "@@@T:roster_menu_promote_chief_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_promote_chief@@@"
+          actions:
+            tap: worker.promote_chief
+        nomore_chief:
+          image: "images/small/nomore_chef.png"
+          desc: "@@@T:roster_menu_nomore_chief_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_nomore_chief@@@"
+          actions:
+            tap: worker.nomore_chief
+        promote_adult:
+          image: "images/small/adult.png"
+          desc: "@@@T:roster_menu_promote_adult_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_promote_adult@@@"
+          actions:
+            tap: worker.promote_adult
+        pay_tribute:
+          image: "images/medium/bourse.png"
+          desc: "@@@T:roster_menu_pay_tribute_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_pay_tribute@@@"
+          actions:
+            tap: worker.pay_tribute
+        revoke_player:
+          image: "images/small/byebye_nobg.png"
+          desc: "@@@T:roster_menu_revoke_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_revoke@@@"
+          actions:
+            tap: worker.revoke_player
+
+    #//------------------------------- Log Screen ------------------------------------
+    # Écran narratif « journal d'un joueur » : ouvert depuis le menu roster (option
+    # player_log, admins). worker.on_log_appear lit clans_logs, reconstitue l'histoire
+    # chronologique du joueur cliqué (_logPlayerId/_logPlayerName) et écrit le texte
+    # résolu dans log_page/story.
+
+    log_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true # retour → clan_page (écran empilé via navigate_new)
+      title: "@@@T:log_page_title@@@"
+      actions:
+        appear: worker.on_log_appear
+      registry:
+        - commons/splash_background # même fond splash.png que le dashboard
+        - log_page/logo
+        - log_page/story
+        - log_page/share
+
+    # Logo « Donjons & Savons » en haut, même largeur que le frame (94%). Ratio ≈ 2.26 :
+    # box un poil plus haute que nécessaire + RATIO_IN + align TOP → image pleine largeur,
+    # ancrée en haut (léger vide bas absorbé sous le frame).
+    log_page/logo:
+      class: DvImage
+      layer: content
+      shape:
+        x: 3%
+        y: 2%
+        w: 94%
+        h: 26%
+        image: "images/big/logo.png"
+        stretch: RATIO_IN
+        align: TOP
+        border: false
+
+    # DvRichLabel (Markdown) noir bordé d'or, sous le logo (style tiroir des tâches).
+    # Seedé avec un @@@T:@@@ pour l'écouteur de traduction ; le worker y réécrit ensuite le
+    # récit en Markdown (en-têtes de date via <center>…</center>, entrées en paragraphes).
+    log_page/story:
+      class: DvRichLabel
+      layer: content
+      shape:
+        x: 3%
+        y: 27%
+        w: 94%
+        h: 70%
+        text_align: LEFT
+        valign: TOP # texte ancré en haut (pas centré verticalement)
+        scrollable: true # défilement si le récit dépasse la hauteur
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        background_color: "black"
+        opacity: 0.8
+        font_color: "#C8A84B"
+        font_size: 11.0
+        text_padding: 10.0
+        label: "@@@T:log_page_loading@@@"
+
+    # Icône « Partager » (bas centre, chevauche le bas du frame) → dvsocialshare (Android) :
+    # logo + récit (share.log). Rendue dans une pastille circulaire (fond sombre + bordure or)
+    # pour la visibilité : box carrée (~60px) + border_radius = moitié → cercle.
+    log_page/share:
+      class: DvIcon
+      layer: content
+      shape:
+        x: 42.5%
+        y: 87%
+        w: 15%
+        h: 9%
+        icon: "share"
+        icon_color: "#C8A84B"
+        icon_size: 26
+        background_color: "0xCC1A1A1A"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.5
+        border_radius: 30.0
+        events:
+          tap: true
+        freezing_actions:
+          tap: share.log
+

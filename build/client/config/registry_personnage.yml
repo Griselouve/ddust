@@ -1,0 +1,572 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- Personnage Screen ---------------------------------
+
+    personnage:
+      masks:
+        - page_taskbar
+      show_appbar: true
+      show_back: false
+      title: "@@@T:Personnage@@@"
+      actions:
+        appear:
+          - worker.on_personnage_appear
+          - dvtuto.enter
+      registry:
+        - commons/splash_background
+        - personnage/icon
+        - personnage/label
+        - personnage/title_label
+        - personnage/lvl_track
+        - personnage/lvl_fill
+        - personnage/lvl_flame
+        # - personnage/lvl_shield
+        - personnage/lvl_label
+        - personnage/xp_label
+        - personnage/pv_track
+        - personnage/pv_fill
+        - personnage/pv_heart
+        - personnage/pv_skull
+        - personnage/pv_label
+        - personnage/coming_soon
+        - personnage/settings
+        - personnage/settings_menu
+        - personnage/edit_toggle
+        - personnage/edit_avatar_big
+        - personnage/edit_name_big
+        # Overlay de suppression de compte (rendu au-dessus du contenu ; scrim avant les boutons).
+        - personnage/delete_scrim
+        - personnage/delete_panel
+        - personnage/delete_yes
+        - personnage/delete_no
+
+    personnage/coming_soon:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        x: 5%
+        y: 30%
+        w: 90%
+        h: 50%
+        font_size: 14.0
+        text_align: CENTER
+        label: "@@@T:coming_soon@@@"
+
+    personnage/lvl_track:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 4%
+        w: 29%
+        h: 2.4%
+        background_color: "0xFF99864E"
+        border_radius: 6.0
+        border: false
+
+    personnage/lvl_fill:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 4%
+        w: 1%
+        h: 2.4%
+        background_color: "0xFFB11226"
+        border_radius: 6.0
+        border: false
+
+    personnage/lvl_flame:
+      class: DvImage
+      layer: content
+      shape:
+        x: 1%
+        y: -1%
+        w: 10%
+        h: 10%
+        stretch: "RATIO_IN"
+        image: "images/small/flamme_nobg.png"
+        border: false
+
+    # personnage/lvl_shield:
+    # class: DvImage
+    # layer: content
+    # shape:
+    # x: 22%
+    # y: 1%
+    # w: 16%
+    # h: 3.5%
+    # stretch: "RATIO_IN"
+    # image: "images/medium/shield.png"
+    # border: false
+
+    personnage/lvl_label:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 32%
+        y: 0%
+        w: 16%
+        h: 7%
+        text_align: CENTER
+        text_padding: 0.0
+        font_size: 19.0
+        font_color: "WHITE" #"0xFFC8A84B"
+        label: "1"
+        border: false
+        stretch: "RATIO_IN"
+        image: "images/medium/shield.png"
+
+    personnage/xp_label:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 4%
+        w: 28%
+        h: 2.4%
+        text_align: RIGHT
+        text_padding: 0.0
+        font_size: 10.0
+        font_color: "BLACK"
+        label: ""
+        border: false
+
+    # --- Barre de PV (miroir à droite de la barre d'XP du joueur) -----------------
+    # Identique à la barre de butin de l'écran clan : piste/remplissage symétriques,
+    # remplissage ANCRÉ À DROITE (x/w recalculés à chaud par on_personnage_appear).
+    # À la place de la flamme : un cœur (heart), remplacé par un crâne (Skull) quand
+    # pv == 0 → deux DvImage empilées dont on bascule la visibilité (show/hide).
+    personnage/pv_track:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 66%
+        y: 4%
+        w: 29%
+        h: 2.4%
+        background_color: "0xFF99864E"
+        border_radius: 6.0
+        border: false
+
+    personnage/pv_fill:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 66%
+        y: 4%
+        w: 1%
+        h: 2.4%
+        background_color: "0xFFB11226"
+        border_radius: 6.0
+        border: false
+
+    personnage/pv_heart:
+      class: DvImage
+      layer: content
+      shape:
+        x: 89%
+        y: 2%
+        w: 6%
+        h: 6%
+        stretch: "RATIO_IN"
+        image: "images/small/heart_nobg.png"
+        visible: true
+        border: false
+
+    personnage/pv_skull:
+      class: DvImage
+      layer: content
+      shape:
+        x: 89%
+        y: 2.7%
+        w: 5%
+        h: 5%
+        stretch: "RATIO_IN"
+        image: "images/big/skull_nobg.png"
+        visible: false
+        border: false
+
+    personnage/pv_label:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 67%
+        y: 4%
+        w: 28%
+        h: 2.4%
+        text_align: LEFT
+        text_padding: 0.0
+        font_size: 10.0
+        font_color: "BLACK"
+        label: ""
+        border: false
+
+    personnage/icon:
+      class: DvLabel
+      shape:
+        x: 35%
+        w: 30%
+        y: 0%
+        h: 20%
+        image_fallback: "images/medium/nope.png"
+
+    personnage/label:
+      mask: commons/intro_text
+      layer: content
+      shape:
+        x: 5%
+        y: 16%
+        w: 90%
+        h: 10%
+        text_align: CENTER
+        label: "@@@session.user.name@@@"
+        border: true
+
+    # Titre du joueur : posé en bas du panneau du nom, change toutes les 5 niveaux.
+    # Rempli à chaud par on_personnage_appear (write d'un token @@@T:player_title_N@@@).
+    personnage/title_label:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 22.5%
+        w: 90%
+        h: 4%
+        text_align: CENTER
+        text_padding: 0.0
+        font_size: 11.0
+        font_color: "0xFFB11226"
+        label: ""
+        border: false
+
+    # --- Édition du personnage -------------------------------------------------
+    # Petite icône « edit » discrète, en haut à droite, miroir du bouclier (lvl_label,
+    # Bouton settings de l'en-tête (kebab « … » doré, même icône/position que sur l'écran Clan).
+    # Ouvre le menu personnage/settings_menu.
+    personnage/settings:
+      class: DvMenuButton
+      layer: content
+      menu: personnage/settings_menu
+      menu_enabled: true
+      button_style: commons/donjon_button
+      # MÊME EMPLACEMENT que le kebab de l'écran Clan (clan_page/settings) : coincé entre l'icône
+      # du personnage (qui finit à x65%) et le bord droit, à la même bande libre y9-14%/w10%/h5%.
+      shape:
+        x: 67%
+        y: 9%
+        w: 10%
+        h: 5%
+        border: false
+
+    # Menu du bouton settings de l'écran Personnage. Une seule option : « Mon Journal » (même
+    # effet que l'option journal du roster, appliquée à l'utilisateur courant).
+    personnage/settings_menu:
+      class: DvMenu
+      layer: popup
+      show_label: false
+      selector: worker.perso_settings_selector   # masque « delete_account » pendant l'impersonation
+      shape:
+        w: 55%
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        my_log:
+          image: "images/small/scroll_nobg.png"
+          desc: "@@@T:perso_menu_log_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_log@@@"
+          actions:
+            tap: worker.open_my_log
+        change_lang:
+          icon: "language"
+          desc: "@@@T:perso_menu_lang_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_lang@@@"
+          actions:
+            tap: worker.open_lang_menu
+        tutorials:
+          image: "images/medium/nope.png"
+          desc: "@@@T:clan_menu_tutorials_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_tutorials@@@"
+          actions:
+            tap: navigate_new.tutoriels
+        logout:
+          image: "images/small/log-out.png"
+          desc: "@@@T:perso_menu_logout_desc@@@"
+          shape:
+            label: "@@@T:sign_out@@@"
+          actions:
+            tap: dvcloud.do_logout
+        delete_account:
+          image: "images/big/skull_nobg.png"
+          desc: "@@@T:perso_menu_delete_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_delete@@@"
+          actions:
+            tap: worker.open_delete_account
+
+    # Overlay de confirmation de suppression de compte — invisible par défaut, révélé par
+    # worker.open_delete_account. Machine à étapes (avertissements répétés) : le worker réécrit
+    # le texte du panneau et les libellés des boutons à chaque « continuer ». Idiome maison
+    # (layer: overlay + visible:false + scrim worker.noop), cf. overlay « Créer un clan ».
+    personnage/delete_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.9
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop   # avale les taps derrière le panneau
+    personnage/delete_panel:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 6%
+        y: 30%
+        w: 88%
+        h: 30%
+        text_align: CENTER
+        font_size: 16.0
+        font_color: "amber_200"
+        # Même opacité que delete_yes/delete_no (héritée de commons/shape) : DvImageView applique
+        # shape.opacity au texte lui-même, sans ce 0.6 le panneau sort plus vif que ses boutons.
+        opacity: 0.6
+        border: false
+        label: " "
+        visible: false
+    personnage/delete_yes:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 64%
+        h: 12%
+        text_align: CENTER
+        label: " "
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_delete_account_next
+    personnage/delete_no:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 79%
+        h: 12%
+        text_align: CENTER
+        label: " "
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_delete_account_cancel
+
+    # centré x=40%) par rapport au centre de l'avatar (x=50%) → centrée x≈60%.
+    # Tap → worker.toggle_personnage_edit (révèle/masque les 2 grosses icônes).
+    personnage/edit_toggle:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 55%
+        y: 1%
+        w: 8%
+        h: 5%
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+        border: false
+        label: ""
+        events:
+          tap: true
+        actions:
+          tap: worker.toggle_personnage_edit
+
+    # Grosse icône « edit » centrée PAR-DESSUS l'avatar (icon x35-65/y0-20).
+    # layer overlay → rendue au-dessus du contenu. Masquée par défaut.
+    personnage/edit_avatar_big:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 42%
+        y: 5%
+        w: 16%
+        h: 10%
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+        border: false
+        label: ""
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.open_avatar_explorer
+
+    # Grosse icône « edit » centrée PAR-DESSUS le nom (label x5-95/y16-26).
+    personnage/edit_name_big:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 42%
+        y: 17%
+        w: 16%
+        h: 8%
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+        border: false
+        label: ""
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.edit_player_name
+
+    #//------------------------------- Avatar explorer -----------------------------------
+    # Écran explorateur d'avatars : grille (DvExplorer) filtrée sur icon_XX_P_XX.png.
+    # La sélection remonte à worker.on_avatar_selected.
+    avatar_explorer:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:choose_avatar@@@"
+      background_color: black
+      registry:
+        - avatar_explorer/grid
+
+    avatar_explorer/grid:
+      class: DvExplorer
+      layer: content
+      selector: worker.on_avatar_selected
+      shape:
+        x: 3%
+        y: 3%
+        w: 94%
+        h: 90%
+        show_filename: false
+        show_miniature: true
+        selection: single
+        folder: "images/medium"
+        regex_filter: "icon_[0-9]+_P_[0-9]+[.]png"
+        border_color: "0xFFEAD9A6"
+
+    #//------------------------------- Player rename screen ------------------------------
+    # Écran plein de renommage de l'avatar (remplace l'ancienne popup DvInput). Réutilise
+    # le modèle commons/nameform_* (comme player_name_screen). Ouvert via
+    # worker.edit_player_name → navigate_new. Confirmation → worker.on_rename_confirm
+    # persiste, revient à Personnage et sort du mode édition.
+    player_rename_screen:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:edit_name_title@@@"
+      keyboard_scrollable: true
+      shape:
+        actions:
+          appear: worker.on_rename_appear
+      registry:
+        - player_rename_screen/icon_background
+        - player_rename_screen/name_label
+        - player_rename_screen/name
+        - player_rename_screen/confirm
+
+    player_rename_screen/icon_background:
+      masks:
+        - commons/nameform_bg
+
+    player_rename_screen/name_label:
+      masks:
+        - commons/nameform_label
+      shape:
+        label: "@@@T:player_name_label@@@"
+
+    player_rename_screen/name:
+      masks:
+        - commons/nameform_entry
+      shape:
+        actions:
+          changed: worker.on_rename_changed
+
+    player_rename_screen/confirm:
+      masks:
+        - commons/nameform_confirm
+      shape:
+        label: "@@@T:ok@@@"
+        freezing_actions:
+          tap: worker.on_rename_confirm
+
+    #//------------------------------- Créer un joueur (enfant sans compte) ----------------
+    # Écran « donne ton nom » ouvert par l'option clan « Créer un joueur » (chef seulement).
+    # Réutilise les templates commons/nameform_* (comme player_rename_screen). À la
+    # confirmation, worker.on_create_player_confirm crée un doc clans_players SANS doc users
+    # (l'enfant n'a pas de compte) et l'admet directement dans le clan courant.
+    create_player_screen:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:create_player_title@@@"
+      keyboard_scrollable: true
+      shape:
+        actions:
+          appear: worker.on_create_player_appear
+      registry:
+        - create_player_screen/icon_background
+        - create_player_screen/name_label
+        - create_player_screen/name
+        - create_player_screen/consent
+        - create_player_screen/confirm
+
+    create_player_screen/icon_background:
+      masks:
+        - commons/nameform_bg
+
+    create_player_screen/name_label:
+      masks:
+        - commons/nameform_label
+      shape:
+        label: "@@@T:create_player_label@@@"
+
+    create_player_screen/name:
+      masks:
+        - commons/nameform_entry
+      shape:
+        actions:
+          changed: worker.on_create_player_changed
+
+    # Entre le champ de saisie (65 % → 73 %) et le bouton de confirmation (85 %) : la mention
+    # est lue avant que le chef ne valide la création du profil de l'enfant.
+    create_player_screen/consent:
+      masks:
+        - commons/parental_consent
+      shape:
+        y: 70%
+
+    create_player_screen/confirm:
+      masks:
+        - commons/nameform_confirm
+      shape:
+        label: "@@@T:create_player_confirm@@@"
+        freezing_actions:
+          tap: worker.on_create_player_confirm
+

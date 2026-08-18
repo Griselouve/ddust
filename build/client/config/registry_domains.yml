@@ -1,0 +1,1565 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- Salon Tasks Screen ---------------------------------
+
+    salon_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:salon_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - salon_tasks/tiroir
+
+    salon_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        salon_01:
+          image: images/medium/dt_t_salon_01.png
+          label: "@@@T:dt_t_salon_01@@@"
+          actions:
+            tap: seltask.salon_01
+        salon_02:
+          image: images/medium/dt_t_salon_02.png
+          label: "@@@T:dt_t_salon_02@@@"
+          actions:
+            tap: seltask.salon_02
+        salon_03:
+          image: images/medium/dt_t_salon_03.png
+          label: "@@@T:dt_t_salon_03@@@"
+          actions:
+            tap: seltask.salon_03
+        salon_04:
+          image: images/medium/dt_t_salon_04.png
+          label: "@@@T:dt_t_salon_04@@@"
+          actions:
+            tap: seltask.salon_04
+        salon_05:
+          image: images/medium/dt_t_salon_05.png
+          label: "@@@T:dt_t_salon_05@@@"
+          actions:
+            tap: seltask.salon_05
+        salon_06:
+          image: images/medium/dt_t_salon_06.png
+          label: "@@@T:dt_t_salon_06@@@"
+          actions:
+            tap: seltask.salon_06
+        salon_07:
+          image: images/medium/dt_t_salon_07.png
+          label: "@@@T:dt_t_salon_07@@@"
+          actions:
+            tap: seltask.salon_07
+        salon_08:
+          image: images/medium/dt_t_salon_08.png
+          label: "@@@T:dt_t_salon_08@@@"
+          actions:
+            tap: seltask.salon_08
+        salon_09:
+          image: images/medium/dt_t_salon_09.png
+          label: "@@@T:dt_t_salon_09@@@"
+          actions:
+            tap: seltask.salon_09
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- animaux Tasks Screen ---------------------------------
+
+    animaux_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:animaux_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - animaux_tasks/tiroir
+
+    animaux_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        animaux_01:
+          image: images/medium/dt_t_animaux_01.png
+          label: "@@@T:dt_t_animaux_01@@@"
+          actions:
+            tap: seltask.animaux_01
+        animaux_02:
+          image: images/medium/dt_t_animaux_02.png
+          label: "@@@T:dt_t_animaux_02@@@"
+          actions:
+            tap: seltask.animaux_02
+        animaux_03:
+          image: images/medium/dt_t_animaux_03.png
+          label: "@@@T:dt_t_animaux_03@@@"
+          actions:
+            tap: seltask.animaux_03
+        animaux_05:
+          image: images/medium/dt_t_animaux_05.png
+          label: "@@@T:dt_t_animaux_05@@@"
+          actions:
+            tap: seltask.animaux_05
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- bureau Tasks Screen ---------------------------------
+
+    bureau_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:bureau_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - bureau_tasks/tiroir
+
+    bureau_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        bureau_01:
+          image: images/medium/dt_t_bureau_01.png
+          label: "@@@T:dt_t_bureau_01@@@"
+          actions:
+            tap: seltask.bureau_01
+        bureau_02:
+          image: images/medium/dt_t_bureau_02.png
+          label: "@@@T:dt_t_bureau_02@@@"
+          actions:
+            tap: seltask.bureau_02
+        bureau_03:
+          image: images/medium/dt_t_bureau_03.png
+          label: "@@@T:dt_t_bureau_03@@@"
+          actions:
+            tap: seltask.bureau_03
+        bureau_04:
+          image: images/medium/dt_t_bureau_04.png
+          label: "@@@T:dt_t_bureau_04@@@"
+          actions:
+            tap: seltask.bureau_04
+        bureau_05:
+          image: images/medium/dt_t_bureau_05.png
+          label: "@@@T:dt_t_bureau_05@@@"
+          actions:
+            tap: seltask.bureau_05
+        bureau_06:
+          image: images/medium/dt_t_bureau_06.png
+          label: "@@@T:dt_t_bureau_06@@@"
+          actions:
+            tap: seltask.bureau_06
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- chambre_enfant Tasks Screen ---------------------------------
+
+    chambre_enfant_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:chambre_enfant_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - chambre_enfant_tasks/tiroir
+
+    chambre_enfant_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        chambre_enfant_01:
+          image: images/medium/dt_t_chambre_enfant_01.png
+          label: "@@@T:dt_t_chambre_enfant_01@@@"
+          actions:
+            tap: seltask.chambre_enfant_01
+        chambre_enfant_02:
+          image: images/medium/dt_t_chambre_enfant_02.png
+          label: "@@@T:dt_t_chambre_enfant_02@@@"
+          actions:
+            tap: seltask.chambre_enfant_02
+        chambre_enfant_03:
+          image: images/medium/dt_t_chambre_enfant_03.png
+          label: "@@@T:dt_t_chambre_enfant_03@@@"
+          actions:
+            tap: seltask.chambre_enfant_03
+        chambre_enfant_04:
+          image: images/medium/dt_t_chambre_enfant_04.png
+          label: "@@@T:dt_t_chambre_enfant_04@@@"
+          actions:
+            tap: seltask.chambre_enfant_04
+        chambre_enfant_05:
+          image: images/medium/dt_t_chambre_enfant_05.png
+          label: "@@@T:dt_t_chambre_enfant_05@@@"
+          actions:
+            tap: seltask.chambre_enfant_05
+        chambre_enfant_06:
+          image: images/medium/dt_t_chambre_enfant_06.png
+          label: "@@@T:dt_t_chambre_enfant_06@@@"
+          actions:
+            tap: seltask.chambre_enfant_06
+        chambre_enfant_09:
+          image: images/medium/dt_t_chambre_enfant_09.png
+          label: "@@@T:dt_t_chambre_enfant_09@@@"
+          actions:
+            tap: seltask.chambre_enfant_09
+        chambre_enfant_10:
+          image: images/medium/dt_t_chambre_enfant_10.png
+          label: "@@@T:dt_t_chambre_enfant_10@@@"
+          actions:
+            tap: seltask.chambre_enfant_10
+        chambre_enfant_11:
+          image: images/medium/dt_t_chambre_enfant_11.png
+          label: "@@@T:dt_t_chambre_enfant_11@@@"
+          actions:
+            tap: seltask.chambre_enfant_11
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- chambre_parentale Tasks Screen ---------------------------------
+
+    chambre_parentale_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:chambre_parentale_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - chambre_parentale_tasks/tiroir
+
+    chambre_parentale_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        chambre_parentale_01:
+          image: images/medium/dt_t_chambre_parentale_01.png
+          label: "@@@T:dt_t_chambre_parentale_01@@@"
+          actions:
+            tap: seltask.chambre_parentale_01
+        chambre_parentale_02:
+          image: images/medium/dt_t_chambre_parentale_02.png
+          label: "@@@T:dt_t_chambre_parentale_02@@@"
+          actions:
+            tap: seltask.chambre_parentale_02
+        chambre_parentale_03:
+          image: images/medium/dt_t_chambre_parentale_03.png
+          label: "@@@T:dt_t_chambre_parentale_03@@@"
+          actions:
+            tap: seltask.chambre_parentale_03
+        chambre_parentale_04:
+          image: images/medium/dt_t_chambre_parentale_04.png
+          label: "@@@T:dt_t_chambre_parentale_04@@@"
+          actions:
+            tap: seltask.chambre_parentale_04
+        chambre_parentale_05:
+          image: images/medium/dt_t_chambre_parentale_05.png
+          label: "@@@T:dt_t_chambre_parentale_05@@@"
+          actions:
+            tap: seltask.chambre_parentale_05
+        chambre_parentale_06:
+          image: images/medium/dt_t_chambre_parentale_06.png
+          label: "@@@T:dt_t_chambre_parentale_06@@@"
+          actions:
+            tap: seltask.chambre_parentale_06
+        chambre_parentale_08:
+          image: images/medium/dt_t_chambre_parentale_08.png
+          label: "@@@T:dt_t_chambre_parentale_08@@@"
+          actions:
+            tap: seltask.chambre_parentale_08
+        chambre_parentale_09:
+          image: images/medium/dt_t_chambre_parentale_09.png
+          label: "@@@T:dt_t_chambre_parentale_09@@@"
+          actions:
+            tap: seltask.chambre_parentale_09
+        chambre_parentale_10:
+          image: images/medium/dt_t_chambre_parentale_10.png
+          label: "@@@T:dt_t_chambre_parentale_10@@@"
+          actions:
+            tap: seltask.chambre_parentale_10
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- courses Tasks Screen ---------------------------------
+
+    courses_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:courses_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - courses_tasks/tiroir
+
+    courses_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        courses_01:
+          image: images/medium/dt_t_courses_01.png
+          label: "@@@T:dt_t_courses_01@@@"
+          actions:
+            tap: seltask.courses_01
+        courses_02:
+          image: images/medium/dt_t_courses_02.png
+          label: "@@@T:dt_t_courses_02@@@"
+          actions:
+            tap: seltask.courses_02
+        courses_03:
+          image: images/medium/dt_t_courses_03.png
+          label: "@@@T:dt_t_courses_03@@@"
+          actions:
+            tap: seltask.courses_03
+        courses_04:
+          image: images/medium/dt_t_courses_04.png
+          label: "@@@T:dt_t_courses_04@@@"
+          actions:
+            tap: seltask.courses_04
+        courses_05:
+          image: images/medium/dt_t_courses_05.png
+          label: "@@@T:dt_t_courses_05@@@"
+          actions:
+            tap: seltask.courses_05
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- cuisine Tasks Screen ---------------------------------
+
+    cuisine_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:cuisine_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - cuisine_tasks/tiroir
+
+    cuisine_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        cuisine_01:
+          image: images/medium/dt_t_cuisine_01.png
+          label: "@@@T:dt_t_cuisine_01@@@"
+          actions:
+            tap: seltask.cuisine_01
+        cuisine_03:
+          image: images/medium/dt_t_cuisine_03.png
+          label: "@@@T:dt_t_cuisine_03@@@"
+          actions:
+            tap: seltask.cuisine_03
+        cuisine_04:
+          image: images/medium/dt_t_cuisine_04.png
+          label: "@@@T:dt_t_cuisine_04@@@"
+          actions:
+            tap: seltask.cuisine_04
+        cuisine_05:
+          image: images/medium/dt_t_cuisine_05.png
+          label: "@@@T:dt_t_cuisine_05@@@"
+          actions:
+            tap: seltask.cuisine_05
+        cuisine_06:
+          image: images/medium/dt_t_cuisine_06.png
+          label: "@@@T:dt_t_cuisine_06@@@"
+          actions:
+            tap: seltask.cuisine_06
+        cuisine_07:
+          image: images/medium/dt_t_cuisine_07.png
+          label: "@@@T:dt_t_cuisine_07@@@"
+          actions:
+            tap: seltask.cuisine_07
+        cuisine_08:
+          image: images/medium/dt_t_cuisine_08.png
+          label: "@@@T:dt_t_cuisine_08@@@"
+          actions:
+            tap: seltask.cuisine_08
+        cuisine_09:
+          image: images/medium/dt_t_cuisine_09.png
+          label: "@@@T:dt_t_cuisine_09@@@"
+          actions:
+            tap: seltask.cuisine_09
+        cuisine_10:
+          image: images/medium/dt_t_cuisine_10.png
+          label: "@@@T:dt_t_cuisine_10@@@"
+          actions:
+            tap: seltask.cuisine_10
+        cuisine_11:
+          image: images/medium/dt_t_cuisine_11.png
+          label: "@@@T:dt_t_cuisine_11@@@"
+          actions:
+            tap: seltask.cuisine_11
+        cuisine_12:
+          image: images/medium/dt_t_cuisine_12.png
+          label: "@@@T:dt_t_cuisine_12@@@"
+          actions:
+            tap: seltask.cuisine_12
+        cuisine_13:
+          image: images/medium/dt_t_cuisine_13.png
+          label: "@@@T:dt_t_cuisine_13@@@"
+          actions:
+            tap: seltask.cuisine_13
+        cuisine_15:
+          image: images/medium/dt_t_cuisine_15.png
+          label: "@@@T:dt_t_cuisine_15@@@"
+          actions:
+            tap: seltask.cuisine_15
+        cuisine_18:
+          image: images/medium/dt_t_cuisine_18.png
+          label: "@@@T:dt_t_cuisine_18@@@"
+          actions:
+            tap: seltask.cuisine_18
+        cuisine_19:
+          image: images/medium/dt_t_cuisine_19.png
+          label: "@@@T:dt_t_cuisine_19@@@"
+          actions:
+            tap: seltask.cuisine_19
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- dechets Tasks Screen ---------------------------------
+
+    dechets_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:dechets_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - dechets_tasks/tiroir
+
+    dechets_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        dechets_01:
+          image: images/medium/dt_t_dechets_01.png
+          label: "@@@T:dt_t_dechets_01@@@"
+          actions:
+            tap: seltask.dechets_01
+        dechets_02:
+          image: images/medium/dt_t_dechets_02.png
+          label: "@@@T:dt_t_dechets_02@@@"
+          actions:
+            tap: seltask.dechets_02
+        dechets_03:
+          image: images/medium/dt_t_dechets_03.png
+          label: "@@@T:dt_t_dechets_03@@@"
+          actions:
+            tap: seltask.dechets_03
+        dechets_04:
+          image: images/medium/dt_t_dechets_04.png
+          label: "@@@T:dt_t_dechets_04@@@"
+          actions:
+            tap: seltask.dechets_04
+        dechets_05:
+          image: images/medium/dt_t_dechets_05.png
+          label: "@@@T:dt_t_dechets_05@@@"
+          actions:
+            tap: seltask.dechets_05
+        dechets_06:
+          image: images/medium/dt_t_dechets_06.png
+          label: "@@@T:dt_t_dechets_06@@@"
+          actions:
+            tap: seltask.dechets_06
+        dechets_07:
+          image: images/medium/dt_t_dechets_07.png
+          label: "@@@T:dt_t_dechets_07@@@"
+          actions:
+            tap: seltask.dechets_07
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- entree Tasks Screen ---------------------------------
+
+    entree_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:entree_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - entree_tasks/tiroir
+
+    entree_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        entree_01:
+          image: images/medium/dt_t_entree_01.png
+          label: "@@@T:dt_t_entree_01@@@"
+          actions:
+            tap: seltask.entree_01
+        entree_02:
+          image: images/medium/dt_t_entree_02.png
+          label: "@@@T:dt_t_entree_02@@@"
+          actions:
+            tap: seltask.entree_02
+        entree_03:
+          image: images/medium/dt_t_entree_03.png
+          label: "@@@T:dt_t_entree_03@@@"
+          actions:
+            tap: seltask.entree_03
+        entree_04:
+          image: images/medium/dt_t_entree_04.png
+          label: "@@@T:dt_t_entree_04@@@"
+          actions:
+            tap: seltask.entree_04
+        couloir_01:
+          image: images/medium/dt_t_couloir_01.png
+          label: "@@@T:dt_t_couloir_01@@@"
+          actions:
+            tap: seltask.couloir_01
+        couloir_02:
+          image: images/medium/dt_t_couloir_02.png
+          label: "@@@T:dt_t_couloir_02@@@"
+          actions:
+            tap: seltask.couloir_02
+        couloir_03:
+          image: images/medium/dt_t_couloir_03.png
+          label: "@@@T:dt_t_couloir_03@@@"
+          actions:
+            tap: seltask.couloir_03
+        couloir_04:
+          image: images/medium/dt_t_couloir_04.png
+          label: "@@@T:dt_t_couloir_04@@@"
+          actions:
+            tap: seltask.couloir_04
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- extras Tasks Screen ---------------------------------
+
+    extras_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:extras_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - extras_tasks/tiroir
+
+    extras_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        extras_01:
+          image: images/medium/dt_t_extras_01.png
+          label: "@@@T:dt_t_extras_01@@@"
+          actions:
+            tap: seltask.extras_01
+        extras_02:
+          image: images/medium/dt_t_extras_02.png
+          label: "@@@T:dt_t_extras_02@@@"
+          actions:
+            tap: seltask.extras_02
+        extras_03:
+          image: images/medium/dt_t_extras_03.png
+          label: "@@@T:dt_t_extras_03@@@"
+          actions:
+            tap: seltask.extras_03
+        extras_04:
+          image: images/medium/dt_t_extras_04.png
+          label: "@@@T:dt_t_extras_04@@@"
+          actions:
+            tap: seltask.extras_04
+        extras_05:
+          image: images/medium/dt_t_extras_05.png
+          label: "@@@T:dt_t_extras_05@@@"
+          actions:
+            tap: seltask.extras_05
+        extras_06:
+          image: images/medium/dt_t_extras_06.png
+          label: "@@@T:dt_t_extras_06@@@"
+          actions:
+            tap: seltask.extras_06
+        extras_07:
+          image: images/medium/dt_t_extras_07.png
+          label: "@@@T:dt_t_extras_07@@@"
+          actions:
+            tap: seltask.extras_07
+        extras_08:
+          image: images/medium/dt_t_extras_08.png
+          label: "@@@T:dt_t_extras_08@@@"
+          actions:
+            tap: seltask.extras_08
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- garage Tasks Screen ---------------------------------
+
+    garage_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:garage_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - garage_tasks/tiroir
+
+    garage_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        garage_01:
+          image: images/medium/dt_t_garage_01.png
+          label: "@@@T:dt_t_garage_01@@@"
+          actions:
+            tap: seltask.garage_01
+        garage_02:
+          image: images/medium/dt_t_garage_02.png
+          label: "@@@T:dt_t_garage_02@@@"
+          actions:
+            tap: seltask.garage_02
+        garage_03:
+          image: images/medium/dt_t_garage_03.png
+          label: "@@@T:dt_t_garage_03@@@"
+          actions:
+            tap: seltask.garage_03
+        garage_04:
+          image: images/medium/dt_t_garage_04.png
+          label: "@@@T:dt_t_garage_04@@@"
+          actions:
+            tap: seltask.garage_04
+        garage_05:
+          image: images/medium/dt_t_garage_05.png
+          label: "@@@T:dt_t_garage_05@@@"
+          actions:
+            tap: seltask.garage_05
+        garage_06:
+          image: images/medium/dt_t_garage_06.png
+          label: "@@@T:dt_t_garage_06@@@"
+          actions:
+            tap: seltask.garage_06
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- vehicules Tasks Screen ---------------------------------
+
+    vehicules_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:vehicules_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - vehicules_tasks/tiroir
+
+    vehicules_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        voiture_01:
+          image: images/medium/dt_t_voiture_01.png
+          label: "@@@T:dt_t_voiture_01@@@"
+          actions:
+            tap: seltask.voiture_01
+        voiture_02:
+          image: images/medium/dt_t_voiture_02.png
+          label: "@@@T:dt_t_voiture_02@@@"
+          actions:
+            tap: seltask.voiture_02
+        moto_01:
+          image: images/medium/dt_t_moto_01.png
+          label: "@@@T:dt_t_moto_01@@@"
+          actions:
+            tap: seltask.moto_01
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- jardin Tasks Screen ---------------------------------
+
+    jardin_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:jardin_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - jardin_tasks/tiroir
+
+    jardin_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        jardin_01:
+          image: images/medium/dt_t_jardin_01.png
+          label: "@@@T:dt_t_jardin_01@@@"
+          actions:
+            tap: seltask.jardin_01
+        jardin_02:
+          image: images/medium/dt_t_jardin_02.png
+          label: "@@@T:dt_t_jardin_02@@@"
+          actions:
+            tap: seltask.jardin_02
+        jardin_03:
+          image: images/medium/dt_t_jardin_03.png
+          label: "@@@T:dt_t_jardin_03@@@"
+          actions:
+            tap: seltask.jardin_03
+        jardin_04:
+          image: images/medium/dt_t_jardin_04.png
+          label: "@@@T:dt_t_jardin_04@@@"
+          actions:
+            tap: seltask.jardin_04
+        jardin_05:
+          image: images/medium/dt_t_jardin_05.png
+          label: "@@@T:dt_t_jardin_05@@@"
+          actions:
+            tap: seltask.jardin_05
+        jardin_06:
+          image: images/medium/dt_t_jardin_06.png
+          label: "@@@T:dt_t_jardin_06@@@"
+          actions:
+            tap: seltask.jardin_06
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- linge Tasks Screen ---------------------------------
+
+    linge_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:linge_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - linge_tasks/tiroir
+
+    linge_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        linge_01:
+          image: images/medium/dt_t_linge_01.png
+          label: "@@@T:dt_t_linge_01@@@"
+          actions:
+            tap: seltask.linge_01
+        linge_02:
+          image: images/medium/dt_t_linge_02.png
+          label: "@@@T:dt_t_linge_02@@@"
+          actions:
+            tap: seltask.linge_02
+        linge_03:
+          image: images/medium/dt_t_linge_03.png
+          label: "@@@T:dt_t_linge_03@@@"
+          actions:
+            tap: seltask.linge_03
+        linge_04:
+          image: images/medium/dt_t_linge_04.png
+          label: "@@@T:dt_t_linge_04@@@"
+          actions:
+            tap: seltask.linge_04
+        linge_05:
+          image: images/medium/dt_t_linge_05.png
+          label: "@@@T:dt_t_linge_05@@@"
+          actions:
+            tap: seltask.linge_05
+        linge_06:
+          image: images/medium/dt_t_linge_06.png
+          label: "@@@T:dt_t_linge_06@@@"
+          actions:
+            tap: seltask.linge_06
+        linge_08:
+          image: images/medium/dt_t_linge_08.png
+          label: "@@@T:dt_t_linge_08@@@"
+          actions:
+            tap: seltask.linge_08
+        linge_09:
+          image: images/medium/dt_t_linge_09.png
+          label: "@@@T:dt_t_linge_09@@@"
+          actions:
+            tap: seltask.linge_09
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- repas Tasks Screen ---------------------------------
+
+    repas_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:repas_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - repas_tasks/tiroir
+
+    repas_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        repas_06:
+          image: images/medium/dt_t_repas_06.png
+          label: "@@@T:dt_t_repas_06@@@"
+          actions:
+            tap: seltask.repas_06
+        repas_07:
+          image: images/medium/dt_t_repas_07.png
+          label: "@@@T:dt_t_repas_07@@@"
+          actions:
+            tap: seltask.repas_07
+        repas_10:
+          image: images/medium/dt_t_repas_10.png
+          label: "@@@T:dt_t_repas_10@@@"
+          actions:
+            tap: seltask.repas_10
+        repas_11:
+          image: images/medium/dt_t_repas_11.png
+          label: "@@@T:dt_t_repas_11@@@"
+          actions:
+            tap: seltask.repas_11
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- vaisselle Tasks Screen ---------------------------------
+
+    vaisselle_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:vaisselle_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - vaisselle_tasks/tiroir
+
+    vaisselle_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        vaisselle_01:
+          image: images/medium/dt_t_vaisselle_01.png
+          label: "@@@T:dt_t_vaisselle_01@@@"
+          actions:
+            tap: seltask.vaisselle_01
+        vaisselle_02:
+          image: images/medium/dt_t_vaisselle_02.png
+          label: "@@@T:dt_t_vaisselle_02@@@"
+          actions:
+            tap: seltask.vaisselle_02
+        vaisselle_03:
+          image: images/medium/dt_t_vaisselle_03.png
+          label: "@@@T:dt_t_vaisselle_03@@@"
+          actions:
+            tap: seltask.vaisselle_03
+        vaisselle_04:
+          image: images/medium/dt_t_vaisselle_04.png
+          label: "@@@T:dt_t_vaisselle_04@@@"
+          actions:
+            tap: seltask.vaisselle_04
+        vaisselle_05:
+          image: images/medium/dt_t_vaisselle_05.png
+          label: "@@@T:dt_t_vaisselle_05@@@"
+          actions:
+            tap: seltask.vaisselle_05
+        vaisselle_06:
+          image: images/medium/dt_t_vaisselle_06.png
+          label: "@@@T:dt_t_vaisselle_06@@@"
+          actions:
+            tap: seltask.vaisselle_06
+        vaisselle_07:
+          image: images/medium/dt_t_vaisselle_07.png
+          label: "@@@T:dt_t_vaisselle_07@@@"
+          actions:
+            tap: seltask.vaisselle_07
+        vaisselle_08:
+          image: images/medium/dt_t_vaisselle_08.png
+          label: "@@@T:dt_t_vaisselle_08@@@"
+          actions:
+            tap: seltask.vaisselle_08
+        vaisselle_09:
+          image: images/medium/dt_t_vaisselle_09.png
+          label: "@@@T:dt_t_vaisselle_09@@@"
+          actions:
+            tap: seltask.vaisselle_09
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- salle_de_bain Tasks Screen ---------------------------------
+
+    salle_de_bain_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:salle_de_bain_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - salle_de_bain_tasks/tiroir
+
+    salle_de_bain_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        salle_de_bain_01:
+          image: images/medium/dt_t_salle_de_bain_01.png
+          label: "@@@T:dt_t_salle_de_bain_01@@@"
+          actions:
+            tap: seltask.salle_de_bain_01
+        salle_de_bain_02:
+          image: images/medium/dt_t_salle_de_bain_02.png
+          label: "@@@T:dt_t_salle_de_bain_02@@@"
+          actions:
+            tap: seltask.salle_de_bain_02
+        salle_de_bain_03:
+          image: images/medium/dt_t_salle_de_bain_03.png
+          label: "@@@T:dt_t_salle_de_bain_03@@@"
+          actions:
+            tap: seltask.salle_de_bain_03
+        salle_de_bain_04:
+          image: images/medium/dt_t_salle_de_bain_04.png
+          label: "@@@T:dt_t_salle_de_bain_04@@@"
+          actions:
+            tap: seltask.salle_de_bain_04
+        salle_de_bain_05:
+          image: images/medium/dt_t_salle_de_bain_05.png
+          label: "@@@T:dt_t_salle_de_bain_05@@@"
+          actions:
+            tap: seltask.salle_de_bain_05
+        salle_de_bain_06:
+          image: images/medium/dt_t_salle_de_bain_06.png
+          label: "@@@T:dt_t_salle_de_bain_06@@@"
+          actions:
+            tap: seltask.salle_de_bain_06
+        salle_de_bain_07:
+          image: images/medium/dt_t_salle_de_bain_07.png
+          label: "@@@T:dt_t_salle_de_bain_07@@@"
+          actions:
+            tap: seltask.salle_de_bain_07
+        salle_de_bain_08:
+          image: images/medium/dt_t_salle_de_bain_08.png
+          label: "@@@T:dt_t_salle_de_bain_08@@@"
+          actions:
+            tap: seltask.salle_de_bain_08
+        salle_de_bain_10:
+          image: images/medium/dt_t_salle_de_bain_10.png
+          label: "@@@T:dt_t_salle_de_bain_10@@@"
+          actions:
+            tap: seltask.salle_de_bain_10
+        salle_de_bain_11:
+          image: images/medium/dt_t_salle_de_bain_11.png
+          label: "@@@T:dt_t_salle_de_bain_11@@@"
+          actions:
+            tap: seltask.salle_de_bain_11
+        salle_de_bain_12:
+          image: images/medium/dt_t_salle_de_bain_12.png
+          label: "@@@T:dt_t_salle_de_bain_12@@@"
+          actions:
+            tap: seltask.salle_de_bain_12
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- terrasse Tasks Screen ---------------------------------
+
+    terrasse_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:terrasse_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - terrasse_tasks/tiroir
+
+    terrasse_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        terrasse_01:
+          image: images/medium/dt_t_terrasse_01.png
+          label: "@@@T:dt_t_terrasse_01@@@"
+          actions:
+            tap: seltask.terrasse_01
+        terrasse_02:
+          image: images/medium/dt_t_terrasse_02.png
+          label: "@@@T:dt_t_terrasse_02@@@"
+          actions:
+            tap: seltask.terrasse_02
+        balcon_01:
+          image: images/medium/dt_t_balcon_01.png
+          label: "@@@T:dt_t_balcon_01@@@"
+          actions:
+            tap: seltask.balcon_01
+        balcon_02:
+          image: images/medium/dt_t_balcon_02.png
+          label: "@@@T:dt_t_balcon_02@@@"
+          actions:
+            tap: seltask.balcon_02
+        terrasse_03:
+          image: images/medium/dt_t_terrasse_03.png
+          label: "@@@T:dt_t_terrasse_03@@@"
+          actions:
+            tap: seltask.terrasse_03
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+
+    #//------------------------------- toilettes Tasks Screen ---------------------------------
+
+    toilettes_tasks:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:toilettes_tasks_title@@@"
+      background_color: black
+      registry:
+        - commons/splash_background
+        - toilettes_tasks/tiroir
+
+    toilettes_tasks/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des tâches. Mode JEU : le worker ne renvoie que l'option seule (= le tap courant)
+      # → aucune option, donc pas de menu, la tâche se lance directement (iso-fonctionnel).
+      # Mode CHEF : il renvoie les options d'administration → le tiroir ouvre commons/tiroir_menu.
+      selector: worker.task_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        toilettes_01:
+          image: images/medium/dt_t_toilettes_01.png
+          label: "@@@T:dt_t_toilettes_01@@@"
+          actions:
+            tap: seltask.toilettes_01
+        toilettes_02:
+          image: images/medium/dt_t_toilettes_02.png
+          label: "@@@T:dt_t_toilettes_02@@@"
+          actions:
+            tap: seltask.toilettes_02
+        toilettes_03:
+          image: images/medium/dt_t_toilettes_03.png
+          label: "@@@T:dt_t_toilettes_03@@@"
+          actions:
+            tap: seltask.toilettes_03
+        toilettes_04:
+          image: images/medium/dt_t_toilettes_04.png
+          label: "@@@T:dt_t_toilettes_04@@@"
+          actions:
+            tap: seltask.toilettes_04
+        toilettes_06:
+          image: images/medium/dt_t_toilettes_06.png
+          label: "@@@T:dt_t_toilettes_06@@@"
+          actions:
+            tap: seltask.toilettes_06
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        max_size_w: 25%
+        max_size_h: 25%
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+

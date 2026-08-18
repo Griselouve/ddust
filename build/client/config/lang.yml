@@ -1,0 +1,644 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  # --- Traductions du TUTORIEL --------------------------------------------------
+  # Volontairement dans config.yml (PAS dans le thème) : un seul tutoriel pour TOUS les thèmes, les
+  # libellés doivent survivre à un changement de thème. Fusionnées dans lang.translations.
+  lang:
+    translations:
+      # Prompts « inspire » (VertexAI) rédigés nativement par langue. Résolus par
+      # dvprompts.get_prompt via @@@T:...@@@ (repli fr pour toute langue non traduite).
+      # NE PAS traduire les marqueurs NOM: / DESCRIPTION: (le worker les parse).
+      prompt_inspire_clan:
+        fr: |
+          Tu es un assistant créatif pour le jeu Donjons & Savons, où les clans sont des familles qui combattent courageusement des monstres (les tâches ménagères).
+          Invente un nom épique et une description engageante pour un clan, en te basant sur ce nom et cette description : '@@@worker.inspire_input@@@'.
+          Réponds UNIQUEMENT dans ce format exact, en conservant les marqueurs NOM: et DESCRIPTION: tels quels (ne les traduis pas) :
+          NOM: <nom du clan, 2 à 4 mots>
+          DESCRIPTION: <description épique en 2 à 3 phrases>
+          Le contenu (nom et description) doit être rédigé en @@@worker.inspire_lang@@@.
+        en: |
+          You are a creative assistant for the game Dungeons & Soaps, where clans are families who bravely battle monsters (household chores).
+          Invent an epic name and an engaging description for a clan, based on this name and description: '@@@worker.inspire_input@@@'.
+          Reply ONLY in this exact format, keeping the markers NOM: and DESCRIPTION: unchanged (do not translate them):
+          NOM: <clan name, 2 to 4 words>
+          DESCRIPTION: <epic description, 2 to 3 sentences>
+          The content (name and description) must be written in @@@worker.inspire_lang@@@.
+        es: |
+          Eres un asistente creativo para el juego Mazmorras y Jabones, donde los clanes son familias que combaten con valentía a monstruos (las tareas del hogar).
+          Inventa un nombre épico y una descripción atractiva para un clan, basándote en este nombre y descripción: '@@@worker.inspire_input@@@'.
+          Responde ÚNICAMENTE con este formato exacto, conservando los marcadores NOM: y DESCRIPTION: tal cual (no los traduzcas):
+          NOM: <nombre del clan, de 2 a 4 palabras>
+          DESCRIPTION: <descripción épica, de 2 a 3 frases>
+          El contenido (nombre y descripción) debe estar redactado en @@@worker.inspire_lang@@@.
+      prompt_inspire_task:
+        fr: |
+          Tu es un assistant créatif pour le jeu Donjons & Savons. Les tâches ménagères y sont des monstres-quêtes que les membres du clan affrontent héroïquement : chaque tâche a un nom épique (le monstre) et une description de quête qui met en scène la corvée de façon amusante.
+          Invente un nom épique de monstre-corvée et une description de quête engageante, en te basant sur ce nom et cette description : '@@@worker.inspire_input@@@'.
+          Réponds UNIQUEMENT dans ce format exact, en conservant les marqueurs NOM: et DESCRIPTION: tels quels (ne les traduis pas) :
+          NOM: <nom de la tâche, 2 à 4 mots>
+          DESCRIPTION: <description de quête en 2 à 3 phrases>
+          Le contenu (nom et description) doit être rédigé en @@@worker.inspire_lang@@@.
+        en: |
+          You are a creative assistant for the game Dungeons & Soaps. Household chores are quest-monsters that clan members heroically face: each task has an epic name (the monster) and a quest description that stages the chore in a fun, heroic way.
+          Invent an epic chore-monster name and an engaging quest description, based on this name and description: '@@@worker.inspire_input@@@'.
+          Reply ONLY in this exact format, keeping the markers NOM: and DESCRIPTION: unchanged (do not translate them):
+          NOM: <task name, 2 to 4 words>
+          DESCRIPTION: <quest description, 2 to 3 sentences>
+          The content (name and description) must be written in @@@worker.inspire_lang@@@.
+        es: |
+          Eres un asistente creativo para el juego Mazmorras y Jabones. Las tareas del hogar son monstruos-misión a los que los miembros del clan se enfrentan heroicamente: cada tarea tiene un nombre épico (el monstruo) y una descripción de misión que presenta la faena de forma divertida y heroica.
+          Inventa un nombre épico de monstruo-faena y una descripción de misión atractiva, basándote en este nombre y descripción: '@@@worker.inspire_input@@@'.
+          Responde ÚNICAMENTE con este formato exacto, conservando los marcadores NOM: y DESCRIPTION: tal cual (no los traduzcas):
+          NOM: <nombre de la tarea, de 2 a 4 palabras>
+          DESCRIPTION: <descripción de misión, de 2 a 3 frases>
+          El contenido (nombre y descripción) debe estar redactado en @@@worker.inspire_lang@@@.
+      # Conte du butin (worker._narrateClanStory), déclenché depuis butin_tale_page. Contrairement
+      # aux prompts « inspire » ci-dessus (sortie contrainte NOM:/DESCRIPTION:), celui-ci produit un
+      # texte libre — d'où les consignes de STYLE détaillées : sans elles, un modèle générique verse
+      # vite dans le lyrisme creux (« Dans un monde où… ») que ce récit doit justement éviter pour
+      # sonner comme une vraie chronique de famille, pas comme une réponse d'IA.
+      # Le LECTEUR VISÉ est explicitement redéfini dans ce prompt : ce ne sont PAS les membres du
+      # clan (qui ont déjà vécu la scène), ce sont D'AUTRES FAMILLES qui ne jouent pas encore — le
+      # texte doit leur montrer des enfants qui jouent ensemble, pour leur donner envie de commencer.
+      # Le texte doit rester COURT (format partage WhatsApp, pas un article) : une phrase d'accroche
+      # puis 3-4 phrases sur UN SEUL moment. Un premier jet, nourri d'agrégats détaillés (XP par
+      # joueur), avait produit un INVENTAIRE reformulé du journal (« a nettoyé le couloir (432 XP)… »)
+      # au lieu d'un récit — d'où les interdits explicites ci-dessous ET l'appauvrissement volontaire
+      # des agrégats transmis (cf. worker._narrateClanStory : un seul total d'XP, jamais un par
+      # joueur). L'argent de poche n'est PAS mentionné par l'IA : une phrase de clôture FIXE
+      # (share_tale_outro, cf. worker.on_log_appear) en parle après coup, hors du texte généré.
+      # @@@worker.narrate_clan@@@ = nom INTERNE du clan (celui choisi par la famille, jamais le nom
+      # externe généré) + sa description. @@@worker.narrate_input@@@ = le journal du clan, DÉJÀ
+      # résolu et localisé. @@@worker.narrate_totals@@@ = agrégats PAUVRES calculés EN DART (prénoms,
+      # XP totale du clan — jamais un détail par joueur, jamais laissés au modèle qui ferait mal les
+      # sommes).
+      prompt_narrate_clan:
+        fr: |
+          Tu es le chroniqueur d'une guilde, dans le jeu Donjons & Savons où les tâches ménagères d'une famille sont vécues comme des quêtes de clan.
+
+          Ce texte n'est PAS destiné à la famille qui l'a vécu : il sera lu par D'AUTRES familles, qui ne jouent pas encore à Donjons & Savons. Ton but est de leur donner envie de s'y mettre, en leur montrant des enfants qui jouent ensemble.
+
+          Voici le nom du clan et sa description :
+          ---
+          @@@worker.narrate_clan@@@
+          ---
+          Voici son journal (chronologique, du plus récent au plus ancien) :
+          ---
+          @@@worker.narrate_input@@@
+          ---
+          Quelques chiffres, à citer au plus UNE fois dans tout le texte (n'en invente ni n'en arrondis d'autres) :
+          ---
+          @@@worker.narrate_totals@@@
+          ---
+
+          Ce texte est un message COURT, fait pour être partagé sur WhatsApp — pas un article. Écris D'ABORD une phrase d'accroche enthousiaste sur la forme du clan, PUIS 3 à 4 phrases maximum qui racontent UN SEUL moment marquant de ce journal — le reste sert de toile de fond, tu n'as pas à tout mentionner. Au total : 5 phrases maximum, 60 à 90 mots.
+
+          INTERDITS stricts :
+          - Tu ne connais le genre d'AUCUN enfant : son prénom seul ne te le dit pas. N'utilise donc JAMAIS « il » ou « elle » pour désigner un enfant, ni aucun adjectif ou participe accordé en genre à son sujet (proscris « petit »/« petite », « motivé »/« motivée »… accolés à un prénom) — répète son prénom à la place, ou formule la phrase sans accord de genre.
+          - N'énumère JAMAIS les tâches une par une ; ce texte n'est pas un inventaire du journal.
+          - N'accole JAMAIS un nombre d'XP à une action précise (proscris toute forme « a fait X (N XP) »).
+          - Pas de phrase-bilan qui résume des totaux en fin de texte (« le coffre a été ouvert N fois, rapportant… »).
+          - Pas plus d'UN chiffre dans tout le texte.
+          - Pas d'ouverture toute faite du type « Dans un monde où… », « Il était une fois… », « À l'heure où… ».
+          - Aucune phrase méta sur toi-même ou sur le texte (« Voici le récit… », « Cette histoire montre que… »).
+          - Pas de superlatifs vides (« incroyable », « exceptionnel », « légendaire ») sans un fait concret derrière.
+          - Pas de tirade moralisatrice ni de conclusion qui fait la leçon.
+          - Pas d'émojis en rafale (un ou deux maximum, ou aucun).
+          - Ne parle JAMAIS de la création, de la fondation ni des débuts du clan : on raconte ce qu'une famille vit, pas son acte de naissance.
+          - N'emploie JAMAIS les mots « pièces », « or », « monnaie », « argent » ou « argent de poche », et ne mentionne JAMAIS le coffre ni une récompense : ce sujet est traité ailleurs, pas dans ce texte.
+
+          À FAIRE :
+          - Ne raconte QUE des faits présents dans le journal ci-dessus ; n'invente aucun événement.
+          - Phrases courtes, ton chaleureux et un peu drôle, comme un parent qui raconte sa semaine — pas une chronique de guilde ni une fantasy pompeuse.
+          - Nomme les enfants par leur prénom.
+          - Termine sur ce que le clan a concrètement vécu, jamais sur un appel à l'action ni un slogan publicitaire.
+          - Rédige entièrement en @@@worker.inspire_lang@@@.
+        en: |
+          You are the chronicler of a guild, in the game Dungeons & Soaps where a family's household chores play out as clan quests.
+
+          This text is NOT for the family that lived it: it will be read by OTHER families, who don't play Dungeons & Soaps yet. Your goal is to make them want to start, by showing children playing together.
+
+          Here is the clan's name and description:
+          ---
+          @@@worker.narrate_clan@@@
+          ---
+          Here is its log (chronological, most recent first):
+          ---
+          @@@worker.narrate_input@@@
+          ---
+          A few figures, to be cited AT MOST once in the whole text (invent or round no others):
+          ---
+          @@@worker.narrate_totals@@@
+          ---
+
+          This text is a SHORT message, made to be shared on WhatsApp — not an article. Write FIRST one enthusiastic hook sentence about how well the clan is doing, THEN 3 to 4 sentences at most telling ONE single memorable moment from this log — the rest is backdrop, you don't have to mention everything. Total: 5 sentences max, 60-90 words.
+
+          Strict BANS:
+          - You do NOT know any child's gender: a first name alone doesn't tell you. NEVER use "he" or "she" for a child, and never use a gendered word to describe them — repeat their first name instead, or phrase the sentence so it needs no gender.
+          - NEVER list tasks one by one; this is not an inventory of the log.
+          - NEVER attach an XP number to a specific action (ban any form of "did X (N XP)").
+          - No summary sentence tallying totals at the end ("the chest was opened N times, yielding…").
+          - No more than ONE number in the whole text.
+          - No stock opening like "In a world where…", "Once upon a time…", "At a time when…".
+          - No meta-commentary about yourself or the text ("Here is the tale…", "This story shows that…").
+          - No empty superlatives ("incredible", "exceptional", "legendary") without a concrete fact behind them.
+          - No moralizing tirade or lesson-teaching conclusion.
+          - No emoji spam (one or two at most, or none).
+          - NEVER mention the clan's creation, founding or early days: we tell what a family lives, not its birth certificate.
+          - NEVER use the words "coins", "gold", "currency", "money" or "pocket money", and never mention the chest or any reward: that topic is handled elsewhere, not in this text.
+
+          TO DO:
+          - Tell ONLY facts present in the log above; invent no event.
+          - Short sentences, warm and lightly funny tone, like a parent telling their week — not a guild chronicle nor pompous fantasy.
+          - Name the children by their first name.
+          - End on what the clan actually experienced, never on a call to action or an ad slogan.
+          - Write entirely in @@@worker.inspire_lang@@@.
+        es: |
+          Eres el cronista de un gremio, en el juego Mazmorras y Jabones donde las tareas domésticas de una familia se viven como misiones de clan.
+
+          Este texto NO es para la familia que lo vivió: lo leerán OTRAS familias, que todavía no juegan a Mazmorras y Jabones. Tu objetivo es darles ganas de empezar, mostrando niños que juegan juntos.
+
+          Aquí están el nombre del clan y su descripción:
+          ---
+          @@@worker.narrate_clan@@@
+          ---
+          Aquí está su registro (cronológico, del más reciente al más antiguo):
+          ---
+          @@@worker.narrate_input@@@
+          ---
+          Algunas cifras, a citar como MÁXIMO una vez en todo el texto (no inventes ni redondees otras):
+          ---
+          @@@worker.narrate_totals@@@
+          ---
+
+          Este texto es un mensaje CORTO, hecho para compartirse por WhatsApp — no un artículo. Escribe PRIMERO una frase de apertura entusiasta sobre cómo le va al clan, LUEGO 3 a 4 frases como máximo que cuenten UN ÚNICO momento memorable de este registro — el resto es telón de fondo, no tienes que mencionarlo todo. En total: 5 frases máximo, 60 a 90 palabras.
+
+          PROHIBICIONES estrictas:
+          - No conoces el género de NINGÚN niño: su nombre solo no te lo dice. NUNCA uses «él» o «ella» para referirte a un niño, ni ningún adjetivo o participio con concordancia de género sobre él — repite su nombre en su lugar, o formula la frase sin necesidad de concordancia de género.
+          - NUNCA enumeres las tareas una por una; esto no es un inventario del registro.
+          - NUNCA añadas un número de XP a una acción concreta (prohibida toda forma «hizo X (N XP)»).
+          - Sin frase-balance que resuma totales al final («el cofre se abrió N veces, aportando…»).
+          - No más de UNA cifra en todo el texto.
+          - Sin aperturas trilladas como «En un mundo donde…», «Érase una vez…», «En una época en que…».
+          - Sin comentarios meta sobre ti mismo o el texto («Aquí está el relato…», «Esta historia muestra que…»).
+          - Sin superlativos vacíos («increíble», «excepcional», «legendario») sin un hecho concreto detrás.
+          - Sin discurso moralizante ni conclusión aleccionadora.
+          - Sin avalancha de emojis (uno o dos como máximo, o ninguno).
+          - NUNCA hables de la creación, la fundación ni los inicios del clan: se cuenta lo que vive una familia, no su acta de nacimiento.
+          - NUNCA uses las palabras «monedas», «oro», «dinero del juego» ni «dinero de bolsillo», y nunca menciones el cofre ni ninguna recompensa: ese tema se trata en otro lugar, no en este texto.
+
+          QUÉ HACER:
+          - Cuenta SOLO hechos presentes en el registro anterior; no inventes ningún evento.
+          - Frases cortas, tono cálido y algo divertido, como un padre contando su semana — no una crónica de gremio ni fantasía pomposa.
+          - Nombra a los niños por su nombre de pila.
+          - Termina con lo que el clan realmente vivió, nunca con una llamada a la acción ni un eslogan publicitario.
+          - Redacta todo en @@@worker.inspire_lang@@@.
+      clan_menu_tutorials:
+        fr: "Tutoriels"
+        en: "Tutorials"
+        es: "Tutoriales"
+      tutoriels_title:
+        fr: "Tutoriels"
+        en: "Tutorials"
+        es: "Tutoriales"
+      tuto_dashboard_intro_title:
+        fr: "Écran principal"
+        en: "Main screen"
+        es: "Pantalla principal"
+      tuto_header:
+        fr: "TUTORIEL"
+        en: "TUTORIAL"
+        es: "TUTORIAL"
+      tuto_tap_continue:
+        fr: "Touchez pour continuer"
+        en: "Tap to continue"
+        es: "Toca para continuar"
+      tuto_dash_shop:
+        fr: "La Boutique : extensions, packs et thèmes pour enrichir ton aventure (bientôt disponible)."
+        en: "The Shop: expansions, packs and themes to enrich your adventure (coming soon)."
+        es: "La Tienda: expansiones, packs y temas para enriquecer tu aventura (próximamente)."
+      tuto_dash_clan:
+        fr: "Ton Clan : retrouve tes compagnons et le journal du clan."
+        en: "Your Clan: find your companions and the clan log."
+        es: "Tu Clan: reúnete con tus compañeros y consulta el registro del clan."
+      tuto_dash_clan_admin:
+        fr: "Ton Clan : retrouve tes compagnons et le journal du clan, gère les membres du clan."
+        en: "Your Clan: find your companions and the clan log, and manage clan members."
+        es: "Tu Clan: reúnete con tus compañeros, consulta el registro del clan y gestiona sus miembros."
+      tuto_dash_combat:
+        fr: "Le Combat : c'est ici que tu choisis une tâche à accomplir pour gagner de l'XP."
+        en: "Combat: this is where you pick a task to complete and earn XP."
+        es: "El Combate: aquí eliges una tarea para completar y ganar XP."
+      tuto_dash_combat_admin:
+        fr: "Le Combat : c'est ici que tu choisis une tâche à accomplir pour gagner de l'XP, que tu peux valider les tâches des autres joueurs et administrer la liste des tâches."
+        en: "Combat: this is where you pick a task to complete and earn XP, validate other players' tasks and manage the task list."
+        es: "El Combate: aquí eliges una tarea para completar y ganar XP, validas las tareas de otros jugadores y gestionas la lista de tareas."
+      tuto_dash_perso:
+        fr: "Ton Personnage : avatar, niveau, points de vie et ton journal."
+        en: "Your Character: avatar, level, hit points and your log."
+        es: "Tu Personaje: avatar, nivel, puntos de vida y tu registro."
+      tuto_dash_inv:
+        fr: "Les Items : ici tu accèdes à tes objets, tes sortilèges et toutes sortes de bonus."
+        en: "Items: here you get your objects, your spells and all kinds of bonuses."
+        es: "Los Items: aquí accedes a tus objetos, tus hechizos y todo tipo de bonificaciones."
+      tuto_dash_inv_admin:
+        fr: "Les Items : ici tu accèdes à tes objets, tes sortilèges et toutes sortes de bonus, ainsi qu'au contenu du butin du clan."
+        en: "Items: here you get your objects, your spells and all kinds of bonuses, plus the contents of the clan's loot."
+        es: "Los Items: aquí accedes a tus objetos, tus hechizos y todo tipo de bonificaciones, así como al contenido del botín del clan."
+      tuto_items_title:
+        fr: "Tes objets"
+        en: "Your items"
+        es: "Tus objetos"
+      tuto_items_grid:
+        fr: "Retrouve ici tous tes objets, sorts et bonus, rangés par onglet. Touche une tuile pour voir ce qu'elle contient."
+        en: "Here you'll find all your objects, spells and bonuses, sorted by tab. Tap a tile to see what it holds."
+        es: "Aquí encuentras todos tus objetos, hechizos y bonificaciones, ordenados por pestaña. Toca una casilla para ver su contenido."
+      tuto_items_chest:
+        fr: "Le coffre du clan est toujours en haut de ta grille, quel que soit l'onglet. Touche-le pour l'ouvrir et distribuer son contenu."
+        en: "The clan's chest always sits at the top of your grid, whatever the tab. Tap it to open it and share out its contents."
+        es: "El cofre del clan siempre está en la parte superior de tu cuadrícula, sea cual sea la pestaña. Tócalo para abrirlo y repartir su contenido."
+      tuto_items_wallet:
+        fr: "Ta bourse affiche ton or en pastille. Repère son icône de pièces parmi tes objets."
+        en: "Your purse shows your gold as a badge. Look for its coin icon among your objects."
+        es: "Tu bolsa muestra tu oro en una insignia. Busca su icono de monedas entre tus objetos."
+      tuto_perso_title:
+        fr: "Ton personnage"
+        en: "Your character"
+        es: "Tu personaje"
+      tuto_perso_avatar:
+        fr: "Voici ton personnage : son avatar et son nom."
+        en: "This is your character: their avatar and name."
+        es: "Este es tu personaje: su avatar y su nombre."
+      tuto_perso_edit:
+        fr: "Touche le crayon pour changer ton avatar et ton nom."
+        en: "Tap the pencil to change your avatar and name."
+        es: "Toca el lápiz para cambiar tu avatar y tu nombre."
+      tuto_perso_level:
+        fr: "Ta jauge de niveau : accomplis des tâches pour la remplir et monter de niveau."
+        en: "Your level gauge: complete tasks to fill it and level up."
+        es: "Tu barra de nivel: completa tareas para llenarla y subir de nivel."
+      tuto_perso_pv:
+        fr: "Tes points de vie : à zéro tu tombes, mais un compagnon peut te soigner."
+        en: "Your hit points: at zero you fall, but a companion can heal you."
+        es: "Tus puntos de vida: a cero caes, pero un compañero puede curarte."
+      tuto_perso_menu:
+        fr: "Le menu Personnage : diverses options pour gérer ton profil et ton personnage."
+        en: "The Character menu: various options to manage your profile and character."
+        es: "El menú Personaje: varias opciones para gestionar tu perfil y tu personaje."
+      tuto_clan_title:
+        fr: "Ton clan"
+        en: "Your clan"
+        es: "Tu clan"
+      tuto_clan_identity:
+        fr: "Ton clan : son avatar, son nom et son rang."
+        en: "Your clan: its avatar, name and rank."
+        es: "Tu clan: su avatar, su nombre y su rango."
+      tuto_clan_edit:
+        fr: "Touche le crayon pour modifier l'avatar et le nom du clan."
+        en: "Tap the pencil to change the clan's avatar and name."
+        es: "Toca el lápiz para cambiar el avatar y el nombre del clan."
+      tuto_clan_level:
+        fr: "Le niveau du clan : il monte quand ses membres accomplissent des tâches."
+        en: "The clan level: it rises as its members complete tasks."
+        es: "El nivel del clan: sube cuando sus miembros completan tareas."
+      tuto_clan_butin:
+        fr: "Le butin du clan : cette jauge se remplit à mesure que le clan progresse ; une fois pleine, le trésor est découvert et partagé entre tous les membres."
+        en: "The clan loot: this gauge fills as the clan progresses; once full, the treasure is revealed and shared among all members."
+        es: "El botín del clan: esta barra se llena a medida que el clan progresa; cuando está llena, el tesoro se revela y se reparte entre todos los miembros."
+      tuto_clan_roster:
+        fr: "Les membres du clan sont listés ici."
+        en: "The clan members are listed here."
+        es: "Los miembros del clan aparecen aquí."
+      tuto_clan_roster_avatar:
+        fr: "Pour chaque personnage, tu vois son niveau et ses points de vie."
+        en: "For each character, you see their level and hit points."
+        es: "Para cada personaje, ves su nivel y sus puntos de vida."
+      tuto_clan_roster_name:
+        fr: "Son nom — une couronne désigne les chefs de clan — et sa barre de progrès, qui indique la part du butin qu'il recevra."
+        en: "Their name — a crown marks the clan chiefs — and their progress bar, showing the share of the loot they will receive."
+        es: "Su nombre — una corona indica a los jefes del clan — y su barra de progreso, que muestra la parte del botín que recibirá."
+      tuto_clan_roster_kebab:
+        fr: "Touche le « … » d'un membre pour ouvrir ses actions."
+        en: "Tap a member's « … » to open their actions."
+        es: "Toca el « … » de un miembro para abrir sus acciones."
+      tuto_clan_options_title:
+        fr: "Les actions sur un membre"
+        en: "Actions on a member"
+        es: "Acciones sobre un miembro"
+      roster_menu_log_desc:
+        fr: "Consulter l'historique des actions de ce joueur."
+        en: "View this player's action history."
+        es: "Ver el historial de acciones de este jugador."
+      roster_menu_revive_desc:
+        fr: "Soigner ce joueur et le remettre en jeu."
+        en: "Heal this player and bring them back."
+        es: "Curar a este jugador y devolverlo al juego."
+      roster_menu_support_desc:
+        fr: "Lui donner un coup de pouce d'expérience."
+        en: "Give them an experience boost."
+        es: "Darle un impulso de experiencia."
+      roster_menu_offline_desc:
+        fr: "Le marquer comme absent."
+        en: "Mark them as away."
+        es: "Marcarlo como ausente."
+      roster_menu_takeplace_desc:
+        fr: "Jouer à sa place (prendre son relais)."
+        en: "Play in their place (take over)."
+        es: "Jugar en su lugar (tomar el relevo)."
+      roster_menu_promote_chief_desc:
+        fr: "Le nommer chef de clan."
+        en: "Make them a clan chief."
+        es: "Nombrarlo jefe del clan."
+      roster_menu_nomore_chief_desc:
+        fr: "Lui retirer son rôle de chef."
+        en: "Remove their chief role."
+        es: "Quitarle su rol de jefe."
+      roster_menu_promote_adult_desc:
+        fr: "Le déclarer majeur."
+        en: "Declare them an adult."
+        es: "Declararlo mayor de edad."
+      roster_menu_pay_tribute_desc:
+        fr: "Lui remettre en vrai l'argent de sa bourse."
+        en: "Hand over the money in their purse for real."
+        es: "Entregarle de verdad el dinero de su bolsa."
+      roster_menu_revoke_desc:
+        fr: "Le retirer du clan."
+        en: "Remove them from the clan."
+        es: "Expulsarlo del clan."
+      tuto_clan_menu_title:
+        fr: "Les options du clan"
+        en: "Clan options"
+        es: "Opciones del clan"
+      tuto_perso_menu_title:
+        fr: "Les options du personnage"
+        en: "Character options"
+        es: "Opciones del personaje"
+      clan_menu_log_desc:
+        fr: "Voir le journal de tout le clan."
+        en: "View the whole clan's log."
+        es: "Ver el registro de todo el clan."
+      clan_menu_qr_desc:
+        fr: "Inviter un joueur par QR code."
+        en: "Invite a player via QR code."
+        es: "Invitar a un jugador con un código QR."
+      clan_menu_tutorials_desc:
+        fr: "Revoir les tutoriels du jeu."
+        en: "Replay the game tutorials."
+        es: "Volver a ver los tutoriales del juego."
+      perso_menu_log_desc:
+        fr: "Voir ton propre journal d'actions."
+        en: "View your own action log."
+        es: "Ver tu propio registro de acciones."
+      perso_menu_logout_desc:
+        fr: "Te déconnecter de ton compte."
+        en: "Sign out of your account."
+        es: "Cerrar la sesión de tu cuenta."
+      tuto_combat_domains_title:
+        fr: "Le combat"
+        en: "Combat"
+        es: "El combate"
+      # --- Combat, leçon 1 : l'écran des domaines ---
+      tuto_combat_domains_intro:
+        fr: "Dans cet écran, tu trouveras toutes les tâches à combattre, regroupées par domaine."
+        en: "On this screen you'll find every task to fight, grouped by domain."
+        es: "En esta pantalla encontrarás todas las tareas por combatir, agrupadas por ámbito."
+      tuto_combat_domains_play:
+        fr: "Choisis un groupe de tâches pour y trouver une tâche à combattre et gagner de l'XP."
+        en: "Choose a group of tasks to find a task to fight and earn XP."
+        es: "Elige un grupo de tareas para encontrar una tarea que combatir y ganar XP."
+      tuto_combat_domains_play_admin:
+        fr: "En mode jeu, choisis un groupe de tâches pour y trouver une tâche à combattre et gagner de l'XP."
+        en: "In play mode, choose a group of tasks to find a task to fight and earn XP."
+        es: "En modo juego, elige un grupo de tareas para encontrar una tarea que combatir y ganar XP."
+      tuto_combat_domains_grey:
+        fr: "Un domaine grisé n'a aucune tâche à combattre pour le moment."
+        en: "A greyed-out domain has no task to fight right now."
+        es: "Un ámbito en gris no tiene ninguna tarea que combatir por ahora."
+      tuto_combat_domains_reperes_intro:
+        fr: "Les domaines peuvent porter de petits repères qui donnent des informations supplémentaires."
+        en: "Domains can carry small markers that give extra information."
+        es: "Los ámbitos pueden llevar pequeñas marcas que dan información adicional."
+      tuto_combat_domains_admin_intro:
+        fr: "En mode admin, choisis un groupe de tâches pour l'administrer : un ensemble d'options apparaît."
+        en: "In admin mode, choose a group of tasks to manage it: a set of options appears."
+        es: "En modo admin, elige un grupo de tareas para gestionarlo: aparece un conjunto de opciones."
+      # Switch Jeu | Admin — partagé domaines + tâches.
+      tuto_combat_switch:
+        fr: "Ce bouton bascule entre le mode Jeu et le mode Admin."
+        en: "This button toggles between Play mode and Admin mode."
+        es: "Este botón alterna entre el modo Juego y el modo Admin."
+      # Titre du panneau d'administration — partagé domaines + tâches.
+      tuto_combat_admin_title:
+        fr: "Administrer un domaine / une tâche"
+        en: "Manage a domain / task"
+        es: "Gestionar un ámbito / una tarea"
+      # --- Combat, leçon 2 : l'écran des tâches d'un groupe ---
+      tuto_combat_tasks_title:
+        fr: "Les tâches"
+        en: "Tasks"
+        es: "Las tareas"
+      tuto_combat_tasks_intro:
+        fr: "Dans cet écran, tu trouveras toutes les tâches à combattre d'un même groupe."
+        en: "On this screen you'll find every task to fight within one group."
+        es: "En esta pantalla encontrarás todas las tareas por combatir de un mismo grupo."
+      tuto_combat_tasks_play:
+        fr: "Choisis une tâche pour la combattre et gagner de l'XP."
+        en: "Choose a task to fight it and earn XP."
+        es: "Elige una tarea para combatirla y ganar XP."
+      tuto_combat_tasks_play_admin:
+        fr: "En mode jeu, choisis une tâche pour la combattre et gagner de l'XP."
+        en: "In play mode, choose a task to fight it and earn XP."
+        es: "En modo juego, elige una tarea para combatirla y ganar XP."
+      tuto_combat_tasks_grey:
+        fr: "Une tâche grisée n'est pas disponible pour l'instant : elle est déjà prise, en repos, ou réservée aux chefs."
+        en: "A greyed-out task isn't available right now: it's already taken, resting, or reserved for chiefs."
+        es: "Una tarea en gris no está disponible por ahora: ya está tomada, en reposo, o reservada a los jefes."
+      tuto_combat_tasks_reperes_intro:
+        fr: "Les tâches peuvent porter de petits repères qui donnent des informations supplémentaires."
+        en: "Tasks can carry small markers that give extra information."
+        es: "Las tareas pueden llevar pequeñas marcas que dan información adicional."
+      tuto_combat_tasks_admin_intro:
+        fr: "En mode admin, choisis une tâche pour l'administrer : un ensemble d'options apparaît."
+        en: "In admin mode, choose a task to manage it: a set of options appears."
+        es: "En modo admin, elige una tarea para gestionarla: aparece un conjunto de opciones."
+      # --- Combat : légende des repères — partagée domaines + tâches ---
+      tuto_combat_badges_title:
+        fr: "Les repères"
+        en: "Markers"
+        es: "Las marcas"
+      tuto_badge_flamme:
+        fr: "Flamme — en cours"
+        en: "Flame — in progress"
+        es: "Llama — en curso"
+      tuto_badge_flamme_desc:
+        fr: "Un compagnon s'en occupe déjà."
+        en: "A companion is already handling it."
+        es: "Un compañero ya se está encargando."
+      tuto_badge_hand:
+        fr: "Exclamation — à valider"
+        en: "Exclamation mark — to validate"
+        es: "Exclamación — por validar"
+      tuto_badge_hand_desc:
+        fr: "La tâche est terminée et attend qu'un chef la valide."
+        en: "The task is done and waiting for a chief to validate it."
+        es: "La tarea está terminada y espera que un jefe la valide."
+      tuto_badge_xp:
+        fr: "XP — recommandée"
+        en: "XP — recommended"
+        es: "XP — recomendada"
+      tuto_badge_xp_desc:
+        fr: "Un chef la met en avant : elle rapporte un bonus d'XP."
+        en: "A chief is highlighting it: it grants bonus XP."
+        es: "Un jefe la destaca: otorga XP extra."
+      tuto_badge_skull:
+        fr: "Crâne — au repos"
+        en: "Skull — resting"
+        es: "Calavera — en reposo"
+      tuto_badge_skull_desc:
+        fr: "La tâche vient d'être faite : elle réapparaîtra après un délai."
+        en: "The task was just done: it will come back after a while."
+        es: "La tarea acaba de hacerse: reaparecerá tras un tiempo."
+      tuto_badge_cure:
+        fr: "Pansement — en régénération"
+        en: "Bandage — regenerating"
+        es: "Vendaje — regenerando"
+      tuto_badge_cure_desc:
+        fr: "La tâche se recharge et sera bientôt de nouveau disponible."
+        en: "The task is recharging and will soon be available again."
+        es: "La tarea se está recargando y pronto volverá a estar disponible."
+      # --- Combat, leçon 3 : une tâche en cours (déroulé + validation par le chef) ---
+      tuto_combat_active_title:
+        fr: "La tâche en cours"
+        en: "The active task"
+        es: "La tarea en curso"
+      tuto_combat_active_intro:
+        fr: "Tu as pris une tâche : la voici, c'est ton combat du moment."
+        en: "You've taken on a task: here it is, your current fight."
+        es: "Has asumido una tarea: aquí está, tu combate del momento."
+      tuto_combat_active_difficulty:
+        fr: "Cette pastille indique la difficulté de la tâche et l'XP qu'elle te rapportera."
+        en: "This badge shows the task's difficulty and the XP it will earn you."
+        es: "Esta insignia indica la dificultad de la tarea y la XP que te dará."
+      tuto_combat_active_criteria:
+        fr: "Voici les critères à remplir pour vaincre le monstre."
+        en: "These are the criteria to meet to defeat the monster."
+        es: "Estos son los criterios que debes cumplir para vencer al monstruo."
+      tuto_combat_active_done:
+        fr: "Une fois la tâche accomplie pour de vrai, touche « J'ai vaincu le monstre ! ». Une photo sera prise comme preuve."
+        en: "Once you've truly completed the task, tap “I defeated the monster!”. A photo will be taken as proof."
+        es: "Una vez completada la tarea de verdad, toca «¡He vencido al monstruo!». Se tomará una foto como prueba."
+      tuto_combat_active_validate:
+        fr: "Ensuite, va voir le chef de clan pour qu'il valide ta tâche. Tu peux lui montrer ta preuve. (Si tu es le seul chef de clan, tes tâches se valident toutes seules.)"
+        en: "Then go to the clan chief so they validate your task. You can show them your proof. (If you're the clan's only chief, your tasks validate themselves.)"
+        es: "Luego ve al jefe del clan para que valide tu tarea. Puedes mostrarle tu prueba. (Si eres el único jefe del clan, tus tareas se validan solas.)"
+      tuto_combat_active_wait:
+        fr: "Tant que ta tâche n'est pas validée, tu ne peux pas en combattre une autre. Une fois validée, tu gagnes ton XP et tu repars au combat !"
+        en: "Until your task is validated, you can't fight another one. Once validated, you earn your XP and head back to battle!"
+        es: "Mientras tu tarea no esté validada, no puedes combatir otra. Una vez validada, ganas tu XP y ¡vuelves al combate!"
+      tuto_combat_active_retreat:
+        fr: "Si tu ne peux pas la terminer, bats en retraite : la tâche redevient libre pour le clan."
+        en: "If you can't finish it, retreat: the task becomes free for the clan again."
+        es: "Si no puedes terminarla, retírate: la tarea vuelve a quedar libre para el clan."
+      adm_menu_enable_desc:
+        fr: "Rendre la tâche active (disponible)."
+        en: "Make the task active (available)."
+        es: "Activar la tarea (disponible)."
+      adm_menu_disable_desc:
+        fr: "Désactiver la tâche (indisponible)."
+        en: "Disable the task (unavailable)."
+        es: "Desactivar la tarea (no disponible)."
+      adm_menu_hide_desc:
+        fr: "Cacher la tâche."
+        en: "Hide the task."
+        es: "Ocultar la tarea."
+      adm_menu_show_desc:
+        fr: "Rendre la tâche visible."
+        en: "Make the task visible."
+        es: "Hacer visible la tarea."
+      adm_menu_edit_desc:
+        fr: "Modifier la tâche (nom, effort, délai…)."
+        en: "Edit the task (name, effort, deadline…)."
+        es: "Editar la tarea (nombre, esfuerzo, plazo…)."
+      adm_menu_tasks_desc:
+        fr: "Ouvrir la liste des tâches de ce domaine."
+        en: "Open this domain's task list."
+        es: "Abrir la lista de tareas de este ámbito."
+      adm_menu_revive_desc:
+        fr: "Ressusciter une tâche morte."
+        en: "Revive a dead task."
+        es: "Resucitar una tarea muerta."
+      adm_menu_recommend_desc:
+        fr: "Recommander cette tâche (bonus d'XP pour le clan)."
+        en: "Recommend this task (XP bonus for the clan)."
+        es: "Recomendar esta tarea (bono de XP para el clan)."
+      adm_menu_unrecommend_desc:
+        fr: "Retirer la recommandation : plus de bonus d'XP sur cette tâche."
+        en: "Remove the recommendation: no more XP bonus on this task."
+        es: "Retirar la recomendación: se acabó el bono de XP en esta tarea."
+      adm_menu_release_desc:
+        fr: "Libérer la tâche : elle redevient disponible pour tout le clan."
+        en: "Release the task: it becomes available to the whole clan again."
+        es: "Liberar la tarea: vuelve a estar disponible para todo el clan."
+      tuto_clan_menu:
+        fr: "Le menu Clan : diverses options pour gérer le clan."
+        en: "The Clan menu: various options to manage the clan."
+        es: "El menú del clan: varias opciones para gestionar el clan."
+      # Étape (chefs) qui suit le panneau des options du clan : lève l'ambiguïté sur « Créer un joueur ».
+      tuto_clan_create_player:
+        fr: "Parmi ces options, « Créer un joueur » sert à ajouter un enfant trop jeune pour avoir un compte, ou qui n'a pas de téléphone : tu crées son personnage et tu joues à sa place."
+        en: "Among these options, « Create a player » is for a child too young to have an account, or without a phone: you create their character and play in their place."
+        es: "Entre estas opciones, « Crear un jugador » sirve para un niño demasiado pequeño para tener una cuenta, o que no tiene teléfono: creas su personaje y juegas en su lugar."
+      # --- Impersonation (prendre la place d'un joueur) ---
+      impersonating_as:
+        fr: "Vous incarnez"
+        en: "You are playing as"
+        es: "Estás jugando como"
+      impersonation_tap_return:
+        fr: "touchez pour revenir"
+        en: "tap to return"
+        es: "toca para volver"
+      tuto_impersonation_title:
+        fr: "Retour au compte"
+        en: "Back to account"
+        es: "Volver a la cuenta"
+      tuto_impersonation_back:
+        fr: "Vous jouez à la place d'un membre du clan. Touchez ce bouton à tout moment pour revenir à votre propre compte."
+        en: "You are playing in place of a clan member. Tap this button at any time to return to your own account."
+        es: "Estás jugando en lugar de un miembro del clan. Toca este botón en cualquier momento para volver a tu propia cuenta."
+      # --- Créer un joueur (leçon jouée au clic sur l'option, avant l'écran de saisie du nom) ---
+      tuto_create_player_title:
+        fr: "Créer un joueur"
+        en: "Create a player"
+        es: "Crear un jugador"
+      tuto_create_player_what:
+        fr: "« Créer un joueur » ajoute au clan un personnage fictif : celui d'un enfant trop jeune pour avoir un compte, ou qui n'a pas de téléphone. Il n'a ni compte ni appareil à lui : il n'existe que dans ton clan."
+        en: "« Create a player » adds a make-believe character to the clan: that of a child too young to have an account, or without a phone. They have no account and no device of their own: they only exist inside your clan."
+        es: "« Crear un jugador » añade al clan un personaje ficticio: el de un niño demasiado pequeño para tener una cuenta, o que no tiene teléfono. No tiene cuenta ni dispositivo propio: solo existe dentro de tu clan."
+      tuto_create_player_switch:
+        fr: "Pour le faire jouer, tu utilises « Jouer à sa place » depuis la liste des membres : ton téléphone devient le sien. L'enfant joue dessus, ou tu joues pour lui. Un bandeau rappelle qui tu incarnes, et tu reviens à ton compte quand tu veux."
+        en: "To let them play, use « Play in their place » from the member list: your phone becomes theirs. The child plays on it, or you play for them. A banner reminds you who you are playing as, and you return to your account whenever you want."
+        es: "Para que juegue, usa « Jugar en su lugar » desde la lista de miembros: tu teléfono pasa a ser el suyo. El niño juega en él, o tú juegas por él. Un letrero recuerda a quién encarnas, y vuelves a tu cuenta cuando quieras."
+      tuto_create_player_icons_title:
+        fr: "Les deux icônes à retenir"
+        en: "The two icons to remember"
+        es: "Los dos iconos que hay que recordar"
+      tuto_create_player_row_create:
+        fr: "Créer un joueur"
+        en: "Create a player"
+        es: "Crear un jugador"
+      tuto_create_player_row_create_desc:
+        fr: "Dans le menu du clan : crée le personnage de l'enfant (tu choisis son nom)."
+        en: "In the clan menu: creates the child's character (you choose their name)."
+        es: "En el menú del clan: crea el personaje del niño (tú eliges su nombre)."
+      tuto_create_player_row_switch:
+        fr: "Jouer à sa place"
+        en: "Play in their place"
+        es: "Jugar en su lugar"
+      tuto_create_player_row_switch_desc:
+        fr: "Dans le menu d'un membre : tu incarnes son personnage sur ton téléphone."
+        en: "In a member's menu: you take on their character on your phone."
+        es: "En el menú de un miembro: encarnas su personaje en tu teléfono."
+

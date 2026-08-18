@@ -1,0 +1,151 @@
+name: assets
+above: conf
+strategy: default
+tenant: global
+
+# Priorités de téléchargement et catalogue des thèmes.
+#
+# Ce layer vit dans la racine « general » du bucket : il est publié avec les assets,
+# pas avec l'application. Ajouter un thème, réordonner une vague ou corriger une
+# priorité ne demande donc AUCUNE nouvelle version sur les stores — un upload suffit,
+# et la version cloud remplace la version embarquée au lancement suivant (les vagues
+# sont lues une fois, au démarrage). Une copie est embarquée dans l'apk (build.yml →
+# onboard) pour que le tout premier lancement, avant le moindre téléchargement,
+# dispose déjà de ses vagues.
+#
+# Tous les chemins sont NUS : « images/big/x.png », jamais « donjon/images/big/x.png ».
+# C'est la liste de manifestes du thème actif qui décide de la racine qui les fournit,
+# donc ces vagues valent pour TOUS les thèmes, présents et à venir. Un thème qui ne
+# redéfinit pas un fichier le laisse simplement venir de la racine précédente.
+data:
+  assets:
+
+    # Ordre = ordre d'apparition des écrans (dvsteps) + poids réel après imgshaking.
+    # imgshaking redimensionne les images (splashs 1242 / big 768 / medium 384 / small 144),
+    # mais PAS les vidéos/mp3 : après build, seule la vidéo (~13-15 Mo) est vraiment lourde.
+    # (Attention aux homonymes bundlés : resources/icon/shield.png et le shield.png du thème
+    #  sont deux fichiers distincts. Le premier n'est demandé que via « assets/icon/shield.png »
+    #  — préfixe explicite —, le second via son chemin nu « images/medium/shield.png », listé
+    #  ci-dessous en vague major. Idem splash.png : « assets/images/splashs/splash.png » = bundlé.)
+
+    # vital : bloquant au boot, téléchargé un par un = bande passante dédiée. On n'y met que
+    # la vidéo : SEUL fichier lourd, doit démarrer le plus tôt et être garantie prête avant
+    # l'écran ddvideo (écran 5). Pour le récurrent, c'est un cache-hit instantané.
+    vital:
+      - "videos/video_@@@lang@@@.mp4"
+
+    # critical : 1re vague de fond (après la vidéo) — décor d'onboarding (écrans 3→9) +
+    # chrome du dashboard (écran 10). Images légères → parallèle, sans faire attendre.
+    critical:
+      - "images/medium/intro_little_elfe.png"  # overlay pop écrans 3/4/7/9
+      - "images/medium/intro_little_hobbit.png"
+      - "images/medium/intro_little_knight.png"
+      - "music/ambiant1.mp3"                # ambiance jouée à l'écran ddvideo
+      - "sounds/anim_burn.mp3"              # son de la scène burn = célébration bienvenue
+                                            # clan, jouée dès le 1er dashboard (écran 10)
+      - "images/splashs/parchment_bg.png"   # fond CGU (écran 6)
+      - "prompts/prompts.yml"               # VertexAI inspire (create_clan, écran 8)
+      - "images/small/tb_boutique.png"      # taskbar dashboard (écran 10)
+      - "images/small/tb_clan.png"
+      - "images/small/tb_combat.png"
+      - "images/small/tb_perso.png"
+      - "images/small/tb_inventaire.png"
+      - "images/small/flamme_nobg.png"        # flamme de statut (dashboard/tiroir)
+
+    # high : 2e vague — chrome de jeu du tiroir/combat (à 1 tap du dashboard).
+    high:
+      - "images/big/logo.png"
+      - "images/big/skull_nobg.png"
+      - "images/small/cure_nobg.png"
+      - "images/small/hand_nobg.png"
+      - "images/medium/ring.png"
+      - "images/medium/ecu_combat.png"
+      - "sounds/batte_swords.mp3"           # boucle jouée pendant le combat (mur de flammes)
+      - "images/medium/task_animaux_nobg.png"
+      - "images/medium/task_bureau_nobg.png"
+      - "images/medium/task_chambre_enfant_nobg.png"
+      - "images/medium/task_chambre_parentale_nobg.png"
+      - "images/medium/task_courses_nobg.png"
+      - "images/medium/task_cuisine_nobg.png"
+      - "images/medium/task_dechets_nobg.png"
+      - "images/medium/task_entree_nobg.png"
+      - "images/medium/task_extras_nobg.png"
+      - "images/medium/task_garage_nobg.png"
+      - "images/medium/task_jardin_nobg.png"
+      - "images/medium/task_linge_nobg.png"
+      - "images/medium/task_repas_nobg.png"
+      - "images/medium/task_salle_de_bain_nobg.png"
+      - "images/medium/task_salon_nobg.png"
+      - "images/medium/task_terrasse_nobg.png"
+      - "images/medium/task_toilettes_nobg.png"
+      - "images/medium/task_vaisselle_nobg.png"
+      - "images/medium/task_vehicules_nobg.png"
+
+    # major : 3e vague — écrans secondaires, avatars, mort, célébrations (rares/tardifs).
+    major:
+      - "images/big/gameover.png"
+      - "images/big/victory_nobg.png"       # image de l'anim de victoire (tâche validée)
+      - "images/splashs/annonce.png"
+      - "images/medium/shield.png"
+      - "images/small/heart_nobg.png"
+      - "images/small/crown.png"              # couronne à droite du nom des admins (roster clan)
+      - "images/small/nomore_chef.png"        # option roster « plus chef » (rétrogradation)
+      - "images/small/chestip.png"
+      - "images/medium/chestok.png"
+      - "images/medium/icon_edit.png"
+      - "images/medium/nope.png"
+      # Mode chef : options du menu d'administration (préchargées, sinon la 1re ouverture du menu
+      # affiche des lignes sans icône — la résolution est asynchrone), « + », et la croix rouge
+      # posée en overlay sur les tâches cachées.
+      - "images/small/adm_enable.png"
+      - "images/small/adm_disable.png"
+      - "images/small/adm_hide.png"
+      - "images/small/adm_show.png"
+      - "images/small/adm_add.png"
+      - "images/small/adm_cross.png"
+      # Coffre du butin : miniature de la tuile + icône du portefeuille (menu du coffre ET
+      # lignes de la liste de contenu — mêmes contraintes de préchargement que les options).
+      - "images/big/chest_item_nobg.png"
+      - "images/big/argent_poche_nobg.png"    # gabarit big : affichée en grand par l'option « Voir »
+      - "images/small/cadeau.png"             # option « Donner » du menu d'un item
+      - "images/medium/bourse.png"             # écran de saisie d'une somme, badge bourse du roster,
+                                            # et option roster « Payer son tribut »
+      - "images/small/flee_nobg.png"          # option « Laisser tomber » (libère la tâche)
+      - "images/big/CoffreRitual.png"       # fond plein écran de la cérémonie d'ouverture du butin —
+                                            # manquait à toutes les vagues, tombait en lazy (dernière
+                                            # servie) : la cérémonie pouvait s'ouvrir sur un fond vide.
+      # Première famille d'items : les titres. Miniatures des deux types (perso/clan) et icônes de
+      # leur menu — mêmes contraintes de préchargement que les options du mode chef ci-dessus.
+      # Gabarit big (768 px) : affichées en grand par l'option « Voir » (item_view_page).
+      - "images/big/titre_perso.png"
+      - "images/big/titre_clan.png"
+      - "images/small/poubelle.png"
+      - "images/medium/icon_01_P_01.png"
+      - "images/medium/icon_01_C_01.png"
+      - "images/medium/icon_Marchand.png"
+      # Sons des célébrations (le son de burn est en critical : il sert dès l'arrivée au clan).
+      # music/ambiant_dead.mp3 reste en lazy : 10 Mo, et il n'est utile qu'une fois mort.
+      - "sounds/anim_dead.mp3"
+      - "sounds/anim_heal.mp3"
+      - "sounds/effect_xp.mp3"
+      - "sounds/tatadaa.mp3"                # son de l'anim de victoire (tâche validée)
+      - "music/win.mp3"                     # son de l'ouverture du butin (~10 s, 0,4 Mo)
+
+    # lazy (automatique) : les ~151 medium/dt_t_*.png (icônes de tâches par domaine) + le reste.
+    blacklist:
+      - "videos/video_{any}.mp4"
+
+  # Catalogue des thèmes. Chaque entrée décrit ce qu'il faut charger pour l'habiter :
+  # les layers de conf (traductions, registry, scènes) et les racines d'assets, dans
+  # l'ordre de cascade. C'est ici — et nulle part dans l'app — qu'un nouveau thème se
+  # déclare, y compris une variante événementielle qui empilerait une racine de plus
+  # (ex: manifests [general, donjon, donjon-noel]).
+  theme:
+    themes:
+      theme-donjon:
+        layers:
+          - "layers/theme-donjon-global.yml"
+          - "layers/decisiontree-donjon-global.yml"
+        manifests:
+          - "general"
+          - "donjon"

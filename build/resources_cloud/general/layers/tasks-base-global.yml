@@ -1,0 +1,2082 @@
+name: tasks-base
+above: conf
+strategy: default
+tenant: global
+data:
+
+  domains:
+
+    salon:
+      title: "@@@T:dt_domain_salon@@@"
+      enabled: true
+      visible: true
+    chambre_parentale:
+      title: "@@@T:dt_domain_chambre_parentale@@@"
+      enabled: true
+      visible: true
+    chambre_enfant:
+      title: "@@@T:dt_domain_chambre_enfant@@@"
+      enabled: true
+      visible: true
+      multiple: k
+    cuisine:
+      title: "@@@T:dt_domain_cuisine@@@"
+      enabled: true
+      visible: true
+    repas:
+      title: "@@@T:dt_domain_repas@@@"
+      enabled: true
+      visible: true
+    vaisselle:
+      title: "@@@T:dt_domain_vaisselle@@@"
+      enabled: true
+      visible: true
+    salle_de_bain:
+      title: "@@@T:dt_domain_salle_de_bain@@@"
+      enabled: true
+      visible: true
+    toilettes:
+      title: "@@@T:dt_domain_toilettes@@@"
+      enabled: true
+      visible: true
+    entree:
+      title: "@@@T:dt_domain_entree@@@"
+      enabled: true
+      visible: true
+    bureau:
+      title: "@@@T:dt_domain_bureau@@@"
+      enabled: true
+      visible: true
+    terrasse:
+      title: "@@@T:dt_domain_terrasse@@@"
+      enabled: true
+      visible: true
+    jardin:
+      title: "@@@T:dt_domain_jardin@@@"
+      enabled: true
+      visible: true
+    linge:
+      title: "@@@T:dt_domain_linge@@@"
+      enabled: true
+      visible: true
+    dechets:
+      title: "@@@T:dt_domain_dechets@@@"
+      enabled: true
+      visible: true
+    animaux:
+      title: "@@@T:dt_domain_animaux@@@"
+      enabled: true
+      visible: true
+    garage:
+      title: "@@@T:dt_domain_garage@@@"
+      enabled: true
+      visible: true
+    vehicules:
+      title: "@@@T:dt_domain_vehicules@@@"
+      enabled: true
+      visible: true
+    courses:
+      title: "@@@T:dt_domain_courses@@@"
+      enabled: true
+      visible: true
+    extras:
+      title: "@@@T:dt_domain_extras@@@"
+      enabled: true
+      visible: true
+
+  tasks:
+    # =====================================================================
+    # REGLE DE COTATION DE L'EFFORT (a maintenir pour toute nouvelle tache)
+    # effort = complexite de la tache (~ temps passe) + un modificateur :
+    #   +2 : tache TRES penible et/ou TRES ingrate (ex. cuvette, litiere, poubelle)
+    #   +1 : tache un peu plus penible et/ou ingrate que la moyenne (ex. sortir les poubelles)
+    #
+    # REGLE DE COTATION DU RESPAWN
+    # L'XP d'une tache = (10 + respawn_h / 12) x effort  (cf. worker.xp_per_effort et
+    # worker.xp_respawn_div). respawn_h n'est donc PAS la frequence reelle du besoin du foyer :
+    # c'est le POIDS donne a la tache. Une corvee rare et lourde doit bien payer a l'unite
+    # (nettoyer le four, 720h : 350 XP) sans devenir rentable a la semaine.
+    # Corollaire a garder en tete : joue en boucle, le plafond hebdomadaire d'une tache vaut
+    #   112 x XP / respawn_h = 1120 x effort / respawn_h + 9,3 x effort
+    # (112 h = 16 h eveillees x 7 jours). Passe 120 h de respawn le second terme domine et le
+    # rendement ne depend plus que de l'effort : c'est la zone equilibree. En dessous de 24 h une
+    # tache devient tres lucrative a la semaine, a n'utiliser que pour les corvees vraiment
+    # pluriquotidiennes (repas, vaisselle).
+    # Outil d'analyse : build/tools/gen_tasks_balance.py -> tasks_balance.db
+    # =====================================================================
+    # --- salon ---
+    salon_01:
+      title: "@@@T:dt_t_salon_01@@@"
+      acceptance: "@@@T:dt_a_salon_01@@@"
+      dead: "@@@T:dt_d_salon_01@@@"
+      cancel: "@@@T:dt_c_salon_01@@@"
+      domain: salon
+      effort: 3
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salon_02:
+      title: "@@@T:dt_t_salon_02@@@"
+      acceptance: "@@@T:dt_a_salon_02@@@"
+      dead: "@@@T:dt_d_salon_02@@@"
+      cancel: "@@@T:dt_c_salon_02@@@"
+      domain: salon
+      effort: 2
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salon_03:
+      title: "@@@T:dt_t_salon_03@@@"
+      acceptance: "@@@T:dt_a_salon_03@@@"
+      dead: "@@@T:dt_d_salon_03@@@"
+      cancel: "@@@T:dt_c_salon_03@@@"
+      domain: salon
+      effort: 4
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salon_04:
+      title: "@@@T:dt_t_salon_04@@@"
+      acceptance: "@@@T:dt_a_salon_04@@@"
+      dead: "@@@T:dt_d_salon_04@@@"
+      cancel: "@@@T:dt_c_salon_04@@@"
+      domain: salon
+      effort: 3
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salon_05:
+      title: "@@@T:dt_t_salon_05@@@"
+      acceptance: "@@@T:dt_a_salon_05@@@"
+      dead: "@@@T:dt_d_salon_05@@@"
+      cancel: "@@@T:dt_c_salon_05@@@"
+      domain: salon
+      effort: 4
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salon_06:
+      title: "@@@T:dt_t_salon_06@@@"
+      acceptance: "@@@T:dt_a_salon_06@@@"
+      dead: "@@@T:dt_d_salon_06@@@"
+      cancel: "@@@T:dt_c_salon_06@@@"
+      domain: salon
+      effort: 2
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salon_07:
+      title: "@@@T:dt_t_salon_07@@@"
+      acceptance: "@@@T:dt_a_salon_07@@@"
+      dead: "@@@T:dt_d_salon_07@@@"
+      cancel: "@@@T:dt_c_salon_07@@@"
+      domain: salon
+      effort: 3
+      type: immortelle
+      respawn_h: 36
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salon_08:
+      title: "@@@T:dt_t_salon_08@@@"
+      acceptance: "@@@T:dt_a_salon_08@@@"
+      dead: "@@@T:dt_d_salon_08@@@"
+      cancel: "@@@T:dt_c_salon_08@@@"
+      domain: salon
+      effort: 3
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salon_09:
+      title: "@@@T:dt_t_salon_09@@@"
+      acceptance: "@@@T:dt_a_salon_09@@@"
+      dead: "@@@T:dt_d_salon_09@@@"
+      cancel: "@@@T:dt_c_salon_09@@@"
+      domain: salon
+      effort: 5
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- chambre_parentale ---
+    chambre_parentale_01:
+      title: "@@@T:dt_t_chambre_parentale_01@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_01@@@"
+      dead: "@@@T:dt_d_chambre_parentale_01@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_01@@@"
+      domain: chambre_parentale
+      effort: 3
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_parentale_02:
+      title: "@@@T:dt_t_chambre_parentale_02@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_02@@@"
+      dead: "@@@T:dt_d_chambre_parentale_02@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_02@@@"
+      domain: chambre_parentale
+      effort: 2
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_parentale_03:
+      title: "@@@T:dt_t_chambre_parentale_03@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_03@@@"
+      dead: "@@@T:dt_d_chambre_parentale_03@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_03@@@"
+      domain: chambre_parentale
+      effort: 4
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_parentale_04:
+      title: "@@@T:dt_t_chambre_parentale_04@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_04@@@"
+      dead: "@@@T:dt_d_chambre_parentale_04@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_04@@@"
+      domain: chambre_parentale
+      effort: 3
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_parentale_05:
+      title: "@@@T:dt_t_chambre_parentale_05@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_05@@@"
+      dead: "@@@T:dt_d_chambre_parentale_05@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_05@@@"
+      domain: chambre_parentale
+      effort: 2
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_parentale_06:
+      title: "@@@T:dt_t_chambre_parentale_06@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_06@@@"
+      dead: "@@@T:dt_d_chambre_parentale_06@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_06@@@"
+      domain: chambre_parentale
+      effort: 3
+      type: immortelle
+      respawn_h: 36
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_parentale_08:
+      title: "@@@T:dt_t_chambre_parentale_08@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_08@@@"
+      dead: "@@@T:dt_d_chambre_parentale_08@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_08@@@"
+      domain: chambre_parentale
+      effort: 3
+      type: mortelle
+      respawn_h: 240
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_parentale_09:
+      title: "@@@T:dt_t_chambre_parentale_09@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_09@@@"
+      dead: "@@@T:dt_d_chambre_parentale_09@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_09@@@"
+      domain: chambre_parentale
+      effort: 4
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_parentale_10:
+      title: "@@@T:dt_t_chambre_parentale_10@@@"
+      acceptance: "@@@T:dt_a_chambre_parentale_10@@@"
+      dead: "@@@T:dt_d_chambre_parentale_10@@@"
+      cancel: "@@@T:dt_c_chambre_parentale_10@@@"
+      domain: chambre_parentale
+      effort: 4
+      type: immortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- chambre_enfant ---
+    chambre_enfant_01:
+      title: "@@@T:dt_t_chambre_enfant_01@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_01@@@"
+      dead: "@@@T:dt_d_chambre_enfant_01@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_01@@@"
+      domain: chambre_enfant
+      effort: 3
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_enfant_02:
+      title: "@@@T:dt_t_chambre_enfant_02@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_02@@@"
+      dead: "@@@T:dt_d_chambre_enfant_02@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_02@@@"
+      domain: chambre_enfant
+      effort: 2
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_enfant_03:
+      title: "@@@T:dt_t_chambre_enfant_03@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_03@@@"
+      dead: "@@@T:dt_d_chambre_enfant_03@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_03@@@"
+      domain: chambre_enfant
+      effort: 4
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_enfant_04:
+      title: "@@@T:dt_t_chambre_enfant_04@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_04@@@"
+      dead: "@@@T:dt_d_chambre_enfant_04@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_04@@@"
+      domain: chambre_enfant
+      effort: 3
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_enfant_05:
+      title: "@@@T:dt_t_chambre_enfant_05@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_05@@@"
+      dead: "@@@T:dt_d_chambre_enfant_05@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_05@@@"
+      domain: chambre_enfant
+      effort: 2
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_enfant_06:
+      title: "@@@T:dt_t_chambre_enfant_06@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_06@@@"
+      dead: "@@@T:dt_d_chambre_enfant_06@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_06@@@"
+      domain: chambre_enfant
+      effort: 3
+      type: immortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_enfant_09:
+      title: "@@@T:dt_t_chambre_enfant_09@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_09@@@"
+      dead: "@@@T:dt_d_chambre_enfant_09@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_09@@@"
+      domain: chambre_enfant
+      effort: 3
+      type: mortelle
+      respawn_h: 240
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_enfant_10:
+      title: "@@@T:dt_t_chambre_enfant_10@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_10@@@"
+      dead: "@@@T:dt_d_chambre_enfant_10@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_10@@@"
+      domain: chambre_enfant
+      effort: 4
+      type: immortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    chambre_enfant_11:
+      title: "@@@T:dt_t_chambre_enfant_11@@@"
+      acceptance: "@@@T:dt_a_chambre_enfant_11@@@"
+      dead: "@@@T:dt_d_chambre_enfant_11@@@"
+      cancel: "@@@T:dt_c_chambre_enfant_11@@@"
+      domain: chambre_enfant
+      effort: 2
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: [tag_possede_chambre_enfant]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- cuisine ---
+    cuisine_01:
+      title: "@@@T:dt_t_cuisine_01@@@"
+      acceptance: "@@@T:dt_a_cuisine_01@@@"
+      dead: "@@@T:dt_d_cuisine_01@@@"
+      cancel: "@@@T:dt_c_cuisine_01@@@"
+      domain: cuisine
+      effort: 3
+      type: immortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_03:
+      title: "@@@T:dt_t_cuisine_03@@@"
+      acceptance: "@@@T:dt_a_cuisine_03@@@"
+      dead: "@@@T:dt_d_cuisine_03@@@"
+      cancel: "@@@T:dt_c_cuisine_03@@@"
+      domain: cuisine
+      effort: 4
+      type: immortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_04:
+      title: "@@@T:dt_t_cuisine_04@@@"
+      acceptance: "@@@T:dt_a_cuisine_04@@@"
+      dead: "@@@T:dt_d_cuisine_04@@@"
+      cancel: "@@@T:dt_c_cuisine_04@@@"
+      domain: cuisine
+      effort: 3
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_05:
+      title: "@@@T:dt_t_cuisine_05@@@"
+      acceptance: "@@@T:dt_a_cuisine_05@@@"
+      dead: "@@@T:dt_d_cuisine_05@@@"
+      cancel: "@@@T:dt_c_cuisine_05@@@"
+      domain: cuisine
+      effort: 2
+      type: immortelle
+      respawn_h: 12
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_06:
+      title: "@@@T:dt_t_cuisine_06@@@"
+      acceptance: "@@@T:dt_a_cuisine_06@@@"
+      dead: "@@@T:dt_d_cuisine_06@@@"
+      cancel: "@@@T:dt_c_cuisine_06@@@"
+      domain: cuisine
+      effort: 3
+      type: immortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_07:
+      title: "@@@T:dt_t_cuisine_07@@@"
+      acceptance: "@@@T:dt_a_cuisine_07@@@"
+      dead: "@@@T:dt_d_cuisine_07@@@"
+      cancel: "@@@T:dt_c_cuisine_07@@@"
+      domain: cuisine
+      effort: 3
+      type: immortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_08:
+      title: "@@@T:dt_t_cuisine_08@@@"
+      acceptance: "@@@T:dt_a_cuisine_08@@@"
+      dead: "@@@T:dt_d_cuisine_08@@@"
+      cancel: "@@@T:dt_c_cuisine_08@@@"
+      domain: cuisine
+      effort: 2
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_09:
+      title: "@@@T:dt_t_cuisine_09@@@"
+      acceptance: "@@@T:dt_a_cuisine_09@@@"
+      dead: "@@@T:dt_d_cuisine_09@@@"
+      cancel: "@@@T:dt_c_cuisine_09@@@"
+      domain: cuisine
+      effort: 2
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_10:
+      title: "@@@T:dt_t_cuisine_10@@@"
+      acceptance: "@@@T:dt_a_cuisine_10@@@"
+      dead: "@@@T:dt_d_cuisine_10@@@"
+      cancel: "@@@T:dt_c_cuisine_10@@@"
+      domain: cuisine
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: [tag_possede_hotte]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_11:
+      title: "@@@T:dt_t_cuisine_11@@@"
+      acceptance: "@@@T:dt_a_cuisine_11@@@"
+      dead: "@@@T:dt_d_cuisine_11@@@"
+      cancel: "@@@T:dt_c_cuisine_11@@@"
+      domain: cuisine
+      effort: 5
+      type: mortelle
+      respawn_h: 720
+      supervision: true
+      skip_if_blacklisted: [tag_possede_four]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_12:
+      title: "@@@T:dt_t_cuisine_12@@@"
+      acceptance: "@@@T:dt_a_cuisine_12@@@"
+      dead: "@@@T:dt_d_cuisine_12@@@"
+      cancel: "@@@T:dt_c_cuisine_12@@@"
+      domain: cuisine
+      effort: 3
+      type: mortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: [tag_possede_plaque_cuisson]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_13:
+      title: "@@@T:dt_t_cuisine_13@@@"
+      acceptance: "@@@T:dt_a_cuisine_13@@@"
+      dead: "@@@T:dt_d_cuisine_13@@@"
+      cancel: "@@@T:dt_c_cuisine_13@@@"
+      domain: cuisine
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_15:
+      title: "@@@T:dt_t_cuisine_15@@@"
+      acceptance: "@@@T:dt_a_cuisine_15@@@"
+      dead: "@@@T:dt_d_cuisine_15@@@"
+      cancel: "@@@T:dt_c_cuisine_15@@@"
+      domain: cuisine
+      effort: 2
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: [tag_possede_bouilloire_cafetiere]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_18:
+      title: "@@@T:dt_t_cuisine_18@@@"
+      acceptance: "@@@T:dt_a_cuisine_18@@@"
+      dead: "@@@T:dt_d_cuisine_18@@@"
+      cancel: "@@@T:dt_c_cuisine_18@@@"
+      domain: cuisine
+      effort: 3
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    cuisine_19:
+      title: "@@@T:dt_t_cuisine_19@@@"
+      acceptance: "@@@T:dt_a_cuisine_19@@@"
+      dead: "@@@T:dt_d_cuisine_19@@@"
+      cancel: "@@@T:dt_c_cuisine_19@@@"
+      domain: cuisine
+      effort: 2
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- repas ---
+    repas_06:
+      title: "@@@T:dt_t_repas_06@@@"
+      acceptance: "@@@T:dt_a_repas_06@@@"
+      dead: "@@@T:dt_d_repas_06@@@"
+      cancel: "@@@T:dt_c_repas_06@@@"
+      domain: repas
+      effort: 3
+      type: mortelle
+      respawn_h: 6
+      supervision: true
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    repas_07:
+      title: "@@@T:dt_t_repas_07@@@"
+      acceptance: "@@@T:dt_a_repas_07@@@"
+      dead: "@@@T:dt_d_repas_07@@@"
+      cancel: "@@@T:dt_c_repas_07@@@"
+      domain: repas
+      effort: 1
+      type: mortelle
+      respawn_h: 6
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    repas_10:
+      title: "@@@T:dt_t_repas_10@@@"
+      acceptance: "@@@T:dt_a_repas_10@@@"
+      dead: "@@@T:dt_d_repas_10@@@"
+      cancel: "@@@T:dt_c_repas_10@@@"
+      domain: repas
+      effort: 3
+      type: mortelle
+      respawn_h: 6
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    repas_11:
+      title: "@@@T:dt_t_repas_11@@@"
+      acceptance: "@@@T:dt_a_repas_11@@@"
+      dead: "@@@T:dt_d_repas_11@@@"
+      cancel: "@@@T:dt_c_repas_11@@@"
+      domain: repas
+      effort: 5
+      type: mortelle
+      respawn_h: 72
+      supervision: true
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- vaisselle ---
+    vaisselle_01:
+      title: "@@@T:dt_t_vaisselle_01@@@"
+      acceptance: "@@@T:dt_a_vaisselle_01@@@"
+      dead: "@@@T:dt_d_vaisselle_01@@@"
+      cancel: "@@@T:dt_c_vaisselle_01@@@"
+      domain: vaisselle
+      effort: 2
+      type: mortelle
+      respawn_h: 6
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    vaisselle_02:
+      title: "@@@T:dt_t_vaisselle_02@@@"
+      acceptance: "@@@T:dt_a_vaisselle_02@@@"
+      dead: "@@@T:dt_d_vaisselle_02@@@"
+      cancel: "@@@T:dt_c_vaisselle_02@@@"
+      domain: vaisselle
+      effort: 4
+      type: mortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: [tag_possede_lave_vaisselle]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    vaisselle_03:
+      title: "@@@T:dt_t_vaisselle_03@@@"
+      acceptance: "@@@T:dt_a_vaisselle_03@@@"
+      dead: "@@@T:dt_d_vaisselle_03@@@"
+      cancel: "@@@T:dt_c_vaisselle_03@@@"
+      domain: vaisselle
+      effort: 2
+      type: mortelle
+      respawn_h: 8
+      supervision: false
+      skip_if_blacklisted: [tag_possede_lave_vaisselle]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    vaisselle_04:
+      title: "@@@T:dt_t_vaisselle_04@@@"
+      acceptance: "@@@T:dt_a_vaisselle_04@@@"
+      dead: "@@@T:dt_d_vaisselle_04@@@"
+      cancel: "@@@T:dt_c_vaisselle_04@@@"
+      domain: vaisselle
+      effort: 2
+      type: mortelle
+      respawn_h: 12
+      supervision: false
+      skip_if_blacklisted: [tag_possede_lave_vaisselle]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    vaisselle_05:
+      title: "@@@T:dt_t_vaisselle_05@@@"
+      acceptance: "@@@T:dt_a_vaisselle_05@@@"
+      dead: "@@@T:dt_d_vaisselle_05@@@"
+      cancel: "@@@T:dt_c_vaisselle_05@@@"
+      domain: vaisselle
+      effort: 2
+      type: mortelle
+      respawn_h: 6
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: [tag_sans_lave_vaisselle]
+      enabled: true
+      visible: true
+    vaisselle_06:
+      title: "@@@T:dt_t_vaisselle_06@@@"
+      acceptance: "@@@T:dt_a_vaisselle_06@@@"
+      dead: "@@@T:dt_d_vaisselle_06@@@"
+      cancel: "@@@T:dt_c_vaisselle_06@@@"
+      domain: vaisselle
+      effort: 2
+      type: mortelle
+      respawn_h: 6
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    vaisselle_07:
+      title: "@@@T:dt_t_vaisselle_07@@@"
+      acceptance: "@@@T:dt_a_vaisselle_07@@@"
+      dead: "@@@T:dt_d_vaisselle_07@@@"
+      cancel: "@@@T:dt_c_vaisselle_07@@@"
+      domain: vaisselle
+      effort: 1
+      type: mortelle
+      respawn_h: 6
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    vaisselle_08:
+      title: "@@@T:dt_t_vaisselle_08@@@"
+      acceptance: "@@@T:dt_a_vaisselle_08@@@"
+      dead: "@@@T:dt_d_vaisselle_08@@@"
+      cancel: "@@@T:dt_c_vaisselle_08@@@"
+      domain: vaisselle
+      effort: 1
+      type: mortelle
+      respawn_h: 6
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    vaisselle_09:
+      title: "@@@T:dt_t_vaisselle_09@@@"
+      acceptance: "@@@T:dt_a_vaisselle_09@@@"
+      dead: "@@@T:dt_d_vaisselle_09@@@"
+      cancel: "@@@T:dt_c_vaisselle_09@@@"
+      domain: vaisselle
+      effort: 3
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: [tag_possede_lave_vaisselle]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- salle_de_bain ---
+    salle_de_bain_01:
+      title: "@@@T:dt_t_salle_de_bain_01@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_01@@@"
+      dead: "@@@T:dt_d_salle_de_bain_01@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_01@@@"
+      domain: salle_de_bain
+      effort: 3
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_02:
+      title: "@@@T:dt_t_salle_de_bain_02@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_02@@@"
+      dead: "@@@T:dt_d_salle_de_bain_02@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_02@@@"
+      domain: salle_de_bain
+      effort: 2
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_03:
+      title: "@@@T:dt_t_salle_de_bain_03@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_03@@@"
+      dead: "@@@T:dt_d_salle_de_bain_03@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_03@@@"
+      domain: salle_de_bain
+      effort: 4
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_04:
+      title: "@@@T:dt_t_salle_de_bain_04@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_04@@@"
+      dead: "@@@T:dt_d_salle_de_bain_04@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_04@@@"
+      domain: salle_de_bain
+      effort: 3
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_05:
+      title: "@@@T:dt_t_salle_de_bain_05@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_05@@@"
+      dead: "@@@T:dt_d_salle_de_bain_05@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_05@@@"
+      domain: salle_de_bain
+      effort: 3
+      type: immortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_06:
+      title: "@@@T:dt_t_salle_de_bain_06@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_06@@@"
+      dead: "@@@T:dt_d_salle_de_bain_06@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_06@@@"
+      domain: salle_de_bain
+      effort: 2
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_07:
+      title: "@@@T:dt_t_salle_de_bain_07@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_07@@@"
+      dead: "@@@T:dt_d_salle_de_bain_07@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_07@@@"
+      domain: salle_de_bain
+      effort: 4
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: [tag_possede_douche]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_08:
+      title: "@@@T:dt_t_salle_de_bain_08@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_08@@@"
+      dead: "@@@T:dt_d_salle_de_bain_08@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_08@@@"
+      domain: salle_de_bain
+      effort: 4
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: [tag_possede_baignoire]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_10:
+      title: "@@@T:dt_t_salle_de_bain_10@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_10@@@"
+      dead: "@@@T:dt_d_salle_de_bain_10@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_10@@@"
+      domain: salle_de_bain
+      effort: 2
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_11:
+      title: "@@@T:dt_t_salle_de_bain_11@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_11@@@"
+      dead: "@@@T:dt_d_salle_de_bain_11@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_11@@@"
+      domain: salle_de_bain
+      effort: 4
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    salle_de_bain_12:
+      title: "@@@T:dt_t_salle_de_bain_12@@@"
+      acceptance: "@@@T:dt_a_salle_de_bain_12@@@"
+      dead: "@@@T:dt_d_salle_de_bain_12@@@"
+      cancel: "@@@T:dt_c_salle_de_bain_12@@@"
+      domain: salle_de_bain
+      effort: 3
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- toilettes ---
+    toilettes_01:
+      title: "@@@T:dt_t_toilettes_01@@@"
+      acceptance: "@@@T:dt_a_toilettes_01@@@"
+      dead: "@@@T:dt_d_toilettes_01@@@"
+      cancel: "@@@T:dt_c_toilettes_01@@@"
+      domain: toilettes
+      effort: 3
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    toilettes_02:
+      title: "@@@T:dt_t_toilettes_02@@@"
+      acceptance: "@@@T:dt_a_toilettes_02@@@"
+      dead: "@@@T:dt_d_toilettes_02@@@"
+      cancel: "@@@T:dt_c_toilettes_02@@@"
+      domain: toilettes
+      effort: 2
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    toilettes_03:
+      title: "@@@T:dt_t_toilettes_03@@@"
+      acceptance: "@@@T:dt_a_toilettes_03@@@"
+      dead: "@@@T:dt_d_toilettes_03@@@"
+      cancel: "@@@T:dt_c_toilettes_03@@@"
+      domain: toilettes
+      effort: 4
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    toilettes_04:
+      title: "@@@T:dt_t_toilettes_04@@@"
+      acceptance: "@@@T:dt_a_toilettes_04@@@"
+      dead: "@@@T:dt_d_toilettes_04@@@"
+      cancel: "@@@T:dt_c_toilettes_04@@@"
+      domain: toilettes
+      effort: 4
+      type: immortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    toilettes_06:
+      title: "@@@T:dt_t_toilettes_06@@@"
+      acceptance: "@@@T:dt_a_toilettes_06@@@"
+      dead: "@@@T:dt_d_toilettes_06@@@"
+      cancel: "@@@T:dt_c_toilettes_06@@@"
+      domain: toilettes
+      effort: 4
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- couloir ---
+    couloir_01:
+      title: "@@@T:dt_t_couloir_01@@@"
+      acceptance: "@@@T:dt_a_couloir_01@@@"
+      dead: "@@@T:dt_d_couloir_01@@@"
+      cancel: "@@@T:dt_c_couloir_01@@@"
+      domain: entree
+      effort: 3
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    couloir_02:
+      title: "@@@T:dt_t_couloir_02@@@"
+      acceptance: "@@@T:dt_a_couloir_02@@@"
+      dead: "@@@T:dt_d_couloir_02@@@"
+      cancel: "@@@T:dt_c_couloir_02@@@"
+      domain: entree
+      effort: 2
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    couloir_03:
+      title: "@@@T:dt_t_couloir_03@@@"
+      acceptance: "@@@T:dt_a_couloir_03@@@"
+      dead: "@@@T:dt_d_couloir_03@@@"
+      cancel: "@@@T:dt_c_couloir_03@@@"
+      domain: entree
+      effort: 4
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    couloir_04:
+      title: "@@@T:dt_t_couloir_04@@@"
+      acceptance: "@@@T:dt_a_couloir_04@@@"
+      dead: "@@@T:dt_d_couloir_04@@@"
+      cancel: "@@@T:dt_c_couloir_04@@@"
+      domain: entree
+      effort: 4
+      type: immortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- entree ---
+    entree_01:
+      title: "@@@T:dt_t_entree_01@@@"
+      acceptance: "@@@T:dt_a_entree_01@@@"
+      dead: "@@@T:dt_d_entree_01@@@"
+      cancel: "@@@T:dt_c_entree_01@@@"
+      domain: entree
+      effort: 3
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    entree_02:
+      title: "@@@T:dt_t_entree_02@@@"
+      acceptance: "@@@T:dt_a_entree_02@@@"
+      dead: "@@@T:dt_d_entree_02@@@"
+      cancel: "@@@T:dt_c_entree_02@@@"
+      domain: entree
+      effort: 2
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    entree_03:
+      title: "@@@T:dt_t_entree_03@@@"
+      acceptance: "@@@T:dt_a_entree_03@@@"
+      dead: "@@@T:dt_d_entree_03@@@"
+      cancel: "@@@T:dt_c_entree_03@@@"
+      domain: entree
+      effort: 4
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    entree_04:
+      title: "@@@T:dt_t_entree_04@@@"
+      acceptance: "@@@T:dt_a_entree_04@@@"
+      dead: "@@@T:dt_d_entree_04@@@"
+      cancel: "@@@T:dt_c_entree_04@@@"
+      domain: entree
+      effort: 4
+      type: immortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- bureau ---
+    bureau_01:
+      title: "@@@T:dt_t_bureau_01@@@"
+      acceptance: "@@@T:dt_a_bureau_01@@@"
+      dead: "@@@T:dt_d_bureau_01@@@"
+      cancel: "@@@T:dt_c_bureau_01@@@"
+      domain: bureau
+      effort: 3
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: [tag_possede_bureau]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    bureau_02:
+      title: "@@@T:dt_t_bureau_02@@@"
+      acceptance: "@@@T:dt_a_bureau_02@@@"
+      dead: "@@@T:dt_d_bureau_02@@@"
+      cancel: "@@@T:dt_c_bureau_02@@@"
+      domain: bureau
+      effort: 2
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: [tag_possede_bureau]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    bureau_03:
+      title: "@@@T:dt_t_bureau_03@@@"
+      acceptance: "@@@T:dt_a_bureau_03@@@"
+      dead: "@@@T:dt_d_bureau_03@@@"
+      cancel: "@@@T:dt_c_bureau_03@@@"
+      domain: bureau
+      effort: 4
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_bureau]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    bureau_04:
+      title: "@@@T:dt_t_bureau_04@@@"
+      acceptance: "@@@T:dt_a_bureau_04@@@"
+      dead: "@@@T:dt_d_bureau_04@@@"
+      cancel: "@@@T:dt_c_bureau_04@@@"
+      domain: bureau
+      effort: 3
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_bureau]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    bureau_05:
+      title: "@@@T:dt_t_bureau_05@@@"
+      acceptance: "@@@T:dt_a_bureau_05@@@"
+      dead: "@@@T:dt_d_bureau_05@@@"
+      cancel: "@@@T:dt_c_bureau_05@@@"
+      domain: bureau
+      effort: 2
+      type: immortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: [tag_possede_bureau]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    bureau_06:
+      title: "@@@T:dt_t_bureau_06@@@"
+      acceptance: "@@@T:dt_a_bureau_06@@@"
+      dead: "@@@T:dt_d_bureau_06@@@"
+      cancel: "@@@T:dt_c_bureau_06@@@"
+      domain: bureau
+      effort: 3
+      type: immortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: [tag_possede_bureau]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- terrasse ---
+    terrasse_01:
+      title: "@@@T:dt_t_terrasse_01@@@"
+      acceptance: "@@@T:dt_a_terrasse_01@@@"
+      dead: "@@@T:dt_d_terrasse_01@@@"
+      cancel: "@@@T:dt_c_terrasse_01@@@"
+      domain: terrasse
+      effort: 3
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: [tag_possede_terrasse]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    terrasse_02:
+      title: "@@@T:dt_t_terrasse_02@@@"
+      acceptance: "@@@T:dt_a_terrasse_02@@@"
+      dead: "@@@T:dt_d_terrasse_02@@@"
+      cancel: "@@@T:dt_c_terrasse_02@@@"
+      domain: terrasse
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: [tag_possede_terrasse]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- balcon ---
+    balcon_01:
+      title: "@@@T:dt_t_balcon_01@@@"
+      acceptance: "@@@T:dt_a_balcon_01@@@"
+      dead: "@@@T:dt_d_balcon_01@@@"
+      cancel: "@@@T:dt_c_balcon_01@@@"
+      domain: terrasse
+      effort: 3
+      type: immortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: [tag_possede_balcon]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    balcon_02:
+      title: "@@@T:dt_t_balcon_02@@@"
+      acceptance: "@@@T:dt_a_balcon_02@@@"
+      dead: "@@@T:dt_d_balcon_02@@@"
+      cancel: "@@@T:dt_c_balcon_02@@@"
+      domain: terrasse
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: [tag_possede_balcon]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    terrasse_03:
+      title: "@@@T:dt_t_terrasse_03@@@"
+      acceptance: "@@@T:dt_a_terrasse_03@@@"
+      dead: "@@@T:dt_d_terrasse_03@@@"
+      cancel: "@@@T:dt_c_terrasse_03@@@"
+      domain: terrasse
+      effort: 2
+      type: immortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: [tag_possede_balcon_ou_terrasse]
+      enabled: true
+      visible: true
+
+    # --- jardin ---
+    jardin_01:
+      title: "@@@T:dt_t_jardin_01@@@"
+      acceptance: "@@@T:dt_a_jardin_01@@@"
+      dead: "@@@T:dt_d_jardin_01@@@"
+      cancel: "@@@T:dt_c_jardin_01@@@"
+      domain: jardin
+      effort: 4
+      type: immortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_jardin]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    jardin_02:
+      title: "@@@T:dt_t_jardin_02@@@"
+      acceptance: "@@@T:dt_a_jardin_02@@@"
+      dead: "@@@T:dt_d_jardin_02@@@"
+      cancel: "@@@T:dt_c_jardin_02@@@"
+      domain: jardin
+      effort: 4
+      type: mortelle
+      respawn_h: 240
+      supervision: true
+      skip_if_blacklisted: [tag_possede_jardin]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    jardin_03:
+      title: "@@@T:dt_t_jardin_03@@@"
+      acceptance: "@@@T:dt_a_jardin_03@@@"
+      dead: "@@@T:dt_d_jardin_03@@@"
+      cancel: "@@@T:dt_c_jardin_03@@@"
+      domain: jardin
+      effort: 2
+      type: mortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: [tag_possede_jardin]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    jardin_04:
+      title: "@@@T:dt_t_jardin_04@@@"
+      acceptance: "@@@T:dt_a_jardin_04@@@"
+      dead: "@@@T:dt_d_jardin_04@@@"
+      cancel: "@@@T:dt_c_jardin_04@@@"
+      domain: jardin
+      effort: 4
+      type: immortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: [tag_possede_jardin]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    jardin_05:
+      title: "@@@T:dt_t_jardin_05@@@"
+      acceptance: "@@@T:dt_a_jardin_05@@@"
+      dead: "@@@T:dt_d_jardin_05@@@"
+      cancel: "@@@T:dt_c_jardin_05@@@"
+      domain: jardin
+      effort: 5
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_jardin]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    jardin_06:
+      title: "@@@T:dt_t_jardin_06@@@"
+      acceptance: "@@@T:dt_a_jardin_06@@@"
+      dead: "@@@T:dt_d_jardin_06@@@"
+      cancel: "@@@T:dt_c_jardin_06@@@"
+      domain: jardin
+      effort: 5
+      type: mortelle
+      respawn_h: 720
+      supervision: true
+      skip_if_blacklisted: [tag_possede_jardin]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- linge ---
+    linge_01:
+      title: "@@@T:dt_t_linge_01@@@"
+      acceptance: "@@@T:dt_a_linge_01@@@"
+      dead: "@@@T:dt_d_linge_01@@@"
+      cancel: "@@@T:dt_c_linge_01@@@"
+      domain: linge
+      effort: 2
+      type: mortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    linge_02:
+      title: "@@@T:dt_t_linge_02@@@"
+      acceptance: "@@@T:dt_a_linge_02@@@"
+      dead: "@@@T:dt_d_linge_02@@@"
+      cancel: "@@@T:dt_c_linge_02@@@"
+      domain: linge
+      effort: 3
+      type: mortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: [tag_possede_machine_laver]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    linge_02_alt:
+      title: "@@@T:dt_t_linge_02_alt@@@"
+      acceptance: "@@@T:dt_a_linge_02_alt@@@"
+      dead: "@@@T:dt_d_linge_02_alt@@@"
+      cancel: "@@@T:dt_c_linge_02_alt@@@"
+      domain: linge
+      effort: 5
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: [tag_sans_machine_laver]
+      enabled: true
+      visible: true
+    linge_03:
+      title: "@@@T:dt_t_linge_03@@@"
+      acceptance: "@@@T:dt_a_linge_03@@@"
+      dead: "@@@T:dt_d_linge_03@@@"
+      cancel: "@@@T:dt_c_linge_03@@@"
+      domain: linge
+      effort: 2
+      type: mortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: [tag_possede_etendoir]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    linge_04:
+      title: "@@@T:dt_t_linge_04@@@"
+      acceptance: "@@@T:dt_a_linge_04@@@"
+      dead: "@@@T:dt_d_linge_04@@@"
+      cancel: "@@@T:dt_c_linge_04@@@"
+      domain: linge
+      effort: 2
+      type: mortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: [tag_possede_etendoir]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    linge_05:
+      title: "@@@T:dt_t_linge_05@@@"
+      acceptance: "@@@T:dt_a_linge_05@@@"
+      dead: "@@@T:dt_d_linge_05@@@"
+      cancel: "@@@T:dt_c_linge_05@@@"
+      domain: linge
+      effort: 3
+      type: mortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    linge_06:
+      title: "@@@T:dt_t_linge_06@@@"
+      acceptance: "@@@T:dt_a_linge_06@@@"
+      dead: "@@@T:dt_d_linge_06@@@"
+      cancel: "@@@T:dt_c_linge_06@@@"
+      domain: linge
+      effort: 2
+      type: mortelle
+      respawn_h: 48
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    linge_08:
+      title: "@@@T:dt_t_linge_08@@@"
+      acceptance: "@@@T:dt_a_linge_08@@@"
+      dead: "@@@T:dt_d_linge_08@@@"
+      cancel: "@@@T:dt_c_linge_08@@@"
+      domain: linge
+      effort: 4
+      type: mortelle
+      respawn_h: 96
+      supervision: true
+      skip_if_blacklisted: [tag_possede_fer_a_repasser]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    linge_09:
+      title: "@@@T:dt_t_linge_09@@@"
+      acceptance: "@@@T:dt_a_linge_09@@@"
+      dead: "@@@T:dt_d_linge_09@@@"
+      cancel: "@@@T:dt_c_linge_09@@@"
+      domain: linge
+      effort: 2
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: [tag_possede_machine_laver]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- dechets ---
+    dechets_01:
+      title: "@@@T:dt_t_dechets_01@@@"
+      acceptance: "@@@T:dt_a_dechets_01@@@"
+      dead: "@@@T:dt_d_dechets_01@@@"
+      cancel: "@@@T:dt_c_dechets_01@@@"
+      domain: dechets
+      effort: 3
+      type: mortelle
+      respawn_h: 8
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    dechets_02:
+      title: "@@@T:dt_t_dechets_02@@@"
+      acceptance: "@@@T:dt_a_dechets_02@@@"
+      dead: "@@@T:dt_d_dechets_02@@@"
+      cancel: "@@@T:dt_c_dechets_02@@@"
+      domain: dechets
+      effort: 2
+      type: mortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    dechets_03:
+      title: "@@@T:dt_t_dechets_03@@@"
+      acceptance: "@@@T:dt_a_dechets_03@@@"
+      dead: "@@@T:dt_d_dechets_03@@@"
+      cancel: "@@@T:dt_c_dechets_03@@@"
+      domain: dechets
+      effort: 2
+      type: immortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    dechets_04:
+      title: "@@@T:dt_t_dechets_04@@@"
+      acceptance: "@@@T:dt_a_dechets_04@@@"
+      dead: "@@@T:dt_d_dechets_04@@@"
+      cancel: "@@@T:dt_c_dechets_04@@@"
+      domain: dechets
+      effort: 3
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    dechets_05:
+      title: "@@@T:dt_t_dechets_05@@@"
+      acceptance: "@@@T:dt_a_dechets_05@@@"
+      dead: "@@@T:dt_d_dechets_05@@@"
+      cancel: "@@@T:dt_c_dechets_05@@@"
+      domain: dechets
+      effort: 3
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_composteur]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    dechets_06:
+      title: "@@@T:dt_t_dechets_06@@@"
+      acceptance: "@@@T:dt_a_dechets_06@@@"
+      dead: "@@@T:dt_d_dechets_06@@@"
+      cancel: "@@@T:dt_c_dechets_06@@@"
+      domain: dechets
+      effort: 2
+      type: mortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    dechets_07:
+      title: "@@@T:dt_t_dechets_07@@@"
+      acceptance: "@@@T:dt_a_dechets_07@@@"
+      dead: "@@@T:dt_d_dechets_07@@@"
+      cancel: "@@@T:dt_c_dechets_07@@@"
+      domain: dechets
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- animaux ---
+    animaux_01:
+      title: "@@@T:dt_t_animaux_01@@@"
+      acceptance: "@@@T:dt_a_animaux_01@@@"
+      dead: "@@@T:dt_d_animaux_01@@@"
+      cancel: "@@@T:dt_c_animaux_01@@@"
+      domain: animaux
+      effort: 1
+      type: mortelle
+      respawn_h: 12
+      supervision: false
+      skip_if_blacklisted: [tag_possede_animal]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    animaux_02:
+      title: "@@@T:dt_t_animaux_02@@@"
+      acceptance: "@@@T:dt_a_animaux_02@@@"
+      dead: "@@@T:dt_d_animaux_02@@@"
+      cancel: "@@@T:dt_c_animaux_02@@@"
+      domain: animaux
+      effort: 1
+      type: mortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: [tag_possede_animal]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    animaux_03:
+      title: "@@@T:dt_t_animaux_03@@@"
+      acceptance: "@@@T:dt_a_animaux_03@@@"
+      dead: "@@@T:dt_d_animaux_03@@@"
+      cancel: "@@@T:dt_c_animaux_03@@@"
+      domain: animaux
+      effort: 4
+      type: mortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: [tag_possede_animal]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    animaux_05:
+      title: "@@@T:dt_t_animaux_05@@@"
+      acceptance: "@@@T:dt_a_animaux_05@@@"
+      dead: "@@@T:dt_d_animaux_05@@@"
+      cancel: "@@@T:dt_c_animaux_05@@@"
+      domain: animaux
+      effort: 2
+      type: mortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: [tag_possede_animal]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- vehicules (voiture / moto) ---
+    voiture_01:
+      title: "@@@T:dt_t_voiture_01@@@"
+      acceptance: "@@@T:dt_a_voiture_01@@@"
+      dead: "@@@T:dt_d_voiture_01@@@"
+      cancel: "@@@T:dt_c_voiture_01@@@"
+      domain: vehicules
+      multiple: a
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: [tag_possede_voiture]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    voiture_02:
+      title: "@@@T:dt_t_voiture_02@@@"
+      acceptance: "@@@T:dt_a_voiture_02@@@"
+      dead: "@@@T:dt_d_voiture_02@@@"
+      cancel: "@@@T:dt_c_voiture_02@@@"
+      domain: vehicules
+      multiple: a
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: [tag_possede_voiture]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    moto_01:
+      title: "@@@T:dt_t_moto_01@@@"
+      acceptance: "@@@T:dt_a_moto_01@@@"
+      dead: "@@@T:dt_d_moto_01@@@"
+      cancel: "@@@T:dt_c_moto_01@@@"
+      domain: vehicules
+      multiple: a
+      effort: 4
+      type: mortelle
+      respawn_h: 240
+      supervision: false
+      skip_if_blacklisted: [tag_possede_moto]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- garage (spécifique) ---
+    garage_01:
+      title: "@@@T:dt_t_garage_01@@@"
+      acceptance: "@@@T:dt_a_garage_01@@@"
+      dead: "@@@T:dt_d_garage_01@@@"
+      cancel: "@@@T:dt_c_garage_01@@@"
+      domain: garage
+      effort: 3
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_garage]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    garage_02:
+      title: "@@@T:dt_t_garage_02@@@"
+      acceptance: "@@@T:dt_a_garage_02@@@"
+      dead: "@@@T:dt_d_garage_02@@@"
+      cancel: "@@@T:dt_c_garage_02@@@"
+      domain: garage
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: false
+      skip_if_blacklisted: [tag_possede_garage]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    garage_03:
+      title: "@@@T:dt_t_garage_03@@@"
+      acceptance: "@@@T:dt_a_garage_03@@@"
+      dead: "@@@T:dt_d_garage_03@@@"
+      cancel: "@@@T:dt_c_garage_03@@@"
+      domain: garage
+      effort: 3
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: [tag_possede_garage]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    garage_04:
+      title: "@@@T:dt_t_garage_04@@@"
+      acceptance: "@@@T:dt_a_garage_04@@@"
+      dead: "@@@T:dt_d_garage_04@@@"
+      cancel: "@@@T:dt_c_garage_04@@@"
+      domain: garage
+      effort: 5
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: [tag_possede_garage]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    garage_05:
+      title: "@@@T:dt_t_garage_05@@@"
+      acceptance: "@@@T:dt_a_garage_05@@@"
+      dead: "@@@T:dt_d_garage_05@@@"
+      cancel: "@@@T:dt_c_garage_05@@@"
+      domain: garage
+      effort: 3
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: [tag_possede_garage]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    garage_06:
+      title: "@@@T:dt_t_garage_06@@@"
+      acceptance: "@@@T:dt_a_garage_06@@@"
+      dead: "@@@T:dt_d_garage_06@@@"
+      cancel: "@@@T:dt_c_garage_06@@@"
+      domain: garage
+      effort: 4
+      type: mortelle
+      respawn_h: 336
+      supervision: true
+      skip_if_blacklisted: [tag_possede_garage]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- courses ---
+    courses_01:
+      title: "@@@T:dt_t_courses_01@@@"
+      acceptance: "@@@T:dt_a_courses_01@@@"
+      dead: "@@@T:dt_d_courses_01@@@"
+      cancel: "@@@T:dt_c_courses_01@@@"
+      domain: courses
+      effort: 4
+      type: mortelle
+      respawn_h: 96
+      supervision: true
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    courses_02:
+      title: "@@@T:dt_t_courses_02@@@"
+      acceptance: "@@@T:dt_a_courses_02@@@"
+      dead: "@@@T:dt_d_courses_02@@@"
+      cancel: "@@@T:dt_c_courses_02@@@"
+      domain: courses
+      effort: 3
+      type: mortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    courses_03:
+      title: "@@@T:dt_t_courses_03@@@"
+      acceptance: "@@@T:dt_a_courses_03@@@"
+      dead: "@@@T:dt_d_courses_03@@@"
+      cancel: "@@@T:dt_c_courses_03@@@"
+      domain: courses
+      effort: 2
+      type: mortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    courses_04:
+      title: "@@@T:dt_t_courses_04@@@"
+      acceptance: "@@@T:dt_a_courses_04@@@"
+      dead: "@@@T:dt_d_courses_04@@@"
+      cancel: "@@@T:dt_c_courses_04@@@"
+      domain: courses
+      effort: 2
+      type: mortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    courses_05:
+      title: "@@@T:dt_t_courses_05@@@"
+      acceptance: "@@@T:dt_a_courses_05@@@"
+      dead: "@@@T:dt_d_courses_05@@@"
+      cancel: "@@@T:dt_c_courses_05@@@"
+      domain: courses
+      effort: 2
+      type: mortelle
+      respawn_h: 96
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+
+    # --- extras ---
+    extras_01:
+      title: "@@@T:dt_t_extras_01@@@"
+      acceptance: "@@@T:dt_a_extras_01@@@"
+      dead: "@@@T:dt_d_extras_01@@@"
+      cancel: "@@@T:dt_c_extras_01@@@"
+      domain: extras
+      effort: 1
+      type: mortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: [tag_possede_plantes_interieur]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    extras_02:
+      title: "@@@T:dt_t_extras_02@@@"
+      acceptance: "@@@T:dt_a_extras_02@@@"
+      dead: "@@@T:dt_d_extras_02@@@"
+      cancel: "@@@T:dt_c_extras_02@@@"
+      domain: extras
+      effort: 1
+      type: mortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    extras_03:
+      title: "@@@T:dt_t_extras_03@@@"
+      acceptance: "@@@T:dt_a_extras_03@@@"
+      dead: "@@@T:dt_d_extras_03@@@"
+      cancel: "@@@T:dt_c_extras_03@@@"
+      domain: extras
+      effort: 3
+      type: mortelle
+      respawn_h: 168
+      supervision: false
+      skip_if_blacklisted: [tag_possede_aspirateur]
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    extras_04:
+      title: "@@@T:dt_t_extras_04@@@"
+      acceptance: "@@@T:dt_a_extras_04@@@"
+      dead: "@@@T:dt_d_extras_04@@@"
+      cancel: "@@@T:dt_c_extras_04@@@"
+      domain: extras
+      effort: 1
+      type: immortelle
+      respawn_h: 72
+      supervision: true
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    extras_05:
+      title: "@@@T:dt_t_extras_05@@@"
+      acceptance: "@@@T:dt_a_extras_05@@@"
+      dead: "@@@T:dt_d_extras_05@@@"
+      cancel: "@@@T:dt_c_extras_05@@@"
+      domain: extras
+      effort: 2
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    extras_06:
+      title: "@@@T:dt_t_extras_06@@@"
+      acceptance: "@@@T:dt_a_extras_06@@@"
+      dead: "@@@T:dt_d_extras_06@@@"
+      cancel: "@@@T:dt_c_extras_06@@@"
+      domain: extras
+      effort: 3
+      type: mortelle
+      respawn_h: 720
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    extras_07:
+      title: "@@@T:dt_t_extras_07@@@"
+      acceptance: "@@@T:dt_a_extras_07@@@"
+      dead: "@@@T:dt_d_extras_07@@@"
+      cancel: "@@@T:dt_c_extras_07@@@"
+      domain: extras
+      effort: 1
+      type: immortelle
+      respawn_h: 24
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true
+    extras_08:
+      title: "@@@T:dt_t_extras_08@@@"
+      acceptance: "@@@T:dt_a_extras_08@@@"
+      dead: "@@@T:dt_d_extras_08@@@"
+      cancel: "@@@T:dt_c_extras_08@@@"
+      domain: extras
+      effort: 2
+      type: mortelle
+      respawn_h: 72
+      supervision: false
+      skip_if_blacklisted: []
+      keep_if_whitelisted: []
+      enabled: true
+      visible: true

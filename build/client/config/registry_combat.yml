@@ -1,0 +1,329 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- Combat Screen ---------------------------------
+
+    combat:
+      masks:
+        - page_admin
+      show_appbar: true
+      show_back: false
+      title: "@@@T:Combat@@@"
+      actions:
+        # PAS de `- dvtuto.enter` ici : une liste d'actions n'est pas awaitée (DvShape exécute la
+        # séquence sans await), le tuto tournerait DONC EN PARALLÈLE de on_combat_appear et
+        # évaluerait ses `requires: session.active_task` sur un état que l'appear est peut-être en
+        # train de changer (réconciliation d'un verdict distant) → leçon « domaines » braquée sur un
+        # tiroir qui disparaît, ou l'inverse. C'est on_combat_appear qui appelle dvtuto.enter, une
+        # fois l'état tranché, dans chacune de ses branches (même patron que on_tiroir_appear).
+        appear:
+          - worker.on_combat_appear
+      registry:
+        - commons/splash_background
+        - combat/flamewall
+        - combat/icon_bg
+        - combat/icon_label
+        - combat/icon
+        - combat/encourage
+        - combat/difficulty
+        - combat/ok
+        - combat/cancel
+        - combat/proof
+        - combat/validate_ok
+        - combat/validate_partial
+        - combat/validate_ko
+        - combat/tiroir
+
+    # Mur de flammes du combat : vue transparente (IgnorePointer → les taps traversent vers
+    # ok/cancel), montée uniquement sur l'écran combat. Placée AVANT les autres widgets dans le
+    # registry → rendue SOUS les boutons/infos. Haute de 88% : son bord bas coïncide avec la
+    # frontière du dvtaskbar, où la scène `flamewall` émet sa ligne de flammes (position.y:100%).
+    # Le worker allume/éteint la scène (dvflame.start/stop.flamewall) selon l'état de combat.
+    combat/flamewall:
+      class: DvSceneView
+      layer: content
+      scene: flamewall
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 88%
+
+    combat/icon_bg:
+      class: DvLabel
+      shape:
+        x: 35%
+        w: 30%
+        y: 0%
+        h: 20%
+        visible: false
+
+    combat/icon:
+      class: DvLabel
+      shape:
+        x: 35%
+        w: 30%
+        y: 0%
+        h: 20%
+        visible: false
+
+    combat/icon_label:
+      mask: commons/intro_text
+      layer: content
+      shape:
+        x: 5%
+        y: 16%
+        w: 90%
+        h: 10%
+        text_align: CENTER
+        border: true
+        visible: false
+
+    # Message d'encouragement (style region_screen/intro_text), sous l'icône et son label.
+    combat/encourage:
+      masks:
+        - commons/intro_text
+      shape:
+        y: 30%
+        h: 22%
+        label: "@@@T:combat_encouragement@@@"
+        visible: false
+        text_align: CENTER
+        border: true
+
+    # Badge difficulté : coin bas-droite du cadre des critères (combat/encourage).
+    # Texte DORÉ sur cadre NOIR à bordure BRONZE (couleurs donjon). Texte écrit par
+    # worker.on_combat_appear ("Extrême - 8 XP"). Le label initial contient un token
+    # @@@T: pour que DvLabel enregistre l'écouteur de traduction (dvlabel.dart:82) :
+    # sinon le texte écrit à l'appear reste brut (ex. "dt_effort_5") si la trad charge après.
+    # LABEL_WIDTH_SOFT : la pastille s'élargit AUTOUR DE SON CENTRE jusqu'à contenir le texte
+    # sur UNE ligne, sans jamais descendre sous les 40% (badge court = aspect inchangé). Sans
+    # lui, une chaîne longue — la fourchette d'une tâche recommandée, "Difficile - 840-1960 XP"
+    # — passe à la ligne, et la 2e ligne sort de la boîte de 6% : le joueur ne lit que
+    # "Difficile -", les XP à gagner disparaissent (d'autant plus vite que l'écran est étroit
+    # ou la police système grossie).
+    combat/difficulty:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 30%
+        y: 28%
+        w: 40%
+        h: 6%
+        label: "@@@T:dt_effort_1@@@"
+        visible: false
+        text_align: CENTER
+        responsiveness: LABEL_WIDTH_SOFT
+
+    # Boutons (style documents/region_confirm → commons/dark_button), au-dessus de la taskbar.
+    combat/ok:
+      masks:
+        - commons/dark_button
+      layer: content
+      shape:
+        x: 5%
+        y: 60%
+        w: 90%
+        h: 7%
+        label: "@@@T:combat_ok@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_combat_ok
+
+    combat/cancel:
+      masks:
+        - commons/dark_button
+      layer: content
+      shape:
+        x: 5%
+        y: 70%
+        w: 90%
+        h: 7%
+        label: "@@@T:combat_cancel@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_combat_cancel
+
+    # Bouton "Voir ma preuve" — remplace ok/cancel une fois la photo prise (status validating).
+    combat/proof:
+      masks:
+        - commons/dark_button
+      layer: content
+      shape:
+        x: 5%
+        y: 60%
+        w: 90%
+        h: 7%
+        label: "@@@T:combat_proof@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_combat_proof
+
+    # Validation par un ADMIN d'une tâche "validating" — "Le monstre est vaincu !" (la tâche est libérée, XP plein).
+    combat/validate_ok:
+      masks:
+        - commons/dark_button
+      layer: content
+      shape:
+        x: 5%
+        y: 57%
+        w: 90%
+        h: 7%
+        label: "@@@T:combat_validate_ok@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_validate_ok
+
+    # Validation par un ADMIN d'une tâche "validating" — "À moitié vaincu…" (moitié des XP, tâche à moitié régénérée).
+    combat/validate_partial:
+      masks:
+        - commons/dark_button
+      layer: content
+      shape:
+        x: 5%
+        y: 67%
+        w: 90%
+        h: 7%
+        label: "@@@T:combat_validate_partial@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_validate_partial
+
+    # Validation par un ADMIN d'une tâche "validating" — "Raté... essaie encore." (retour à assigned).
+    combat/validate_ko:
+      masks:
+        - commons/dark_button
+      layer: content
+      shape:
+        x: 5%
+        y: 77%
+        w: 90%
+        h: 7%
+        label: "@@@T:combat_validate_ko@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_validate_ko
+
+    combat/tiroir:
+      class: DvTiroir
+      layer: content
+      # Selector des domaines. Mode JEU : option seule (= le tap courant) → action directe, pas de
+      # menu (comportement historique). Mode CHEF : options d'administration → commons/tiroir_menu.
+      selector: worker.domain_selector
+      menu: commons/tiroir_menu
+      menu_enabled: true
+      # SEUL tiroir à refuser les icônes injectées (canal dvtiroir.update_extras, globales) : la
+      # tuile « + » du mode chef n'a pas de sens ici. Un chef n'invente PAS de domaine — la liste
+      # des domaines est du contenu de jeu, et les domaines additionnels s'achètent en packs dans
+      # la boutique. Il crée seulement des TÂCHES, dans les sous-tiroirs (<domaine>_tasks/tiroir).
+      extras_enabled: false
+      shape:
+        x: 1%
+        y: 0%
+        w: 98%
+        h: 88%
+        border: true
+        # Comme TOUS les autres widgets de la page : la page naît vide et worker.on_combat_appear
+        # révèle l'état qu'il a tranché (tiroir / tâche en cours / revue admin). L'appear n'est pas
+        # attendu par le framework (dvpage_motor : onEvent("appear") en fire-and-forget) et fait
+        # plusieurs await avant de trancher : un tiroir visible par défaut restait tapable pendant
+        # toute cette fenêtre → sélection d'une 2e tâche alors qu'une tâche est déjà en cours.
+        visible: false
+
+      icons:
+        animaux:
+          label: "@@@T:task_animaux@@@"
+          actions:
+            tap: seldomain.animaux
+        bureau:
+          label: "@@@T:task_bureau@@@"
+          actions:
+            tap: seldomain.bureau
+        chambre_enfant:
+          label: "@@@T:task_chambre_enfant@@@"
+          actions:
+            tap: seldomain.chambre_enfant
+        chambre_parentale:
+          label: "@@@T:task_chambre_parentale@@@"
+          actions:
+            tap: seldomain.chambre_parentale
+        courses:
+          label: "@@@T:task_courses@@@"
+          actions:
+            tap: seldomain.courses
+        cuisine:
+          label: "@@@T:task_cuisine@@@"
+          actions:
+            tap: seldomain.cuisine
+        dechets:
+          label: "@@@T:task_dechets@@@"
+          actions:
+            tap: seldomain.dechets
+        entree:
+          label: "@@@T:task_entree@@@"
+          actions:
+            tap: seldomain.entree
+        extras:
+          label: "@@@T:task_extras@@@"
+          actions:
+            tap: seldomain.extras
+        garage:
+          label: "@@@T:task_garage@@@"
+          actions:
+            tap: seldomain.garage
+        jardin:
+          label: "@@@T:task_jardin@@@"
+          actions:
+            tap: seldomain.jardin
+        linge:
+          label: "@@@T:task_linge@@@"
+          actions:
+            tap: seldomain.linge
+        repas:
+          label: "@@@T:task_repas@@@"
+          actions:
+            tap: seldomain.repas
+        salle_de_bain:
+          label: "@@@T:task_salle_de_bain@@@"
+          actions:
+            tap: seldomain.salle_de_bain
+        salon:
+          label: "@@@T:task_salon@@@"
+          actions:
+            tap: seldomain.salon
+        terrasse:
+          label: "@@@T:task_terrasse@@@"
+          actions:
+            tap: seldomain.terrasse
+        toilettes:
+          label: "@@@T:task_toilettes@@@"
+          actions:
+            tap: seldomain.toilettes
+        vaisselle:
+          label: "@@@T:task_vaisselle@@@"
+          actions:
+            tap: seldomain.vaisselle
+        vehicules:
+          label: "@@@T:task_vehicules@@@"
+          actions:
+            tap: seldomain.vehicules
+      icons_shape:
+        min_columns: 3
+        max_columns: 6
+        min_rows: 3
+

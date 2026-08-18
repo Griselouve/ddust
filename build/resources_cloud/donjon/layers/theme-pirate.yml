@@ -1,0 +1,11 @@
+name: theme-pirate
+above: theme-donjon
+strategy: force
+tenant: global
+tags:
+  - theme-pirate
+data:
+  registry:
+    commons/splash_background:
+      shape:
+        image: "assets/images/splash-pirate.png"

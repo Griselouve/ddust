@@ -1,0 +1,3733 @@
+name: theme-donjon
+above: conf
+strategy: default
+tenant: global
+data:
+  lang:
+    fallback: "fr"
+    default: "fr"
+    options:
+      fr: "Français"
+      en: "English"
+      es: "Español"
+    translations:
+      #------------- General ------------------------------------
+
+      application_name:
+        fr: "Donjons & Savons"
+        en: "Dungeons & Dusting"
+        es: "Calabozos & Jabones"
+
+      #------------- Gages de mort (0 PV) ------------------------------------
+
+      gage_01:
+        fr: "Que justice soit faite ! Pour t'être laissé avoir par la saleté, le bourreau du donjon va te torturer jusqu'à la mort … de rire\n(45 secondes de chatouilles)"
+        en: "Let justice be done! For letting the filth get the better of you, the dungeon's executioner will torture you to death... from laughing\n(45 seconds of tickling)"
+        es: "¡Que se haga justicia! Por dejarte vencer por la suciedad, el verdugo del calabozo te torturará hasta morir... de risa\n(45 segundos de cosquillas)"
+      gage_02:
+        fr: "Tu as grimacé de dégout devant la saleté ? Voyons si tu peux apprendre aux vieux mages à faire la grimace\n(tu dois grimacer devant ton clan jusqu'à ce que l'un d'eux rigole)"
+        en: "Grimacing in disgust at the filth? Let's see if you can teach the old mages how to pull a face\n(make faces at your clan until one of them laughs)"
+        es: "¿Hiciste una mueca de asco ante la suciedad? Veamos si puedes enseñar a los viejos magos a hacer muecas\n(haz muecas ante tu clan hasta que alguno se ría)"
+      gage_03:
+        fr: "Pffff…. Tué par des chaussettes… tu as le droit de garder le silence\n(chaque membre du clan te dit un mot que tu dois faire deviner aux autres sans parler ni écrire ni signer)"
+        en: "Pffff.... Killed by socks... you have the right to remain silent\n(each clan member gives you a word you must get the others to guess, without speaking, writing or signing)"
+        es: "Pffff.... Muerto por unos calcetines... tienes derecho a guardar silencio\n(cada miembro del clan te da una palabra que debes hacer adivinar a los demás sin hablar, escribir ni hacer señas)"
+      gage_04:
+        fr: "Tu as laissé la saleté se répandre, le monde court à sa perte ! Il faut rassembler plus d'aventuriers !\n(convaincre trois autres familles d'essayer Donjons & Savons)"
+        en: "You let the filth spread, the world is doomed! We must rally more adventurers!\n(convince three other families to try Dungeons & Dusting)"
+        es: "¡Dejaste que la suciedad se propagara, el mundo corre a su perdición! ¡Hay que reunir a más aventureros!\n(convence a otras tres familias de probar Calabozos & Jabones)"
+      gage_05:
+        fr: "Tu dois récupérer tes forces brave aventurier, mais le remède a un goût de chiottes\n(chaque membre du clan élabore une boisson (un shot) avec des ingrédients secrets. Bois-les tous)"
+        en: "You must recover your strength, brave adventurer, but the remedy tastes like crap\n(each clan member concocts a drink (a shot) with secret ingredients. Drink them all)"
+        es: "Debes recuperar tus fuerzas, valiente aventurero, pero el remedio sabe fatal\n(cada miembro del clan prepara una bebida (un chupito) con ingredientes secretos. Bébetelas todas)"
+      gage_06:
+        fr: "Le foyer s'écroule sous le désordre et la saleté. Ça te fait rire morveux ?\n(simuler un rire pendant 45 secondes)"
+        en: "The home is collapsing under mess and filth. Think it's funny, brat?\n(fake a laugh for 45 seconds)"
+        es: "El hogar se derrumba bajo el desorden y la suciedad. ¿Te hace gracia, mocoso?\n(simula una risa durante 45 segundos)"
+      gage_07:
+        fr: "Ta frêle armure n'a pas tenu longtemps face aux attaques de linge sale et la poussière venimeuse. Tu dois en trouver une autre.\n(faire un défilé en revêtant 3 tenues épiques et drôles)"
+        en: "Your flimsy armor didn't last long against the assaults of dirty laundry and venomous dust. You must find another.\n(put on a fashion show wearing 3 epic and funny outfits)"
+        es: "Tu frágil armadura no aguantó mucho ante los ataques de la ropa sucia y el polvo venenoso. Debes encontrar otra.\n(haz un desfile luciendo 3 atuendos épicos y graciosos)"
+      gage_08:
+        fr: "La prochaine fois qu'une meute de mauvaises hig-hyènes s'approche, ne bouge pas, fais le mort.\n(tu ne peux pas rire ni sourire pendant 3 minutes, malgré tout ce que peut faire ton clan)"
+        en: "Next time a pack of nasty giggle-hyenas comes near, don't move, play dead.\n(you can't laugh or smile for 3 minutes, whatever your clan does)"
+        es: "La próxima vez que se acerque una manada de malvadas ji-hienas, no te muevas, hazte el muerto.\n(no puedes reír ni sonreír durante 3 minutos, haga lo que haga tu clan)"
+      gage_09:
+        fr: "C'était une bataille épique ! Il y avait un énorme dragon de linge sale qui crachait du feu et de la saleté partout, j'étais encerclé par des crocomoisi et je n'ai rien pu faire ! …\n(raconte une histoire complètement fictive pendant au moins 3 minutes)"
+        en: "It was an epic battle! There was a huge dragon of dirty laundry spitting fire and filth everywhere, I was surrounded by moldy-crocs and there was nothing I could do! ...\n(tell a completely made-up story for at least 3 minutes)"
+        es: "¡Fue una batalla épica! Había un enorme dragón de ropa sucia que escupía fuego y suciedad por todas partes, estaba rodeado de cocodrimohos y no pude hacer nada! ... 
+        \n(cuenta una historia totalmente inventada durante al menos 3 minutos)"
+      gage_10:
+        fr: "Il est encore temps de t'échapper du donjon, mais attention il y a des pièges partout. Des pièges verticaux et des pièges horizontaux.\n(tu ne peux dire ni oui ni non pendant au moins 3 minutes)"
+        en: "There's still time to escape the dungeon, but beware, there are traps everywhere. Vertical traps and horizontal traps.\n(you can't say yes or no for at least 3 minutes)"
+        es: "Aún estás a tiempo de escapar del calabozo, pero cuidado, hay trampas por todas partes. Trampas verticales y trampas horizontales.\n(no puedes decir ni sí ni no durante al menos 3 minutos)"
+      gage_11:
+        fr: "Pourquoi l'aventurier aime les escaliers ? Parce qu'il adore monter de niveau… sauf toi apparemment.\n(raconter des blagues jusqu'à faire rire au moins un membre du clan)"
+        en: "Why does the adventurer love stairs? Because he loves leveling up... except you, apparently.\n(tell jokes until at least one clan member laughs)"
+        es: "¿Por qué al aventurero le gustan las escaleras? Porque le encanta subir de nivel... salvo a ti, por lo visto.\n(cuenta chistes hasta hacer reír al menos a un miembro del clan)"
+
+      #------------- Réalisation des gages (rédemption après soin) -----------
+      # Texte dédié décrivant l'accomplissement du gage correspondant (cf. dt_d_ des tâches).
+      # @@@session.user.name@@@ = nom du joueur. Non affiché pour l'instant (feature à venir).
+
+      gage_d_01:
+        fr: "Même après de longues minutes de torture, la plume du bourreau n'a pas eu raison de @@@session.user.name@@@, qui a démontré toute sa valeur. Après moult accolades et bisous baveux, le clan reprend son protégé sous son aile et repart pour de plus belles aventures."
+        en: "Even after long minutes of torture, the executioner's feather could not break @@@session.user.name@@@, who proved their worth. After many hugs and slobbery kisses, the clan takes its protégé back under its wing and sets off for greater adventures."
+        es: "Incluso tras largos minutos de tortura, la pluma del verdugo no pudo con @@@session.user.name@@@, que demostró todo su valor. Tras muchos abrazos y besos babosos, el clan acoge de nuevo a su protegido bajo su ala y parte hacia mayores aventuras."
+      gage_d_02:
+        fr: "À force de grimaces plus hideuses les unes que les autres, @@@session.user.name@@@ a fini par arracher un fou rire aux vieux mages eux-mêmes. La malédiction est levée : le clan, hilare, accueille de nouveau son champion des affreux visages."
+        en: "With one hideous face after another, @@@session.user.name@@@ finally wrung a burst of laughter from the old mages themselves. The curse is lifted: the clan, in stitches, welcomes back its champion of ghastly grimaces."
+        es: "A base de muecas cada cual más horrenda, @@@session.user.name@@@ acabó arrancando una carcajada a los mismísimos viejos magos. La maldición se ha roto: el clan, muerto de risa, recibe de nuevo a su campeón de las caras espantosas."
+      gage_d_03:
+        fr: "Sans un mot, sans un geste écrit, @@@session.user.name@@@ a mimé l'impossible et fait deviner chaque énigme au clan ébahi. Le vœu de silence est rompu par les applaudissements : le donjon rend sa voix — et sa place — à son mime légendaire."
+        en: "Not a word, not a written sign — @@@session.user.name@@@ mimed the impossible and got the astonished clan to guess every riddle. The vow of silence breaks under the applause: the dungeon gives its legendary mime back both voice and place."
+        es: "Sin una palabra, sin un solo gesto escrito, @@@session.user.name@@@ mimó lo imposible e hizo adivinar cada enigma al clan atónito. El voto de silencio se rompe entre aplausos: el calabozo devuelve a su mimo legendario la voz — y su lugar."
+      gage_d_04:
+        fr: "Porté par la foi du propre, @@@session.user.name@@@ a rallié trois nouvelles familles à la cause de Donjons & Savons. Le monde est sauvé d'un cheveu (et de quelques moutons de poussière) : le clan salue son héraut et l'accueille en grande pompe."
+        en: "Carried by the faith of the clean, @@@session.user.name@@@ rallied three new families to the cause of Dungeons & Dusting. The world is saved by a hair (and a few dust bunnies): the clan hails its herald and welcomes them with great fanfare."
+        es: "Movido por la fe de lo limpio, @@@session.user.name@@@ reclutó a tres nuevas familias para la causa de Calabozos & Jabones. El mundo se salva por un pelo (y unas cuantas pelusas): el clan aclama a su heraldo y lo recibe por todo lo alto."
+      gage_d_05:
+        fr: "D'un trait puis d'un autre, @@@session.user.name@@@ a vidé jusqu'à la lie chaque breuvage douteux concocté par le clan, sans broncher (ou presque). Les forces reviennent, le teint aussi : les remèdes ont opéré, et le clan porte son survivant en triomphe."
+        en: "In one gulp after another, @@@session.user.name@@@ drained every dubious brew the clan concocted, without flinching (well, almost). Strength returns, and so does the color in their cheeks: the remedies worked, and the clan carries its survivor in triumph."
+        es: "De un trago tras otro, @@@session.user.name@@@ apuró hasta el fondo cada brebaje dudoso preparado por el clan, sin pestañear (o casi). Las fuerzas vuelven, y el color también: los remedios funcionaron, y el clan lleva a su superviviente a hombros."
+      gage_d_06:
+        fr: "« Ha… ha… HA ! » — quarante-cinq secondes d'un rire aussi forcé qu'héroïque, et @@@session.user.name@@@ a fait fuir le désordre et la morosité. Le foyer se redresse : le clan, conquis, reprend son bouffon courageux dans ses rangs."
+        en: "\"Ha... ha... HA!\" — forty-five seconds of a laugh as forced as it was heroic, and @@@session.user.name@@@ chased off the mess and the gloom. The home stands tall again: the clan, won over, takes its brave jester back into its ranks."
+        es: "«¡Ja... ja... JA!» — cuarenta y cinco segundos de una risa tan forzada como heroica, y @@@session.user.name@@@ ahuyentó el desorden y la tristeza. El hogar se yergue de nuevo: el clan, conquistado, recupera a su valiente bufón entre sus filas."
+      gage_d_07:
+        fr: "Trois tenues plus épiques et loufoques les unes que les autres ont défilé sous les vivats du clan, et @@@session.user.name@@@ s'est trouvé une armure digne de sa légende. Rhabillé de pied en cap, notre aventurier reprend la route, plus flamboyant que jamais."
+        en: "Three outfits, each more epic and outlandish than the last, paraded to the clan's cheers, and @@@session.user.name@@@ found armor worthy of the legend. Dressed head to toe, our adventurer hits the road again, more dazzling than ever."
+        es: "Tres atuendos, cada cual más épico y estrafalario, desfilaron entre los vítores del clan, y @@@session.user.name@@@ encontró una armadura digna de su leyenda. Vestido de pies a cabeza, nuestro aventurero retoma el camino, más deslumbrante que nunca."
+      gage_d_08:
+        fr: "Immobile, impassible, insensible aux pires pitreries du clan, @@@session.user.name@@@ a fait le mort trois minutes durant sans esquisser le moindre sourire. Les hig-hyènes déçues sont reparties bredouilles : le clan récupère son plus imperturbable des guerriers."
+        en: "Still, stone-faced, immune to the clan's worst antics, @@@session.user.name@@@ played dead for three whole minutes without cracking the faintest smile. The giggle-hyenas slink off empty-handed: the clan reclaims its most unflappable of warriors."
+        es: "Inmóvil, impasible, inmune a las peores payasadas del clan, @@@session.user.name@@@ se hizo el muerto durante tres minutos enteros sin esbozar la más mínima sonrisa. Las ji-hienas se marchan con las manos vacías: el clan recupera a su más imperturbable guerrero."
+      gage_d_09:
+        fr: "Pendant de longues minutes, @@@session.user.name@@@ a tissé une épopée si folle — dragons de linge sale et crocomoisi compris — que le clan en est resté bouche bée. Conteur consacré, notre aventurier regagne sa place au coin du feu sous les acclamations."
+        en: "For long minutes, @@@session.user.name@@@ spun a tale so wild — dragons of dirty laundry and moldy-crocs included — that the clan was left speechless. Crowned storyteller, our adventurer reclaims a seat by the fire to roaring applause."
+        es: "Durante largos minutos, @@@session.user.name@@@ tejió una epopeya tan disparatada — dragones de ropa sucia y cocodrimohos incluidos — que el clan se quedó boquiabierto. Consagrado narrador, nuestro aventurero recupera su sitio junto al fuego entre aplausos."
+      gage_d_10:
+        fr: "Slalomant entre les pièges verticaux et horizontaux, @@@session.user.name@@@ a tenu trois minutes sans lâcher le moindre « oui » ni « non ». Sain et sauf à la sortie du donjon, notre finaud est accueilli par un clan admiratif… et un peu jaloux."
+        en: "Weaving between the vertical and horizontal traps, @@@session.user.name@@@ held out three minutes without letting slip a single \"yes\" or \"no.\" Safe and sound at the dungeon's exit, our sly one is greeted by an admiring — and slightly jealous — clan."
+        es: "Sorteando las trampas verticales y horizontales, @@@session.user.name@@@ aguantó tres minutos sin soltar un solo «sí» ni «no». Sano y salvo a la salida del calabozo, nuestro astuto es recibido por un clan admirado… y un poco celoso."
+      gage_d_11:
+        fr: "Blague après blague, @@@session.user.name@@@ a fini par décrocher le rire salvateur d'un membre du clan (le calembour sur les escaliers y est sûrement pour quelque chose). Sacré roi du bon mot, notre aventurier remonte enfin de niveau et repart à l'aventure."
+        en: "Joke after joke, @@@session.user.name@@@ finally landed the saving laugh from a clan member (the stairs pun surely helped). Crowned king of the punchline, our adventurer levels up at last and heads back out on the adventure."
+        es: "Chiste tras chiste, @@@session.user.name@@@ acabó arrancando la risa salvadora de un miembro del clan (el juego de palabras con las escaleras algo tuvo que ver). Coronado rey del chascarrillo, nuestro aventurero por fin sube de nivel y vuelve a la aventura."
+
+      # Ajouté automatiquement après chaque gage (2 sauts de ligne + cette phrase).
+      gage_heal:
+        fr: "Ensuite, demande à un chef de clan de te soigner"
+        en: "Then, ask a clan leader to heal you"
+        es: "Luego, pide a un jefe de clan que te cure"
+
+      # Bouton de l'écran de mort, réservé à l'admin solo (worker.resurrect_self).
+      resurrection:
+        fr: "Résurrection"
+        en: "Resurrection"
+        es: "Resurrección"
+
+      # -- Édition du personnage (avatar + nom) --
+      choose_avatar:
+        fr: "Choisis ton avatar"
+        en: "Choose your avatar"
+        es: "Elige tu avatar"
+
+      edit_name_title:
+        fr: "Ton nom"
+        en: "Your name"
+        es: "Tu nombre"
+
+      edit_clan_name_title:
+        fr: "Nom du clan"
+        en: "Clan name"
+        es: "Nombre del clan"
+
+      cancel:
+        fr: "Annuler"
+        en: "Cancel"
+        es: "Cancelar"
+
+      ok:
+        fr: "Valider"
+        en: "OK"
+        es: "Aceptar"
+
+      #------------- Home ------------------------------------
+
+      login:
+        fr: "Entrer dans la taverne"
+        en: "Enter the tavern"
+        es: "Entrar a la taberna"
+      ready:
+        fr: "Prêt?"
+        en: "Ready?"
+        es: "Listo?"
+
+      #------------- Clan roster menu ------------------------------------
+
+      # Menu d'administration du tiroir (mode chef). Les libellés nomment l'ÉTAT D'ARRIVÉE,
+      # comme les glyphes : « désactiver » est proposé depuis une tâche active ET depuis une
+      # tâche cachée (dans les deux cas, elle finit désactivée).
+      # Switch « Jeu | Admin » en bas du tiroir.
+      mode_game:
+        fr: "Jeu"
+        en: "Play"
+        es: "Juego"
+      mode_admin:
+        fr: "Admin"
+        en: "Admin"
+        es: "Admin"
+
+      adm_menu_enable:
+        fr: "Activer"
+        en: "Enable"
+        es: "Activar"
+      adm_menu_disable:
+        fr: "Désactiver"
+        en: "Disable"
+        es: "Desactivar"
+      adm_menu_hide:
+        fr: "Cacher aux joueurs"
+        en: "Hide from players"
+        es: "Ocultar a los jugadores"
+      adm_menu_show:
+        fr: "Montrer aux joueurs"
+        en: "Show to players"
+        es: "Mostrar a los jugadores"
+      adm_menu_edit:
+        fr: "Modifier"
+        en: "Edit"
+        es: "Modificar"
+      adm_menu_tasks:
+        fr: "Voir les tâches"
+        en: "View tasks"
+        es: "Ver las tareas"
+      # Menu admin d'une tâche : remise à neuf immédiate (respawn à 100 %).
+      adm_menu_revive:
+        fr: "Ressusciter"
+        en: "Revive"
+        es: "Resucitar"
+      # « Recommander » (menu admin du tiroir) : marque une feuille comme boss (XP bonus).
+      adm_menu_recommend:
+        fr: "Recommander"
+        en: "Recommend"
+        es: "Recomendar"
+      # « Ne plus recommander » : retire le statut boss posé par adm_menu_recommend.
+      adm_menu_unrecommend:
+        fr: "Ne plus recommander"
+        en: "Stop recommending"
+        es: "Dejar de recomendar"
+      # « Laisser tomber » (menu admin du tiroir) : libère une tâche tenue par un joueur.
+      adm_menu_release:
+        fr: "Laisser tomber"
+        en: "Drop it"
+        es: "Abandonar"
+      # Libellé de la tuile « + » injectée en fin de grille en mode admin.
+      adm_add:
+        fr: "Ajouter"
+        en: "Add"
+        es: "Añadir"
+
+      roster_menu_revive:
+        fr: "Guérir le joueur"
+        en: "Heal the player"
+        es: "Curar al jugador"
+      roster_menu_support:
+        fr: "Coup de pouce"
+        en: "Give a boost"
+        es: "Un empujoncito"
+      roster_menu_log:
+        fr: "Consulter le journal"
+        en: "View log"
+        es: "Ver el registro"
+      clan_menu_log:
+        fr: "Journal du clan"
+        en: "Clan log"
+        es: "Registro del clan"
+      clan_menu_qr:
+        fr: "QR Code du clan"
+        en: "Clan QR code"
+        es: "Código QR del clan"
+      clan_menu_invite_remote:
+        fr: "Inviter à distance"
+        en: "Invite remotely"
+        es: "Invitar a distancia"
+      clan_menu_invite_remote_desc:
+        fr: "Envoyer un lien d'invitation protégé par un code dicté de vive voix"
+        en: "Send an invite link protected by a spoken code"
+        es: "Enviar un enlace de invitación protegido por un código dictado de viva voz"
+      # « Créer un joueur » (menu clan, chef) : enfant sans téléphone ni compte Google.
+      clan_menu_create_player:
+        fr: "Créer un joueur"
+        en: "Create a player"
+        es: "Crear un jugador"
+      clan_menu_create_player_desc:
+        fr: "Pour un enfant trop jeune ou sans téléphone : tu crées son personnage et tu joues à sa place"
+        en: "For a child too young or without a phone: you create their character and play in their place"
+        es: "Para un niño demasiado pequeño o sin teléfono: creas su personaje y juegas en su lugar"
+      # Écran de saisie du nom du nouveau joueur enfant.
+      create_player_title:
+        fr: "Nouveau joueur"
+        en: "New player"
+        es: "Nuevo jugador"
+      create_player_label:
+        fr: "Donne-lui un nom"
+        en: "Give them a name"
+        es: "Dale un nombre"
+      create_player_confirm:
+        fr: "Créer"
+        en: "Create"
+        es: "Crear"
+      # Consentement parental — mention INCONDITIONNELLE, réservée à l'écran de CRÉATION d'un
+      # profil de joueur enfant (create_player_screen). Là, et là seulement, le déclarant est
+      # forcément le responsable légal : il crée de toutes pièces un enfant sans compte
+      # (legal_state "k", no_account), dont ce clan devient le clan d'origine.
+      # Ne PAS la réutiliser pour une invitation : celui qui scanne le QR peut être un adulte,
+      # ou un enfant déjà membre d'un clan dont le chef d'ICI n'est pas le responsable —
+      # c'est à quoi sert invite_consent_notice ci-dessous.
+      # Le segment entre (( … | … )) est un lien inline : il ouvre les CGU adulte de la région
+      # et de la langue de la session dans le navigateur (cf. commons/parental_consent).
+      parental_consent_notice:
+        fr: "Conformément aux conditions générales d'utilisation, en créant un profil de joueur pour un enfant, vous déclarez être son responsable légal et vous consentez à la collecte de ses données. Plus de détails sur ((les conditions générales d'utilisation|documents.open_doc?cgu@a))."
+        en: "In accordance with the terms of service, by creating a player profile for a child you declare that you are their legal guardian and you consent to the collection of their data. More details in ((the terms of service|documents.open_doc?cgu@a))."
+        es: "De conformidad con las condiciones generales de uso, al crear un perfil de jugador para un niño declaras ser su responsable legal y consientes la recogida de sus datos. Más detalles en ((las condiciones generales de uso|documents.open_doc?cgu@a))."
+      # Mention de l'overlay d'INVITATION (et de l'écran d'admission) : à cet instant on ne sait
+      # pas qui viendra. Les trois cas possibles sont donc énoncés, et le chef ne déclare que
+      # celui qui le concerne. Un enfant déjà membre d'un clan garde son clan d'ORIGINE pour
+      # responsable (original_clan est gelé, cf. _writeClanPlayer) : rejoindre un second clan
+      # ne transfère rien. Cf. CGU art. 6.
+      invite_consent_notice:
+        fr: "En invitant quelqu'un dans votre clan, vous déclarez qu'il s'agit soit d'un adulte, soit d'un enfant dont vous êtes le responsable légal — vous consentez alors à la collecte de ses données de jeu —, soit d'un enfant déjà membre d'un clan, invité avec l'accord de son responsable légal. Plus de détails sur ((les conditions générales d'utilisation|documents.open_doc?cgu@a))."
+        en: "By inviting someone into your clan, you declare that they are either an adult, or a child for whom you are the legal guardian — in which case you consent to the collection of their game data —, or a child who already belongs to a clan, invited with their legal guardian's agreement. More details in ((the terms of service|documents.open_doc?cgu@a))."
+        es: "Al invitar a alguien a tu clan, declaras que se trata de un adulto, de un niño del que eres el responsable legal —en cuyo caso consientes la recogida de sus datos de juego— o de un niño que ya pertenece a un clan, invitado con el acuerdo de su responsable legal. Más detalles en ((las condiciones generales de uso|documents.open_doc?cgu@a))."
+      # Boutons de l'overlay de consentement, révélé au chef quand il demande à recruter
+      # (QR ou invitation à distance), AVANT que le lobby ne soit créé — cf. worker.on_invite_clan.
+      # Le libellé n'assume AUCUNE responsabilité : la mention ci-dessus est conditionnelle, le
+      # bouton ne peut donc qu'accuser réception (« J'en suis responsable » serait faux dès que
+      # l'invité est un adulte ou un enfant déjà pris en charge ailleurs).
+      invite_consent_yes:
+        fr: "J'ai compris, invitons !"
+        en: "Understood, let's invite!"
+        es: "Entendido, ¡invitemos!"
+      invite_consent_no:
+        fr: "Pas maintenant"
+        en: "Not now"
+        es: "Ahora no"
+      # Membre entré dans le clan mais dont le nom n'est pas encore saisi (il l'est après la
+      # liaison du compte) : libellé d'attente, à la place de son identifiant technique.
+      member_unnamed:
+        fr: "Nouveau venu"
+        en: "Newcomer"
+        es: "Recién llegado"
+      perso_menu_log:
+        fr: "Mon Journal"
+        en: "My log"
+        es: "Mi registro"
+      perso_menu_lang:
+        fr: "Changer de langue"
+        en: "Change language"
+        es: "Cambiar idioma"
+      perso_menu_lang_desc:
+        fr: "Choisir la langue de l'application."
+        en: "Choose the app language."
+        es: "Elegir el idioma de la aplicación."
+      roster_menu_offline:
+        fr: "Déclarer hors ligne"
+        en: "Mark as offline"
+        es: "Marcar como desconectado"
+      roster_menu_takeplace:
+        fr: "Jouer à sa place"
+        en: "Play in their place"
+        es: "Jugar en su lugar"
+      roster_menu_promote_chief:
+        fr: "Promouvoir chef"
+        en: "Promote to chief"
+        es: "Promover a jefe"
+      roster_menu_nomore_chief:
+        fr: "Plus chef"
+        en: "No longer chief"
+        es: "Ya no es jefe"
+      roster_menu_promote_adult:
+        fr: "Déclarer majeur"
+        en: "Declare adult"
+        es: "Declarar adulto"
+      roster_menu_pay_tribute:
+        fr: "Payer son tribut"
+        en: "Pay their tribute"
+        es: "Pagar su tributo"
+      roster_menu_revoke:
+        fr: "A quitté le clan"
+        en: "Left the clan"
+        es: "Dejó el clan"
+
+      #------------- Player log screen --------------------------------
+
+      log_page_title:
+        fr: "Journal"
+        en: "Log"
+        es: "Registro"
+      log_page_loading:
+        fr: "…"
+        en: "…"
+        es: "…"
+      log_empty:
+        fr: "Aucune histoire à raconter pour l'instant."
+        en: "No story to tell yet."
+        es: "Aún no hay ninguna historia que contar."
+      share_log_intro:
+        fr: "Découvre les exploits de mon aventurier dans Donjons & Savons ! ⚔️📜"
+        en: "Check out my adventurer's deeds in Dungeons & Soaps! ⚔️📜"
+        es: "¡Descubre las hazañas de mi aventurero en Mazmorras y Jabones! ⚔️📜"
+      # Suffixe ajouté au partage quand le log est tronqué (> shareMax évènements).
+      log_share_more:
+        fr: "…et tant d'autres exploits !"
+        en: "…and so many other deeds!"
+        es: "¡…y muchas otras hazañas!"
+      # Accroche du partage du CONTE (récit IA du clan, worker.on_log_appear en mode narratif) —
+      # distincte de share_log_intro, qui parle « de mon aventurier » : ici c'est le clan entier,
+      # et l'accroche fait la promotion de l'app auprès d'autres familles (cf. vision.md).
+      share_tale_intro:
+        fr: "Notre clan s'est lancé dans une aventure familiale sur Donjons & Savons — voici notre histoire ! ⚔️📜"
+        en: "Our clan went on a family adventure in Dungeons & Soaps — here's our story! ⚔️📜"
+        es: "¡Nuestro clan vivió una aventura familiar en Mazmorras y Jabones — aquí está nuestra historia! ⚔️📜"
+      # Clôture FIXE (pas générée par l'IA), ajoutée après le conte par worker.on_log_appear : le
+      # prompt narrate_clan interdit désormais toute mention d'argent au modèle, c'est donc cette
+      # phrase qui porte le sujet de l'argent de poche et l'appel à l'action doux.
+      share_tale_outro:
+        fr: "Les enfants se sont bien amusés et, grâce à leurs efforts, ils ont récolté de l'argent de poche et bien d'autres surprises ! Ça vous tente ?"
+        en: "The kids had a blast, and thanks to their efforts they earned pocket money and plenty of other surprises! Want to give it a try?"
+        es: "¡Los niños se lo pasaron genial, y gracias a su esfuerzo consiguieron dinero de bolsillo y muchas otras sorpresas! ¿Te animas?"
+      # Attente affichée pendant que le modèle rédige le conte (aller-retour réseau, jusqu'à 30 s).
+      log_narrating:
+        fr: "Le conteur rassemble ses mots…"
+        en: "The storyteller is gathering their words…"
+        es: "El narrador está reuniendo sus palabras…"
+      # Le modèle n'a pas répondu (hors ligne, budget IA coupé, timeout) : préfixe posé devant le
+      # journal brut, qui sert alors de repli — jamais un écran vide.
+      log_narrate_failed:
+        fr: "Le conteur n'a pas pu se déplacer aujourd'hui. Voici le journal tel quel :"
+        en: "The storyteller couldn't make it today. Here's the log as it stands:"
+        es: "El narrador no pudo venir hoy. Aquí está el registro tal cual:"
+
+      #------------- Home screen / liaison de compte -------------------
+
+      start_adventure:
+        fr: "Je pars à l'aventure (nouveau compte)"
+        en: "Off on my adventure (new account)"
+        es: "Me voy de aventura (cuenta nueva)"
+
+      already_have_account:
+        fr: "Retrouver mon héros (compte existant)"
+        en: "Find my hero again (existing account)"
+        es: "Recuperar mi héroe (cuenta existente)"
+
+      link_account_title:
+        fr: "Scelle ton pacte"
+        en: "Seal your pact"
+        es: "Sella tu pacto"
+
+      link_account_google:
+        fr: "Continuer avec Google"
+        en: "Continue with Google"
+        es: "Continuar con Google"
+
+      link_failed:
+        fr: "La liaison a échoué. Réessaie dans un instant."
+        en: "Linking failed. Try again in a moment."
+        es: "La vinculación falló. Inténtalo de nuevo en un momento."
+
+      link_flush_failed:
+        fr: "Impossible d'inscrire ton aventure dans les registres. Vérifie ta connexion et réessaie."
+        en: "Your adventure could not be written into the records. Check your connection and try again."
+        es: "No se pudo inscribir tu aventura en los registros. Comprueba tu conexión e inténtalo de nuevo."
+
+      link_conflict_text:
+        fr: "Ce compte Google est déjà lié à un autre héros. Veux-tu reprendre ce héros ? Le personnage que tu viens de créer sera abandonné."
+        en: "This Google account is already linked to another hero. Do you want to take that hero back? The character you have just created will be abandoned."
+        es: "Esta cuenta de Google ya está vinculada a otro héroe. ¿Quieres recuperar ese héroe? El personaje que acabas de crear será abandonado."
+
+      link_conflict_confirm:
+        fr: "Reprendre mon héros"
+        en: "Take my hero back"
+        es: "Recuperar mi héroe"
+
+      link_conflict_cancel:
+        fr: "Choisir un autre compte"
+        en: "Pick another account"
+        es: "Elegir otra cuenta"
+
+      link_conflict_kid_blocked:
+        fr: "Ce compte Google appartient déjà à un autre héros. Demande à ton chef de clan de libérer l'ancien personnage avant de recommencer."
+        en: "This Google account already belongs to another hero. Ask your clan chief to free the old character before starting over."
+        es: "Esta cuenta de Google ya pertenece a otro héroe. Pide a tu jefe de clan que libere al personaje antiguo antes de volver a empezar."
+
+      link_no_account_found:
+        fr: "Aucun héros n'est rattaché à ce compte Google. Si tu débutes, choisis « Je pars à l'aventure »."
+        en: "No hero is attached to this Google account. If you are new here, choose \"Off on my adventure\"."
+        es: "Ningún héroe está vinculado a esta cuenta de Google. Si empiezas, elige «Me voy de aventura»."
+
+      link_check_failed:
+        fr: "Impossible de consulter les registres pour l'instant. Ton compte n'a pas été touché — réessaie dans un moment."
+        en: "The records cannot be consulted right now. Your account has not been touched — try again in a moment."
+        es: "Ahora mismo no se pueden consultar los registros. Tu cuenta no ha sido tocada: inténtalo de nuevo en un momento."
+
+      link_rejected_close:
+        fr: "Retour"
+        en: "Back"
+        es: "Volver"
+
+      #------------- Region screen ------------------------------------
+
+      region_screen_title:
+        fr: "Bienvenue étranger"
+        en: "Welcome stranger"
+        es: "Bienvenido forastero"
+
+      game_intro_text:
+        fr: "Bienvenue dans Donjons & Savons !\nChoisis ta région pour commencer l'aventure."
+        en: "Welcome to Dungeons & Dusting!\nChoose your region to start the adventure."
+        es: "¡Bienvenido a Calabozos & Jabones!\nElige tu región para empezar la aventura."
+
+      region_label:
+        fr: "Choisis ton royaume !"
+        en: "Choose your kingdom!"
+        es: "¡Elige tu reino!"
+
+      region_select_label:
+        fr: "Consulter la carte..."
+        en: "Consult the map..."
+        es: "Consultar el mapa..."
+
+      lang_label:
+        fr: "Français !"
+        en: "English !"
+        es: "Español !"
+
+      region_confirm:
+        fr: "Je commence ici"
+        en: "I start here"
+        es: "Empiezo aquí"
+
+      #------------- Age screen ------------------------------------
+
+      age_screen_title:
+        fr: "Qui es-tu, aventurier ?"
+        en: "Who are you, adventurer?"
+        es: "¿Quién eres, aventurero?"
+
+      age_intro_text:
+        fr: "L'aubergiste se méfie des petits avortons.\nQuand es-tu né ?"
+        en: "The innkeeper is wary of little runts.\nWhen were you born?"
+        es: "El tabernero desconfía de los mocosos.\n¿Cuándo naciste?"
+
+      birthday_label:
+        fr: "Ta date de naissance"
+        en: "Your date of birth"
+        es: "Tu fecha de nacimiento"
+
+      confirm:
+        fr: "C'est parti !"
+        en: "Let's go!"
+        es: "¡Vamos!"
+
+      #------------- Player name screen ------------------------------------
+
+      player_name_screen_title:
+        fr: "L'appel de l'aventure"
+        en: "The call of adventure"
+        es: "El llamado de la aventura"
+      player_name_label:
+        fr: "Comment te nommes-tu aventurier ?"
+        en: "What is your name, adventurer?"
+        es: "¿Cómo te llamas, aventurero?"
+      player_name_confirm:
+        fr: "En avant pour l'aventure !"
+        en: "Onward to adventure!"
+        es: "¡Adelante hacia la aventura!"
+
+      #------------- Parentalgate ------------------------------------
+
+      parentalgate_title:
+        fr: "Le défi de la taverne"
+        en: "The tavern challenge"
+        es: "El desafío de la taberna"
+
+      parentalgate_instruction:
+        fr: "Prouve que tu es un brave,\nrésous l'énigme dans les temps !"
+        en: "Prove you are brave,\nsolve the riddle in time!"
+        es: "¡Demuestra que eres valiente,\nresuelve el enigma a tiempo!"
+
+      #------------- Document-acceptance ------------------------------------
+
+      documents_acceptance_title:
+        fr: "Conditions"
+        en: "Terms"
+        es: "Condiciones"
+
+      documents_checkbox_unchecked:
+        fr: "☐ J'ai lu et j'accepte"
+        en: "☐ I have read and accept"
+        es: "☐ He leído y acepto"
+      documents_checkbox_checked:
+        fr: "☑ J'ai lu et j'accepte"
+        en: "☑ I have read and accept"
+        es: "☑ He leído y acepto"
+      documents_accept:
+        fr: "J'accepte et je continue"
+        en: "I accept and continue"
+        es: "Acepto y continúo"
+      documents_scroll_hint:
+        fr: "Faites défiler jusqu'en bas pour tout lire et accepter les conditions"
+        en: "Scroll to the bottom to read everything and accept the terms"
+        es: "Desplázate hasta abajo para leerlo todo y aceptar las condiciones"
+
+      #------------- Decision tree ------------------------------------
+
+      decisiontree_title:
+        fr: "Prépare ton aventure"
+        en: "Prepare your adventure"
+        es: "Prepara tu aventura"
+      decisiontree_intro:
+        fr: "L'aubergiste a besoin de quelques infos pour préparer ta quête...\n\nCe qui se dit à la taverne reste à la taverne : tes réponses ne sont pas enregistrées, mais elles servent à améliorer ton aventure.\nTu ne le feras qu'une fois!"
+        en: "The innkeeper needs a few details to prepare your quest...\n\nWhat happens in the tavern stays in the tavern: your answers aren't recorded, but they help to improve your adventure\nYou'll do only one time!"
+        es: "El tabernero necesita algunos detalles para preparar tu misión...\n\nLo que pasa en la taberna, se queda en la taberna: tus respuestas no se guardan, pero ayudan a mejorar tu aventura\nLo haras solamente una vez!"
+      decisiontree_start:
+        fr: "Je n'ai pas peur, allons-y !"
+        en: "I don't mind, let's go !"
+        es: "No tengo miedo, vamos !"
+      decisiontree_skip:
+        fr: "Je passe"
+        en: "I skip"
+        es: "Salto"
+
+      #------------- New or pick Clan ------------------------------------
+
+      new_or_pick_clan_title:
+        fr: "Choisis ton destin"
+        en: "Choose your destiny"
+        es: "Elige tu destino"
+
+      join_clan:
+        fr: "J'offre mes talents à un clan\n(rejoindre un clan)"
+        en: "I offer my talents to a clan\n(join a clan)"
+        es: "Ofrezco mis talentos a un clan\n(unirse a un clan)"
+      create_clan_btn:
+        fr: "Sous ma bannière, un nouveau clan s'élève !\n(Créer un clan)"
+        en: "Under my banner, a new clan rises!\n(Create a clan)"
+        es: "¡Bajo mi estandarte, un nuevo clan se alza!\n(Crear un clan)"
+
+      confirm_create_clan_msg:
+        fr: "Es-tu certain de vouloir créer un nouveau clan ?\nQuelqu'un de ta famille n'en a-t-il pas déjà créé un ?"
+        en: "Are you sure you want to create a new clan?\nHasn't someone in your family already created one?"
+        es: "¿Seguro que quieres crear un nuevo clan?\n¿Alguien de tu familia no ha creado ya uno?"
+      confirm_create_yes:
+        fr: "Oui, je crée mon clan"
+        en: "Yes, create my clan"
+        es: "Sí, creo mi clan"
+      confirm_create_no:
+        fr: "Non, revenir"
+        en: "No, go back"
+        es: "No, volver"
+
+      # Suppression de compte (option kebab Personnage + overlay d'avertissements répétés)
+      perso_menu_delete:
+        fr: "Supprimer mon compte"
+        en: "Delete my account"
+        es: "Eliminar mi cuenta"
+      perso_menu_delete_desc:
+        fr: "Effacer définitivement ton compte et toutes tes données."
+        en: "Permanently erase your account and all your data."
+        es: "Borrar definitivamente tu cuenta y todos tus datos."
+      delete_account_warn1:
+        fr: "Tu es sur le point de supprimer ton compte.\nEs-tu vraiment sûr ?"
+        en: "You are about to delete your account.\nAre you really sure?"
+        es: "Estás a punto de eliminar tu cuenta.\n¿Estás realmente seguro?"
+      delete_account_warn2:
+        fr: "Attention : tu vas TOUT perdre — ton personnage, tes niveaux, ton or et tes clans.\nC'est définitif et sans retour."
+        en: "Careful: you will lose EVERYTHING — your character, levels, gold and clans.\nThis is final, with no way back."
+        es: "Cuidado: lo perderás TODO — tu personaje, niveles, oro y clanes.\nEs definitivo y sin vuelta atrás."
+      delete_account_warn3:
+        fr: "Dernière chance ! Ce n'est vraiment pas une bonne idée.\nVeux-tu vraiment supprimer ton compte pour de bon ?"
+        en: "Last chance! This really isn't a good idea.\nDo you truly want to delete your account for good?"
+        es: "¡Última oportunidad! Esto no es una buena idea.\n¿De verdad quieres eliminar tu cuenta para siempre?"
+      delete_account_continue:
+        fr: "Oui, continuer"
+        en: "Yes, continue"
+        es: "Sí, continuar"
+      delete_account_confirm:
+        fr: "SUPPRIMER MON COMPTE"
+        en: "DELETE MY ACCOUNT"
+        es: "ELIMINAR MI CUENTA"
+      delete_account_cancel:
+        fr: "Non, garder mon compte"
+        en: "No, keep my account"
+        es: "No, conservar mi cuenta"
+      delete_account_working:
+        fr: "Suppression en cours…"
+        en: "Deleting…"
+        es: "Eliminando…"
+      delete_account_error:
+        fr: "Une erreur est survenue.\nRéessaie plus tard."
+        en: "Something went wrong.\nPlease try again later."
+        es: "Algo salió mal.\nInténtalo de nuevo más tarde."
+      back_to_choice:
+        fr: "← Revenir au choix"
+        en: "← Back to choice"
+        es: "← Volver a la elección"
+
+      #------------- Create Clan ------------------------------------
+
+      create_clan_screen_title:
+        fr: "Naissance d'un clan"
+        en: "Birth of a clan"
+        es: "Nacimiento de un clan"
+      create_clan_title:
+        fr: "Crée ton clan"
+        en: "Create your clan"
+        es: "Crea tu clan"
+      clan_name_label:
+        fr: "Nom du clan"
+        en: "Clan name"
+        es: "Nombre del clan"
+      clan_name_hint:
+        fr: "Choisis un nom..."
+        en: "Choose a name..."
+        es: "Elige un nombre..."
+      clan_description_label:
+        fr: "Raconte la légende de ton clan"
+        en: "Tell the legend of your clan"
+        es: "Cuenta la leyenda de tu clan"
+      clan_description_hint:
+        fr: "Le soir au coin du feu, ton clan s'illustre dans quels contes ?"
+        en: "By the fireside, what tales is your clan known for?"
+        es: "Al calor del fuego, ¿en qué cuentos se distingue tu clan?"
+      inspire_me:
+        fr: "Inspire moi"
+        en: "Inspire me"
+        es: "Inspírame"
+      replay:
+        fr: "Autre chose !"
+        en: "Something else!"
+        es: "¡Otra cosa!"
+      inspire_fallback_0_name:
+        fr: "Les Gardiens du Foyer"
+        en: "The Hearth Guardians"
+        es: "Los Guardianes del Hogar"
+      inspire_fallback_0_desc:
+        fr: "Une famille unie par le serment de vaincre le chaos du quotidien. Leur force réside dans l'entraide et leur devise : 'Ensemble, rien ne résiste !'"
+        en: "A family united by the oath to conquer the chaos of everyday life. Their strength lies in teamwork and their motto: 'Together, nothing can stop us!'"
+        es: "Una familia unida por el juramento de vencer el caos cotidiano. Su fuerza reside en la unión y su lema: '¡Juntos, nada puede detenernos!'"
+      inspire_fallback_1_name:
+        fr: "Les Conquérants de l'Aube"
+        en: "The Dawn Conquerors"
+        es: "Los Conquistadores del Alba"
+      inspire_fallback_1_desc:
+        fr: "Chaque aube est une nouvelle victoire. Ce clan affronte les monstres du quotidien avec courage et détermination, car pour eux, capituler n'est pas une option."
+        en: "Every dawn heralds a new victory. This clan faces the monsters of daily life with courage and relentless determination — surrendering is simply not in their nature."
+        es: "Cada amanecer anuncia una nueva victoria. Este clan enfrenta los monstruos del día a día con valentía y determinación, pues rendirse no es una opción para ellos."
+      inspire_fallback_2_name:
+        fr: "Les Anciens de la Flamme"
+        en: "The Flame Elders"
+        es: "Los Antiguos de la Llama"
+      inspire_fallback_2_desc:
+        fr: "Gardiens d'une sagesse ancestrale, ils transmettent l'art de vaincre les tâches avec grâce et efficacité. Leur flamme ne s'éteint jamais, elle guide le clan vers la victoire."
+        en: "Keepers of ancient wisdom, they pass on the art of vanquishing household beasts with grace and efficiency. Their flame never dies — it guides the clan to victory."
+        es: "Guardianes de una sabiduría ancestral, transmiten el arte de vencer las tareas del hogar con gracia y eficacia. Su llama nunca se apaga, guía al clan hacia la victoria."
+      create_clan_confirm:
+        fr: "Que la légende commence !"
+        en: "Let the legend begin!"
+        es: "¡Que comience la leyenda!"
+
+      #------------- Rename Task (édition tâche admin) ------------
+      rename_task_title:
+        fr: "Modifier la tâche"
+        en: "Edit the task"
+        es: "Modificar la tarea"
+      task_name_label:
+        fr: "Nom de la tâche"
+        en: "Task name"
+        es: "Nombre de la tarea"
+      task_name_hint:
+        fr: "Choisis un nom..."
+        en: "Choose a name..."
+        es: "Elige un nombre..."
+      task_description_label:
+        fr: "Décris la quête à accomplir"
+        en: "Describe the quest to complete"
+        es: "Describe la misión a cumplir"
+      task_description_hint:
+        fr: "Quel monstre affronte-t-on, et comment le vaincre ?"
+        en: "What beast do we face, and how do we defeat it?"
+        es: "¿Qué monstruo enfrentamos y cómo vencerlo?"
+      rename_task_confirm:
+        fr: "Valider"
+        en: "Confirm"
+        es: "Validar"
+      # Respawn : préfixe + durées non-horaires (les options en heures s'écrivent « {n}h »).
+      revive_in:
+        fr: "Renaît dans"
+        en: "Revive in"
+        es: "Renace en"
+      respawn_dur_5d:
+        fr: "5j"
+        en: "5 days"
+        es: "5 días"
+      respawn_dur_1w:
+        fr: "1 semaine"
+        en: "1 week"
+        es: "1 semana"
+      respawn_dur_2w:
+        fr: "2 semaines"
+        en: "2 weeks"
+        es: "2 semanas"
+      respawn_dur_1m:
+        fr: "1 mois"
+        en: "1 month"
+        es: "1 mes"
+      # Type de tâche : immortelle (régénère son XP) vs mortelle (crâne + respawn après validation).
+      task_type_immortal:
+        fr: "Immortelle (renaît)"
+        en: "Immortal (revives)"
+        es: "Inmortal (renace)"
+      task_type_mortal:
+        fr: "Mortelle (crâne)"
+        en: "Mortal (skull)"
+        es: "Mortal (calavera)"
+
+      #------------- Join Clan ------------------------------------
+
+      join_clan_title:
+        fr: "Par pigeon voyageur"
+        en: "By carrier pigeon"
+        es: "Por paloma mensajera"
+
+      accept_invitation_clan_title:
+        fr: "Tu es attendu !"
+        en: "You are expected!"
+        es: "¡Te esperan!"
+
+      scan_qr_btn:
+        fr: "Demande à ton chef de clan de t'inviter avec un QR code !"
+        en: "Ask your clan chief to invite you with a QR code!"
+        es: "¡Pide a tu jefe de clan que te invite con un código QR!"
+
+      send_request_btn:
+        fr: "Je n'ai pas le QR code"
+        en: "I don't have the QR code"
+        es: "No tengo el código QR"
+
+      share_clan_request_text:
+        fr: "Je voudrais rejoindre ton clan !"
+        en: "I'd like to join your clan!"
+        es: "¡Me gustaría unirme a tu clan!"
+
+      #------------- Accept Invite Clan ------------------------------------
+
+      accept_invitation_title:
+        fr: "Un clan t'ouvre ses portes !"
+        en: "A clan is opening its doors to you!"
+        es: "¡Un clan te abre sus puertas!"
+
+      accept_invitation_confirm:
+        fr: "Rejoindre l'aventure !"
+        en: "Join the adventure!"
+        es: "¡Unirse a la aventura!"
+
+      #------------- Invite Clan ------------------------------------
+
+      invite_clan_title:
+        fr: "Par pigeon voyageur"
+        en: "By carrier pigeon"
+        es: "Por paloma mensajera"
+
+      invite_member_btn:
+        fr: "Recruter un aventurier"
+        en: "Recruit an adventurer"
+        es: "Reclutar un aventurero"
+
+      share_invite_btn:
+        fr: "Afficher le sceau du clan"
+        en: "Display the clan seal"
+        es: "Mostrar el sello del clan"
+
+      share_clan_invite_text:
+        fr: "Rejoins mon clan !"
+        en: "Join my clan!"
+        es: "¡Únete a mi clan!"
+
+      #------------- Invite Clan (à distance, PIN) ------------------------
+
+      invite_clan_pin_title:
+        fr: "Invitation à distance"
+        en: "Remote invitation"
+        es: "Invitación a distancia"
+
+      invite_clan_pin_instructions:
+        fr: "Dicte ce code de vive voix à ton invité, puis partage-lui le lien. Le lien seul ne suffit pas : le code est nécessaire pour rejoindre."
+        en: "Read this code aloud to your guest, then share the link. The link alone isn't enough: the code is required to join."
+        es: "Dicta este código de viva voz a tu invitado y comparte el enlace. El enlace por sí solo no basta: se necesita el código para unirse."
+
+      share_invite_pin_btn:
+        fr: "Partager le lien"
+        en: "Share the link"
+        es: "Compartir el enlace"
+
+      share_clan_invite_pin_text:
+        fr: "Rejoins mon clan ! Utilise le code que je t'ai donné."
+        en: "Join my clan! Use the code I gave you."
+        es: "¡Únete a mi clan! Usa el código que te di."
+
+      enter_invite_pin_title:
+        fr: "Rejoindre avec un code"
+        en: "Join with a code"
+        es: "Unirse con un código"
+
+      enter_invite_pin_token_hint:
+        fr: "Colle ici le lien reçu"
+        en: "Paste the link you received"
+        es: "Pega aquí el enlace recibido"
+
+      enter_invite_pin_pin_hint:
+        fr: "Code à 6 chiffres"
+        en: "6-digit code"
+        es: "Código de 6 cifras"
+
+      enter_invite_pin_confirm:
+        fr: "Rejoindre"
+        en: "Join"
+        es: "Unirse"
+
+      pin_wrong:
+        fr: "Code incorrect ou lien expiré"
+        en: "Wrong code or expired link"
+        es: "Código incorrecto o enlace caducado"
+
+      # Invitation émise dans une autre région de stockage. Le lien est valide, mais le clan
+      # n'existe pas dans la région du candidat et rien ne circule d'une région à l'autre.
+      invite_wrong_region:
+        fr: "Ce clan est gardé dans une autre contrée du monde. Pour le rejoindre, il faut avoir choisi la même contrée que lui au tout début de l'aventure."
+        en: "This clan is kept in another land. To join it, you must have chosen the same land as it did at the very start of the adventure."
+        es: "Este clan se guarda en otra tierra. Para unirte a él, debes haber elegido la misma tierra que él al comienzo de la aventura."
+
+      #------------- Accept Join Clan ------------------------------------
+
+      accept_request_clan_title:
+        fr: "Toc toc !"
+        en: "Knock knock!"
+        es: "¡Toc toc!"
+
+      accept_request_title:
+        fr: "Un aventurier frappe à ta porte !"
+        en: "An adventurer is knocking at your door!"
+        es: "¡Un aventurero llama a tu puerta!"
+
+      accept_request_confirm:
+        fr: "Qu'il entre, il est des nôtres !"
+        en: "Let them in, they are one of us!"
+        es: "¡Que entre, es uno de los nuestros!"
+
+      accept_request_reject:
+        fr: "Qu'il retourne d'où il vient ce gueux !"
+        en: "Send this wretch back where they came from!"
+        es: "¡Que vuelva de donde vino este pordiosero!"
+
+      #------------- Dashboard (écran "home") ------------------------------------
+
+      dashboard:
+        fr: "L'aventure commence..."
+        en: "The journey begins..."
+        es: "La aventura comienza..."
+
+      Boutique:
+        fr: "Boutique"
+        en: "Shop"
+        es: "Tienda"
+
+      Clan:
+        fr: "Clan"
+        en: "Clan"
+        es: "Clan"
+
+      Combat:
+        fr: "Au ménage !"
+        en: "Time to clean !"
+        es: "A limpiar !"
+
+      Personnage:
+        fr: "Moi"
+        en: "Me"
+        es: "Yo"
+
+      Items:
+        fr: "Items"
+        en: "Items"
+        es: "Items"
+
+      #------------- Dashboard Splashes ------------------------------------
+
+      created_clan_splash:
+        fr: "Longue vie\n@@@session.clan.name@@@ !!!"
+        en: "Long live\n@@@session.clan.name@@@ !!!"
+        es: "¡Larga vida\n@@@session.clan.name@@@ !!!"
+
+      joined_clan_splash:
+        fr: "Bienvenue chez\n@@@session.clan.name@@@ !!!"
+        en: "Welcome to\n@@@session.clan.name@@@ !!!"
+        es: "¡Bienvenido a\n@@@session.clan.name@@@ !!!"
+
+      new_member_notif:
+        fr: "Un nouvel aventurier a rejoint l'aventure ! Faites place à {name} ! La poussière tremble déjà."
+        en: "A new adventurer has joined the quest! Make way for {name}! The dust is already trembling."
+        es: "¡Un nuevo aventurero se ha unido a la aventura! ¡Abrid paso a {name}! El polvo ya tiembla."
+
+      # Notification « boss » : envoyée à tout le clan quand un chef recommande une tâche (worker._notifyClanBoss).
+      boss_notif:
+        fr: "Un boss vient d'apparaître ! Celui qui le vaincra aura des XP extra !"
+        en: "A boss has appeared! Whoever defeats it will earn extra XP!"
+        es: "¡Ha aparecido un jefe! ¡Quien lo derrote ganará XP extra!"
+
+      #------------- Dépôt dans le coffre du butin (notif clan) ------
+      # Envoyée à tout le clan, admins compris, sauf à celui qui dépose (worker._notifyClanChest).
+      # Le message est `chest_notif`, éventuellement SUIVI d'un des deux suffixes — collé à la fin
+      # après une espace, jamais inséré au milieu. Le suffixe dépend de la valeur déposée comparée
+      # à la moyenne des 20 derniers butins ouverts (seuils worker.chest_low_pct/chest_high_pct) :
+      # aucun historique = aucun suffixe, le message part nu.
+      chest_notif:
+        fr: "Le Big Boss du niveau a encore fait des ravages, j'entends d'ici l'argent sonnant et trébuchant qu'il ajoute dans son coffre !"
+        en: "The level's Big Boss has been wreaking havoc again — I can hear the coins jingling as he drops them into his chest!"
+        es: "¡El Gran Jefe del nivel ha vuelto a hacer estragos, ya oigo desde aquí el dinero contante y sonante que echa en su cofre!"
+      chest_notif_low:
+        fr: "Pas de quoi fouetter un chat..."
+        en: "Nothing to write home about..."
+        es: "No es para tanto..."
+      chest_notif_high:
+        fr: "La légende dit que c'est un trésor exceptionnel !"
+        en: "Legend says this is an exceptional treasure!"
+        es: "¡La leyenda dice que es un tesoro excepcional!"
+      # Notif spéciale d'un chef qui dépose une NOTE (worker.on_butin_note_ok) : même canal que
+      # le dépôt d'un objet/d'argent, mais sans rien dévoiler — c'est justement le principe.
+      chest_notif_note:
+        fr: "Une surprise vous attend dans le coffre du clan !"
+        en: "A surprise is waiting for you in the clan's chest!"
+        es: "¡Una sorpresa os espera en el cofre del clan!"
+
+      #------------- Promotion chef de clan (notif au promu / au clan) ------
+      # {name} = nom du joueur promu. Substitution faite en code (worker._notifyChiefPromotion).
+      promote_chief_self:
+        fr: "Les anciens ont reconnu ta valeur, tu es maintenant chef de clan !"
+        en: "The elders have recognized your worth — you are now a clan chief!"
+        es: "¡Los ancianos han reconocido tu valía: ahora eres jefe del clan!"
+      promote_chief_clan:
+        fr: "{name} a prouvé sa valeur et ouvert la voie des anciens, il est maintenant chef de clan !"
+        en: "{name} has proven their worth and walked the path of the elders — now a clan chief!"
+        es: "¡{name} ha demostrado su valía y abierto la senda de los ancianos: ahora es jefe del clan!"
+
+      #------------- Montée de niveau (notif clan + célébration) ------
+      # {name} = nom du joueur qui monte, {level} = nouveau niveau, {title} = titre débloqué.
+      # Substitutions faites en code (worker._notifyClanLevelUp / _showLevelUpAnimation).
+      levelup_notif:
+        fr: "{name} a monté de niveau ! La poussière tremble."
+        en: "{name} has leveled up! The dust trembles."
+        es: "¡{name} ha subido de nivel! El polvo tiembla."
+      levelup_notif_title:
+        fr: "{name} a monté de niveau ! Il peut maintenant prétendre au titre de {title}."
+        en: "{name} has leveled up! They can now claim the title of {title}."
+        es: "¡{name} ha subido de nivel! ¡Ahora puede reclamar el título de {title}!"
+      levelup_anim:
+        fr: "Félicitations aventurier ! Tu es maintenant niveau {level} ! La poussière tremble sous tes pas."
+        en: "Congratulations adventurer! You are now level {level}! The dust trembles beneath your feet."
+        es: "¡Felicidades aventurero! ¡Ahora eres nivel {level}! El polvo tiembla bajo tus pies."
+      levelup_anim_title:
+        fr: "Félicitations aventurier ! Tu es maintenant niveau {level} ! Tu peux prétendre au titre de {title}."
+        en: "Congratulations adventurer! You are now level {level}! You can claim the title of {title}."
+        es: "¡Felicidades aventurero! ¡Ahora eres nivel {level}! ¡Puedes reclamar el título de {title}!"
+      # Message de l'animation "cadeau d'XP de la guilde" (worker._showGiftAnimation) : affiché en
+      # noir, entouré d'une pluie de "XP" rouges ajoutée par le worker.
+      giftxp_anim:
+        fr: "Un petit coup de main de la guilde... chut... c'est un secret"
+        en: "A little help from the guild... shh... it's a secret"
+        es: "Una pequeña ayuda del gremio... shh... es un secreto"
+      # Message de l'animation "cadeau d'or de la guilde" (worker._showGiftGoldAnimation) : affiché
+      # en noir sur l'or, {gold} = nombre de pièces reçues, substitué en [[…]] (rouge) par le worker.
+      giftgold_anim:
+        fr: "{gold} pièces d'or ! (ça ferait beaucoup de bonbons...)"
+        en: "{gold} gold coins! (that would buy a lot of candy...)"
+        es: "¡{gold} monedas de oro! (eso daría para muchos dulces...)"
+      # Message de l'animation d'ouverture du butin (worker._celebrateButin) : affiché en or sur le
+      # voile violet pendant l'éclatement du coffre. Le mot encadré [[…]] ressort en magenta.
+      butin_anim:
+        fr: "Le [[butin]] du clan est ouvert !"
+        en: "The clan [[loot]] is open!"
+        es: "¡El [[botín]] del clan está abierto!"
+      # Écran de récompenses (worker.on_butin_rewards_appear) : titre et liste vide. L'argent n'a pas
+      # de phrase à lui, il paraît en tête de liste sous la forme de la bourse. Chaque joueur ne
+      # voit QUE sa part.
+      butin_rewards_title:
+        fr: "Ta part du butin"
+        en: "Your share of the loot"
+        es: "Tu parte del botín"
+      butin_rewards_empty:
+        fr: "Pas d'objet pour toi cette fois-ci."
+        en: "No item for you this time."
+        es: "Ningún objeto para ti esta vez."
+      #------------- Notes des chefs, révélées (butin_notes_page) -------------
+      # Intercalé entre « ta part du butin » et le conte, seulement si un chef a écrit. Le bouton
+      # ne paraît qu'après 10 s de lecture forcée (worker.on_butin_notes_appear).
+      butin_notes_title:
+        fr: "Un mot de vos chefs"
+        en: "A word from your chiefs"
+        es: "Unas palabras de vuestros jefes"
+      butin_notes_ok:
+        fr: "ok"
+        en: "ok"
+        es: "ok"
+      #------------- Le conte du butin (butin_tale_page) -------------
+      # Dernière marche de la cérémonie : on propose au clan de raconter ce qu'il vient de vivre.
+      # L'icône de partage sous ce texte est montrée à TOUT joueur (l'écran n'a aucun handler
+      # d'apparition : rien n'y est posé à chaud, cf. config.yml butin_tale_page).
+      butin_tale_title:
+        fr: "Partagez votre aventure"
+        en: "Share your adventure"
+        es: "Comparte su aventura"
+      butin_tale_text:
+        fr: "Les mérites de votre clan méritent d'être contés."
+        en: "Your clan's deeds deserve to be told."
+        es: "Las hazañas de vuestro clan merecen ser contadas."
+      butin_tale_ok:
+        fr: "Plus tard"
+        en: "Later"
+        es: "Más tarde"
+      # L'attaque de bisous. Le jeton @@@name@@@ est substitué par le worker (_prepareButinKiss) et
+      # NON résolu par le moteur de traduction : le nom vient de la base, pas de la conf. Le message
+      # n'est jamais affiché à celui qu'il nomme.
+      butin_kiss:
+        fr: "C'est @@@name@@@ qui a rapporté le moins d'XP. Montrez que vous l'aimez et pour l'encourager à mieux faire la prochaine fois : Attaque de bisous !!!!"
+        en: "@@@name@@@ brought back the least XP. Show them some love, and to cheer them on for next time: Kiss attack!!!!"
+        es: "@@@name@@@ es quien menos XP ha traído. ¡Demostradle que le queréis y, para animarle a hacerlo mejor la próxima vez: ataque de besos!!!!"
+
+      #------------- Cérémonie d'ouverture du butin (butin_open_page) ----------
+      # Un seul écran, deux rôles. Le MAÎTRE (le chef qui a touché le coffre plein) lit le rituel ;
+      # les JOUEURS, appelés par lui, lisent le récit de la bataille. Le worker choisit le couple
+      # texte + bouton selon le rôle.
+      opening_title:
+        fr: "Ouvrir le butin"
+        en: "Open the loot"
+        es: "Abrir el botín"
+      # Le rituel. C'est le cœur du moment : sans lui l'ouverture n'est qu'un virement.
+      opening_master_text:
+        fr: "Le moment tant attendu est arrivé ! Il est temps d'ouvrir le coffre et découvrir son contenu. Faites-le bien :\n\n• Réunissez le clan, si possible pour de vrai, dans la même pièce\n• Chacun peut raconter son aventure, ce qu'il a accompli, ce dont il est fier, ce qui a été difficile. Vous pouvez même jouer des rôles\n• Utilisez une tirelire ou un coffre pour y mettre l'argent de poche et l'ouvrir en famille\n• Célébrez votre victoire, posez les écrans et faites un jeu en famille, vous l'avez bien mérité\n• Et celui qui a remporté le moins d'XP gagne un lot de consolation : « tout le monde lui fait un bisou ! »"
+        en: "The moment you have been waiting for is here! Time to open the chest and discover what is inside. Do it properly:\n\n• Gather the clan, in the same room if you can\n• Everyone can tell their story: what they achieved, what they are proud of, what was hard. You can even act it out\n• Use a piggy bank or a chest to hold the pocket money, and open it together\n• Celebrate your victory: put the screens down and play a family game, you have earned it\n• And whoever earned the least XP gets a consolation prize: “everyone gives them a kiss!”"
+        es: "¡Ha llegado el momento tan esperado! Es hora de abrir el cofre y descubrir lo que hay dentro. Hacedlo bien:\n\n• Reunid al clan, a ser posible de verdad, en la misma habitación\n• Cada uno puede contar su aventura: lo que logró, lo que le enorgullece, lo que le costó. Incluso podéis interpretar papeles\n• Usad una hucha o un cofre para guardar la paga y abridlo en familia\n• Celebrad vuestra victoria: soltad las pantallas y jugad en familia, os lo habéis ganado\n• Y quien haya conseguido menos XP gana un premio de consolación: «¡todos le dan un beso!»"
+      opening_master_btn:
+        fr: "Prêt ! Ouvrons le coffre !"
+        en: "Ready! Let's open the chest!"
+        es: "¡Listo! ¡Abramos el cofre!"
+      # Le récit, servi aux joueurs appelés par le maître.
+      opening_player_text:
+        fr: "Le clan s'est bien battu contre la saleté, le désordre et le méchant linge sale. Après une épique bataille, il a vaincu le boss et remporté la victoire — et avec elle... un coffre rempli de pièces et de bijoux !"
+        en: "The clan fought well against filth, chaos and the wicked dirty laundry. After an epic battle, it defeated the boss and won the day — and with it... a chest full of coins and jewels!"
+        es: "El clan luchó bien contra la suciedad, el desorden y la malvada ropa sucia. Tras una batalla épica, venció al jefe y se llevó la victoria... ¡y con ella un cofre lleno de monedas y joyas!"
+      opening_player_btn:
+        fr: "J'ouvre le coffre !"
+        en: "I'm opening the chest!"
+        es: "¡Abro el cofre!"
+      # Liste d'attente du maître : jamais vide en pratique (il s'y compte lui-même), mais une liste
+      # sans empty_label se dessinerait creuse si le clan se réduisait à lui.
+      opening_wait_empty:
+        fr: "Personne à attendre."
+        en: "Nobody to wait for."
+        es: "Nadie a quien esperar."
+      # Sous-titre de ligne : ce qu'on attend du joueur, et ce qu'on peut faire d'un absent.
+      opening_wait_row:
+        fr: "On l'attend... (touchez pour ouvrir sans lui)"
+        en: "Waiting for them... (tap to open without them)"
+        es: "Le esperamos... (toca para abrir sin él)"
+      opening_ready_row:
+        fr: "Prêt !"
+        en: "Ready!"
+        es: "¡Listo!"
+      # Notification d'appel à la cérémonie (worker._notifyOpeningCall), envoyée aux joueurs quand le
+      # meneur appelle le clan. App ouverte : jamais affichée, elle empile l'écran toute seule
+      # (foreground: silent). App fermée : c'est ce texte qui apparaît, et le tap amène au coffre.
+      opening_notif:
+        fr: "Le clan est appelé : viens ouvrir le coffre !"
+        en: "The clan is called: come and open the chest!"
+        es: "¡El clan está convocado: ven a abrir el cofre!"
+      # Notification de fin de cérémonie (worker._notifyButinReady) : la part de chacun est prête.
+      # Même mécanique — silencieuse app ouverte, bandeau app fermée.
+      butin_notif:
+        fr: "Le coffre est ouvert ! Viens voir ta part du butin."
+        en: "The chest is open! Come and see your share of the loot."
+        es: "¡El cofre está abierto! Ven a ver tu parte del botín."
+      # Naissance du clan (worker._logLine, event ClanCreated) : la première ligne du récit.
+      # @@@session.user.name@@@ = le fondateur, {clan} = son nom, {desc} = la description SAISIE
+      # À LA CRÉATION (figée dans le log). Deux variantes : sans description pour les clans créés
+      # avant que le champ ne soit journalisé — jamais de « {desc} » nu à l'écran.
+      log_clan_created:
+        fr: "@@@session.user.name@@@ a fondé le clan {clan}. Tout commence ici."
+        en: "@@@session.user.name@@@ founded the clan {clan}. It all starts here."
+        es: "@@@session.user.name@@@ fundó el clan {clan}. Todo empieza aquí."
+      log_clan_created_desc:
+        fr: "@@@session.user.name@@@ a fondé le clan {clan} : « {desc} »"
+        en: "@@@session.user.name@@@ founded the clan {clan}: \"{desc}\""
+        es: "@@@session.user.name@@@ fundó el clan {clan}: «{desc}»"
+      # Ligne de récit du journal de clan (worker._logLine, event PlayerLeveledUp).
+      # @@@session.user.name@@@ substitué par _resolveDesc ; {level}/{title} substitués en code.
+      log_levelup:
+        fr: "@@@session.user.name@@@ a atteint le niveau {level} ! La poussière tremble."
+        en: "@@@session.user.name@@@ reached level {level}! The dust trembles."
+        es: "¡@@@session.user.name@@@ alcanzó el nivel {level}! El polvo tiembla."
+      log_levelup_title:
+        fr: "@@@session.user.name@@@ a atteint le niveau {level} et peut prétendre au titre de {title} !"
+        en: "@@@session.user.name@@@ reached level {level} and can claim the title of {title}!"
+        es: "¡@@@session.user.name@@@ alcanzó el nivel {level} y puede reclamar el título de {title}!"
+      # Palier de CLAN franchi (event ClanLeveledUp, worker._creditClanXp). Le clan gagne l'item
+      # titre, il ne le porte pas — un chef doit l'appliquer. {level}/{title} substitués en code.
+      log_clan_levelup:
+        fr: "Le clan a atteint le niveau {level} et peut prétendre au titre de {title} !"
+        en: "The clan reached level {level} and can claim the title of {title}!"
+        es: "¡El clan alcanzó el nivel {level} y puede reclamar el título de {title}!"
+      log_member_left:
+        fr: "@@@session.user.name@@@ a quitté le clan."
+        en: "@@@session.user.name@@@ left the clan."
+        es: "@@@session.user.name@@@ dejó el clan."
+      # Don d'un objet d'inventaire à un joueur (worker._logLine, event ItemGiven).
+      # @@@session.user.name@@@ = le DONNEUR (acteur du log), {item} = l'objet (nom propre ou
+      # libellé de son type, résolu dans la langue du LECTEUR), {to} = le destinataire.
+      log_item_given:
+        fr: "@@@session.user.name@@@ a fait un don généreux de {item} à {to}."
+        en: "@@@session.user.name@@@ generously gave {item} to {to}."
+        es: "@@@session.user.name@@@ hizo un generoso donativo de {item} a {to}."
+      # Suffixe de la ligne d'une tâche RECOMMANDÉE validée (worker._logLine) : sans lui, le
+      # journal annonçait un total sans dire d'où venait l'écart avec l'XP habituelle de la tâche.
+      # {xp} = ce qui a été réellement crédité, {bonus} = la part due à la recommandation.
+      log_task_boss:
+        fr: "({xp} XP, dont {bonus} de boss !)"
+        en: "({xp} XP, including {bonus} boss bonus!)"
+        es: "(¡{xp} XP, de los cuales {bonus} de jefe!)"
+      # Ouverture du coffre (worker._logLine, event ButinOpened) : événement de CLAN, sans acteur —
+      # aucun @@@session.user.name@@@ ici. {amount} = argent de poche distribué, {items} = objets
+      # partagés, {players} = participants. Variante « empty » quand le coffre n'avait pas d'argent.
+      # JAMAIS « pièces » : ces lignes nourrissent aussi le conte IA (worker._buildLogStory → `plain`),
+      # et le lecteur doit comprendre que la récompense est de l'ARGENT DE POCHE réel, pas de l'or de
+      # jeu. Terme repris tel quel de l'item officiel it_t_argent.
+      # Unité d'argot agnostique de la devise (balles/bucks/pavos, cf. worker._narrateClanStory) :
+      # sans elle, {amount} seul sonnait comme un nombre sans unité, y compris dans le récit de l'IA.
+      log_butin_opened:
+        fr: "Le coffre s'est ouvert : {amount} balles d'argent de poche et {items} objets partagés entre {players} aventuriers."
+        en: "The chest was opened: {amount} bucks of pocket money and {items} items shared among {players} adventurers."
+        es: "El cofre se abrió: {amount} pavos de dinero de bolsillo y {items} objetos repartidos entre {players} aventureros."
+      log_butin_opened_empty:
+        fr: "Le coffre s'est ouvert : {items} objets partagés entre {players} aventuriers."
+        en: "The chest was opened: {items} items shared among {players} adventurers."
+        es: "El cofre se abrió: {items} objetos repartidos entre {players} aventureros."
+      # Tribut versé par un chef : l'argent gagné en jeu, remis pour de vrai. {amount} = la somme.
+      # Même règle que log_butin_opened : « argent de poche », jamais « pièces », et même unité
+      # d'argot (balles/bucks/pavos) pour que {amount} ne sonne pas comme un nombre nu.
+      log_tribute_paid:
+        fr: "@@@session.user.name@@@ a touché son tribut : {amount} balles d'argent de poche bien réel."
+        en: "@@@session.user.name@@@ collected their tribute: {amount} very real bucks of pocket money."
+        es: "@@@session.user.name@@@ cobró su tributo: {amount} pavos de dinero de bolsillo bien real."
+
+      #------------- Soin (célébration de guérison) ------------------
+      # {name} = joueur soigné, {healer} = soigneur — tous deux encadrés [[…]] par le worker
+      # (surbrillance). Affichés sur le voile blanc de la scène "heal" (worker._showHealAnimation).
+      # healed_by_anim : soigneur identifié (revive_player / resurrect_self via clans_logs).
+      healed_by_anim:
+        fr: "Ouf {name}, tu viens d'être sauvé par {healer} ! La vie afflue de nouveau."
+        en: "Phew {name}, you were just saved by {healer}! Life flows through you once more."
+        es: "¡Uf {name}, acabas de ser salvado por {healer}! La vida vuelve a fluir en ti."
+      # healed_anim : repli générique quand aucun soigneur n'est identifié (ex. soin par
+      # accomplissement d'une tâche qui restaure les PV).
+      healed_anim:
+        fr: "Ouf {name}, te voilà de nouveau sur pied ! Tes blessures se referment, la vie afflue de nouveau."
+        en: "Phew {name}, you're back on your feet! Your wounds close, life flows through you once more."
+        es: "¡Uf {name}, ya estás de nuevo en pie! Tus heridas se cierran, la vida vuelve a fluir en ti."
+
+      #------------- Combat tasks ------------------------------------
+
+      task_animaux:
+        fr: "Les bêtes"
+        en: "The beasts"
+        es: "Las bestias"
+      task_bureau:
+        fr: "Bureau"
+        en: "Office"
+        es: "Oficina"
+      task_chambre_enfant:
+        fr: "Ch. enfant"
+        en: "Kids room"
+        es: "Hab. infantil"
+      task_chambre_parentale:
+        fr: "Parents"
+        en: "Bedroom"
+        es: "Hab. principal"
+      task_courses:
+        fr: "Courses"
+        en: "Shopping"
+        es: "Compras"
+      task_cuisine:
+        fr: "Cuisine"
+        en: "Kitchen"
+        es: "Cocina"
+      task_dechets:
+        fr: "Déchets"
+        en: "Waste"
+        es: "Residuos"
+      task_entree:
+        fr: "Entrée couloir"
+        en: "Entrance hallway"
+        es: "Entrada pasillo"
+      task_extras:
+        fr: "Extras"
+        en: "Extras"
+        es: "Extras"
+      task_garage:
+        fr: "Garage"
+        en: "Garage"
+        es: "Garaje"
+      task_jardin:
+        fr: "Jardin"
+        en: "Garden"
+        es: "Jardín"
+      task_linge:
+        fr: "Linge"
+        en: "Laundry"
+        es: "Ropa"
+      task_repas:
+        fr: "Repas"
+        en: "Meals"
+        es: "Comidas"
+      task_vaisselle:
+        fr: "Vaisselle"
+        en: "Dishes"
+        es: "Vajilla"
+      task_salle_de_bain:
+        fr: "Salle de bain"
+        en: "Bathroom"
+        es: "Baño"
+      task_salon:
+        fr: "Salon"
+        en: "Living room"
+        es: "Salón"
+      task_terrasse:
+        fr: "Balcon terrasse"
+        en: "Balcony terrace"
+        es: "Balcón terraza"
+      task_toilettes:
+        fr: "Toilettes"
+        en: "Toilet"
+        es: "Aseo"
+      task_vehicules:
+        fr: "Véhicules"
+        en: "Vehicles"
+        es: "Vehículos"
+
+      #------------- Domain task screens ------------------------------------
+
+      salon_tasks_title:
+        fr: "Le salon !"
+        en: "Living room !"
+        es: "El salón !"
+      animaux_tasks_title:
+        fr: "Les bêtes !"
+        en: "The beasts !"
+        es: "¡ Las bestias !"
+      bureau_tasks_title:
+        fr: "Le bureau !"
+        en: "Office !"
+        es: "¡ La oficina !"
+      chambre_enfant_tasks_title:
+        fr: "La chambre d'enfant !"
+        en: "Kid's room !"
+        es: "¡ El cuarto del niño !"
+      chambre_parentale_tasks_title:
+        fr: "La chambre parentale !"
+        en: "Parents' room !"
+        es: "¡ El dormitorio !"
+      courses_tasks_title:
+        fr: "Les courses !"
+        en: "Groceries !"
+        es: "¡ Las compras !"
+      cuisine_tasks_title:
+        fr: "La cuisine !"
+        en: "Kitchen !"
+        es: "¡ La cocina !"
+      dechets_tasks_title:
+        fr: "Les déchets !"
+        en: "Trash !"
+        es: "¡ La basura !"
+      entree_tasks_title:
+        fr: "Entrée et couloir !"
+        en: "Entrance & hallway !"
+        es: "¡ Entrada y pasillo !"
+      extras_tasks_title:
+        fr: "Les extras !"
+        en: "Extras !"
+        es: "¡ Los extras !"
+      garage_tasks_title:
+        fr: "Le garage !"
+        en: "Garage !"
+        es: "¡ El garaje !"
+      jardin_tasks_title:
+        fr: "Le jardin !"
+        en: "Garden !"
+        es: "¡ El jardín !"
+      linge_tasks_title:
+        fr: "Le linge !"
+        en: "Laundry !"
+        es: "¡ La ropa !"
+      repas_tasks_title:
+        fr: "Les repas !"
+        en: "Meals !"
+        es: "¡ Las comidas !"
+      vaisselle_tasks_title:
+        fr: "La vaisselle !"
+        en: "Dishes !"
+        es: "¡ La vajilla !"
+      salle_de_bain_tasks_title:
+        fr: "La salle de bain !"
+        en: "Bathroom !"
+        es: "¡ El baño !"
+      terrasse_tasks_title:
+        fr: "Balcon et terrasse !"
+        en: "Balcony & terrace !"
+        es: "¡ Balcón y terraza !"
+      toilettes_tasks_title:
+        fr: "Les toilettes !"
+        en: "Toilet !"
+        es: "¡ El aseo !"
+      vehicules_tasks_title:
+        fr: "Les véhicules !"
+        en: "Vehicles !"
+        es: "¡ Los vehículos !"
+
+      #------------- Combat ------------------------------------
+
+      combat_encouragement:
+        fr: "Tu te bats courageusement pour l'honneur et la propreté ! Tu peux y arriver !"
+        en: "You fight bravely for honour and cleanliness! You can do it!"
+        es: "¡Luchas con valentía por el honor y la limpieza! ¡Tú puedes!"
+
+      combat_ok:
+        fr: "J'ai vaincu le monstre !"
+        en: "I defeated the monster!"
+        es: "¡He vencido al monstruo!"
+
+      combat_cancel:
+        fr: "Retraite !"
+        en: "Retreat!"
+        es: "¡Retirada!"
+
+      combat_proof:
+        fr: "Voir ma preuve"
+        en: "View my proof"
+        es: "Ver mi prueba"
+
+      combat_validate_ok:
+        fr: "Le monstre est vaincu !"
+        en: "The monster is defeated !"
+        es: "¡El montruo está vencido!"
+
+      combat_validate_partial:
+        fr: "À moitié vaincu…"
+        en: "Half defeated…"
+        es: "Medio vencido…"
+
+      combat_validate_ko:
+        fr: "Raté... essaie encore."
+        en: "Missed... try again."
+        es: "Fallaste... inténtalo de nuevo."
+
+      #------------- Shop ------------------------------------
+
+      shopname:
+        fr: "La boutique du Loup Gris"
+        en: "The Grey Wolf's shop"
+        es: "La tienda del Lobo Gris"
+
+      # Panneau « à venir » (écrans shop / personnage, style gage de mort)
+      coming_soon:
+        fr: "Bientôt"
+        en: "Coming soon"
+        es: "Próximamente"
+
+      #------------- Profile ------------------------------------
+
+      profile_title:
+        fr: "Profil"
+        en: "Profile"
+        es: "Perfil"
+      language_label:
+        fr: "Langue :"
+        en: "Language:"
+        es: "Idioma :"
+      reset:
+        fr: "Test : recommencer"
+        en: "Test: restart"
+        es: "Test: reiniciar"
+      sign_out:
+        fr: "Se déconnecter"
+        en: "Sign out"
+        es: "Cerrar sesión"
+      my_data:
+        fr: "Mes données"
+        en: "My data"
+        es: "Mis datos"
+
+      #------------- Dev / test screens (déplacé depuis config.yml) ----------
+
+      ddvideo_title:
+        fr: "Intro vidéo"
+        en: "Video intro"
+        es: "Intro vídeo"
+      skip_fast_test:
+        fr: "SKIP"
+        en: "SKIP"
+        es: "SKIP"
+      testme_title:
+        fr: "Items"
+        en: "Items"
+        es: "Items"
+      replay_questionnaire:
+        fr: "Rejouer questionnaire"
+        en: "Replay questionnaire"
+        es: "Repetir cuestionario"
+      test_messaging:
+        fr: "Test Messaging"
+        en: "Test Messaging"
+        es: "Test Messaging"
+      theme_pirate_btn:
+        fr: "Theme Pirate"
+        en: "Pirate Theme"
+        es: "Tema Pirata"
+
+      #------------- Titres de joueur (1 nouveau titre toutes les 5 niveaux) ----------
+      player_title_0:
+        fr: "Mange-poussière"
+        en: "Dust Muncher"
+        es: "Tragapolvo"
+      player_title_1:
+        fr: "Renifleur de Chaussettes Sales"
+        en: "Sniffer of Dirty Socks"
+        es: "Olfateador de Calcetines Sucios"
+      player_title_2:
+        fr: "Lécheur de Cuillères"
+        en: "Spoon Licker"
+        es: "Lamedor de Cucharas"
+      player_title_3:
+        fr: "Tâcheron des Fonds de Casserole"
+        en: "Drudge of the Pot Bottoms"
+        es: "Peón de los Fondos de Cacerola"
+      player_title_4:
+        fr: "Esclave de l'Éponge Trouée"
+        en: "Slave of the Holey Sponge"
+        es: "Esclavo de la Esponja Agujereada"
+      player_title_5:
+        fr: "Porte-Poubelle de Service"
+        en: "Bin-Bearer on Duty"
+        es: "Portacubos de Servicio"
+      player_title_6:
+        fr: "Gratteur de Chewing-gum sous la Table"
+        en: "Scraper of Gum Under the Table"
+        es: "Rascador de Chicles Bajo la Mesa"
+      player_title_7:
+        fr: "Apprenti-Chiffon de Dernière Catégorie"
+        en: "Lowest-Class Rag Apprentice"
+        es: "Aprendiz de Trapo de Última Categoría"
+      player_title_8:
+        fr: "Frotteur de Troisième Classe"
+        en: "Third-Class Scrubber"
+        es: "Fregador de Tercera Clase"
+      player_title_9:
+        fr: "Compagnon du Balai Usé"
+        en: "Companion of the Worn Broom"
+        es: "Compañero de la Escoba Gastada"
+      player_title_10:
+        fr: "Écuyer de l'Aspirateur"
+        en: "Squire of the Vacuum Cleaner"
+        es: "Escudero de la Aspiradora"
+      player_title_11:
+        fr: "Chevalier de la Brosse à Récurer"
+        en: "Knight of the Scrubbing Brush"
+        es: "Caballero del Estropajo"
+      player_title_12:
+        fr: "Gardien des Miettes Égarées"
+        en: "Guardian of the Stray Crumbs"
+        es: "Guardián de las Migas Perdidas"
+      player_title_13:
+        fr: "Maître-Astiqueur des Petites Surfaces"
+        en: "Master-Polisher of Small Surfaces"
+        es: "Maestro Pulidor de Pequeñas Superficies"
+      player_title_14:
+        fr: "Baron de la Serpillière Humide"
+        en: "Baron of the Damp Mop"
+        es: "Barón de la Fregona Húmeda"
+      player_title_15:
+        fr: "Comte des Carrelages Reluisants"
+        en: "Count of the Gleaming Tiles"
+        es: "Conde de los Azulejos Relucientes"
+      player_title_16:
+        fr: "Seigneur des Chaussettes Enfin Appariées"
+        en: "Lord of the Socks Finally Matched"
+        es: "Señor de los Calcetines Por Fin Emparejados"
+      player_title_17:
+        fr: "Duc du Grand Détartrage, Effroi du Lave-Vaisselle"
+        en: "Duke of the Great Descaling, Dread of the Dishwasher"
+        es: "Duque del Gran Desincrustado, Espanto del Lavavajillas"
+      player_title_18:
+        fr: "Prince des Surfaces Immaculées, Terreur du Calcaire et Fléau de la Moisissure"
+        en: "Prince of the Immaculate Surfaces, Terror of Limescale and Scourge of Mould"
+        es: "Príncipe de las Superficies Inmaculadas, Terror de la Cal y Azote del Moho"
+      player_title_19:
+        fr: "Sa Splendeur l'Immaculé, Empereur Éternel de la Maison du Plumeau d'Or, Suzerain des Éviers-Hauts et des Basses-Vaisselles, Vainqueur du Tartre Millénaire et Briseur de Moisissures, Grand Khan des Plaines de Linge et des Steppes du Repassage, Celui-dont-le-Reflet-se-Mire-dans-Chaque-Carreau, Premier et Dernier Rempart contre le Chaos Poussiéreux, Protecteur du Foyer jusqu'à la Dernière Lessive"
+        en: "His Splendour the Immaculate, Eternal Emperor of the House of the Golden Feather-Duster, Suzerain of the High Sinks and the Low Dishes, Vanquisher of the Thousand-Year Limescale and Breaker of Moulds, Great Khan of the Plains of Laundry and the Steppes of Ironing, He-Whose-Reflection-Shines-in-Every-Tile, First and Last Bulwark against the Dusty Chaos, Protector of the Home unto the Last Wash"
+        es: "Su Esplendor el Inmaculado, Emperador Eterno de la Casa del Plumero de Oro, Soberano de los Fregaderos Altos y las Vajillas Bajas, Vencedor de la Cal Milenaria y Quebrantador de Mohos, Gran Kan de las Llanuras de Ropa y las Estepas del Planchado, Aquel-cuyo-Reflejo-se-Mira-en-Cada-Baldosa, Primer y Último Baluarte contra el Caos Polvoriento, Protector del Hogar hasta la Última Colada"
+
+      #------------- Titres de clan (1 nouveau titre toutes les 5 niveaux de clan) -----
+      clan_title_0:
+        fr: "Portée des Traîne-Savates"
+        en: "Litter of the Slipper-Draggers"
+        es: "Camada de los Arrastrazapatillas"
+      clan_title_1:
+        fr: "Ramassis des Miettes"
+        en: "Ragtag of the Crumbs"
+        es: "Pandilla de las Migas"
+      clan_title_2:
+        fr: "Smala des Pousse-Crasse"
+        en: "Tribe of the Grime-Shovers"
+        es: "Tropa de los Empujamugre"
+      clan_title_3:
+        fr: "Tribu des Doigts Collants"
+        en: "Tribe of the Sticky Fingers"
+        es: "Tribu de los Dedos Pegajosos"
+      clan_title_4:
+        fr: "Bande du Bazar Permanent"
+        en: "Gang of the Permanent Mess"
+        es: "Banda del Desorden Permanente"
+      clan_title_5:
+        fr: "Confrérie de l'Éponge Molle"
+        en: "Brotherhood of the Soggy Sponge"
+        es: "Cofradía de la Esponja Blanda"
+      clan_title_6:
+        fr: "Compagnie des Balais Cassés"
+        en: "Company of the Broken Brooms"
+        es: "Compañía de las Escobas Rotas"
+      clan_title_7:
+        fr: "Meute des Récureurs Débutants"
+        en: "Pack of the Beginner Scrubbers"
+        es: "Jauría de los Fregadores Novatos"
+      clan_title_8:
+        fr: "Brigade du Coup de Chiffon Vite Fait"
+        en: "Brigade of the Quick Once-Over"
+        es: "Brigada del Trapazo Rápido"
+      clan_title_9:
+        fr: "Guilde des Frotteurs Assidus"
+        en: "Guild of the Diligent Scrubbers"
+        es: "Gremio de los Fregadores Aplicados"
+      clan_title_10:
+        fr: "Escouade Anti-Poussière"
+        en: "Anti-Dust Squad"
+        es: "Escuadrón Antipolvo"
+      clan_title_11:
+        fr: "Légion des Lave-Vaisselle"
+        en: "Legion of the Dishwashers"
+        es: "Legión de los Lavavajillas"
+      clan_title_12:
+        fr: "Ordre du Plumeau Vaillant"
+        en: "Order of the Valiant Feather-Duster"
+        es: "Orden del Plumero Valiente"
+      clan_title_13:
+        fr: "Maison de la Serpillière d'Étain"
+        en: "House of the Pewter Mop"
+        es: "Casa de la Fregona de Estaño"
+      clan_title_14:
+        fr: "Chevalerie du Carrelage Étincelant"
+        en: "Chivalry of the Sparkling Tiles"
+        es: "Caballería del Azulejo Reluciente"
+      clan_title_15:
+        fr: "Garde Royale du Linge Plié"
+        en: "Royal Guard of the Folded Laundry"
+        es: "Guardia Real de la Ropa Doblada"
+      clan_title_16:
+        fr: "Dynastie des Mains Toujours Propres"
+        en: "Dynasty of the Ever-Clean Hands"
+        es: "Dinastía de las Manos Siempre Limpias"
+      clan_title_17:
+        fr: "Noble Maison du Plumeau d'Argent"
+        en: "Noble House of the Silver Feather-Duster"
+        es: "Noble Casa del Plumero de Plata"
+      clan_title_18:
+        fr: "Empire Immaculé des Sept Pièces"
+        en: "Immaculate Empire of the Seven Rooms"
+        es: "Imperio Inmaculado de las Siete Habitaciones"
+      clan_title_19:
+        fr: "Très Sainte et Reluisante Dynastie du Foyer Éternel, Gardienne des Sept Pièces et des Trois Étages, Lignée Souveraine des Plaines de Linge et des Vallées d'Évier, Vainqueur des Hordes de Poussière depuis des Générations, Maison-dont-nul-Recoin-n'Échappe-au-Regard, Et sous le Toit de laquelle nulle Tache ne saurait survivre."
+        en: "Most Holy and Resplendent Dynasty of the Eternal Hearth, Keeper of the Seven Rooms and the Three Floors, Sovereign Lineage of the Plains of Laundry and the Valleys of the Sink, Vanquisher of the Hordes of Dust for Generations, House-from-Whose-Gaze-No-Nook-Escapes, and beneath Whose Roof no Stain may survive."
+        es: "Santísima y Reluciente Dinastía del Hogar Eterno, Guardiana de las Siete Habitaciones y los Tres Pisos, Linaje Soberano de las Llanuras de Ropa y los Valles del Fregadero, Vencedora de las Hordas de Polvo desde hace Generaciones, Casa-de-cuya-Mirada-ningún-Rincón-Escapa, y bajo cuyo Techo ninguna Mancha puede sobrevivir."
+
+  # --- Interludes : ce qu'ils SONT --------------------------------------------------
+  # Le contenu des célébrations déclarées dans config.yml : quelle scène, quel son, quelle
+  # vibration. Les définitions elles-mêmes suivent plus bas (vibrations, flame) — tout ce qui
+  # fait l'identité sensorielle du jeu est ici, et nulle part ailleurs.
+  # Un interlude confisque l'écran : le son et la vibration partent 0,5 s AVANT le visuel (le temps
+  # que le joueur lève les yeux), la musique d'ambiance se tait, et tout est rendu à la fin.
+  interludes:
+    levelup:
+      scene: burn
+      sound: anim_burn
+      vibration: cue_burn
+    giftxp:
+      scene: giftxp
+      sound: anim_gift
+      vibration: cue_gift
+    giftgold:
+      scene: giftgold
+      sound: anim_gift
+      vibration: cue_gift
+    heal:
+      scene: heal
+      sound: anim_heal
+      vibration: cue_heal
+    gameover:
+      scene: gameover
+      sound: anim_dead
+      vibration: cue_death
+    # Victoire de tâche accomplie/validée : image en fondu + son unique. Pas de vibration (voulu sobre).
+    victory:
+      scene: victory
+      sound: anim_victory
+    # Ouverture du butin : LA grande célébration du clan. Le morceau porte ~11,5 s de son audible
+    # (le fichier en fait ~13, la fin est du silence) pour une scène de 9,95 s : la musique DÉBORDE
+    # le visuel, et c'est voulu — elle accompagne la découverte de la part sur butin_rewards_page.
+    #
+    # `music: hold` : l'ambiance du donjon se tait comme partout ailleurs, mais elle n'est PAS rendue
+    # à la fin de la scène — sans quoi elle repartait par-dessus la dernière seconde encore audible
+    # du morceau, pile au moment où le joueur découvre son butin. C'est worker.on_butin_rewards_ok
+    # (bouton « ok » de l'écran de récompenses) qui la rend.
+    # `lead: 1.0` : le son part une seconde avant le coffre, soit une demi-seconde plus tôt que le
+    # défaut du module — il annonce la cérémonie au lieu de l'accompagner.
+    butin:
+      scene: butin
+      sound: anim_butin
+      vibration: cue_butin
+      lead: 1.0
+      music: hold
+
+  sound:
+    preload:
+      home: "music/ambiant1.mp3"
+      anim_burn: "sounds/anim_burn.mp3"
+      anim_dead: "sounds/anim_dead.mp3"
+      anim_heal: "sounds/anim_heal.mp3"
+      anim_gift: "sounds/effect_xp.mp3"
+      anim_victory: "sounds/tatadaa.mp3"
+      anim_butin: "music/win.mp3" # ouverture du butin (~11,5 s audibles + silence, fichier ~13 s)
+      batte_swords: "sounds/batte_swords.mp3" # boucle jouée pendant le combat (mur de flammes)
+
+    playlists:
+      ambiant:
+        mode: linear
+        sounds:
+          - music/ambiant1.mp3
+          - music/ambiant2.mp3
+          - music/ambiant3.mp3
+          - music/ambiant4.mp3
+      # Ambiance jouée tant que le personnage est mort (une seule piste pour l'instant). Le worker
+      # la déclare (dvsound.ambiance.ambiant_dead) au moment où il détecte la mort — pendant que
+      # l'interlude a fait taire la musique : dvsound la mémorise et la joue à la reprise.
+      ambiant_dead:
+        mode: linear
+        sounds:
+          - music/ambiant_dead.mp3
+
+  # --- Vibrations dvvibrations ------------------------------------------------------
+  # Ce que les célébrations font SENTIR. Chaque composite est tiré par un hook `on_end` posé sur un
+  # effet de la scène correspondante (cf. flame.scenes plus bas) → le beat est calé sur les ACTES
+  # de l'animation : si la durée d'un acte change, la vibration suit toute seule.
+  # Les atomiques du module (gentle 100/64, medium 200/128, strong 400/255, short_strong 80/200,
+  # pause_50 50/0) restent disponibles : ce bloc est FUSIONNÉ par-dessus dvvibrations/config.yml.
+  #
+  # >>> RÈGLE D'OR : la durée totale d'un composite doit rester INFÉRIEURE à l'écart jusqu'au
+  # beat suivant. Le moteur n'a pas de file d'attente — deux vibrations qui se chevauchent se
+  # disputent le vibreur (la seconde écrase la première). Les durées sont annotées ci-dessous.
+  # La clef réservée `splash` (vibration au démarrage de l'app) est volontairement absente.
+
+  vibrations:
+    # -- Atomiques ddust -------------------------------------------------------------
+    tick: { duration: 30, intensity: 90 } # grain sec (cendre qui tombe, pièce qui claque)
+    tap: { duration: 60, intensity: 140 }
+    thud: { duration: 250, intensity: 200 } # coup sourd (glas)
+    boom: { duration: 600, intensity: 255 } # impact plein
+    rumble_lo: { duration: 150, intensity: 80 } # grondement — 3 étages pour le crescendo
+    rumble_mid: { duration: 150, intensity: 150 }
+    rumble_hi: { duration: 150, intensity: 220 }
+    pause_100: { duration: 100, intensity: 0 } # silences (intensity 0 = attente pure)
+    pause_200: { duration: 200, intensity: 0 }
+    pause_400: { duration: 400, intensity: 0 }
+
+    # -- Cues de pré-roll (t = -0,5 s) ------------------------------------------------
+    # Joués par dvinterlude AVEC le son, une demi-seconde avant que le visuel démarre : ils annoncent
+    # la célébration. C'est le bloc `interludes` ci-dessus qui associe un composite à un interlude
+    # (interludes.<id>.vibration) — ici on ne fait que décrire les partitions.
+    # La règle d'or ci-dessus les borne à 0,5 s : au-delà, le cue mordrait sur l'haptique d'ouverture
+    # de la scène (burn_ignite, death_toll…) qui part à t=0. D'où `strong` (0,40 s) et non `boom`
+    # (0,60 s) pour la mort.
+    cue_burn: { children: [thud] } # 0,25 s — un coup sourd : quelque chose s'embrase
+    cue_death: { children: [strong] } # 0,40 s — la sentence tombe
+    cue_heal: { children: [gentle, pause_100, gentle] } # 0,30 s — deux battements doux
+    cue_gift: { children: [tick, pause_50, tap] } # 0,14 s — un scintillement
+    cue_butin: { children: [tick, pause_50, tick, pause_50, thud] } # 0,41 s — deux grains puis le coup : le coffre bouge
+
+    # -- Scène "burn" (montée de niveau / bienvenue clan) -----------------------------
+    # 1,70 s de crescendo pendant la combustion (acte 1 = 2,0 s) : le feu monte.
+    burn_ignite:
+      children:
+        [
+          rumble_lo,
+          pause_200,
+          rumble_lo,
+          pause_200,
+          rumble_mid,
+          pause_200,
+          rumble_mid,
+          pause_100,
+          rumble_hi,
+          pause_100,
+          rumble_hi,
+        ]
+    burn_impact: { children: [boom] } # 0,60 s — l'écran vient de virer au noir
+    # 0,69 s — l'effritement commence : quelques grains de cendre.
+    burn_crumble: { children: [tick, pause_200, tick, pause_400, tick] }
+
+    # -- Scène "gameover" (mort à 0 PV) ----------------------------------------------
+    # 2,55 s de glas pendant que l'écran noircit (acte 1 = 3,0 s), qui s'achève sur la chute.
+    death_toll:
+      children: [thud, pause_400, thud, pause_400, thud, pause_400, boom]
+    death_burst: { children: [boom, pause_50, strong] } # 1,05 s — le noir se brise en cendres
+
+    # -- Scène "heal" (soin / résurrection) ------------------------------------------
+    heal_pulse: { children: [gentle, pause_100, gentle] } # 0,30 s — éclosion des croix
+    heal_relief: { children: [medium, pause_100, gentle] } # 0,40 s — l'écran est blanc : soulagement
+
+    # -- Scène "giftxp" (cadeau d'XP) -------------------------------------------------
+    gift_sparkle: { children: [tick, pause_50, tick, pause_50, tick, pause_50, tap] } # 0,30 s
+    gift_chime: { children: [medium, pause_50, short_strong] } # 0,33 s — écran doré plein
+
+    # -- Scène "giftgold" (cadeau d'or) ----------------------------------------------
+    # 1,46 s de pièces qui claquent pendant la pluie (acte 1 = 2,0 s) : staccato régulier.
+    coins_rain:
+      children:
+        [
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+          pause_100,
+          tick,
+        ]
+    coins_settle: { children: [thud, pause_50, medium] } # 0,50 s — la nappe d'or est pleine
+
+    # -- Scène "butin" (ouverture du coffre) -----------------------------------------
+    # Deux beats seulement, calés sur les actes : la CHARGE (le coffre force, crescendo de
+    # grondements pendant l'acte 2, qui dure 2,0 s) et l'ÉCLAT (il cède). La nappe d'or finale
+    # réutilise coins_settle.
+    butin_charge:
+      children: [rumble_lo, pause_100, rumble_mid, pause_100, rumble_hi] # 0,65 s
+    butin_burst: { children: [boom, pause_50, short_strong] } # 0,73 s — le coffre éclate
+
+  # --- Animations dvflame ---------------------------------------------------------
+  # Ce que les célébrations donnent à VOIR. Les cinq scènes portent les identifiants attendus par
+  # les vues du registry (commons/levelup_view & co, déclarées dans config.yml) : un thème réécrit
+  # librement ce qu'elles CONTIENNENT, pas comment elles s'appellent.
+  #
+  # Scène "burn" : l'écran se consume — 3 actes pilotés par la timeline (order) :
+  #   1. combustion (2s)   : le rideau noir 'carbone' monte du bas, front de flammes
+  #   2. carbonisation (2s): écran noir, braises discrètes (hold)
+  #   3. effritement (2s)  : le bord bas du noir remonte (bord haut épinglé), pluie de
+  #                          cendres, l'écran réapparaît par le bas
+  # Scène mortelle, rejouable (dvflame.start.burn), monde = pixels de la vue.
+
+  flame:
+    scenes:
+      # Mur de flammes permanent posé sur la frontière taskbar (bas de la vue combat/flamewall,
+      # y=88% écran) et joué tant que le joueur est en combat (boutons "vaincu"/"retraite" affichés).
+      # immortal = boucle sans fin, AUCUN `effects` → l'émission ne s'éteint jamais. Reprend le
+      # preset `flame` et l'émetteur-ligne de `burn.front_flammes`. Le worker pilote start/stop
+      # (dvflame.start.flamewall / dvflame.stop.flamewall) — d'où autostart:false.
+      flamewall:
+        lifecycle: immortal
+        autostart: false
+        objects:
+          mur:
+            type: particles
+            preset: flame
+            position: { x: "50%", y: "100%" } # bas de la vue = ligne y=88% écran
+            emission: { rate: 220, zone: { shape: line, w: "100%", h: 0 } }
+            velocity: { angle: -90, angle_var: 12, speed: 90, speed_var: 35 }
+            particle_size: { start: 24, end: 4 }
+
+      # Aura du coffre plein (écran Clan, vue clan_page/butin_aura) : elle dit au chef que la
+      # cérémonie d'ouverture est possible, et elle le dit SANS S'ARRÊTER tant qu'il n'a pas touché
+      # le coffre. Même montage que flamewall : immortal + autostart:false, le worker pilote
+      # start/stop (dvflame.start.chestaura / dvflame.stop.chestaura).
+      #
+      # Deux objets, aucun `effects` de scène — donc aucune timeline, donc rien qui puisse finir :
+      #   - `halo`  : disque doré qui respire (oscillate SANS duration = infini, cf. readme dvflame) ;
+      #   - `rayons`: croix lumineuses tirées du centre dans TOUS les azimuts (angle_var 180 couvre
+      #               le tour complet), qui grossissent puis s'éteignent — les rayons de lumière.
+      # La vue déborde le coffre de tous les côtés : c'est là que les rayons vont mourir.
+      chestaura:
+        lifecycle: immortal
+        autostart: false
+        objects:
+          halo:
+            type: fill
+            shape: circle
+            order: 10
+            color: "#D4AF37"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: "70%", h: "70%" }
+            opacity: 0.35
+            effects:
+              souffle:  { type: oscillate, target: opacity, from: 0.12, to: 0.5,   period: 1.8 }
+              gonfle_w: { type: oscillate, target: size.w,  from: "55%", to: "95%", period: 1.8 }
+              gonfle_h: { type: oscillate, target: size.h,  from: "55%", to: "95%", period: 1.8 }
+
+          rayons:
+            type: particles
+            order: 20
+            particle_shape: cross
+            position: { x: "50%", y: "50%" }
+            emission: { rate: 14, zone: { shape: point, w: 0, h: 0 } }
+            velocity: { angle: 0, angle_var: 180, speed: 34, speed_var: 12 }
+            lifetime: { min: 0.9, max: 1.4 }
+            particle_size: { start: 2, peak: 16, end: 0, peak_at: 0.35 }
+            opacity_var: 0.4
+            blur: 2
+            colors:
+              clair: { order: 1, color: "#FFE9A8" }
+              fondu: { order: 2, color: "#00D4AF37" }
+
+      # Halo des notes des chefs (butin_notes_page) : même procédé que chestaura (disque doré qui
+      # respire, immortal + autostart:false, piloté par le worker via dvflame.start/stop.notehalo),
+      # mais une respiration plus lente et plus sourde — c'est un halo de veillée qui accompagne une
+      # lecture, pas l'aura d'un coffre qui appelle. Un seul objet, aucun rayon : rien ici ne doit
+      # attirer l'œil hors du texte qu'il encadre.
+      notehalo:
+        lifecycle: immortal
+        autostart: false
+        objects:
+          halo:
+            type: fill
+            shape: circle
+            order: 10
+            color: "#D4AF37"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: "80%", h: "80%" }
+            opacity: 0.2
+            effects:
+              souffle:  { type: oscillate, target: opacity, from: 0.10, to: 0.32,  period: 2.5 }
+              gonfle_w: { type: oscillate, target: size.w,  from: "70%", to: "90%", period: 2.5 }
+              gonfle_h: { type: oscillate, target: size.h,  from: "70%", to: "90%", period: 2.5 }
+
+      burn:
+        lifecycle: mortal
+        autostart: false
+        # Fin de la timeline → dvinterlude dégèle l'écran et rend la musique d'ambiance (coupée au
+        # démarrage du son, 0,5 s avant le visuel). Même hook sur les 5 scènes : c'est le SEUL signal
+        # exact de fin — les durées vont de 6,2 s (cadeaux) à 14,7 s (mort). dvflame ne connaît pas
+        # dvinterlude : il annonce juste « j'ai fini », c'est la conf qui les relie.
+        on_finished:
+          end: { order: 1, action: "dvinterlude.finished" }
+        objects:
+          carbone:
+            type: fill
+            order: 10
+            color: "#000000"
+            position: { x: "50%", y: "100%" }
+            anchor: bottom_center
+            size: { w: "100%", h: 0 }
+
+          braises:
+            type: particles
+            order: 15
+            preset: sparkles
+            position: { x: "50%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "96%", h: "96%" } }
+            lifetime: { min: 0.6, max: 1.6 }
+            velocity: { angle: -90, angle_var: 40, speed: 10, speed_var: 8 }
+            particle_size: { start: 6, end: 1 }
+            blur: 3
+            opacity_var: 0.75 # certaines lueurs bien vives, d'autres à peine (scintillement)
+            colors:
+              c1: { order: 1, color: "#FFFFECB3" } # blanc-chaud vif (naissance)
+              c2: { order: 2, color: "#FFFF9800" } # orange saturé
+              c3: { order: 3, color: "#00E65100" } # fondu transparent (mort)
+
+          front_flammes:
+            type: particles
+            order: 20
+            preset: flame
+            position: { x: "50%", y: "100%" }
+            emission: { rate: 260, zone: { shape: line, w: "100%", h: 0 } }
+            particle_size: { start: 26, end: 5 }
+            velocity: { angle: -90, angle_var: 14, speed: 110, speed_var: 45 }
+
+          front_cendres:
+            type: particles
+            order: 20
+            preset: ashes
+            position: { x: "50%", y: "100%" }
+            emission: { rate: 0, zone: { shape: line, w: "100%", h: 0 } }
+            # Surcharges du preset "ashes" (défauts : speed 45/25, accel.y 70, lifetime 1.2-2.2) :
+            velocity: { speed: 45, speed_var: 25 } # chute 1,5× plus rapide (rapproche cendres/rideau)
+            acceleration: { y: 70 } # gravité 1,5× plus forte
+            lifetime: { min: 2.3, max: 4.3 } # vivent longtemps → tombent loin
+
+        effects:
+          # -- Acte 1 : combustion --------------------------------------------------
+          # Beat haptique t=0 : hold PARALLÈLE de 0,05 s dans le groupe order:1. Il ne décale
+          # rien (le groupe attend de toute façon act1_carbone / act1_flammes, 2 s : un groupe
+          # n'avance que quand TOUS ses effets finis sont terminés) — il ne sert qu'à porter le
+          # on_end qui déclenche la vibration au démarrage de la scène. Même idiome dans les
+          # 4 autres scènes. (cf. conf.vibrations)
+          act1_haptic:
+            {
+              order: 1,
+              type: hold,
+              duration: 0.05,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.burn_ignite" } },
+            }
+          act1_carbone:
+            {
+              order: 1,
+              target: carbone.size.h,
+              from: 0,
+              to: "100%",
+              duration: 2.0,
+              # L'écran vient de virer au noir → impact.
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.burn_impact" } },
+            }
+          act1_flammes:
+            {
+              order: 1,
+              target: front_flammes.position.y,
+              from: "100%",
+              to: 0,
+              duration: 2.0,
+            }
+          # -- Transition : extinction des flammes, allumage des braises ------------
+          act2_flammes:
+            {
+              order: 2,
+              target: front_flammes.emission.rate,
+              to: 0,
+              duration: 0.3,
+            }
+          act2_braises:
+            { order: 2, target: braises.emission.rate, to: 60, duration: 0.3 }
+          # -- Acte 2 : carbonisation (noir + braises) ------------------------------
+          # Sa fin = début de l'effritement → grains de cendre sous les doigts.
+          act3_hold:
+            {
+              order: 3,
+              type: hold,
+              duration: 2.7,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.burn_crumble" } },
+            }
+          # -- Acte 3 : effritement en cendres, DU BAS VERS LE HAUT ------------------
+          # carbone est ancré bottom_center → position.y = bord BAS, bord HAUT = position.y - h.
+          # On épingle le bord haut à 0 en animant position.y ET size.h ensemble (position.y = h) :
+          # le bord bas remonte de 100% à 0 → l'écran réapparaît par le bas. Le front de cendres
+          # suit ce bord bas qui remonte (100% → 0).
+          #
+          # >>> RATIO DE VITESSE (clef du rendu « désintégration ») : la `duration` ci-dessous fixe
+          # la vitesse de MONTÉE du rideau noir. Trop rapide vs la chute des cendres → on voit un
+          # bandeau qui défile vers le haut, décorrélé des cendres. On la ralentit (2.6 → 4.0) pour
+          # rapprocher la vitesse de disparition du noir de la vitesse/quantité de cendres générées,
+          # afin que la surface noire semble vraiment SE TRANSFORMER en cendres. Augmenter encore
+          # cette durée ralentit davantage le rideau (couplage plus fort) ; la diminuer l'accélère.
+          # (act4_carbone / act4_carbone_top / act4_cendres / act4_pluie DOIVENT partager la même durée.)
+          act4_carbone:
+            {
+              order: 4,
+              target: carbone.size.h,
+              from: "100%",
+              to: 0,
+              duration: 8.0,
+            }
+          act4_carbone_top:
+            {
+              order: 4,
+              target: carbone.position.y,
+              from: "100%",
+              to: 0,
+              duration: 8.0,
+            }
+          act4_cendres:
+            {
+              order: 4,
+              target: front_cendres.position.y,
+              from: "100%",
+              to: 0,
+              duration: 8.0,
+            }
+          act4_pluie:
+            {
+              order: 4,
+              target: front_cendres.emission.rate,
+              from: 720,
+              to: 720,
+              duration: 8.0,
+            }
+          act4_braises:
+            { order: 4, target: braises.emission.rate, to: 0, duration: 0.4 }
+          # -- Rideau final : plus aucune émission ----------------------------------
+          act5_cendres:
+            {
+              order: 5,
+              target: front_cendres.emission.rate,
+              to: 0,
+              duration: 0.1,
+            }
+
+      # Scène "heal" : célébration de soin — une onde de petites croix vertes (tailles
+      # et éclats variés : size_var / opacity_var) naît au centre de l'écran, chaque croix
+      # grossit puis rétrécit et s'efface (particle_size en cloche via peak). L'onde part
+      # en cercle (zone ring animée) et dévore tout l'écran ; derrière elle, un voile
+      # blanc circulaire (fill shape: circle) blanchit tout, tient 2 s écran blanc, puis
+      # s'efface en fondu de 2 s (canal opacity) pour rendre l'écran précédent.
+      # Scène mortelle, rejouable (dvflame.start.heal), monde = pixels de la vue.
+      heal:
+        lifecycle: mortal
+        autostart: false
+        on_finished: # cf. burn : dégel de l'écran + reprise de la musique (playlist `ambiant`)
+          end: { order: 1, action: "dvinterlude.finished" }
+        objects:
+          voile:
+            type: fill
+            shape: circle
+            order: 10
+            color: "#FFFFFF"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: 0, h: 0 }
+
+          croix:
+            type: particles
+            order: 20
+            particle_shape: cross
+            position: { x: "50%", y: "50%" }
+            emission: { rate: 0, zone: { shape: ring, w: 0, h: 110 } }
+            lifetime: { min: 1.0, max: 2.0 }
+            velocity: { angle: -90, angle_var: 180, speed: 9, speed_var: 7 }
+            particle_size: { start: 3, peak: 22, end: 0, peak_at: 0.35 }
+            size_var: 0.55 # petites et grandes croix mêlées
+            opacity_var: 0.7 # certaines bien vives, d'autres discrètes
+            colors:
+              c1: { order: 1, color: "#1B5E20" } # vert profond (naissance)
+              c2: { order: 2, color: "#4CAF50" } # vert franc (sommet)
+              c3: { order: 3, color: "#0081C784" } # fondu transparent (mort)
+
+        effects:
+          # -- Acte 1 : éclosion des croix au centre ---------------------------------
+          act1_haptic: # beat t=0 (hold parallèle, cf. scène burn) : double pulse doux
+            {
+              order: 1,
+              type: hold,
+              duration: 0.05,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.heal_pulse" } },
+            }
+          act1_croix:
+            { order: 1, target: croix.emission.rate, to: 320, duration: 0.15 }
+          act2_amorce:
+            {
+              order: 2,
+              target: croix.emission.zone.w,
+              from: 0,
+              to: "30%",
+              duration: 0.4,
+            }
+          # -- Acte 2 : l'onde dévore l'écran, le voile blanc suit -------------------
+          # Les trois effets 'order: 3' partagent la même durée : le front de croix
+          # (anneau 260% de large) garde une longueur d'avance sur le bord du voile
+          # (230% / 130% ≈ ellipse qui atteint tous les bords d'écran en même temps).
+          act3_onde:
+            {
+              order: 3,
+              target: croix.emission.zone.w,
+              from: "30%",
+              to: "260%",
+              duration: 3.3,
+            }
+          act3_voile_w:
+            {
+              order: 3,
+              target: voile.size.w,
+              from: 0,
+              to: "230%",
+              duration: 3.3,
+              # Le voile blanc recouvre tout l'écran (~3,85 s) → soulagement, ET c'est L'INSTANT où
+              # l'on retire le crâne : masqué par le blanc, il ne « saute » pas à l'écran ; quand le
+              # voile se dissipe c'est la page normale qui paraît. Le retrait est ancré sur l'ACTE,
+              # pas sur un délai en dur côté worker — si la scène est retouchée, il suit tout seul.
+              on_end:
+                {
+                  vib: { order: 1, action: "dvvibrations.start.heal_relief" },
+                  skull: { order: 2, action: "worker.hide_skull" },
+                },
+            }
+          act3_voile_h:
+            {
+              order: 3,
+              target: voile.size.h,
+              from: 0,
+              to: "130%",
+              duration: 3.3,
+            }
+          # -- Extinction de l'émission (les croix déjà nées finissent leur vie) -----
+          act4_croix:
+            { order: 4, target: croix.emission.rate, to: 0, duration: 0.2 }
+          # -- Acte 3 : écran totalement blanc, maintien 2 s -------------------------
+          act5_hold: { order: 5, type: hold, duration: 2.0 }
+          # -- Acte 4 : le voile s'efface en 2 s, l'écran précédent réapparaît -------
+          act6_fade:
+            { order: 6, target: voile.opacity, from: 1, to: 0, duration: 2.0 }
+
+      # Scène "giftxp" : célébration d'un CADEAU d'XP de la guilde (bonus offert sans
+      # tâche finie). Plein de petits symboles dorés (croix "+") éclosent aléatoirement sur
+      # TOUT l'écran (zone rect 100%) tandis qu'un voile doré plein écran monte de l'opacité
+      # 0 à 1 en 2 s → l'écran devient complètement doré. Maintien, extinction des symboles,
+      # puis le doré s'estompe en fondu (opacity 1→0) pour rendre l'écran précédent.
+      # Scène mortelle, rejouable (dvflame.start.giftxp). Pilotée par worker._showGiftAnimation.
+      giftxp:
+        lifecycle: mortal
+        autostart: false
+        on_finished: # cf. burn : dégel de l'écran + reprise de la musique
+          end: { order: 1, action: "dvinterlude.finished" }
+        objects:
+          # Voile doré plein écran : opacité 0 → 1 en 2 s (écran "complètement doré").
+          dore:
+            type: fill
+            order: 10
+            color: "#D4AF37" # or (tunable : #FFC107 / #FFB300 pour un or plus chaud)
+            position: { x: 0, y: 0 }
+            anchor: top_left
+            size: { w: "100%", h: "100%" }
+            opacity: 0
+          # Symboles dorés apparaissant aléatoirement sur TOUT l'écran (zone rect 100%),
+          # rendus AU-DESSUS du voile (order plus grand) pour rester visibles sur le doré.
+          symboles:
+            type: particles
+            order: 20
+            particle_shape: cross # petit "+" doré (le moteur ne fait que circle/cross)
+            position: { x: "50%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "100%", h: "100%" } }
+            lifetime: { min: 0.6, max: 1.4 }
+            velocity: { angle: -90, angle_var: 180, speed: 8, speed_var: 6 }
+            particle_size: { start: 4, peak: 18, end: 0, peak_at: 0.4 }
+            size_var: 0.6 # petits et grands symboles mêlés
+            opacity_var: 0.7 # éclats variés
+            colors:
+              c1: { order: 1, color: "#FFF59D" } # or clair (naissance)
+              c2: { order: 2, color: "#FFC107" } # or franc (sommet)
+              c3: { order: 3, color: "#00FFB300" } # fondu transparent (mort)
+
+        effects:
+          # -- Acte 1 : éclosion des symboles partout + montée du voile doré (2 s) ---
+          act1_haptic: # beat t=0 (hold parallèle, cf. scène burn) : scintillement léger
+            {
+              order: 1,
+              type: hold,
+              duration: 0.05,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.gift_sparkle" } },
+            }
+          act1_symboles:
+            {
+              order: 1,
+              target: symboles.emission.rate,
+              to: 240,
+              duration: 0.15,
+            }
+          act1_dore:
+            {
+              order: 1,
+              target: dore.opacity,
+              from: 0,
+              to: 1,
+              duration: 2.0,
+              # L'écran est complètement doré → carillon.
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.gift_chime" } },
+            }
+          # -- Acte 2 : maintien écran doré (le splash est lisible) ------------------
+          act2_hold: { order: 2, type: hold, duration: 1.5 }
+          # -- Acte 3 : extinction de l'émission (les symboles nés finissent leur vie) -
+          act3_symboles:
+            { order: 3, target: symboles.emission.rate, to: 0, duration: 0.2 }
+          # -- Acte 4 : le doré s'efface en 2 s, l'écran précédent réapparaît --------
+          act4_fade:
+            { order: 4, target: dore.opacity, from: 1, to: 0, duration: 2.0 }
+
+      # Scène "giftgold" : célébration « cadeau d'or de la guilde » — une pluie de pièces
+      # dorées (petits cercles) tombe du haut pendant ~2 s pendant qu'une nappe d'or monte du
+      # bas et remplit l'écran ; les pièces semblent s'empiler sur l'or (pas de collision réelle :
+      # leur lifetime les fait « mourir » à hauteur de la nappe montante, cf. ratio de vitesse du
+      # burn). Écran maintenu doré (splash lisible), puis le doré s'efface en fondu (opacity 1 → 0)
+      # pour rendre l'écran précédent. Même mécanique que giftxp (worker._showGiftGoldAnimation).
+      giftgold:
+        lifecycle: mortal
+        autostart: false
+        on_finished: # cf. burn : dégel de l'écran + reprise de la musique
+          end: { order: 1, action: "dvinterlude.finished" }
+        objects:
+          # Nappe d'or qui MONTE DU BAS : anchré bottom_center, size.h 0 → 100% (idiome flood
+          # du burn/carbone). opacity plein (défaut) pendant la montée, puis fondu à l'acte 4.
+          dore:
+            type: fill
+            order: 10
+            color: "#D4AF37" # or (même teinte que giftxp)
+            position: { x: "50%", y: "100%" }
+            anchor: bottom_center
+            size: { w: "100%", h: 0 }
+          # Pièces dorées qui TOMBENT : émises depuis une ligne en haut de l'écran, vers le bas
+          # (angle 90) avec gravité (acceleration.y). Rendues AU-DESSUS de la nappe (order plus
+          # grand) → visibles sur la zone pas encore dorée, avalées par l'or à mesure qu'il monte.
+          pieces:
+            type: particles
+            order: 20
+            particle_shape: circle # pièces = petits cercles (le moteur ne fait que circle/cross)
+            position: { x: "50%", y: 0 }
+            emission: { rate: 0, zone: { shape: line, w: "100%", h: 0 } }
+            lifetime: { min: 1.6, max: 2.4 } # ~temps de chute : réglé pour mourir vers la nappe d'or
+            velocity: { angle: 90, angle_var: 12, speed: 60, speed_var: 25 }
+            acceleration: { y: 120 } # gravité (chute qui s'accélère)
+            particle_size: { start: 13, end: 11 } # pièces d'un calibre régulier
+            size_var: 0.4 # quelques pièces plus grosses/petites
+            opacity_var: 0.3
+            colors:
+              c1: { order: 1, color: "#FFF59D" } # or clair (naissance)
+              c2: { order: 2, color: "#FFC107" } # or franc
+              c3: { order: 3, color: "#FFB300" } # or chaud (mort, reste opaque = fond doré)
+
+        effects:
+          # -- Acte 1 : la pluie démarre + la nappe d'or monte du bas (~2 s) ----------
+          act1_haptic: # beat t=0 (hold parallèle, cf. scène burn) : les pièces claquent
+            {
+              order: 1,
+              type: hold,
+              duration: 0.05,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.coins_rain" } },
+            }
+          act1_pieces:
+            { order: 1, target: pieces.emission.rate, to: 200, duration: 0.15 }
+          act1_dore:
+            {
+              order: 1,
+              target: dore.size.h,
+              from: 0,
+              to: "100%",
+              duration: 2.0,
+              curve: ease_in,
+              # La nappe d'or a rempli l'écran → l'or se pose.
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.coins_settle" } },
+            }
+          # -- Acte 2 : maintien écran doré (le splash est lisible) ------------------
+          act2_hold: { order: 2, type: hold, duration: 1.5 }
+          # -- Acte 3 : extinction de la pluie (les pièces nées finissent leur chute) -
+          act3_pieces:
+            { order: 3, target: pieces.emission.rate, to: 0, duration: 0.2 }
+          # -- Acte 4 : le doré s'efface en 2 s, l'écran précédent réapparaît --------
+          act4_fade:
+            { order: 4, target: dore.opacity, from: 1, to: 0, duration: 2.0 }
+
+      # Scène "gameover" : célébration de MORT (0 PV) — MIROIR de la scène "heal". Elle masque la
+      # transition écran de jeu → écran de mort (le soin masque la transition inverse). 3 temps :
+      #   1. l'écran devient NOIR progressivement (voile noir, opacity 0 → 1) — PAS de cendres.
+      #   2. écran noir stable : SEULEMENT ALORS worker._celebrateDeath pose le splash "GAME OVER"
+      #      (blanc + squelette sur fond noir) et applique le crâne SOUS le noir (à ~4 s) ; on attend.
+      #   3. SORTIE : le noir s'efface PROGRESSIVEMENT en 1 s (pas de bascule sèche) et, dès le début
+      #      de ce fondu, une pluie SOUTENUE de cendres NOIRES est produite pendant ~2 s, tombant
+      #      VERTICALEMENT (angle 90 + gravité) → l'écran de mort (crâne + gage) se dévoile derrière la
+      #      pluie, qui dure longtemps avant de se dissoudre (lifetime long + fondu transparent).
+      # Scène mortelle, rejouable (dvflame.start.gameover). Pilotée par worker._celebrateDeath.
+      gameover:
+        lifecycle: mortal
+        autostart: false
+        # cf. burn. L'ambiance reprise sera `ambiant_dead` : le worker l'a déclarée pendant que la
+        # musique était coupée, dvsound la joue à la reprise. dvinterlude n'a pas à savoir mourir.
+        on_finished:
+          end: { order: 1, action: "dvinterlude.finished" }
+        objects:
+          # Voile NOIR plein écran : opacité 0 → 1 (l'écran devient noir), puis 1 → 0 PROGRESSIVEMENT
+          # en 1 s à la sortie (révèle l'écran de mort en douceur, derrière les cendres). Sous les cendres.
+          noir:
+            type: fill
+            order: 5
+            color: "#000000"
+            position: { x: 0, y: 0 }
+            anchor: top_left
+            size: { w: "100%", h: "100%" }
+            opacity: 0
+          # Cendres NOIRES : pluie SOUTENUE depuis TOUT l'écran (zone rect 100%), produite en CONTINU
+          # pendant ~2 s à la sortie (pas un burst d'un coup → moins éphémère), tombant VERTICALEMENT
+          # vers le bas (angle 90, faible dispersion) avec gravité. Lifetime LONG → elles tombent
+          # longtemps avant de se dissoudre (couleur → transparent en fin de vie). Au-DESSUS du noir.
+          cendres:
+            type: particles
+            order: 20
+            particle_shape: circle
+            position: { x: "50%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "100%", h: "100%" } }
+            velocity: { angle: 90, angle_var: 10, speed: 40, speed_var: 20 } # chute quasi VERTICALE
+            acceleration: { x: 0, y: 90 } # gravité (la chute s'accélère)
+            lifetime: { min: 3.5, max: 5.5 } # durent LONGTEMPS avant de se dissoudre
+            particle_size: { start: 9, end: 4 }
+            size_var: 0.5
+            opacity_var: 0.5
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#000000" } # cendre NOIRE (naissance)
+              c2: { order: 2, color: "#000000" } # noir (opaque quasi toute la vie)
+              c3: { order: 3, color: "#00000000" } # fondu transparent (dissolution en fin de vie)
+
+        effects:
+          # Timeline PHASÉE (rythme du soin) :
+          #   phase 1 (act1, 3 s) : l'écran devient NOIR progressivement (sans cendres).
+          #   phase 2 (act2, hold) : écran noir ; c'est SEULEMENT LÀ que le splash « GAME OVER » et le
+          #     crâne sont posés (worker.show_gameover, tiré par la fin de l'acte 1).
+          #   phase 3 (act3+) : SORTIE — le noir s'efface PROGRESSIVEMENT (1 s) et, dès le début du
+          #     fondu, les cendres sont produites en CONTINU ~2 s (act3 démarre, act4 maintient, act5
+          #     coupe) → écran de mort révélé en douceur ; la pluie tombe (act6) avant de se dissoudre.
+          # -- Acte 1 : l'écran devient NOIR progressivement (opacity 0 → 1), SANS cendres --------
+          # Beat t=0 (hold parallèle, cf. scène burn) : glas de 2,55 s — trois coups sourds
+          # espacés puis la chute (boom), pendant que l'écran noircit (3 s).
+          act1_haptic:
+            {
+              order: 1,
+              type: hold,
+              duration: 0.05,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.death_toll" } },
+            }
+          # Sa fin = L'INSTANT où le noir est plein : on y pose le splash « GAME OVER » et on applique
+          # le crâne SOUS le noir (il reste masqué jusqu'au burst de cendres qui le révèle). Miroir du
+          # retrait du crâne sous le blanc dans le soin — ancré sur l'ACTE, pas sur un délai en dur.
+          act1_noir:
+            {
+              order: 1,
+              target: noir.opacity,
+              from: 0,
+              to: 1,
+              duration: 3.0,
+              on_end: { death: { order: 1, action: "worker.show_gameover" } },
+            }
+          # -- Acte 2 : maintien écran noir (le splash « GAME OVER » y vit sa vie) ----------------
+          # Long (4,5 s) : laisse le splash faire fondu-entrant / lecture / fondu-sortant AVANT la
+          # sortie (cf. gameover_label fadein/duration/fadeout).
+          # Sa fin (~7,5 s) = la SORTIE : le noir se brise en cendres → burst haptique.
+          act2_hold:
+            {
+              order: 2,
+              type: hold,
+              duration: 4.5,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.death_burst" } },
+            }
+          # -- Acte 3 : SORTIE — le noir DISPARAÎT PROGRESSIVEMENT en 1 s, et l'émission de cendres
+          # DÉMARRE au même instant (dès le début du fondu). Pas de bascule sèche vers l'écran de mort :
+          # il se dévoile pendant que le noir s'efface, derrière la pluie de cendres.
+          act3_noir:
+            { order: 3, target: noir.opacity, from: 1, to: 0, duration: 1.0 }
+          act3_cendres:
+            { order: 3, target: cendres.emission.rate, to: 2500, duration: 0.2 }
+          # -- Acte 4 : on MAINTIENT l'émission (hold) → cendres produites en CONTINU, pas d'un coup :
+          # émission ON de act3 (1 s) + ce hold (1 s) ≈ 2 s de production DEPUIS le début du fadeout.
+          act4_hold: { order: 4, type: hold, duration: 1.0 }
+          # -- Extinction de l'émission après ~2 s (les cendres déjà nées finissent de tomber) -------
+          act5_cendres:
+            { order: 5, target: cendres.emission.rate, to: 0, duration: 0.2 }
+          # -- Acte 5 : on laisse la pluie de cendres tomber et se dissoudre (lifetime long) -------
+          act6_hold: { order: 6, type: hold, duration: 4.5 }
+
+      # Scène "victory" : célébration « tâche accomplie et validée ». Une simple image
+      # (victory_nobg.png) en fondu — apparition 1 s (opacity 0 → 1), maintien 1 s, disparition 1 s —
+      # jouée par-dessus l'écran courant (le tiroir), sur un son unique (tatadaa.mp3, joué par
+      # dvinterlude 0,5 s avant le visuel). Aucun voile ni particule : c'est une victoire nette, pas un
+      # cadeau doré (cf. worker._showVictoryAnimation, à ne pas confondre avec giftxp).
+      victory:
+        lifecycle: mortal
+        autostart: false
+        on_finished: # cf. burn : dégel de l'écran + reprise de la musique
+          end: { order: 1, action: "dvinterlude.finished" }
+        objects:
+          # Image plein cadre, centrée, opacité 0 au départ (le fondu la révèle). sprite_static rend
+          # l'image et anime son canal opacity (cf. dvspritestatic_motor). size = la BOÎTE (96 % de
+          # l'écran, une marge tout autour) et stretch RATIO_IN cadre l'image DEDANS à son ratio
+          # natif, centrée : l'image est carrée, l'écran est en portrait — sans RATIO_IN elle serait
+          # étirée à la boîte (deux fois plus haute que large). Valeurs identiques à DvImage.
+          img:
+            type: sprite_static
+            order: 10
+            image: "images/big/victory_nobg.png"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: "96%", h: "96%" }
+            stretch: "RATIO_IN"
+            opacity: 0
+        effects:
+          # -- Acte 1 : apparition (opacity 0 → 1) en 1 s -----------------------------
+          act1_fadein:
+            { order: 1, target: img.opacity, from: 0, to: 1, duration: 1.0 }
+          # -- Acte 2 : maintien de l'image 1 s ---------------------------------------
+          act2_hold: { order: 2, type: hold, duration: 1.0 }
+          # -- Acte 3 : disparition (opacity 1 → 0) en 1 s → l'écran (tiroir) réapparaît -
+          act3_fadeout:
+            { order: 3, target: img.opacity, from: 1, to: 0, duration: 1.0 }
+
+      # Scène "butin" : ouverture du coffre du clan — la plus longue et la plus fournie des
+      # célébrations (9,95 s). Le morceau, lui, dure ~11,5 s audibles : il DÉBORDE volontairement le
+      # visuel et se poursuit sur l'écran de récompenses (cf. `music: hold` de l'interlude). Huit actes :
+      #   1. (0,9 s) nuit chaude + le coffre SURGIT au centre (elastic_out) dans un halo doré
+      #   2. (2,0 s) il se CHARGE : le halo monte, des braises fuient déjà par les jointures
+      #   3. (0,35 s) il ÉCLATE : flash d'or + fontaine de pièces, confettis et gerbe de braises
+      #   4. (2,6 s) le SPECTACLE : les papillons de lumière montent, le splash y vit sa vie
+      #   5. (1,2 s) une nappe d'or INONDE l'écran par le bas (idiome flood du burn/giftgold)
+      #   6. (1,1 s) maintien COUVERT : c'est LÀ que le worker navigue vers l'écran de récompenses
+      #   7. extinction des émissions
+      #   8. (1,6 s) l'or se dissipe et découvre l'écran de récompenses
+      #
+      # >>> Les actes 5 et 6 sont un mécanisme, pas une décoration : worker.butin_reveal est tiré à
+      # la FIN de l'acte 5 (écran plein or) et empile la page de récompenses SOUS la nappe, que
+      # l'acte 8 dissout. Aucune bascule sèche n'est visible.
+      # >>> L'acte 6 pilote la nappe par des tweens CONSTANTS (100% → 100%) et non par un hold :
+      # la vue de la page qui vient d'être empilée s'attache à la scène EN COURS et ne connaît que
+      # les canaux activement pilotés — un hold la laisserait naître avec une nappe à zéro, donc
+      # transparente, et la bascule se verrait.
+      butin:
+        lifecycle: mortal
+        autostart: false
+        on_finished: # cf. burn : dégel de l'écran + reprise de la musique
+          end: { order: 1, action: "dvinterlude.finished" }
+        objects:
+          # Nuit du donjon : un noir CHAUD, à peine brun — la torche au loin. Cette célébration ne
+          # se distingue pas par une couleur à part (l'or, le feu et la cendre sont la palette de
+          # l'app), mais par sa LUMIÈRE : c'est la plus claire des six.
+          voile:
+            type: fill
+            order: 5
+            color: "#0F0805"
+            position: { x: 0, y: 0 }
+            anchor: top_left
+            size: { w: "100%", h: "100%" }
+            opacity: 0
+          # Halo doré derrière le coffre : grandit avec lui, puis monte en intensité pendant la
+          # charge et s'éteint dans le flash.
+          lueur:
+            type: fill
+            shape: circle
+            order: 8
+            color: "#FFD54F"
+            position: { x: "50%", y: "52%" }
+            anchor: center
+            size: { w: 0, h: 0 }
+            opacity: 0.5
+          # Le coffre : l'image du catalogue d'items (déjà téléchargée, vague major). sprite_static
+          # n'anime que size/opacity — il ne bouge donc pas, il GRANDIT depuis le centre (anchor).
+          coffre:
+            type: sprite_static
+            order: 10
+            image: "images/big/chest_item_nobg.png"
+            position: { x: "50%", y: "52%" }
+            anchor: center
+            size: { w: 0, h: 0 }
+            stretch: "RATIO_IN"
+          # Flash de l'éclatement : un disque d'or clair (et non blanc : le donjon n'a pas de blanc
+          # froid) qui avale l'écran en 0,35 s puis se dissout.
+          eclat:
+            type: fill
+            shape: circle
+            order: 30
+            color: "#FFF3D0"
+            position: { x: "50%", y: "52%" }
+            anchor: center
+            size: { w: 0, h: 0 }
+          # Fontaine de pièces : la recette de giftgold INVERSÉE — elles jaillissent du coffre vers
+          # le haut (angle -90) et la gravité les fait retomber en gerbe.
+          pieces:
+            type: particles
+            order: 40
+            particle_shape: circle
+            position: { x: "50%", y: "52%" }
+            emission: { rate: 0, zone: { shape: point, w: 0, h: 0 } }
+            lifetime: { min: 1.4, max: 2.4 }
+            velocity: { angle: -90, angle_var: 40, speed: 300, speed_var: 120 }
+            acceleration: { y: 550 } # gravité franche : la gerbe retombe vite
+            particle_size: { start: 13, end: 10 }
+            size_var: 0.4
+            colors:
+              c1: { order: 1, color: "#FFF59D" } # or clair (naissance)
+              c2: { order: 2, color: "#FFC107" } # or franc
+              c3: { order: 3, color: "#00FFB300" } # transparent : la pièce s'efface en tombant
+          # Confettis : de vrais petits PAPIERS qui virevoltent, pas des taches de couleur. Trois
+          # matières, celles du donjon — parchemin, or vieilli, cuivre. Ils jaillissent du coffre et
+          # retombent (gravité franche), le preset `confetti` de dvflame étant, lui, multicolore.
+          confettis:
+            type: particles
+            order: 45
+            particle_shape: cross
+            position: { x: "50%", y: "52%" }
+            emission: { rate: 0, zone: { shape: point, w: 0, h: 0 } }
+            lifetime: { min: 2.0, max: 3.2 }
+            velocity: { angle: -90, angle_var: 60, speed: 260, speed_var: 110 }
+            acceleration: { y: 320 } # le papier retombe, plus lentement que l'or
+            particle_size: { start: 11, end: 9 }
+            size_var: 0.5
+            opacity_var: 0.3
+            colors:
+              c1: { order: 1, color: "#F5E6C8" } # parchemin
+              c2: { order: 2, color: "#E0A83C" } # or vieilli
+              c3: { order: 3, color: "#00B87333" } # cuivre, transparent en fin de chute
+          # Papillons de lumière : la seule douceur de la scène. Ils MONTENT du bas en dérivant
+          # (gravité négative), leur taille bat en cloche — des ailes —, et un léger flou les rend
+          # vaporeux. Peu nombreux : c'est une apparition, pas une nuée.
+          papillons:
+            type: particles
+            order: 45
+            particle_shape: cross
+            position: { x: "50%", y: "100%" }
+            emission: { rate: 0, zone: { shape: line, w: "100%", h: 0 } }
+            lifetime: { min: 2.4, max: 4.0 }
+            velocity: { angle: -90, angle_var: 45, speed: 60, speed_var: 30 }
+            acceleration: { y: -30 }
+            particle_size: { start: 4, peak: 14, end: 4, peak_at: 0.5 }
+            size_var: 0.6
+            opacity_var: 0.4
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#FFF3C4" } # lumière pâle
+              c2: { order: 2, color: "#FFD54F" } # or vif
+              c3: { order: 3, color: "#00FFB300" } # s'éteint en montant
+          # Braises : le donjon respire. Elles fuient par les jointures du coffre pendant la charge,
+          # puis partent en gerbe à l'éclatement. Miroir des cendres du game over — ici ça monte,
+          # c'est chaud, et c'est vivant.
+          braises:
+            type: particles
+            order: 50
+            particle_shape: circle
+            position: { x: "50%", y: "52%" }
+            emission: { rate: 0, zone: { shape: point, w: 0, h: 0 } }
+            lifetime: { min: 0.9, max: 2.0 }
+            velocity: { angle: -90, angle_var: 70, speed: 140, speed_var: 70 }
+            acceleration: { y: -60 } # l'air chaud les emporte vers le haut
+            particle_size: { start: 7, peak: 9, end: 0, peak_at: 0.2 }
+            size_var: 0.6
+            opacity_var: 0.5
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#FFE0B2" } # cœur clair
+              c2: { order: 2, color: "#FF6D00" } # braise franche
+              c3: { order: 3, color: "#00B71C1C" } # rouge sombre, éteinte
+          # Nappe d'or finale : idiome flood (anchor bottom_center, size.h 0 → 100%) du burn et de
+          # giftgold. C'est elle qui couvre la navigation vers l'écran de récompenses.
+          nappe:
+            type: fill
+            order: 60
+            color: "#D4AF37"
+            position: { x: "50%", y: "100%" }
+            anchor: bottom_center
+            size: { w: "100%", h: 0 }
+        effects:
+          # -- Acte 1 (0,9 s) : le coffre SURGIT dans son halo ------------------------
+          act1_haptic: # beat t=0 (hold parallèle, cf. scène burn) : le coffre force
+            {
+              order: 1,
+              type: hold,
+              duration: 0.05,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.butin_charge" } },
+            }
+          act1_voile:
+            { order: 1, target: voile.opacity, from: 0, to: 0.85, duration: 0.6 }
+          # elastic_out : le coffre dépasse sa taille puis se cale — il ARRIVE, il n'apparaît pas.
+          act1_coffre_w:
+            {
+              order: 1,
+              target: coffre.size.w,
+              from: 0,
+              to: "60%",
+              duration: 0.9,
+              curve: elastic_out,
+            }
+          act1_coffre_h:
+            {
+              order: 1,
+              target: coffre.size.h,
+              from: 0,
+              to: "42%",
+              duration: 0.9,
+              curve: elastic_out,
+            }
+          act1_lueur_w:
+            { order: 1, target: lueur.size.w, from: 0, to: "70%", duration: 0.9 }
+          act1_lueur_h:
+            { order: 1, target: lueur.size.h, from: 0, to: "45%", duration: 0.9 }
+          # -- Acte 2 (2,0 s) : la CHARGE — le halo monte, les braises fuient du coffre -
+          act2_lueur:
+            { order: 2, target: lueur.opacity, from: 0.5, to: 1, duration: 2.0 }
+          act2_braises:
+            { order: 2, target: braises.emission.rate, to: 50, duration: 2.0 }
+          # -- Acte 3 (0,35 s) : l'ÉCLAT — flash + tout part en même temps -----------
+          act3_eclat_w:
+            {
+              order: 3,
+              target: eclat.size.w,
+              from: 0,
+              to: "320%",
+              duration: 0.35,
+              curve: ease_out,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.butin_burst" } },
+            }
+          act3_eclat_h:
+            {
+              order: 3,
+              target: eclat.size.h,
+              from: 0,
+              to: "320%",
+              duration: 0.35,
+              curve: ease_out,
+            }
+          act3_pieces:
+            { order: 3, target: pieces.emission.rate, to: 320, duration: 0.1 }
+          act3_conf:
+            { order: 3, target: confettis.emission.rate, to: 200, duration: 0.1 }
+          # Les papillons ne jaillissent pas : ils s'invitent, en petit nombre, et tiennent l'écran
+          # pendant que le reste retombe.
+          act3_papillons:
+            { order: 3, target: papillons.emission.rate, to: 30, duration: 0.1 }
+          act3_braises:
+            { order: 3, target: braises.emission.rate, to: 120, duration: 0.1 }
+          act3_lueur:
+            { order: 3, target: lueur.opacity, from: 1, to: 0, duration: 0.3 }
+          # -- Acte 4 (2,6 s) : le SPECTACLE (le splash y vit sa vie) ----------------
+          act4_hold: { order: 4, type: hold, duration: 2.6 }
+          act4_eclat:
+            { order: 4, target: eclat.opacity, from: 1, to: 0, duration: 0.8 }
+          # -- Acte 5 (1,2 s) : la nappe d'or INONDE → navigation SOUS l'or ----------
+          # worker.butin_reveal empile l'écran de récompenses pendant que l'or couvre tout.
+          act5_nappe:
+            {
+              order: 5,
+              target: nappe.size.h,
+              from: 0,
+              to: "100%",
+              duration: 1.2,
+              curve: ease_in,
+              on_end:
+                {
+                  vib: { order: 1, action: "dvvibrations.start.coins_settle" },
+                  reveal: { order: 2, action: "worker.butin_reveal" },
+                },
+            }
+          # -- Acte 6 (1,1 s) : maintien COUVERT (tweens constants, cf. en-tête) -----
+          act6_nappe_h:
+            {
+              order: 6,
+              target: nappe.size.h,
+              from: "100%",
+              to: "100%",
+              duration: 1.1,
+            }
+          act6_nappe_o:
+            { order: 6, target: nappe.opacity, from: 1, to: 1, duration: 1.1 }
+          # -- Acte 7 : extinction des émissions (les particules nées finissent leur vie) --
+          act7_pieces:
+            { order: 7, target: pieces.emission.rate, to: 0, duration: 0.2 }
+          act7_conf:
+            { order: 7, target: confettis.emission.rate, to: 0, duration: 0.2 }
+          act7_papillons:
+            { order: 7, target: papillons.emission.rate, to: 0, duration: 0.2 }
+          act7_braises:
+            { order: 7, target: braises.emission.rate, to: 0, duration: 0.2 }
+          # -- Acte 8 (1,6 s) : l'or se dissipe → l'écran de récompenses paraît ------
+          act8_nappe:
+            { order: 8, target: nappe.opacity, from: 1, to: 0, duration: 1.6 }
+          act8_voile:
+            { order: 8, target: voile.opacity, from: 0.85, to: 0, duration: 1.6 }
+
+  # Miniatures des types d'items : le catalogue (tailles, options, dépôts) vit dans
+  # items-base-global.yml, seul le VISUEL dépend du thème et se pose ici.
+  # Gabarit `big` (768 px, et non `medium` 384) pour les 3 items : l'option « Voir » (item_view_page)
+  # les affiche en grand format, `medium` y serait flou. Sources déjà en 2048 px, marge suffisante.
+  items:
+    titre_perso:
+      image: images/big/titre_perso.png
+    titre_clan:
+      image: images/big/titre_clan.png
+    butin:
+      image: images/big/chest_item_nobg.png
+    argent_poche:
+      image: images/big/argent_poche_nobg.png
+
+  registry:
+    orb:
+      title: "Donjons & Savons"
+      theme_color: blue
+      debug_banner: false
+      freeze:
+        ring:
+          color: "amber_900"
+      splash:
+        image: "assets/images/splashs/splash.png"
+
+    page:
+      appbar_font_color: "0xFF99864E"
+      background_color: black
+
+    # ---- Theme commons : toutes les valeurs visuelles de l'app ----
+    # Modifier ici pour changer le thème visuel
+
+    commons/shape:
+      shape:
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 6.0
+        font_size: 15.0
+        font_color: "amber_200"
+        opacity: 0.6
+        border_size_hover: 3.0
+        font_color_hover: "amber_400"
+
+    commons/nobordershape:
+      shape:
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 6.0
+        font_size: 15.0
+        font_color: "amber_200"
+        opacity: 0.6
+
+    commons/splash_background:
+      shape:
+        background_color: black
+        image: "assets/images/splashs/splash.png"
+
+    commons/angels_splash:
+      shape:
+        x: 0
+        y: 0
+        w: "100%"
+        h: "100%"
+        background_color: black
+        image: "assets/images/splashs/annonce.png"
+        stretch: "RATIO_IN"
+        font_color: "0xFFD4AF37"
+        font_size: 30.0
+        font_weight: bold
+        text_align: CENTER
+
+    commons/icon_background:
+      shape:
+        background_color: black
+        image: "assets/icon/shield.png"
+
+    commons/table:
+      shape:
+        font_size: 11.0
+        background_color: "0x00000000"
+        row_color: "amber_200"
+        row_opacity: 1
+        row_color_alternate: "amber_100"
+        selected_color: "amber_400"
+        selected_opacity: 1
+        not_selectable_font_color: "0xFF455A64"
+        divider_color: black
+        row_font_color: black
+        divider_thickness: 1.0
+
+    commons/frame:
+      shape:
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 6.0
+        background_color: "0xFF111111"
+        opacity: 0.6
+
+    commons/entry:
+      shape:
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: "amber_200"
+        background_color: "0xFF111111"
+        opacity: 0.6
+
+    commons/dark_button:
+      shape:
+        background_color: black
+        opacity: 0.6
+
+    # Bouton « classique donjon » : fond noir ~60 % + cadre doré. L'alpha est encodé dans le hex
+    # (0x99 ≈ 60 %) car DvShape.decoration n'applique pas `opacity` à la couleur ; `border: true`
+    # est requis pour que le cadre soit peint. Utilisé par les icônes d'action du roster (button_style).
+    commons/donjon_button:
+      shape:
+        background_color: "0x99000000"
+        border: true
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 6.0
+
+    commons/intro_text:
+      shape:
+        font_size: 14.0
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "amber_200"
+        opacity: 0.6
+
+    commons/taskbar:
+      shape:
+        background_color: black
+        background_opacity: 0.6
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 0.0
+        label_color: "#C8A84B"
+        label_size: 10
+        label_height: 18
+        icons_shape:
+          icon_color: "amber_200"
+          background_color: "0x00000000"
+        icons:
+          shop_open:
+            shape:
+              icon: images/small/tb_boutique.png
+          clan_open:
+            shape:
+              icon: images/small/tb_clan.png
+          combat_open:
+            shape:
+              icon: images/small/tb_combat.png
+              scale: 140
+          personnage_open:
+            shape:
+              icon: images/small/tb_perso.png
+          testme_open:
+            shape:
+              icon: images/small/tb_inventaire.png
+
+    #//------- Styles visuels par écran (déplacés depuis config.yml) ---------
+
+    # Intitulés de formulaire (royaume, nom du joueur, date de naissance, nom/description du clan,
+    # somme). opacity: 1.0 annule le 0.6 hérité de commons/nobordershape : DvImageView applique
+    # shape.opacity au TEXTE, et ces libellés sortaient donc en or éteint à côté des boutons qu'ils
+    # annoncent (documents/region_button & co, qui n'ont pas d'opacité). Un seul or dans l'app.
+    commons/label_label:
+      shape:
+        font_size: 13.0
+        opacity: 1.0
+
+    region_screen/lang_flag:
+      shape:
+        font_size: 14.0
+        background_color: "transparent"
+
+    region_screen/lang_text:
+      shape:
+        opacity: 0.6
+        font_size: 14.0
+        font_color: "amber_200"
+        background_color: "transparent"
+
+    # Bouton de choix du royaume : texte ambre aligné à gauche (le drapeau ouvre la ligne),
+    # le cadre venant de `button_style: commons/donjon_button`.
+    documents/region_button:
+      shape:
+        font_color: "amber_200"
+        font_size: 15.0
+        text_align: LEFT
+
+    # Menu des royaumes : MÊME habillage que le kebab Personnage — c'est le même widget, il
+    # doit se voir pareil. L'alpha est dans le hex : DvMenuView lit `background_color` brut et
+    # n'applique JAMAIS `shape.opacity`, un noir + opacité donnerait un popup opaque.
+    documents/region_menu:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+
+    documents/region_confirm:
+      shape:
+        opacity: 0.3
+
+    region_screen/skip_fast_test:
+      shape:
+        font_size: 12.0
+        font_color: "white"
+        background_color: "red"
+        opacity: 0.85
+        border_radius: 4.0
+
+    player_name_screen/confirm:
+      shape:
+        opacity: 0.3
+
+    documents/birthday_date:
+      shape:
+        background_color: "black"
+        opacity: 0.6
+        font_size: 14.0
+
+    documents/age_confirm:
+      shape:
+        opacity: 0.3
+
+    age_screen/skip_fast_test:
+      shape:
+        font_size: 12.0
+        font_color: "white"
+        background_color: "red"
+        opacity: 0.85
+        border_radius: 4.0
+
+    parentalgate/expression:
+      shape:
+        font_size: 22.0
+        font_color: "amber_200"
+        border_color: "amber_200"
+        background_color: "0xFF111111"
+        opacity: 0.6
+
+    parentalgate/countdown:
+      shape:
+        font_size: 22.0
+        font_color: "amber_200"
+        border_color: "amber_200"
+        background_color: "0xFF111111"
+        opacity: 0.6
+
+    parentalgate/answer_display:
+      shape:
+        font_size: 18.0
+        font_color: "amber_200"
+        border_color: "amber_200"
+        background_color: "0xFF111111"
+        opacity: 0.6
+
+    parentalgate/numpad:
+      shape:
+        btn_background_color: "0xFF1A1A1A"
+        btn_font_color: "0xFFA08736"
+        btn_font_size: 22.0
+        btn_font_weight: "bold"
+
+    # --- Écran de saisie d'une somme (money_page) ---------------------------
+    # Pas de fond ici : l'écran vit sur le noir de `page`, et ce sont les illustrations de dvpops
+    # qui l'animent (le doré des libellés se noyait sur l'or de splash.png). Seule la bourse
+    # l'identifie, et le pavé porte la livrée de celui de la porte parentale — c'est le même geste,
+    # il doit se ressembler.
+
+    money_page/purse:
+      shape:
+        image: "images/medium/bourse.png"
+        stretch: "RATIO_IN"
+        border: false
+
+    money_page/label:
+      shape:
+        font_size: 13.0
+        font_color: "#C8A84B"
+        border: false
+
+    money_page/amount:
+      shape:
+        font_size: 30.0
+        font_weight: "bold"
+        font_color: "amber_200"
+        background_color: "0xB3000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+
+    money_page/numpad:
+      shape:
+        btn_background_color: "0xFF1A1A1A"
+        btn_font_color: "0xFFA08736"
+        btn_font_size: 22.0
+        btn_font_weight: "bold"
+        btn_border_radius: 8.0
+
+    ddvideo/player:
+      shape:
+        video: "videos/video_@@@lang@@@.mp4"
+        background_color: black
+        skip_shape:
+          border_color: "amber_200"
+          border_size: 1.0
+          border_radius: 6.0
+          font_color: "amber_200"
+          background_color: black
+          opacity: 0.6
+
+    documents/acceptance_content:
+      shape:
+        image: "images/splashs/parchment_bg.png"
+        font_color: "black"
+        stretch: "STRETCH"
+
+    documents/acceptance_title:
+      shape:
+        font_size: 14.0
+
+    documents/acceptance_checkbox:
+      shape:
+        font_size: 13.0
+        opacity: 0.6
+
+    decisiontree:
+      font_color: black
+      options_shape:
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 6.0
+        font_size: 15.0
+        font_color: "amber_200"
+        font_color_hover: "amber_400"
+        border_size_hover: 3.0
+        background_color: black
+        opacity: 0.6
+
+    decisiontree/intro:
+      shape:
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: amber_200
+        opacity: 0.6
+
+    invite_clan/qrcode:
+      shape:
+        fg_color: "#FFFFFF"
+        bg_color: "#000000"
+
+    kid_wants_clan/send_request:
+      shape:
+        font_size: 13.0
+        opacity: 0.6
+
+    profile/separator:
+      shape:
+        background_color: "amber_200"
+
+    profile/lang_button:
+      shape:
+        font_size: 22.0
+        background_color: "0x00000000"
+
+    shop/icon:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_Marchand.png"
+
+    shop/label:
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "0xFF99864E"
+        opacity: 1
+
+    clan_page/icon:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_01_C_01.png"
+
+    clan_page/label:
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "0xFF99864E"
+        opacity: 1
+
+    combat/icon_bg:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/ring.png"
+
+    combat/icon:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/ecu_combat.png"
+
+    combat/icon_label:
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "0xFF99864E"
+        opacity: 1
+
+    combat/encourage:
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "0xFF99864E"
+        opacity: 1
+
+    combat/difficulty:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 30%
+        y: 28%
+        w: 40%
+        h: 6%
+        font_color: "amber_200"
+        #"#9B3FC2"
+        font_size: 14
+        # La pastille s'élargit autour de son centre pour tenir le texte sur UNE ligne (40% de
+        # large au minimum). Sans ça, la fourchette d'une tâche recommandée
+        # ("Difficile - 840-1960 XP") déborde des 40%, passe à la ligne, et la 2e ligne — les XP —
+        # est rognée par la boîte de 6% de haut : le joueur ne lit que "Difficile -".
+        responsiveness: LABEL_WIDTH_SOFT
+        background_color: "#000000"
+        opacity: 0.6
+        border: true
+        border_color: "#CD7F32"
+        border_size: 2
+        border_radius: 6
+
+    combat/ok:
+      shape:
+        opacity: 0.6
+
+    combat/cancel:
+      shape:
+        opacity: 0.6
+
+    combat/proof:
+      shape:
+        opacity: 0.6
+
+    combat/tiroir:
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        animaux:
+          image: images/medium/task_animaux_nobg.png
+        bureau:
+          image: images/medium/task_bureau_nobg.png
+        chambre_enfant:
+          image: images/medium/task_chambre_enfant_nobg.png
+        chambre_parentale:
+          image: images/medium/task_chambre_parentale_nobg.png
+        courses:
+          image: images/medium/task_courses_nobg.png
+        cuisine:
+          image: images/medium/task_cuisine_nobg.png
+        dechets:
+          image: images/medium/task_dechets_nobg.png
+        entree:
+          image: images/medium/task_entree_nobg.png
+        extras:
+          image: images/medium/task_extras_nobg.png
+        garage:
+          image: images/medium/task_garage_nobg.png
+        jardin:
+          image: images/medium/task_jardin_nobg.png
+        linge:
+          image: images/medium/task_linge_nobg.png
+        repas:
+          image: images/medium/task_repas_nobg.png
+        salle_de_bain:
+          image: images/medium/task_salle_de_bain_nobg.png
+        salon:
+          image: images/medium/task_salon_nobg.png
+        terrasse:
+          image: images/medium/task_terrasse_nobg.png
+        toilettes:
+          image: images/medium/task_toilettes_nobg.png
+        vaisselle:
+          image: images/medium/task_vaisselle_nobg.png
+        vehicules:
+          image: images/medium/task_vehicules_nobg.png
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+
+    personnage/icon:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_01_P_01.png"
+
+    personnage/label:
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "0xFF99864E"
+        opacity: 1
+
+    salon_tasks/tiroir:
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        salon_01:
+          image: images/medium/dt_t_salon_01.png
+        salon_02:
+          image: images/medium/dt_t_salon_02.png
+        salon_03:
+          image: images/medium/dt_t_salon_03.png
+        salon_04:
+          image: images/medium/dt_t_salon_04.png
+        salon_05:
+          image: images/medium/dt_t_salon_05.png
+        salon_06:
+          image: images/medium/dt_t_salon_06.png
+        salon_07:
+          image: images/medium/dt_t_salon_07.png
+        salon_08:
+          image: images/medium/dt_t_salon_08.png
+        salon_09:
+          image: images/medium/dt_t_salon_09.png
+      icons_shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+
+    # Overlays flamme (assigned/validating/busy) + crâne (dead) pour les autres sous-tiroirs de
+    # domaines. Deep-merge sur icons_shape de config.yml (max_size/font_* conservés).
+    animaux_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    bureau_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    chambre_enfant_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    chambre_parentale_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    courses_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    cuisine_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    dechets_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    entree_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    extras_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    garage_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    jardin_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    linge_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    repas_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    salle_de_bain_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    terrasse_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    toilettes_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    vehicules_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+    vaisselle_tasks/tiroir:
+      icons_shape:
+        # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
+        # affiche l'image du statut courant de l'icône, s'il y en a une déclarée ici.
+        # Statuts de JEU : assigned/validating/busy → flamme, review → main (admin qui peut
+        # juger), dead → crâne (respawn), cure → pansement (régénération).
+        # Statut d'ADMINISTRATION : adm_hidden → croix rouge (tâche cachée aux joueurs, visible
+        # du seul chef en mode admin). adm_disabled n'a pas d'overlay : le grisé suffit.
+        # Badge « boss » (coin nord-ouest) : symbole XP posé sur les tâches recommandées par le chef.
+        recommended_image: "images/small/tagXP_nobg.png"
+        status_images:
+          assigned:   images/small/flamme_nobg.png
+          validating: images/small/flamme_nobg.png
+          busy:       images/small/flamme_nobg.png
+          review:     images/small/hand_nobg.png
+          dead:       images/big/skull_nobg.png
+          cure:       images/small/cure_nobg.png
+          adm_hidden: images/small/adm_cross.png
+
+    pops/illustration:
+      shape:
+        stretch: "RATIO_IN"
+
+    pops/illus_elfe:
+      shape:
+        image: "images/medium/intro_little_elfe.png"
+
+    pops/illus_hobbit:
+      shape:
+        image: "images/medium/intro_little_hobbit.png"
+
+    pops/illus_knight:
+      shape:
+        image: "images/medium/intro_little_knight.png"

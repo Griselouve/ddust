@@ -1,0 +1,180 @@
+# =====================================================================
+# DONJONS & SAVONS — dvdecisiontree  (General / V2)
+# Fichier unique, labels traduits via dvlang (@@@T:dt_xxx@@@).
+# =====================================================================
+
+questions:
+  # --- Logement & espaces -------------------------------------------
+  - id: q_jardin_plantes
+    title: "@@@T:dt_q_jardin_plantes@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_opt_aucun@@@"
+        whitelist_tags: []
+        blacklist_tags: [tag_possede_jardin, tag_possede_plantes_interieur]
+      - label: "@@@T:dt_opt_plantes_interieur@@@"
+        whitelist_tags: [tag_possede_plantes_interieur]
+        blacklist_tags: [tag_possede_jardin]
+      - label: "@@@T:dt_opt_jardin@@@"
+        whitelist_tags: [tag_possede_jardin]
+        blacklist_tags: [tag_possede_plantes_interieur]
+      - label: "@@@T:dt_opt_les_deux@@@"
+        whitelist_tags: [tag_possede_jardin, tag_possede_plantes_interieur]
+        blacklist_tags: []
+
+  - id: q_terrasse_balcon
+    title: "@@@T:dt_q_terrasse_balcon@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_opt_aucun@@@"
+        whitelist_tags: []
+        blacklist_tags: [tag_possede_terrasse, tag_possede_balcon]
+      - label: "@@@T:dt_opt_terrasse@@@"
+        whitelist_tags: [tag_possede_terrasse, tag_possede_balcon_ou_terrasse]
+        blacklist_tags: [tag_possede_balcon]
+      - label: "@@@T:dt_opt_balcon@@@"
+        whitelist_tags: [tag_possede_balcon, tag_possede_balcon_ou_terrasse]
+        blacklist_tags: [tag_possede_terrasse]
+      - label: "@@@T:dt_opt_les_deux@@@"
+        whitelist_tags: [tag_possede_terrasse, tag_possede_balcon, tag_possede_balcon_ou_terrasse]
+        blacklist_tags: []
+
+  - id: q_bureau
+    title: "@@@T:dt_q_bureau@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_yes@@@"
+        whitelist_tags: [tag_possede_bureau]
+        blacklist_tags: []
+      - label: "@@@T:dt_no@@@"
+        whitelist_tags: []
+        blacklist_tags: [tag_possede_bureau]
+
+  # --- Cuisine (équipements) ----------------------------------------
+  - id: q_lave_vaisselle_four
+    title: "@@@T:dt_q_lave_vaisselle_four@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_opt_aucun@@@"
+        whitelist_tags: [tag_sans_lave_vaisselle]
+        blacklist_tags: [tag_possede_lave_vaisselle, tag_possede_four]
+      - label: "@@@T:dt_opt_lave_vaisselle@@@"
+        whitelist_tags: [tag_possede_lave_vaisselle]
+        blacklist_tags: [tag_possede_four]
+      - label: "@@@T:dt_opt_four@@@"
+        whitelist_tags: [tag_possede_four, tag_sans_lave_vaisselle]
+        blacklist_tags: [tag_possede_lave_vaisselle]
+      - label: "@@@T:dt_opt_les_deux@@@"
+        whitelist_tags: [tag_possede_lave_vaisselle, tag_possede_four]
+        blacklist_tags: []
+
+  # --- Salle de bain ------------------------------------------------
+  - id: q_douche_baignoire
+    title: "@@@T:dt_q_douche_baignoire@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_opt_aucun@@@"
+        whitelist_tags: []
+        blacklist_tags: [tag_possede_douche, tag_possede_baignoire]
+      - label: "@@@T:dt_opt_douche@@@"
+        whitelist_tags: [tag_possede_douche]
+        blacklist_tags: [tag_possede_baignoire]
+      - label: "@@@T:dt_opt_baignoire@@@"
+        whitelist_tags: [tag_possede_baignoire]
+        blacklist_tags: [tag_possede_douche]
+      - label: "@@@T:dt_opt_les_deux@@@"
+        whitelist_tags: [tag_possede_douche, tag_possede_baignoire]
+        blacklist_tags: []
+
+  # --- Linge --------------------------------------------------------
+  - id: q_machine_etendoir
+    title: "@@@T:dt_q_machine_etendoir@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_opt_aucun@@@"
+        whitelist_tags: [tag_sans_machine_laver, tag_sans_etendoir]
+        blacklist_tags: [tag_possede_machine_laver, tag_possede_etendoir]
+      - label: "@@@T:dt_opt_machine_laver@@@"
+        whitelist_tags: [tag_possede_machine_laver, tag_sans_etendoir]
+        blacklist_tags: [tag_possede_etendoir]
+      - label: "@@@T:dt_opt_etendoir@@@"
+        whitelist_tags: [tag_possede_etendoir, tag_sans_machine_laver]
+        blacklist_tags: [tag_possede_machine_laver]
+      - label: "@@@T:dt_opt_les_deux@@@"
+        whitelist_tags: [tag_possede_machine_laver, tag_possede_etendoir]
+        blacklist_tags: []
+
+  # --- Ménage & déchets ---------------------------------------------
+  - id: q_aspirateur
+    title: "@@@T:dt_q_aspirateur@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_yes@@@"
+        whitelist_tags: [tag_possede_aspirateur]
+        blacklist_tags: []
+      - label: "@@@T:dt_no@@@"
+        whitelist_tags: []
+        blacklist_tags: [tag_possede_aspirateur]
+
+  - id: q_composteur
+    title: "@@@T:dt_q_composteur@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_yes@@@"
+        whitelist_tags: [tag_possede_composteur]
+        blacklist_tags: []
+      - label: "@@@T:dt_no@@@"
+        whitelist_tags: []
+        blacklist_tags: [tag_possede_composteur]
+
+  # --- Véhicules ----------------------------------------------------
+  - id: q_voiture_moto
+    title: "@@@T:dt_q_voiture_moto@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_opt_aucun@@@"
+        whitelist_tags: [tag_sans_voiture]
+        blacklist_tags: [tag_possede_voiture, tag_possede_moto]
+      - label: "@@@T:dt_opt_voiture@@@"
+        whitelist_tags: [tag_possede_voiture]
+        blacklist_tags: [tag_possede_moto]
+      - label: "@@@T:dt_opt_moto@@@"
+        whitelist_tags: [tag_possede_moto, tag_sans_voiture]
+        blacklist_tags: [tag_possede_voiture]
+      - label: "@@@T:dt_opt_les_deux@@@"
+        whitelist_tags: [tag_possede_voiture, tag_possede_moto]
+        blacklist_tags: []
+
+  - id: q_garage
+    title: "@@@T:dt_q_garage@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_yes@@@"
+        whitelist_tags: [tag_possede_garage]
+        blacklist_tags: []
+      - label: "@@@T:dt_no@@@"
+        whitelist_tags: []
+        blacklist_tags: [tag_possede_garage]
+
+  # --- Animaux ------------------------------------------------------
+  - id: q_animal
+    title: "@@@T:dt_q_animal@@@"
+    skip_if_blacklisted: []
+    ask_if_whitelisted: []
+    options:
+      - label: "@@@T:dt_yes@@@"
+        whitelist_tags: [tag_possede_animal]
+        blacklist_tags: []
+      - label: "@@@T:dt_no@@@"
+        whitelist_tags: []
+        blacklist_tags: [tag_possede_animal]

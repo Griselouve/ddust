@@ -1,0 +1,159 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- RENAME TASK SCREEN (édition tâche admin) ---------------
+    # Réutilise le modèle commons/inspireform_* (comme create_clan). Écran AUTONOME (hors dvsteps) :
+    # ouvert par worker.adm_edit (navigate_new), validé par worker.on_confirm_rename_task (retour
+    # navigate_back). Le fond reçoit l'image de la tâche à l'appear (worker.on_rename_task_appear).
+
+    rename_task:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:rename_task_title@@@"
+      keyboard_scrollable: true
+      # NB: pour un ÉCRAN (DvView/DvPage), l'action d'entrée se déclare à la RACINE (`actions:`),
+      # PAS sous `shape:` — DvView._resolveActions lit get("actions"). (Les shapes enfants, elles,
+      # gardent leurs actions sous `shape.`.) Sans ça, l'appear ne se déclenche jamais.
+      actions:
+        appear: worker.on_rename_task_appear
+      registry:
+        - rename_task/background
+        - rename_task/name_label
+        - rename_task/name
+        - rename_task/desc_label
+        - rename_task/desc
+        - rename_task/inspire
+        - rename_task/replay
+        - rename_task/effort
+        - rename_task/respawn
+        - rename_task/type
+        - rename_task/confirm
+
+    rename_task/background:
+      masks:
+        - commons/inspireform_bg
+
+    rename_task/name_label:
+      masks:
+        - commons/inspireform_name_label
+      shape:
+        label: "@@@T:task_name_label@@@"
+
+    rename_task/name:
+      masks:
+        - commons/inspireform_name
+      shape:
+        actions:
+          changed: worker.on_rename_task_name_changed
+
+    rename_task/desc_label:
+      masks:
+        - commons/inspireform_desc_label
+      shape:
+        label: "@@@T:task_description_label@@@"
+
+    rename_task/desc:
+      masks:
+        - commons/inspireform_desc
+      # Hauteur réduite (24% au lieu de 35%) pour dégager la place des 3 picklists effort/respawn/type.
+      shape:
+        h: 24%
+        actions:
+          changed: worker.on_rename_task_desc_changed
+
+    rename_task/inspire:
+      masks:
+        - commons/inspireform_inspire
+      shape:
+        y: 63%
+        freezing_actions:
+          tap: worker.on_inspire_task
+
+    rename_task/replay:
+      masks:
+        - commons/inspireform_replay
+      shape:
+        y: 63%
+        freezing_actions:
+          tap: worker.on_replay_task
+
+    # Picklists effort/respawn/type (feuilles uniquement — masquées pour un domaine par
+    # on_rename_task_appear). Options peuplées à l'appear (_populateEditPicklists), valeur sélectionnée
+    # relue à la validation via la table libellé → valeur tenue dans le worker. Style thème sombre/or.
+    rename_task/effort:
+      class: DvPicklist
+      layer: content
+      shape:
+        x: 5%
+        y: 68%
+        w: 90%
+        h: 6%
+        hint: ""
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "BLACK"
+        border: true
+        border_color: "0xFFB07328"
+        border_radius: 6.0
+        events:
+          changed: true
+        actions:
+          changed: worker.on_rename_effort_changed
+
+    rename_task/respawn:
+      class: DvPicklist
+      layer: content
+      shape:
+        x: 5%
+        y: 75%
+        w: 90%
+        h: 6%
+        hint: ""
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "BLACK"
+        border: true
+        border_color: "0xFFB07328"
+        border_radius: 6.0
+        events:
+          changed: true
+        actions:
+          changed: worker.on_rename_respawn_changed
+
+    # Mortelle (crâne + respawn après validation) vs immortelle (régénère son XP). Champ `type` de la
+    # tâche, relu à la validation par _writeVerdict. 2 options seulement.
+    rename_task/type:
+      class: DvPicklist
+      layer: content
+      shape:
+        x: 5%
+        y: 82%
+        w: 90%
+        h: 6%
+        hint: ""
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "BLACK"
+        border: true
+        border_color: "0xFFB07328"
+        border_radius: 6.0
+        events:
+          changed: true
+        actions:
+          changed: worker.on_rename_type_changed
+
+    rename_task/confirm:
+      masks:
+        - commons/inspireform_confirm
+      shape:
+        y: 89%
+        h: 6%
+        label: "@@@T:rename_task_confirm@@@"
+        freezing_actions:
+          tap: worker.on_confirm_rename_task
+

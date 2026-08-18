@@ -1,0 +1,78 @@
+DONJONS & SAVONS — FACT SHEET / FICHE PRESSE
+=============================================
+
+EN ---------------------------------------------------------------
+
+What it is
+  A family game that turns household chores into a role-playing
+  adventure. The family forms a clan, chores become monsters,
+  defeating them earns experience points, levels and a loot chest
+  filled by the parents (pocket money, a family outing, a treat...).
+
+Key facts
+  * Developer / publisher : grisloup.com (solo indie developer, France)
+  * Platform              : Android (Google Play)
+  * Languages             : French, English, Spanish
+  * Business model        : family subscription after a 15-day trial,
+                            one subscription per clan; shop selling
+                            content and cosmetics individually,
+                            reserved for adults. No ads, no trackers,
+                            no purchasable progression advantage
+  * Release               : public beta in September 2026;
+                            official launch after the beta
+  * Audience              : families — children play with the consent
+                            and supervision of their parents
+  * Privacy               : no ads, no analytics, no advertising ID;
+                            chore photos never leave the phone;
+                            date of birth never stored; clans are
+                            sealed off from one another (no chat,
+                            no directory, invitation only)
+  * Website               : https://dvddust.web.app
+  * Press contact         : donjons@grisloup.com
+
+One-liner
+  Your kids won't tidy their room? Turn your home into a dungeon.
+
+FR ---------------------------------------------------------------
+
+C'est quoi ?
+  Un jeu familial qui transforme les corvées en aventure de jeu de
+  rôle. La famille forme un clan, les tâches ménagères deviennent
+  des monstres, les vaincre rapporte de l'expérience, des niveaux
+  et un butin rempli par les parents (argent de poche, sortie en
+  famille, petite douceur...).
+
+Faits clés
+  * Développeur / éditeur : grisloup.com (développeur indépendant solo, France)
+  * Plateforme            : Android (Google Play)
+  * Langues               : français, anglais, espagnol
+  * Modèle économique     : abonnement familial après 15 jours d'essai,
+                            un seul abonnement par clan ; boutique de
+                            contenus et de cosmétiques à l'unité,
+                            réservée aux adultes. Sans publicité, sans
+                            traqueur, sans avantage de progression
+                            achetable
+  * Sortie                : beta publique en septembre 2026 ;
+                            lancement officiel à l'issue de la beta
+  * Public                : les familles — les enfants jouent avec le
+                            consentement et la supervision des parents
+  * Vie privée            : pas de pub, pas d'analytics, pas d'identifiant
+                            publicitaire ; les photos de tâches ne quittent
+                            jamais le téléphone ; date de naissance jamais
+                            conservée ; les clans sont hermétiques les uns
+                            aux autres (pas de tchat, pas d'annuaire,
+                            invitation uniquement)
+  * Site web              : https://dvddust.web.app
+  * Contact presse        : donjons@grisloup.com
+
+Accroche
+  Vos enfants ne rangent pas leur chambre ?
+  Transformez votre maison en donjon.
+
+USAGE / UTILISATION ----------------------------------------------
+
+  The assets in this kit (logo, screenshots) may be used freely for
+  articles, reviews and videos about Donjons & Savons. Do not alter
+  the logo. / Les visuels de ce kit (logo, captures d'écran) sont
+  librement utilisables pour des articles, tests et vidéos consacrés
+  à Donjons & Savons. Ne pas modifier le logo.

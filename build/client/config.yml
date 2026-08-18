@@ -1,0 +1,236 @@
+conf:
+  name: Ddust
+  desc: Ddust
+
+  application:
+    org: com.grisloup
+    display_name: "Donjons & Savons"
+    version: "1.0.0"   # semver canonique (bump via version=patch|minor|major)
+    build: 1           # numéro de build entier (stores)
+
+  deva:
+    modes:
+      noorb:
+        idles:
+          - orb
+          - lang
+
+  # --- Worker gameplay tuning (niveaux, XP, butin, PV) --------------------------
+  # Valeurs ajustables des barèmes de jeu, lues au démarrage par le module worker
+  # (modules/worker/worker.dart → _loadTuning). Si une clef manque, le worker
+  # retombe sur sa valeur par défaut historique (rappelée en commentaire).
+  worker:
+    xp_per_effort: 10 # part FIXE de l'XP d'une tâche (cf. xp_respawn_div pour la formule complète)
+    xp_respawn_div: 12 # XP d'une tâche = (xp_per_effort + respawn_h / xp_respawn_div) × effort. La part
+      # variable donne du poids aux corvées rares et lourdes : à effort égal, une tâche qui ne revient
+      # que tous les 30 jours vaut 70 × effort quand une tâche de tous les jours vaut 12 × effort.
+      # Les deux parts s'égalisent à xp_per_effort × xp_respawn_div heures de recharge (ici 120 h) :
+      # au-delà, le rendement hebdomadaire d'une tâche ne dépend plus que de son effort.
+    player_max_xp: 100 # PLAFOND de BASE d'XP d'UNE tâche (gain, pas cumul). Valeur d'AMORÇAGE
+      # seulement : elle est recopiée dans clans_players.max_xp à la création du joueur, et c'est CE
+      # champ qui s'applique ensuite (il pourra varier par joueur — pouvoirs, classes…). Sans
+      # plafond, une corvée à fort effort et fort respawn (350 XP) RECOMMANDÉE cumulait le
+      # coefficient boss ×8 : 2800 XP d'un coup, soit le niveau 10 en une seule tâche. Le plafond
+      # n'est PAS fixe : il croît de player_max_xp_per_level à chaque niveau (cf. ci-dessous), si
+      # bien qu'un plafond fixe généreux (500) n'est plus nécessaire pour laisser respirer les
+      # hauts niveaux — c'est la progression qui l'ouvre.
+    player_max_xp_per_level: 20 # ce que le plafond ci-dessus gagne PAR NIVEAU du joueur. Plafond
+      # réellement appliqué = clans_players.max_xp + player_max_xp_per_level × niveau : 120 au
+      # niveau 1, 300 au niveau 10. Un débutant ne peut pas rafler en une corvée ce que le barème
+      # destine à plusieurs semaines, tandis qu'un guerrier confirmé encaisse le bonus boss en
+      # entier — le niveau devient lui-même une récompense, et non un simple compteur.
+    player_max_xp_legacy: 500 # ancienne valeur d'amorçage du plafond, à réaligner une seule fois.
+      # clans_players.max_xp étant posé init-si-null, baisser player_max_xp ne touche QUE les joueurs
+      # créés ensuite : les personnages existants garderaient 500 et échapperaient au nouveau barème.
+      # Au login, un max_xp valant EXACTEMENT cette valeur est réécrit à player_max_xp — un plafond
+      # personnalisé (pouvoir, classe) n'est jamais écrasé. Poser 0 désactive le réalignement, une
+      # fois tous les clans passés.
+    xp_per_level: 50 # pas de la courbe de niveau JOUEUR (Nv.2 = 2×pas)
+    clan_xp_factor: 10 # le CLAN progresse clan_xp_factor× plus lentement que le joueur
+    player_pv: 10 # PV initiaux d'un joueur à la création de son doc
+    player_decay: 1 # decay initial d'un joueur : jours d'inactivité pour perdre 1 PV
+    heal_pv: 3 # PV rendus quand un admin guérit (revive_player) un joueur mort
+    butin_max_xp: 1000 # plafond du CYCLE de butin d'un clan : ce que la jauge doit atteindre pour
+      # que le coffre s'ouvre, remis à zéro à chaque ouverture (au-delà : plus aucun gain). À ne pas
+      # confondre avec butin_gain_max_xp ci-dessous, qui borne UN SEUL crédit — les deux plafonds
+      # cohabitent : le premier dit quand le coffre est plein, le second à quelle vitesse il peut
+      # se remplir.
+    # Pas de plafond d'argent : on ne connaît pas la monnaie du joueur, et là où une baguette vaut
+    # 100 000 un maximum réglable n'a aucun sens. La saisie n'est bornée que par le nombre de
+    # chiffres (garde-fou technique, cf. worker._moneyDigitsMax) et, pour un retour au coffre, par
+    # le solde réel de la bourse.
+    chest_low_pct: 20 # dépôt < 20 % de la moyenne des 20 derniers butins ouverts → "pas de quoi fouetter un chat"
+    chest_high_pct: 180 # dépôt > 180 % de cette moyenne → "trésor exceptionnel". Historique vide = aucun verdict
+    butin_xp_factor: 1 # butin gagné = XP gagnée par le clan × butin_xp_factor. Valeur d'AMORÇAGE
+      # seulement : le facteur appliqué est celui du doc clan (clans.butin_xp_factor), posé à cette
+      # valeur à la création du clan puis modifiable en cours de partie. Sert aussi de repli aux
+      # clans créés avant l'introduction du champ.
+    butin_gain_max_xp: 50 # PLAFOND de BASE d'UN SEUL crédit au butin (et non du cycle, cf.
+      # butin_max_xp). Le butin reçoit l'XP du joueur divisée par le nombre de membres actifs ; sans
+      # cette borne, une corvée recommandée validée dans un petit clan remplissait la jauge d'un
+      # coup. Même statut d'AMORÇAGE que butin_xp_factor : recopié dans clans.max_xp_butin à la
+      # création du clan, modifiable ensuite en cours de partie, et repli des clans créés avant.
+    butin_gain_max_xp_per_level: 20 # ce que le plafond ci-dessus gagne PAR NIVEAU du CLAN. Plafond
+      # réellement appliqué = clans.max_xp_butin + butin_gain_max_xp_per_level × niveau de clan :
+      # 70 au niveau 1, 250 au niveau 10. Miroir exact de player_max_xp_per_level côté joueur — un
+      # jeune clan remplit son coffre corvée après corvée, un clan aguerri peut le faire bondir.
+
+  # --- Cloud provider config (masque flutter/modules/dvcloud/config.yml) --------
+  cloud:
+    auth:
+      actions:
+        on_authenticated: worker.on_login
+        on_login_required: navigate_reset.home
+        on_logout: worker.on_logout
+        # on_anonymous_started reste VIDE volontairement : doStartAnonymous dispatche
+        # on_anonymous_started PUIS on_authenticated. Y remettre worker.on_login ferait
+        # tourner l'aiguillage d'onboarding deux fois de suite.
+        on_anonymous_started: ""
+        on_account_linked: worker.on_account_linked
+        on_link_failed: worker.on_link_failed
+        on_link_conflict: worker.on_link_conflict
+        on_account_rejected: worker.on_account_rejected
+      # Le joueur démarre en session anonyme et ne lie son compte Google qu'à la fin de
+      # l'onboarding : ni email, ni nom, ni photo dans l'annuaire Firebase Auth avant que
+      # les CGU ne soient acceptées et l'état légal connu.
+      anonymous:
+        enabled: true
+        # Jamais automatiquement : la session n'est ouverte que par un tap explicite sur
+        # « Je suis nouveau ». Un auto_start créerait un compte anonyme à chaque lancement,
+        # y compris pour quelqu'un qui vient seulement se reconnecter.
+        auto_start: false
+      existing:
+        # « J'ai déjà un compte » : le compte Google est vérifié AVANT toute écriture, et
+        # son entrée Firebase Auth est supprimée s'il n'est pas joueur — se tromper de
+        # bouton ne doit laisser aucune trace.
+        verify_action: worker.verify_account
+        purge_on_reject: true
+      # Vide, et cela doit le rester : le link ddust est SOFT (l'uid ne change pas), il n'y
+      # a donc aucun ownerId à migrer. Y déclarer clans_players serait une faute — son
+      # ownerId est un secret partagé de clan, pas l'utilisateur.
+      link:
+        resources: []
+    firestore:
+      databases:
+        books:
+          admins: []
+          isolation: strict
+        messaging:
+          isolation: strict
+        sessions:
+          isolation: strict
+        workers:
+          isolation: strict
+    sign-in:
+      enabled: true
+    providers:
+      google:
+        type: google
+        # `email` seul, volontairement : `profile` (nom + photo Google) n'est demandé
+        # à personne, les joueurs étant souvent mineurs. ddust saisit lui-même le nom
+        # (étape « nom » de l'onboarding) et gère ses propres avatars
+        # (clans_players.avatar). Seule conséquence visible : l'écran Profil affiche
+        # l'icône de l'app à la place de la photo Google (repli de _updateAvatar).
+        # Ne PAS vider cette liste : dvcloud retombe alors sur [email, profile].
+        scopes:
+          - email
+
+  # --- Cloud assets config (masque flutter/modules/dvcloudassets/config.yml) ---
+  # Les VAGUES de priorité et le CATALOGUE des thèmes ne sont pas ici : ils vivent dans
+  # le layer general/layers/assets-global.yml, publié avec les assets. Les modifier — ou
+  # déclarer un nouveau thème — ne demande donc pas de nouvelle version sur les stores.
+  # Ne restent ici que les réglages qu'il faut connaître avant le moindre téléchargement.
+  assets:
+    cache_dir: "dvassets"
+    max_age_days: 30
+
+    cloud:
+      bucket: "assets"
+      assets_yml: "assets.yml"
+      # Racines de manifestes, dans l'ordre de cascade (dernier gagnant). Les vagues
+      # nomment des chemins NUS ("images/big/x.png") : c'est cette liste qui décide du
+      # thème qui les fournit, et un thème absent d'ici n'est jamais téléchargé.
+      # Valeur de démarrage — remplacée par celle du thème du clan une fois connu.
+      manifests:
+        - "general"
+        - "donjon"
+
+    fallback:
+      default: ""
+      extensions: {}
+
+    downloads:
+      attempts: 8
+      after: 500
+      idle: 500
+      parallel: 6      # passe lazy téléchargée avec 6 fichiers en parallèle (défaut module = 4)
+
+  # --- Messaging (masque flutter/modules/dvmessaging/config.yml) ---------------
+  messaging:
+    broadcast_enabled: true
+    depends:
+      appear:
+        region_ready:
+          key: documents.region_ready
+          value: "true"
+
+  # --- dvsession config ---------------------------------------------------------
+  session:
+    userId:
+      local: session.user.id
+      storage: workers.userindexes.@@@ownerId@@@.userId
+      ownerId: ownerId
+    username:
+      local: session.user.name
+      storage: workers.users.@@@userId@@@.internal.name
+      ownerId: ownerId
+    clanId:
+      local: session.clan.id
+      storage: workers.users.@@@userId@@@.last_clan
+      ownerId: ownerId
+    clanSecret:
+      local: session.clan.secret
+      storage: workers.users.@@@userId@@@.clans.@@@clanId@@@.clanSecret
+      ownerId: ownerId
+    clanname:
+      local: session.clan.name
+      storage: workers.clans.@@@clanId@@@.internal.name
+      ownerId: clanSecret
+    activeTask:
+      local: session.active_task
+      storage: workers.users.@@@userId@@@.active_task
+      ownerId: ownerId
+    activeProof:
+      local: session.active_proof
+      storage: workers.users.@@@userId@@@.active_proof
+      ownerId: ownerId
+
+  debug: false
+
+  # --- Layers config (dvlayers) -------------------------------------------------
+  layers:
+    files:
+      - "layers/assets-global.yml"      # vagues de priorité + catalogue des thèmes
+      - "layers/tasks-base-global.yml"
+      - "layers/items-base-global.yml"
+
+  # --- Theme config (dvtheme) ---------------------------------------------------
+  # Seul le thème de démarrage vit ici : ce qu'il FAUT charger pour chaque thème est
+  # déclaré dans le catalogue de layers/assets-global.yml.
+  theme:
+    default: "theme-donjon"
+
+  # --- aimodels config (vertex AI, pas de téléchargement local) ----------------
+  aimodels:
+    desired_model: "vertex-gemini-pro"
+    models:
+      vertex_pro:
+        name: "vertex-gemini-pro"
+        chat_format: "vertex"
+        model: "gemini-2.5-flash-lite"
+
+  # --- prompts config (dvprompts — surchargé par l'asset cloud prompts.yml) -----
+  prompts:
+    prompts_assets: "prompts/prompts.yml"
+    agents: {}
+

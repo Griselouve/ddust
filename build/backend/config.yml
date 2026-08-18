@@ -1,0 +1,626 @@
+conf:
+  project:
+    billing_id: 01C0A1-9CF02B-DB8CA8
+    name: Ddust
+    display_name: "Donjons & Savons"
+    org_id: "136817027313"
+    project_id: dvddust
+    user_email: asura@grisloup.com
+
+  # Chaque region declaree ici produit sa propre pile complete : 7 bases Firestore
+  # prefixees (eu-workers, us-workers...), un bucket d'assets, un bucket de documents
+  # et un jeu de Cloud Functions. Le choix du joueur est definitif (cf. CGU) et aucune
+  # donnee ne circule d'une region a l'autre.
+  # Ce bloc est DUPLIQUE dans build/client/config/screens_meta.yml : les deux doivent
+  # rester synchrones, le client lit le sien pour balayer les regions au login.
+  regions:
+    EU:
+      label: "Europe"
+      backend: "europe-west9"
+    US:
+      label: "United States"
+      backend: "us-central1"
+  apis:
+    list:
+      - iap.googleapis.com
+      - cloudresourcemanager.googleapis.com
+      - iam.googleapis.com
+      - serviceusage.googleapis.com
+      - firestore.googleapis.com
+      - cloudfunctions.googleapis.com
+      - run.googleapis.com
+      - cloudbuild.googleapis.com
+      - artifactregistry.googleapis.com
+      - firebasestorage.googleapis.com
+      # Verification des achats et lecture de l'etat canonique des abonnements
+      # (purchases.subscriptionsv2.get). L'etat Play fait autorite : le client transmet un
+      # purchaseToken, jamais un etat d'abonnement.
+      - androidpublisher.googleapis.com
+      # Reception des Real-time Developer Notifications de Play. Le topic doit vivre dans
+      # ce projet et accorder la publication a
+      # google-play-developer-notifications@system.gserviceaccount.com.
+      - pubsub.googleapis.com
+      # Balayage quotidien des timers de defaut de paiement (grace 10j, locked j50,
+      # suppression j90) : ces echeances doivent tomber meme si plus personne n'ouvre l'app.
+      - cloudscheduler.googleapis.com
+  oauth:
+    enabled: true
+    visibility: public
+    desktop:
+      enabled: true
+      apps:
+        - client
+    android:
+      enabled: true
+      apps:
+        - client
+      # Deux clients OAuth Android coexistent, meme package, empreintes differentes :
+      # Play re-signe l'AAB avec SA cle, le certificat de l'app installee depuis le
+      # Store n'est donc pas celui du keystore local. Google resout le bon client cote
+      # serveur d'apres le certificat reel de l'APK : l'app n'envoie jamais de
+      # client_id Android, il n'y a rien a arbitrer cote Flutter.
+      #   - empreinte de la cle d'upload : derivee du keystore, automatique
+      #   - empreinte ci-dessous        : relevee dans la Play Console apres le
+      #     premier upload (Test et release -> Integrite de l'app -> Certificat de la
+      #     cle de signature de l'app). Definitive, generee une seule fois.
+      # Tant qu'elle est vide, le second client n'est pas demande.
+      play_sha1s:
+        client: ""
+    # Session anonyme : le joueur choisit son royaume, declare son age et accepte les CGU
+    # AVANT que Firebase Auth ne detienne son email, son nom et sa photo. Le compte Google
+    # est lie en fin de parcours (linkWithCredential conserve le meme UID). Sans ce bloc,
+    # signInAnonymously repond ADMIN_ONLY_OPERATION.
+    # autodelete : purge native des comptes anonymes inactifs 30+ jours.
+    anonymous:
+      enabled: true
+      autodelete: true
+  firebase:
+    enabled: true
+    android_package: com.grisloup.ddust_client
+  firestore:
+    databases:
+      sessions:
+        isolation: strict
+        collections:
+          # Traces de connexion écrites par dvcloud (cloud.auth.sessions) : un
+          # document par utilisateur, doc-id = uid Firebase. Le TTL porte sur le champ
+          # `expiration` (nom imposé par pufirestore) et fait la conservation limitée
+          # exigée par le RGPD sur ces données.
+          #
+          # Aucune clé `isolation`/`rule` ici : la règle globale `strict` de la base
+          # reste générée (cf. pufirestore/brick.py, has_collection_isolation).
+          sessions:
+            ttl: true
+      secrets:
+        isolation: strict
+      workers:
+        isolation: strict
+        collections:
+          users:
+            rule: |
+              allow list: if false;
+              allow create: if request.auth != null
+                && request.auth.uid == request.resource.data.ownerId
+                && docId == request.resource.data.userId;
+              allow get: if request.auth != null
+                && (resource == null || (request.auth.uid == resource.data.ownerId && docId == resource.data.userId));
+              allow update, delete: if request.auth != null
+                && request.auth.uid == resource.data.ownerId
+                && docId == resource.data.userId;
+          # userindexes/{firebaseUid} : table UID→userId ET coffre des clanSecret lus par
+          # les règles des collections de clan (via get(), accès privilégié non soumis aux
+          # règles — ce verrouillage ne les affecte donc pas). Règle explicite plutôt que
+          # `isolation: strict` : le get généré par strict (`request.auth != null`) laissait
+          # n'importe quel utilisateur authentifié lire les clanSecret d'autrui à partir de
+          # son UID — or tout le modèle de sécurité clan repose sur le secret de ce champ.
+          # Chacun ne lit/écrit QUE son propre index (docId == uid).
+          userindexes:
+            rule: |
+              allow list: if false;
+              allow get: if request.auth != null && request.auth.uid == docId;
+              allow create: if request.auth != null && request.auth.uid == docId
+                && request.resource.data.ownerId == request.auth.uid;
+              allow update, delete: if request.auth != null && request.auth.uid == docId;
+          clans:
+            rule: |
+              allow list: if false;
+              allow create: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId;
+              allow get, update, delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
+          clans_tasks:
+            rule: |
+              allow list: if false;
+              allow create: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId;
+              allow get, update, delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
+          clans_tasks/{clanId}/tasks:
+            rule: |
+              allow get: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+              allow list: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
+              allow create, update: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+              allow delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+          clans_tasks/{clanId}/domains:
+            rule: |
+              allow get: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+              allow list: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
+              allow create, update: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+              allow delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+          clans_items:
+            rule: |
+              allow list: if false;
+              allow create: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId;
+              allow get, update, delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
+          clans_items/{clanId}/items:
+            rule: |
+              allow get: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+              allow list: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
+              allow create, update: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+              allow delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+          clans_logs:
+            rule: |
+              allow list, get, create, update, delete: if false;
+          clans_logs/{clanId}/logs:
+            rule: |
+              allow list: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
+              allow get: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+              allow create: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+              allow update, delete: if false;
+          # Historique des ouvertures du butin : une ligne par coffre ouvert (montant du
+          # portefeuille, or, valeur des objets, nombre de joueurs, part du meilleur
+          # contributeur). Append-only comme clans_logs : create seul, jamais update ni delete —
+          # un historique qu'on peut réécrire ne vaut rien.
+          # Le `list` est ouvert à tout membre du clan, comme celui de clans_items/{clanId}/items
+          # (le filtrage métier est fait côté client). Les lignes ne portent que des agrégats
+          # chiffrés, jamais un nom d'objet ni un identifiant de joueur : le contenu du coffre
+          # reste une surprise, et rien ne purge cette table.
+          clans_chest_history:
+            rule: |
+              allow list, get, create, update, delete: if false;
+          clans_chest_history/{clanId}/history:
+            rule: |
+              allow list: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
+              allow get: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+              allow create: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+              allow update, delete: if false;
+          clans_players/{clanId}/players:
+            rule: |
+              allow get: if request.auth != null
+                && (resource == null
+                    || get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId);
+              allow list: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
+              allow create, update: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+              allow delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+          # Abonnement du clan : doc-id = clanId, un seul abonnement et un seul payeur par
+          # clan (c'est ce qu'annoncent les CGU). L'entitlement ne peut PAS vivre dans
+          # `clans/{clanId}` : cette collection est modifiable par tout membre détenant le
+          # clanSecret, donc un champ `plan` y serait falsifiable depuis un client modifié.
+          # D'où une collection à part, en lecture seule pour tout le monde — seul le SDK
+          # Admin (Cloud Functions, non soumis aux règles) écrit ici.
+          #
+          # Le `get` suit le motif habituel `== resource.data.ownerId` plutôt qu'un simple
+          # `!= null` : les fonctions recopient le clanSecret du doc de clan dans `ownerId`,
+          # ce qui exige du lecteur qu'il connaisse le secret de CE clan et pas seulement
+          # qu'il soit membre d'un clan quelconque.
+          #
+          # Champs : tier (none|standard|unlimited), state (trial|active|grace|hold|locked),
+          # purchase_token, subscription_id, base_plan_id, offer_id, trial_end,
+          # current_period_end, default_since, locked_at, delete_at, credit_months
+          # (parrainage + offre fondateurs, même moteur), founder, auto_renewing, last_rtdn_at.
+          clans_billing:
+            rule: |
+              allow list: if false;
+              allow get: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
+              allow create, update, delete: if false;
+          # Journal de facturation : une ligne par événement Play (achat, renouvellement,
+          # défaut, reprise, résiliation) et par octroi de crédit. Append-only comme
+          # clans_logs et clans_chest_history, mais plus strict encore : même le `create`
+          # est fermé au client. C'est la piste d'audit qui justifie l'état courant du clan
+          # en cas de litige de paiement — elle ne vaut rien si un client peut y écrire.
+          clans_billing/{clanId}/events:
+            rule: |
+              allow list: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
+              allow get: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+              allow create, update, delete: if false;
+
+  svcaccounts:
+    enabled: true
+    accounts:
+      backend:
+        name: ddust-backend
+        display_name: "Ddust Backend SA"
+        roles:
+          - roles/datastore.user
+          - roles/logging.logWriter
+
+  documents:
+    enabled: true
+    documents:
+      - cgu
+      - privacy
+    legal_states:
+      - a
+      - k
+    default_region: eu
+    default_language: en
+    # Une entree par region declaree, sinon pudocuments se contente d'un log.warn au
+    # deploiement. Un SEUL seuil opere : 18 ans, l'age de la majorite contractuelle. Tout
+    # mineur, quel que soit son age, releve du consentement de son responsable legal :
+    # ddust n'exploite jamais le consentement propre du mineur que l'article 8 du RGPD
+    # autorise a partir de 13-16 ans selon l'Etat membre. COPPA (moins de 13 ans aux
+    # Etats-Unis) est porte par la redaction des documents us-*, pas par un palier ici.
+    # Le seuil bas reste declare a 0 : la cle `k` doit exister, car dvdocuments initialise
+    # l'etat legal a la cle du plus petit seuil (_computeLegalState). La supprimer ferait
+    # basculer le defaut sur `a` et rendrait adulte un enfant de cinq ans.
+    # A garder synchrone avec client/config/screens_meta.yml.
+    age_thresholds:
+      EU:
+        k: 0
+        a: 18
+      US:
+        k: 0
+        a: 18
+
+  hosting:
+    enabled: true
+    # Page web de suppression de compte (exigence Play Store) servie sur https://dvddust.web.app.
+    # site + directory prennent les defauts du module (project_id, "web").
+    # custom_domain : site vitrine accessible aussi sur https://donjons.grisloup.com (Squarespace),
+    # en plus de dvddust.web.app qui reste actif. Cablage manuel (DNS + Firebase) via la checklist
+    # affichee par deploy_hosting a l'upload (cf. deva/pulumi/modules/puhosting/readme.md).
+    custom_domain: "donjons.grisloup.com"
+    rewrites:
+      - glob: "/api/delete"
+        function: delete_user_data
+
+  storage:
+    enabled: true
+    buckets:
+      assets:
+        public_read: false
+
+  assets:
+    enabled: true
+    bucket: "assets"
+    # Une racine par jeu d'assets. "general" porte ce qui ne dépend d'aucun thème
+    # (structure des tâches, arbre de décision, prompts) ; "donjon" porte la saveur
+    # (images, sons, musiques, vidéos, traductions et layers de thème).
+    directories:
+      - "general"
+      - "donjon"
+    # Un assets.yml par racine : le client ne charge que les thèmes qu'il utilise.
+    # Un thème absent d'ici n'est ni indexé ni purgé — ajouter une racine ne met
+    # jamais en danger les fichiers d'un thème livré séparément.
+    manifests:
+      - "general"
+      - "donjon"
+    pointers:
+      donjon/videos/video_fr.mp4: "donjon/videos/Donjons&Savons-FR_General_V1.mp4"
+      donjon/videos/video_en.mp4: "donjon/videos/Donjons&Savons-EN_General_V1.mp4"
+      donjon/videos/video_es.mp4: "donjon/videos/Donjons&Savons-ES_General_V1.mp4"
+      general/prompts/prompts.yml: "general/prompts/prompts_General_V1.yml"
+      donjon/images/splash-pirate.png: "donjon/images/splashs/pirates/splash.png"
+      donjon/music/ambiant1.mp3: "donjon/music/Ambiant1_General_V1.mp3"
+      donjon/music/ambiant2.mp3: "donjon/music/Ambiant2_General_V1.mp3"
+      donjon/music/ambiant3.mp3: "donjon/music/Ambiant3_General_V1.mp3"
+      donjon/music/ambiant4.mp3: "donjon/music/Ambiant4_General_V1.mp3"
+      donjon/music/ambiant_dead.mp3: "donjon/music/AmbiantDead_General_V1.mp3"
+      donjon/music/win.mp3: "donjon/music/Win_General_V1.mp3"
+
+  aimodel:
+    enabled: true
+    default_model: gemini-2.5-flash-lite
+    models:
+      - gemini-2.5-flash-lite
+      - gemini-2.5-pro
+    # Une liste PAR RÉGION : le texte envoyé au modèle est saisi par l'utilisateur
+    # (nom d'enfant, description de tâche), il doit être traité dans sa propre région.
+    # Une liste unique enverrait les joueurs américains vers un modèle européen.
+    #
+    # EU : découplé de regions.EU.backend (europe-west9, petite région à faible
+    # capacité Gemini, d'où les 429 « Resource exhausted » dès deux joueurs
+    # simultanés). Les deux valeurs restent dans l'UE : « eu » est la
+    # multi-région européenne (Google route vers le centre de données qui a de la
+    # capacité), « europe-west4 » sert de repli sûr si la passerelle Firebase
+    # n'accepte pas la forme multi-région.
+    #
+    # US : us-central1 est la région de référence Gemini (catalogue complet, forte
+    # capacité), « us » est la multi-région américaine et sert de repli. Aucune des
+    # deux ne sort du territoire.
+    location:
+      EU:
+        - eu
+        - europe-west4
+      US:
+        - us-central1
+        - us
+
+  budget:
+    enabled: true
+    check_interval_minutes: 5
+    notification_email: "asura@grisloup.com"
+
+    token_bucket:
+      max_spike: 5.0
+      length_spike: 600
+      cost_restart: 0.0
+      frac_restart: 0.06
+
+    services:
+      vertexai:
+        monthly_limit: 5.00
+        auto_disable: true
+        price_input_per_million: 1.25
+        price_output_per_million: 5.00
+      cloudrun:
+        monthly_limit: 8.00
+        auto_disable: true
+
+    telegram:
+      status_interval_hours: 2
+
+  cloudfunctions:
+    enabled: true
+    require_app_check: false
+    functions:
+      messaging:
+        environment:
+          BROADCAST_ENABLED: "true"
+      count_sessions:
+        entry_point: countSessions
+        trigger: callable
+        memory: 256
+        service_account: backend
+        timeout: 30
+        code: |
+          import { onCall, HttpsError } from 'firebase-functions/v2/https';
+          import * as admin from 'firebase-admin';
+          import { getFirestore } from 'firebase-admin/firestore';
+          admin.initializeApp();
+          export const countSessions = onCall(async (request) => {
+            if (!request.auth) {
+              throw new HttpsError('unauthenticated', 'Authentication required');
+            }
+            // La substitution @@@region@@@ nomme la BASE (eu-sessions, us-sessions) ; la
+            // collection, elle, ne porte pas de prefixe de region — la base l'est deja.
+            // NB : aucun code n'alimente aujourd'hui cette collection, le compteur vaut
+            // donc toujours 0 (tous les clans se nomment "{nom}-{region}-0"). A traiter
+            // separement : c'est le nommage des clans qui est en cause, pas la region.
+            const db = getFirestore(admin.app(), '@@@region@@@_sessions');
+            const snap = await db.collection('sessions').count().get();
+            return { count: snap.data().count };
+          });
+      delete_user_data:
+        entry_point: deleteUserData
+        trigger: callable
+        memory: 256
+        service_account: backend
+        timeout: 120
+        code: |
+          import { onCall, HttpsError } from 'firebase-functions/v2/https';
+          import * as admin from 'firebase-admin';
+          import { getFirestore } from 'firebase-admin/firestore';
+          admin.initializeApp();
+
+          // Suppression logique (soft delete) de toutes les données d'un utilisateur, en cascade.
+          // enabled=false sur users/userindexes + tombstone clans_players (status=deleted). Si le
+          // joueur est chef unique d'un clan (fondateur seul admin), le clan est dissous : tous ses
+          // membres sont tombstonés, et ceux qui n'ont plus de responsable légal (mineur, clan
+          // d'origine dissous) ou plus aucun autre clan actif sont eux-mêmes supprimés (récursif).
+          // Les clanSecret sont conservés (recovery futur) ; l'admin SDK ignore les règles Firestore.
+          // NB : ownerId reçu = UID Firebase (auth) ; les docs users/ et clans_players sont keyés par
+          // le userId MÉTIER, traduit via userindexes/{firebaseUid}.userId (cf. worker.dart _resolveUserId).
+          export const deleteUserData = onCall(async (request) => {
+            if (!request.auth) {
+              throw new HttpsError('unauthenticated', 'Authentication required');
+            }
+            const ownerId = String((request.data ?? {}).ownerId ?? '');
+            if (!ownerId) {
+              throw new HttpsError('invalid-argument', 'ownerId required');
+            }
+            // MVP : self-delete uniquement (allowlist admin à venir avec le back-office).
+            if (request.auth.uid !== ownerId) {
+              throw new HttpsError('permission-denied', 'Can only delete own account');
+            }
+
+            const db  = getFirestore(admin.app(), '@@@region@@@_workers');
+            const now = new Date().toISOString();
+
+            // Coalescence des écritures par document (deep-merge JS) puis flush en lots < 500.
+            const buffer = new Map();
+            const deepMerge = (t: any, s: any): any => {
+              for (const k of Object.keys(s)) {
+                if (s[k] && typeof s[k] === 'object' && !Array.isArray(s[k])) {
+                  t[k] = deepMerge((t[k] && typeof t[k] === 'object') ? t[k] : {}, s[k]);
+                } else { t[k] = s[k]; }
+              }
+              return t;
+            };
+            const stage = (ref: any, data: any) => {
+              const e = buffer.get(ref.path);
+              if (e) { deepMerge(e.data, data); }
+              else { buffer.set(ref.path, { ref, data: deepMerge({}, data) }); }
+            };
+
+            const usersCol   = db.collection('users');
+            const indexesCol = db.collection('userindexes');
+            const playerRef  = (clanId: string, uid: string) =>
+              db.collection('clans_players').doc(clanId).collection('players').doc(uid);
+
+            // UID Firebase -> userId metier (via userindexes/{firebaseUid}.userId), repli sur
+            // l'UID Firebase si aucun index (vieux comptes ou userId == firebaseUid).
+            const resolveUserId = async (firebaseUid: string): Promise<string> => {
+              try {
+                const ix = await indexesCol.doc(firebaseUid).get();
+                const mapped = ix.exists ? String((ix.data() || {}).userId || '') : '';
+                return mapped || firebaseUid;
+              } catch { return firebaseUid; }
+            };
+
+            // UID Firebase des comptes reellement supprimes (pour la purge du consentement).
+            const fbUids = new Set<string>();
+
+            // Desactive le(s) userindexes pointant vers ce userId metier (clef = UID Firebase,
+            // retrouve par requete) et collecte l'UID Firebase correspondant.
+            const disableAccountIndexes = async (uid: string) => {
+              const snap = await indexesCol.where('userId', '==', uid).get();
+              snap.forEach((d) => { fbUids.add(d.id); stage(d.ref, { enabled: false }); });
+            };
+
+            // Tombstone d'un membre (userId metier) dans un clan + desactivation du clan dans users.clans.
+            const tombstone = (uid: string, clanId: string) => {
+              stage(playerRef(clanId, uid), { id: uid, enabled: false, status: 'deleted', last_connected: now });
+              stage(usersCol.doc(uid), { clans: { [clanId]: { enabled: false } } });
+            };
+
+            const rootUserId = await resolveUserId(ownerId);
+
+            // GARDE-FOU MULTI-REGION. Le site de suppression est unique alors que les
+            // donnees sont partitionnees par region, et rien cote web ne dit ou vit
+            // l'utilisateur : la page interroge donc CHAQUE region, dont la plupart
+            // n'hebergent pas ce compte. Sans cette sortie anticipee, les
+            // `batch.set(..., {merge: true})` plus bas CREERAIENT les documents absents
+            // (users/{uid} avec enabled:false, documents_sessions/{uid}...) dans des
+            // regions ou l'utilisateur n'a jamais mis les pieds.
+            const [rootUserSnap, rootIndexSnap] = await Promise.all([
+              usersCol.doc(rootUserId).get(),
+              indexesCol.doc(ownerId).get(),
+            ]);
+            if (!rootUserSnap.exists && !rootIndexSnap.exists) {
+              return { ok: true, deleted: [], firebaseUids: [], skipped: 'not-in-region' };
+            }
+
+            fbUids.add(ownerId);
+
+            const visited = new Set<string>();
+            const queue: string[] = [rootUserId];
+
+            while (queue.length) {
+              const uid = queue.shift()!;
+              if (visited.has(uid)) { continue; }
+              visited.add(uid);
+
+              const userSnap = await usersCol.doc(uid).get();
+              const clans = Object.keys((userSnap.data() || {}).clans || {});
+
+              // Désactive le compte lui-même (users + ses userindexes retrouves par requete).
+              stage(usersCol.doc(uid), { enabled: false });
+              await disableAccountIndexes(uid);
+
+              for (const clanId of clans) {
+                tombstone(uid, clanId);
+
+                // Chef unique ? Le fondateur est admin à vie → seul admin ⇔ dissolution du clan.
+                const clanSnap = await db.collection('clans').doc(clanId).get();
+                const cdata: any = clanSnap.data() || {};
+                const admins: any[] = Array.isArray(cdata.admins) ? cdata.admins : [];
+                if (!(admins.includes(uid) && admins.length <= 1)) { continue; }
+
+                // Dissolution : tombstone de TOUS les membres encore actifs, cascade si besoin.
+                const players = await db.collection('clans_players').doc(clanId).collection('players').get();
+                for (const p of players.docs) {
+                  const pid = p.id;
+                  if (pid === uid) { continue; }
+                  const pdata = p.data() || {};
+                  if (pdata.enabled === false) { continue; }
+
+                  tombstone(pid, clanId);
+
+                  // Cascade de suppression du membre si : mineur dont le clan d'origine est
+                  // dissous (plus de responsable légal), OU plus aucun autre clan actif.
+                  const isMinor      = String(pdata.legal_state ?? '') !== 'a';
+                  const originalClan = String(pdata.original_clan ?? '');
+                  let cascade = isMinor && originalClan === clanId;
+                  if (!cascade) {
+                    const pUser  = (await usersCol.doc(pid).get()).data() || {};
+                    const pClans = pUser.clans || {};
+                    // Un clan compte comme actif s'il ne l'était pas déjà désactivé à l'origine
+                    // ET n'a pas été tombstoné plus tôt dans cette passe (ex. autre clan dissous).
+                    const stagedEntry  = buffer.get(usersCol.doc(pid).path);
+                    const stagedClans  = (stagedEntry && stagedEntry.data.clans) || {};
+                    const otherActive = Object.keys(pClans).some(
+                      (cid) => cid !== clanId
+                            && (pClans[cid] || {}).enabled !== false
+                            && (stagedClans[cid] || {}).enabled !== false,
+                    );
+                    cascade = !otherActive;
+                  }
+                  if (cascade && !visited.has(pid)) { queue.push(pid); }
+                }
+              }
+            }
+
+            // Flush : lots de 450 opérations (limite Firestore = 500).
+            const entries = Array.from(buffer.values());
+            const commits = [];
+            for (let i = 0; i < entries.length; i += 450) {
+              const batch = db.batch();
+              for (const e of entries.slice(i, i + 450)) { batch.set(e.ref, e.data, { merge: true }); }
+              commits.push(batch.commit());
+            }
+            await Promise.all(commits);
+
+            // Retrait du consentement (base documents) pour chaque compte RÉELLEMENT supprimé par
+            // la cascade (set `visited`, pas les simples tombstones de clan).
+            // SOFT delete horodaté, et non plus effacement : la preuve de ce qui a été accepté doit
+            // survivre au compte — c'est toute sa raison d'être, et la politique de confidentialité
+            // la conserve 5 ans à ce titre. On la CLÔT (date_end) et on la désactive.
+            // `enabled: false` est ce que la reprise de session relit pour ne PAS restaurer
+            // accepted_versions : sans lui, un utilisateur qui revient sauterait l'écran CGU
+            // (hasNewDocuments === false). Cf. _restoreSessionFromFirestore côté client.
+            const docsDb = getFirestore(admin.app(), '@@@region@@@_documents');
+            // Le consentement peut etre keye par UID Firebase OU par userId metier : on traite
+            // l'union des deux ensembles (un id inexistant = simple no-op).
+            const consentIds = new Set<string>([...Array.from(visited), ...Array.from(fbUids)]);
+            const consentWrites = [];
+            for (const cid of consentIds) {
+              consentWrites.push({
+                ref:  docsDb.collection('documents_sessions').doc(cid),
+                data: { enabled: false, date_end: now },
+              });
+              const acc = await docsDb.collection('documents_acceptance').where('ownerId', '==', cid).get();
+              acc.forEach((d) => {
+                // Ne jamais réécrire une date_end déjà posée : une acceptation close par une version
+                // plus récente garde la date de SA fin, pas celle du retrait du compte.
+                const already = String((d.data() || {}).date_end || '');
+                consentWrites.push({
+                  ref:  d.ref,
+                  data: already ? { enabled: false } : { enabled: false, date_end: now },
+                });
+              });
+            }
+            for (let i = 0; i < consentWrites.length; i += 450) {
+              const batch = docsDb.batch();
+              for (const w of consentWrites.slice(i, i + 450)) { batch.set(w.ref, w.data, { merge: true }); }
+              await batch.commit();
+            }
+
+            return { ok: true, deleted: Array.from(visited), firebaseUids: Array.from(fbUids) };
+          });

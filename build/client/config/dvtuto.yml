@@ -1,0 +1,281 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — issu du découpage de config.yml (voir plan
+# --- 'a-force-de-developper' / memoire project_ddust_config_split).
+# -----------------------------------------------------------------------------
+conf:
+  # --- Tutoriels (dvtuto) -------------------------------------------------------
+  # Leçons interactives : gel de l'écran + spotlight sur un bouton à la fois. Une leçon = une
+  # suite d'étapes ciblant des widgets par leur dvid ; jouée à la 1re arrivée sur `screen`, puis
+  # marquée « vue » (par-utilisateur, par-appareil). Une leçon `manual: true` échappe à ce
+  # déclenchement automatique : elle est jouée sur commande par `dvtuto.play.<leçon>` (action
+  # attendable : celui qui l'appelle reprend la main à la fin de la leçon).
+  # Textes = tokens @@@T:...@@@ (traductions dans
+  # le bloc lang.translations ci-dessus) ; le motor les résout via TranslationRegistry.processLabel.
+  dvtuto:
+    defaults:
+      veil: "#000000B3"     # voile ~70 % : contraste marqué sans noircir tout l'écran (pas de cadre)
+      hold: 0.8             # s inerte avant de pouvoir avancer (anti-tap accidentel)
+    lessons:
+      # Leçon d'impersonation : jouée à l'atterrissage sur le dashboard quand un admin vient de
+      # « prendre la place » d'un joueur (flag worker.impersonating posé par take_place, remis à
+      # false au retour). take_place réinitialise aussi dvtuto.seen.impersonation_back → rejouée à
+      # CHAQUE prise de place (rappel de sécurité important). Pointe le bouton de retour.
+      impersonation_back:
+        screen: dashboard
+        order: 5                                        # avant dashboard_intro : prime à l'arrivée
+        requires: { worker.impersonating: "true" }
+        title: "@@@T:tuto_impersonation_title@@@"
+        steps:
+          back:
+            order: 10
+            target: commons/impersonation_back
+            text: "@@@T:tuto_impersonation_back@@@"
+      dashboard_intro:
+        screen: dashboard
+        order: 10
+        title: "@@@T:tuto_dashboard_intro_title@@@"    # affiché dans l'écran Tutoriels (DvTutoList)
+        steps:
+          shop:   { order: 10, target: shop_open,       text: "@@@T:tuto_dash_shop@@@" }
+          clan:
+            order: 20
+            target: clan_open
+            text: "@@@T:tuto_dash_clan@@@"
+            overrides:
+              admin:
+                when: { worker.player_last_is_admin: "true" }
+                text: "@@@T:tuto_dash_clan_admin@@@"
+          combat:
+            order: 30
+            target: combat_open
+            # Texte par défaut = joueur ; l'override si worker.player_last_is_admin == "true" (chef/admin).
+            text: "@@@T:tuto_dash_combat@@@"
+            overrides:
+              admin:
+                when: { worker.player_last_is_admin: "true" }
+                text: "@@@T:tuto_dash_combat_admin@@@"
+          perso:  { order: 40, target: personnage_open, text: "@@@T:tuto_dash_perso@@@" }
+          inv:
+            order: 50
+            target: testme_open
+            # Texte par défaut = joueur ; l'admin voit en plus l'accès au contenu du butin du clan.
+            text: "@@@T:tuto_dash_inv@@@"
+            overrides:
+              admin:
+                when: { worker.player_last_is_admin: "true" }
+                text: "@@@T:tuto_dash_inv_admin@@@"
+
+      personnage_intro:
+        screen: personnage
+        order: 20
+        title: "@@@T:tuto_perso_title@@@"
+        steps:
+          avatar:  { order: 10, target: personnage/icon,        text: "@@@T:tuto_perso_avatar@@@" }
+          edit:    { order: 20, target: personnage/edit_toggle, text: "@@@T:tuto_perso_edit@@@" }
+          level:   { order: 30, target: personnage/lvl_flame,   text: "@@@T:tuto_perso_level@@@" }
+          pv:      { order: 40, target: personnage/pv_heart,    text: "@@@T:tuto_perso_pv@@@" }
+          menu:    { order: 50, target: personnage/settings,    text: "@@@T:tuto_perso_menu@@@" }
+          # Panneau : options du menu Personnage (kebab settings).
+          menu_options:
+            order: 52
+            panel:
+              title: "@@@T:tuto_perso_menu_title@@@"
+              menu: personnage/settings_menu
+
+      clan_intro:
+        screen: clan_page
+        order: 30
+        title: "@@@T:tuto_clan_title@@@"
+        steps:
+          identity: { order: 10, target: clan_page/icon,        text: "@@@T:tuto_clan_identity@@@" }
+          edit:     { order: 20, target: clan_page/edit_toggle, text: "@@@T:tuto_clan_edit@@@" }
+          level:    { order: 30, target: clan_page/lvl_flame,   text: "@@@T:tuto_clan_level@@@" }
+          butin:    { order: 40, target: clan_page/butin_track, text: "@@@T:tuto_clan_butin@@@" }
+          # Roster décomposé : liste entière, puis sous-parties de la 1re tuile (avatar / nom+barre /
+          # kebab) via des cibles « dvid#souspartie » (DvRoster.spotlightSubRect).
+          roster:        { order: 50, target: clan_page/roster,          text: "@@@T:tuto_clan_roster@@@" }
+          roster_avatar: { order: 52, target: "clan_page/roster#avatar", text: "@@@T:tuto_clan_roster_avatar@@@" }
+          roster_name:   { order: 54, target: "clan_page/roster#name",   text: "@@@T:tuto_clan_roster_name@@@" }
+          roster_kebab:  { order: 56, target: "clan_page/roster#kebab",  text: "@@@T:tuto_clan_roster_kebab@@@" }
+          # Panneau (admins) : actions du menu roster, lues depuis clan_page/roster_menu.
+          roster_options:
+            order: 58
+            requires: { worker.player_last_is_admin: "true" }
+            panel:
+              title: "@@@T:tuto_clan_options_title@@@"
+              menu: clan_page/roster_menu
+          menu:     { order: 60, target: clan_page/settings,    text: "@@@T:tuto_clan_menu@@@" }
+          # Panneau : options du menu Clan (kebab settings).
+          menu_options:
+            order: 62
+            panel:
+              title: "@@@T:tuto_clan_menu_title@@@"
+              menu: clan_page/settings_menu
+          # « Créer un joueur » n'est pas une option anodine et n'apparaît qu'aux chefs : on précise
+          # tout de suite à quoi elle sert (le détail complet est dans la leçon create_player_intro,
+          # jouée au clic sur l'option).
+          create_player_hint:
+            order: 64
+            requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_clan_create_player@@@"
+
+      # Leçon « Créer un joueur » : MANUELLE (jamais jouée à l'arrivée sur clan_page) — worker.create_player
+      # la joue au clic sur l'option, sur l'écran Clan (DvMenu a déjà refermé le menu), puis n'ouvre
+      # l'écran de saisie du nom qu'une fois la leçon terminée. `screen` sert au rejeu depuis l'écran
+      # Tutoriels (on y revient sur clan_page, sans enchaîner sur la création).
+      create_player_intro:
+        screen: clan_page
+        order: 35
+        manual: true
+        title: "@@@T:tuto_create_player_title@@@"
+        steps:
+          # Deux messages plein écran (aucune cible : l'option vient d'être touchée, son menu est fermé).
+          what:   { order: 10, text: "@@@T:tuto_create_player_what@@@" }
+          switch: { order: 20, text: "@@@T:tuto_create_player_switch@@@" }
+          # Légende : les deux icônes du parcours (création = icône Material du menu Clan, relais = asset
+          # du menu d'un membre).
+          icons:
+            order: 30
+            panel:
+              title: "@@@T:tuto_create_player_icons_title@@@"
+              rows:
+                create: { icon: "group_add",                          name: "@@@T:tuto_create_player_row_create@@@", desc: "@@@T:tuto_create_player_row_create_desc@@@" }
+                switch: { image: "images/small/switch_nobg.png", name: "@@@T:tuto_create_player_row_switch@@@", desc: "@@@T:tuto_create_player_row_switch_desc@@@" }
+
+      # Combat — leçon 1 : l'écran des DOMAINES. Déroulé : intro (bulle) → domaines surlignés (sans bulle)
+      # → switch Jeu|Admin (admins) → mode jeu → domaine grisé → repères (intro + tableau) →
+      # administration (admins : comment faire apparaître les options, puis leur liste).
+      combat_domains:
+        screen: combat
+        order: 40
+        header_top: true          # en-tête « TUTORIEL » figé en haut toute la leçon
+        requires: { session.active_task: { empty: true } }   # état DOMAINES seulement (pas pendant une tâche en cours)
+        title: "@@@T:tuto_combat_domains_title@@@"
+        steps:
+          intro:   { order: 10, text: "@@@T:tuto_combat_domains_intro@@@" }
+          # Surlignage SEUL (pas de texte) : montre les domaines une fois cadrés par l'intro.
+          domains: { order: 20, target: combat/tiroir }
+          # Switch Jeu | Admin = 2 DvLabel (commons/mode_game + commons/mode_admin), union en un seul trou.
+          # Visible des seuls chefs vivants → étape réservée aux admins.
+          switch:
+            order: 30
+            requires: { worker.player_last_is_admin: "true" }
+            target: "commons/mode_game+commons/mode_admin"
+            text: "@@@T:tuto_combat_switch@@@"
+          # Mode jeu : texte adapté joueur (défaut) / admin (override).
+          play:
+            order: 40
+            text: "@@@T:tuto_combat_domains_play@@@"
+            overrides:
+              admin:
+                when: { worker.player_last_is_admin: "true" }
+                text: "@@@T:tuto_combat_domains_play_admin@@@"
+          grey:          { order: 50, text: "@@@T:tuto_combat_domains_grey@@@" }
+          reperes_intro: { order: 60, text: "@@@T:tuto_combat_domains_reperes_intro@@@" }
+          reperes:
+            order: 70
+            panel:
+              title: "@@@T:tuto_combat_badges_title@@@"
+              rows:
+                flamme: { image: "images/small/flamme_nobg.png", name: "@@@T:tuto_badge_flamme@@@",  desc: "@@@T:tuto_badge_flamme_desc@@@" }
+                hand:   { image: "images/small/hand_nobg.png",   name: "@@@T:tuto_badge_hand@@@",    desc: "@@@T:tuto_badge_hand_desc@@@" }
+                xp:     { image: "images/small/xp_nobg.png",     name: "@@@T:tuto_badge_xp@@@",      desc: "@@@T:tuto_badge_xp_desc@@@" }
+                skull:  { image: "images/big/skull_nobg.png",  name: "@@@T:tuto_badge_skull@@@",   desc: "@@@T:tuto_badge_skull_desc@@@" }
+                cure:   { image: "images/small/cure_nobg.png",   name: "@@@T:tuto_badge_cure@@@",    desc: "@@@T:tuto_badge_cure_desc@@@" }
+          admin_intro:
+            order: 80
+            requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_combat_domains_admin_intro@@@"
+          admin_options:
+            order: 90
+            requires: { worker.player_last_is_admin: "true" }
+            panel:
+              title: "@@@T:tuto_combat_admin_title@@@"
+              menu: commons/tiroir_menu
+
+      # Combat — leçon 2 : l'écran des TÂCHES d'un groupe. `screen: *_tasks` matche les 19 écrans
+      # <domaine>_tasks ; `@tiroir` → <écran courant>/tiroir. Rejeu via un domaine (salon). Même déroulé
+      # que la leçon domaines, transposé aux tâches (l'admin s'applique à une tâche, pas à un groupe).
+      combat_tasks:
+        screen: "*_tasks"
+        replay_screen: salon_tasks
+        order: 50
+        header_top: true          # en-tête « TUTORIEL » figé en haut toute la leçon
+        title: "@@@T:tuto_combat_tasks_title@@@"
+        steps:
+          intro: { order: 10, text: "@@@T:tuto_combat_tasks_intro@@@" }
+          tasks: { order: 20, target: "@tiroir" }
+          switch:
+            order: 30
+            requires: { worker.player_last_is_admin: "true" }
+            target: "commons/mode_game+commons/mode_admin"
+            text: "@@@T:tuto_combat_switch@@@"
+          play:
+            order: 40
+            text: "@@@T:tuto_combat_tasks_play@@@"
+            overrides:
+              admin:
+                when: { worker.player_last_is_admin: "true" }
+                text: "@@@T:tuto_combat_tasks_play_admin@@@"
+          grey:          { order: 50, text: "@@@T:tuto_combat_tasks_grey@@@" }
+          reperes_intro: { order: 60, text: "@@@T:tuto_combat_tasks_reperes_intro@@@" }
+          reperes:
+            order: 70
+            panel:
+              title: "@@@T:tuto_combat_badges_title@@@"
+              rows:
+                flamme: { image: "images/small/flamme_nobg.png", name: "@@@T:tuto_badge_flamme@@@",  desc: "@@@T:tuto_badge_flamme_desc@@@" }
+                hand:   { image: "images/small/hand_nobg.png",   name: "@@@T:tuto_badge_hand@@@",    desc: "@@@T:tuto_badge_hand_desc@@@" }
+                xp:     { image: "images/small/xp_nobg.png",     name: "@@@T:tuto_badge_xp@@@",      desc: "@@@T:tuto_badge_xp_desc@@@" }
+                skull:  { image: "images/big/skull_nobg.png",  name: "@@@T:tuto_badge_skull@@@",   desc: "@@@T:tuto_badge_skull_desc@@@" }
+                cure:   { image: "images/small/cure_nobg.png",   name: "@@@T:tuto_badge_cure@@@",    desc: "@@@T:tuto_badge_cure_desc@@@" }
+          admin_intro:
+            order: 80
+            requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_combat_tasks_admin_intro@@@"
+          admin_options:
+            order: 90
+            requires: { worker.player_last_is_admin: "true" }
+            panel:
+              title: "@@@T:tuto_combat_admin_title@@@"
+              menu: commons/tiroir_menu
+
+      # Combat — leçon 3 : une TÂCHE EN COURS (page combat, `session.active_task` renseignée → widgets
+      # icône/critères/difficulté/ok/cancel visibles). Explique le déroulé : accomplir la tâche, la faire
+      # VALIDER par le chef (preuve à l'appui), et qu'on ne peut en combattre une autre qu'une fois validée.
+      # Ne déclenche QUE si une tâche est active (sinon rien à montrer). Textes joueur/chef via overrides.
+      combat_active:
+        screen: combat
+        order: 45
+        header_top: true
+        requires: { session.active_task: { nonempty: true } }
+        title: "@@@T:tuto_combat_active_title@@@"
+        steps:
+          intro:      { order: 10, text: "@@@T:tuto_combat_active_intro@@@" }
+          difficulty: { order: 20, target: combat/difficulty, text: "@@@T:tuto_combat_active_difficulty@@@" }
+          criteria:   { order: 30, target: combat/encourage,  text: "@@@T:tuto_combat_active_criteria@@@" }
+          # Bouton « J'ai vaincu le monstre ! » : accomplir puis toucher (photo preuve).
+          done:      { order: 40, target: combat/ok, text: "@@@T:tuto_combat_active_done@@@" }
+          # Faire valider par le chef (preuve à l'appui) ; parenthèse pour le chef solo (auto-validation).
+          validate:  { order: 50, text: "@@@T:tuto_combat_active_validate@@@" }
+          wait:    { order: 60, text: "@@@T:tuto_combat_active_wait@@@" }
+          # « Retraite ! » : abandonner, la tâche redevient libre pour le clan.
+          retreat: { order: 70, target: combat/cancel, text: "@@@T:tuto_combat_active_retreat@@@" }
+
+      # Écran Items : DvExplorer n'expose pas de spotlightSubRect (contrairement à DvRoster), donc
+      # impossible de cibler individuellement le coffre ou la bourse. Cibler la grille entière
+      # (items/explorer, y:3% h:82%) ne laisse quasi aucune place pour la bulle de texte (cf.
+      # TutoOverlay._buildBubble, qui calcule l'espace libre autour du trou) : messages plein écran,
+      # sans target, comme les intros des leçons combat. Le coffre n'est poussé par _pushClanItems
+      # (worker_items.dart) qu'aux admins → étape sautée pour les autres joueurs.
+      items_intro:
+        screen: testme
+        order: 55
+        title: "@@@T:tuto_items_title@@@"
+        steps:
+          grid:  { order: 10, text: "@@@T:tuto_items_grid@@@" }
+          chest:
+            order: 20
+            requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_items_chest@@@"
+          wallet: { order: 30, text: "@@@T:tuto_items_wallet@@@" }
+
