@@ -13,13 +13,13 @@ Key facts
   * Developer / publisher : grisloup.com (solo indie developer, France)
   * Platform              : Android (Google Play)
   * Languages             : French, English, Spanish
-  * Business model        : family subscription after a 15-day trial,
+  * Business model        : family subscription after a 14-day trial,
                             one subscription per clan; shop selling
                             content and cosmetics individually,
                             reserved for adults. No ads, no trackers,
                             no purchasable progression advantage
-  * Release               : public beta in September 2026;
-                            official launch after the beta
+  * Release               : autumn 2026 on Google Play, in France
+                            then across the European Union
   * Audience              : families — children play with the consent
                             and supervision of their parents
   * Privacy               : no ads, no analytics, no advertising ID;
@@ -27,7 +27,7 @@ Key facts
                             date of birth never stored; clans are
                             sealed off from one another (no chat,
                             no directory, invitation only)
-  * Website               : https://dvddust.web.app
+  * Website               : https://donjons.grisloup.com
   * Press contact         : donjons@grisloup.com
 
 One-liner
@@ -46,14 +46,14 @@ Faits clés
   * Développeur / éditeur : grisloup.com (développeur indépendant solo, France)
   * Plateforme            : Android (Google Play)
   * Langues               : français, anglais, espagnol
-  * Modèle économique     : abonnement familial après 15 jours d'essai,
+  * Modèle économique     : abonnement familial après 14 jours d'essai,
                             un seul abonnement par clan ; boutique de
                             contenus et de cosmétiques à l'unité,
                             réservée aux adultes. Sans publicité, sans
                             traqueur, sans avantage de progression
                             achetable
-  * Sortie                : beta publique en septembre 2026 ;
-                            lancement officiel à l'issue de la beta
+  * Sortie                : automne 2026 sur Google Play, en France
+                            puis dans l'Union Européenne
   * Public                : les familles — les enfants jouent avec le
                             consentement et la supervision des parents
   * Vie privée            : pas de pub, pas d'analytics, pas d'identifiant
@@ -62,7 +62,7 @@ Faits clés
                             conservée ; les clans sont hermétiques les uns
                             aux autres (pas de tchat, pas d'annuaire,
                             invitation uniquement)
-  * Site web              : https://dvddust.web.app
+  * Site web              : https://donjons.grisloup.com
   * Contact presse        : donjons@grisloup.com
 
 Accroche

@@ -360,6 +360,25 @@ data:
         fr: "A quitté le clan"
         en: "Left the clan"
         es: "Dejó el clan"
+      # Rappels de relance (pulse_sweeper). Deux libellés exclusifs : clan_selector n'en
+      # propose jamais qu'un. Formulés du côté du DONJON et non du système — on ne coupe
+      # pas « les notifications », on demande au donjon de ne plus faire signe.
+      roster_menu_nudges_off:
+        fr: "Ne plus faire signe"
+        en: "Stop reaching out"
+        es: "Dejar de avisar"
+      roster_menu_nudges_off_desc:
+        fr: "Le donjon cesse de lui donner de ses nouvelles quand il ne vient plus."
+        en: "The dungeon stops sending them news when they stop coming."
+        es: "La mazmorra deja de darle noticias cuando ya no viene."
+      roster_menu_nudges_on:
+        fr: "Refaire signe"
+        en: "Reach out again"
+        es: "Volver a avisar"
+      roster_menu_nudges_on_desc:
+        fr: "Le donjon pourra de nouveau lui donner de ses nouvelles."
+        en: "The dungeon may send them news again."
+        es: "La mazmorra podrá volver a darle noticias."
 
       #------------- Player log screen --------------------------------
 
@@ -398,6 +417,14 @@ data:
         fr: "Les enfants se sont bien amusés et, grâce à leurs efforts, ils ont récolté de l'argent de poche et bien d'autres surprises ! Ça vous tente ?"
         en: "The kids had a blast, and thanks to their efforts they earned pocket money and plenty of other surprises! Want to give it a try?"
         es: "¡Los niños se lo pasaron genial, y gracias a su esfuerzo consiguieron dinero de bolsillo y muchas otras sorpresas! ¿Te animas?"
+      # Dernière ligne de TOUT partage social (journal ET conte) : le lien du site vitrine. Sans lui
+      # le partage vante le jeu sans dire où le trouver — le destinataire n'a aucun moyen d'agir.
+      # Une URL PAR LANGUE (le site a une arborescence fr/ en/ es/) : la racine redirige selon la
+      # langue du NAVIGATEUR du destinataire, ce qui n'est pas forcément celle du partage.
+      share_site_link:
+        fr: "Découvrir le jeu : https://donjons.grisloup.com/fr/"
+        en: "Discover the game: https://donjons.grisloup.com/en/"
+        es: "Descubre el juego: https://donjons.grisloup.com/es/"
       # Attente affichée pendant que le modèle rédige le conte (aller-retour réseau, jusqu'à 30 s).
       log_narrating:
         fr: "Le conteur rassemble ses mots…"
@@ -629,6 +656,35 @@ data:
         fr: "Non, revenir"
         en: "No, go back"
         es: "No, volver"
+
+      # Politique de confidentialité (option kebab Personnage → documents.open_doc?privacy)
+      # Rappels de relance, vus du kebab Personnage : la MÊME bascule que celle du roster,
+      # mais tournée à la première personne — ici on règle son propre cas, pas celui d'un
+      # enfant. Deux clefs exclusives (perso_settings_selector n'en renvoie qu'une).
+      perso_menu_nudges_off:
+        fr: "Ne plus me faire signe"
+        en: "Stop reaching out to me"
+        es: "Dejar de avisarme"
+      perso_menu_nudges_off_desc:
+        fr: "Le donjon cessera de te donner de ses nouvelles quand tu ne viendras plus."
+        en: "The dungeon will stop sending you news when you stop coming."
+        es: "La mazmorra dejará de darte noticias cuando ya no vengas."
+      perso_menu_nudges_on:
+        fr: "Me refaire signe"
+        en: "Reach out to me again"
+        es: "Volver a avisarme"
+      perso_menu_nudges_on_desc:
+        fr: "Le donjon pourra de nouveau te donner de ses nouvelles."
+        en: "The dungeon may send you news again."
+        es: "La mazmorra podrá volver a darte noticias."
+      perso_menu_privacy:
+        fr: "Mes données"
+        en: "My data"
+        es: "Mis datos"
+      perso_menu_privacy_desc:
+        fr: "Lire la politique de confidentialité : ce que le jeu sait de toi, et tout ce qu'il ignore."
+        en: "Read the privacy policy: what the game knows about you, and everything it does not."
+        es: "Leer la política de privacidad: lo que el juego sabe de ti y todo lo que ignora."
 
       # Suppression de compte (option kebab Personnage + overlay d'avertissements répétés)
       perso_menu_delete:
@@ -1192,6 +1248,47 @@ data:
         fr: "@@@session.user.name@@@ a quitté le clan."
         en: "@@@session.user.name@@@ left the clan."
         es: "@@@session.user.name@@@ dejó el clan."
+      # --- Vie de la cotisation, racontée au journal du clan ------------------
+      # (worker_log._logLine, événements Store* écrits par worker_store._logStoreEvent).
+      # Ces lignes ont remplacé l'écran « Mes achats » : le clan lit son histoire
+      # commerciale au même endroit que le reste de son histoire.
+      #
+      # Ton du reste du jeu — elles sont lues par des ENFANTS. Aucun montant, aucun
+      # nom de produit (« ddust_clan » ne veut rien dire pour une famille), et
+      # surtout aucun reproche sur les incidents de paiement : ni dette, ni retard,
+      # ni menace. La porte reste ouverte, toujours.
+      log_store_subscription:
+        fr: "Le clan a rejoint la guilde : le donjon s'ouvre à toute la troupe !"
+        en: "The clan joined the guild: the dungeon opens to the whole troop!"
+        es: "El clan se unió al gremio: ¡la mazmorra se abre a toda la tropa!"
+      log_store_purchase:
+        fr: "Le clan s'est procuré un nouvel équipement auprès du marchand."
+        en: "The clan acquired new gear from the merchant."
+        es: "El clan consiguió un nuevo equipo del mercader."
+      log_store_renewed:
+        fr: "La cotisation de guilde a été reconduite pour la période à venir."
+        en: "The guild dues were renewed for the coming period."
+        es: "La cuota de gremio se renovó para el próximo período."
+      log_store_tier_changed:
+        fr: "Le clan a changé de rang dans la guilde."
+        en: "The clan changed rank within the guild."
+        es: "El clan cambió de rango en el gremio."
+      log_store_ended:
+        fr: "Le clan a quitté la guilde. La porte du donjon reste ouverte."
+        en: "The clan left the guild. The dungeon door stays open."
+        es: "El clan dejó el gremio. La puerta de la mazmorra sigue abierta."
+      log_store_payment_default:
+        fr: "Le dragon de la banque a sommeillé : la cotisation n'est pas arrivée."
+        en: "The bank dragon dozed off: the dues didn't come through."
+        es: "El dragón del banco se durmió: la cuota no llegó."
+      log_store_payment_recovered:
+        fr: "La cotisation est repartie : le dragon de la banque s'est rendormi."
+        en: "The dues are flowing again: the bank dragon went back to sleep."
+        es: "La cuota vuelve a fluir: el dragón del banco se durmió de nuevo."
+      log_store_locked:
+        fr: "Le clan s'est mis au repos. Il pourra reprendre l'aventure quand il voudra."
+        en: "The clan went to rest. It can pick the adventure back up whenever it likes."
+        es: "El clan se puso a descansar. Podrá retomar la aventura cuando quiera."
       # Don d'un objet d'inventaire à un joueur (worker._logLine, event ItemGiven).
       # @@@session.user.name@@@ = le DONNEUR (acteur du log), {item} = l'objet (nom propre ou
       # libellé de son type, résolu dans la langue du LECTEUR), {to} = le destinataire.
@@ -1229,6 +1326,87 @@ data:
         fr: "@@@session.user.name@@@ a touché son tribut : {amount} balles d'argent de poche bien réel."
         en: "@@@session.user.name@@@ collected their tribute: {amount} very real bucks of pocket money."
         es: "@@@session.user.name@@@ cobró su tributo: {amount} pavos de dinero de bolsillo bien real."
+      # Boss convoqué par le donjon lui-même (balayage serveur pulse_sweeper), et non
+      # recommandé par un chef — celle-là ne passe par personne, d'où la ligne de journal :
+      # un bonus d'XP apparu tout seul doit pouvoir se justifier. Événement de CLAN, sans
+      # acteur : pas de @@@session.user.name@@@ ici. {task} = l'intitulé de la tâche.
+      log_boss_summoned:
+        fr: "Un monstre de poussière a surgi du donjon : {task} garde un trésor d'expérience."
+        en: "A dust monster rose from the dungeon: {task} now guards a hoard of experience."
+        es: "Un monstruo de polvo surgió de la mazmorra: {task} guarda un tesoro de experiencia."
+
+      #------------- La fée -----------------------------------------
+      # Elle prend la place d'une monstre-tâche pendant dix minutes, au plus une fois par mois,
+      # et PERSONNE n'est prévenu tant qu'elle est là : la trouver EST la récompense. Rien de ce
+      # bloc ne s'affiche donc avant que quelqu'un ne l'ait touchée — sauf `fairy_tile`, le
+      # libellé sous sa tuile dans le tiroir.
+      #
+      # Libellé de la tuile : volontairement muet sur ce qu'elle est. Il faut la reconnaître à
+      # son image, pas la lire.
+      fairy_tile:
+        fr: "?"
+        en: "?"
+        es: "?"
+
+      # Les deux cadeaux, écrits en vert lumineux dans les mains de la fée (fairy_page). Courts
+      # par nécessité : ils tiennent dans une main. Le montant n'est JAMAIS annoncé — on choisit
+      # une promesse, pas un chiffre.
+      fairy_gift_xp_self:
+        fr: "De l'expérience\npour toi"
+        en: "Experience\nfor you"
+        es: "Experiencia\npara ti"
+      fairy_gift_xp_other:
+        fr: "De l'expérience\npour un autre"
+        en: "Experience\nfor another"
+        es: "Experiencia\npara otro"
+      fairy_gift_xp_clan:
+        fr: "De l'expérience\npour tout le clan"
+        en: "Experience\nfor the whole clan"
+        es: "Experiencia\npara todo el clan"
+      fairy_gift_heal_self:
+        fr: "La santé\npour toi"
+        en: "Health\nfor you"
+        es: "Salud\npara ti"
+      fairy_gift_heal_other:
+        fr: "La santé\npour un autre"
+        en: "Health\nfor another"
+        es: "Salud\npara otro"
+      fairy_gift_heal_clan:
+        fr: "La santé\npour tout le clan"
+        en: "Health\nfor the whole clan"
+        es: "Salud\npara todo el clan"
+      fairy_gift_boss:
+        fr: "Réveiller\nun boss"
+        en: "Wake\na boss"
+        es: "Despertar\na un jefe"
+
+      # Notification envoyée à tout le clan SAUF à l'intéressé, une fois le cadeau choisi
+      # (worker._notifyClanFairy). {name} = le joueur, substitué en code.
+      # Elle ne dit PAS quel cadeau a été pris : c'est le journal du clan qui le raconte.
+      fairy_notif:
+        fr: "{name} a rencontré une fée !"
+        en: "{name} has met a fairy!"
+        es: "¡{name} se ha encontrado con un hada!"
+
+      # Journal du clan. {gift} = le libellé du cadeau reçu (les \n des libellés ci-dessus sont
+      # remplacés par une espace avant substitution — une ligne de récit ne se coupe pas).
+      # L'APPARITION de la fée ne s'écrit jamais au journal : la ligne la trahirait en temps réel
+      # à qui l'ouvre. Une fée qui repart sans être touchée ne laisse donc aucune trace.
+      log_fairy_gift:
+        fr: "Une fée est apparue au détour d'une corvée, et @@@session.user.name@@@ l'a touchée. Elle a offert : {gift}."
+        en: "A fairy appeared in the middle of a chore, and @@@session.user.name@@@ reached out. Her gift: {gift}."
+        es: "Un hada apareció en plena faena, y @@@session.user.name@@@ la tocó. Su regalo: {gift}."
+
+      # Kebab de la boutique, mode test seulement (store.debug.test_mode). Le bucket de
+      # production ne pose pas ce drapeau : l'option n'existe pas chez les joueurs.
+      fairy_test:
+        fr: "Faire venir la fée"
+        en: "Summon the fairy"
+        es: "Invocar al hada"
+      fairy_test_desc:
+        fr: "Banc d'essai : fait apparaître la fée tout de suite, dans un domaine au hasard."
+        en: "Test bench: makes the fairy appear right now, in a random domain."
+        es: "Banco de pruebas: hace aparecer al hada ahora mismo, en un dominio al azar."
 
       #------------- Soin (célébration de guérison) ------------------
       # {name} = joueur soigné, {healer} = soigneur — tous deux encadrés [[…]] par le worker
@@ -1447,11 +1625,204 @@ data:
         en: "The Grey Wolf's shop"
         es: "La tienda del Lobo Gris"
 
+
       # Panneau « à venir » (écrans shop / personnage, style gage de mort)
       coming_soon:
         fr: "Bientôt"
         en: "Coming soon"
         es: "Próximamente"
+
+      # Catalogue de la boutique. La STRUCTURE (produits, paliers, droits) vit dans
+      # store-base-global.yml ; ne sont ici que les mots de ce décor-là. Les prix ne
+      # sont JAMAIS écrits dans un libellé : Play les fournit localisés, taxes
+      # incluses, et un prix en dur deviendrait faux au premier changement de pays.
+      # CINQ PALIERS, une seule différence entre eux : le nombre de places autour de la
+      # table. Aucune description ne promet un bénéfice de jeu réservé — il n'y en a
+      # aucun, et en laisser croire un contredirait la fiche du store comme les CGU
+      # enfants (« rien de ce qui s'achète ne te rend plus fort »).
+      #
+      # Les descriptions ne répètent PAS le décompte chiffré : la page des paliers
+      # l'affiche déjà sur chaque ligne, à partir de `grants.max_players`. Le répéter
+      # ici, c'est deux endroits à corriger le jour où la grille bouge — et le catalogue
+      # est le seul qui fasse foi.
+
+      # Les NOMS sont ceux de la grille commerciale, tels quels : Essentiel, Clan,
+      # Tribu, Guilde, Royaume. Pas de vocabulaire parallèle inventé pour le décor —
+      # une famille qui a lu la grille doit retrouver le même mot à l'écran, et un
+      # palier qu'on n'appelle pas partout pareil est un palier qu'on croit avoir
+      # perdu. La couleur de donjon vit dans la description, pas dans le nom.
+      #
+      # ⚠ « Clan » et « Guilde » sont aussi des mots du décor générique (le clan est
+      # l'entité de jeu, « la guilde » est la métaphore de l'abonnement dans les
+      # libellés de mécanique et le journal). C'est assumé : sur la page des paliers
+      # ils apparaissent en liste, comme cinq noms d'offres, et le contexte lève
+      # l'ambiguïté. Ne pas renommer les libellés génériques pour autant.
+
+      store_essentiel:
+        fr: "Essentiel"
+        en: "Essential"
+        es: "Esencial"
+
+      store_essentiel_desc:
+        fr: "Une petite escouade : un adulte et son aventurier, ou deux compagnons de route."
+        en: "A small squad: one adult and their adventurer, or two companions on the road."
+        es: "Una pequeña escuadra: un adulto y su aventurero, o dos compañeros de viaje."
+
+      store_clan:
+        fr: "Clan"
+        en: "Clan"
+        es: "Clan"
+
+      store_clan_desc:
+        fr: "La maisonnée ordinaire : parents et enfants réunis autour des mêmes quêtes."
+        en: "The ordinary household: parents and children gathered around the same quests."
+        es: "El hogar corriente: padres e hijos reunidos en torno a las mismas misiones."
+
+      store_tribu:
+        fr: "Tribu"
+        en: "Tribe"
+        es: "Tribu"
+
+      store_tribu_desc:
+        fr: "Quand la maisonnée déborde : grande fratrie, foyers réunis, la table s'allonge."
+        en: "When the household overflows: a big sibling crew, homes joined together, the table gets longer."
+        es: "Cuando la casa se desborda: hermandad numerosa, hogares reunidos, la mesa se alarga."
+
+      store_guilde:
+        fr: "Guilde"
+        en: "Guild"
+        es: "Gremio"
+
+      store_guilde_desc:
+        fr: "Cousins, grands-parents, deux maisons qui n'en font plus qu'une."
+        en: "Cousins, grandparents, two houses that have become one."
+        es: "Primos, abuelos, dos casas que ya son una."
+
+      store_royaume:
+        fr: "Royaume"
+        en: "Kingdom"
+        es: "Reino"
+
+      store_royaume_desc:
+        fr: "Pour les clans sans fin : aucun plafond, tous les aventuriers que vous voudrez."
+        en: "For clans without end: no cap, as many adventurers as you like."
+        es: "Para los clanes sin fin: sin límite, tantos aventureros como queráis."
+
+      # --- Écrans de la boutique -------------------------------------------
+
+
+
+
+      # store_row_subscribe / _desc / store_row_subscription : SUPPRIMÉS. Ils
+      # habillaient la ligne « Ma cotisation / Cotisation à jour » qui ouvrait la
+      # boutique — un état de compte, là où l'on attend un étal. Les paliers ne
+      # vivent plus dans la boutique du tout : ils ont leur page (tiers_page), et
+      # leurs noms viennent du catalogue (store_essentiel … store_royaume).
+
+      # --- Lignes de palier : plus aucun libellé de MONTÉE ici -----------------
+      # Il a existé ici des libellés « Passer à… » distincts des noms de paliers,
+      # pour qu'un clan déjà abonné ne lise pas un tarif comme une dépense de plus.
+      # Ils sont supprimés : la page des paliers montre les cinq lignes ensemble, et
+      # c'est la MISE EN FORME qui dit où l'on en est (le palier courant coché, le
+      # palier suivant fléché). Un nom qui changerait selon celui qui le regarde
+      # rendrait la comparaison illisible — or c'est tout ce qu'on demande à cette
+      # page.
+      #
+      # Les libellés de structure de la page (« Par mois », « Par an », « Palier
+      # actuel », « X joueurs ») sont EMBARQUÉS dans client/config/lang.yml, pas ici :
+      # c'est de la mécanique, elle doit rendre même si ce layer est en retard.
+
+
+
+
+
+
+
+
+
+      # États. Le vocabulaire évite soigneusement la dette et le reproche : ces
+      # écrans sont vus par des enfants, et un incident de prélèvement ne doit
+      # jamais ressembler à une punition.
+
+
+
+
+
+
+
+      # Distinct de `none` : il y a EU une cotisation, et le dire évite qu'un chef
+      # dont le droit vient de s'éteindre lise « aucune cotisation en cours » et
+      # croie n'avoir jamais rien souscrit. État TERMINAL d'un abonnement à
+      # reconduction automatique (résiliation échue, remboursement, réserve de mois
+      # offerts épuisée) — rien à voir avec une offre à durée déterminée.
+
+      # SEUL écran qui ferme le jeu, et il est vu par des ENFANTS : ni dette, ni
+      # retard, ni reproche. La troupe se repose, c'est tout.
+      #
+      # La promesse de conservation est écrite noir sur blanc, parce qu'elle est
+      # vraie et que c'est la seule inquiétude réelle d'une famille à cet instant :
+      # plus rien ne se supprime au terme du calendrier (purge_day: 0), un clan
+      # retrouvé six mois plus tard l'est intact.
+      # UNE ligne, et elle s'adresse d'abord à l'ENFANT : le bouton lui est masqué,
+      # sans elle il ne verrait qu'une image et n'aurait aucun moyen de comprendre
+      # pourquoi le donjon ne s'ouvre plus. Ni dette, ni retard, ni reproche.
+      #
+      # La seconde proposition est la seule inquiétude réelle d'une famille à cet
+      # instant, et elle est vraie : plus rien ne se supprime au terme du calendrier
+      # (purge_day: 0), un clan retrouvé des mois plus tard l'est intact.
+
+      # Le SEUL bouton de l'ecran de gel. « Se reabonner » et non « Revivre le clan » :
+      # rien n'est mort, et le geste demande est une reprise de cotisation, pas une
+      # resurrection. Dire l'acte reel evite la mauvaise surprise au moment ou la
+      # feuille de paiement Play s'ouvre.
+
+      # Affiché à qui n'administre pas le clan. On ne cache pas l'offre — un
+      # enfant a le droit de comprendre pourquoi le donjon est fermé — mais on ne
+      # lui propose jamais de payer.
+
+      # Première phase de tarification d'une offre, quand elle diffère du tarif
+      # reconduit — c'est ainsi que l'essai gratuit s'annonce. Ni durée ni montant
+      # ici : Play fournit les deux, les recopier garantirait qu'ils divergent.
+
+      # ------------- Paywall (absence d'abonnement actif) -------------------
+      # Repris des CGU v5 : l'accès est suspendu, les données sont CONSERVÉES et
+      # tout revient au réabonnement. Le ton reste celui du donjon — un enfant
+      # peut tomber sur cet écran, il n'a pas à se sentir en faute.
+
+      # Plafonds de membres atteints. Le message n'annonce pas un refus, il
+      # annonce la sortie : c'est l'écran d'abonnement qui s'ouvre, avec le
+      # palier illimité sous les yeux.
+
+
+
+      # Vu par un candidat qui arrive dans un clan déjà plein : il n'a rien à
+      # payer et rien à corriger, on le lui dit sans le renvoyer vers une offre.
+
+      # Clan actif grâce à des mois offerts (offre fondateurs, parrainage,
+      # compensation des familles du test fermé) et non à un prélèvement.
+
+      # ------------- Journal de facturation (« Mes achats ») ----------------
+      # Une ligne par événement écrit par le serveur. Vocabulaire de guilde, mais
+      # sans ambiguïté sur ce qui s'est passé : c'est la pièce qu'on présente en
+      # cas de litige.
+
+
+
+
+
+
+
+
+      # Options du kebab de la BOUTIQUE. « Mes achats » a quitté le menu du Clan
+      # pour celui-ci : tout ce qui touche à l'argent se regroupe sur l'écran qui
+      # le vend. La clef garde son nom historique — la renommer casserait les
+      # traductions déjà relues sans rien apporter.
+
+
+      # Les LIBELLÉS store_restore et store_manage viennent du module dvstore
+      # (flutter/modules/dvstore/config.yml) : seules les descriptions du menu, qui
+      # sont propres à ce décor, sont ici.
+
 
       #------------- Profile ------------------------------------
 
@@ -1725,6 +2096,10 @@ data:
       anim_victory: "sounds/tatadaa.mp3"
       anim_butin: "music/win.mp3" # ouverture du butin (~11,5 s audibles + silence, fichier ~13 s)
       batte_swords: "sounds/batte_swords.mp3" # boucle jouée pendant le combat (mur de flammes)
+      # Venue de la fée. Jouée EN BOUCLE (dvsound.loop), et non en one-shot : contrairement à
+      # toutes les autres célébrations, celle-ci ne se termine pas toute seule — elle dure
+      # aussi longtemps que le joueur met à choisir entre les deux cadeaux.
+      anim_fairy: "music/fairy.mp3"
 
     playlists:
       ambiant:
@@ -1810,6 +2185,13 @@ data:
     # -- Scène "heal" (soin / résurrection) ------------------------------------------
     heal_pulse: { children: [gentle, pause_100, gentle] } # 0,30 s — éclosion des croix
     heal_relief: { children: [medium, pause_100, gentle] } # 0,40 s — l'écran est blanc : soulagement
+
+    # -- Scène "fairy" (venue de la fée) ----------------------------------------------
+    # Deux beats seulement, et tous deux DOUX : la fée n'est ni un combat ni une mort, elle
+    # ne cogne pas. Le premier est le frisson du froid quand l'écran se ferme ; le second,
+    # l'éblouissement quand la lumière a tout inondé — juste avant qu'elle ne paraisse.
+    fairy_chill: { children: [tick, pause_100, tick, pause_100, gentle] } # 0,36 s — le froid qui prend
+    fairy_reveal: { children: [gentle, pause_100, medium] } # 0,40 s — la lumière éblouit
 
     # -- Scène "giftxp" (cadeau d'XP) -------------------------------------------------
     gift_sparkle: { children: [tick, pause_50, tick, pause_50, tick, pause_50, tap] } # 0,30 s
@@ -2784,6 +3166,277 @@ data:
           act8_voile:
             { order: 8, target: voile.opacity, from: 0.85, to: 0, duration: 1.6 }
 
+      # ---------------------------------------------------------------------------------
+      # Scène "fairy" : la venue de la fée. Elle est L'EXCEPTION du fichier — toutes les
+      # autres scènes sont des PARENTHÈSES qui rendent l'écran ; celle-ci ne le rend pas.
+      # Quand sa timeline est finie, la fée RESTE, la neige continue de flotter, la musique
+      # tourne, et l'écran attend que le joueur choisisse l'une des deux mains.
+      #
+      # >>> Ce n'est pas un effet de bord, c'est le contrat du moteur : `reportSequenceEnd`
+      # marque la scène `finished` mais ne met JAMAIS le game en pause — seul `dvflame.stop`
+      # appelle `pauseEngine()` (dvscene_motor). Une scène mortelle finie garde donc sa
+      # dernière pose ET continue de tourner tant qu'une vue lui est attachée : les émissions
+      # laissées à un taux non nul continuent d'émettre. C'est exactement ce qu'on veut ici,
+      # et c'est pourquoi les actes n'ÉTEIGNENT PAS la neige à la fin (contrairement à
+      # `gameover.act5_cendres` ou `butin.act7_*`, qui sont des parenthèses, eux).
+      #
+      # Le fondu de sortie n'est donc pas dans la timeline : il est tiré à la demande, quand
+      # le cadeau est choisi, par des `dvflame.trigger` (effets ponctuels hors timeline, qui
+      # fonctionnent sur une scène finie puisque le game tourne toujours).
+      #
+      # Cinq actes, 8,8 s en tout :
+      #   1. (2,0 s) NOIR — l'écran se ferme, rien d'autre
+      #   2. (0,3 s) la neige se lève : éclats de cristal qui FLOTTENT (aucune gravité)
+      #   3. (1,5 s / 3,0 s) les bords se givrent PENDANT que la lumière centrale inonde tout
+      #   4. (2,0 s) la fée paraît en fondu par-dessus la lumière
+      fairy:
+        lifecycle: mortal
+        autostart: false
+        # Pas de `dvinterlude.finished` ici : la fée n'est pas un interlude. Rien à rendre,
+        # rien à dégeler — l'écran lui appartient jusqu'au choix du joueur.
+        objects:
+          # Le noir naît OPAQUE (opacity: 1, pas d'acte pour l'y amener) : la page s'ouvre déjà
+          # fermée. Un fondu au noir aurait laissé voir le tiroir une fraction de seconde.
+          noir:
+            type: fill
+            order: 5
+            color: "#000000"
+            position: { x: 0, y: 0 }
+            anchor: top_left
+            size: { w: "100%", h: "100%" }
+            opacity: 1
+
+          # Éclats de cristal / neige. `acceleration` à ZÉRO et vitesse minuscule : ils
+          # FLOTTENT, ils ne tombent pas — c'est toute la différence avec les cendres de
+          # `gameover` (qui, elles, portent acceleration.y = 90). `angle_var: 180` couvre le
+          # tour complet : la dérive n'a aucune direction privilégiée.
+          # Émission à 0 au départ : l'acte 2 l'ouvre, et PLUS RIEN ne la referme.
+          neige:
+            type: particles
+            order: 40
+            particle_shape: cross
+            position: { x: "50%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "100%", h: "100%" } }
+            lifetime: { min: 6.0, max: 11.0 }
+            velocity: { angle: -90, angle_var: 180, speed: 7, speed_var: 5 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 2, peak: 13, end: 2, peak_at: 0.5 }
+            size_var: 0.6
+            opacity_var: 0.65
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00E1F5FF" } # naît transparent (apparition douce)
+              c2: { order: 2, color: "#FFFFFF" }   # scintille en plein
+              c3: { order: 3, color: "#00BBDEFB" } # s'éteint en bleu glacé transparent
+
+          # Le cadre givré. Image PORTRAIT étirée à l'écran (STRETCH et non RATIO_IN) : le
+          # givre est une texture organique, l'étirement ne se voit pas, et c'est le seul
+          # cadrage qui garantit que les quatre bords soient couverts sur tous les formats.
+          givre:
+            type: sprite_static
+            order: 30
+            image: "images/big/frost_frame_nobg.png"
+            position: { x: 0, y: 0 }
+            anchor: top_left
+            size: { w: "100%", h: "100%" }
+            stretch: "STRETCH"
+            opacity: 0
+
+          # Ce qui fait VIVRE le givre : quatre bandes de particules le long des bords, très
+          # lentes, qui scintillent sur le PNG. Zone `rect` large et plate (ou haute et fine)
+          # centrée sur chaque bord.
+          givre_haut:
+            type: particles
+            order: 31
+            particle_shape: cross
+            position: { x: "50%", y: "4%" }
+            emission: { rate: 0, zone: { shape: rect, w: "100%", h: "12%" } }
+            lifetime: { min: 1.6, max: 3.2 }
+            velocity: { angle: -90, angle_var: 180, speed: 4, speed_var: 3 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 1, peak: 8, end: 1, peak_at: 0.5 }
+            size_var: 0.5
+            opacity_var: 0.6
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00FFFFFF" }
+              c2: { order: 2, color: "#E1F5FE" }
+              c3: { order: 3, color: "#00E1F5FE" }
+          givre_bas:
+            type: particles
+            order: 31
+            particle_shape: cross
+            position: { x: "50%", y: "96%" }
+            emission: { rate: 0, zone: { shape: rect, w: "100%", h: "12%" } }
+            lifetime: { min: 1.6, max: 3.2 }
+            velocity: { angle: -90, angle_var: 180, speed: 4, speed_var: 3 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 1, peak: 8, end: 1, peak_at: 0.5 }
+            size_var: 0.5
+            opacity_var: 0.6
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00FFFFFF" }
+              c2: { order: 2, color: "#E1F5FE" }
+              c3: { order: 3, color: "#00E1F5FE" }
+          givre_gauche:
+            type: particles
+            order: 31
+            particle_shape: cross
+            position: { x: "3%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "10%", h: "100%" } }
+            lifetime: { min: 1.6, max: 3.2 }
+            velocity: { angle: -90, angle_var: 180, speed: 4, speed_var: 3 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 1, peak: 8, end: 1, peak_at: 0.5 }
+            size_var: 0.5
+            opacity_var: 0.6
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00FFFFFF" }
+              c2: { order: 2, color: "#E1F5FE" }
+              c3: { order: 3, color: "#00E1F5FE" }
+          givre_droite:
+            type: particles
+            order: 31
+            particle_shape: cross
+            position: { x: "97%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "10%", h: "100%" } }
+            lifetime: { min: 1.6, max: 3.2 }
+            velocity: { angle: -90, angle_var: 180, speed: 4, speed_var: 3 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 1, peak: 8, end: 1, peak_at: 0.5 }
+            size_var: 0.5
+            opacity_var: 0.6
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00FFFFFF" }
+              c2: { order: 2, color: "#E1F5FE" }
+              c3: { order: 3, color: "#00E1F5FE" }
+
+          # L'étoile lointaine. Même montage que le voile de `heal` (fill circle ancré au
+          # centre dont on anime la taille), mais pris à l'envers : là-bas le blanc SOULAGE,
+          # ici il RÉVÈLE. Ellipse 220 % × 140 % : elle atteint les quatre bords d'un écran
+          # portrait au même instant. `order: 20` → sous la fée, au-dessus du noir.
+          lumiere:
+            type: fill
+            shape: circle
+            order: 20
+            color: "#FFFFFF"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: 0, h: 0 }
+            opacity: 0.15
+
+          # La fée. RATIO_IN : l'image est carrée, l'écran est portrait — sans lui elle serait
+          # étirée en hauteur. Elle occupe donc toute la largeur, centrée verticalement.
+          # `order: 50` : au-dessus de tout, y compris de la neige, qui passe derrière elle.
+          fee:
+            type: sprite_static
+            order: 50
+            image: "images/big/fairy_nobg.png"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: "100%", h: "100%" }
+            stretch: "RATIO_IN"
+            opacity: 0
+
+        effects:
+          # -- Acte 1 (2,0 s) : le noir, et rien d'autre -----------------------------
+          act1_haptic: # beat t=0 (hold parallèle, cf. burn/heal) : le frisson du froid
+            {
+              order: 1,
+              type: hold,
+              duration: 0.05,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.fairy_chill" } },
+            }
+          act1_noir: { order: 1, type: hold, duration: 2.0 }
+
+          # -- Acte 2 (0,3 s) : la neige se lève, et ne se recouchera pas -------------
+          act2_neige:
+            { order: 2, target: neige.emission.rate, to: 55, duration: 0.3 }
+          act2_givre_haut:
+            { order: 2, target: givre_haut.emission.rate, to: 26, duration: 0.3 }
+          act2_givre_bas:
+            { order: 2, target: givre_bas.emission.rate, to: 26, duration: 0.3 }
+          act2_givre_gauche:
+            { order: 2, target: givre_gauche.emission.rate, to: 30, duration: 0.3 }
+          act2_givre_droite:
+            { order: 2, target: givre_droite.emission.rate, to: 30, duration: 0.3 }
+
+          # -- Acte 3 : les bords se givrent PENDANT que la lumière monte -------------
+          # Les deux vivent dans le même cran d'`order` (donc en parallèle) mais pas sur la
+          # même durée : le givre se pose vite (1,5 s), la lumière prend ses 3 s pleines. Le
+          # cran ne s'achève qu'au dernier effet fini — c'est bien 3 s au total.
+          # `ease_in` : elle démarre à peine (l'étoile lointaine) et finit par tout avaler.
+          act3_givre:
+            { order: 3, target: givre.opacity, from: 0, to: 1, duration: 1.5 }
+          act3_lum_w:
+            {
+              order: 3,
+              target: lumiere.size.w,
+              from: 0,
+              to: "220%",
+              duration: 3.0,
+              curve: ease_in,
+            }
+          act3_lum_h:
+            {
+              order: 3,
+              target: lumiere.size.h,
+              from: 0,
+              to: "140%",
+              duration: 3.0,
+              curve: ease_in,
+            }
+          act3_lum_op:
+            {
+              order: 3,
+              target: lumiere.opacity,
+              from: 0.15,
+              to: 1,
+              duration: 3.0,
+              curve: ease_in,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.fairy_reveal" } },
+            }
+
+          # -- Acte 4 (2,0 s) : la fée paraît, et RESTE ------------------------------
+          # `on_end` révèle les deux cadeaux. Ancré sur l'ACTE et non sur un délai en dur :
+          # si l'on retouche les durées ci-dessus, la révélation suit toute seule.
+          act4_fee:
+            {
+              order: 4,
+              target: fee.opacity,
+              from: 0,
+              to: 1,
+              duration: 2.0,
+              on_end: { ready: { order: 1, action: "worker.on_fairy_ready" } },
+            }
+
+      # Halo vert des deux cadeaux (une vue par main, MÊME scène — dvflame partage une scène
+      # entre toutes ses vues). Copie de `notehalo` en vert lumineux : c'est ce qui fait
+      # « briller » le libellé du cadeau au lieu de le poser à plat sur l'image.
+      # Immortelle et SANS `effects` de scène : rien qui puisse finir, elle respire tant que
+      # l'écran est là.
+      fairyglow:
+        lifecycle: immortal
+        objects:
+          halo:
+            type: fill
+            shape: circle
+            order: 10
+            color: "#69F0AE"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: "80%", h: "80%" }
+            opacity: 0.3
+            effects:
+              souffle:  { type: oscillate, target: opacity, from: 0.16, to: 0.46,  period: 2.2 }
+              gonfle_w: { type: oscillate, target: size.w,  from: "68%", to: "94%", period: 2.2 }
+              gonfle_h: { type: oscillate, target: size.h,  from: "68%", to: "94%", period: 2.2 }
+
   # Miniatures des types d'items : le catalogue (tailles, options, dépôts) vit dans
   # items-base-global.yml, seul le VISUEL dépend du thème et se pose ici.
   # Gabarit `big` (768 px, et non `medium` 384) pour les 3 items : l'option « Voir » (item_view_page)
@@ -3166,6 +3819,11 @@ data:
         stretch: "RATIO_IN"
         image: "images/medium/icon_Marchand.png"
 
+    # Plaque du nom de la boutique. Strictement identique à clan_page/label et
+    # personnage/label : les trois écrans à taskbar portent le même bandeau doré sous
+    # leur icône, et c'est le THÈME qui le dessine — la conf du client ne pose que la
+    # géométrie. Sans cette entrée, l'écran Boutique (arrivé après les deux autres)
+    # sortait en DvLabel nu, texte clair sans fond.
     shop/label:
       shape:
         font_size: 14.0
@@ -3175,6 +3833,15 @@ data:
         font_color: black
         background_color: "0xFF99864E"
         opacity: 1
+
+    # Écran de clan gelé : l'elfe de ménage en haillons, poches retournées, seau
+    # renversé. Elle dit la bourse vide sans prononcer le mot, et un enfant la
+    # comprend avant de savoir lire — c'est pour cela que l'écran ne porte plus
+    # qu'une ligne de texte. Décor, donc thème : un autre thème mettra la sienne.
+    locked_page/image:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/big/no_paiement_nobg.png"
 
     clan_page/icon:
       shape:

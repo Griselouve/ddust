@@ -137,8 +137,11 @@ conf:
     # L'accroche VARIE selon ce qui est partagé (journal brut vs récit narratif IA) — c'est pour ça
     # qu'elle est indirectée par @@@log.share_intro@@@ et non écrite en dur ici comme avant.
     # Résolu par dvsocialshare (Android).
+    # La dernière ligne porte le lien du site vitrine (@@@T:share_site_link@@@, une URL par langue) :
+    # c'est le seul endroit du partage qui dit où trouver le jeu. Elle est écrite ICI et non dans
+    # l'accroche runtime parce qu'elle ne varie pas, elle : journal brut ou conte IA, même lien.
     log:
-      text: "@@@log.share_intro@@@\n\n@@@log.share_text@@@"
+      text: "@@@log.share_intro@@@\n\n@@@log.share_text@@@\n\n@@@T:share_site_link@@@"
       image: "images/big/logo.png"
 
   # --- Interludes : ce qui EXISTE ---------------------------------------------------

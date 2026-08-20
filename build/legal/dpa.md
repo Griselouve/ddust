@@ -34,11 +34,13 @@ Point notable pour Vertex AI : selon les conditions Google Cloud, les données s
 
 | Rôle | Entité |
 |---|---|
-| Responsable de traitement | **[à renseigner : nom/raison sociale, adresse, contact]** — éditeur de Donjons & Savons (« grisloup »), contact données : donjons@grisloup.com |
+| Responsable de traitement | **Personne physique exerçant sous le nom commercial « grisloup.com »** — éditeur de Donjons & Savons. **[à renseigner : nom civil et adresse postale]**, contact données : donjons@grisloup.com |
 | Sous-traitant principal | **Google Ireland Limited**, Gordon House, Barrow Street, Dublin 4, Irlande (contractant UE pour GCP/Firebase) |
 | Sous-sous-traitants | Liste Google publiée (cloud.google.com/terms/subprocessors) — la notification des changements se fait par abonnement à cette page |
 
 Aucun autre sous-traitant : pas d'analytics, pas de régie publicitaire, pas de SDK tiers collecteur. Les alertes budget Telegram ne portent aucune donnée personnelle d'utilisateur.
+
+⚠️ **Le responsable de traitement est une personne physique au lancement.** La même identité doit se retrouver, à l'identique, sur le compte marchand Play, le compte de facturation GCP, l'éditeur déclaré dans les CGU et la mention « éditeur » des pages légales du site. Un passage ultérieur en société (SASU) change la partie au CDPA : il imposera de reprendre ces cinq endroits, de publier une nouvelle version des CGU et de mettre à jour ce registre. Rappel Play : un vendeur d'abonnements dans l'UE voit son nom et son adresse **affichés publiquement** sur sa fiche store.
 
 ---
 
@@ -66,7 +68,8 @@ Personnes concernées, pour tous les traitements : membres des clans — **adult
 
 ## 5. droits des personnes
 
-- **Suppression** : autonome via https://dvddust.web.app/delete-account/ (connexion Google puis suppression en cascade). La suppression **depuis l'app** reste au chantier « monétisation et légal » (`readme.md` §17) — exigée par Play à terme, la page web suffit au lancement.
+- **Suppression** : deux chemins, tous deux livrés. Web : https://donjons.grisloup.com/delete-account/ (connexion Google puis suppression en cascade). In-app : écran Personnage → menu kebab → « Supprimer mon compte », overlay d'avertissements répétés puis appel de la même Cloud Function `delete_user_data`.
+- **Information** : la politique de confidentialité de la région, de la langue et de l'état légal de la session s'ouvre depuis l'app — écran Personnage → menu kebab → « Mes données ». Les CGU sont accessibles par les liens inline des écrans de consentement parental.
 - **Accès / rectification / portabilité** : sur demande à donjons@grisloup.com (pseudos et données de jeu rectifiables in-app).
 - **Mineurs** : les droits s'exercent via le titulaire de la responsabilité parentale (admin du clan d'origine, cf. CGU art. 6/11).
 
@@ -87,7 +90,7 @@ Traduction du registre en réponses au formulaire *Sécurité des données* :
 | Photos | **Non collecté** (traitement local uniquement — hors périmètre « collecte » au sens Play) |
 | Localisation, contacts, ID publicitaire, analytics | Non collecté |
 | Données chiffrées en transit ? | Oui |
-| Mécanisme de suppression ? | Oui — URL : https://dvddust.web.app/delete-account/ |
+| Mécanisme de suppression ? | Oui — URL : https://donjons.grisloup.com/delete-account/ |
 | Partage avec des tiers ? | Non (Vertex AI = sous-traitant agissant pour le compte de l'éditeur, pas un « partage » au sens Play) |
 
 ---
@@ -102,4 +105,4 @@ Deux critères CNIL/CEPD sont réunis : **personnes vulnérables** (mineurs) et 
 
 - `readme.md` §14 — aspects légaux (consentement parental, âge, parental gate, données collectées)
 - `legal/documents/` — CGU et politiques de confidentialité (brouillons à valider juridiquement avant production)
-- https://dvddust.web.app/fr/legal/ — espace légal public (URL à déclarer dans Play Console)
+- https://donjons.grisloup.com/fr/legal/ — espace légal public (URL à déclarer dans Play Console)

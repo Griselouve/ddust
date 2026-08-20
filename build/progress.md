@@ -113,14 +113,106 @@ l'onboarding (le sélecteur `dvlang` n'est plus accessible ensuite), toggle IA g
 suppression de clan et cascades.
 
 **Monétisation et légal** (**bloquant la première publication depuis le 2026-08-11** — l'app
-se lance payante, la beta gratuite préalable est supprimée) : abonnements (2 paliers ×
-mensuel/annuel, upgrade proraté / downgrade différé), **offre fondateurs et crédits de mois**,
-défauts de paiement (grâce 10 j, hold, locked à J50, suppression à J90), CGU v5, dashboard des
-achats, parrainage, socle extensions. Stack : `in_app_purchase` natif + backend maison —
-module framework `dvbilling`, entitlement écrit **uniquement** par Cloud Function dans une
-collection `clans_billing` que le client ne peut pas modifier, RTDN Pub/Sub pour l'état
-canonique, sweeper quotidien pour les timers. Entitlement modélisé par clan dès maintenant,
-UI mono-clan tant que la multitenancy n'est pas livrée.
+se lance payante, la beta gratuite préalable est supprimée) : reste le **parrainage** (l'app
+n'a pas d'écran ni de code de parrainage, alors que son moteur de crédits est livré) et
+l'**effacement matériel à 30 jours** annoncé par la politique de confidentialité (§ 8), qui
+manque aux *deux* chemins de suppression — celui du compte comme celui du clan, tous deux
+n'étant aujourd'hui que des suppressions fonctionnelles.
+
+*Livré le 2026-08-18* : le socle complet de monétisation. Module framework **`dvstore`**
+(catalogue en layer cloud, droits publiés dans `store.*`, routeur de gate, onze callbacks
+métier, banc d'essai `simulate_state`), backend **`pustore`** (vérification serveur via
+l'API Google Play, RTDN, balayage quotidien : réconciliation + cycle de défaut de paiement
+grâce 10 j / relances / gel J50 / drapeau de purge J90), cinq écrans (boutique, abonnement,
+fiche produit, mes achats, clan gelé) et `worker_store.dart`.
+
+*Complété le 2026-08-18 (revue du socle)* — le socle était structurellement juste et
+fonctionnellement creux ; six trous comblés :
+
+- **Achat du bon base plan et de la bonne offre.** Play renvoie une entrée `ProductDetails`
+  par couple (base plan × offre) ; le moteur n'en gardait qu'une, ce qui rendait **l'annuel
+  inachetable** et **l'essai 14 j inatteignable**. Toutes les entrées sont désormais
+  conservées et l'achat choisit la bonne, avec cascade de replis (une offre à laquelle le
+  compte n'est pas éligible n'est pas une erreur : Play ne la renvoie simplement pas). Les
+  prix sont publiés **par périodicité** — sans quoi la bascule mensuel/annuel n'affichait
+  rien. Aucune dépendance ajoutée : le jeton d'offre voyage avec l'entrée choisie.
+- **Paywall.** Il n'existait aucune différence entre un clan abonné et un clan qui ne l'était
+  pas, jusqu'au gel du 50ᵉ jour. `worker._checkStoreAccess` interroge maintenant le routeur
+  `store.gate` à l'entrée du dashboard — seul point de passage obligé, et le même que le gel :
+  `locked` → écran de repos, `paywall` → écran d'abonnement sans flèche de retour. C'est la
+  lettre des CGU v5. `grace` et `hold` continuent de ne rien fermer.
+- **Plafonds de membres.** `max_kids` / `max_adults` n'étaient que journalisés. Ils sont tenus
+  aux quatre points d'entrée d'un clan (créer un joueur, inviter par QR ou par lien, accepter
+  une demande, déclarer majeur), du côté du chef — le seul qui connaisse l'effectif et puisse
+  payer pour l'augmenter. Un refus ouvre le palier illimité au lieu d'être un cul-de-sac, et
+  une descente de palier n'évince jamais personne.
+  *(Refondu le 2026-08-20 — voir ci-dessous : un seul compteur `max_players`, et « déclarer
+  majeur » ne contrôle plus rien.)*
+- **Offre fondateurs et crédits de mois.** L'éligibilité était circulaire (l'app demandait
+  l'offre fondateurs si elle était *déjà* fondateur) : elle passe à une cloud function
+  souveraine `store_eligibility`, dont le cutoff vit dans un document `store_config/founders`
+  ajustable sans redéploiement. `store_verify` écrit `founder` sur constat de ce que Play a
+  appliqué. Nouvelle fonction `store_grant` (allowlist d'exploitation) et consommation des
+  crédits par le balayage : **c'est le seul levier capable de récompenser les familles du test
+  fermé**, dont les achats sous licence sont gratuits.
+- **« Mes achats ».** L'écran était inatteignable (aucun point d'entrée) et sa liste câblée
+  vide, alors que le serveur écrivait déjà `clans_store/{clanId}/events`. Option de menu
+  réservée aux chefs, et lecture réelle du journal de facturation.
+- **Purge J90.** Le drapeau `purge_due` n'avait aucun lecteur — et n'était en fait **jamais
+  posé** : le balayage ne regardait pas l'état `locked`, si bien qu'un clan gelé à J50 sortait
+  de la requête et que le calendrier des CGU s'arrêtait là. Requête élargie, et nouvelle
+  fonction `clan_purge` (planifiée à 6 h, une heure après le balayage) qui dissout le clan en
+  réutilisant la cascade de `delete_user_data`.
+
+Deux correctifs de bord au passage : l'entitlement est désormais lu **même quand la
+facturation est indisponible** sur l'appareil (sans quoi la tablette d'un enfant refusait de
+jouer alors que le parent avait payé depuis son téléphone), et `debug.simulate_state` est
+repassé à `""` — non vide, il n'ouvre aucun canal Play et rien de tout ce qui précède ne
+fonctionne.
+
+Le modèle est à **deux niveaux**, et c'est ce qui permet qu'un enfant profite de tout sans
+rien pouvoir acheter : les achats sont **personnels** (base dédiée `store`, un document par
+achat, rangé par compte payeur — plusieurs adultes peuvent donc payer chacun avec sa carte),
+et le bénéfice est **collectif** (projection `workers/clans_store/{clanId}`, écrite
+uniquement par Cloud Function, lisible par tout membre du clan).
+
+*Refondu le 2026-08-20 — **grille à cinq paliers au nombre de joueurs**.* La grille à deux
+paliers portait **deux plafonds distincts** (5 enfants, 4 adultes). Une famille ne pouvait pas
+prévoir son propre palier sans répondre à des questions que le produit ne pose jamais — l'admin
+joue-t-il ? l'ado de 17 ans compte-t-il comme enfant ? — et le code héritait de la même
+ambiguïté : le refus dépendait de la nature du candidat, dont le `legal_state` n'est pas encore
+écrit au moment où l'on recrute.
+
+Un seul compteur désormais, `max_players` : **les membres actifs du clan, admins compris**.
+Essentiel 1-2 (1,99 €), Clan 3-4 (2,99 €), Tribu 5-7 (4,99 €), Guilde 8-12 (5,99 €), Royaume
+13+ (7,99 €), plans annuels de 19,99 € à 64,99 € — bornes calées sur la démographie des
+foyers, effet revenu quasi nul (+3%). Trois conséquences de code :
+
+- **Le contrôle devient exact** aux quatre points d'entrée, y compris quand on ignore encore qui
+  frappe à la porte — ce qui **clôt le point 10** de la revue de `publication.md` par conception
+  plutôt que par correctif.
+- **« Déclarer majeur » ne vérifie plus rien.** La promotion ne déplace plus de place : le joueur
+  en occupait une avant, il en occupe une après.
+- **Un seul jeton de refus** (`store_cap_full`) au lieu de trois, et il ne nomme plus de palier —
+  celui qu'il faut dépend de l'effectif, et l'écran le flèche lui-même.
+
+*Écran des paliers (`tiers_page`), au même moment.* Le choix de palier **sort de la boutique** :
+celle-ci est un étal, qu'on parcourt quand on veut, et qui vendra des packs à l'unité. Une grille
+tarifaire ne se lit qu'au moment où elle répond à une question. La page ne s'atteint donc jamais
+par navigation libre — elle s'ouvre sur plafond atteint, bandeau d'impayé, relance push ou
+réabonnement — et surligne exactement deux lignes : le palier courant (coché, effectif du clan
+rappelé dessous) et le palier **conseillé**, celui qui ouvre réellement la place manquante et non
+le suivant dans l'ordre. Rien de bloquant, conformément au reste : elle s'empile et se quitte.
+
+Elle remplace le `subscription_page` supprimé en août et comble un trou réel — depuis le retrait
+de `shop/list`, **aucun écran ne permettait plus de souscrire quoi que ce soit**.
+
+Deux correctifs `dvstore` au passage, tous deux dictés par cet écran : le catalogue publie
+désormais son propre libellé (`store.catalog.<id>.label`) à côté du titre Play, que Play décore du
+nom de l'application — sur cinq lignes comparées, la parenthèse se répétait et noyait le seul mot
+qui distingue les offres ; et le repli de prix devient **conscient de la périodicité**
+(`price_hint_yearly`), là où il servait le tarif mensuel sous l'étiquette « par an » dès que le
+canal Play était fermé, c'est-à-dire pendant toute la recette.
 
 *Déjà livrés dans ce bloc* : suppression de compte (page web exigée par le Play Store **et**
 depuis l'app), politique de confidentialité mineurs, DPA Google.

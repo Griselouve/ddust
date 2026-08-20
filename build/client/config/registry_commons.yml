@@ -70,6 +70,19 @@ conf:
         - create_player_screen
         - butin_notes_page
         - butin_tale_page
+        # La fée (registry_fairy.yml). On n'y arrive que par sa tuile, apparue dix minutes
+        # dans un tiroir de domaine — jamais par navigation libre. Mais un écran absent de
+        # cette liste est inatteignable, y compris par navigate_new.
+        - fairy_page
+        # Boutique (registry_store.yml). `shop` était déjà là — les autres
+        # arrivent avec dvstore. Un écran absent de cette liste est inatteignable.
+        - store_product_page
+        - locked_page
+        - store_scenario_page
+        # Paliers d'abonnement (registry_store_tiers.yml). Seul écran d'où l'on
+        # souscrit ou change de cotisation, et on n'y arrive jamais par hasard :
+        # une raison commerciale l'ouvre (plafond atteint, relance, réabonnement).
+        - tiers_page
 
     page:
       class: DvPage
@@ -114,6 +127,10 @@ conf:
         # révélé par worker._applyImpersonation. Listé APRÈS death_scrim → il reçoit ses taps même si
         # la cible est morte (scrim n'avale que ses propres taps, cf. commons/death_revive).
         - commons/impersonation_back
+        # Rappel de cotisation impayée (chefs de clan uniquement), révélé par worker._applyDunning.
+        # Injecté ici et pas dans "page" : l'onboarding n'a pas à le porter — on n'y a pas encore de
+        # clan, et un bandeau rouge sur l'écran d'accueil accueillerait mal.
+        - commons/store_dunning
 
     # Écran À TIROIR (combat + les 19 <domaine>_tasks) : hérite de page_taskbar et injecte le
     # dispositif d'ADMINISTRATION du chef de clan — le switch « Jeu | Admin » en bas du tiroir et
@@ -836,6 +853,51 @@ conf:
           panupdate: true        # requis pour que le GestureDetector câble le drag (cf. DvImageView)
         actions:
           tap: worker.restore_self
+
+    #//------------------------- RAPPEL DE COTISATION (impayé) -----------------------------
+    # Bandeau doux affiché aux CHEFS DE CLAN seulement, quand le serveur signale que le cycle de
+    # relance est entamé (store.subscription.dunning_phase non vide, posé par le balayage de pustore
+    # au 10e jour de défaut — jamais pendant la grâce, Play se rattrape souvent tout seul).
+    #
+    # « On n'inquiète surtout pas les enfants » (vision.md) : un enfant ne le voit jamais, et de toute
+    # façon ne pourrait rien en faire — la boutique est réservée aux adultes. Ce sont exactement les
+    # destinataires des relances push envoyées par le serveur (clans.admins).
+    #
+    # Rouge DOUX (0xFFCC4444, celui des messages d'erreur du parcours de clan) et non le rouge sang
+    # des jauges de PV : c'est un rappel, pas une sanction — le jeu, lui, reste grand ouvert.
+    #
+    # En HAUT : la seule bande libre des écrans de jeu (crâne à y6%, bandeau d'impersonation à y79.5%,
+    # taskbar à y88%). Listé après death_scrim → reçoit ses taps même sur un joueur mort.
+    commons/store_dunning:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 3%
+        y: 0.5%
+        w: 94%
+        h: 7%
+        text_align: CENTER
+        valign: CENTER
+        text_padding: 3.0
+        # 9.0 et non 11.0 : le bandeau se pose SUR le jeu, en haut de 25 écrans. Il
+        # doit se lire sans se disputer la place avec ce qu'il recouvre — jauges,
+        # écu de niveau, avatar. Les textes ont été raccourcis d'autant (une phrase
+        # + l'affordance), ce qui les fait tenir sans ascenseur à cette taille.
+        font_size: 9.0
+        font_weight: bold
+        scrollable: true         # filet : une traduction plus longue ne doit pas être coupée
+        label: ""                # rempli à l'exécution par worker._applyDunning (@@@T:store_dunning_<phase>@@@)
+        background_color: "0xF01A1A1A"
+        font_color: "0xFFCC4444"
+        border: true
+        border_color: "0xFFCC4444"
+        border_size: 1.0
+        border_radius: 6.0
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.store_open_subscription
 
     # --- Administration du chef de clan (masque page_admin) --------------------
     # Switch « Jeu | Admin » en bas du tiroir : la dernière rangée d'icônes est presque toujours

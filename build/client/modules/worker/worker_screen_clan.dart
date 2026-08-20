@@ -334,6 +334,10 @@ extension Worker_screen_clan on worker {
                                         // du versement de tribut (clan_selector). Lu sur le MIROIR du doc
                                         // joueur, justement pour ne pas lister une 2e collection ici.
                                         "wallet": int.tryParse(p.get("wallet")?.toString() ?? "0") ?? 0,
+                                        // Rappels de relance actifs pour ce membre (clan_selector : « couper »
+                                        // ou « rétablir »). Absent = actif, comme enabled/has_device : le champ
+                                        // n'existe pas sur les docs antérieurs, et le défaut doit être « oui ».
+                                        "nudges": p.get("nudges") != false,
                                         "_cur":  pcur,  // temporaire : sert au calcul de progress ci-dessous
                                     });
                                 }
@@ -427,6 +431,16 @@ extension Worker_screen_clan on worker {
                                             selectable.add("promote_adult");
                                         }
                                     }
+
+                                    // Rappels de relance : deux options EXCLUSIVES, comme « chef »/« plus chef »
+                                    // juste au-dessus. Hors du bloc !isSelf : un chef coupe les rappels d'un
+                                    // enfant, et peut couper les siens sans quitter l'écran Clan (le kebab
+                                    // Personnage propose la même bascule, sur soi seulement).
+                                    // C'est la porte de sortie du dispositif de relance, et elle doit rester
+                                    // à un tap : un refus qu'il faut chercher n'est pas un refus.
+                                    (m["nudges"] != false)
+                                        ? selectable.add("nudges_off")
+                                        : selectable.add("nudges_on");
 
                                     // Payer son tribut : HORS du bloc !isSelf — un chef gagne de l'argent en
                                     // jeu comme les autres et se verse le sien. Grisée sur une bourse vide :

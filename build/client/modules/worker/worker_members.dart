@@ -58,6 +58,70 @@ extension Worker_members on worker {
 
     }
 
+    // Date `last_task` qui produit exactement `lossTarget` points de dégradation temporelle.
+    // Les PV ne sont JAMAIS stockés : ils se calculent depuis last_task (cf. _computeDisplayedPv,
+    // loss = floor(joursÉcoulés / decay)). Soigner, c'est donc RECULER cette date, jamais écrire
+    // un nombre de PV.
+    // Le +0.5 vise le MILIEU du palier : à la charnière exacte, le floor bascule d'une unité au
+    // gré de quelques microsecondes de latence, et le joueur verrait un PV de moins que promis.
+    // Extrait de revive_player pour être partagé avec les cadeaux de soin de la fée
+    // (_healPlayer) : chaque appelant calcule SON lossTarget, seule la conversion est commune.
+    String _lastTaskForLoss(int lossTarget, double decay) {
+
+                                final safe = lossTarget < 0 ? 0 : lossTarget;
+                                final elapsedSeconds = (safe + 0.5) * decay * 86400.0;
+                                return DateTime.now().toUtc()
+                                    .subtract(Duration(microseconds: (elapsedSeconds * 1000000).round()))
+                                    .toIso8601String();
+    }
+
+    // Soigne un joueur de `pv` points — un GAIN, et non une remise à un niveau fixe. C'est en
+    // cela que ce helper diffère de revive_player, qui vise `_healPv` PV dans l'absolu : la fée
+    // promet « la santé », pas une valeur.
+    //
+    // Deuxième différence, et elle compte : le `damage` est PRIS EN COMPTE dans le calcul de la
+    // cible (loss = maxPv − damage − cible), pour que le gain annoncé soit le gain reçu. Le champ
+    // `damage` lui-même n'est pas touché — la blessure reste, on ne fait que remonter le temps
+    // assez loin pour la compenser. Si elle est trop profonde pour que la cible soit atteignable,
+    // on remonte au maximum possible (loss = 0) plutôt que d'échouer en silence.
+    Future<void> _healPlayer(String clanId, String clanSecret, String region,
+                             String playerId, int pv) async {
+
+                                if (clanId.isEmpty || clanSecret.isEmpty || playerId.isEmpty || pv <= 0) return;
+                                try {
+                                    final doc = await _cloud?.read("workers", "clans_players/$clanId/players",
+                                        playerId, ownerId: clanSecret, region: region) ?? Dvidle({});
+                                    final maxPv  = int.tryParse(doc.get("pv")?.toString() ?? "$_playerPv") ?? _playerPv;
+                                    final damage = int.tryParse(doc.get("damage")?.toString() ?? "0") ?? 0;
+                                    final decay  = _readDecay(doc.get("decay"));
+                                    final last   = doc.get("last_task")?.toString() ?? "";
+
+                                    final current = _computeDisplayedPv(maxPv, damage, last, decay);
+                                    if (current >= maxPv) {
+                                        deva_log("info", "[fairy] $playerId est déjà au maximum ($maxPv PV) — rien à soigner");
+                                        return;
+                                    }
+                                    var target = current + pv;
+                                    if (target > maxPv) target = maxPv;
+                                    final newLastIso = _lastTaskForLoss(maxPv - damage.abs() - target, decay);
+                                    final pvShown    = _computeDisplayedPv(maxPv, damage, newLastIso, decay);
+
+                                    final out = Dvidle({});
+                                    out.set("id", playerId);
+                                    out.set("last_task", newLastIso);
+                                    // Comme revive_player : on ne repasse "alive" que si le joueur est
+                                    // RÉELLEMENT revenu à la vie. Un soin qui ne suffit pas laisse mort.
+                                    if (pvShown > 0) out.set("status", "alive");
+                                    await _cloud?.write("workers", "clans_players/$clanId/players", playerId, out,
+                                        region: region, ownerId: clanSecret);
+
+                                    deva_log("info", "[fairy] soin $playerId : $current → $pvShown PV "
+                                        "(demandé +$pv, max=$maxPv, damage=$damage)");
+                                } catch (e) {
+                                    deva_log("error", "[fairy] _healPlayer($playerId) FAILED: $e");
+                                }
+    }
+
     // Action « Guérir le joueur » (admin, joueur mort). `event` = data du joueur cliqué.
     // Recale last_task pour que la dégradation temporelle ramène les PV à la MOITIÉ des PV
     // max (hors damage) : on impose loss = maxPv − maxPv÷2 en posant last_task à
@@ -86,10 +150,7 @@ extension Worker_members on worker {
 
                                     final healTarget = (maxPv < _healPv) ? maxPv : _healPv;   // rendre _healPv PV (borné à maxPv)
                                     final lossTarget = maxPv - healTarget;                     // → pv − loss = healTarget
-                                    final elapsedSeconds = (lossTarget + 0.5) * decay * 86400.0;
-                                    final newLast = DateTime.now().toUtc()
-                                        .subtract(Duration(microseconds: (elapsedSeconds * 1000000).round()));
-                                    final newLastIso = newLast.toIso8601String();
+                                    final newLastIso = _lastTaskForLoss(lossTarget, decay);
 
                                     final pvShown = _computeDisplayedPv(maxPv, damage, newLastIso, decay);
 
@@ -528,6 +589,13 @@ extension Worker_members on worker {
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
                                     if (clanId.isEmpty || clanSecret.isEmpty) return;
+
+                                    // AUCUN contrôle de plafond ici, et c'est le point de la grille à un
+                                    // seul compteur. Déclarer majeur ne DÉPLACE plus de place : le
+                                    // joueur en occupait une avant, il en occupe une après. La
+                                    // promotion n'a donc plus rien à voir avec l'abonnement, et le
+                                    // refus qui vivait ici — franchissable, au demeurant, en empilant
+                                    // les états « t » — n'a plus d'objet.
 
                                     // Bascule en transition : deep-merge → préserve xp/pv/… du joueur.
                                     final pflag = Dvidle({});

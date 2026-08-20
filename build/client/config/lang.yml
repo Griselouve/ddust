@@ -641,4 +641,303 @@ conf:
         fr: "Dans le menu d'un membre : tu incarnes son personnage sur ton téléphone."
         en: "In a member's menu: you take on their character on your phone."
         es: "En el menú de un miembro: encarnas su personaje en tu teléfono."
+      # --- Rappel de cotisation impayée (bandeau commons/store_dunning) ---
+      # ICI et non dans le thème, contrairement aux autres libellés store_* : le thème est un
+      # layer de bucket, mergé tardivement, et un bandeau d'alerte qui s'affiche en clef brute
+      # au lancement ne vaudrait rien. Compilé dans l'app = lisible à la première frame.
+      # Trois tons, un par phase du cycle de relance serveur (soft J10-20, firm J20-40,
+      # last J40-50), sur le registre des notifications push de vision.md : jamais de dette,
+      # jamais de reproche, et toujours la porte ouverte.
+      # Les trois textes REPRENNENT ceux de la relance push (backend config.yml,
+      # STORE_LIFECYCLE.texts) : c'est le même événement, dit au même moment, au même
+      # destinataire. Deux formulations différentes pour un seul fait donneraient
+      # l'impression de deux problèmes distincts. On y ajoute seulement l'affordance
+      # que la notification n'a pas besoin d'avoir — le bandeau, lui, est cliquable.
+      store_dunning_soft:
+        fr: "Bourse un peu légère — l'aventure continue. Touchez ici."
+        en: "Purse running light — the adventure goes on. Tap here."
+        es: "Bolsa algo ligera: la aventura continúa. Toca aquí."
+      store_dunning_firm:
+        fr: "La cotisation n'est pas passée. Le donjon vous attend — touchez ici."
+        en: "The dues didn't go through. The dungeon awaits — tap here."
+        es: "La cuota no ha pasado. La mazmorra te espera: toca aquí."
+      store_dunning_last:
+        fr: "Le grimoire va se refermer. Touchez ici pour continuer."
+        en: "The tome is about to close. Tap here to carry on."
+        es: "El grimorio va a cerrarse. Toca aquí para continuar."
+      # Phase tardive (J700-730) : le dernier appel, un mois avant l'effacement des
+      # deux ans. En pratique le bandeau ne se voit pas — un clan à ce stade est gelé
+      # depuis longtemps, et l'écran de gel a remplacé les écrans de jeu qui le
+      # portent. Le libellé existe pour que `_applyDunning` ne pose jamais une clef
+      # brute, et pour le jour où l'on ouvrirait le donjon plus longtemps.
+      store_dunning_farewell:
+        fr: "Votre clan sera effacé dans un mois. Touchez ici pour le garder."
+        en: "Your clan will be erased in a month. Tap here to keep it."
+        es: "Vuestro clan se borrará en un mes. Toca aquí para conservarlo."
 
+      # --- Banc d'essai (kebab de la boutique → « Changer de scénario ») ---------
+      # ICI et non dans le thème, pour la même raison que les bandeaux : c'est un
+      # outil de DIAGNOSTIC. Il doit rester lisible précisément quand le layer du
+      # bucket manque ou est en retard — sinon on choisit entre des clefs brutes au
+      # moment même où l'on cherche à comprendre ce qui cloche.
+      # Le CATALOGUE de scénarios, lui, reste au layer cloud (store-base-global.yml) :
+      # c'est sa structure qui doit changer sans release, pas ses mots.
+      scenario_menu:
+        fr: "Changer de scénario"
+        en: "Switch test scenario"
+        es: "Cambiar de escenario"
+      scenario_menu_desc:
+        fr: "Simuler un état d'abonnement sans rebuilder"
+        en: "Simulate a subscription state without rebuilding"
+        es: "Simular un estado de suscripción sin recompilar"
+      scenario_title:
+        fr: "Banc d'essai"
+        en: "Test bench"
+        es: "Banco de pruebas"
+      scenario_empty:
+        fr: "Aucun scénario publié. Vérifier le layer store-base-global.yml au bucket."
+        en: "No scenario published. Check the store-base-global.yml layer in the bucket."
+        es: "Ningún escenario publicado. Comprueba la capa store-base-global.yml en el bucket."
+      scenario_no_clan:
+        fr: "Aucun clan : le banc écrit la cotisation d'un clan, il en faut un."
+        en: "No clan: the bench writes a clan's dues, so there must be one."
+        es: "Sin clan: el banco escribe la cuota de un clan, hace falta uno."
+
+      scenario_reel:
+        fr: "Réel (Google Play)"
+        en: "Real (Google Play)"
+        es: "Real (Google Play)"
+      scenario_reel_desc:
+        fr: "Aucune simulation : vrais prix, vrais achats, entitlement du serveur."
+        en: "No simulation: real prices, real purchases, server entitlement."
+        es: "Sin simulación: precios reales, compras reales, permisos del servidor."
+      scenario_none:
+        fr: "Jamais abonné"
+        en: "Never subscribed"
+        es: "Nunca suscrito"
+      scenario_none_desc:
+        fr: "Le clan n'a jamais souscrit."
+        en: "The clan has never subscribed."
+        es: "El clan nunca se ha suscrito."
+      scenario_trial:
+        fr: "Essai en cours"
+        en: "Trial in progress"
+        es: "Prueba en curso"
+      scenario_trial_desc:
+        fr: "Échéance à +14 jours, palier Clan."
+        en: "Renewal in 14 days, Clan tier."
+        es: "Vencimiento a +14 días, nivel Clan."
+      scenario_essentiel:
+        fr: "Abonné — Essentiel"
+        en: "Subscribed — Essential"
+        es: "Suscrito — Esencial"
+      scenario_essentiel_desc:
+        fr: "2 joueurs. Le palier le plus étroit : on bute dès le troisième membre."
+        en: "2 players. The narrowest tier: you hit the wall at the third member."
+        es: "2 jugadores. El nivel más estrecho: se topa al tercer miembro."
+      scenario_clan:
+        fr: "Abonné — Clan"
+        en: "Subscribed — Clan"
+        es: "Suscrito — Clan"
+      scenario_clan_desc:
+        fr: "5 joueurs. Le palier que souscrit la plupart des familles."
+        en: "5 players. The tier most families subscribe to."
+        es: "5 jugadores. El nivel que suscribe la mayoría de las familias."
+      scenario_royaume:
+        fr: "Abonné — Royaume"
+        en: "Subscribed — Kingdom"
+        es: "Suscrito — Reino"
+      scenario_royaume_desc:
+        fr: "Aucun plafond de joueurs."
+        en: "No player cap."
+        es: "Sin límite de jugadores."
+      scenario_founder:
+        fr: "Fondateur, mois offerts"
+        en: "Founder, free months"
+        es: "Fundador, meses gratis"
+      scenario_founder_desc:
+        fr: "Marque fondateur et 2 mois en réserve."
+        en: "Founder badge and 2 months in reserve."
+        es: "Distintivo de fundador y 2 meses en reserva."
+      scenario_canceled:
+        fr: "Résilié"
+        en: "Cancelled"
+        es: "Cancelado"
+      scenario_canceled_desc:
+        fr: "Reconduction coupée, ouvert jusqu'à l'échéance (+12 jours)."
+        en: "Renewal stopped, open until the renewal date (+12 days)."
+        es: "Renovación cortada, abierto hasta el vencimiento (+12 días)."
+      scenario_grace:
+        fr: "Impayé — rappel doux"
+        en: "Unpaid — gentle reminder"
+        es: "Impago — recordatorio suave"
+      scenario_grace_desc:
+        fr: "Bandeau de rappel aux chefs, rien ne se ferme."
+        en: "Reminder banner for chiefs, nothing closes."
+        es: "Banner de recordatorio para los jefes, nada se cierra."
+      scenario_hold:
+        fr: "Impayé — dernier rappel"
+        en: "Unpaid — final reminder"
+        es: "Impago — último recordatorio"
+      scenario_hold_desc:
+        fr: "Phase last du cycle de relance. Le jeu reste ouvert."
+        en: "Last phase of the dunning cycle. The game stays open."
+        es: "Última fase del ciclo de cobro. El juego sigue abierto."
+      scenario_locked:
+        fr: "Clan gelé"
+        en: "Clan frozen"
+        es: "Clan congelado"
+      scenario_locked_desc:
+        fr: "Donjon fermé. Seul état qui bloque le jeu."
+        en: "Dungeon closed. The only state that blocks the game."
+        es: "Mazmorra cerrada. El único estado que bloquea el juego."
+      # État TERMINAL d'un abonnement à reconduction automatique — pas une offre à
+      # durée déterminée, il n'y en a pas au catalogue et il n'en faut pas pour y
+      # arriver. Play rend SUBSCRIPTION_STATE_EXPIRED dans trois cas : résiliation
+      # dont l'échéance est passée, achat remboursé ou annulé, réserve de mois
+      # offerts épuisée. Les trois se produisent en production.
+      scenario_expired:
+        fr: "Droit éteint (remboursement, fin de résiliation)"
+        en: "Entitlement ended (refund, end of cancellation)"
+        es: "Derecho extinguido (reembolso, fin de cancelación)"
+      scenario_expired_desc:
+        fr: "Il y a eu une cotisation ; elle ne court plus et ne se reconduira pas."
+        en: "There were dues; they no longer run and will not renew."
+        es: "Hubo una cuota; ya no corre y no se renovará."
+
+      # --- Libellés de MÉCANIQUE de la boutique (embarqués, jamais du thème) -----
+      # Ils vivaient tous dans le layer de thème, publié au bucket. C'était le défaut
+      # de câblage qui faisait apparaître « store_locked_text » et « store_revive » en
+      # clair : un layer absent, en retard ou pas encore descendu, et l'écran de clan
+      # gelé — le SEUL écran qu'une famille voit quand tout le reste est fermé — ne
+      # portait plus que des clefs brutes. Un écran bloquant qui ne sait plus parler
+      # est un cul-de-sac muet.
+      #
+      # La ligne de partage est désormais : la MÉCANIQUE est ici (elle doit rendre en
+      # toutes circonstances), le DÉCOR reste au thème (shopname, et les noms des
+      # paliers du catalogue — c'est bien le rôle d'un thème de les nommer).
+      # Même raison que les textes de relance juste au-dessus.
+      # --- Page des paliers -----------------------------------------------------
+      # STRUCTURE seulement (titre, périodicités, décomptes, marqueurs). Les NOMS
+      # des paliers viennent du catalogue et donc du thème (store_essentiel …
+      # store_royaume), et les PRIX de Play — jamais d'ici. C'est la même ligne de
+      # partage que partout ailleurs dans ce bloc.
+      tiers_title:
+        fr: "Les paliers"
+        en: "The tiers"
+        es: "Los niveles"
+      tiers_monthly:
+        fr: "Par mois"
+        en: "Monthly"
+        es: "Por mes"
+      tiers_yearly:
+        fr: "Par an"
+        en: "Yearly"
+        es: "Por año"
+      # Effectif d'un palier. {n} est substitué par le worker. Deux formes, parce
+      # qu'« 1 à 2 joueurs » et « 14 joueurs et plus » ne se disent pas pareil et
+      # qu'une phrase à trous unique donnerait l'une ou l'autre de travers.
+      tiers_upto:
+        fr: "Jusqu'à {n} joueurs"
+        en: "Up to {n} players"
+        es: "Hasta {n} jugadores"
+      tiers_unlimited:
+        fr: "Joueurs sans limite"
+        en: "Unlimited players"
+        es: "Jugadores sin límite"
+      # Marqueurs de surlignage. Le palier courant et celui qu'on conseille sont
+      # les deux seules informations que cette page doit faire ressortir.
+      tiers_current:
+        fr: "Votre palier"
+        en: "Your tier"
+        es: "Vuestro nivel"
+      tiers_next:
+        fr: "Conseillé"
+        en: "Recommended"
+        es: "Recomendado"
+      # Effectif du clan, rappelé sous le palier courant : c'est le chiffre qui
+      # explique tout le reste de l'écran.
+      tiers_headcount:
+        fr: "Votre clan compte {n} joueurs"
+        en: "Your clan has {n} players"
+        es: "Vuestro clan tiene {n} jugadores"
+      # Catalogue vide (layer cloud pas encore descendu). Ne jamais laisser un
+      # cadre muet sur l'écran qui porte toute l'offre.
+      tiers_empty:
+        fr: "Les paliers ne sont pas encore arrivés. Réessayez dans un instant."
+        en: "The tiers haven't arrived yet. Try again in a moment."
+        es: "Los niveles aún no han llegado. Inténtalo de nuevo en un momento."
+
+      store_buy:
+        fr: "Acheter"
+        en: "Buy"
+        es: "Comprar"
+      store_owned:
+        fr: "Déjà acquis"
+        en: "Already owned"
+        es: "Ya adquirido"
+      store_expires:
+        fr: "Prochaine échéance"
+        en: "Next renewal"
+        es: "Próxima renovación"
+      store_locked_text:
+        fr: "La bourse du clan est vide. Vos aventures vous attendent, intactes."
+        en: "The clan's purse is empty. Your adventures are waiting, untouched."
+        es: "La bolsa del clan está vacía. Vuestras aventuras os esperan, intactas."
+      store_revive:
+        fr: "Se réabonner"
+        en: "Resubscribe"
+        es: "Volver a suscribirse"
+      store_restore_desc:
+        fr: "Après une réinstallation : récupérer ce qui a déjà été payé."
+        en: "After a reinstall: recover what has already been paid for."
+        es: "Tras una reinstalación: recuperar lo que ya se ha pagado."
+      store_manage_desc:
+        fr: "Changer de moyen de paiement ou résilier, sur Google Play."
+        en: "Change payment method or cancel, on Google Play."
+        es: "Cambiar el método de pago o cancelar, en Google Play."
+      # UN SEUL jeton de refus. Il y en avait trois (enfants pleins / adultes pleins /
+      # les deux), parce que le catalogue portait deux plafonds distincts. Il n'y a
+      # plus qu'un compteur de joueurs, donc plus qu'une façon d'être complet — et
+      # plus besoin d'expliquer à une famille laquelle de ses deux tables déborde.
+      #
+      # Le texte ne nomme AUCUN palier : celui qu'il faut prendre dépend de l'effectif,
+      # et la page des paliers le flèche elle-même à la ligne près. Écrire « prenez
+      # l'illimité » ici, comme le faisait l'ancienne version, vendait le plus cher à
+      # un clan de trois qui n'avait besoin que du palier d'à côté.
+      store_cap_full:
+        fr: "Le clan est au complet pour cette cotisation. Voici les paliers, et celui qui vous ouvrirait une place de plus."
+        en: "The clan is full for these dues. Here are the tiers, and the one that would open another seat for you."
+        es: "El clan está completo para esta cuota. Estos son los niveles, y el que os abriría una plaza más."
+      store_state_none:
+        fr: "Aucune cotisation en cours"
+        en: "No dues in effect"
+        es: "Sin cuota en curso"
+      store_state_trial:
+        fr: "Essai en cours"
+        en: "Trial in progress"
+        es: "Prueba en curso"
+      store_state_active:
+        fr: "Cotisation à jour"
+        en: "Dues up to date"
+        es: "Cuota al día"
+      store_state_canceled:
+        fr: "Cotisation résiliée — la guilde reste ouverte jusqu'à l'échéance"
+        en: "Dues cancelled — the guild stays open until the renewal date"
+        es: "Cuota cancelada — el gremio sigue abierto hasta el vencimiento"
+      store_state_grace:
+        fr: "Le dragon de la banque sommeille mal — l'aventure continue"
+        en: "The bank dragon is sleeping badly — the adventure goes on"
+        es: "El dragón del banco duerme mal — la aventura continúa"
+      store_state_hold:
+        fr: "La cotisation n'est pas encore arrivée — la porte reste ouverte"
+        en: "The dues haven't arrived yet — the door stays open"
+        es: "La cuota aún no ha llegado — la puerta sigue abierta"
+      store_state_locked:
+        fr: "Le clan se repose"
+        en: "The clan is resting"
+        es: "El clan descansa"
+      store_state_expired:
+        fr: "La cotisation ne court plus"
+        en: "The dues no longer run"
+        es: "La cuota ya no corre"

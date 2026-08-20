@@ -43,6 +43,105 @@ extension Worker_notify on worker {
 
                                 ActionRegistry.register("worker.on_butin_ready",            on_butin_ready);
 
+                                // Relance d'engagement (pulse_sweeper). Bascule du réglage « Rappels »,
+                                // proposée par le kebab Personnage (sur soi) comme par le menu roster
+                                // (un chef pour un enfant).
+                                ActionRegistry.register("worker.nudges_off",                nudges_off);
+
+                                ActionRegistry.register("worker.nudges_on",                 nudges_on);
+
+                                // Tap sur le corps d'une relance serveur (convention tap-corps).
+                                ActionRegistry.register("worker.on_pulse_open",             on_pulse_open);
+
+    }
+
+    // -----------------------------------------------------------------------
+    // --- Relance d'engagement : le refus, et le retour
+    // -----------------------------------------------------------------------
+
+    // Écrit `nudges` sur un membre. `event` vient soit du menu roster (map du joueur
+    // cliqué, clef "id"), soit du kebab Personnage (rien → soi-même).
+    //
+    // Écriture CIBLÉE (deep-merge) : le doc membre porte xp/pv/damage/last_task, un PATCH
+    // complet les emporterait. Même précaution que le tombstone de revoke_player.
+    Future<void> _setNudges(dynamic event, bool value) async {
+
+                    final m  = (event is Map) ? event : const {};
+                    final id = (m["id"]?.toString() ?? "").isNotEmpty ? m["id"].toString() : _userId;
+                    if (id.isEmpty) return;
+                    try {
+                        final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                        final session    = await _readSession(region);
+                        final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                        final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                        if (clanId.isEmpty || clanSecret.isEmpty) return;
+
+                        final flag = Dvidle({});
+                        flag.set("id",      id);
+                        flag.set("ownerId", clanSecret);
+                        flag.set("nudges",  value);
+                        await _cloud?.write("workers", "clans_players/$clanId/players", id, flag,
+                            region: region, ownerId: clanSecret);
+
+                        deva_log("info", "[pulse] rappels ${value ? "rétablis" : "coupés"} pour $id");
+
+                        // La tuile doit refléter le nouveau réglage tout de suite : le menu
+                        // roster relit `nudges` sur les membres poussés, pas sur Firestore.
+                        await _refreshRoster(clanId, clanSecret, region);
+                    } catch (e) {
+                        deva_log("error", "[pulse] _setNudges($value) FAILED: $e");
+                    }
+    }
+
+    // « Couper les rappels ». Aucune confirmation : refuser d'être relancé ne se négocie
+    // pas, et une modale pour retenir quelqu'un qui part serait exactement le procédé que
+    // ce dispositif s'interdit.
+    Future<void> nudges_off(dynamic caller, dynamic event) async {
+
+                                await _setNudges(event, false);
+    }
+
+    Future<void> nudges_on(dynamic caller, dynamic event) async {
+
+                                await _setNudges(event, true);
+    }
+
+    // Tap sur le corps d'une relance envoyée par le serveur. Le message porte son motif
+    // dans `data.motive` ; on n'en fait qu'une CHOSE : amener le joueur là où l'action
+    // attendue se trouve. Aucun état n'est écrit ici — c'est le balayage qui tient les
+    // compteurs, et il les remettra à zéro tout seul à la prochaine connexion.
+    //
+    // Le motif `validation` ne passe JAMAIS par ici : il porte trois boutons et se
+    // résout sans ouvrir l'app (worker.on_notif_validate_*).
+    Future<void> on_pulse_open(DvShape? caller, dynamic event) async {
+
+                                final dv = event is Dvidle
+                                    ? event
+                                    : Dvidle(event is Map ? Map<String, dynamic>.from(event) : {});
+                                final motive = _msgData(dv)["motive"]?.toString() ?? "";
+                                deva_log("info", "[pulse] relance ouverte (motif=$motive)");
+
+                                // `navigate_reset` et non `navigate_new` : ce sont des écrans à
+                                // taskbar (page_taskbar), pas des écrans empilés. Les empiler
+                                // laisserait une flèche « retour » vers rien du tout — l'app
+                                // vient d'être ouverte par une notification, il n'y a pas d'écran
+                                // précédent où revenir.
+                                switch (motive) {
+                                    // Le coffre, plein ou vide : c'est le même écran qui répond aux
+                                    // deux (`testme`, l'écran des items — le coffre et sa bourse y
+                                    // sont filtrés aux seuls admins, ce qui tombe juste : ces deux
+                                    // motifs ne partent qu'aux chefs).
+                                    case "chest_full":
+                                    case "chest_empty":
+                                        DvOrb.navigate_reset("testme");
+                                        return;
+                                    // Boss, onboarding, retour du clan : le dashboard est le point de
+                                    // départ du parcours dans les trois cas — c'est de là qu'on entre
+                                    // dans les domaines, et donc qu'on tombe sur la tâche promue.
+                                    default:
+                                        DvOrb.navigate_reset("dashboard");
+                                        return;
+                                }
     }
 
     // -----------------------------------------------------------------------
@@ -261,6 +360,68 @@ extension Worker_notify on worker {
                     }
     }
 
+    // -----------------------------------------------------------------------
+    // --- La fée : « XXX a rencontré une fée ! »
+    // -----------------------------------------------------------------------
+    //
+    // C'est la SEULE notification de toute la fonctionnalité, et elle part APRÈS coup. Tant que la
+    // fée est là, personne n'est prévenu de rien : la trouver EST la récompense, un push la
+    // désignerait du doigt. Ce message ne dit donc pas qu'une fée est apparue — il dit qu'elle est
+    // repartie, et avec qui.
+    //
+    // Il ne nomme pas non plus le cadeau reçu : c'est le journal du clan qui le raconte, à qui va
+    // le lire. Un push qui annoncerait « +250 XP pour Léa » transformerait une jolie surprise en
+    // bulletin de score.
+    //
+    // Regroupement PAR LANGUE, comme _notifyClanChest (et non un envoi par membre comme
+    // _notifyClanBoss) : une famille de cinq coûte deux appels au lieu de quatre.
+    //
+    // Jamais fatale : le cadeau est DÉJÀ crédité quand on arrive ici. Un push raté ne doit pas se
+    // lire comme un cadeau raté (même précaution que _notifyOpeningCall).
+    Future<void> _notifyClanFairy(String clanId, String region, String name) async {
+
+                    if (clanId.isEmpty) return;
+                    try {
+                        final players = await _cloud?.list(
+                            "workers", "clans_players/$clanId/players", region: region) ?? [];
+
+                        final byLang = <String, List<String>>{};
+                        for (final p in players) {
+                            final pid = p.get("id")?.toString() ?? "";
+                            if (pid.isEmpty || pid == _userId) continue;     // pas celui qui l'a touchée
+                            if (p.get("enabled")    == false) continue;      // membre révoqué
+                            if (p.get("has_device") == false) continue;      // déclaré hors ligne
+                            final devices = List<dynamic>.from(p.get("devices") as List? ?? [])
+                                .map((d) => d.toString()).where((d) => d.isNotEmpty).toList();
+                            if (devices.isEmpty) continue;
+                            final lang = p.get("lang")?.toString() ?? "fr";
+                            (byLang[lang] ??= <String>[]).addAll(devices);
+                        }
+                        if (byLang.isEmpty) { deva_log("info", "[fairy] aucun destinataire"); return; }
+
+                        for (final entry in byLang.entries) {
+                            final lang = entry.key;
+                            var text = (await deva_get("lang.translations.fairy_notif.$lang"))?.toString() ?? "";
+                            if (text.isEmpty) {
+                                text = (await deva_get("lang.translations.fairy_notif.fr"))?.toString() ?? "";
+                            }
+                            if (text.isEmpty) continue;                      // clef absente : on se tait
+                            text = text.replaceAll("{name}", name);
+
+                            try {
+                                final r = await _messaging?.send(dvmsg(
+                                    range: 'global', label: text, recipes: entry.value));
+                                deva_log("info", "[fairy] notif → ${entry.value.length} appareil(s) ($lang)"
+                                    " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
+                            } catch (e) {
+                                deva_log("error", "[fairy] notif ($lang) échec: $e");
+                            }
+                        }
+                    } catch (e) {
+                        deva_log("error", "[fairy] _notifyClanFairy FAILED: $e");
+                    }
+    }
+
     // Prévient le joueur payé, dans SA langue (même schéma que _notifyItemGift) : il a de l'argent
     // à réclamer, et le jeu ne peut pas le lui donner tout seul. Sans appareil (enfant sans
     // compte) : rien à envoyer, le versement a bien eu lieu.
@@ -410,6 +571,68 @@ extension Worker_notify on worker {
                         deva_log("error", "[combat] notif admin $adminId échec: $e");
                     }
                 }
+    }
+
+    // Relance de cotisation impayée, envoyée aux CHEFS du clan.
+    //
+    // En production c'est le balayage quotidien du serveur qui l'envoie, et ce doit
+    // rester lui : un clan en défaut est justement un clan que plus personne n'ouvre,
+    // aucun client ne peut donc garantir le départ de la relance. Cette version-ci ne
+    // sert qu'au BANC D'ESSAI — elle rejoue l'envoi à la demande, avec le même texte
+    // et par le même canal, pour qu'on puisse constater ce qu'une famille recevra
+    // sans attendre le passage de 5 h du matin.
+    //
+    // Les textes viennent de lang.yml (embarqué) et non du thème : c'est ce qui rend
+    // la relance lisible même quand le layer du bucket est en retard.
+    //
+    // Soi-même INCLUS, contrairement aux autres notifications du fichier : celui qui
+    // actionne le banc est justement celui qui doit recevoir le message.
+    Future<void> _notifyDunning(String clanId, String clanSecret, String region,
+                                String phase) async {
+
+                    if (clanId.isEmpty || clanSecret.isEmpty || phase.isEmpty) return;
+                    try {
+                        final clanDoc = await _cloud?.read("workers", "clans", clanId,
+                            ownerId: clanSecret, region: region);
+                        final admins = List<dynamic>.from(clanDoc?.get("admins") as List? ?? [])
+                            .map((a) => a.toString()).where((a) => a.isNotEmpty).toList();
+                        if (admins.isEmpty) { deva_log("info", "[store] relance: aucun chef"); return; }
+
+                        for (final adminId in admins) {
+                            final pdoc = await _cloud?.read(
+                                "workers", "clans_players/$clanId/players", adminId,
+                                ownerId: clanSecret, region: region);
+                            if (pdoc == null) continue;
+                            final lang    = pdoc.get("lang")?.toString() ?? "fr";
+                            final devices = List<dynamic>.from(pdoc.get("devices") as List? ?? [])
+                                .map((d) => d.toString()).toList();
+                            if (devices.isEmpty) continue;
+
+                            var text = (await deva_get("lang.translations.store_dunning_$phase.$lang"))?.toString() ?? "";
+                            if (text.isEmpty) {
+                                text = (await deva_get("lang.translations.store_dunning_$phase.fr"))?.toString() ?? "";
+                            }
+                            if (text.isEmpty) continue;
+
+                            try {
+                                // Action sans libellé = convention tap-corps (cf. _notifyAssignee) :
+                                // toucher le bandeau ouvre la boutique, exactement comme le fera la
+                                // relance du serveur.
+                                final r = await _messaging?.send(dvmsg(
+                                    range:   'global',
+                                    label:   text,
+                                    recipes: devices,
+                                    actions: {"open": {"action": "worker.store_open_subscription"}},
+                                ));
+                                deva_log("info", "[store] relance $phase → $adminId ($lang)"
+                                    " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
+                            } catch (e) {
+                                deva_log("error", "[store] relance → $adminId échec: $e");
+                            }
+                        }
+                    } catch (e) {
+                        deva_log("error", "[store] _notifyDunning FAILED: $e");
+                    }
     }
 
     // Informe les AUTRES membres du clan qu'un joueur est devenu chef (« {name} a prouvé sa valeur… »).

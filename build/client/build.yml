@@ -36,6 +36,7 @@ build:
     - dvflame
     - dvinterlude
     - dvtuto
+    - dvstore
     - worker
   resources:
     - base
@@ -56,9 +57,24 @@ build:
     decisiontree:
       target: layers
       source: resources_cloud/donjon/layers/decisiontree-donjon-global.yml
+    store:
+      target: layers
+      source: resources_cloud/general/layers/store-base-global.yml
+    fairy:
+      target: layers
+      source: resources_cloud/general/layers/fairy-base-global.yml
   appsettings:
+    # CAMERA et POST_NOTIFICATIONS arrivaient déjà au manifeste par le merge des plugins
+    # (mobile_scanner via dvqrcodereader/dvcamera, firebase_messaging via dvmessaging). On les
+    # déclare explicitement : ce sont les deux seules permissions à impact Play Console, elles
+    # doivent avoir une source déclarative dans le projet plutôt que d'apparaître ou disparaître
+    # au gré d'un changement de plugin.
+    #   camera        → preuve photo d'une tâche + scan du QR d'invitation de clan
+    #   notifications → demandes de validation, verdicts, montées de niveau (dvmessaging)
     permissions:
       internet: true
+      camera: true
+      notifications: true
     orientation: portrait
   cloud:
     enabled: true

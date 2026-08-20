@@ -430,6 +430,9 @@ extension Worker_clan on worker {
     // tutoriels sont ouverts à tous ; recruter (QR, invitation à distance) et « Créer un joueur »
     // sont des prérogatives de chef (admin). Le menu s'affiche dans l'ordre de la liste renvoyée :
     // on calcule donc `isAdmin` d'abord, et on monte la liste dans l'ordre historique.
+    //
+    // « Mes achats » n'est plus ici : il a rejoint le kebab de la boutique
+    // (worker.shop_settings_selector), avec le reste de ce qui touche à l'argent.
     Future<List<String>> clan_settings_selector(dynamic caller, dynamic data) async {
 
                                 var isAdmin = false;
@@ -513,6 +516,15 @@ extension Worker_clan on worker {
                                 final lobbyId = (await deva_get("worker.pending_lobby_id"))?.toString() ?? "";
                                 if (groupId.isEmpty || lobbyId.isEmpty) return;
 
+                                // Plafond de membres : accepter une demande fait entrer quelqu'un, tout
+                                // comme émettre une invitation. Le refus ici évite d'accepter un
+                                // candidat que le clan ne pourra pas accueillir — la déception serait
+                                // pour lui, pas pour le chef.
+                                if (await _storeRefuseMember()) {
+                                    deva_log("info", "[worker] on_accept_request_clan: refusé (clan au complet)");
+                                    return;
+                                }
+
                                 final lobby = ModuleRegistry.create("dvvirtuallobby");
                                 if (lobby == null) return;
                                 await (lobby as dynamic).createManagement(groupId, lobbyId: lobbyId);
@@ -532,6 +544,22 @@ extension Worker_clan on worker {
                                 if (!hasClan && groupId.isNotEmpty) {
                                     await _handleClanJoin(groupId, lobbyId, region);
                                 } else {
+                                    // Plafond de membres, vérifié à CHAQUE admission et pas seulement à
+                                    // l'ouverture du recrutement : un QR affiché une fois peut servir à
+                                    // plusieurs candidats, et _clanIdIfChief n'a compté les places
+                                    // qu'au premier. C'est ici, sur l'appareil du chef, que le clan
+                                    // s'agrandit réellement — le seul endroit qui connaisse l'effectif
+                                    // et qui ait l'autorité de payer pour l'augmenter.
+                                    //
+                                    // Sans publication du secret, l'appareil du candidat ne peut pas
+                                    // écrire son doc clans_players : il repart vers decisiontree
+                                    // (branche « virtuallobbysecret introuvable » de _handleClanJoin).
+                                    // Refuser ici plutôt que là-bas est ce qui évite un demi-enrôlement
+                                    // — un membre à moitié écrit serait pire que le refus.
+                                    if (lobbyId.isNotEmpty && await _storeRefuseMember()) {
+                                        deva_log("info", "[worker] on_virtuallobby_accepted: admission refusée (clan au complet)");
+                                        return;
+                                    }
                                     if (lobbyId.isNotEmpty) {
                                         final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                         final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -793,8 +821,24 @@ extension Worker_clan on worker {
                 // Traçabilité de connexion : rafraîchis à chaque appel (donc à chaque login,
                 // via on_login → _writeClanPlayer). last_version = semver de l'app courante
                 // (conf.application.version, injectée au build), last_connected = date ISO.
+                //
+                // last_connected est aussi la SEULE trace de vie d'un clan lisible sans ouvrir
+                // l'app : c'est sur elle que le balayeur de relance (pulse_sweeper) décide
+                // qu'une famille a décroché. Un clan qui décroche est justement un clan que
+                // plus personne n'ouvre — aucun client ne peut donc s'en charger.
                 doc.set("last_connected", DateTime.now().toUtc().toIso8601String());
                 doc.set("last_version",   (await deva_get("application.version"))?.toString() ?? "");
+                // Décalage horaire du membre, en minutes. PAS ENCORE EXPLOITÉ : le balayeur de
+                // relance part à heure fixe UTC (une par région), ce qui reste un compromis à
+                // l'intérieur de chaque fuseau régional. On le collecte dès maintenant pour que
+                // le découpage par heure locale RÉELLE ne soit qu'un changement de requête, et
+                // non une reprise de données sur des familles qu'on n'ouvre plus.
+                doc.set("tz_offset", DateTime.now().timeZoneOffset.inMinutes);
+                // Rappels de relance : refus explicite du joueur (réglage « Rappels » du kebab
+                // Personnage, ou décision d'un chef pour un enfant depuis le roster). Init-si-null
+                // pour que les docs antérieurs basculent au défaut sans migration — et le défaut
+                // est `true`, sans quoi la fonctionnalité naîtrait éteinte pour tout le monde.
+                if (doc.get("nudges") == null) doc.set("nudges", true);
                 // Nom lisible du membre (réutilisé par le journal d'audit clans_logs). nameOverride
                 // = renommage explicite (ou création d'un joueur enfant) : il fait autorité. Sinon
                 // INIT-SI-NULL depuis la session, comme avatar/is_admin juste en dessous — le nom
@@ -1001,6 +1045,19 @@ extension Worker_clan on worker {
                                 final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
                                 if (!await _ensureIsAdmin(groupId, clanSecret, region)) {
                                     deva_log("warning", "[worker] $who: refusé (non admin)");
+                                    return "";
+                                }
+                                // Plafond de joueurs du palier souscrit. On refuse ici, AVANT de
+                                // demander au chef d'assumer la responsabilité légale du recrutement
+                                // (et avant de créer un lobby) : lui faire lire la mention pour échouer
+                                // juste après serait pénible et inutile.
+                                //
+                                // Le contrôle est désormais EXACT à ce stade, alors qu'il ne pouvait
+                                // pas l'être du temps des deux plafonds : il ne dépend plus de la
+                                // nature du candidat, dont le `legal_state` n'existe pas encore. Un
+                                // clan plein est plein, quel que soit celui qui frappe à la porte.
+                                if (await _storeRefuseMember()) {
+                                    deva_log("info", "[worker] $who: refusé (clan au complet)");
                                     return "";
                                 }
                                 return groupId;

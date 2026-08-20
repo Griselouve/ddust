@@ -1,0 +1,159 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — PAGE DES PALIERS d'abonnement.
+# ---
+# --- C'est le seul écran d'où l'on souscrit ou change de cotisation. Il ne
+# --- s'atteint jamais par navigation libre : une RAISON commerciale l'ouvre —
+# --- plafond de joueurs atteint, bandeau d'impayé, relance push, réabonnement
+# --- d'un clan gelé. Toutes passent par worker._storeGotoTiers, qui publie cette
+# --- raison dans `worker.store.notice` avant de naviguer.
+# ---
+# --- POURQUOI PAS DANS LA BOUTIQUE. La boutique est un étal : on y vend des
+# --- choses à l'unité (packs de contenu, thèmes), on la parcourt quand on veut.
+# --- Une grille tarifaire n'est pas un étal, et surtout elle ne se lit qu'au
+# --- moment où elle répond à une question — « pourquoi je ne peux pas ajouter
+# --- ce joueur ? ». Présentée en permanence, elle demande à une famille de
+# --- comparer cinq lignes sans motif ; présentée à cet instant-là, elle en
+# --- surligne deux et la réponse saute aux yeux.
+# ---
+# --- Comme les autres écrans commerciaux, celui-ci ne connaît pas Play : il lit
+# --- `store.*` (publié par dvstore) et déclenche l'achat via le worker.
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+
+    #//------------------------------- Paliers -------------------------------------
+    # PAS BLOQUANT, comme tout le reste de la monétisation : `show_back: true` et
+    # aucune taskbar retirée. La doctrine du projet est qu'aucun état commercial ne
+    # ferme le jeu avant le 50e jour d'impayé — on montre l'offre, on ne barre pas
+    # la porte. Une page de tarifs sans sortie serait exactement le contraire.
+    #
+    # `masks: [page]` et non `page_taskbar` : c'est un écran empilé pour répondre à
+    # une question, pas un onglet de jeu. Il n'hérite donc ni de la taskbar, ni du
+    # bandeau d'impayé — qui, sur la page où l'on vient précisément régler l'impayé,
+    # ne serait qu'un doublon accusateur.
+
+    tiers_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:tiers_title@@@"
+      actions:
+        appear: worker.on_tiers_appear
+        # `show` AUTANT QUE `appear` : les lignes de DvList sont STATIQUES et
+        # partagées par toutes les instances vivantes (dvlist.dart `_rowsData`).
+        # Sans cela, revenir ici depuis un écran qui a poussé ses propres lignes
+        # afficherait CELLES-LÀ. Même correctif que sur `shop`.
+        show:   worker.on_tiers_appear
+      registry:
+        - commons/splash_background
+        - tiers_page/notice
+        - tiers_page/monthly
+        - tiers_page/yearly
+        - tiers_page/list
+
+    # LA RAISON DE LA VENUE. Rempli et révélé par le worker depuis
+    # `worker.store.notice` ; né invisible, et il le reste pour une venue sans
+    # motif (le chef qui arrive par la relance sait déjà pourquoi il est là).
+    #
+    # C'est le premier lecteur de ce champ : il était publié depuis des mois et
+    # peint nulle part. Une famille à qui l'on vient de refuser un membre doit lire
+    # POURQUOI sur l'écran qui lui demande de payer — sans quoi la page se lit
+    # comme une sollicitation spontanée.
+    tiers_page/notice:
+      masks:
+        - commons/intro_text
+      layer: content
+      shape:
+        x: 5%
+        y: 2%
+        w: 90%
+        h: 13%
+        text_align: CENTER
+        text_padding: 8.0
+        font_size: 12.0
+        scrollable: true
+        label: ""
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+        visible: false
+
+    # BASCULE DE PÉRIODICITÉ. Deux boutons plutôt qu'un sélecteur : il n'y a que
+    # deux valeurs, et l'écart de prix entre elles est l'argument commercial le
+    # plus fort de la page — il doit être à un tap, pas dans une liste déroulante.
+    #
+    # Le bouton ACTIF est celui dont la périodicité est affichée : le worker les
+    # écrit tous les deux à l'appear (label et couleur), puis repousse les lignes.
+    # Aucun état n'est persisté — `_storePeriod` est une préférence d'affichage,
+    # jamais un état commercial.
+    tiers_page/monthly:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        x: 5%
+        y: 16%
+        w: 44%
+        h: 7%
+        font_size: 13.0
+        # NÉ ACTIF : `_storePeriod` vaut "monthly" au démarrage. La shape naît donc
+        # déjà dans le bon état et _tiersSyncPeriodButtons n'a rien à corriger à la
+        # première frame — idiome born-filled, pas de clignotement.
+        font_color: "amber_200"
+        label: "@@@T:tiers_monthly@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.tiers_set_monthly
+
+    tiers_page/yearly:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        x: 51%
+        y: 16%
+        w: 44%
+        h: 7%
+        font_size: 13.0
+        font_color: "#7A6A3A"
+        label: "@@@T:tiers_yearly@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.tiers_set_yearly
+
+    # LES CINQ PALIERS. Une ligne par abonnement du catalogue, dans l'ordre
+    # `order` — le nombre de lignes n'est écrit nulle part, ouvrir ou retirer un
+    # palier se fait au layer cloud sans toucher à ce fichier.
+    #
+    # Le SURLIGNAGE demandé vit dans les lignes, pas dans la conf : le palier
+    # courant est `selected` (fond distinct) avec une coche, le palier suivant
+    # porte une flèche montante et un badge. C'est la seule chose que cette page
+    # doit réussir — dire où l'on en est et où aller.
+    #
+    # `row_height` généreux : chaque ligne porte un nom, un effectif ET un prix.
+    # Serrée, la comparaison devient illisible, ce qui est tout ce qu'on lui
+    # demande de ne pas être.
+    tiers_page/list:
+      class: DvList
+      layer: content
+      action: worker.tiers_pick
+      shape:
+        x: 3%
+        y: 25%
+        w: 94%
+        h: 71%
+        row_height: 76.0
+        icon_size: 32.0
+        font_size: 15.0
+        font_color: "#C8A84B"
+        empty_label: "@@@T:tiers_empty@@@"
+        background_color: "0xB3000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"

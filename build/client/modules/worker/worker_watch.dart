@@ -74,6 +74,66 @@ extension Worker_watch on worker {
     }
 
     // -----------------------------------------------------------------------
+    // --- Vigilance de la fée (elle disparaît pour tout le monde d'un coup)
+    // -----------------------------------------------------------------------
+    //
+    // La fée est UNE, partagée par le clan : dès que l'un la touche, elle doit s'effacer de
+    // l'écran des autres. C'est le seul endroit du jeu où le retard se voit tout de suite — un
+    // joueur qui tape une tuile déjà prise se heurte à un fantôme et ne comprend pas.
+    //
+    // Deux filets, parce qu'une fenêtre de dix minutes ne pardonne pas :
+    //   - le WATCH sur le doc partagé, qui voit `taken_by` se remplir ;
+    //   - une MINUTERIE locale sur `expires_at`, parce qu'aucun cron ne viendra clore la fenêtre
+    //     (rien ne s'écrit à l'expiration : le doc reste avec `taken_by` vide, et c'est chaque
+    //     appareil qui recompare l'heure).
+    //
+    // Armée seulement tant qu'une fenêtre est ouverte, et désarmée dès qu'elle se referme : une
+    // vigilance qui tourne pour rien coûte des lectures (poll sur desktop) onze mois sur douze.
+    void _startFairyVigilance(String clanId, String clanSecret, String region) {
+
+                                _stopFairyVigilance();
+                                if (clanId.isEmpty || clanSecret.isEmpty || !_fairyShowing) return;
+
+                                deva_log("info", "[fairy] vigilance démarrée (jusqu'à $_fairyExpires)");
+                                _fairyVigilance = _cloud?.watch("workers", "clans_items/$clanId/items",
+                                    _fairyDocId,
+                                    (doc, reason) {
+                                        if (reason != DvWatchReason.changed || doc == null) return;
+                                        final taken   = doc.get("taken_by")?.toString()   ?? "";
+                                        final expires = doc.get("expires_at")?.toString() ?? "";
+                                        // Prise par quelqu'un d'autre, ou fenêtre refermée : dans les deux cas
+                                        // la tuile n'a plus lieu d'être. Prise par SOI : on est déjà sur
+                                        // l'écran de la fée, la tuile a été retirée à la prise.
+                                        if (taken.isNotEmpty || !_fairyWindowOpen(expires)) {
+                                            deva_log("info", "[fairy] elle s'en va (prise par ${taken.isEmpty ? "personne" : taken})");
+                                            _dropFairy();   // fire-and-forget : retire la tuile, rend la monstre-tâche
+                                        }
+                                    },
+                                    region: region, ownerId: clanSecret,
+                                    // desktop only ; ignoré sur Android (push natif). Plafond serré : dix
+                                    // minutes de fenêtre ne laissent pas la place à un back-off d'une minute.
+                                    strategy: DvWatchStrategy.fibonacci(baseMs: 2000, maxMs: 10000));
+
+                                // Minuterie de fin de fenêtre. `isNegative` : une date déjà passée
+                                // déclencherait un Timer de durée négative (immédiat) — on retire tout de suite.
+                                final left = DateTime.tryParse(_fairyExpires)?.toUtc()
+                                    .difference(DateTime.now().toUtc());
+                                if (left == null || left.isNegative) { _dropFairy(); return; }
+                                _fairyExpiryTimer = Timer(left + const Duration(seconds: 1), () {
+                                    deva_log("info", "[fairy] les dix minutes sont écoulées");
+                                    _dropFairy();
+                                });
+    }
+
+    void _stopFairyVigilance() {
+
+                                _fairyVigilance?.stop();
+                                _fairyVigilance = null;
+                                _fairyExpiryTimer?.cancel();
+                                _fairyExpiryTimer = null;
+    }
+
+    // -----------------------------------------------------------------------
     // --- Vigilance du doc joueur (montée de niveau en temps réel)
     // -----------------------------------------------------------------------
 

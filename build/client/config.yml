@@ -213,12 +213,77 @@ conf:
       - "layers/assets-global.yml"      # vagues de priorité + catalogue des thèmes
       - "layers/tasks-base-global.yml"
       - "layers/items-base-global.yml"
+      - "layers/store-base-global.yml"  # catalogue de la boutique (abonnements, packs)
+      - "layers/fairy-base-global.yml"  # cadence et catalogue des cadeaux de la fée
 
   # --- Theme config (dvtheme) ---------------------------------------------------
   # Seul le thème de démarrage vit ici : ce qu'il FAUT charger pour chaque thème est
   # déclaré dans le catalogue de layers/assets-global.yml.
   theme:
     default: "theme-donjon"
+
+  # --- Store config (dvstore) ---------------------------------------------------
+  # Le CATALOGUE n'est pas ici : il vit dans le layer store-base-global.yml, publié
+  # avec les assets — ajouter un produit ou ouvrir un pack ne demande donc pas de
+  # nouvelle version sur le store. Ne restent ici que les réglages qui lient le
+  # module au métier ddust.
+  store:
+    # Rattachement du payeur. Chez ddust, ce qui paie est le CLAN, jamais
+    # l'utilisateur : un seul abonnement et un seul payeur par clan, c'est ce
+    # qu'annoncent les CGU. dvstore n'en garde qu'une empreinte sha256 — ni
+    # l'identifiant du clan ni son secret ne partent chez Play.
+    scope_action: worker.store_scope
+
+    # Éligibilité à l'offre fondateurs : décidée par le SERVEUR, jamais par l'app.
+    # Le cutoff vit dans un document de configuration (store_config/founders), donc
+    # il se décale sans republier — et un client modifié ne peut pas s'accorder la
+    # remise. C'est aussi ce qui rend l'offre inutile à connaître pour les écrans :
+    # dvstore la transmet de lui-même à l'achat.
+    eligibility_function: store_eligibility
+
+    package_name: "com.grisloup.ddust_client"
+
+    # Projection lue par TOUT le clan : c'est ce document qui fait qu'un pack payé
+    # par un adulte habille l'écran de tous les enfants. Il vit dans la base métier
+    # (workers), pas dans la base d'achats du module — celle-ci est personnelle et
+    # ne regarde que le payeur.
+    entitlement:
+      database: workers
+      collection: clans_store
+
+    # Callbacks métier. dvstore constate ce que dit Play ; c'est le worker qui
+    # décide de ce que cela veut dire dans le donjon (journal de clan, bandeau,
+    # notification aux adultes).
+    actions:
+      on_purchase: worker.on_store_purchase
+      on_purchase_failed: worker.on_store_purchase_failed
+      on_subscription: worker.on_store_subscription
+      on_subscription_renewed: worker.on_store_subscription_renewed
+      on_subscription_changed: worker.on_store_subscription_changed
+      on_subscription_ended: worker.on_store_subscription_ended
+      on_payment_default: worker.on_store_payment_default
+      on_payment_recovered: worker.on_store_payment_recovered
+      on_locked: worker.on_store_locked
+      on_entitlement_changed: worker.on_entitlement_changed
+      on_state_changed: worker.on_store_state_changed
+
+    # BANC D'ESSAI : PLUS ICI.
+    #
+    # `store.debug` vivait dans ce fichier, donc dans le binaire : éprouver un impayé
+    # ou une paywall demandait de l'éditer PUIS DE RECONSTRUIRE L'APP. Pire, un état
+    # simulé oublié dans une release vendrait un abonnement que personne ne peut
+    # acheter — c'est arrivé (`simulate_state: "active"` était posé ici).
+    #
+    # Il vit désormais dans le layer cloud `layers/store-base-global.yml`, publié au
+    # bucket avec le catalogue, sous forme de SCÉNARIOS nommés (« abonné illimité »,
+    # « impayé dur », « clan gelé »…). On en change depuis l'app, dans le kebab de la
+    # boutique → « Changer de scénario » : worker.store_scenario_apply mute
+    # `store.debug.*` à chaud puis rappelle `store.refresh`, ce qui rejoue toute la
+    # simulation — retour au vrai canal Play compris — sans rebuild ni redémarrage.
+    #
+    # Le bucket de production porte `test_mode: false` et `scenario: ""` : l'entrée
+    # de menu disparaît et le canal Play est réel, sans qu'une ligne de code change.
+
 
   # --- aimodels config (vertex AI, pas de téléchargement local) ----------------
   aimodels:

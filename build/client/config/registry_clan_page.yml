@@ -371,6 +371,10 @@ conf:
             label: "@@@T:clan_menu_create_player@@@"
           actions:
             tap: worker.create_player
+        # « Mes achats » a DÉMÉNAGÉ dans le kebab de la boutique (shop/settings_menu).
+        # Tout ce qui touche à l'argent se regroupe sur l'écran qui le vend : l'écran
+        # Clan n'a plus à en parler, et l'on ne cherche plus son relevé de cotisation
+        # sous un menu qui parle de recrutement et de tutoriels.
 
     #//------------------------------- Overlay CONSENTEMENT du chef (recrutement) ---------
     # Révélé par worker.on_invite_clan / on_invite_clan_remote AVANT que le lobby ne soit créé :
@@ -680,6 +684,23 @@ conf:
             label: "@@@T:roster_menu_pay_tribute@@@"
           actions:
             tap: worker.pay_tribute
+        # Rappels de relance. Deux options EXCLUSIVES arbitrées par clan_selector (idiome
+        # promote_chief / nomore_chief) : une seule des deux est jamais proposée. Icônes
+        # Material plutôt qu'images : ce sont des réglages, pas des actes de jeu.
+        nudges_off:
+          icon: "notifications_off"
+          desc: "@@@T:roster_menu_nudges_off_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_nudges_off@@@"
+          actions:
+            tap: worker.nudges_off
+        nudges_on:
+          icon: "notifications_active"
+          desc: "@@@T:roster_menu_nudges_on_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_nudges_on@@@"
+          actions:
+            tap: worker.nudges_on
         revoke_player:
           image: "images/small/byebye_nobg.png"
           desc: "@@@T:roster_menu_revoke_desc@@@"

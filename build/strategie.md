@@ -1,11 +1,14 @@
 # Stratégie — Ddust (Donjons et Savons)
 
-> Généré : 2026-07-07 · Révisé : 2026-08-11 (**lancement payant d'emblée** : la beta publique
+> Généré : 2026-07-07 · Révisé : 2026-08-20 (**grille à cinq paliers au nombre de joueurs** :
+> 1.99€ à 7.99€, bornes calées sur la démographie des foyers, palier 1.99€ rétabli, choix du
+> palier sorti de la boutique. Effet revenu quasi nul : +3%, plateau 1 495€.)
+> Révisé : 2026-08-11 (**lancement payant d'emblée** : la beta publique
 > gratuite préalable est supprimée, la monétisation entre dans le périmètre de la première
 > publication, compensée par une offre fondateurs).
-> Révisé : 2026-07-07 (pricing tranché : entrée 2.99€, essai 14 jours ;
-> seuil geler recalé de 60 à 40 familles payantes — ~40% sous le cas de base, même
-> géométrie que TodoAist/Karma, pour ne pas geler sur du bruit statistique).
+> Révisé : 2026-07-07 (essai 14 jours ; seuil geler recalé de 60 à 40 familles payantes —
+> ~40% sous le cas de base, même géométrie que TodoAist/Karma, pour ne pas geler sur du
+> bruit statistique).
 > Complément de `vision.md` (produit), `revenus.md` (chiffres) et `deva/roadmap.md` (exécution).
 
 > ⚠️ **Noms de livrables.** `ddust/beta` désigne désormais **le lancement commercial** et
@@ -42,8 +45,8 @@ compensation doit être souverain côté serveur (crédits de mois), pas délég
 
 | Livrable | Contenu | Condition |
 |---|---|---|
-| `ddust/beta` *(le lancement commercial)* | Boucle de jeu complète (tâches, XP, PV, butin, boss), administration/profils, legal + abonnements (2.99/4.99€, essai 14 jours), **offre fondateurs**, cycle de défaut de paiement, dashboard achats, socle extensions, viralité de lancement (bilan hebdo partageable, parrainage v1, notation post-boss) | — |
-| `ddust/mvp` *(consolidation post-lancement)* | Multitenancy et facturation multi-clan, notifications métier, invitations à distance, réserve refactor sur le feedback des premières familles payantes | — |
+| `ddust/beta` *(le lancement commercial)* | Boucle de jeu complète (tâches, XP, PV, butin, boss), administration/profils, legal + abonnements (5 paliers 1.99→7.99€ au nombre de joueurs, essai 14 jours), **offre fondateurs**, cycle de défaut de paiement, dashboard achats, socle extensions, viralité de lancement (bilan hebdo partageable, parrainage v1, notation post-boss) | — |
+| `ddust/mvp` *(consolidation post-lancement)* | Multitenancy et facturation multi-clan, **relances d'engagement** (balayage serveur `pulse_sweeper` : onboarding, validation en souffrance, coffre oublié ou vide côté adultes ; boss réellement convoqué et retour du clan côté enfants — cf. vision.md § « Les relances d'engagement »), invitations à distance, réserve refactor sur le feedback des premières familles payantes | — |
 | `ddust/eco` | Pack économie : or, boutique des héros, loot, quêtes, potions, objets, classes, faveurs, succès/titres, saisons + packs de tâches (bricolage, routine) + affiliation butins. Commercialisé en extensions (packs 3.99€, cf. vision) | gate ≥ maintenir |
 | `ddust/themes` | Packs de thèmes 5.99€ (« Station Spatiale », « Académie de Magie », « Far West », « Mafia ») : contenu YAML + assets | gate ≥ maintenir |
 
@@ -68,12 +71,43 @@ ultérieure), mais l'UI reste mono-clan tant que le multi-clan n'est pas livré.
   (livrable eco).
 - **Featuring « famille » du Play Store** : conformité Family Policy déjà prévue — canal réel.
 - **Boucle de notation post-boss** (« tu as aimé : va voter ») : dès le lancement.
+- **Relances d'engagement** (livrable `mvp`) : le décrochage se joue PENDANT l'essai de
+  14 jours, pas après. Coût d'infra négligeable (< 0,30 €/mois à 1 000 clans) ; le vrai
+  coût est l'attention des familles, d'où le plafond d'une notification par personne et
+  par passe et l'arrêt définitif après trois relances ignorées.
 - **Seeding** : flyers écoles/commerces + subreddits parents FR+EN pendant la fenêtre
   d'exploitation (items roadmap).
-- **Pricing (tranché 2026-07-07)** : entrée à 2.99€ (palier 1.99€ supprimé — ancrage),
-  4.99€ illimité, plans annuels à -17% (2 mois offerts). **Essai gratuit ramené de 1 mois
-  à 14 jours** : un mois complet laissait passer le pic d'enthousiasme avant le premier
-  paiement, et retardait d'autant les données payantes disponibles au gate.
+- **Pricing (refondu 2026-08-20)** : cinq paliers indexés sur le **nombre de joueurs du clan**
+  (membres actifs, admins compris, sans distinction enfant/adulte) — Essentiel 1-2 à 1.99€,
+  Clan 3-4 à 2.99€, Tribu 5-7 à 4.99€, Guilde 8-12 à 5.99€, Royaume 13+ à 7.99€ ; plans
+  annuels de 19.99€ à 64.99€. **Essai gratuit ramené de 1 mois à 14 jours** : un mois complet
+  laissait passer le pic d'enthousiasme avant le premier paiement, et retardait d'autant les
+  données payantes disponibles au gate.
+
+  Remplace la grille à deux paliers (2.99€ « 5 enfants + 4 adultes » / 4.99€ illimité) et
+  **renverse la suppression du palier 1.99€** décidée en juillet pour l'ancrage. Le motif est
+  de **lisibilité, pas de revenu** : deux plafonds distincts obligeaient une famille à savoir
+  de quelle nature était chacun de ses membres pour prévoir son palier, ce qu'aucune n'a envie
+  de calculer.
+
+  ⚠️ **Ne rien attendre de cette refonte côté revenu : +3% de panier**, sous la précision du
+  modèle (panier 3.05€, plateau 1 495€). L'entrée à 1.99€ — souscrite par **40% des clans**,
+  c'est le palier le plus fréquent — coûte à peu près ce que les paliers hauts rapportent. Une
+  première évaluation annonçait +10% sur une répartition estimée à la louche, que la
+  démographie ne soutient pas.
+
+  Le vrai levier n'est pas le barème mais les **bornes** : ±1 sur celle de Clan vaut ±10% de
+  plateau, cinq fois l'effet de toute la refonte. Elles se recalent sur `clans_store.tier`,
+  observable dès les premières souscriptions — à relever au gate S+12 avant même la
+  conversion (voir `revenus.md` § Sensibilité).
+
+- **Montée de palier déclenchée, jamais démarchée** : le choix de palier sort de la boutique
+  et vit sur un écran dédié qui ne s'ouvre qu'au moment où le clan bute sur sa capacité (ou
+  sur relance d'impayé). Il surligne le palier courant et celui qui ouvre la place manquante.
+  C'est un pari commercial explicite : on renonce à l'upsell permanent d'une grille affichée
+  en boutique, contre une proposition faite à l'instant précis où elle répond à un besoin
+  éprouvé. À surveiller au gate — si le taux de montée de palier est nul, c'est ce pari qui
+  est faux, pas la grille.
 
 ## Gate S+12 (fin de fenêtre d'exploitation, ~novembre 2026)
 

@@ -1,0 +1,496 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — écrans de la BOUTIQUE (module dvstore).
+# ---
+# --- Aucun de ces écrans ne connaît Play : ils lisent `store.*` dans le
+# --- dictionnaire deva (publié par dvstore) et déclenchent `store.buy.*`,
+# --- `store.restore` ou `store.manage`. Le worker ne fait que remplir les
+# --- listes et poser les libellés — la vérité commerciale vient du serveur.
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+
+    #//------------------------------- Boutique (onglet taskbar) -------------------
+    # GABARIT : celui de clan_page et personnage, au pixel près — icône ronde en
+    # tête (x35 w30 y0 h20), plaque dorée du nom (y16 h10), sous-titre rouge
+    # (y22.5 h4), corps en y28 h58, kebab en x67 y9. La boutique est un écran de
+    # jeu comme les deux autres, elle doit s'annoncer comme eux : c'est l'échoppe
+    # du marchand, pas un panneau de gestion.
+    #
+    # La liste ne dit QUE ce qui est à vendre. L'état de la cotisation (« à jour »,
+    # « en essai », échéance) n'a rien à y faire — il vit sur « Mes achats », et
+    # l'on y va par le kebab. Une boutique qui raconte le compte du client au lieu
+    # de présenter l'étal ne vend rien.
+    #
+    # La liste est poussée à chaud par worker.on_shop_appear (dvlist.set_rows) :
+    # une ligne par palier d'abonnement, puis les produits à l'unité quand ils
+    # arriveront. Le catalogue étant publié au bucket, en ajouter ne demande pas
+    # de nouvelle version sur le store.
+
+    shop:
+      masks:
+        - page_taskbar
+      show_appbar: true
+      show_back: false
+      title: "@@@T:Boutique@@@"
+      # Anti-fuite conservée du précédent écran : si le joueur quitte le combat par
+      # la taskbar (sans cliquer vaincu/retraite), la boucle batte_swords doit être
+      # coupée à l'arrivée ici. on_shop_appear appelle _stopCombatSiege lui-même —
+      # `appear` ne prend qu'une action, elle doit donc porter les deux devoirs.
+      #
+      # `show` AUTANT QUE `appear`, et c'est indispensable : le framework émet
+      # `appear` sur didPush (arrivée sur une page neuve) mais `show` sur
+      # didPopNext (retour depuis une page empilée). Or les lignes de DvList sont
+      # STATIQUES, partagées par toutes les instances vivantes (cf. dvlist.dart
+      # `_rowsData`) : revenir d'un écran qui a poussé ses propres lignes laissait
+      # la boutique afficher CELLES-LÀ. Sans `show`, on rentrait dans la boutique
+      # et l'on y trouvait la liste des scénarios de test.
+      actions:
+        appear: worker.on_shop_appear
+        show:   worker.on_shop_appear
+      registry:
+        - commons/splash_background
+        - shop/icon
+        - shop/label
+        - shop/coming_soon
+        - shop/settings
+        - shop/settings_menu
+
+    # La tente du marchand. AUCUNE image ici : elle vient du thème
+    # (theme-donjon-global → images/medium/icon_Marchand.png), exactement comme
+    # clan_page/icon et personnage/icon tirent leur avatar du décor. C'est ce qui
+    # permet à un autre thème d'avoir sa propre échoppe sans toucher au client.
+    shop/icon:
+      class: DvLabel
+      shape:
+        x: 35%
+        w: 30%
+        y: 0%
+        h: 20%
+        image_fallback: "images/medium/nope.png"
+
+    shop/label:
+      mask: commons/intro_text
+      layer: content
+      shape:
+        x: 5%
+        y: 16%
+        w: 90%
+        h: 10%
+        text_align: CENTER
+        label: "@@@T:shopname@@@"
+        border: true
+
+    # Pas de `shop/title_label` : sur le Clan et le Personnage, le sous-titre rouge
+    # porte le TITRE DE NIVEAU, une information qui change et se mérite. Une devise
+    # de marchand n'aurait rien dit, et le rouge vif d'une ligne de progression sous
+    # une enseigne de boutique se lit comme une alerte.
+
+    # PAS DE LISTE. `shop/list` a été retiré : le catalogue ne contient que des
+    # abonnements, qui ne se présentent pas en lignes de liste, et aucun produit à
+    # l'unité n'existe encore. Il ne restait donc qu'un cadre vide portant son
+    # `empty_label` — une boutique qui affiche « l'étal est vide » n'est pas une
+    # boutique, c'est un aveu.
+    #
+    # ET LA PRÉSENTATION COMMERCIALE N'Y VIENDRA PAS. Les paliers d'abonnement ont
+    # désormais leur propre écran (`tiers_page`, registry_store_tiers.yml), qui ne
+    # s'ouvre qu'au moment où le clan bute sur la capacité de sa cotisation. Une
+    # grille tarifaire ne se lit qu'en réponse à une question ; exposée en permanence
+    # sur un étal, elle demande à une famille de comparer cinq lignes sans motif.
+    #
+    # Le corps de l'écran (y28→86 %) reste donc libre pour ce que la boutique vendra
+    # vraiment : les produits à l'unité des livrables `eco` et `themes`.
+    #
+    # En attendant, il porte le MÊME « Bientôt » que le Personnage : même masque
+    # (commons/btn_wide), même géométrie (x5 y30 w90 h50) et même jeton de
+    # traduction (`coming_soon`). Un corps vide se lit comme un écran cassé ; le
+    # cadre doré qui annonce la suite se lit comme une promesse — et le jour où les
+    # produits à l'unité arrivent, il suffit de retirer ces deux entrées.
+    shop/coming_soon:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        x: 5%
+        y: 30%
+        w: 90%
+        h: 50%
+        font_size: 14.0
+        text_align: CENTER
+        label: "@@@T:coming_soon@@@"
+
+    # Kebab de la boutique — calqué sur clan_page/settings. Il porte TOUT ce qui
+    # n'est pas « à vendre » : le relevé, la restauration, la gestion Play, et le
+    # banc d'essai en mode test. « Mes achats » vivait dans le kebab du CLAN : il
+    # a déménagé ici, l'écran Clan n'a pas à parler d'argent.
+    shop/settings:
+      class: DvMenuButton
+      layer: content
+      menu: shop/settings_menu
+      menu_enabled: true
+      button_style: commons/donjon_button
+      shape:
+        x: 67%
+        y: 9%
+        w: 10%
+        h: 5%
+        border: false
+
+    shop/settings_menu:
+      class: DvMenu
+      layer: popup
+      show_label: false
+      selector: worker.shop_settings_selector
+      shape:
+        w: 55%
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      # Pas de « Mes achats » : l'écran de relevé n'apportait rien que la boutique et
+      # le JOURNAL DU CLAN ne disent déjà — et il fallait le chercher. Les achats,
+      # renouvellements et incidents s'écrivent désormais au récit du clan
+      # (worker_log._logLine), là où la famille lit déjà tout le reste de son
+      # histoire.
+      options:
+        # Obligatoire côté store : un réinstall ne doit pas faire payer deux fois.
+        # Ouvert à tous — restaurer n'est pas acheter, et l'appareil d'un enfant
+        # peut très bien être celui qu'on réinstalle.
+        store_restore:
+          icon: "restore"
+          desc: "@@@T:store_restore_desc@@@"
+          shape:
+            label: "@@@T:store_restore@@@"
+          actions:
+            tap: store.restore
+        # Résiliation et moyen de paiement : chez Play, jamais dans l'app.
+        # Filtré aux chefs abonnés par shop_settings_selector.
+        store_manage:
+          icon: "manage_accounts"
+          desc: "@@@T:store_manage_desc@@@"
+          shape:
+            label: "@@@T:store_manage@@@"
+          actions:
+            tap: store.manage
+        # Banc d'essai. Visible seulement si store.debug.test_mode (layer cloud) et
+        # pour un administrateur de clan : le bucket de production le retire sans
+        # qu'une seule ligne de code ne change.
+        store_scenario:
+          icon: "science"
+          desc: "@@@T:scenario_menu_desc@@@"
+          shape:
+            label: "@@@T:scenario_menu@@@"
+          actions:
+            tap: navigate_new.store_scenario_page
+        # Fait venir la FÉE tout de suite, dans un domaine au hasard. Elle n'apparaît
+        # sinon qu'au terme d'un tirage quotidien étalé sur trente jours : impossible de
+        # revoir l'animation à la demande sans ça.
+        # Placée ici — et non dans le mode chef du tiroir — pour la même raison que le banc
+        # d'essai : même garde (store.debug.test_mode, posé par le LAYER CLOUD), donc le
+        # bucket de production la fait disparaître sans qu'une ligne de code ne change.
+        # Il n'y aura rien à retirer plus tard.
+        fairy_test:
+          icon: "auto_awesome"
+          desc: "@@@T:fairy_test_desc@@@"
+          shape:
+            label: "@@@T:fairy_test@@@"
+          actions:
+            tap: worker.force_fairy
+
+    #//------------------------------- Abonnement : DÉMÉNAGÉ ------------------------
+    # `subscription_page` (bandeau d'état, bascule mensuel/annuel, bouton de palier)
+    # a été retiré en août 2026, au motif qu'il redisait un état de compte et qu'une
+    # relance d'impayé déposant le chef sur un écran de tarifs ne répond pas à la
+    # relance. Les entrées commerciales ont alors été renvoyées vers la BOUTIQUE.
+    #
+    # C'était un cul-de-sac : la boutique ne listait plus aucun abonnement depuis le
+    # retrait de `shop/list`, si bien qu'AUCUN clan ne pouvait plus souscrire.
+    #
+    # Depuis le 2026-08-20, ces entrées mènent à `tiers_page` (registry_store_tiers.yml)
+    # via worker._storeGotoTiers. Ce n'est pas le retour de subscription_page : cet
+    # écran-là racontait un compte, celui-ci compare cinq paliers et en surligne deux
+    # (le courant, le conseillé). Et il ne s'atteint jamais par navigation libre.
+    #
+    # La mécanique d'achat, elle, n'a pas bougé de worker_store : contrôle parental,
+    # prix de la périodicité courante, achat dvstore.
+
+    #//------------------------------- Fiche produit -------------------------------
+    # Produits à l'unité (packs de contenu, options). Calquée sur item_view_page :
+    # une image, un nom, une description, un bouton d'action. Le bouton porte son
+    # libellé et son action à chaud — « Acheter » devient « Déjà acquis » (grisé)
+    # pour un produit déjà possédé.
+
+    store_product_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: ""
+      actions:
+        appear: worker.on_store_product_appear
+      registry:
+        - store_product_page/image
+        - store_product_page/name
+        - store_product_page/desc
+        - store_product_page/buy
+
+    store_product_page/image:
+      masks:
+        - commons/nobordershape
+      class: DvImage
+      layer: content
+      shape:
+        x: 20%
+        y: 6%
+        w: 60%
+        h: 30%
+        stretch: "RATIO_IN"
+        opacity: 1.0
+        visible: false
+
+    store_product_page/name:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 38%
+        w: 90%
+        h: 7%
+        font_size: 18.0
+        font_color: "amber_200"
+        text_align: CENTER
+        label: ""
+
+    store_product_page/desc:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 47%
+        w: 90%
+        h: 34%
+        text_padding: 10.0
+        font_size: 13.0
+        scrollable: true
+        label: ""
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+
+    store_product_page/buy:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 88%
+        h: 9%
+        label: ""
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.store_buy_product
+
+    #//------------------------------- Mes achats : SUPPRIMÉ ------------------------
+    # L'écran « Mes achats » (relevé de facturation lu dans clans_store/{clanId}/events)
+    # a été retiré. Il redisait l'état que la boutique porte déjà, il fallait le
+    # chercher sous un kebab, et son historique n'intéressait personne au quotidien.
+    #
+    # Ce qu'il apportait vraiment — la trace de ce qui a été acheté — vit maintenant
+    # au JOURNAL DU CLAN, avec le reste de l'histoire de la famille : achats,
+    # renouvellements, changements de palier, incidents et reprises y sont racontés
+    # par worker_log._logLine (jetons log_store_*). La sous-collection de facturation
+    # reste écrite par le serveur : elle demeure la pièce d'audit en cas de litige,
+    # elle n'a simplement plus d'écran dédié.
+
+    #//------------------------------- Clan gelé -----------------------------------
+    # Fin du cycle de défaut de paiement (J50).
+    #
+    # ÉCRAN ACTUELLEMENT SANS ENTRÉE : plus aucun code n'y navigue. Le jeu ne se
+    # ferme pour aucun état commercial — on laisse toujours entrer dans le donjon, et
+    # c'est la page des paliers qui porte l'offre. Conservé tel quel : si l'on veut un jour
+    # dire les choses à un chef de clan, il est prêt, et une entrée depuis la
+    # boutique suffira à le rouvrir.
+    #
+    # Le ton est délibérément chaleureux et sans reproche — ce sont des enfants qui
+    # peuvent tomber dessus. On ne parle ni de dette, ni de retard : la troupe se
+    # repose, et la porte reste ouverte.
+
+    locked_page:
+      masks:
+        - page
+      show_appbar: false
+      show_back: false
+      actions:
+        appear: worker.on_locked_appear
+      registry:
+        - locked_page/background
+        - locked_page/image
+        - locked_page/text
+        - locked_page/revive
+
+    # FOND NOIR, et non `commons/splash_background`. Le décor habituel est une scène
+    # de donjon chargée : l'elfe aux poches vides s'y perdait, et une salle au trésor
+    # rutilante derrière « la bourse du clan est vide » disait exactement le contraire
+    # du moment. Le noir isole le sujet et fait le silence qu'il faut ici.
+    #
+    # Widget explicite plutôt que de compter sur le `background_color: black` du
+    # template `page` : le fond de cet écran est une décision, elle doit être lisible
+    # dans la conf de l'écran et non déduite d'un défaut hérité.
+    locked_page/background:
+      class: DvLabel
+      layer: background
+      shape:
+        x: 0
+        y: 0
+        w: 100%
+        h: 100%
+        background_color: black
+        border: false
+
+    # L'IMAGE PORTE L'ÉCRAN. Une elfe de ménage en haillons, les poches retournées,
+    # seau renversé et plumeau à terre : elle dit la bourse vide sans prononcer le
+    # mot, et un enfant la comprend avant de savoir lire. C'est très exactement ce
+    # qu'on veut ici — l'ancienne version alignait six lignes de texte que personne
+    # ne lisait, sur un « game over » qui annonçait une fin alors qu'il n'y en a pas.
+    #
+    # Pleine hauteur (y6→70 %) et RATIO_IN : c'est le sujet, pas une vignette.
+    #
+    # AUCUNE image ici : elle vient du THÈME, comme shop/icon, clan_page/icon et
+    # personnage/icon. C'est du décor, et un autre thème racontera ce moment avec sa
+    # propre illustration. Le registry ne déclare que la structure.
+    locked_page/image:
+      masks:
+        - commons/nobordershape
+      class: DvImage
+      layer: content
+      shape:
+        x: 8%
+        y: 6%
+        w: 84%
+        h: 64%
+        stretch: "RATIO_IN"
+        opacity: 1.0
+
+    # UNE ligne, pas un discours. Elle existe pour l'ENFANT : lui, le bouton lui est
+    # masqué, il ne verrait qu'une image et n'aurait aucun moyen de comprendre
+    # pourquoi le donjon ne s'ouvre plus. Deux propositions, sans reproche, et la
+    # promesse que rien n'est perdu.
+    locked_page/text:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 6%
+        y: 72%
+        w: 88%
+        h: 10%
+        text_align: CENTER
+        text_padding: 0.0
+        font_size: 13.0
+        font_color: "amber_200"
+        label: "@@@T:store_locked_text@@@"
+        border: false
+
+    # UN SEUL bouton, et réservé aux chefs : un enfant qui tombe sur cet écran ne
+    # doit pas se voir proposer de payer (worker.on_locked_appear le masque pour
+    # tout le monde sauf les administrateurs adultes).
+    #
+    # « Gérer mon abonnement » a disparu : sur un clan gelé il n'y a plus
+    # d'abonnement à gérer, et envoyer une famille vers la page Play de résiliation
+    # au moment où on lui demande de revenir n'avait aucun sens.
+    #
+    # ACHÈTE SUR PLACE, et ne navigue nulle part — c'est ce qui fait de cet écran un
+    # cul-de-sac réel. L'envoyer vers un écran à taskbar la rouvrirait, et un enfant
+    # qui s'ennuie taperait « Clan » pour rentrer dans le donjon qu'on vient de
+    # fermer. `store_revive_clan` ouvre directement la feuille de paiement Play,
+    # derrière le contrôle parental, sur l'offre d'entrée et au tarif courant.
+    #
+    # `freezing_actions` : l'achat part vers Play, la page se gèle le temps de
+    # l'aller-retour (idiome des autres boutons d'achat).
+    locked_page/revive:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 85%
+        h: 10%
+        font_size: 14.0
+        label: "@@@T:store_revive@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.store_revive_clan
+
+    #//------------------------------- Banc d'essai --------------------------------
+    # CHANGER DE SCÉNARIO SANS REBUILDER.
+    #
+    # Éprouver la monétisation demandait jusqu'ici d'éditer `store.debug` dans
+    # config.yml puis de reconstruire l'app — une release pour voir à quoi
+    # ressemble un impayé. Or dvstore relit sa conf à chaque `store.refresh`
+    # (dvstore_motor.start → loadConfig) : muter `store.debug.*` en mémoire puis
+    # rafraîchir rejoue toute la simulation, retour au vrai canal Play compris.
+    #
+    # Le CATALOGUE de scénarios vit dans le layer cloud store-base-global.yml : en
+    # ajouter un se fait en republiant les assets, sans toucher au code. Ne restent
+    # ici que la structure de l'écran et le nom des actions.
+    #
+    # Un scénario n'est pas un réglage mais un PAQUET cohérent (état + palier +
+    # phase de relance + crédits) : ce qu'on veut éprouver est « un clan en impayé
+    # dur », pas « hold avec firm ».
+
+    store_scenario_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:scenario_title@@@"
+      actions:
+        appear: worker.on_store_scenario_appear
+      registry:
+        - commons/splash_background
+        - store_scenario_page/summary
+        - store_scenario_page/list
+
+    # État EFFECTIVEMENT publié par dvstore après la bascule (state / produit /
+    # source). C'est la confirmation que le scénario a bien pris — sans elle, on
+    # tapote et l'on croit sur parole.
+    # `scrollable` parce que le contenu est TRÈS variable : deux lignes quand tout va
+    # bien, six quand le serveur refuse (repli, uid à recopier, message d'erreur brut).
+    # C'est justement dans ce dernier cas qu'il faut pouvoir tout lire.
+    store_scenario_page/summary:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 2%
+        w: 90%
+        h: 20%
+        font_size: 11.0
+        text_align: CENTER
+        scrollable: true
+        label: ""
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+
+    store_scenario_page/list:
+      class: DvList
+      layer: content
+      action: worker.store_scenario_apply
+      shape:
+        x: 3%
+        y: 24%
+        w: 94%
+        h: 72%
+        row_height: 72.0
+        icon_size: 32.0
+        font_size: 14.0
+        font_color: "#C8A84B"
+        empty_label: "@@@T:scenario_empty@@@"
+        background_color: "0xB3000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"

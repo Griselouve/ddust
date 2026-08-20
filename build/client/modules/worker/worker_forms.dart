@@ -842,6 +842,12 @@ extension Worker_forms on worker {
                                     if (clanId.isEmpty || clanSecret.isEmpty) return;
                                     if (!await _ensureIsAdmin(clanId, clanSecret, region)) return;
 
+                                    // Plafond de joueurs du palier souscrit (grants du catalogue). Un
+                                    // enfant créé ici est un membre comme un autre : il consomme une
+                                    // place. Le refus ouvre la page des paliers en fléchant celui qui
+                                    // en ouvre une de plus — c'est l'instant précis où elle sert.
+                                    if (await _storeRefuseMember()) return;
+
                                     final childId   = _generateUuid();
                                     final childName = _capitalizeFirst(raw);
                                     await _writeClanPlayer(clanId, clanSecret, childId, "", region,

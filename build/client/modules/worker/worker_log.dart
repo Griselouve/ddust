@@ -368,6 +368,30 @@ extension Worker_log on worker {
                                     return await _resolveDesc("log_member_left");
                                 }
 
+                                // Vie de la cotisation (écrite par worker_store._logStoreEvent).
+                                // C'est ici que les achats se racontent depuis que l'écran « Mes
+                                // achats » a disparu : au récit du clan, avec le reste de son
+                                // histoire, plutôt que dans un relevé qu'il fallait aller chercher.
+                                //
+                                // Le ton est celui du reste du jeu — ces lignes sont lues par des
+                                // enfants, et un incident de prélèvement ne doit jamais ressembler à
+                                // une punition. Le nom du PRODUIT n'est pas écrit : « ddust_clan »
+                                // ne veut rien dire pour une famille, et le palier se lit sur la page
+                                // des paliers. Un événement inconnu ne rend rien plutôt qu'une ligne nue.
+                                const storeLines = <String, String>{
+                                    "StoreSubscription":     "log_store_subscription",
+                                    "StorePurchase":         "log_store_purchase",
+                                    "StoreRenewed":          "log_store_renewed",
+                                    "StoreTierChanged":      "log_store_tier_changed",
+                                    "StoreEnded":            "log_store_ended",
+                                    "StorePaymentDefault":   "log_store_payment_default",
+                                    "StorePaymentRecovered": "log_store_payment_recovered",
+                                    "StoreLocked":           "log_store_locked",
+                                };
+                                if (storeLines.containsKey(ev)) {
+                                    return await _resolveDesc(storeLines[ev]!);
+                                }
+
                                 // Montée de niveau : « <nom> a atteint le niveau N ! » (+ titre si franchi).
                                 if (ev == "PlayerLeveledUp") {
                                     final niveau   = l.get("data.niveau")?.toString()    ?? "";
@@ -454,6 +478,36 @@ extension Worker_log on worker {
                                     final line = await _resolveDesc("log_tribute_paid");
                                     if (line.isEmpty) return "";
                                     return line.replaceAll("{amount}", l.get("data.amount")?.toString() ?? "0");
+                                }
+
+                                // Boss convoqué par le donjon lui-même (balayage pulse_sweeper) : la
+                                // recommandation posée par un CHEF n'est pas journalisée — celle-ci l'est,
+                                // parce que personne ne l'a décidée et qu'un bonus d'XP apparu tout seul
+                                // doit pouvoir se justifier. Événement de CLAN, sans acteur : la ligne
+                                // nomme la tâche, pas un joueur.
+                                if (ev == "BossSummoned") {
+                                    final base = _originalOf(l.get("task")?.toString() ?? "");
+                                    if (base.isEmpty) return "";
+                                    final line = await _resolveDesc("log_boss_summoned");
+                                    if (line.isEmpty) return "";
+                                    final title = await _resolveDesc("dt_t_$base");
+                                    return line.replaceAll("{task}", title);
+                                }
+
+                                // La FÉE. Seul moment de son passage qui laisse une trace : APRÈS que
+                                // quelqu'un l'a touchée. Son APPARITION, elle, n'est jamais journalisée —
+                                // la ligne la trahirait en temps réel à qui ouvre le récit du clan, et
+                                // chercher la fée n'aurait plus de sel. Une fée qui repart sans être
+                                // touchée ne laisse donc rien derrière elle : c'est voulu.
+                                // Le montant n'est pas dit : le récit raconte une rencontre, pas un score.
+                                if (ev == "FairyGift") {
+                                    final gift = l.get("data.gift")?.toString() ?? "";
+                                    if (gift.isEmpty) return "";
+                                    final line = await _resolveDesc("log_fairy_gift");
+                                    if (line.isEmpty) return "";
+                                    // `flat` : les libellés de cadeaux portent un saut de ligne (ils tiennent
+                                    // dans une main, sur deux lignes). Une ligne de récit ne se coupe pas.
+                                    return line.replaceAll("{gift}", await _fairyGiftLabel(gift, flat: true));
                                 }
 
                                 return "";

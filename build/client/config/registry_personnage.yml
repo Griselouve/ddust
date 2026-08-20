@@ -264,8 +264,11 @@ conf:
         h: 5%
         border: false
 
-    # Menu du bouton settings de l'écran Personnage. Une seule option : « Mon Journal » (même
-    # effet que l'option journal du roster, appliquée à l'utilisateur courant).
+    # Menu du bouton settings de l'écran Personnage : « Mon Journal » (même effet que l'option
+    # journal du roster, appliquée à l'utilisateur courant), langue, tutoriels, politique de
+    # confidentialité, déconnexion et suppression de compte.
+    # ⚠️ perso_settings_selector (worker_session.dart) énumère les options AUTORISÉES : toute
+    # option ajoutée ici doit y être déclarée, sinon elle n'apparaît jamais.
     personnage/settings_menu:
       class: DvMenu
       layer: popup
@@ -301,6 +304,31 @@ conf:
             label: "@@@T:clan_menu_tutorials@@@"
           actions:
             tap: navigate_new.tutoriels
+        # Rappels de relance : deux options EXCLUSIVES, arbitrées par
+        # perso_settings_selector qui lit `clans_players.nudges` du joueur courant.
+        # Même bascule que celle du menu roster (registry_clan_page), à ceci près
+        # qu'ici elle ne porte QUE sur soi.
+        nudges_off:
+          icon: "notifications_off"
+          desc: "@@@T:perso_menu_nudges_off_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_nudges_off@@@"
+          actions:
+            tap: worker.nudges_off
+        nudges_on:
+          icon: "notifications_active"
+          desc: "@@@T:perso_menu_nudges_on_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_nudges_on@@@"
+          actions:
+            tap: worker.nudges_on
+        privacy:
+          icon: "privacy_tip"
+          desc: "@@@T:perso_menu_privacy_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_privacy@@@"
+          actions:
+            tap: worker.open_privacy
         logout:
           image: "images/small/log-out.png"
           desc: "@@@T:perso_menu_logout_desc@@@"

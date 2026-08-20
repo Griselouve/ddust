@@ -1,0 +1,346 @@
+name: store-base
+above: conf
+strategy: default
+tenant: global
+data:
+
+  store:
+
+    # ===========================================================================
+    # CATALOGUE DE LA BOUTIQUE
+    # ---------------------------------------------------------------------------
+    # Ce layer est publié AU BUCKET, comme les tâches et les items : ouvrir un pack,
+    # corriger un barème ou ajouter un produit ne demande donc PAS de nouvelle version
+    # sur le store. Ce qui exige, lui, une release, c'est le code — il n'y en a pas ici.
+    #
+    # Ne vit ici que la STRUCTURE. Les libellés (nom, description) et les images sont
+    # du THÈME (theme-donjon-global.yml), exactement comme pour les items : le catalogue
+    # dit « il existe un abonnement standard », le thème dit comment on l'appelle dans
+    # ce décor-là.
+    #
+    #   type       : subscription | product (produit à l'unité, non consommable)
+    #   order      : rang d'affichage dans la boutique
+    #   base_plans : périodicités déclarées en Play Console pour CE produit.
+    #                ⚠ LE SUFFIXE EST CONTRACTUEL : `dvstore.basePlanFor` choisit la
+    #                périodicité par `endsWith("-$period")`, avec period ∈ {monthly,
+    #                yearly}. Un base plan nommé autrement rend l'annuel inachetable, en
+    #                silence — on repart alors sur le mensuel sans qu'un mot le dise.
+    #   offers     : offres attachées aux base plans (essai, offre réservée)
+    #   label      : nom affiché — token de traduction (thème)
+    #   description: texte de la fiche — token de traduction (thème)
+    #   price_hint : REPLI d'affichage seulement. Le prix réel vient TOUJOURS de Play
+    #                (localisé, taxes incluses) : c'est une exigence de la politique du
+    #                store, et cela évite de maintenir une table de prix par pays.
+    #   price_hint_yearly :
+    #                le même repli, pour la périodicité ANNUELLE. Sans lui, un écran
+    #                affichant l'annuel et privé de canal Play retombait sur
+    #                `price_hint` — donc annonçait le tarif MENSUEL sous l'étiquette
+    #                « par an ». Le cas n'est pas théorique : c'est l'état de toute la
+    #                recette au banc d'essai, où aucun canal Play n'est ouvert. Une
+    #                grille tarifaire qui ment est pire qu'une grille vide.
+    #   grants     : LE seul endroit où un produit rencontre une règle de jeu. Le serveur
+    #                ne connaît que Play (« ce clan possède ddust_clan, état active ») ;
+    #                c'est cette table qui traduit cela en « 4 joueurs ».
+    #                Aucune règle métier n'est dupliquée côté backend.
+    #   tag        : produit = layer de contenu à activer (packs). Absent = rien à activer.
+    #
+    # CONVENTION DES PLAFONDS : -1 = illimité. Pas 0 — un plafond à zéro se lit « aucun
+    # joueur autorisé », ce qui est très exactement le contraire, et un test `count >= max`
+    # écrit sans précaution bloquerait tout le monde sur le palier le plus cher.
+    #
+    # UN SEUL COMPTEUR : `max_players`. Le catalogue a longtemps porté deux plafonds
+    # distincts (`max_kids` / `max_adults`), ce qui obligeait à savoir de quelle NATURE
+    # était chaque membre pour dire s'il restait de la place — un candidat dont on ne
+    # connaissait pas encore le `legal_state` n'était donc contrôlable qu'à moitié, et
+    # « Déclarer majeur » devait vérifier un plafond parce que la promotion DÉPLAÇAIT une
+    # place d'un compteur à l'autre. Une famille n'y comprenait rien et le code non plus.
+    # Désormais un membre est un membre : enfant, adulte, chef ou joueur du dimanche,
+    # chacun occupe une place et une seule. Le décompte se lit sans explication.
+    # ===========================================================================
+
+    catalog:
+
+      # --- LES CINQ PALIERS ---------------------------------------------------
+      # Ils ne se distinguent QUE par le nombre de joueurs. Aucun bénéfice de jeu n'est
+      # réservé à un palier : le jeu est le même pour tous, on ne paie jamais pour être
+      # plus fort — c'est ce qu'annoncent les CGU enfants comme la fiche du store.
+      #
+      # Le palier 1.99 € avait été supprimé en juillet 2026 au profit d'une entrée à
+      # 2.99 €, pour l'ancrage de prix. Il revient : la grille à cinq paliers ne se règle
+      # plus sur un ancrage mais sur la TAILLE DU FOYER. Et ce n'est pas un cas limite —
+      # les 1-2 joueurs sont ~40% des clans, soit le palier le plus souscrit de la grille.
+      #
+      # Les bornes suivent la démographie réelle des foyers (révision 2026-08-20), pas une
+      # progression régulière : c'est pourquoi Clan s'arrête à 4 et Tribu à 7. Les décaler
+      # d'un cran déplacerait des milliers de foyers d'un palier à l'autre.
+
+      # 1 à 2 joueurs — parent seul et un enfant, ou un couple sans enfant joueur.
+      # ~40% des clans : c'est le cas le PLUS fréquent, pas un cas marginal.
+      ddust_essentiel:
+        type: subscription
+        order: 1
+        base_plans:
+          - essentiel-monthly
+          - essentiel-yearly
+        offers:
+          # Essai gratuit 14 jours (un mois complet laissait passer le pic
+          # d'enthousiasme avant le premier paiement), éligibilité « nouveaux clients ».
+          - essai-14j
+          # Éligibilité déterminée par le développeur : essai allongé + première année
+          # remisée. L'app ne transmet cette offre que pour les clans éligibles — c'est
+          # `store.eligibility_function` qui tranche, jamais le catalogue.
+          - fondateur
+        label: "@@@T:store_essentiel@@@"
+        description: "@@@T:store_essentiel_desc@@@"
+        price_hint: "1.99 €"
+        price_hint_yearly: "19.99 €"
+        grants:
+          shop: true
+          max_players: 2
+
+      # 3 à 4 joueurs — le foyer nucléaire classique. ~30% des clans.
+      ddust_clan:
+        type: subscription
+        order: 2
+        base_plans:
+          - clan-monthly
+          - clan-yearly
+        offers:
+          - essai-14j
+          - fondateur
+        label: "@@@T:store_clan@@@"
+        description: "@@@T:store_clan_desc@@@"
+        price_hint: "2.99 €"
+        price_hint_yearly: "24.99 €"
+        grants:
+          shop: true
+          max_players: 4
+
+      # 5 à 7 joueurs — grande fratrie, ou famille recomposée. ~25% des clans.
+      ddust_tribu:
+        type: subscription
+        order: 3
+        base_plans:
+          - tribu-monthly
+          - tribu-yearly
+        offers:
+          - essai-14j
+          - fondateur
+        label: "@@@T:store_tribu@@@"
+        description: "@@@T:store_tribu_desc@@@"
+        price_hint: "4.99 €"
+        price_hint_yearly: "39.99 €"
+        grants:
+          shop: true
+          max_players: 7
+
+      # 8 à 12 joueurs — deux foyers réunis, cousins, grands-parents. ~4% des clans.
+      ddust_guilde:
+        type: subscription
+        order: 4
+        base_plans:
+          - guilde-monthly
+          - guilde-yearly
+        offers:
+          - essai-14j
+          - fondateur
+        label: "@@@T:store_guilde@@@"
+        description: "@@@T:store_guilde_desc@@@"
+        price_hint: "5.99 €"
+        price_hint_yearly: "49.99 €"
+        grants:
+          shop: true
+          max_players: 12
+
+      # 13 joueurs et plus — aucun plafond. `-1`, jamais 0 (cf. convention ci-dessus).
+      # ~1% des clans : la queue de distribution, pas le cœur de cible.
+      ddust_royaume:
+        type: subscription
+        order: 5
+        base_plans:
+          - royaume-monthly
+          - royaume-yearly
+        offers:
+          - essai-14j
+          - fondateur
+        label: "@@@T:store_royaume@@@"
+        description: "@@@T:store_royaume_desc@@@"
+        price_hint: "7.99 €"
+        price_hint_yearly: "64.99 €"
+        grants:
+          shop: true
+          max_players: -1
+
+      # --- Produits à l'unité -------------------------------------------------
+      # Volontairement ABSENTS au lancement. Le socle technique (achat, activation par
+      # clan, gating, restauration) est livré et se teste avec les abonnements ; les
+      # produits eux-mêmes n'arrivent qu'avec le contenu qu'ils vendent (livrables `eco`
+      # et `themes`). Déclarer ici un pack dont le contenu n'existe pas afficherait une
+      # boutique qui vend du vide — et ce layer étant publié au bucket, les ajouter le
+      # jour venu ne coûtera pas une release. Forme attendue :
+      #
+      #   ddust_autovalidation:
+      #     type: product
+      #     order: 10
+      #     label: "@@@T:store_autovalidation@@@"
+      #     description: "@@@T:store_autovalidation_desc@@@"
+      #     price_hint: "1.99 €"
+      #     grants: { auto_validation: true }
+      #
+      #   ddust_pack_quetes:
+      #     type: product
+      #     order: 20
+      #     price_hint: "3.99 €"
+      #     grants: { pack_quetes: true }
+      #     tag: pack_quetes          # active le layer de contenu du même nom
+
+    # ===========================================================================
+    # BANC D'ESSAI - SCENARIOS DE TEST
+    # ---------------------------------------------------------------------------
+    # Un scenario n'est pas un reglage mais un PAQUET COHERENT : ce qu'on veut
+    # eprouver est « un clan en impaye dur », pas « hold avec firm ». On en change
+    # dans l'app, kebab de la boutique -> « Changer de scenario ».
+    #
+    # Le worker traduit ces champs en `store.debug.simulate_*`, que dvstore relit a
+    # chaque `store.refresh` : la bascule est immediate, sur cet appareil.
+    #
+    #   state         : none | trial | active | canceled | grace | hold | locked | expired
+    #   tier          : identifiant du palier au catalogue (vide si aucun droit)
+    #   dunning_phase : soft | firm | last. Declenche AUSSI l'envoi de la vraie relance
+    #                   push aux chefs du clan (worker._notifyDunning), par le meme
+    #                   canal et avec le meme texte que celle du serveur.
+    #   founder       : marque fondateur
+    #   credits       : mois offerts en reserve
+    #   expiry_days   : indicatif seulement. dvstore derive lui-meme une echeance
+    #                   plausible de l'etat simule ; le champ est conserve parce qu'il
+    #                   documente l'intention du scenario et servirait tel quel a une
+    #                   ecriture serveur, si l'on en voulait une un jour.
+    #
+    # CE QUE LE BANC NE REPRODUIT PAS : la projection clans_store n'est pas ecrite
+    # (elle est fermee au client, et la faire ecrire par une fonction couterait une
+    # allowlist a maintenir pour une fonction qui accorde un droit payant en
+    # production). L'etat ne se propage donc pas aux autres appareils du clan et ne
+    # survit pas au redemarrage, et le balayage quotidien du serveur ne voit rien —
+    # il tourne a 5 h du matin, on ne l'observait de toute facon pas en session.
+    #
+    # Ce layer est publie au bucket : ajouter un scenario ne demande ni rebuild ni
+    # code. Les LIBELLES, eux, sont dans lang.yml (embarque) — un outil de
+    # diagnostic doit rester lisible quand le layer de theme du bucket est en retard.
+    #
+    # BUCKET DE PRODUCTION : `test_mode: false`, et l'entree de menu disparait.
+    # ===========================================================================
+
+    debug:
+
+      # Affiche « Changer de scenario » dans le kebab de la boutique. Double d'une
+      # condition d'administrateur cote worker : un enfant ne voit jamais cette entree.
+      test_mode: true
+
+      # Scenario applique en dernier, pour cocher la bonne ligne. Purement indicatif :
+      # la verite est dans clans_store, pas ici.
+      scenario: ""
+
+      scenarios:
+
+        # Sortie du banc : n'ecrit RIEN, se contente de faire relire la projection
+        # telle qu'elle est. Sans `state`, le worker n'appelle pas le serveur — on ne
+        # veut surtout pas ecraser l'etat d'un clan qui aurait reellement paye.
+        reel:
+          label: "@@@T:scenario_reel@@@"
+          desc:  "@@@T:scenario_reel_desc@@@"
+
+        jamais_abonne:
+          label: "@@@T:scenario_none@@@"
+          desc:  "@@@T:scenario_none_desc@@@"
+          state: "none"
+
+        essai:
+          label: "@@@T:scenario_trial@@@"
+          desc:  "@@@T:scenario_trial_desc@@@"
+          state: "trial"
+          tier:  "ddust_clan"
+          expiry_days: 14
+
+        # TROIS paliers au banc, pas cinq : ce qu'on vient eprouver ici n'est pas la
+        # grille tarifaire mais le PLAFOND. Il suffit d'un palier etroit (2 places, ou
+        # l'on bute des le troisieme membre), d'un palier courant (5 places, celui que
+        # la plupart des familles souscrivent) et d'un palier sans plafond du tout.
+        # Tribu et Guilde ne se comportent pas autrement que Clan — les ajouter
+        # allongerait la liste sans rien apprendre.
+        abonne_essentiel:
+          label: "@@@T:scenario_essentiel@@@"
+          desc:  "@@@T:scenario_essentiel_desc@@@"
+          state: "active"
+          tier:  "ddust_essentiel"
+          expiry_days: 30
+
+        abonne_clan:
+          label: "@@@T:scenario_clan@@@"
+          desc:  "@@@T:scenario_clan_desc@@@"
+          state: "active"
+          tier:  "ddust_clan"
+          expiry_days: 30
+
+        abonne_royaume:
+          label: "@@@T:scenario_royaume@@@"
+          desc:  "@@@T:scenario_royaume_desc@@@"
+          state: "active"
+          tier:  "ddust_royaume"
+          expiry_days: 30
+
+        # Mois offerts en cours : l'etat qu'un balayage produit en consommant un
+        # credit. Sans lui, un clan actif sans prelevement n'a aucun moyen de
+        # comprendre pourquoi il joue — c'est la ligne qu'on vient verifier ici.
+        fondateur:
+          label: "@@@T:scenario_founder@@@"
+          desc:  "@@@T:scenario_founder_desc@@@"
+          state: "active"
+          tier:  "ddust_clan"
+          expiry_days: 30
+          founder: true
+          credits: 2
+
+        resilie:
+          label: "@@@T:scenario_canceled@@@"
+          desc:  "@@@T:scenario_canceled_desc@@@"
+          state: "canceled"
+          tier:  "ddust_clan"
+          expiry_days: 12
+
+        # Echeance DEPASSEE + phase de relance : c'est la conjonction des deux qui
+        # fait partir une relance au prochain balayage.
+        impaye_doux:
+          label: "@@@T:scenario_grace@@@"
+          desc:  "@@@T:scenario_grace_desc@@@"
+          state: "grace"
+          tier:  "ddust_clan"
+          expiry_days: -12
+          dunning_phase: "soft"
+
+        impaye_dur:
+          label: "@@@T:scenario_hold@@@"
+          desc:  "@@@T:scenario_hold_desc@@@"
+          state: "hold"
+          tier:  "ddust_clan"
+          expiry_days: -45
+          dunning_phase: "last"
+
+        # Fin du cycle de defaut (J50). Le jeu reste ouvert : c'est precisement ce
+        # qu'on vient verifier.
+        clan_gele:
+          label: "@@@T:scenario_locked@@@"
+          desc:  "@@@T:scenario_locked_desc@@@"
+          state: "locked"
+          tier:  "ddust_clan"
+          expiry_days: -50
+
+        # Etat TERMINAL d'un abonnement a reconduction automatique : Play le rend
+        # (SUBSCRIPTION_STATE_EXPIRED) quand une resiliation a depasse son echeance,
+        # quand un achat est rembourse/annule, ou quand une reserve de mois offerts
+        # s'epuise. Rien a voir avec une offre a duree determinee — il n'y en a pas
+        # au catalogue, et il n'en faut pas pour atteindre cet etat.
+        expire:
+          label: "@@@T:scenario_expired@@@"
+          desc:  "@@@T:scenario_expired_desc@@@"
+          state: "expired"
+          expiry_days: -3

@@ -1,0 +1,118 @@
+name: fairy-base
+above: conf
+strategy: default
+tenant: global
+
+# La FÉE — le seul événement du jeu qui ne se mérite pas.
+#
+# Tout le reste de ddust récompense l'effort : on vainc une monstre-tâche, on gagne de l'XP. La fée,
+# elle, ne récompense que d'être passé par là. Au plus une fois par mois, sans que personne ne soit
+# prévenu, elle prend la place d'une monstre-tâche dans un tiroir de domaine, pendant dix minutes.
+# Qui la trouve et la touche choisit entre les deux cadeaux qu'elle tend dans ses mains ; elle
+# disparaît alors pour tout le clan.
+#
+# Ce layer vit dans la racine « general » du bucket : régler la cadence, les montants ou la liste
+# des cadeaux est un UPLOAD, pas une release store. Une copie est embarquée dans l'apk (build.yml →
+# onboard) pour que le tout premier lancement dispose déjà de ces valeurs.
+data:
+  fairy:
+
+    # --- La cadence ----------------------------------------------------------------
+    #
+    # p = (écoulé depuis la dernière apparition / cycle_days) ^ curve_exponent, borné à [0, 1].
+    # Probabilité NULLE juste après une apparition, CERTAINE au terme de cycle_days.
+    #
+    # >>> Attention : cette probabilité est celle d'UN TIRAGE, et il s'en fait un par
+    # roll_every_hours. Avec un tirage par jour et curve_exponent à 1, la garantie des 30 jours tient
+    # mais l'attente MOYENNE tourne autour d'une semaine — la fée vient bien plus souvent que « tous
+    # les 30 jours ». curve_exponent est le bouton qui corrige ça sans toucher au code : à 4, la
+    # moyenne remonte vers trois semaines, et 30 jours reste une certitude.
+    #
+    # roll_every_hours n'est pas un détail : sans lui, le tirage se referait à CHAQUE ouverture de
+    # l'app (le dé est jeté sur le dashboard), et un clan qui l'ouvre dix fois par jour verrait la
+    # fée dix fois plus souvent qu'un clan qui l'ouvre une fois. Le throttle rend la courbe
+    # indépendante de l'assiduité.
+    cycle_days: 30
+    curve_exponent: 1.0
+    roll_every_hours: 24
+
+    # Durée de présence. Passé ce délai, la tuile s'efface et la monstre-tâche revient — sans que
+    # personne n'ait rien su. Il n'y a AUCUN cron : les dix minutes sont tenues côté client, et toute
+    # lecture recompare `expires_at` à l'heure courante.
+    window_minutes: 10
+
+    # --- Les cadeaux ----------------------------------------------------------------
+    #
+    # DICTIONNAIRE, jamais une liste : le merge de layers du framework (Dvidle.mask) fusionne les
+    # listes en union sans ordre — impossible d'y surcharger un élément. Une clé nommée, en revanche,
+    # se surcharge champ par champ. C'est ce qui permet à un THÈME de retoucher un montant, et à un
+    # PACK (layer taggué) d'ajouter ses propres cadeaux, sans une ligne de Dart.
+    #
+    #   order   : rang d'affichage/parcours (le framework ne trie jamais un dict tout seul)
+    #   weight  : poids du tirage. Les deux mains tirent SANS REMISE → toujours deux cadeaux
+    #             différents, et le joueur arbitre vraiment.
+    #   action  : clef ActionRegistry appelée quand le cadeau est choisi. Un cadeau qui réutilise une
+    #             action existante avec d'autres bornes ne demande AUCUN code.
+    #   min/max : fourchette du montant (XP, ou points de vie rendus). Tiré uniformément.
+    #   label   : jeton de traduction, résolu à l'affichage (le texte vit dans le thème).
+    #
+    # Les variantes « pour tout le clan » portent volontairement des bornes plus basses : le total
+    # distribué grandit avec la taille de la famille, pas le montant par tête.
+    gifts:
+
+      xp_self:
+        order: 10
+        weight: 20
+        action: "worker.fairy_xp_self"
+        min: 80
+        max: 250
+        label: "@@@T:fairy_gift_xp_self@@@"
+
+      xp_other:
+        order: 20
+        weight: 20
+        action: "worker.fairy_xp_other"
+        min: 80
+        max: 250
+        label: "@@@T:fairy_gift_xp_other@@@"
+
+      xp_clan:
+        order: 30
+        weight: 15
+        action: "worker.fairy_xp_clan"
+        min: 25
+        max: 70
+        label: "@@@T:fairy_gift_xp_clan@@@"
+
+      heal_self:
+        order: 40
+        weight: 20
+        action: "worker.fairy_heal_self"
+        min: 2
+        max: 4
+        label: "@@@T:fairy_gift_heal_self@@@"
+
+      heal_other:
+        order: 50
+        weight: 15
+        action: "worker.fairy_heal_other"
+        min: 2
+        max: 4
+        label: "@@@T:fairy_gift_heal_other@@@"
+
+      heal_clan:
+        order: 60
+        weight: 10
+        action: "worker.fairy_heal_clan"
+        min: 1
+        max: 2
+        label: "@@@T:fairy_gift_heal_clan@@@"
+
+      # Le seul cadeau qui ne donne rien tout de suite : il fait surgir un boss (une tâche
+      # « recommandée », dont l'XP est fortement boostée tant qu'on s'y met vite). C'est un cadeau au
+      # CLAN, pas au joueur — d'où l'absence de fourchette : le bonus est calculé au verdict.
+      boss:
+        order: 70
+        weight: 10
+        action: "worker.fairy_boss"
+        label: "@@@T:fairy_gift_boss@@@"

@@ -45,6 +45,17 @@ data:
                                             # clan, jouée dès le 1er dashboard (écran 10)
       - "images/splashs/parchment_bg.png"   # fond CGU (écran 6)
       - "prompts/prompts.yml"               # VertexAI inspire (create_clan, écran 8)
+      # LAYERS DE CONF. Ils ne sont pas des assets d'affichage, mais ils doivent être
+      # dans une vague pour une raison décisive : SEULS les fichiers listés ici ont un
+      # hash au manifeste, et seul un hash déclenche un re-téléchargement (cf.
+      # dvcloudassets_motor, « hash différent, re-téléchargement »). Hors vague, un
+      # layer est rapatrié UNE FOIS puis servi depuis le cache local indéfiniment —
+      # republier le bucket n'y change rien, et l'on attend en vain des libellés qui
+      # sont pourtant en ligne depuis longtemps. C'est très exactement ce qui est
+      # arrivé aux traductions store_* du thème.
+      - "layers/theme-donjon-global.yml"    # libellés + décor de tous les écrans
+      - "layers/store-base-global.yml"      # catalogue de la boutique + scénarios du banc d'essai
+      - "layers/fairy-base-global.yml"      # cadence et catalogue des cadeaux de la fée
       - "images/small/tb_boutique.png"      # taskbar dashboard (écran 10)
       - "images/small/tb_clan.png"
       - "images/small/tb_combat.png"
@@ -84,6 +95,10 @@ data:
     # major : 3e vague — écrans secondaires, avatars, mort, célébrations (rares/tardifs).
     major:
       - "images/big/gameover.png"
+      # Écran de clan gelé. Listée ici pour avoir un hash au manifeste : hors vague,
+      # un fichier est rapatrié UNE FOIS puis servi du cache indéfiniment, et une
+      # correction d'image resterait invisible sur les appareils qui l'ont déjà.
+      - "images/big/no_paiement_nobg.png"
       - "images/big/victory_nobg.png"       # image de l'anim de victoire (tâche validée)
       - "images/splashs/annonce.png"
       - "images/medium/shield.png"
@@ -130,6 +145,13 @@ data:
       - "sounds/effect_xp.mp3"
       - "sounds/tatadaa.mp3"                # son de l'anim de victoire (tâche validée)
       - "music/win.mp3"                     # son de l'ouverture du butin (~10 s, 0,4 Mo)
+      # La FÉE. Rare (au plus une fois par mois) mais elle ne PRÉVIENT PAS : quand elle paraît, tout
+      # doit déjà être là. Une vague lazy la ferait apparaître sans musique ni image sur un appareil
+      # récent — dix minutes plus tard elle a disparu, et l'occasion avec elle. D'où `major`.
+      - "images/big/fairy_nobg.png"         # la fée plein écran (cérémonie)
+      - "images/medium/fairy_tile.png"      # sa tuile dans le tiroir, à la place d'une monstre-tâche
+      - "images/big/frost_frame_nobg.png"   # le cadre givré de la cérémonie
+      - "music/fairy.mp3"                   # jouée EN BOUCLE tant que la fée est là (pointer backend)
 
     # lazy (automatique) : les ~151 medium/dt_t_*.png (icônes de tâches par domaine) + le reste.
     blacklist:

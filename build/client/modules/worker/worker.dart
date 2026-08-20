@@ -41,6 +41,7 @@ import '../dvlock/dvlock.dart';
 import '../dvcamera/dvcamera.dart';
 import '../dvmessaging/dvmessaging.dart';
 import '../dvtheme/dvtheme.dart';
+import '../dvstore/dvstore.dart';
 part 'worker_session.dart';
 part 'worker_clan.dart';
 part 'worker_members.dart';
@@ -61,6 +62,8 @@ part 'worker_butin.dart';
 part 'worker_chest.dart';
 part 'worker_notify.dart';
 part 'worker_log.dart';
+part 'worker_store.dart';
+part 'worker_fairy.dart';
 
 
 // -----------------------------------------------------------------------------
@@ -612,6 +615,54 @@ class worker extends DvBeing {
 
     final String _walletDocId = "wallet";
 
+    //-----------------------------------------------------------------------
+    //-- La fée (worker_fairy.dart) ----------------------------------------
+    //-----------------------------------------------------------------------
+    //
+    // Elle vit dans un TROISIÈME document fixe de clans_items, à côté du coffre et du
+    // portefeuille : un seul état de fée par clan, donc un identifiant en dur, donc une écriture
+    // idempotente. Il porte à la fois l'horloge des trente jours, la fenêtre de dix minutes,
+    // l'endroit où elle se tient et les deux cadeaux tirés — deux appareils voient rigoureusement
+    // la même fée, aux mêmes mains.
+    // Ce n'est PAS un item du coffre : le filtre de _loadClanItems l'écarte comme les autres
+    // documents à identifiant fixe (aucun champ `type`, aucun `owner`).
+    final String _fairyDocId  = "fairy";
+
+    // Identifiant de sa TUILE dans le tiroir. Injectée au runtime par dvtiroir.update_additions,
+    // elle n'existe dans aucune config. Sans `__` (réservé aux clones {base}__{uid}), et ne
+    // correspond ni à un domaine ni à un id du catalogue de tâches : aucune collision possible.
+    final String _fairyIconId = "fairy";
+
+    // Ce que le TIROIR doit afficher, en RAM. Il se reconstruit à chaque entrée d'écran et ne peut
+    // pas se payer une lecture cloud à chaque fois : ces trois champs sont sa seule source. Vides
+    // = aucune fée. Rafraîchis au tirage, par la vigilance, et à l'expiration.
+    String _fairyDomain  = "";
+    String _fairyTaskId  = "";   // la monstre-tâche dont elle prend la place
+    String _fairyExpires = "";
+
+    // Les deux cadeaux de la fée EN COURS, figés à la prise et consommés par fairy_page (qui est
+    // tirée par la conf et ne reçoit donc aucun argument). Même procédé que _deathGage.
+    String _fairyGiftLeft  = "";
+    String _fairyGiftRight = "";
+
+    // Gardes de ré-entrance. _fairyTaking : deux taps sur la tuile pendant l'aller-retour réseau
+    // de la prise. _fairyResolving : les deux mains tapées coup sur coup — un seul cadeau.
+    bool _fairyTaking    = false;
+    bool _fairyResolving = false;
+
+    // La musique de la fée tourne EN BOUCLE (elle reste tant qu'on n'a pas choisi), contrairement
+    // à toutes les autres célébrations. Le drapeau évite de re-suspendre l'ambiance, et coupe un
+    // chargement encore en vol pour qu'il n'amorce pas la boucle après coup (cf. _combatSiegeOn).
+    bool _fairyMusicOn = false;
+
+    // Vigilance temps réel sur le doc de la fée : c'est elle qui la fait disparaître chez les
+    // autres dès que l'un du clan l'a touchée. Armée seulement tant qu'une fenêtre est ouverte.
+    DvVigilance? _fairyVigilance;
+
+    // Minuterie des dix minutes. Il n'y a AUCUN cron : la fenêtre est tenue côté client (et toute
+    // lecture recompare `expires_at` à l'heure courante, donc un appareil endormi n'est jamais dupe).
+    Timer? _fairyExpiryTimer;
+
     // Propriétaire sentinelle des items DANS le coffre : ne vaut ni un userId ni un clanId, donc
     // le filtre de _loadClanItems les écarte tout seul.
     final String _butinOwner  = "butin";
@@ -735,9 +786,43 @@ class worker extends DvBeing {
     // clan (un foyer change d'habitudes, la référence doit suivre).
     final int    _chestHistDepth = 20;
 
+    // --- Boutique (dvstore) --------------------------------------------------
+    // Produit sélectionné dans la liste de la boutique, le temps d'ouvrir sa fiche
+    // (même mécanique que _giveItemId pour give_page).
+    String _storeProductId = "";
+
+    // Périodicité choisie sur l'écran d'abonnement : "monthly" ou "yearly". Ce
+    // n'est qu'une préférence d'affichage/achat, jamais un état commercial —
+    // celui-là appartient au serveur.
+    String _storePeriod = "monthly";
+
+    // Achat mis de côté le temps du contrôle parental : dvparentalgate empile son
+    // écran et rappelle worker.store_gate_passed, l'achat ne peut donc pas rester
+    // sur la pile d'appel. Vidé au rappel comme à l'abandon (le suivant l'écrase).
+    String _storePendingBuy = "";
+
+    // Offre associée à l'achat mis de côté, portée avec lui à travers la porte
+    // parentale. null = celle que le serveur juge éligible ; "" = tarif courant
+    // sans aucune offre (reprise après gel : on ne redonne pas l'essai gratuit à
+    // chaque défaut de paiement). Voir dvstore.buy — la distinction est une règle
+    // commerciale, pas une commodité.
+    String? _storePendingOffer;
+
+    // La RAISON d'une venue commerciale (plafond de joueurs atteint, relance
+    // d'impayé) n'est pas une variable de worker : _storeGotoTiers la publie dans
+    // `worker.store.notice`, que `tiers_page` peint en tête d'écran. Une chaîne en
+    // mémoire ici n'appartiendrait qu'à un écran, et l'information vaut mieux que ça.
+
+    // Dernier ratage du banc d'essai (pas de clan sous la main pour envoyer la
+    // relance). Affiché tel quel sur le bandeau de l'écran de scénarios : un banc qui
+    // échouerait en silence est pire que pas de banc du tout — on croirait éprouver
+    // ce qu'on n'éprouve pas. Mémoire seule, remis à zéro à chaque tentative.
+    String _storeBenchError = "";
+
     dvcloud?     get _cloud     => Deva.instance.module("dvcloud")     as dvcloud?;
     dvmessaging? get _messaging => Deva.instance.module("dvmessaging") as dvmessaging?;
     dvcamera?    get _camera    => Deva.instance.module("dvcamera")    as dvcamera?;
+    dvstore?     get _store     => Deva.instance.module("dvstore")     as dvstore?;
 
     worker([super.kwargs]);
 
@@ -773,6 +858,8 @@ class worker extends DvBeing {
                                 _register_chest();
                                 _register_notify();
                                 _register_log();
+                                _register_store();
+                                _register_fairy();
     }
 
     @override

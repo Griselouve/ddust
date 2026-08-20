@@ -1476,6 +1476,14 @@ extension Worker_tasks on worker {
                                     "action": "seltask.$id",
                                 });
                             }
+                            // La FÉE emprunte le même canal, pour la même raison que les tâches
+                            // créées par un chef : c'est le SEUL qui porte une image, et elle n'a
+                            // aucun template en config (elle n'existe que dix minutes par mois).
+                            // Sa monstre-tâche, elle, est masquée par _buildHiddenStatusMap : le
+                            // nombre de tuiles ne bouge pas, la fée prend bien LA PLACE d'un monstre.
+                            if (_fairyTiroirDvid.isNotEmpty) {
+                                (additions[_fairyTiroirDvid] ??= []).add(_fairyAddition);
+                            }
                             return additions;
     }
 

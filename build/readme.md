@@ -40,7 +40,7 @@ La famille est le clan. Les corvées sont les monstres. Le butin est la promesse
 
 ### positionnement
 
-Application mobile B2C familiale, Android en cible principale. Prototype actif en développement, pas encore en store. Monétisation par abonnement envisagée, non décidée. Développée en indépendant.
+Application mobile B2C familiale, Android en cible principale. Prototype actif en développement, pas encore en store. **Monétisation tranchée** : abonnement par clan, cinq paliers indexés sur le nombre de joueurs (1,99 € à 7,99 €/mois), essai gratuit de 14 jours — l'app se lance payante. Développée en indépendant.
 
 ---
 
@@ -186,7 +186,7 @@ La crypto est générique et vit dans le module `dvvirtuallobby` (`generatePin`/
 
 ### boucle de combat (sélection et exécution d'une tâche)
 
-C'est la boucle de jeu fondamentale, accessible depuis le `dashboard`. La taskbar comporte cinq onglets : boutique, clan, **combat**, personnage, inventaire. Combat est le gameplay central ; personnage et clan affichent jauges et roster (sections 8 et 9) ; l'inventaire (« Items ») est ouvert à **tous** les joueurs — chacun y voit ses objets et sa bourse, le coffre du clan restant filtré aux admins (`_pushClanItems`) ; la boutique reste un écran-coquille (voir section 17) — les **packs de domaines** seront le premier contenu de la boutique, la liste des domaines n'étant pas extensible par le chef de clan (sections 7 et 15).
+C'est la boucle de jeu fondamentale, accessible depuis le `dashboard`. La taskbar comporte cinq onglets : boutique, clan, **combat**, personnage, inventaire. Combat est le gameplay central ; personnage et clan affichent jauges et roster (sections 8 et 9) ; l'inventaire (« Items ») est ouvert à **tous** les joueurs — chacun y voit ses objets et sa bourse, le coffre du clan restant filtré aux admins (`_pushClanItems`) ; la boutique ne porte plus que les produits à l'unité — son étal est vide au lancement, les **packs de domaines** en seront le premier contenu vendu, la liste des domaines n'étant pas extensible par le chef de clan (sections 7 et 15). Le choix du **palier d'abonnement** n'y vit pas : il a son propre écran (`tiers_page`), qui ne s'ouvre qu'au moment où le clan bute sur la capacité de sa cotisation, ou sur relance d'impayé.
 
 1. L'onglet **combat** affiche un tiroir (`DvTiroir`) listant les domaines de la maison dont `domains.{id}.enabled` est vrai — l'état issu du decisiontree. À l'`on_combat_appear`, le worker rafraîchit les statuts des tâches (`_refreshTaskStatuses`) : les overlays sont relus à chaque affichage, pas synchronisés en continu. Le tiroir trie ses entrées actives d'abord, grisées ensuite (comportement `DvTiroir`, re-tri à chaque rafraîchissement).
 2. **Sélection d'un domaine** : chaque domaine ouvre son sous-tiroir `{domaine}_tasks` listant ses feuilles, chacune une vraie tâche prenable. Les 19 domaines de `_taskDomains` (`worker.dart`) sont câblés sur la bibliothèque `tasks-base-global.yml` via deux handlers génériques par préfixe — `seldomain.{domaine}` et `seltask.{taskId}` — donc aucun code spécifique par domaine. Chaque tiroir passe par un `selector` (worker.domain_selector / task_selector) qui ne renvoie pour l'instant que l'option seule (`menu_enabled: false` → le tap exécute directement) : point d'extension prêt pour des menus contextuels sur les tâches. Un joueur mort (0 PV) ne peut ni ouvrir un sous-tiroir ni prendre une tâche (section 9).
@@ -709,9 +709,11 @@ La Cloud Function `countSessions` s'exécute avec le service account `ddust-back
 
 ### documents CGU
 
-Six fichiers HTML dans `legal/documents/` : `eu-{a|k}-{fr|en|es}-cgu-v1.html`. Uploadés dans GCS par `pudocuments`. Le module `dvdocuments` sélectionne le bon fichier selon `(region, legal_state, lang)` et l'affiche dans l'app. La version mineure (`k`) est rédigée dans un langage accessible ; la version adulte inclut les mentions de responsabilité parentale.
+`legal/documents/` contient un fichier HTML par tuple `{eu|us}-{a|k}-{fr|en|es}-{cgu|privacy}-vN.html`, toutes versions confondues. **En vigueur** : CGU **EU v5 / US v3**, privacy **EU v3 / US v2** — `pudocuments` les uploade dans GCS et ne sert que le `max` de chaque tuple. Le module `dvdocuments` sélectionne le bon fichier selon `(region, legal_state, lang)`. La version mineure (`k`) est rédigée dans un langage accessible ; la version adulte inclut les mentions de responsabilité parentale.
 
 L'acceptance est cochée par l'utilisateur et tracée dans `steps.cgu` avec timestamp et device ID.
+
+Seules les **CGU** passent par le flux d'acceptation (`documents.acceptance` dans `screens_meta.yml`). La **politique de confidentialité** n'est pas un document acceptable : elle informe, elle n'engage pas. Elle est consultable dans l'app par l'option « Mes données » du kebab de l'écran Personnage (`worker.open_privacy` → `documents.open_doc` sans suffixe, donc dans l'état légal de la session).
 
 ### consentement parental d'adhésion
 
@@ -752,7 +754,7 @@ Le conte du butin (section 10) élargit ce périmètre : à la demande explicite
 
 ### conformité Google Play
 
-Analytics désactivé pour conformité Family Policy. Pas de collecte d'ID publicitaires. Suppression de compte autonome (exigée par le Play Store) : page web `hosting/web/delete-account/` (https://dvddust.web.app/delete-account/) **et** option in-app (menu kebab de l'écran Personnage).
+Analytics désactivé pour conformité Family Policy. Pas de collecte d'ID publicitaires. Suppression de compte autonome (exigée par le Play Store) : page web `hosting/web/delete-account/` (https://donjons.grisloup.com/delete-account/) **et** option in-app (menu kebab de l'écran Personnage).
 
 Le dossier de sous-traitance RGPD — adhésion au « DPA Google » (CDPA + Firebase DPST), registre art. 30, annexe Data safety — est dans `legal/dpa.md`. Les déclarations Play Console (DPA, Data safety, fiche du store, public cible, IARC, accès de revue, OAuth/Family Link) sont préparées dans `playstore.md`.
 
@@ -805,7 +807,7 @@ La boucle complète « tâche → preuve → verdict croisé → XP → niveau �
 - **Préférences et IA** — écran de préférences utilisateur (choix de la langue après l'onboarding), toggle IA global (propositions toutes faites en remplacement quand l'IA est coupée).
 - **Économie de jeu** — le plus gros volume : or, boutique à reset hebdomadaire, loot, quêtes, potions, objets, classes, faveurs, succès, saisons. C'est aussi là qu'arrivent les **packs de domaines** : les domaines supplémentaires sont du contenu vendu, jamais créé par le chef de clan (sections 7 et 15).
 - **Multitenancy** — changement de clan / rejoindre un autre clan, clans multiples, suppressions en cascade.
-- **Monétisation et légal** — abonnements (tiers, prorations), défauts de paiement (grace/hold/locked/deleted), CGU/CGV définitives (validation juridique) et AIPD avant production. Faits : suppression de compte (page web `delete-account` **et** option in-app), politiques de confidentialité mineurs (`legal/documents/*-k-*-privacy`), dossier DPA (`legal/dpa.md`), dossier store (`playstore.md`).
+- **Monétisation et légal** — restent l'offre fondateurs et les crédits de mois, le parrainage, les CGU/CGV définitives (validation juridique) et l'AIPD avant production, plus le choix fin de l'offre et du base plan à l'achat (API `in_app_purchase_android`). Faits : **socle de monétisation complet** (modules `dvstore` et `pustore` — vérification serveur, RTDN, balayage du cycle de défaut de paiement, cinq écrans, achats personnels et bénéfice collectif par clan), suppression de compte (page web `delete-account` **et** option in-app), politiques de confidentialité mineurs (`legal/documents/*-k-*-privacy`), dossier DPA (`legal/dpa.md`), dossier store (`playstore.md`).
 - **Finitions onboarding** — validation d'âge < 13 ans, écran `kid_wants_clan` à remplacer, nom du clan dans la bannière d'invitation. *(Le flux « je n'ai pas le QR code » est câblé : invitation à distance par lien chiffré par PIN — voir « inviter/rejoindre à distance ».)*
 - **Assets/UI** — reclasser les icônes de menu (+, show, hide…) dans le gabarit `small` de l'imgshaking.
 

@@ -67,6 +67,12 @@ extension Worker_session on worker {
                                 // drapeau+nom du module dvlang, ancré sous le bouton kebab.
                                 ActionRegistry.register("worker.open_lang_menu",            open_lang_menu);
 
+                                // Politique de confidentialité (option kebab Personnage) : le document est
+                                // publié par pudocuments au même titre que les CGU, mais il ne passe par
+                                // aucun flux d'acceptation — sans cette option il resterait injoignable
+                                // depuis l'app, alors que le site vitrine annonce le contraire.
+                                ActionRegistry.register("worker.open_privacy",              open_privacy);
+
                                 ActionRegistry.register("worker.open_delete_account",       open_delete_account);
 
                                 ActionRegistry.register("worker.on_delete_account_next",    on_delete_account_next);
@@ -1134,9 +1140,42 @@ extension Worker_session on worker {
 
     // Selector du kebab Personnage : masque l'option de suppression pendant l'impersonation
     // (providerUid = admin → on ne veut pas supprimer le compte admin depuis la fiche d'un autre).
+    // Ouvre la politique de confidentialité dans le navigateur du système. Aucun suffixe
+    // @<legalstate> : l'état légal de la session s'applique, un mineur reçoit donc la version
+    // enfant et un adulte la version adulte, dans la région et la langue de sa session.
+    Future<void> open_privacy(dynamic caller, dynamic event) async {
+
+                                await ActionRegistry.get("documents.open_doc")?.call(null, "privacy");
+    }
+
     Future<List<String>> perso_settings_selector(dynamic caller, dynamic data) async {
 
                                 final options = <String>["my_log", "tutorials", "change_lang"];
+
+                                // Rappels de relance : une seule des deux options, selon l'état courant.
+                                // Lecture directe plutôt que cache : un menu s'ouvre rarement, et un
+                                // réglage qui affiche l'inverse de ce qu'il vaut est pire que tout —
+                                // l'utilisateur croirait avoir coupé ce qu'il vient de rallumer.
+                                // Illisible (hors clan, réseau) : on n'affiche NI l'une NI l'autre plutôt
+                                // que de deviner.
+                                try {
+                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final session    = await _readSession(region);
+                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (clanId.isNotEmpty && clanSecret.isNotEmpty && _userId.isNotEmpty) {
+                                        final pdoc = await _cloud?.read(
+                                            "workers", "clans_players/$clanId/players", _userId,
+                                            ownerId: clanSecret, region: region);
+                                        if (pdoc != null) {
+                                            options.add(pdoc.get("nudges") == false ? "nudges_on" : "nudges_off");
+                                        }
+                                    }
+                                } catch (e) {
+                                    deva_log("warning", "[pulse] perso_settings_selector : rappels illisibles ($e)");
+                                }
+
+                                options.add("privacy");
                                 if (!_impersonating) options.add("delete_account");
                                 options.add("logout");
                                 return options;

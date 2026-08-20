@@ -65,10 +65,47 @@ extension Worker_screen_tiroir on worker {
     Future<void> on_dashboard_appear(dynamic caller, dynamic event) async {
 
                                 _stopCombatSiege();   // anti-fuite : coupe le son de combat si on quitte via la taskbar
+
+                                // CLAN GELÉ (J50 du calendrier de défaut de paiement) : le donjon se
+                                // ferme, ici et une seule fois. Le dashboard est le passage obligé de
+                                // tout joueur enrôlé — le garder suffit à garder les 25 écrans de jeu,
+                                // sans en instrumenter aucun.
+                                //
+                                // C'est la SEULE porte fermée du jeu, et elle ne l'est qu'au terme de
+                                // 50 jours de relances adressées aux adultes. Avant cela, on entre
+                                // toujours : ni l'essai fini, ni l'impayé en cours ne barrent quoi que
+                                // ce soit — c'est la page des paliers qui porte l'offre, et le bandeau qui
+                                // prévient. Ce qui justifie de fermer au bout du compte n'est pas la
+                                // sanction, c'est le coût : Firestore, Storage et VertexAI sont
+                                // facturés à l'éditeur, et un clan qui ne paie plus depuis deux mois
+                                // continuait de les consommer.
+                                if (await _storeLocked()) {
+                                    deva_log("info", "[store] clan gelé — donjon fermé");
+                                    DvOrb.navigate_reset("locked_page");
+                                    return;
+                                }
+
+                                // Rappel d'impayé : doux, réservé aux chefs de clan, et seulement une
+                                // fois le cycle de relance entamé côté serveur. Évalué ICI pour la même
+                                // raison — un seul appel peuple les écrans déjà montés comme ceux qui
+                                // naîtront ensuite.
+                                await _evaluateDunning();
+
                                 // Arme la vigilance temps réel du doc joueur : à partir d'ici (tout joueur enrôlé
                                 // passe par le dashboard) la montée de niveau est détectée sur n'importe quel écran,
                                 // pas seulement à l'affichage de dashboard/personnage. Idempotent.
                                 await _ensurePlayerVigilance();
+
+                                // LA FÉE. Le dé est jeté ici, et nulle part ailleurs : le dashboard est le
+                                // seul écran par lequel passe TOUT joueur enrôlé, et c'est le plus fréquenté.
+                                // Placé AVANT le `return` de la bienvenue clan (plus bas) pour que ce chemin-là
+                                // arme la vigilance lui aussi.
+                                // Aucun risque de collision avec les célébrations qui suivent : le tirage
+                                // n'affiche rien, il écrit un document. Ce qui se voit, la tuile, n'apparaît
+                                // que dans un tiroir de domaine — deux écrans plus loin.
+                                // _rollFairy avale toutes ses exceptions : l'écran d'accueil du jeu ne doit
+                                // pas dépendre du bon vouloir d'une fée.
+                                await _rollFairy();
 
                                 // 1re arrivée après création/rejoint : la bienvenue clan, s'il y en a une.
                                 final welcomed = await _playPendingClanWelcome();
@@ -142,7 +179,12 @@ extension Worker_screen_tiroir on worker {
                                 ActionRegistry.get("dvtiroir.set_dimmed_statuses")?.call(null, _adminMode
                                     ? const ["adm_hidden"]
                                     : const ["assigned", "validating", "dead"]);
-                                ActionRegistry.get("dvtiroir.set_hidden_statuses")?.call(null, const ["adm_hidden"]);
+                                // `fairy_hidden` : la monstre-tâche dont la fée a pris la place. Masquée
+                                // exactement comme une tâche cachée par un chef, mais sous un statut à
+                                // elle — en mode révélation, un chef doit pouvoir distinguer « cachée par
+                                // moi » (croix rouge) de « momentanément remplacée par une fée ».
+                                ActionRegistry.get("dvtiroir.set_hidden_statuses")?.call(null,
+                                    const ["adm_hidden", "fairy_hidden"]);
                                 ActionRegistry.get("dvtiroir.set_reveal_mode")?.call(null, _adminMode);
                                 _notifyTiroirExtras();      // tuile « + » présente en admin, absente en jeu
     }
@@ -234,6 +276,12 @@ extension Worker_screen_tiroir on worker {
                                         if (!_flagTrue(tasks.get("${_originalOf(id)}.visible"))) out[id] = "adm_hidden";
                                     }
                                 }
+                                // La monstre-tâche que la FÉE remplace, le temps de sa visite. Statut
+                                // distinct d'adm_hidden : elle n'est pas cachée par un chef, et le mode
+                                // révélation doit pouvoir les distinguer. Posé EN DERNIER — si la tâche
+                                // tirée était par ailleurs invisible, la fée n'aurait pas dû la choisir
+                                // (_pickFairyTask filtre sur visible), mais l'ordre lève le doute.
+                                if (_fairyHiddenTask.isNotEmpty) out[_fairyHiddenTask] = "fairy_hidden";
                                 return out;
     }
 

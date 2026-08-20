@@ -147,6 +147,50 @@ conf:
       routes:
         default: item_view_page
 
+    # --- Boutique (dvstore) ---------------------------------------------------
+    # Ces écrans s'atteignent par navigate_new (taskbar, boutons, worker) : aucun
+    # n'est aiguillé par dvsteps, et les entrées ci-dessous ne servent donc qu'à les
+    # déclarer.
+    #
+    # Le routeur `store.gate.<feature>` — qui rend allowed | paywall | locked —
+    # N'EST câblé NULLE PART, et c'est délibéré : le jeu ne se ferme pour aucun état
+    # commercial. On laisse toujours entrer dans le donjon, et c'est la page des paliers qui
+    # porte l'offre — les familles y vont d'elles-mêmes vérifier ou souscrire. Un
+    # écran imposé au lancement dirait la même chose, mais en barrant la porte.
+    #
+    # Le jour où une fonctionnalité sera vendue à l'unité (les validations
+    # automatiques, les packs de domaines), c'est ici qu'elle se protégera :
+    #
+    #   <écran d'où l'on part>:
+    #     routeur: store.gate.auto_validation
+    #     navigate: new
+    #     routes:
+    #       allowed: <écran de la fonctionnalité>
+    #       paywall: shop
+    #       locked:  locked_page
+    #
+    # ⚠ La clef d'une entrée dvsteps est l'écran COURANT, pas la destination : le
+    # routeur se pose sur l'écran d'où le joueur part, jamais sur celui qu'il veut
+    # atteindre. Une entrée et une clef dans `grants` au catalogue suffiront — sans
+    # une ligne de Dart.
+    store_product_page:
+      navigate: new
+      routes:
+        default: store_product_page
+
+    # Page des paliers. Ouverte par worker._storeGotoTiers, qui publie d'abord la
+    # RAISON de la venue — jamais par un `navigate_new.tiers_page` en dur, qui
+    # laisserait le bandeau de la visite précédente en place.
+    tiers_page:
+      navigate: new
+      routes:
+        default: tiers_page
+
+    locked_page:
+      navigate: new
+      routes:
+        default: locked_page
+
     combat:
       navigate: new
       routes:

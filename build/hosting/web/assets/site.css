@@ -95,6 +95,29 @@ img, video { max-width: 100%; height: auto; }
   border: 1px solid var(--accent-soft); border-radius: 999px; padding: 4px 14px;
 }
 
+/* ---- Inscription aux betas ------------------------------------------ */
+/* .btn a été écrit pour des <a> : un <button> n'hérite ni de la police du
+   document ni du curseur de la main, il faut les redonner explicitement. */
+button.btn { font: inherit; cursor: pointer; }
+button.btn[disabled] { opacity: .6; cursor: default; }
+
+.beta { text-align: center; margin: 44px 0; }
+.beta h3 { margin-top: 0; }
+.beta form { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 18px 0 0; }
+.beta input[type="email"] {
+  background: rgba(0,0,0,.3); color: var(--ink); font: inherit;
+  border: 1px solid var(--accent-soft); border-radius: 10px;
+  padding: 13px 14px; min-width: 260px; flex: 0 1 320px;
+}
+.beta input[type="email"]:focus { outline: none; border-color: var(--accent); }
+.beta input[type="email"]::placeholder { color: var(--muted); }
+/* Champ piège : hors de l'écran plutôt qu'en display:none, pour rester
+   invisible à l'œil mais bien rempli par les robots qui remplissent tout. */
+.beta .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.beta .msg { margin: 16px auto 0; max-width: 620px; }
+.beta .msg.err { color: var(--danger); }
+.beta .note { font-size: .85rem; margin: 14px 0 0; }
+
 /* ---- Cartes et grilles ---------------------------------------------- */
 .card {
   background: var(--card); border: 1px solid rgba(201,162,75,.14);

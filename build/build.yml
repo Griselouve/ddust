@@ -24,12 +24,24 @@ build:
           # Sans cette purge, un clan recréé après un reset retrouverait l'abonnement du
           # précédent : état payant, crédits de mois et timers de défaut de paiement
           # ressuscités sur des données de jeu vides.
-          - clans_billing
+          - clans_store
           - userindexes
           - users
       - project: dvddust
         database: us-workers
         collections: *worker_collections
+      # Registre PERSONNEL des achats (base dédiée du module pustore) : un document par
+      # achat, rangé par compte payeur, plus les verrous de jetons Play. À purger avec le
+      # reste — sinon un jeton déjà réclamé refuserait d'être rejoué sur un clan neuf, et
+      # le banc d'essai deviendrait inutilisable au deuxième passage.
+      - project: dvddust
+        database: eu-store
+        collections: &store_collections
+          - store_purchases
+          - store_tokens
+      - project: dvddust
+        database: us-store
+        collections: *store_collections
       - project: dvddust
         database: eu-virtuallobby
         collections: &lobby_collections

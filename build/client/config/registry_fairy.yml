@@ -1,0 +1,157 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry — l'écran de la FÉE.
+# ---
+# --- La fée prend la place d'une monstre-tâche dans un tiroir de domaine, au plus
+# --- une fois par mois et pendant dix minutes seulement. Qui la touche arrive ici.
+# ---
+# --- Cet écran est le SEUL du jeu qu'on ne quitte pas sans avoir agi : ni flèche
+# --- retour, ni barre de titre, ni retour système. Ce n'est pas de la rétention,
+# --- c'est la nature de la scène — la fée tend deux cadeaux, il faut en prendre un.
+# --- Le contenu (scènes dvflame, libellés) vit dans le THÈME ; ici, seulement où
+# --- les choses se posent.
+# -----------------------------------------------------------------------------
+conf:
+  registry:
+    #//------------------------------- Écran de la fée ---------------------------------------
+
+    # `show_appbar: false` : c'est le seul écran du jeu sans barre de titre. L'animation
+    # s'ouvre sur DEUX SECONDES DE NOIR TOTAL — une barre ambre en haut aurait suffi à
+    # ruiner l'effet. `block_back` + `show_back: false` : cf. l'en-tête du fichier.
+    #
+    # Aucun `commons/splash_background` dans la liste : le fond de cet écran, c'est le
+    # voile noir de la scène elle-même, qui naît déjà opaque (cf. l'objet `noir`, dont
+    # l'opacité vaut 1 à la naissance et n'est amenée là par aucun acte).
+    fairy_page:
+      masks:
+        - page
+      show_appbar: false
+      show_back: false
+      block_back: true
+      actions:
+        appear: worker.on_fairy_appear
+      registry:
+        - fairy_page/scene
+        - fairy_page/glow_left
+        - fairy_page/glow_right
+        - fairy_page/gift_left
+        - fairy_page/gift_right
+
+    # La cérémonie entière : noir, neige qui flotte, givre, lumière centrale, et la fée.
+    # `interactive` reste au défaut (false) → la vue laisse passer les taps (IgnorePointer),
+    # ce sont les deux libellés déclarés APRÈS qui les reçoivent.
+    # Démarrée par le worker (dvflame.start.fairy, dans on_fairy_appear) et non par
+    # `autostart` : la scène est mortelle, et il faut qu'elle reparte à zéro à chaque venue.
+    fairy_page/scene:
+      class: DvSceneView
+      layer: content
+      scene: fairy
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        border: false
+
+    # Halo vert derrière chaque cadeau — DEUX VUES DE LA MÊME SCÈNE `fairyglow` (dvflame
+    # partage une scène entre toutes ses vues : un seul modèle, deux rendus). Déclarés AVANT
+    # les libellés, donc dessinés dessous : c'est le halo qui fait « luire » le texte.
+    #
+    # Position calée sur les mains de la fée. L'image est CARRÉE et cadrée RATIO_IN dans un
+    # écran portrait : elle occupe toute la largeur et se centre verticalement, soit environ
+    # y ∈ [26 %, 74 %]. Les deux coffrets sont à 26 % et 71 % en x, 37 % en y de l'image →
+    # 26 % + 0,37 × 48 % ≈ 44 % de l'écran en y. À réajuster à l'œil sur un vrai téléphone.
+    #
+    # Le `y` de ces deux halos (34 %) est aussi celui des zones cliquables déclarées plus bas :
+    # les deux doivent bouger ENSEMBLE. Ce qui luit doit être ce qui se tape — c'est tout le
+    # sujet du commentaire de gift_left.
+    fairy_page/glow_left:
+      class: DvSceneView
+      layer: overlay
+      scene: fairyglow
+      shape:
+        x: 9%
+        y: 34%
+        w: 34%
+        h: 20%
+        visible: false
+        border: false
+
+    fairy_page/glow_right:
+      class: DvSceneView
+      layer: overlay
+      scene: fairyglow
+      shape:
+        x: 54%
+        y: 34%
+        w: 34%
+        h: 20%
+        visible: false
+        border: false
+
+    # Les deux cadeaux. Vert lumineux (#69F0AE, celui du halo) sur fond transparent : aucune
+    # `background_color`, aucune bordure — ce sont des zones de l'image, pas des boutons posés
+    # dessus. Le libellé vient de `fairy.gifts.<id>.label` et est posé au runtime par
+    # worker.on_fairy_appear (les deux cadeaux sont tirés à l'apparition et partagés par tout
+    # le clan, ils ne peuvent donc pas être écrits en conf).
+    #
+    # `visible: false` à la naissance : ils n'apparaissent qu'une fois la fée entièrement
+    # révélée — worker.on_fairy_ready, tiré par le `on_end` du DERNIER ACTE de la scène.
+    # Ancré sur l'acte et jamais sur un délai en dur : retoucher les durées de l'animation
+    # n'oblige à toucher à rien ici (même idiome que worker.hide_skull / show_gameover).
+    #
+    # `layer: popup` (au-dessus d'`overlay`, donc du halo) et déclarés en dernier : rien ne
+    # peut se dessiner par-dessus, ni leur voler le tap.
+    #
+    # >>> LA BOÎTE COMMENCE À LA MAIN, PAS AU TEXTE. Ce qui SE DONNE, à l'écran, c'est le
+    # coffret dans la main de la fée — c'est là qu'on tape spontanément, et le texte vert n'est
+    # que sa légende. Une boîte qui ne couvrirait que le texte serait un piège : le tap sur le
+    # coffret tomberait dans le vide, sans que rien n'explique pourquoi.
+    # La boîte part donc du HAUT DU HALO (y: 34 %, exactement le `y` de glow_*) et descend
+    # jusque sous le texte : main, halo et légende ne font qu'une seule cible.
+    # `valign: BOTTOM` garde le texte en bas de cette grande boîte, sous la main — sans lui,
+    # `CENTER` le remonterait à 51 %, c'est-à-dire PAR-DESSUS le coffret qu'il désigne.
+    # Le halo, lui, laisse passer les taps (DvSceneView est IgnorePointer par défaut) : c'est
+    # bien ce label-ci, en `popup`, qui les reçoit tous.
+    # Les deux boîtes ne se touchent pas (6-46 % et 54-94 %) : la bande centrale, le corps de
+    # la fée, n'est cliquable par personne — aucun choix ne peut partir d'un tap distrait.
+    fairy_page/gift_left:
+      class: DvLabel
+      layer: popup
+      shape:
+        x: 6%
+        y: 34%
+        w: 40%
+        h: 34%
+        label: ""
+        text_align: CENTER
+        valign: BOTTOM
+        font_size: 17.0
+        font_color: "#69F0AE"
+        font_weight: bold
+        visible: false
+        border: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_fairy_choose_left
+
+    fairy_page/gift_right:
+      class: DvLabel
+      layer: popup
+      shape:
+        x: 54%
+        y: 34%
+        w: 40%
+        h: 34%
+        label: ""
+        text_align: CENTER
+        valign: BOTTOM
+        font_size: 17.0
+        font_color: "#69F0AE"
+        font_weight: bold
+        visible: false
+        border: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_fairy_choose_right

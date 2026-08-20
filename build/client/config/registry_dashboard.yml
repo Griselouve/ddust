@@ -60,7 +60,6 @@ conf:
         - profile/separator
         - profile/lang_label
         - profile/lang_button
-        - profile/reset_button
         - profile/logout_button
         - profile/mydata_button
 
@@ -93,16 +92,10 @@ conf:
         events:
           tap: true
 
-    profile/reset_button:
-      masks:
-        - commons/btn_profile
-      shape:
-        y: 51%
-        label: "@@@T:reset@@@"
-        events:
-          tap: true
-        actions:
-          tap: worker.do_reset
+    # `profile/reset_button` (→ worker.do_reset : suppression de la session régionale puis
+    # logout) a été retiré du bundle de publication. C'était un outil de développement, sans
+    # confirmation, qui effaçait l'onboarding du joueur d'un seul tap. L'action `worker.do_reset`
+    # reste enregistrée côté worker pour les besoins de mise au point.
 
     profile/logout_button:
       masks:
@@ -123,90 +116,14 @@ conf:
         label: "@@@T:my_data@@@"
         events:
           tap: true
+        actions:
+          tap: worker.open_privacy
 
-    #//------------------------------- Dashboard2 (dev/test) ---------------------------------
+    # L'écran `dashboard2` (dev/test : do_count_sessions, do_test_messaging) a été retiré du
+    # bundle de publication. Il n'était référencé nulle part dans conf.registry.orb.registry,
+    # donc inatteignable, mais il partait quand même dans l'AAB.
 
-    dashboard2:
-      masks:
-        - page_taskbar
-      title: "@@@T:dashboard@@@"
-      registry:
-        - commons/splash_background
-        - lang/flag_icon
-        - dashboard2/ready
-        - dashboard2/test_messaging
-
-    dashboard2/ready:
-      masks:
-        - commons/btn_wide
-      shape:
-        y: 55%
-        label: "@@@T:ready@@@"
-        events:
-          tap: true
-        freezing_actions:
-          tap: worker.do_count_sessions
-
-    dashboard2/test_messaging:
-      masks:
-        - commons/btn_wide
-      shape:
-        y: 67%
-        label: "@@@T:test_messaging@@@"
-        events:
-          tap: true
-        freezing_actions:
-          tap: worker.do_test_messaging
-
-    #//------------------------------- Shop Screen ---------------------------------
-
-    shop:
-      masks:
-        - page_taskbar
-      show_appbar: true
-      show_back: false
-      title: "@@@T:Boutique@@@"
-      # Anti-fuite : si le joueur quitte le combat via la taskbar (sans cliquer vaincu/retraite),
-      # on coupe la boucle batte_swords à l'arrivée sur cet écran ET on rend l'ambiance
-      # (via _stopCombatSiege, gardé).
-      actions:
-        appear: worker.on_leave_combat_tab
-      registry:
-        - commons/splash_background
-        - shop/icon
-        - shop/label
-        - shop/coming_soon
-
-    shop/coming_soon:
-      masks:
-        - commons/btn_wide
-      layer: content
-      shape:
-        x: 5%
-        y: 30%
-        w: 90%
-        h: 50%
-        font_size: 14.0
-        text_align: CENTER
-        label: "@@@T:coming_soon@@@"
-
-    shop/icon:
-      class: DvLabel
-      shape:
-        x: 35%
-        w: 30%
-        y: 0%
-        h: 20%
-
-    shop/label:
-      mask: commons/intro_text
-      layer: content
-      shape:
-        x: 5%
-        y: 16%
-        w: 90%
-        h: 10%
-        text_align: CENTER
-        label: "@@@T:shopname@@@"
-        border: true
+    # L'écran `shop` a quitté ce fragment pour registry_store.yml, avec les autres écrans
+    # de la boutique (abonnement, fiche produit, mes achats, clan gelé) : il n'est plus une
+    # coquille « bientôt disponible » mais une liste alimentée par dvstore.
 

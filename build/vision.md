@@ -487,6 +487,53 @@ La notification suivante peut envoyer le parent directement vers l'écran de but
 - lorsqu'un loot est parvenu à sa fin de vie
 - lorsqu'une tache a été respawn ou arrive à 100% de ses points de vie
 
+### Les relances d'engagement (livré)
+
+Les listes ci-dessus sont des notifications d'ÉVÉNEMENT : il s'est passé quelque chose,
+on le dit. Elles supposent toutes une famille qui joue. Celles-ci répondent au problème
+inverse — une famille qui ne joue plus — et c'est pourquoi elles vivent au SERVEUR
+(`pulse_sweeper`, une passe par jour et par région) : un clan qui décroche est justement
+un clan que plus personne n'ouvre, aucun client ne peut détecter son propre silence.
+
+Deux principes portent tout le reste :
+
+- **l'unité de relance est le CLAN, pas l'événement.** Trois enfants avec trois
+  validations en souffrance donnent UNE notification au parent, pas trois ;
+- **la condition d'entrée est le SILENCE, pas l'événement.** Un parent qui ouvre l'app
+  tous les jours et laisse traîner une validation fait un choix. Le relancer serait du
+  harcèlement. Une seule connexion de n'importe quel membre remet tous les compteurs à
+  zéro : une famille vivante ne reçoit jamais rien, par construction.
+
+**Aux adultes** (les chefs), un motif par passe, aux jours 2, 5 et 12 de silence, puis
+plus rien — trois messages ignorés SONT une réponse :
+
+- le donjon est vide (aucune quête configurée) ou prêt mais jamais visité ;
+- une quête attend un verdict depuis deux jours (relance à TROIS BOUTONS : on tranche
+  sans ouvrir l'app) ;
+- le coffre déborde et n'a pas été ouvert depuis trois semaines ;
+- le coffre est vide alors que le clan joue.
+
+**Aux enfants**, jamais d'administration de clan, jamais rien de monétaire — c'est la
+règle de routage, et elle ne souffre pas d'exception :
+
+- **le boss** : après une semaine de silence, le donjon convoque lui-même un monstre.
+  Il EXISTE — le serveur pose un vrai `recommended` sur une vraie tâche dormante avant
+  d'annoncer quoi que ce soit, et l'enfant qui ouvre l'app trouve la quête bonifiée qu'on
+  lui a promise. Un par clan et par quinzaine au maximum : le bonus d'XP est réel, un boss
+  automatique trop fréquent déréglerait la progression et viderait de son sens la
+  recommandation d'un chef ;
+- **le retour du clan** : les autres ont repris, pas lui. Le texte ne nomme ni ne compte
+  jamais les autres membres, et parle de la place gardée plutôt que de l'absence
+  remarquée — désigner un enfant comme le retardataire de la fratrie transformerait le
+  jeu en instrument de comparaison entre frères et sœurs.
+
+Les garde-fous : silence total sur un clan en défaut de paiement (il reçoit déjà les
+relances de cotisation, et une famille en difficulté n'est pas une famille qui se
+désintéresse), sur un clan gelé, sur un joueur déclaré hors-ligne, et sur quiconque a
+coupé les rappels — réglage « Ne plus me faire signe », à un tap dans le kebab
+Personnage, qu'un chef peut aussi poser pour un enfant depuis le roster. Un refus qu'il
+faut chercher n'est pas un refus.
+
 --------------------------------------------------------------------------------------------------
 
 ## Préférences
@@ -495,22 +542,72 @@ Selection du language (module existant dvlang)
 
 --------------------------------------------------------------------------------------------------
 
-## Monetisation (modèle retenu 2026-07-07)
+## Monetisation (modèle retenu 2026-07-07, grille refondue 2026-08-20)
 
 ### Jeu de Base
 
 Gratuit les 14 premiers jours, quelque soit la taille du clan.
 (Un mois complet laissait passer le pic d'enthousiasme avant le premier paiement.)
-Abonnement de 2.99 euros par mois, 29.99 euros par an, pour max 5 enfants, max 4 adultes
-Abonnement de 4.99 euros par mois, 49.99 euros par an, permet de passer en illimité
-(Le palier 1.99 euros a été supprimé : entrée à 2.99 euros pour l'ancrage de prix.
-Les plans annuels correspondent à ~2 mois offerts, -17%.)
+
+Cinq paliers, qui ne se distinguent QUE par le nombre de joueurs :
+
+| Palier | Joueurs | Part des clans | Mensuel | Annuel |
+|---|---|---|---|---|
+| Essentiel | 1-2 | 40% | 1.99 € | 19.99 € |
+| Clan | 3-4 | 30% | 2.99 € | 24.99 € |
+| Tribu | 5-7 | 25% | 4.99 € | 39.99 € |
+| Guilde | 8-12 | 4% | 5.99 € | 49.99 € |
+| Royaume | 13+ | 1% | 7.99 € | 64.99 € |
+
+Les bornes suivent la **démographie réelle des foyers**, pas une progression régulière : d'où
+Clan qui s'arrête à 4 et Tribu à 7. C'est le paramètre le plus sensible de toute la grille —
+un cran de décalage vaut ±10% de plateau, cinq fois l'effet du barème lui-même.
+
+**Un joueur est un joueur.** Le décompte porte sur les membres actifs du clan, admins
+compris, sans distinction d'enfant ni d'adulte. Un membre révoqué ou parti libère sa
+place ; déclarer un mineur majeur ne change rien au décompte.
+
+C'est le point de la refonte. La grille précédente (2.99 € pour « 5 enfants et 4 adultes »,
+4.99 € illimité) portait **deux plafonds distincts**, ce qui obligeait à savoir de quelle
+nature était chaque membre pour dire s'il restait de la place. Une famille ne pouvait pas
+prévoir son propre palier (l'admin joue-t-il ? compte-t-il ? et l'ado de 17 ans ?), et le
+code ne pouvait pas contrôler proprement un candidat dont l'âge n'était pas encore connu.
+
+Le palier 1.99 € avait été supprimé en juillet 2026 au profit d'une entrée à 2.99 € pour
+l'ancrage de prix. **Cette décision est renversée** : la grille ne se règle plus sur un
+ancrage mais sur la taille du foyer, et les clans de 1-2 joueurs ne sont pas une minorité à
+qui l'on consent un rabais — c'est **40 % des cas**, le palier le plus souscrit. Les remises
+annuelles vont de -16 % (Essentiel) à -33 % (Tribu), soit 2 à 4 mois offerts selon le palier.
+
+**Effet sur le revenu : quasi nul (+3 %).** L'entrée à 1.99 € coûte autant que les paliers
+hauts rapportent. C'est une refonte de lisibilité, pas de tarif, et elle doit être jugée
+comme telle — détail et sensibilité dans `revenus.md`.
 
 Si un adulte crée plusieurs clan, il doit alors payer les abonnements pour chaque clan.
 
 A tout moment, un chef de clan peut upgrader ou downgrader l'abonnement de son (ses) clan(s) :
 CHARGE_PRORATED_PRICE pour upgrade
 DEFERRED pour downgrade
+
+### Où se choisit le palier
+
+**Pas dans la boutique.** La boutique est un étal : on y vendra des packs de contenu et des
+thèmes, à l'unité, et on la parcourt quand on veut. Une grille tarifaire n'est pas un étal,
+et surtout elle ne se lit qu'au moment où elle répond à une question — « pourquoi je ne peux
+pas ajouter ce joueur ? ».
+
+Le choix de palier vit donc sur un écran dédié (`tiers_page`), qu'on n'atteint **jamais par
+navigation libre**. Il s'ouvre quand une raison commerciale l'exige :
+
+- le plafond du palier souscrit est atteint (créer un joueur, inviter par QR ou par lien,
+  accepter une demande) ;
+- le bandeau d'impayé ou la notification de relance ;
+- « Se réabonner » depuis l'écran de clan gelé.
+
+L'écran présente les cinq paliers ensemble et n'en surligne que deux : **le palier courant**
+(coché, avec l'effectif réel du clan rappelé dessous) et **le palier conseillé** (fléché) —
+celui qui ouvre réellement la place manquante, pas simplement le suivant dans l'ordre. Rien
+n'est bloquant : la page s'empile par-dessus le jeu et se quitte par la flèche arrière.
 
 ### Extensions
 

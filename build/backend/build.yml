@@ -22,6 +22,9 @@ build:
   - pubudget
   - puvirtuallobby
   - pulock
+  # Abonnements et achats in-app (Google Play) : base dédiée du miroir d'achats,
+  # vérification serveur, et projection du bénéfice sur le clan (workers/clans_store).
+  - pustore
   # Balayage quotidien des timers de facturation. Les echeances de defaut de paiement
   # (grace 10j, locked j50, suppression j90) ne peuvent pas dependre d'une ouverture de
   # l'app : un clan en defaut est justement un clan que plus personne n'ouvre.
