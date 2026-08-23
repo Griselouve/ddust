@@ -110,6 +110,15 @@ conf:
             panel:
               title: "@@@T:tuto_clan_menu_title@@@"
               menu: clan_page/settings_menu
+          # Le couple « QR Code du clan » / « Créer un joueur », dans cet ordre : la RÈGLE d'abord,
+          # l'exception ensuite. C'est le geste que les parents ratent le plus. Le tutoriel détaillait
+          # « Créer un joueur » (l'enfant sans téléphone, le cas rare) et taisait le QR code, qui est
+          # pourtant le cas nominal de la cible — un ado a un téléphone. Les deux étapes se lisent
+          # comme une paire : sans la première, la seconde se fait passer pour la voie normale.
+          qr_hint:
+            order: 63
+            requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_clan_qr@@@"
           # « Créer un joueur » n'est pas une option anodine et n'apparaît qu'aux chefs : on précise
           # tout de suite à quoi elle sert (le détail complet est dans la leçon create_player_intro,
           # jouée au clic sur l'option).
@@ -260,6 +269,52 @@ conf:
           wait:    { order: 60, text: "@@@T:tuto_combat_active_wait@@@" }
           # « Retraite ! » : abandonner, la tâche redevient libre pour le clan.
           retreat: { order: 70, target: combat/cancel, text: "@@@T:tuto_combat_active_retreat@@@" }
+
+      # -------------------------------------------------------------------------------------------
+      # REMINDERS de recrutement — ce ne sont PAS des tutoriels.
+      #
+      # Le fondateur sort de la création de clan en croyant avoir fini de configurer (il vient
+      # d'enchaîner le decisiontree), et rien ne lui dit qu'il lui reste le principal : faire installer
+      # l'app à sa famille, puis lui montrer le QR code. dashboard_intro lui fait visiter cinq onglets
+      # sans jamais prononcer le mot « inviter ». Ces deux écrans comblent ce trou.
+      #
+      # Le bloc `reminder:` suffit à en faire des reminders — trois comportements en découlent :
+      #   - absents de l'écran Tutoriels (rien à « revoir » : ce n'est pas de la pédagogie) ;
+      #   - en-tête « RECRUTE » en ambre, pas le « TUTORIEL » bleu ;
+      #   - CADENCE au lieu du drapeau « vu » : 1re ouverture de l'écran, puis une sur `every`, arrêt
+      #     définitif après `max` affichages (donc aux ouvertures 1, 4, 7, 10, 13). Le compteur
+      #     n'avance QUE sur une ouverture où les `requires` sont satisfaits.
+      #
+      # Ils forment une CHAÎNE, pas une répétition : le premier envoie vers l'onglet Clan, le second
+      # vers le kebab. D'où deux leçons et deux compteurs indépendants.
+      #
+      # `worker.clan_alone` est posé par _setClanAlone (worker_screen_clan.dart) : à la création du
+      # clan, à chaque lecture du roster, et à l'admission d'un candidat — jamais par une lecture
+      # Firestore dédiée au dashboard.
+      # -------------------------------------------------------------------------------------------
+      recruit_dashboard:
+        screen: dashboard
+        order: 15                     # juste après dashboard_intro (order 10)
+        requires: { worker.player_last_is_admin: "true", worker.clan_alone: "true" }
+        reminder:
+          every:  3
+          max:    5
+          header: "@@@T:reminder_header_recruit@@@"
+        steps:
+          go: { order: 10, target: clan_open, text: "@@@T:reminder_recruit_dashboard@@@" }
+
+      recruit_clan:
+        # order 32 : après clan_intro (30). PAS 35, déjà pris par create_player_intro — qui est
+        # `manual` (donc jamais enfilée par enter()), mais autant ne pas semer la confusion.
+        screen: clan_page
+        order: 32
+        requires: { worker.player_last_is_admin: "true", worker.clan_alone: "true" }
+        reminder:
+          every:  3
+          max:    5
+          header: "@@@T:reminder_header_recruit@@@"
+        steps:
+          kebab: { order: 10, target: clan_page/settings, text: "@@@T:reminder_recruit_clan@@@" }
 
       # Écran Items : DvExplorer n'expose pas de spotlightSubRect (contrairement à DvRoster), donc
       # impossible de cibler individuellement le coffre ou la bourse. Cibler la grille entière

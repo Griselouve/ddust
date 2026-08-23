@@ -12,21 +12,70 @@ dans `strategie.md` et `revenus.md`. Les deux documents se lisent ensemble : cel
 
 ---
 
-## sommaire
+## vocabulaire — quatre choses différentes
 
-| Phase | Objet | Qui | Bloque quoi |
+À lire une fois, elles sont **indépendantes** les unes des autres et leur confusion est la première
+source d'erreur sur ce parcours.
+
+| Notion | Ce que c'est | Où ça se règle |
+|---|---|---|
+| **Piste interne** | Canal de distribution, ≤ 100 testeurs. Sert à valider le build sur un vrai téléphone. | Play Console → Tests → Tests internes |
+| **Piste fermée** | Canal de distribution pour les 12+ familles. C'est **elle seule** qui fait courir les 14 jours vers l'accès production. | Play Console → Tests → Tests fermés |
+| **Testeurs sous licence** | Propriété de **comptes Google**, pas d'une piste. Leurs achats sont **réels côté Play mais gratuits**, avec des cartes de test. C'est ce qui permet d'éprouver la vraie facturation. | Play Console → Paramètres → Test de licence (le build t'y emmène) |
+| **Banc d'essai (`test_mode`)** | Mécanisme **interne à ddust**. Fabrique des états d'abonnement en mémoire, **sans jamais parler à Play**. Ne teste pas la facturation, seulement l'affichage et les enchaînements. | Layer du bucket, `store-base-global.yml` |
+
+⚠️ « Testeur sous licence » teste la **vraie** facturation sans payer. Le « banc d'essai » ne teste
+**aucune** facturation. Les deux ne se remplacent pas.
+
+Deux examens Google portent aussi le même nom :
+
+| Examen | Quand | Ce qu'il regarde |
+|---|---|---|
+| **Première release** | ✅ passé le 2026-08-21 | Contrôle technique léger. Ni DPA, ni fiche complète, ni comptes de revue. |
+| **Accès production** | Plus tard, **déclenché par toi** | Fiche complète, Data Safety, IARC, comptes de test, retours du test fermé. |
+
+---
+
+## les étapes qui restent
+
+Liste **stable et ordonnée**. Les numéros de section plus bas (`0.x`, `2.x`, `5.x`…) restent la
+référence de détail, mais c'est **cette liste** qui dit quoi faire et dans quel ordre.
+
+| # | Étape | Qui | Détail |
 |---|---|---|---|
-| **0** | Compte, profil de paiement, OAuth, liaisons | toi, en console | **tout le reste** |
-| **1** | Redéploiement backend + hosting | toi (builder) | la fiche et les documents servis |
-| **2** | Premier AAB, création de la fiche, piste interne | toi | le SHA-1 Play, donc la connexion Google |
-| **3** | Test fermé 12 testeurs × 14 jours | toi | l'accès à la production |
-| **3 bis** | Correctifs de la relecture de code | dev | la recette de monétisation |
-| **4** | Produits d'abonnement + RTDN en console | toi | tout achat |
-| **5** | Recette de la monétisation | toi + dev | la production |
-| **6** | Verrous juridiques, puis lancement | toi | — |
+| 1 | Finir la validation sur téléphone : onboarding, push, QR, privacy, suppression de compte | toi | §2.5 |
+| 2 | Corriger les 5 points de code qui rendent la monétisation testable (audit n° 1 à 5) | dev | § audit |
+| 3 | Passer `test_mode` à `false` dans `store-base-global.yml` | dev | §3.1 bis |
+| 4 | Corriger les 18 liens légaux périmés du site (CGU EU v5→v6, US v3→v4) | dev | — |
+| 5 | Reconstruire, uploader, republier bucket et hosting — **un seul build porte les étapes 2 à 4** | toi | §2.1 |
+| 6 | Promouvoir en piste fermée, ouvrir les inscriptions — **le compteur des 14 jours démarre** | toi | §3.2 |
+| 7 | Recruter jusqu'à 18-20 testeurs | toi | §3.1, §3.3 |
+| 8 | Lier Play Console ↔ GCP et inviter `deva-store@dvddust` | toi | §0.5 |
+| 9 | Créer les 5 abonnements, leurs 10 base plans et les 2 offres — **identifiants définitifs** | toi | §4.1 |
+| 10 | Renseigner le sujet RTDN `projects/dvddust/topics/eu-play-rtdn` | toi | §4.2 |
+| 11 | Renseigner `GRANT_ADMINS` (le cutoff fondateurs, lui, part avec le build) | toi | §0.7 |
+| 12 | Déclarer `daddy.ddust` et `kiddy.ddust` comme testeurs sous licence — **le build te guide** | toi | §5.1 |
+| 13 | Dérouler la recette de la monétisation | toi + dev | §5 |
+| 14 | Corriger les points de code restants (audit n° 6, 7, 8, 11, 12, 13) | dev | § audit |
+| 15 | Compléter la fiche Play : Data Safety, IARC, public cible, App access — **feuille : `saisie_playstore.md`**, assets rassemblés par le build dans `stores/google/assets/` | toi | §2.2 |
+| 16 | Mener l'AIPD et faire relire CGU + politique de confidentialité | toi | §6.1 |
+| 17 | À J+14 : demander l'accès à la production | toi | §3.4 |
+| 18 | Déployer en production par paliers progressifs | toi | §6.3 |
 
-Les phases 3, 3 bis et 4 tournent **en parallèle** : le chrono des 14 jours ne se réinitialise pas
-quand on pousse une mise à jour sur la piste fermée. C'est ce qui rend le calendrier tenable.
+**Groupements.** Les étapes 2 à 4 partent dans **un seul build** (étape 5). Les étapes 6 et 7 lancent
+un compteur de 14 jours pendant lequel tout le reste avance — pousser une mise à jour sur la piste
+fermée ne réinitialise rien. Les étapes 8 à 13 forment une chaîne, chacune conditionne la suivante.
+
+**Hors liste, parce que hors chaîne.** Deux démarches de niveau **compte** ne figurent pas ci-dessus :
+la **déclaration de statut de vendeur (DSA)** et l'inscription au **programme de frais de service
+réduits**. Elles ne dépendent de rien et rien n'en dépend — deux minutes chacune, à n'importe quel
+moment, sans attendre un build ni une fiche. Les numéroter laisserait croire qu'elles bloquent une
+suite. Détail : `compte.md` ; enjeux : §0.2 ter et §0.3.
+
+⚠️ **Pourquoi l'étape 3 impose un rebuild.** Le layer `store-base-global.yml` est publié au bucket
+**et embarqué dans l'AAB** comme repli de premier lancement. Republier le bucket suffit aux appareils
+déjà installés, mais une installation neuve afficherait brièvement le banc avant le téléchargement du
+layer.
 
 ---
 
@@ -65,7 +114,7 @@ Cible réaliste : **début octobre 2026**, cohérent avec la communication publi
 
 ---
 
-## état au 2026-08-20
+## état au 2026-08-21
 
 **Prêt** : version `1.0.0+1`, icône 512×512, feature graphic 1024×500, captures d'écran, descriptions
 fr/en/es rédigées, corpus légal versionné (CGU EU v5 / US v3, privacy EU v3 / US v2 × adulte/mineur ×
@@ -73,29 +122,51 @@ fr/en/es rédigées, corpus légal versionné (CGU EU v5 / US v3, privacy EU v3 
 Families appliquée par le builder et vérifiée au manifeste, pipeline de signature release avec
 keystore persisté en Firestore, site vitrine trilingue.
 
-**Fait côté console :**
+**Fait, et confirmé le 2026-08-21 :**
 
-| Étape | État |
+| Élément | État |
 |---|---|
 | Compte développeur | ✅ en place |
+| §0.2 — profil de paiement | ✅ créé, compte bancaire validé, fiscal US + Taïwan renseignés, **compte activé** |
 | §0.4 — écran de consentement OAuth → « En production » | ✅ fait |
-| §0.6 — comptes de test | ✅ `daddy.ddust@gmail.com` et `kiddy.ddust@gmail.com` — un adulte et un mineur, ce qui permet à la revue Play d'éprouver les deux rôles. À déclarer aussi comme **testeurs sous licence** (§5.1) |
-| §3 — recrutement des 12 testeurs | 🔄 en cours |
-| §0.2 — profil de paiement | ❓ à confirmer — **commande les phases 4 et 5** |
-| §0.3 / §0.5 / §0.7 | ❓ à confirmer |
-| §2 — AAB uploadé, SHA-1 rebouclé | ❓ à confirmer |
+| §0.6 — comptes de test | ✅ `daddy.ddust@gmail.com` et `kiddy.ddust@gmail.com` — un adulte et un mineur, la revue Play peut éprouver les deux rôles. À déclarer **aussi** comme testeurs sous licence (étape 12) |
+| §2.2 — app créée en console | ✅ `com.grisloup.ddust_client`, sans frais, fr-FR |
+| §2.3 — AAB uploadé, examen de première release | ✅ passé, piste interne |
+| §2.4 — SHA-1 de signature Play | ✅ `33:1E:56:BC:…`, **mesuré sur l'APK réel**, enregistré dans Firebase et dans `conf.oauth.android.play_sha1s.client` |
+| **Connexion Google depuis le Store** | ✅ **fonctionne** |
+| Étape 7 — recrutement des testeurs | 🔄 en cours |
 
-**Monétisation** : écrite en entier, jamais exercée contre le vrai Play Billing. Deux défauts
-bloquants corrigés le 2026-08-19 (démarrage du moteur, traduction des identifiants). Depuis, deux
-ajouts importants — un **banc d'essai de scénarios** et un **bandeau de relance** (§ ci-dessous) —
-mais **les correctifs de la phase 3 bis restent très majoritairement ouverts** : 2 clos sur 13
-(le 9 livré, le 10 devenu sans objet), 2 partiels (état vérifié dans le code le 2026-08-20).
+**Restent à confirmer** (invisibles depuis le dépôt) : fiche Play remplie · Play Console ↔ GCP liés
+et compte de service invité · produits créés · déclaration vendeur DSA (`compte.md`) · programme de
+frais réduits (`compte.md`) · `GRANT_ADMINS`.
 
-**Grille refondue le 2026-08-20** : cinq paliers indexés sur le nombre de joueurs du clan
-(1,99 € à 7,99 € ; plafonds 2 / 4 / 7 / 12 / illimité), un seul compteur `max_players`, et le
-choix du palier sorti de la boutique vers un écran déclenché par le plafond atteint. C'est ce
-qui clôt le point 10 par conception. Conséquence sur cette phase : **les produits à créer en
-console changent** (§ 4.1), et la recette de la monétisation gagne trois lignes (§ 5).
+**État vérifié de la configuration, 2026-08-21 :**
+
+| Élément | Fait |
+|---|---|
+| Version | **1.0.2+3**, AAB livré le 2026-08-21 à 16:09 |
+| Documents légaux servis | CGU EU adulte **v6**, US adulte **v4** — aucune version codée en dur, l'app suit l'index |
+| ⚠️ Site vitrine | **en retard d'une version** : CGU EU v5 au lieu de v6, US v3 au lieu de v4 → **18 liens périmés** sur 3 pages (étape 4) |
+| ⚠️ `test_mode` | **`true`**, embarqué tel quel dans l'AAB livré. Un seul fichier source, pas de variante prod/dev, pas de garde `kReleaseMode` : bascule **manuelle** (étape 3) |
+| `simulate_state` | vide dans le binaire livré |
+| Écrans de boutique | 5, tous routés : `shop`, `store_product_page`, `locked_page`, `store_scenario_page`, **`tiers_page`** (choix de palier, ouvert par le plafond atteint) |
+| Catalogue | 5 abonnements, 10 base plans, 2 offres. **Aucun produit à l'unité** — volontairement absents au lancement |
+| `GRANT_ADMINS` | **vide** → `store_grant` fermée à tous, aucun crédit accordable (étape 11) |
+| Calendrier de défaut | `grace_days: 10`, `locked_day: 50`, **`purge_day: 730`**, phase `farewell` 700-730 |
+| ⚠️ Git | 6 fichiers de conf **non commités** — l'AAB livré ne correspond à aucun commit |
+
+**Monétisation** : écrite en entier, **jamais exercée contre le vrai Play Billing**. Audit du
+2026-08-21 sur les 13 correctifs : **1 fait, 3 partiels, 9 non faits**.
+
+⚠️ **Effet en cascade à connaître** : le point 1 (publication de l'entitlement) neutralise le
+point 10 (plafonds). `_publish()` est le seul écrivain de `store.grants.*` ; un clan sans document
+`clans_store` n'a donc aucun plafond publié, `_storeMaxPlayers()` rend −1 = illimité, et le contrôle
+sort immédiatement. **Les plafonds de joueurs ne s'appliquent aujourd'hui à personne.**
+
+**Grille à cinq paliers** (livrée) : 1,99 € à 7,99 €, plafonds 2 / 4 / 7 / 12 / illimité, un seul
+compteur `max_players`, et le choix du palier sorti de la boutique vers `tiers_page`, déclenché par
+le plafond atteint. Les quatre chemins d'ajout de membre sont bien gardés ; l'absence de contrôle sur
+le passage à l'âge adulte est délibérée et correcte, un compteur unique ne déplaçant plus de place.
 
 **Décision de conception à acter** : `_checkStoreAccess` a été remplacé par `_storeLocked()`, et la
 doctrine est désormais explicite dans `worker_screen_tiroir.dart:68-82` — **aucune porte fermée avant
@@ -252,7 +323,7 @@ en production** (cf. §6.1) : c'est l'affichage public de l'adresse qui commande
 d'affaires. Prévoir le délai cumulé — D-U-N-S, création de la structure, domiciliation, 72 h — en
 amont de §6.3, pas au moment de cliquer.
 
-### 0.2 ter — informations fiscales : Taïwan et États-Unis, pas la France
+### 0.2 bis — informations fiscales : Taïwan et États-Unis, pas la France
 
 Une fois le compte bancaire validé, le centre de paiement réclame des **informations fiscales** pour
 deux juridictions seulement, ce qui surprend. La règle : **Google ne demande des informations que là
@@ -307,7 +378,10 @@ peuvent **retarder les versements**.
 
 ⚠️ À refaire en cas de passage en société : le W-8BEN devient un W-8BEN-E (cf. §6.2).
 
-### 0.2 bis — programme de frais de service réduits
+### 0.2 ter — programme de frais de service réduits
+
+**Écran par écran : `saisie_compte.md`** (feuille générée), raisonnement dans `compte.md`. Ce qui suit
+dit pourquoi la démarche compte, pas comment la remplir.
 
 Un bandeau de la Play Console propose de s'inscrire au **palier de frais réduits sur le premier
 million de dollars annuels**. **S'inscrire** : c'est gratuit, sans contrepartie, et l'inscription
@@ -335,7 +409,14 @@ l'articulation exacte entre l'ancien palier « 15 % » et cette nouvelle grille 
 
 ### 0.3 — déclaration « vendeur » (DSA / UE)
 
-À remplir en console. Anticiper l'affichage public des coordonnées (cf. 0.2).
+Statut à déclarer : **professionnel**. Vendre des abonnements ne laisse aucun arbitrage — déclarer
+le contraire en vendant est une violation des règles, sanctionnée par le retrait de l'app.
+
+**Champ par champ, valeurs exactes : `saisie_compte.md`** — feuille générée au build depuis
+`build/build.yml`, bloc `publisher:`. Le raisonnement est dans `compte.md`.
+
+⚠️ La démarche **ne pré-empte pas §6.1** : l'affichage public des coordonnées ne commence qu'avec
+une fiche publique (cf. 0.2). En piste fermée, rien n'est exposé.
 
 ### 0.4 — écran de consentement OAuth → « En production » ⚠️
 
@@ -392,19 +473,21 @@ Créer un compte Google dédié, y monter un clan pré-rempli (quelques joueurs,
 butin en cours) et rédiger des instructions pas à pas. Cela alimente le champ **App access** de
 `playstore.md`.
 
-### 0.7 — deux documents à poser à la main
+### 0.7 — un réglage à poser à la main
 
-Ni Play ni Pulumi ne peuvent les créer (détail dans `playstore.md` § monétisation) :
+Ni Play ni Pulumi ne peuvent le créer (détail dans `playstore.md` § monétisation) :
 
-- **`store_config/founders`** dans la base Firestore `eu-store` :
-  `{ cutoff: <Timestamp>, offer_id: "fondateur", default_credit_months: 0 }`.
-  Sans ce document, `store_eligibility` rend `""` et **personne n'est jamais fondateur** — l'offre
-  existe en console mais n'est jamais demandée.
 - **`GRANT_ADMINS`** dans l'environnement de `store_grant` (`backend/config.yml`) : l'**UID Firebase**
   du compte d'exploitation. Vide = fonction fermée à tout le monde, ce qui est le bon défaut pour une
   fonction qui distribue des mois gratuits. À renseigner avant de compenser la première famille du
   test fermé.
   ⚠️ Bien l'**UID Firebase**, pas le `userId` métier : cette fonction-là compare à `request.auth.uid`.
+
+Le **cutoff fondateurs** figurait ici jusqu'au 2026-08-22 ; il est désormais posé par le build.
+`store.play.founder_cutoff` dans `build/build.yml` (**30 septembre 2026 23:59:59 Paris**), et
+`pucatalog` écrit `store_config/founders` dans `eu-store` **et** `us-store` — une région sans ce
+document ne rend jamais l'offre, et rien ne le signale à l'exécution. Décaler la date, c'est
+changer cette ligne de conf et rejouer un build.
 
 ---
 
@@ -440,6 +523,23 @@ supprimé.
 
 ### 2.2 — créer l'app et remplir la fiche
 
+**La création elle-même ne demande aucun binaire** et tient en une boîte de dialogue. Réponses :
+
+| Champ | Valeur | Note |
+|---|---|---|
+| Nom de l'application | `Donjons & Savons` | modifiable ensuite |
+| **Nom du package** | `com.grisloup.ddust_client` | ⚠️ **définitif**. Composé par le builder (`org` + projet + `_client`) et déjà câblé dans `firebase.android_package` et le `PACKAGE_NAME` des trois Cloud Functions du store. Cliquer « Vérifier la disponibilité » : il doit être unique sur tout le Play Store |
+| Langue par défaut | **français (France) – fr-FR** | la console propose en-US par défaut : **à changer**. C'est la langue de la fiche principale (`playstore.md` § fiche), en-US et es-ES étant des traductions. Modifiable ensuite |
+| Application ou jeu | **Appli** | catégorie *Parentalité* (cf. `playstore.md` § fiche) |
+| Gratuite ou payante | **Sans frais** (libellé actuel de la console pour « gratuite ») | Modifiable via *Tarification de l'application* **tant que l'app n'est pas publiée**. À la première publication le choix se verrouille, et seulement dans ce sens : une appli sans frais ne peut plus devenir payante. Bon choix de toute façon — la monétisation passe par l'abonnement in-app |
+| Déclarations | règles du programme + lois d'exportation US | à cocher |
+
+**Juste après la création**, le tableau de bord indique — ou non — l'exigence de test fermé. C'est la
+**confirmation définitive** du §0.1, celle qui fait foi.
+
+Le remplissage de la fiche (textes, assets, Data Safety, IARC, public cible, App access) vient
+ensuite, section par section, depuis `playstore.md`.
+
 Tout le contenu à saisir est dans **`playstore.md`** : nom, descriptions courtes et longues fr/en/es,
 catégorie, tags, assets graphiques, réglages, Data Safety, déclarations « Contenu de l'app ».
 
@@ -454,11 +554,24 @@ Points à ne pas expédier :
 
 ### 2.3 — upload en piste interne
 
-La piste interne publie en quelques minutes, sans revue. S'y ajouter comme testeur, plus un ou deux
-proches.
+S'y ajouter comme testeur, plus un ou deux proches.
 
-⚠️ Compter tout de même **quelques heures** avant que l'app ne devienne réellement installable pour
-un testeur qui vient de rejoindre.
+⚠️ **La toute première release d'une app neuve EST examinée, même en piste interne.** Compter de
+quelques heures à **sept jours** dans le pire cas. Pendant ce temps le bouton d'installation tourne
+sans message d'erreur, et la console affiche un **nom temporaire** (le nom de package) avec la
+mention `(unreviewed)` — c'est normal, ça dure au plus 48 h.
+
+**Ce n'est PAS l'examen de production.** Cet examen-ci est technique et léger : il ne regarde ni le
+DPA, ni la fiche complète, ni les comptes de test pour l'équipe de revue. Une app active en test
+interne est même **dispensée de la section Sécurité des données**, et les tests internes ne sont pas
+soumis aux examens standards de règles et de sécurité. C'est le bac à sable prévu pour travailler
+avant d'avoir tout rempli.
+
+Une fois cette première passée, **les mises à jour suivantes en piste interne sortent
+immédiatement, sans examen**.
+
+L'examen qui exige le DPA, la fiche complète, la Data Safety et les comptes de test est celui de la
+**demande d'accès à la production** (§3.4) — bien plus tard, et **déclenché par toi**.
 
 ### 2.4 — boucler le SHA-1 de signature Play ⚠️ SOUVENT OUBLIÉ
 
@@ -471,10 +584,44 @@ C'est une dépendance circulaire : l'empreinte n'existe qu'après le premier upl
 obligatoirement dans cet ordre :
 
 1. Uploader l'AAB (2.3).
-2. *Play Console → Test et publication → Signature de l'application* → copier le **SHA-1 de la clé de
-   signature de l'application** (pas celle d'importation).
-3. Le coller dans `backend/config.yml` → `conf.oauth.android.play_sha1s.client` (aujourd'hui `""`, ligne 68).
-4. Redéployer le backend → un **second client OAuth Android** est créé avec cette empreinte.
+2. Installer l'app **depuis la piste**, puis **MESURER l'empreinte du binaire réellement distribué**
+   (voir l'encadré ci-dessous — ne pas la lire dans la console).
+3. La coller dans `backend/config.yml` → `conf.oauth.android.play_sha1s.client`.
+4. Ajouter la **même** empreinte dans Firebase : *Paramètres du projet → Général → Vos applications
+   → app Android → Empreintes de certificat SHA*. C'est **cette** liste que lit Firebase
+   Authentication, et le builder ne la renseigne pas (`pufirebase` ne manipule aucun SHA-1).
+5. Redéployer le backend → un **second client OAuth Android** est créé avec cette empreinte.
+
+⚠️ **Mesurer l'empreinte, ne jamais la lire dans la console.** Vécu le 2026-08-21 : la valeur relevée
+dans la Play Console ne correspondait à **aucune** installation. Tout était vert côté consoles —
+client OAuth créé, empreinte déclarée dans Firebase, package correct — et l'authentification Google
+échouait quand même depuis le Store, avec un message qui accuse le **compte** et non le certificat :
+
+```
+GoogleSignInException(code canceled, [16] Account reauth failed)
+```
+
+Ce libellé fait perdre des heures : avec les versions récentes de `google_sign_in` (Credential
+Manager), une app non reconnue ne produit plus le `DEVELOPER_ERROR` explicite d'autrefois. **Le seul
+discriminant fiable est le test APK local contre installation Store** : si l'APK signé localement
+s'authentifie et que la version du Store échoue, c'est le certificat, quoi que dise le message.
+
+La seule source de vérité est le binaire installé :
+
+```
+adb shell pm path com.grisloup.ddust_client     → repérer le chemin de base.apk
+adb pull <chemin>/base.apk store.apk
+apksigner verify --print-certs store.apk        → « Signer #1 certificate SHA-1 digest »
+```
+
+Outils déjà présents : `deva/binaries/android/platform-tools/adb` et
+`deva/binaries/android/build-tools/35.0.0/apksigner.bat`.
+
+⚠️ Utiliser `apksigner`, **pas** `keytool -printcert -jarfile` : ce dernier ne lit que les signatures
+v1, absentes des APK modernes, et renvoie une erreur trompeuse.
+
+⚠️ Le **partage interne d'application** signe avec une clé **encore différente**. Un binaire installé
+par ce canal ne prouve donc rien sur l'authentification, et exigerait sa propre empreinte.
 
 ### 2.5 — validation sur téléphone réel
 
@@ -498,15 +645,44 @@ Depuis la piste interne, pas depuis un build local — c'est tout l'intérêt.
 Pour un compte personnel créé après le 13 novembre 2023 : **au moins 12 testeurs inscrits (opt-in)
 de façon continue pendant les 14 jours précédant la demande d'accès à la production**.
 
+⚠️ **Il n'y a aucun compteur qui se déclenche et qu'il faudrait tenir.** Rien n'est évalué pendant la
+période : la vérification a lieu **au moment où l'on demande l'accès à la production**, en regardant
+les 14 jours écoulés. Conséquences rassurantes :
+
+- **On peut recruter progressivement** — pas besoin de 12 personnes le premier jour. Chaque testeur
+  fait courir ses propres 14 jours à partir de *sa* date d'inscription.
+- La date au plus tôt de dépôt de la demande = **14 jours après l'inscription du douzième** testeur.
+- Il n'y a donc aucun risque à ouvrir la piste avec trois inscrits : plus tôt le build est en ligne,
+  plus tôt chacun accumule ses jours.
+
 Ce qui compte vraiment :
 - Les 14 jours sont **consécutifs par testeur**. Quelqu'un qui se désinscrit puis se réinscrit
-  **remet son propre compteur à zéro**.
+  **remet son propre compteur à zéro** — c'est la seule chose qui fasse réellement perdre du temps.
 - Le compteur ne doit **jamais** passer sous 12 pendant la fenêtre → viser **18-20 recrues** pour
   absorber les défections.
 - Les testeurs doivent **réellement utiliser** l'app : la demande d'accès comporte des questions
   ouvertes sur les retours obtenus, et une réponse creuse fait rejeter la demande.
 - Pousser des mises à jour sur la piste **ne réinitialise pas** le chrono. C'est ce qui permet de
   mener les phases 3 bis et 5 en parallèle.
+
+### 3.1 bis — piste interne d'abord, piste fermée ensuite ⚠️
+
+**Séquence retenue le 2026-08-21.** Les deux pistes ne portent pas la même configuration, et c'est
+délibéré.
+
+| | Piste **interne** | Piste **fermée** |
+|---|---|---|
+| Qui | toi seul (+ 1-2 proches) | les familles testeuses |
+| Banc d'essai (`test_mode`) | **actif** — c'est là qu'on fait la recette des paiements | **coupé** |
+| Ce qu'on y valide | SHA-1, onboarding, notifications, QR, suppression de compte, puis toute la phase 5 | l'usage réel, en famille |
+
+**Pourquoi couper le banc avant la piste fermée.** Le banc de scénarios envoie de **vraies
+notifications push d'impayé aux chefs de clan** et écrit dans le journal du clan : un parent testeur
+qui tomberait dessus recevrait une relance pour une dette qui n'existe pas. L'accès dépend de
+`test_mode`, servi par le **bucket** — donc réglable par piste sans reconstruire, mais aussi
+susceptible de rester persisté sur un appareil (cf. défaut n°1 du banc).
+
+C'est également ce qui protège du second défaut connu : un état simulé qui survivrait au redémarrage.
 
 ### 3.2 — mise en place
 
@@ -670,9 +846,10 @@ production.
 
 ### le banc d'essai de scénarios
 
-Onze situations commerciales nommées (`reel`, `jamais_abonne`, `essai`, `abonne_standard`,
-`abonne_illimite`, `fondateur`, `resilie`, `impaye_doux`, `impaye_dur`, `clan_gele`…), déclarées dans
-`resources_cloud/general/layers/store-base-global.yml:110-230`, chacune un paquet cohérent
+**Douze** situations commerciales nommées — `reel` (sortie du banc), `jamais_abonne`, `essai`,
+`abonne_essentiel`, `abonne_clan`, `abonne_royaume`, `fondateur`, `resilie`, `impaye_doux`,
+`impaye_dur`, `clan_gele`, `expire` — déclarées dans
+`resources_cloud/general/layers/store-base-global.yml:243-346`, chacune un paquet cohérent
 `state` + `tier` + `dunning_phase` + `founder` + `credits`.
 
 **Usage** : kebab de la boutique → « Changer de scénario », visible sous double condition
@@ -771,7 +948,16 @@ Détail des bénéfices par palier et des produits à l'unité : `playstore.md` 
 
 ### 4.2 — notifications temps réel (RTDN)
 
-*Play Console → Monétisation → Configuration de la monétisation* → renseigner le sujet Pub/Sub :
+**Le build s'en charge — ou plutôt, de tout ce qui peut l'être.** L'API Play n'expose aucune
+ressource RTDN : le nom du sujet et la case « Activer » n'existent que dans l'UI de la console.
+`pucatalog` fait donc le reste : à la fin de la phase upload il ouvre la console, dicte la valeur
+exacte à coller, et **vérifie pour de vrai** en écoutant le sujet avec un abonnement jetable. Il
+suffit de suivre l'invite et de cliquer « Envoyer un message test ».
+
+Une fois le message reçu, un marqueur est posé et la question ne se repose plus. Rien n'est
+enregistré tant que le message n'est pas arrivé : une confirmation sur parole n'en est pas une.
+
+Pour mémoire, la valeur en question — le build l'affiche lui-même :
 
 ```
 projects/dvddust/topics/eu-play-rtdn
@@ -780,13 +966,16 @@ projects/dvddust/topics/eu-play-rtdn
 ⚠️ Play n'accepte **qu'un seul sujet par application**, alors que l'infra en crée un par région
 (`eu-play-rtdn`, `us-play-rtdn`). C'est voulu : ne renseigner **que celui d'Europe**. La fonction
 européenne traite les deux régions de données (`STORE_REGIONS: "eu,us"`) ; celle des US reste muette.
+Le build ne propose jamais le sujet américain.
 
 ### 4.3 — vérifier avant de passer à la recette
 
 - [ ] Les 5 abonnements, 10 base plans et 2 offres existent avec les identifiants exacts.
-- [ ] Le sujet RTDN est renseigné et la console ne signale pas d'erreur de permission.
+- [ ] Le sujet RTDN est renseigné — le build a affiché « message de test reçu » puis « c'est
+      enregistré », et ne repose plus la question au passage suivant.
 - [ ] Le compte de service `deva-store@dvddust` figure dans *Utilisateurs et autorisations* (0.5).
-- [ ] Le document `store_config/founders` existe (0.7).
+- [ ] Le build a affiché `founders : eu-store …` **et** `founders : us-store …` — le document
+      existe dans les deux régions, avec un `cutoff` de type *timestamp* (0.7).
 
 ---
 
@@ -803,8 +992,12 @@ se paie en remboursements, en avis à une étoile et en confiance perdue.
 - [ ] Profil de paiement **vérifié** (0.2) et produits créés (phase 4).
 - [ ] Build contenant `dvstore` **publié sur une piste** (interne suffit). Compter quelques heures
       avant qu'il ne devienne installable.
-- [ ] **Testeurs de licence** déclarés : *Play Console → Configuration → Test de licence*. Ils doivent
+- [ ] **Testeurs de licence** déclarés : *Play Console → Paramètres → Test de licence*. Ils doivent
       **aussi** avoir rejoint la piste via son lien d'opt-in. Leurs achats sont gratuits, sans débit.
+      Les adresses vivent désormais dans `build.yml` sous `store.play.license_testers`, et **pucatalog
+      pose l'étape à chaque déploiement** tant qu'elle n'est pas confirmée : il ouvre la page et
+      affiche les adresses à coller. Aucune API Play n'expose ce réglage — le builder ne peut ni le
+      poser ni le relire, il ne peut que guider, et il retient ta réponse sur parole.
 - [ ] **Play Billing Lab** installé sur le téléphone de test (disponible sur le Play Store),
       connecté avec le **même compte** que le testeur de licence. C'est l'outil qui force les
       transitions d'état. ⚠️ Ses configurations **expirent au bout de 2 heures** — les reposer si la
@@ -936,9 +1129,12 @@ organisation. Les deux arbitrages se prennent ensemble.
 - [ ] Data Safety cohérent avec `legal/dpa.md`
 - [ ] **Arbitrage §6.1 tranché** : particulier avec adresse personnelle publique, ou structure +
       domiciliation en compte organisation (délai D-U-N-S + 72 h à anticiper)
-- [ ] Coordonnées vendeur renseignées (affichage public assumé)
+- [ ] **Statut de vendeur DSA déclaré « professionnel »**, coordonnées renseignées (affichage
+      public assumé) — `compte.md`
+- [ ] **Programme de frais de service réduits** : groupe de comptes créé, conditions acceptées —
+      `compte.md`
 - [ ] CGU v5 et privacy v3 **servies** et cohérentes avec le site
-- [ ] `store_config/founders` posé, `GRANT_ADMINS` renseigné
+- [ ] `store_config/founders` posé par le build dans les deux régions, `GRANT_ADMINS` renseigné
 - [ ] Phase 3 bis : points 1 à 13 traités
 - [ ] Recette de monétisation : les 12 scénarios verts
 - [ ] AIPD menée, relecture juridique faite
@@ -952,6 +1148,9 @@ organisation. Les deux arbitrages se prennent ensemble.
 | Document | Contenu |
 |---|---|
 | `playstore.md` | Ce qu'il faut **saisir** dans chaque formulaire de la console |
+| `saisie_compte.md` | **Généré au build** — feuille de saisie des paramètres du compte, valeurs exactes |
+| `saisie_playstore.md` | **Généré au build** — les cinq formulaires de l'étape 8 et la fiche |
+| `compte.md` | Les démarches de niveau **compte** : statut de vendeur DSA, frais de service réduits |
 | `legal/dpa.md` | Registre RGPD, Data Safety justifié, AIPD |
 | `readme.md` §13-14 | Déploiement et doctrine légale |
 | `strategie.md` | Lancement payant, offre fondateurs, gates de décision |

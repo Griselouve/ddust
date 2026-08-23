@@ -22,10 +22,16 @@ Point notable pour Vertex AI : selon les conditions Google Cloud, les données s
 
 ## 2. actions à effectuer (checklist)
 
-- [ ] **Console Firebase** → projet `dvddust` → ⚙️ *Paramètres du projet* → onglet *Confidentialité des données* (« Data privacy ») : vérifier la référence aux DPST et renseigner les coordonnées de contact protection des données (DPO facultatif pour un indé ; l'éditeur étant établi dans l'UE, aucun représentant UE art. 27 à désigner). L'emplacement exact peut varier selon les versions de la console.
-- [ ] **Archiver** dans `legal/` un PDF daté du CDPA et des DPST en vigueur (obligation de traçabilité, art. 5.2 — *accountability*). Renouveler l'archive quand Google publie une nouvelle version.
+> **Valeurs exactes et marche à suivre : `saisie_dpa.md`** (généré au build depuis `build.yml`
+> → `publisher:` et `dpa:`). Des trois premières cases ci-dessous, **une seule reste manuelle** :
+> les contacts essentiels GCP sont posés par `puproject` au déploiement, et l'archivage est fait
+> par le build.
+
+- [ ] **Console Firebase** → onglet *Confidentialité des données* : renseigner le contact protection des données, laisser le représentant UE (art. 27) vide — l'éditeur est établi dans l'Union. **Seule saisie manuelle du lot**, aucune API ne l'expose. → `saisie_dpa.md` §1
+- [ ] **Contacts essentiels GCP**, catégorie *Juridique* : posés par `puproject` (`backend/config.yml` → `conf.project.essential_contacts`). Rien à faire, seulement à vérifier. → `saisie_dpa.md` §2
+- [ ] **Archivage daté du CDPA et des DPST** dans `legal/` (traçabilité, art. 5.2 — *accountability*) : téléchargé, vérifié et daté **par le build**, qui détecte aussi les nouvelles versions publiées par Google. Un avertissement jaune signale un échec. → `saisie_dpa.md` §3
 - [ ] **Vérifier l'identité juridique** rattachée au compte de facturation GCP : c'est cette entité (personne physique ou société) qui est partie au CDPA — elle doit coïncider avec l'éditeur déclaré dans les CGU, les pages légales du site et le compte Play Console.
-- [ ] **Compléter les champs [à renseigner]** de la section 3 et tenir à jour le registre (section 4) à chaque évolution du produit (économie de jeu, abonnements, multitenancy).
+- [ ] **Tenir à jour le registre** (section 4) à chaque évolution du produit (économie de jeu, abonnements, multitenancy). L'identité de la section 3, elle, n'est plus à compléter : elle vient de `build.yml` → `publisher:`.
 - [ ] Avant production (pas bloquant pour le test fermé) : mener l'**AIPD** (section 7).
 
 ---
@@ -34,7 +40,7 @@ Point notable pour Vertex AI : selon les conditions Google Cloud, les données s
 
 | Rôle | Entité |
 |---|---|
-| Responsable de traitement | **Personne physique exerçant sous le nom commercial « grisloup.com »** — éditeur de Donjons & Savons. **[à renseigner : nom civil et adresse postale]**, contact données : donjons@grisloup.com |
+| Responsable de traitement | **Personne physique exerçant sous le nom commercial « grisloup.com »** — éditeur de Donjons & Savons. Nom civil, adresse postale et contact données : `build.yml` → `publisher:`, restitués dans `saisie_dpa.md`. Ils ne sont pas recopiés ici : une identité qui vit à deux endroits finit par y différer |
 | Sous-traitant principal | **Google Ireland Limited**, Gordon House, Barrow Street, Dublin 4, Irlande (contractant UE pour GCP/Firebase) |
 | Sous-sous-traitants | Liste Google publiée (cloud.google.com/terms/subprocessors) — la notification des changements se fait par abonnement à cette page |
 
@@ -103,6 +109,8 @@ Deux critères CNIL/CEPD sont réunis : **personnes vulnérables** (mineurs) et 
 
 ## 8. renvois
 
+- `saisie_dpa.md` — **généré au build** : la feuille à ouvrir devant les consoles (valeurs exactes)
+- `saisie_dpa.tpl.md` — le gabarit dont elle est rendue ; c'est lui qu'on édite, jamais la sortie
 - `readme.md` §14 — aspects légaux (consentement parental, âge, parental gate, données collectées)
 - `legal/documents/` — CGU et politiques de confidentialité (brouillons à valider juridiquement avant production)
 - https://donjons.grisloup.com/fr/legal/ — espace légal public (URL à déclarer dans Play Console)

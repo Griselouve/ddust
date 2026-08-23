@@ -370,6 +370,15 @@ extension Worker_combat on worker {
                                                       "xp": playerXp, "xp_base": xp,
                                                       "boss": bossTaskId.isNotEmpty}));
 
+                                    // RELANCE DE CONVERSION, SECOND SITE — et il est indispensable.
+                                    // L'admin solo n'appelle JAMAIS _applyVerdict : il inline son propre
+                                    // verdict, juste au-dessus. Un compteur posé là-bas seulement ne
+                                    // verrait donc jamais un clan à un seul chef, c'est-à-dire exactement
+                                    // la population que cette relance vise — un foyer d'un parent et un
+                                    // enfant ne rencontre jamais le plafond de joueurs, la deuxième tâche
+                                    // validée est la seule porte qui lui reste.
+                                    await _storeCountValidation(clanId, clanSecret, region);
+
                                     // Libération de l'état actif (même nettoyage que _resolveValidation accepté).
                                     userDoc.rem("docId");
                                     userDoc.set("active_task",  "");

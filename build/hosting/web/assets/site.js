@@ -13,7 +13,8 @@
       ["roadmap", "Roadmap"],
       ["experience", "Expérience"],
       ["press", "Presse"],
-      ["legal", "Légal"]
+      ["legal", "Légal"],
+      ["betas", "Betas"]
     ],
     en: [
       ["", "Home"],
@@ -21,7 +22,8 @@
       ["roadmap", "Roadmap"],
       ["experience", "Experience"],
       ["press", "Press"],
-      ["legal", "Legal"]
+      ["legal", "Legal"],
+      ["betas", "Betas"]
     ],
     es: [
       ["", "Inicio"],
@@ -29,7 +31,8 @@
       ["roadmap", "Hoja de ruta"],
       ["experience", "Experiencia"],
       ["press", "Prensa"],
-      ["legal", "Legal"]
+      ["legal", "Legal"],
+      ["betas", "Betas"]
     ]
   };
 
@@ -71,6 +74,28 @@
       bad: "Esta dirección de correo no parece válida.",
       err: "No se ha podido completar la inscripción. Vuelve a intentarlo en un momento.",
       note: "Formulario reservado a adultos. Tu dirección solo sirve para informarte de las betas, y la lista se borra cuando estas terminan. Baja a petición en donjons@grisloup.com."
+    }
+  };
+
+  // Variante « prochaines betas », posée par data-variant="next" : sur la page
+  // /{lang}/betas/ la beta en cours est déjà lancée et pourvue, le formulaire n'y
+  // recrute que pour les suivantes. Seuls titre, accroche et bouton changent —
+  // la note garde l'engagement de suppression de la liste pris dans la privacy.
+  var BETA_NEXT = {
+    fr: {
+      title: "Participer aux prochaines betas",
+      lead: "Inscrivez-vous pour pouvoir participer aux prochaines betas !",
+      cta: "M'inscrire"
+    },
+    en: {
+      title: "Take part in the next betas",
+      lead: "Sign up to take part in the next betas!",
+      cta: "Sign me up"
+    },
+    es: {
+      title: "Participar en las próximas betas",
+      lead: "¡Apúntate para poder participar en las próximas betas!",
+      cta: "Apuntarme"
     }
   };
 
@@ -132,6 +157,12 @@
   var beta = document.getElementById("beta-signup");
   if (beta) {
     var b = BETA[lang];
+    if (beta.getAttribute("data-variant") === "next") {
+      var over = BETA_NEXT[lang], merged = {}, k;
+      for (k in b) merged[k] = b[k];
+      for (k in over) merged[k] = over[k];
+      b = merged;
+    }
     beta.className = "card beta";
     beta.innerHTML =
       "<h3>" + b.title + "</h3>" +
@@ -202,7 +233,17 @@
     var box = video.parentNode;
     while (box && (!box.classList || !box.classList.contains("videobox"))) box = box.parentNode;
     if (!box) return;
-    video.addEventListener("play", function () { box.classList.add("playing"); });
+    video.addEventListener("play", function () {
+      box.classList.add("playing");
+      // L'agrandissement pousse le bas de la vidéo vers le bas de la page : sur un
+      // écran de portable, la fin de l'image passe sous la ligne de flottaison.
+      // On la ramène au centre une fois la transition (.35s) terminée.
+      if (box.scrollIntoView) {
+        setTimeout(function () {
+          box.scrollIntoView({ block: "center", behavior: "smooth" });
+        }, 380);
+      }
+    });
     video.addEventListener("ended", function () { box.classList.remove("playing"); });
   });
 })();

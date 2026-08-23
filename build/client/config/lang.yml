@@ -224,10 +224,13 @@ conf:
         fr: "Ton Clan : retrouve tes compagnons et le journal du clan."
         en: "Your Clan: find your companions and the clan log."
         es: "Tu Clan: reúnete con tus compañeros y consulta el registro del clan."
+      # Version chef. Ne dit PLUS « retrouve tes compagnons » : cette leçon se joue à la toute
+      # première arrivée sur le dashboard, quand le fondateur est encore seul dans son clan — il n'a
+      # aucun compagnon à retrouver. C'est là qu'il RECRUTE, et c'est ce qu'il faut lui annoncer.
       tuto_dash_clan_admin:
-        fr: "Ton Clan : retrouve tes compagnons et le journal du clan, gère les membres du clan."
-        en: "Your Clan: find your companions and the clan log, and manage clan members."
-        es: "Tu Clan: reúnete con tus compañeros, consulta el registro del clan y gestiona sus miembros."
+        fr: "Ton Clan : c'est ici que tu recrutes tes aventuriers et que tu gères les membres du clan — et que tu retrouves le journal du clan."
+        en: "Your Clan: this is where you recruit your adventurers and manage clan members — and where you find the clan log."
+        es: "Tu Clan: aquí reclutas a tus aventureros y gestionas los miembros del clan — y aquí encuentras el registro del clan."
       tuto_dash_combat:
         fr: "Le Combat : c'est ici que tu choisis une tâche à accomplir pour gagner de l'XP."
         en: "Combat: this is where you pick a task to complete and earn XP."
@@ -586,11 +589,34 @@ conf:
         fr: "Le menu Clan : diverses options pour gérer le clan."
         en: "The Clan menu: various options to manage the clan."
         es: "El menú del clan: varias opciones para gestionar el clan."
-      # Étape (chefs) qui suit le panneau des options du clan : lève l'ambiguïté sur « Créer un joueur ».
+      # Les deux étapes (chefs) qui suivent le panneau des options du clan. Elles se lisent comme une
+      # PAIRE : le QR code d'abord — c'est le cas normal, l'enfant a un téléphone — puis « Créer un
+      # joueur » présenté comme l'exception. Séparées, la seconde se fait passer pour la voie normale.
+      tuto_clan_qr:
+        fr: "Parmi ces options, « QR Code du clan » est celle qui fait entrer quelqu'un : ton enfant installe Donjons & Savons sur son téléphone, tu lui montres le QR code, il le scanne — et il est dans le clan. C'est la façon normale de recruter."
+        en: "Among these options, « Clan QR Code » is the one that brings someone in: your child installs Donjons & Savons on their phone, you show them the QR code, they scan it — and they are in the clan. That is the normal way to recruit."
+        es: "Entre estas opciones, « Código QR del clan » es la que hace entrar a alguien: tu hijo instala Donjons & Savons en su teléfono, le enseñas el código QR, lo escanea — y ya está en el clan. Es la forma normal de reclutar."
       tuto_clan_create_player:
-        fr: "Parmi ces options, « Créer un joueur » sert à ajouter un enfant trop jeune pour avoir un compte, ou qui n'a pas de téléphone : tu crées son personnage et tu joues à sa place."
-        en: "Among these options, « Create a player » is for a child too young to have an account, or without a phone: you create their character and play in their place."
-        es: "Entre estas opciones, « Crear un jugador » sirve para un niño demasiado pequeño para tener una cuenta, o que no tiene teléfono: creas su personaje y juegas en su lugar."
+        fr: "« Créer un joueur », en revanche, ne sert que si l'enfant n'a pas de téléphone, ou est trop jeune pour avoir un compte : tu crées son personnage et tu joues à sa place."
+        en: "« Create a player », on the other hand, is only for a child who has no phone, or is too young to have an account: you create their character and play in their place."
+        es: "« Crear un jugador », en cambio, solo sirve si el niño no tiene teléfono, o es demasiado pequeño para tener una cuenta: creas su personaje y juegas en su lugar."
+      # --- Reminders de recrutement (dvtuto.yml → recruit_dashboard / recruit_clan) ---
+      # En-tête qui REMPLACE « TUTORIEL » sur ces deux écrans : ce n'est pas une leçon, c'est un
+      # rappel d'action. Il s'affiche en ambre et non dans le bleu réservé aux tutoriels.
+      reminder_header_recruit:
+        fr: "RECRUTE"
+        en: "RECRUIT"
+        es: "RECLUTA"
+      # Après dashboard_intro, flèche sur l'onglet Clan de la taskbar.
+      reminder_recruit_dashboard:
+        fr: "Bravo, tu viens de créer ton clan ! Il te faut maintenant une équipe d'aventuriers. Va dans l'onglet « Clan » et recrute tes héros."
+        en: "Well done, you have just founded your clan! Now you need a team of adventurers. Go to the « Clan » tab and recruit your heroes."
+        es: "¡Enhorabuena, acabas de fundar tu clan! Ahora necesitas un equipo de aventureros. Ve a la pestaña « Clan » y recluta a tus héroes."
+      # Après clan_intro, flèche sur le kebab doré de l'en-tête.
+      reminder_recruit_clan:
+        fr: "Ton clan a besoin de héros ! Ouvre ce menu, puis « QR Code du clan » : ta famille installe le jeu sur son téléphone et scanne le code pour te rejoindre."
+        en: "Your clan needs heroes! Open this menu, then « Clan QR Code »: your family installs the game on their phone and scans the code to join you."
+        es: "¡Tu clan necesita héroes! Abre este menú y luego « Código QR del clan »: tu familia instala el juego en su teléfono y escanea el código para unirse."
       # --- Impersonation (prendre la place d'un joueur) ---
       impersonating_as:
         fr: "Vous incarnez"
@@ -896,19 +922,196 @@ conf:
         fr: "Changer de moyen de paiement ou résilier, sur Google Play."
         en: "Change payment method or cancel, on Google Play."
         es: "Cambiar el método de pago o cancelar, en Google Play."
-      # UN SEUL jeton de refus. Il y en avait trois (enfants pleins / adultes pleins /
-      # les deux), parce que le catalogue portait deux plafonds distincts. Il n'y a
-      # plus qu'un compteur de joueurs, donc plus qu'une façon d'être complet — et
-      # plus besoin d'expliquer à une famille laquelle de ses deux tables déborde.
+
+      # --- Codes cadeaux ---------------------------------------------------------
+      # Le TON est celui du donjon, jamais celui d'un guichet : un enfant peut lire
+      # l'écran par-dessus l'épaule d'un adulte. Aucun message ne dit « erreur », ni
+      # « invalide », ni « échec » — un code qui ne marche pas est une porte qui ne
+      # s'ouvre pas, et un code déjà servi est un coffre déjà vidé.
       #
-      # Le texte ne nomme AUCUN palier : celui qu'il faut prendre dépend de l'effectif,
-      # et la page des paliers le flèche elle-même à la ligne près. Écrire « prenez
-      # l'illimité » ici, comme le faisait l'ancienne version, vendait le plus cher à
-      # un clan de trois qui n'avait besoin que du palier d'à côté.
+      # Ces jetons vivent ICI et non au thème, comme le reste des libellés de la
+      # boutique : un message qui explique pourquoi un cadeau ne s'ouvre pas doit
+      # rester lisible même quand le layer du bucket est en retard.
+      giftcode_menu:
+        fr: "Utiliser un code"
+        en: "Redeem a code"
+        es: "Usar un código"
+      giftcode_menu_desc:
+        fr: "Un code reçu par courrier, sur une carte ou par un ami."
+        en: "A code received by e-mail, on a card or from a friend."
+        es: "Un código recibido por correo, en una tarjeta o de un amigo."
+      giftcode_title:
+        fr: "Un code pour le clan"
+        en: "A code for the clan"
+        es: "Un código para el clan"
+      giftcode_intro:
+        fr: "Recopiez le code tel qu'il est écrit. Les tirets, les espaces et les majuscules n'ont aucune importance."
+        en: "Type the code just as it is written. Dashes, spaces and capitals make no difference."
+        es: "Escribe el código tal como está. Los guiones, los espacios y las mayúsculas no importan."
+      giftcode_hint:
+        fr: "Le code"
+        en: "The code"
+        es: "El código"
+      giftcode_confirm:
+        fr: "Ouvrir le coffre"
+        en: "Open the chest"
+        es: "Abrir el cofre"
+      giftcode_close:
+        fr: "Merci !"
+        en: "Thank you!"
+        es: "¡Gracias!"
+      # {n} n'est pas utilisé ici : le worker substitue @@@months@@@ lui-même, après
+      # avoir résolu la traduction. Deux formulations parce qu'« 1 mois » et « 2 mois »
+      # ne se disent pas de la même façon dans les trois langues.
+      giftcode_success:
+        fr: "Le coffre s'ouvre : @@@months@@@ mois offerts au clan. Ils s'ajoutent à ce que vous avez déjà."
+        en: "The chest opens: @@@months@@@ months given to the clan. They add to what you already have."
+        es: "El cofre se abre: @@@months@@@ meses de regalo para el clan. Se suman a lo que ya tenéis."
+      giftcode_success_one:
+        fr: "Le coffre s'ouvre : un mois offert au clan. Il s'ajoute à ce que vous avez déjà."
+        en: "The chest opens: one month given to the clan. It adds to what you already have."
+        es: "El cofre se abre: un mes de regalo para el clan. Se suma a lo que ya tenéis."
+      giftcode_empty:
+        fr: "Il n'y a rien à ouvrir : le coffre attend un code."
+        en: "There is nothing to open: the chest is waiting for a code."
+        es: "No hay nada que abrir: el cofre espera un código."
+      giftcode_invalid:
+        fr: "Ce code n'ouvre aucun coffre. Vérifiez les signes, un par un."
+        en: "This code opens no chest. Check the characters, one by one."
+        es: "Este código no abre ningún cofre. Comprueba los signos, uno a uno."
+      giftcode_used:
+        fr: "Votre clan a déjà ouvert ce coffre-là."
+        en: "Your clan has already opened that chest."
+        es: "Vuestro clan ya ha abierto ese cofre."
+      giftcode_exhausted:
+        fr: "Ce coffre a été vidé par d'autres clans avant vous."
+        en: "This chest was emptied by other clans before you."
+        es: "Otros clanes vaciaron este cofre antes que vosotros."
+      giftcode_expired:
+        fr: "Ce code a fait son temps : le coffre s'est refermé."
+        en: "This code has had its day: the chest has closed again."
+        es: "Este código ya cumplió su tiempo: el cofre se ha vuelto a cerrar."
+      # Le message ne dit pas combien d'essais restent, ni quand la porte rouvre :
+      # ce serait dire à quelqu'un qui cherche à deviner comment s'y prendre.
+      giftcode_throttled:
+        fr: "Trop de clés essayées. La serrure se repose ; revenez demain."
+        en: "Too many keys tried. The lock is resting; come back tomorrow."
+        es: "Demasiadas llaves probadas. La cerradura descansa; vuelve mañana."
+      giftcode_not_admin:
+        fr: "Seul un chef de clan peut ouvrir ce coffre."
+        en: "Only a clan chief can open this chest."
+        es: "Solo un jefe de clan puede abrir este cofre."
+      giftcode_network:
+        fr: "Le coffre reste muet. Réessayez dans un instant."
+        en: "The chest stays silent. Try again in a moment."
+        es: "El cofre permanece mudo. Inténtalo de nuevo en un momento."
+
+      # --- Fabrique de codes (mode test) -----------------------------------------
+      # Écran d'EXPLOITATION, pas de jeu : ton neutre, vocabulaire exact. Il ne sort
+      # jamais du bucket de test.
+      giftcode_mint_menu:
+        fr: "Fabriquer des codes"
+        en: "Mint gift codes"
+        es: "Fabricar códigos"
+      giftcode_mint_menu_desc:
+        fr: "Créer un lot de codes cadeaux (compte éditeur seulement)"
+        en: "Create a batch of gift codes (publisher account only)"
+        es: "Crear un lote de códigos de regalo (solo cuenta editora)"
+      giftcode_mint_title:
+        fr: "Fabrique de codes"
+        en: "Gift code mint"
+        es: "Fábrica de códigos"
+      giftcode_mint_hint:
+        fr: "Les codes ne s'affichent qu'UNE FOIS : seule leur empreinte est conservée. Partagez-les avant de quitter."
+        en: "Codes are shown ONCE only: only their fingerprint is kept. Share them before leaving."
+        es: "Los códigos se muestran UNA SOLA VEZ: solo se conserva su huella. Compártelos antes de salir."
+      giftcode_mint_count:
+        fr: "Combien de codes"
+        en: "How many codes"
+        es: "Cuántos códigos"
+      giftcode_mint_months:
+        fr: "Mois offerts"
+        en: "Months granted"
+        es: "Meses de regalo"
+      giftcode_mint_uses:
+        fr: "Clans par code"
+        en: "Clans per code"
+        es: "Clanes por código"
+      # 0 = sans fin. Un code de flyer qui n'expire jamais reste réclamable pour
+      # toujours : le champ existe pour qu'y penser ne demande aucun détour.
+      giftcode_mint_days:
+        fr: "Valable (jours, 0 = sans fin)"
+        en: "Valid for (days, 0 = forever)"
+        es: "Válido (días, 0 = sin fin)"
+      giftcode_mint_label:
+        fr: "Nom du lot"
+        en: "Batch name"
+        es: "Nombre del lote"
+      giftcode_mint_label_hint:
+        fr: "ex. betas août"
+        en: "e.g. august betas"
+        es: "p. ej. betas agosto"
+      giftcode_mint_confirm:
+        fr: "Fabriquer"
+        en: "Mint"
+        es: "Fabricar"
+      giftcode_mint_share:
+        fr: "Partager les codes"
+        en: "Share the codes"
+        es: "Compartir los códigos"
+      giftcode_revoke_hint:
+        fr: "Lot ou code à couper"
+        en: "Batch or code to cut"
+        es: "Lote o código a cortar"
+      giftcode_revoke:
+        fr: "Couper"
+        en: "Cut"
+        es: "Cortar"
+      # DEUX jetons de refus, et un seul critère pour choisir : l'HISTOIRE COMMERCIALE
+      # du clan (_storeCapNotice lit _storeState), jamais le plafond lui-même.
+      #   - jamais souscrit  → store_cap_start : c'est une proposition, on annonce les
+      #                        quatorze jours offerts ;
+      #   - tous les autres  → store_cap_full  : abonné qui déborde, résilié, expiré,
+      #                        gelé. AUCUNE promesse d'essai — Play ne re-sert pas
+      #                        `essai-14j` à un compte qui l'a déjà eue, et une
+      #                        promesse démentie par la feuille de paiement est pire
+      #                        que pas de promesse.
+      #
+      # Il y en avait eu trois autrefois (enfants pleins / adultes pleins / les deux),
+      # parce que le catalogue portait deux plafonds distincts. Il n'y a plus qu'un
+      # compteur de joueurs, donc plus qu'une façon d'être complet.
+      #
+      # Aucun des deux textes ne nomme de palier : celui qu'il faut prendre dépend de
+      # l'effectif, et la page des paliers le flèche elle-même à la ligne près. Écrire
+      # « prenez l'illimité » ici, comme le faisait une vieille version, vendait le
+      # plus cher à un clan de trois qui n'avait besoin que du palier d'à côté.
+      #
+      # « pour cette cotisation » a été retiré de store_cap_full : c'était faux pour un
+      # clan expiré ou gelé, qui n'en a plus aucune, et ça se lisait comme un reproche.
       store_cap_full:
-        fr: "Le clan est au complet pour cette cotisation. Voici les paliers, et celui qui vous ouvrirait une place de plus."
-        en: "The clan is full for these dues. Here are the tiers, and the one that would open another seat for you."
-        es: "El clan está completo para esta cuota. Estos son los niveles, y el que os abriría una plaza más."
+        fr: "Le clan est au complet. Voici les paliers, et celui qui vous ouvrirait une place de plus."
+        en: "The clan is full. Here are the tiers, and the one that would open another seat for you."
+        es: "El clan está completo. Estos son los niveles, y el que os abriría una plaza más."
+      # {n} = le plafond courant, substitué par on_tiers_appear (jamais un chiffre en
+      # dur : la grille se règle depuis le bucket, ce texte est embarqué au binaire).
+      #
+      # ⚠ PROMESSE COMMERCIALE EMBARQUÉE. Les quatorze jours sont l'offre `essai-14j`
+      # du catalogue. Si elle change ou disparaît au bucket, CE TEXTE DEVIENT FAUX et
+      # demande une nouvelle version sur les stores — il n'y a pas de layer qui le
+      # rattrape. Vérifier les deux ensemble.
+      store_cap_start:
+        fr: "Votre clan grandit ! Au-delà de {n} aventuriers, il lui faut une cotisation — les quatorze premiers jours sont offerts, et vous l'arrêtez quand vous voulez."
+        en: "Your clan is growing! Beyond {n} adventurers it needs dues — the first fourteen days are free, and you can stop whenever you want."
+        es: "¡Vuestro clan crece! Más allá de {n} aventureros necesita una cuota — los catorce primeros días son gratuitos, y la paráis cuando queráis."
+      # Le MUR de première cotisation (D2), affiché aux seuls chefs après la deuxième
+      # tâche validée du clan. Même promesse que store_cap_start et mêmes précautions.
+      # Ne menace de rien et ne nomme aucun palier : ce n'est pas une sanction, c'est
+      # le moment où l'on demande le prix — la famille vient de constater de ses yeux
+      # que le jeu fonctionne.
+      store_pitch_second:
+        fr: "Deux défis déjà relevés — votre clan a pris le rythme. Pour qu'il continue, il lui faut une cotisation : les quatorze premiers jours sont offerts, et vous l'arrêtez quand vous voulez."
+        en: "Two challenges already met — your clan has found its rhythm. To keep it going it needs dues: the first fourteen days are free, and you can stop whenever you want."
+        es: "Dos desafíos ya superados — vuestro clan ha cogido el ritmo. Para que continúe necesita una cuota: los catorce primeros días son gratuitos, y la paráis cuando queráis."
       store_state_none:
         fr: "Aucune cotisation en cours"
         en: "No dues in effect"

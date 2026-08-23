@@ -1,0 +1,243 @@
+# ---------------------------------------------------------------
+# GENERE par builder.py depuis le build.yml de la suite.
+# Ne pas editer : toute modification est ecrasee au prochain build.
+# Source : build.yml -> store
+# ---------------------------------------------------------------
+name: store-catalog
+above: conf
+strategy: default
+tenant: global
+data:
+  store:
+    catalog:
+      ddust_essentiel:
+        type: subscription
+        order: 1
+        base_plans:
+        - essentiel-monthly
+        - essentiel-yearly
+        offers:
+        - essai-14j
+        - fondateur
+        label: '@@@T:store_essentiel@@@'
+        description: '@@@T:store_essentiel_desc@@@'
+        price_hint: 1.99 €
+        price_hint_yearly: 19.99 €
+        grants:
+          shop: true
+          max_players: 2
+        play:
+          listings:
+            fr-FR:
+              title: Essentiel — jusqu'à 2 joueurs
+              description: 'Une petite escouade : un adulte et son aventurier, ou
+                deux compagnons.'
+            en-US:
+              title: Essential — up to 2 players
+              description: 'A small squad: one adult and their adventurer, or two
+                companions.'
+            es-ES:
+              title: Esencial — hasta 2 jugadores
+              description: 'Una pequeña escuadra: un adulto y su aventurero, o dos
+                compañeros.'
+          plans:
+            essentiel-monthly:
+              period: P1M
+              prices:
+                eur: '1.99'
+                usd: '2.19'
+                cad: '2.99'
+                gbp: '1.79'
+                chf: '1.99'
+            essentiel-yearly:
+              period: P1Y
+              prices:
+                eur: '19.99'
+                usd: '21.99'
+                cad: '29.99'
+                gbp: '17.99'
+                chf: '19.99'
+      ddust_clan:
+        type: subscription
+        order: 2
+        base_plans:
+        - clan-monthly
+        - clan-yearly
+        offers:
+        - essai-14j
+        - fondateur
+        label: '@@@T:store_clan@@@'
+        description: '@@@T:store_clan_desc@@@'
+        price_hint: 2.99 €
+        price_hint_yearly: 24.99 €
+        grants:
+          shop: true
+          max_players: 4
+        play:
+          listings:
+            fr-FR:
+              title: Clan — jusqu'à 4 joueurs
+              description: 'La maisonnée ordinaire : parents et enfants autour des
+                mêmes quêtes.'
+            en-US:
+              title: Clan — up to 4 players
+              description: 'The ordinary household: parents and children on the same
+                quests.'
+            es-ES:
+              title: Clan — hasta 4 jugadores
+              description: 'El hogar corriente: padres e hijos en torno a las mismas
+                misiones.'
+          plans:
+            clan-monthly:
+              period: P1M
+              prices:
+                eur: '2.99'
+                usd: '3.29'
+                cad: '4.49'
+                gbp: '2.59'
+                chf: '2.99'
+            clan-yearly:
+              period: P1Y
+              prices:
+                eur: '24.99'
+                usd: '27.99'
+                cad: '36.99'
+                gbp: '21.99'
+                chf: '24.99'
+      ddust_tribu:
+        type: subscription
+        order: 3
+        base_plans:
+        - tribu-monthly
+        - tribu-yearly
+        offers:
+        - essai-14j
+        - fondateur
+        label: '@@@T:store_tribu@@@'
+        description: '@@@T:store_tribu_desc@@@'
+        price_hint: 4.99 €
+        price_hint_yearly: 39.99 €
+        grants:
+          shop: true
+          max_players: 7
+        play:
+          listings:
+            fr-FR:
+              title: Tribu — jusqu'à 7 joueurs
+              description: 'Quand la maisonnée déborde : grande fratrie, foyers réunis.'
+            en-US:
+              title: Tribe — up to 7 players
+              description: 'When the household overflows: a big sibling crew, homes
+                joined.'
+            es-ES:
+              title: Tribu — hasta 7 jugadores
+              description: 'Cuando la casa se desborda: hermandad numerosa, hogares
+                reunidos.'
+          plans:
+            tribu-monthly:
+              period: P1M
+              prices:
+                eur: '4.99'
+                usd: '5.49'
+                cad: '7.49'
+                gbp: '4.29'
+                chf: '4.99'
+            tribu-yearly:
+              period: P1Y
+              prices:
+                eur: '39.99'
+                usd: '43.99'
+                cad: '58.99'
+                gbp: '34.99'
+                chf: '39.99'
+      ddust_guilde:
+        type: subscription
+        order: 4
+        base_plans:
+        - guilde-monthly
+        - guilde-yearly
+        offers:
+        - essai-14j
+        - fondateur
+        label: '@@@T:store_guilde@@@'
+        description: '@@@T:store_guilde_desc@@@'
+        price_hint: 5.99 €
+        price_hint_yearly: 49.99 €
+        grants:
+          shop: true
+          max_players: 12
+        play:
+          listings:
+            fr-FR:
+              title: Guilde — jusqu'à 12 joueurs
+              description: Cousins, grands-parents, deux maisons qui n'en font plus
+                qu'une.
+            en-US:
+              title: Guild — up to 12 players
+              description: Cousins, grandparents, two houses that have become one.
+            es-ES:
+              title: Gremio — hasta 12 jugadores
+              description: Primos, abuelos, dos casas que ya son una.
+          plans:
+            guilde-monthly:
+              period: P1M
+              prices:
+                eur: '5.99'
+                usd: '6.49'
+                cad: '8.99'
+                gbp: '5.29'
+                chf: '5.99'
+            guilde-yearly:
+              period: P1Y
+              prices:
+                eur: '49.99'
+                usd: '54.99'
+                cad: '73.99'
+                gbp: '42.99'
+                chf: '49.99'
+      ddust_royaume:
+        type: subscription
+        order: 5
+        base_plans:
+        - royaume-monthly
+        - royaume-yearly
+        offers:
+        - essai-14j
+        - fondateur
+        label: '@@@T:store_royaume@@@'
+        description: '@@@T:store_royaume_desc@@@'
+        price_hint: 7.99 €
+        price_hint_yearly: 64.99 €
+        grants:
+          shop: true
+          max_players: -1
+        play:
+          listings:
+            fr-FR:
+              title: Royaume — joueurs illimités
+              description: 'Pour les clans sans fin : aucun plafond, tous les aventuriers.'
+            en-US:
+              title: Kingdom — unlimited players
+              description: 'For clans without end: no cap, as many adventurers as
+                you like.'
+            es-ES:
+              title: Reino — jugadores ilimitados
+              description: 'Para los clanes sin fin: sin límite, tantos aventureros
+                como queráis.'
+          plans:
+            royaume-monthly:
+              period: P1M
+              prices:
+                eur: '7.99'
+                usd: '8.99'
+                cad: '11.99'
+                gbp: '6.99'
+                chf: '7.99'
+            royaume-yearly:
+              period: P1Y
+              prices:
+                eur: '64.99'
+                usd: '71.99'
+                cad: '96.99'
+                gbp: '56.99'
+                chf: '64.99'

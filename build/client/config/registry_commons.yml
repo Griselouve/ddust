@@ -79,6 +79,11 @@ conf:
         - store_product_page
         - locked_page
         - store_scenario_page
+        # Codes cadeaux : saisie (tous les chefs) et fabrique (mode test seulement).
+        # On n'y arrive que par le kebab de la boutique — mais un écran absent de cette
+        # liste est inatteignable, y compris par navigate_new.
+        - giftcode_page
+        - giftcode_mint_page
         # Paliers d'abonnement (registry_store_tiers.yml). Seul écran d'où l'on
         # souscrit ou change de cotisation, et on n'y arrive jamais par hasard :
         # une raison commerciale l'ouvre (plafond atteint, relance, réabonnement).

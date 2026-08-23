@@ -124,14 +124,24 @@ conf:
       text: "@@@T:create_clan_confirm@@@"
     # region= : un clan ne vit que dans sa région de stockage. Sans elle, un joueur d'une autre
     # région suivrait le lien et tomberait sur un « clan introuvable » sans explication.
+    #
+    # ⚠️ Les TROIS partages d'invitation portent `share_site_link` en dernière ligne, comme le
+    # partage de journal. Ce n'est pas de la décoration : le destinataire d'une invitation est,
+    # par définition, quelqu'un qui n'a PAS encore le jeu. Un lien `ddust://` seul ne fait
+    # strictement rien sur un téléphone sans l'app — et le parent qui l'envoie croit avoir tout
+    # dit. C'est le seul endroit du partage qui indique où trouver le jeu, et c'est ici qu'il
+    # compte le plus. Le logo accompagne le message pour qu'il soit identifiable dans un fil.
     clan_invite:
-      text: "@@@T:share_clan_invite_text@@@\nddust://invite?group_id=@@@worker.pending_group_id@@@&lobby_id=@@@worker.pending_lobby_id@@@&region=@@@worker.pending_region@@@"
+      text: "@@@T:share_clan_invite_text@@@\n\n@@@T:share_clan_invite_link@@@\nddust://invite?group_id=@@@worker.pending_group_id@@@&lobby_id=@@@worker.pending_lobby_id@@@&region=@@@worker.pending_region@@@\n\n@@@T:share_site_link@@@"
+      image: "images/big/logo.png"
     clan_request:
-      text: "@@@T:share_clan_request_text@@@\nddust://request?lobby_id=@@@worker.pending_lobby_id@@@"
+      text: "@@@T:share_clan_request_text@@@\nddust://request?lobby_id=@@@worker.pending_lobby_id@@@\n\n@@@T:share_site_link@@@"
+      image: "images/big/logo.png"
     # Invitation à distance : token chiffré posé au runtime dans worker.pending_invite_token.
     # Le PIN est dicté de vive voix, jamais dans le lien.
     clan_invite_pin:
-      text: "@@@T:share_clan_invite_pin_text@@@\nddust://invitepin?token=@@@worker.pending_invite_token@@@"
+      text: "@@@T:share_clan_invite_pin_text@@@\n\n@@@T:share_clan_invite_link@@@\nddust://invitepin?token=@@@worker.pending_invite_token@@@\n\n@@@T:share_site_link@@@"
+      image: "images/big/logo.png"
     # Journal (joueur, clan, ou récit IA du conte du butin) : logo (image) + accroche + corps, tous
     # deux posés au runtime par worker.on_log_appear dans log.share_intro / log.share_text.
     # L'accroche VARIE selon ce qui est partagé (journal brut vs récit narratif IA) — c'est pour ça
@@ -143,6 +153,11 @@ conf:
     log:
       text: "@@@log.share_intro@@@\n\n@@@log.share_text@@@\n\n@@@T:share_site_link@@@"
       image: "images/big/logo.png"
+    # Codes cadeaux fraîchement fabriqués (écran de mode test). C'est le SEUL moyen de
+    # les sortir de l'app : seule leur empreinte est conservée côté serveur, ils ne
+    # s'affichent qu'une fois. Posés au runtime dans worker.mint.codes.
+    gift_codes:
+      text: "@@@worker.mint.codes@@@"
 
   # --- Interludes : ce qui EXISTE ---------------------------------------------------
   # Les cinq célébrations que le worker sait déclencher (dvinterlude.play.<id>). On ne déclare ICI

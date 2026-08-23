@@ -85,6 +85,28 @@ extension Worker_screen_tiroir on worker {
                                     return;
                                 }
 
+                                // MUR DE PREMIÈRE COTISATION. La seconde — et dernière — porte fermée du
+                                // jeu, et elle ne se ferme QUE pour les chefs : les enfants et les
+                                // adultes non-administrateurs ne la voient jamais, ils continuent de
+                                // jouer. Leurs tâches s'empilent simplement en attente d'une validation
+                                // que personne ne rend, et c'est très exactement la pression qu'on veut —
+                                // elle s'exerce sur l'adulte qui peut payer, sans qu'aucun enfant ne voie
+                                // d'écran de paiement.
+                                //
+                                // Ici et pas ailleurs, pour la même raison que le gel : le dashboard est
+                                // le passage obligé de tout joueur enrôlé, le garder suffit à garder les
+                                // 25 écrans de jeu sans en instrumenter aucun.
+                                //
+                                // AVANT tout le reste du handler : on s'apprête à quitter le dashboard,
+                                // et rien de ce qui lui appartient — bandeau, vigilance, fée, bienvenue,
+                                // tutoriel — n'a lieu d'être joué pour être balayé dans la foulée.
+                                // APRÈS le gel : un clan gelé relève de locked_page, pas d'une vente.
+                                if (await _storePitchDue()) {
+                                    deva_log("info", "[store] première cotisation demandée — mur");
+                                    await _storeGotoTiers(notice: "@@@T:store_pitch_second@@@", blocking: true);
+                                    return;
+                                }
+
                                 // Rappel d'impayé : doux, réservé aux chefs de clan, et seulement une
                                 // fois le cycle de relance entamé côté serveur. Évalué ICI pour la même
                                 // raison — un seul appel peuple les écrans déjà montés comme ceux qui
@@ -106,6 +128,20 @@ extension Worker_screen_tiroir on worker {
                                 // _rollFairy avale toutes ses exceptions : l'écran d'accueil du jeu ne doit
                                 // pas dépendre du bon vouloir d'une fée.
                                 await _rollFairy();
+
+                                // REVUE DEMANDÉE PAR UNE NOTIFICATION tapée alors que l'app était FERMÉE.
+                                // Le handler de la notification tourne avant l'ouverture de session : sa
+                                // navigation serait écrasée par celle-ci, il se contente donc d'armer, et
+                                // c'est ici qu'on consomme — le dashboard est le seul instant où la
+                                // session est réellement prête (identité résolue, clan chargé, pile propre).
+                                //
+                                // Placé après le bandeau d'impayé et la vigilance, qui valent sur tous les
+                                // écrans y compris celui vers lequel on part, et après le tirage de la fée
+                                // qui n'affiche rien mais ne doit être sauté sur aucun chemin. Placé avant
+                                // la bienvenue clan et le tutoriel, qui appartiennent au dashboard et
+                                // qu'on est sur le point de quitter — ils seront rejoués au prochain
+                                // passage, exactement comme dans le cas de la bienvenue.
+                                if (await _consumePendingReviewTask()) return;
 
                                 // 1re arrivée après création/rejoint : la bienvenue clan, s'il y en a une.
                                 final welcomed = await _playPendingClanWelcome();

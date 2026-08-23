@@ -229,8 +229,9 @@ extension Worker_celebrations on worker {
     Future<void> _applyDeath(bool dead, String gage, {bool persist = true, bool showRevive = false}) async {
 
                                 try {
-                                    // Texte du gage + 2 sauts de ligne + phrase de soin (les 2 tokens traduits au rendu).
-                                    final gageLabel  = "@@@T:$gage@@@\n\n@@@T:gage_heal@@@";
+                                    // Texte du gage (qui se termine par la consigne « Faire un défi en famille : … »)
+                                    // suivi, dans le même paragraphe, de la phrase de soin (les 2 tokens traduits au rendu).
+                                    final gageLabel  = "@@@T:$gage@@@ @@@T:gage_heal@@@";
                                     final showBtn    = dead && showRevive;
                                     await deva_set("registry.commons/death_scrim.shape.visible",  dead);
                                     await deva_set("registry.commons/death_skull.shape.visible",  dead);

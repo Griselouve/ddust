@@ -1,4 +1,28 @@
 conf:
+  # Publication du catalogue dans la Play Console. Le catalogue lui-meme n'est PAS
+  # ici : il vit dans le build.yml de la suite, d'ou le builder le redistribue (c'est
+  # la meme table qui nourrit l'app, le backend et Google). Ne restent ici que les
+  # reglages de PUBLICATION.
+  #
+  # Le catalogue s'ecrit avec l'IDENTITE DE BUILD (compte de service master), pas avec
+  # celle de l'app : `deva-store` tourne dans des Cloud Functions appelables, et lui
+  # donner le droit de modifier ce qui est en vente mettrait les prix a portee d'une
+  # faille dans une fonction exposee. Meme raisonnement que le compte `pulse`,
+  # volontairement separe de `backend` plus bas.
+  #
+  # dry_run : affiche le plan complet — creations, modifications, desactivations —
+  # sans rien ecrire. C'est le seul moment ou une faute de frappe se rattrape encore,
+  # un identifiant Play cree ne se supprimant JAMAIS.
+  #
+  # Passe a false le 2026-08-21, plan relu. Les cinq identifiants d'abonnement et les
+  # dix base plans existent desormais chez Google : les remettre a true ne les
+  # effacerait pas, cela ne ferait que suspendre les mises a jour. A rebasculer
+  # ponctuellement avant tout changement de grille tarifaire, pour relire l'effet
+  # avant de l'appliquer.
+  catalog:
+    enabled: true
+    dry_run: false
+
   project:
     billing_id: 01C0A1-9CF02B-DB8CA8
     name: Ddust
@@ -6,6 +30,17 @@ conf:
     org_id: "136817027313"
     project_id: dvddust
     user_email: asura@grisloup.com
+
+    # Canal par lequel Google previent des CHANGEMENTS DE SOUS-TRAITANTS et des
+    # incidents — deux notifications que le responsable de traitement doit recevoir
+    # (art. 28 RGPD, cf. stores/google/dpa.md). Pose par puproject au deploiement
+    # plutot qu'a la main en console : un contact manuel ne survivrait pas a une
+    # recreation de projet, et son absence ne se remarque que le jour ou l'on
+    # aurait du etre prevenu.
+    # `email` omis volontairement : il retombe sur publisher.email (build.yml de la
+    # suite), pour que l'adresse de contact n'existe qu'a un seul endroit.
+    essential_contacts:
+      - categories: [LEGAL]
 
   # Chaque region declaree ici produit sa propre pile complete : 7 bases Firestore
   # prefixees (eu-workers, us-workers...), un bucket d'assets, un bucket de documents
@@ -43,6 +78,10 @@ conf:
       # Balayage quotidien des timers de defaut de paiement (grace 10j, locked j50,
       # suppression j90) : ces echeances doivent tomber meme si plus personne n'ouvre l'app.
       - cloudscheduler.googleapis.com
+      # Contacts essentiels (project.essential_contacts) : sans cette API, la ressource
+      # echoue au deploiement. Le compte de service master doit aussi porter
+      # essentialcontacts.admin.
+      - essentialcontacts.googleapis.com
   oauth:
     enabled: true
     visibility: public
@@ -64,8 +103,13 @@ conf:
       #     premier upload (Test et release -> Integrite de l'app -> Certificat de la
       #     cle de signature de l'app). Definitive, generee une seule fois.
       # Tant qu'elle est vide, le second client n'est pas demande.
+      # Empreinte RELEVEE SUR L'APK REELLEMENT DISTRIBUE, pas lue dans la console :
+      #   adb shell pm path <package> ; adb pull <base.apk> ; apksigner verify --print-certs
+      # La lecture de la console avait donne une autre valeur (EA:A0:...), qui ne
+      # correspondait a aucune installation — d'ou une authentification Google qui
+      # echouait depuis le Store alors que tout etait vert cote consoles.
       play_sha1s:
-        client: ""
+        client: "33:1E:56:BC:46:5D:D4:5A:EE:B1:B9:A5:9E:4E:DA:C4:55:35:7F:3F"
     # Session anonyme : le joueur choisit son royaume, declare son age et accepte les CGU
     # AVANT que Firebase Auth ne detienne son email, son nom et sa photo. Le compte Google
     # est lie en fin de parcours (linkWithCredential conserve le meme UID). Sans ce bloc,
@@ -502,14 +546,22 @@ conf:
       # qui prouve l'appartenance, et la liste `admins` de ceux qui peuvent engager leur
       # carte. Un enfant n'y figure jamais — il ne paiera donc rien, même avec un client
       # modifié — mais il lit la projection comme tout le monde et profite de tout.
+      # Les trois identifiants ci-dessous ne sont PAS écrits ici : ils sont lus dans
+      # `store.play` (build.yml de la suite), qui est aussi ce que pucatalog crée chez
+      # Google. Une référence @@@C:...@@@ non résolue fait échouer le build.
+      #
+      # Recopier "essai-14j" à la main était le piège le plus coûteux du dispositif :
+      # une variante d'orthographe ne casse rien de visible, elle fait juste passer
+      # tous les essais pour des abonnements payants — et fausse les chiffres en
+      # silence, sans qu'aucun écran ne bronche.
       store_verify:
         environment:
-          PACKAGE_NAME: "com.grisloup.ddust_client"
-          TRIAL_OFFER_ID: "essai-14j"
+          PACKAGE_NAME: "@@@C:store.play.package@@@"
+          TRIAL_OFFER_ID: "@@@C:store.play.trial_offer@@@"
           # Offre de lancement à éligibilité développeur : un achat qui la porte
           # marque durablement `clans_store.founder`. C'est la seule preuve qui
           # vaille — Play l'a appliquée ou non, on ne fait que le constater.
-          FOUNDER_OFFER_ID: "fondateur"
+          FOUNDER_OFFER_ID: "@@@C:store.play.founder_offer@@@"
           SCOPE_DATABASE: "workers"
           SCOPE_COLLECTION: "clans"
           SCOPE_SECRET_FIELD: "ownerId"
@@ -528,9 +580,11 @@ conf:
       # `store_config/founders` (base `store`), pour se décaler sans redéploiement —
       # une date d'éligibilité qu'il faut redéployer pour bouger n'est pas ajustable,
       # et une offre de lancement dont on ne peut pas prolonger la fenêtre ne sert
-      # pas à grand-chose. Document à poser à la main avant l'ouverture de la piste :
+      # pas à grand-chose. Le document n'est plus posé à la main : `pucatalog`
+      # l'écrit dans CHAQUE base régionale depuis `store.play.founder_cutoff` du
+      # build.yml de la suite, au même passage qu'il crée l'offre chez Google.
       #
-      #   eu-store / store_config / founders
+      #   {eu,us}-store / store_config / founders
       #     { cutoff: <Timestamp>, offer_id: "fondateur", default_credit_months: 0 }
       #
       # `clans.date` est l'horodatage ISO posé à la création du clan
@@ -559,6 +613,61 @@ conf:
           PROJECTION_COLLECTION: "clans_store"
           GRANT_ADMINS: ""
 
+      # Réclamation d'un CODE CADEAU — la seconde porte vers le même octroi.
+      #
+      # store_grant exige qu'on désigne le clan. Or quand on veut remercier une famille
+      # on ne dispose que de son e-mail, et rien ne mène d'une adresse à un clan :
+      # `clans` ne stocke aucune adresse et Firebase Auth ne connaît pas les clans.
+      # Un code inverse l'identification — ce n'est plus nous qui désignons le clan,
+      # c'est le clan qui se désigne en réclamant.
+      #
+      # MÊMES valeurs de scope que store_verify, et pour la même raison : la
+      # récompense bénéficie au clan, seul un administrateur devrait la réclamer, et
+      # `clans.admins` porte des userId MÉTIER qu'il faut traduire depuis l'UID
+      # Firebase (sans quoi la comparaison ne rend jamais vrai — cf. store_verify).
+      #
+      # CODES_REGION: le registre des codes vit dans UNE base, pas une par région.
+      # Sans ça, un même code serait réclamable une fois en EU et une fois en US.
+      # C'est `eu` parce que c'est la région d'origine ; la fonction américaine y va
+      # aussi, exactement comme store_rtdn balaye les deux bases depuis l'Europe.
+      store_claim:
+        environment:
+          SCOPE_DATABASE: "workers"
+          SCOPE_COLLECTION: "clans"
+          SCOPE_SECRET_FIELD: "ownerId"
+          SCOPE_ADMIN_FIELD: "admins"
+          IDENTITY_COLLECTION: "userindexes"
+          IDENTITY_FIELD: "userId"
+          PROJECTION_DATABASE: "workers"
+          PROJECTION_COLLECTION: "clans_store"
+          CODES_REGION: "eu"
+          # Cinq codes faux par compte et par jour. Un code juste ne consomme rien :
+          # une famille qui reçoit deux cadeaux n'est jamais bloquée.
+          CLAIM_MAX_ATTEMPTS: "5"
+          CLAIM_WINDOW_HOURS: "24"
+
+      # Fabrication des codes. MÊME allowlist que store_grant, volontairement : offrir
+      # des mois et fabriquer de quoi en offrir sont le même pouvoir, il n'y a qu'un
+      # seul UID à renseigner. Vide = fermée, comme l'octroi.
+      #
+      # Elle s'appelle depuis l'app, en mode test, sous le compte éditeur : une
+      # fonction callable exige un jeton d'UTILISATEUR authentifié, elle ne se joint
+      # donc ni en curl avec un compte de service, ni depuis un script.
+      store_mint:
+        environment:
+          CODES_REGION: "eu"
+          GRANT_ADMINS: ""
+
+      # Couper un code ou un lot entier. Le pendant indispensable de la fabrication :
+      # un code publié sur un flyer et recopié sur un forum doit pouvoir s'arrêter
+      # sans passer par la console Firestore, c'est-à-dire au pire moment et sous
+      # pression. Ne supprime rien — pose `revoked`, et ce qui a déjà été donné reste
+      # donné.
+      store_revoke:
+        environment:
+          CODES_REGION: "eu"
+          GRANT_ADMINS: ""
+
       # Banc d'essai : écrit la VRAIE projection clans_store au lieu de simuler dans
       # le coin de l'app. C'est ce qui fait qu'un scénario de test se comporte comme
       # la réalité — la vigilance temps réel réveille tous les appareils du clan, le
@@ -568,8 +677,8 @@ conf:
       #
       store_rtdn:
         environment:
-          PACKAGE_NAME: "com.grisloup.ddust_client"
-          TRIAL_OFFER_ID: "essai-14j"
+          PACKAGE_NAME: "@@@C:store.play.package@@@"
+          TRIAL_OFFER_ID: "@@@C:store.play.trial_offer@@@"
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"
           # Play n'accepte qu'un topic : seul eu-play-rtdn est renseigné en console,
@@ -577,8 +686,8 @@ conf:
           STORE_REGIONS: "eu,us"
       store_sweeper:
         environment:
-          PACKAGE_NAME: "com.grisloup.ddust_client"
-          TRIAL_OFFER_ID: "essai-14j"
+          PACKAGE_NAME: "@@@C:store.play.package@@@"
+          TRIAL_OFFER_ID: "@@@C:store.play.trial_offer@@@"
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"
           # Cycle de défaut de paiement (vision.md § « Les défauts de paiement »).
@@ -1197,21 +1306,27 @@ conf:
              "texts":{
                "fr":{"onboarding_empty":"Votre donjon vous attend, mais il est encore vide. Ajoutez votre première quête en trente secondes.",
                      "onboarding_idle":"Les quêtes sont prêtes, le donjon aussi. Il ne manque plus qu'un premier aventurier pour s'y lancer.",
+                     "onboarding_alone":"Votre donjon tourne, mais vous y êtes seul. Le QR code qui fait entrer votre famille vous attend dans l'onglet Clan.",
                      "validation":"Une quête a été menée à son terme et attend votre verdict pour être récompensée.",
+                     "validation_open":"Une quête a été menée à son terme et attend votre verdict. Touchez pour l'ouvrir.",
                      "chest_full":"Le coffre du clan déborde. Une cérémonie d'ouverture ferait des heureux.",
                      "chest_empty":"Le coffre du clan est vide. Un butin à y déposer donnerait un but aux prochaines quêtes.",
                      "boss":"Un monstre de poussière vient d'apparaître dans votre donjon. Votre aide est nécessaire !",
                      "comeback":"Le donjon a rouvert ses portes. Votre place y est gardée au chaud."},
                "en":{"onboarding_empty":"Your dungeon awaits, but it is still empty. Add your first quest in thirty seconds.",
                      "onboarding_idle":"The quests are ready and so is the dungeon. All it needs is a first adventurer to set off.",
+                     "onboarding_alone":"Your dungeon is running, but you are alone in it. The QR code that brings your family in is waiting in the Clan tab.",
                      "validation":"A quest has been completed and is waiting for your verdict to be rewarded.",
+                     "validation_open":"A quest has been completed and is waiting for your verdict. Tap to open it.",
                      "chest_full":"The clan chest is overflowing. An opening ceremony would make someone very happy.",
                      "chest_empty":"The clan chest is empty. Some loot in it would give the next quests a purpose.",
                      "boss":"A dust monster has just appeared in your dungeon. Your help is needed!",
                      "comeback":"The dungeon has opened its doors again. Your place is being kept warm."},
                "es":{"onboarding_empty":"Tu mazmorra te espera, pero todavía está vacía. Añade tu primera misión en treinta segundos.",
                      "onboarding_idle":"Las misiones están listas y la mazmorra también. Solo falta un primer aventurero que se lance.",
+                     "onboarding_alone":"Tu mazmorra funciona, pero estás solo en ella. El código QR que hace entrar a tu familia te espera en la pestaña Clan.",
                      "validation":"Una misión ha llegado a su fin y espera tu veredicto para ser recompensada.",
+                     "validation_open":"Una misión ha llegado a su fin y espera tu veredicto. Toca para abrirla.",
                      "chest_full":"El cofre del clan está rebosando. Una ceremonia de apertura haría feliz a alguien.",
                      "chest_empty":"El cofre del clan está vacío. Un botín dentro daría sentido a las próximas misiones.",
                      "boss":"¡Un monstruo de polvo acaba de aparecer en tu mazmorra. Se necesita tu ayuda!",
@@ -1454,9 +1569,14 @@ conf:
                   // jeu, `nudges: false` est le refus explicite du réglage « Rappels ».
                   const live: any[] = [];
                   let lastSeen = 0;
+                  // Effectif RECRUTÉ, distinct de `live` : il compte les membres sans appareil et
+                  // ceux qui ont coupé les rappels. Un enfant créé par le chef (has_device: false)
+                  // n'est pas joignable, mais c'est un recrutement — le clan n'est plus seul.
+                  let enrolled = 0;
                   for (const m of members.docs) {
                       const d = m.data() || {};
                       if (d.enabled === false || d.status === 'deleted') continue;
+                      enrolled++;
                       const at = Date.parse(String(d.last_connected || '')) || 0;
                       if (at > lastSeen) lastSeen = at;
                       if (d.has_device === false || d.nudges === false) continue;
@@ -1486,7 +1606,7 @@ conf:
                   //
                   // Un seul motif part par passe : l'onboarding l'emporte quand il vaut,
                   // parce qu'on ne parle pas du coffre à qui n'a pas encore de quête.
-                  const onboard = await pickOnboardingMotive(W, clanId, ageDays, youngD);
+                  const onboard = await pickOnboardingMotive(W, clanId, ageDays, youngD, enrolled, clan);
                   const motive  = onboard
                       || (clanSilent ? await pickLiveMotive(W, clanId, now, silentH, chestIdle) : null);
 
@@ -1581,9 +1701,17 @@ conf:
                   const byLang: any = {};
                   for (const t of targets) (byLang[t.lang] = byLang[t.lang] || []).push(t.id);
 
+                  // Lu UNE fois, hors de la boucle des langues : la cotisation est un fait
+                  // du CLAN, pas du destinataire.
+                  const paid = (key === 'validation' && extra)
+                      ? await clanSubscribed(W, String(extra.clanId || ''))
+                      : false;
+
                   let total = 0;
                   for (const lang of Object.keys(byLang)) {
-                      const text = tr('texts', lang, key);
+                      const text = tr('texts', lang, paid || key !== 'validation'
+                                                     ? key : 'validation_open')
+                                || tr('texts', lang, key);
                       if (!text) continue;
 
                       const opts: any = { kind: 'pulse_' + key, dry };
@@ -1591,14 +1719,29 @@ conf:
                       // l'action utile peut être rendue SANS ouvrir l'app. Les trois
                       // actions et la charge métier reprennent à l'identique celles de
                       // _notifyAdmins — donc aucun code client à écrire pour les traiter.
+                      //
+                      // ET SEULEMENT SI LE CLAN COTISE. Sans cotisation, la relance du soir
+                      // aurait été la dernière fuite : le client a beau retirer ses boutons,
+                      // c'est justement aux clans endormis — donc les moins convertis — que
+                      // cette passe s'adresse, et elle leur aurait rendu le confort qu'on
+                      // vient de leur retirer. Même forme de repli que côté client : une
+                      // action unique et sans libellé, dont le tap sur le corps ouvre l'app
+                      // sur la tâche à valider. Même action, même charge : `on_notif_open_task`
+                      // traite les deux émetteurs sans une ligne de plus.
                       if (key === 'validation' && extra) {
-                          opts.mode = 'noorb';
                           opts.data = { clanId: extra.clanId, taskId: extra.taskId, assignee: extra.assignee };
-                          opts.actions = {
-                              v_ok:      { action: 'worker.on_notif_validate_ok',      label: tr('buttons', lang, 'ok'),      wakeup: false },
-                              v_partial: { action: 'worker.on_notif_validate_partial', label: tr('buttons', lang, 'partial'), wakeup: false },
-                              v_ko:      { action: 'worker.on_notif_validate_ko',      label: tr('buttons', lang, 'ko'),      wakeup: false },
-                          };
+                          if (paid) {
+                              // `noorb` relance l'app SANS interface : bon pour rendre un
+                              // verdict et s'éteindre, rédhibitoire pour ouvrir un écran.
+                              opts.mode = 'noorb';
+                              opts.actions = {
+                                  v_ok:      { action: 'worker.on_notif_validate_ok',      label: tr('buttons', lang, 'ok'),      wakeup: false },
+                                  v_partial: { action: 'worker.on_notif_validate_partial', label: tr('buttons', lang, 'partial'), wakeup: false },
+                                  v_ko:      { action: 'worker.on_notif_validate_ko',      label: tr('buttons', lang, 'ko'),      wakeup: false },
+                              };
+                          } else {
+                              opts.actions = { open: { action: 'worker.on_notif_open_task', wakeup: true } };
+                          }
                       } else {
                           // Convention tap-corps (action unique SANS libellé) : toucher le
                           // bandeau ouvre l'écran concerné, sans bouton affiché.
@@ -1610,6 +1753,32 @@ conf:
                   return total;
               }
           });
+
+          // Le clan a-t-il une cotisation VIVANTE ? Lu sur la projection `clans_store`,
+          // que ce backend écrit lui-même d'après ce que dit l'API Google Play : il n'a
+          // besoin ni du catalogue ni du client pour trancher, et le client ne peut pas
+          // la contrefaire (collection en lecture seule, seul le SDK Admin y écrit).
+          //
+          // La liste des états vivants est la MÊME que `_storeSubscribed` côté client
+          // (worker_store.dart) et que `_subscribed` dans dvstore. Trois copies, dont
+          // aucune ne peut lire les autres : elles se citent mutuellement en commentaire,
+          // et un état ajouté doit l'être aux trois.
+          //
+          // Absente, illisible ou en erreur → PAS de cotisation. Se tromper dans ce sens
+          // coûte au chef un tap de plus ; se tromper dans l'autre rend ses boutons à un
+          // clan qui n'a jamais payé, donc le laisse arbitrer sans jamais ouvrir l'app.
+          async function clanSubscribed(W: any, clanId: string): Promise<boolean> {
+              if (!clanId) return false;
+              try {
+                  const snap = await W.collection('clans_store').doc(clanId).get();
+                  if (!snap.exists) return false;
+                  const state = String((snap.data() || {}).state || '');
+                  return ['trial', 'active', 'canceled', 'grace', 'hold'].indexOf(state) >= 0;
+              } catch (e) {
+                  console.log('[pulse] clanSubscribed KO', clanId, String(e));
+                  return false;
+              }
+          }
 
           // Banc d'essai : envoie UN motif à UN clan, tout de suite, par le chemin réel.
           // Aucune écriture d'état (ni palier de relance, ni `boss_at`) — le banc ne doit
@@ -1660,20 +1829,33 @@ conf:
               const byLang: any = {};
               for (const t of targets) (byLang[t.lang] = byLang[t.lang] || []).push(t.id);
 
+              // Même lecture qu'en passe réelle, et c'est tout l'intérêt du banc : un
+              // essai qui enverrait toujours des boutons ne prouverait pas la seule chose
+              // qu'on vient ici vérifier.
+              const paid = (motive === 'validation' && extra)
+                  ? await clanSubscribed(W, clanId)
+                  : false;
+
               let sent = 0;
               for (const lang of Object.keys(byLang)) {
-                  const text = tr('texts', lang, motive);
+                  const text = tr('texts', lang, paid || motive !== 'validation'
+                                                 ? motive : 'validation_open')
+                            || tr('texts', lang, motive);
                   if (!text) return { error: 'motif inconnu', motive };
 
                   const opts: any = { kind: 'pulse_' + motive, dry };
                   if (motive === 'validation' && extra) {
-                      opts.mode = 'noorb';
                       opts.data = extra;
-                      opts.actions = {
-                          v_ok:      { action: 'worker.on_notif_validate_ok',      label: tr('buttons', lang, 'ok'),      wakeup: false },
-                          v_partial: { action: 'worker.on_notif_validate_partial', label: tr('buttons', lang, 'partial'), wakeup: false },
-                          v_ko:      { action: 'worker.on_notif_validate_ko',      label: tr('buttons', lang, 'ko'),      wakeup: false },
-                      };
+                      if (paid) {
+                          opts.mode = 'noorb';
+                          opts.actions = {
+                              v_ok:      { action: 'worker.on_notif_validate_ok',      label: tr('buttons', lang, 'ok'),      wakeup: false },
+                              v_partial: { action: 'worker.on_notif_validate_partial', label: tr('buttons', lang, 'partial'), wakeup: false },
+                              v_ko:      { action: 'worker.on_notif_validate_ko',      label: tr('buttons', lang, 'ko'),      wakeup: false },
+                          };
+                      } else {
+                          opts.actions = { open: { action: 'worker.on_notif_open_task', wakeup: true } };
+                      }
                   } else {
                       opts.actions = { open: { action: 'worker.on_pulse_open', wakeup: true } };
                       opts.data    = { motive };
@@ -1689,12 +1871,22 @@ conf:
           // jamais sur le silence — un fondateur peut ouvrir l'app tous les jours sans
           // avoir configuré la moindre quête, et c'est justement le cas qu'on cherche.
           //
-          // Deux échecs distincts, et ils n'appellent pas le même message : un donjon vide
-          // (rien n'a été configuré) et un donjon prêt mais jamais visité (`last` reste
-          // vide sur toutes les tâches). Passé `young_days`, on se tait : un clan qui vit
-          // sans quête depuis un mois a choisi de le faire.
+          // TROIS échecs distincts, et ils n'appellent pas le même message : un donjon vide
+          // (rien n'a été configuré), un donjon prêt mais jamais visité (`last` reste vide
+          // sur toutes les tâches), et un donjon qui tourne mais SANS ÉQUIPE. Passé
+          // `young_days`, on se tait : un clan qui vit sans quête depuis un mois a choisi
+          // de le faire.
+          //
+          // Le troisième motif est le plus délicat, et il ne se déclenche PAS sur « un seul
+          // membre » : un clan de 1 à 2 joueurs, c'est ~40 % des clans, le palier le plus
+          // souscrit — jouer seul est un usage légitime, pas un échec, et le lui reprocher
+          // insulterait la plus grosse part de la base. Le discriminant est
+          // `clans.first_invite_at` : le chef a-t-il ouvert une invitation, ne serait-ce
+          // qu'une fois ? Celui qui a essayé et n'y est pas arrivé n'est pas celui qui a
+          // choisi. Sans cette trace, on se tait.
           async function pickOnboardingMotive(W: any, clanId: string, ageDays: number,
-                                              youngD: number): Promise<any> {
+                                              youngD: number, enrolled: number,
+                                              clan: any): Promise<any> {
 
               if (ageDays > youngD) return null;
               const tasks = W.collection('clans_tasks').doc(clanId).collection('tasks');
@@ -1703,6 +1895,12 @@ conf:
               if (any.empty) return { key: 'onboarding_empty' };
               const played = await tasks.where('last', '>', '').limit(1).get();
               if (played.empty) return { key: 'onboarding_idle' };
+
+              // Le donjon tourne, mais le chef est le seul dedans ET n'a jamais tenté
+              // d'inviter : il ignore très probablement où se trouve le QR code.
+              const tried = String((clan && clan.first_invite_at) || '');
+              if (enrolled <= 1 && !tried) return { key: 'onboarding_alone' };
+
               return null;
           }
 

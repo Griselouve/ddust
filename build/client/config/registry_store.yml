@@ -164,6 +164,29 @@ conf:
             label: "@@@T:store_restore@@@"
           actions:
             tap: store.restore
+        # Saisir un code cadeau. Réservé aux chefs par shop_settings_selector — la
+        # récompense bénéficie au clan tout entier, elle s'engage comme un achat.
+        # Toujours proposée, abonné ou non : un crédit réclamé pendant une cotisation
+        # payante ne se perd pas, il attend son tour (cf. worker.on_giftcode_confirm).
+        store_code:
+          icon: "redeem"
+          desc: "@@@T:giftcode_menu_desc@@@"
+          shape:
+            label: "@@@T:giftcode_menu@@@"
+          actions:
+            tap: navigate_new.giftcode_page
+        # Fabriquer des codes. Sous la MÊME garde que le banc d'essai
+        # (store.debug.test_mode, posé par le layer cloud) : le bucket de production la
+        # fait disparaître sans qu'une ligne de code ne change, il n'y aura rien à
+        # retirer plus tard. La vraie porte est de toute façon serveur — GRANT_ADMINS
+        # refuse tout compte qui n'est pas celui de l'éditeur.
+        store_mint:
+          icon: "confirmation_number"
+          desc: "@@@T:giftcode_mint_menu_desc@@@"
+          shape:
+            label: "@@@T:giftcode_mint_menu@@@"
+          actions:
+            tap: navigate_new.giftcode_mint_page
         # Résiliation et moyen de paiement : chez Play, jamais dans l'app.
         # Filtré aux chefs abonnés par shop_settings_selector.
         store_manage:
@@ -494,3 +517,415 @@ conf:
         border_radius: 10.0
         row_color: "0xB3000000"
         row_border_color: "0xFFB07328"
+
+    #//------------------------------- Code cadeau ---------------------------------
+    # UN CHAMP, UN BOUTON. On tape ce qui est écrit sur la carte (ou reçu par mail), le
+    # serveur tranche, et la réponse tient en une phrase.
+    #
+    # Le code n'est qu'une PORTE : il ne prouve rien tant que `store_claim` ne l'a pas
+    # validé ET consommé. L'écran ne calcule donc aucun droit, il ne fait que présenter.
+    #
+    # Gabarit repris de `enter_invite_pin` (registry_clan_join.yml), qui est déjà
+    # exactement cette forme : un champ, un bouton de validation, une ligne d'erreur
+    # cachée. `keyboard_scrollable` pour que le clavier virtuel ne vienne pas couvrir le
+    # champ au moment où on tape dedans.
+
+    giftcode_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:giftcode_title@@@"
+      keyboard_scrollable: true
+      actions:
+        appear: worker.on_giftcode_appear
+      registry:
+        - commons/splash_background
+        - giftcode_page/intro
+        - giftcode_page/code
+        - giftcode_page/confirm
+        - giftcode_page/error
+        - giftcode_page/ok_scrim
+        - giftcode_page/ok_panel
+        - giftcode_page/ok_close
+
+    giftcode_page/intro:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 6%
+        w: 90%
+        h: 18%
+        font_size: 13.0
+        text_align: CENTER
+        label: "@@@T:giftcode_intro@@@"
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+
+    # Gros et centré : c'est un code qu'on recopie signe par signe en levant les yeux
+    # d'une carte. Les tirets et la casse n'ont aucune importance — le serveur normalise
+    # ce qu'il reçoit (majuscules, tirets et espaces retirés, O lu comme 0, I et L comme
+    # 1). Rien à valider ici : un écran qui refuse une saisie que le serveur aurait
+    # acceptée est un écran qui ment.
+    giftcode_page/code:
+      masks:
+        - commons/entry
+      shape:
+        x: 8%
+        y: 28%
+        w: 84%
+        h: 9%
+        type: TEXT
+        hint: "@@@T:giftcode_hint@@@"
+        text_align: CENTER
+        font_size: 20.0
+
+    # `freezing_actions` et non `actions` : l'appel part au serveur, la page se gèle le
+    # temps de l'aller-retour. Sans le gel, un double-tap enverrait deux réclamations —
+    # la seconde ne créditerait rien (le verrou tient), mais elle brûlerait un essai et
+    # afficherait « déjà utilisé » sur un code qui vient de marcher.
+    giftcode_page/confirm:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 10%
+        y: 42%
+        w: 80%
+        h: 9%
+        label: "@@@T:giftcode_confirm@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_giftcode_confirm
+
+    # UNE seule ligne d'erreur, dont le worker change le libellé avant de la révéler :
+    # « ce code ne s'ouvre pas », « ce trésor a déjà été ramassé »… Ce sont des enfants
+    # qui peuvent lire par-dessus l'épaule, aucun message ne dit « erreur ».
+    # `scrollable` parce que certaines phrases tiennent sur deux lignes selon la langue.
+    giftcode_page/error:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 54%
+        w: 90%
+        h: 12%
+        label: ""
+        text_align: CENTER
+        font_size: 13.0
+        font_color: "0xFFCC4444"
+        scrollable: true
+        visible: false
+
+    # SUCCÈS : overlay de widgets révélés, jamais une popup modale (idiome maison
+    # commons/death_* et clan_page/invite_*). L'ordre du registry est l'ordre de
+    # hit-test : `ok_close` est listé APRÈS `ok_scrim`, sans quoi le voile avalerait
+    # ses taps et l'écran resterait bloqué.
+    giftcode_page/ok_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.85
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop
+
+    giftcode_page/ok_panel:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 8%
+        y: 26%
+        w: 84%
+        h: 36%
+        label: ""
+        text_align: CENTER
+        font_size: 16.0
+        font_color: "amber_200"
+        scrollable: true
+        visible: false
+
+    giftcode_page/ok_close:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 70%
+        h: 11%
+        text_align: CENTER
+        label: "@@@T:giftcode_close@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_giftcode_close
+
+    #//------------------------------- Fabrique de codes (mode test) ---------------
+    # Sous la MÊME garde que le banc d'essai : `store.debug.test_mode` (layer cloud) et
+    # administrateur de clan. Le bucket de production le fait disparaître sans qu'une
+    # ligne de code ne change.
+    #
+    # Cet écran existe parce qu'une cloud function `callable` exige un jeton
+    # d'UTILISATEUR authentifié : `store_mint` ne se joint ni en curl avec un compte de
+    # service, ni depuis un script. La vraie garde n'est de toute façon pas ici mais au
+    # serveur — GRANT_ADMINS refuse tout compte qui n'est pas celui de l'éditeur, et
+    # cet écran ne rendrait donc rien entre d'autres mains.
+    #
+    # ⚠ Les codes ne sont montrés QU'UNE FOIS : seule leur empreinte est conservée.
+    # D'où le bouton de partage, qui est le seul moyen de les sortir d'ici.
+
+    giftcode_mint_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:giftcode_mint_title@@@"
+      keyboard_scrollable: true
+      actions:
+        appear: worker.on_giftcode_mint_appear
+      registry:
+        - commons/splash_background
+        - giftcode_mint_page/hint
+        - giftcode_mint_page/count_label
+        - giftcode_mint_page/count
+        - giftcode_mint_page/months_label
+        - giftcode_mint_page/months
+        - giftcode_mint_page/uses_label
+        - giftcode_mint_page/uses
+        - giftcode_mint_page/days_label
+        - giftcode_mint_page/days
+        - giftcode_mint_page/label_label
+        - giftcode_mint_page/label
+        - giftcode_mint_page/confirm
+        - giftcode_mint_page/result
+        - giftcode_mint_page/share
+        - giftcode_mint_page/revoke
+        - giftcode_mint_page/revoke_btn
+
+    giftcode_mint_page/hint:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 3%
+        w: 90%
+        h: 8%
+        label: "@@@T:giftcode_mint_hint@@@"
+        text_align: CENTER
+        font_size: 11.0
+        font_color: "amber_200"
+
+    giftcode_mint_page/count_label:
+      masks:
+        - commons/label_label
+      shape:
+        x: 5%
+        y: 12%
+        w: 42%
+        h: 4%
+        font_size: 11.0
+        label: "@@@T:giftcode_mint_count@@@"
+
+    giftcode_mint_page/count:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 16%
+        w: 42%
+        h: 7%
+        type: INTEGER
+        text_align: CENTER
+        value: "10"
+
+    giftcode_mint_page/months_label:
+      masks:
+        - commons/label_label
+      shape:
+        x: 53%
+        y: 12%
+        w: 42%
+        h: 4%
+        font_size: 11.0
+        label: "@@@T:giftcode_mint_months@@@"
+
+    giftcode_mint_page/months:
+      masks:
+        - commons/entry
+      shape:
+        x: 53%
+        y: 16%
+        w: 42%
+        h: 7%
+        type: INTEGER
+        text_align: CENTER
+        value: "2"
+
+    giftcode_mint_page/uses_label:
+      masks:
+        - commons/label_label
+      shape:
+        x: 5%
+        y: 25%
+        w: 42%
+        h: 4%
+        font_size: 11.0
+        label: "@@@T:giftcode_mint_uses@@@"
+
+    # 1 = un cadeau nominatif. Au-delà, c'est un lot : le même code sert autant de clans
+    # DIFFÉRENTS, et un clan donné ne peut toujours le réclamer qu'une fois.
+    giftcode_mint_page/uses:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 29%
+        w: 42%
+        h: 7%
+        type: INTEGER
+        text_align: CENTER
+        value: "1"
+
+    giftcode_mint_page/days_label:
+      masks:
+        - commons/label_label
+      shape:
+        x: 53%
+        y: 25%
+        w: 42%
+        h: 4%
+        font_size: 11.0
+        label: "@@@T:giftcode_mint_days@@@"
+
+    # PÉREMPTION, en jours et calculée au serveur. 0 = sans fin, et c'est le défaut le
+    # plus dangereux du dispositif : un code de flyer qui n'expire jamais reste
+    # réclamable pour toujours. Le champ est là pour qu'y penser ne demande aucun
+    # détour — et la coupure d'un lot, en bas d'écran, pour les fois où l'on n'y a pas
+    # pensé.
+    giftcode_mint_page/days:
+      masks:
+        - commons/entry
+      shape:
+        x: 53%
+        y: 29%
+        w: 42%
+        h: 7%
+        type: INTEGER
+        text_align: CENTER
+        value: "0"
+
+    giftcode_mint_page/label_label:
+      masks:
+        - commons/label_label
+      shape:
+        x: 5%
+        y: 38%
+        w: 90%
+        h: 4%
+        font_size: 11.0
+        label: "@@@T:giftcode_mint_label@@@"
+
+    # Le libellé du LOT — « betas août », « fondateurs » : c'est ce qui permettra plus
+    # tard de retrouver l'opération dans le journal de facturation des clans servis,
+    # sans avoir gardé les codes eux-mêmes.
+    giftcode_mint_page/label:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 42%
+        w: 90%
+        h: 7%
+        type: TEXT
+        font_size: 12.0
+        hint: "@@@T:giftcode_mint_label_hint@@@"
+
+    giftcode_mint_page/confirm:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 10%
+        y: 52%
+        w: 80%
+        h: 8%
+        label: "@@@T:giftcode_mint_confirm@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_giftcode_mint
+
+    giftcode_mint_page/result:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 62%
+        w: 90%
+        h: 20%
+        font_size: 12.0
+        text_align: CENTER
+        scrollable: true
+        label: ""
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+
+    giftcode_mint_page/share:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 83%
+        h: 7%
+        font_size: 13.0
+        label: "@@@T:giftcode_mint_share@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: share.gift_codes
+
+    # COUPER un lot (son identifiant, rendu à la fabrication) ou un code isolé (tel
+    # qu'on le taperait pour l'utiliser). Ne supprime rien : pose `revoked`. Ce qui a
+    # déjà été donné reste donné — couper arrête ce qui ne l'a pas encore été.
+    giftcode_mint_page/revoke:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 91%
+        w: 52%
+        h: 7%
+        type: TEXT
+        font_size: 12.0
+        hint: "@@@T:giftcode_revoke_hint@@@"
+
+    giftcode_mint_page/revoke_btn:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 60%
+        y: 91%
+        w: 35%
+        h: 7%
+        font_size: 12.0
+        label: "@@@T:giftcode_revoke@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_giftcode_revoke

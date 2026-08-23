@@ -79,9 +79,11 @@ conf:
         y: 88%
 
     #//---- Compte refusé (« J'ai déjà un compte » sans compte en base) ----------------------
-    # Overlay de widgets invisibles→visibles révélé par worker.on_account_rejected — jamais de
-    # showDialog. Deux messages selon la raison : compte introuvable (l'entrée Firebase Auth
-    # vient d'être supprimée) ou incident de lecture (rien n'a été touché, on peut réessayer).
+    # Overlay de widgets invisibles→visibles — jamais de showDialog. Trois messages, deux
+    # émetteurs : worker.on_account_rejected pour un compte Google valide mais inconnu de la
+    # base (entrée Firebase Auth supprimée) ou un incident de lecture (rien n'a été touché) ;
+    # worker.on_login_failed quand c'est le sign-in Google lui-même qui n'a pas abouti —
+    # annulation, ou refus du parent sur un compte supervisé Family Link.
 
     home/rejected_scrim:
       class: DvLabel
@@ -463,6 +465,7 @@ conf:
       registry:
         - link_account/background
         - link_account/title
+        - link_account/notice
         - link_account/google_button
         - link_account/google_icon
         - link_account/error
@@ -485,6 +488,23 @@ conf:
         y: 43%
         h: 8%
         label: "@@@T:link_account_title@@@"
+
+    # L'écran est bloquant, mais il est REPRENABLE : l'admission dans le clan est déjà écrite
+    # en base, et worker.on_login renvoie ici après un kill (cf. worker_session `if (_anon)`).
+    # Un enfant dont le parent n'est pas là peut donc fermer l'app et revenir sans rien perdre
+    # — encore faut-il le lui dire, sinon il s'acharne sur un bouton qui ne peut pas marcher.
+    link_account/notice:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 52%
+        w: 90%
+        h: 10%
+        font_size: 11.0
+        label: "@@@T:link_account_notice@@@"
 
     link_account/google_button:
       masks:
@@ -513,13 +533,17 @@ conf:
         image: "assets/icon/google.png"
         stretch: RATIO_IN
 
+    # Remonté AU-DESSUS du bouton et agrandi : à y:89% h:9% il ne tenait qu'une ligne, et le
+    # message d'échec en fait plusieurs (il doit parler de l'autorisation parentale). La bande
+    # 62→78% était libre entre le titre et le bouton, et l'explication y est mieux placée —
+    # juste au-dessus du bouton qu'on redemande d'appuyer. Le bouton, lui, ne bouge pas.
     link_account/error:
       masks:
         - commons/btn_wide
       shape:
-        y: 89%
-        h: 9%
-        font_size: 12.0
+        y: 62.5%
+        h: 15%
+        font_size: 11.0
         label: ""
         visible: false
 

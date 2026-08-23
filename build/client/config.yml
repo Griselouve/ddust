@@ -5,8 +5,8 @@ conf:
   application:
     org: com.grisloup
     display_name: "Donjons & Savons"
-    version: "1.0.0"   # semver canonique (bump via version=patch|minor|major)
-    build: 1           # numéro de build entier (stores)
+    version: "1.0.6"
+    build: 7
 
   deva:
     modes:
@@ -90,6 +90,10 @@ conf:
         on_link_failed: worker.on_link_failed
         on_link_conflict: worker.on_link_conflict
         on_account_rejected: worker.on_account_rejected
+        # Le sign-in Google lui-même n'a pas abouti. Sans cette ligne, un enfant dont
+        # le parent refuse l'autorisation (compte supervisé Family Link) revient sur
+        # `home` sans un mot — c'est l'échec silencieux que publication.md interdit.
+        on_login_failed: worker.on_login_failed
       # Le joueur démarre en session anonyme et ne lie son compte Google qu'à la fin de
       # l'onboarding : ni email, ni nom, ni photo dans l'annuaire Firebase Auth avant que
       # les CGU ne soient acceptées et l'état légal connu.

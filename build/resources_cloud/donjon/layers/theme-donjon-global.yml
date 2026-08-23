@@ -21,50 +21,49 @@ data:
       #------------- Gages de mort (0 PV) ------------------------------------
 
       gage_01:
-        fr: "Que justice soit faite ! Pour t'être laissé avoir par la saleté, le bourreau du donjon va te torturer jusqu'à la mort … de rire\n(45 secondes de chatouilles)"
-        en: "Let justice be done! For letting the filth get the better of you, the dungeon's executioner will torture you to death... from laughing\n(45 seconds of tickling)"
-        es: "¡Que se haga justicia! Por dejarte vencer por la suciedad, el verdugo del calabozo te torturará hasta morir... de risa\n(45 segundos de cosquillas)"
+        fr: "Que justice soit faite ! Pour t'être laissé avoir par la saleté, le bourreau du donjon va te torturer jusqu'à la mort … de rire\n\nFaire un défi en famille : 45 secondes de chatouilles."
+        en: "Let justice be done! For letting the filth get the better of you, the dungeon's executioner will torture you to death... from laughing\n\nTake on a family challenge: 45 seconds of tickling."
+        es: "¡Que se haga justicia! Por dejarte vencer por la suciedad, el verdugo del calabozo te torturará hasta morir... de risa\n\nHaz un desafío en familia: 45 segundos de cosquillas."
       gage_02:
-        fr: "Tu as grimacé de dégout devant la saleté ? Voyons si tu peux apprendre aux vieux mages à faire la grimace\n(tu dois grimacer devant ton clan jusqu'à ce que l'un d'eux rigole)"
-        en: "Grimacing in disgust at the filth? Let's see if you can teach the old mages how to pull a face\n(make faces at your clan until one of them laughs)"
-        es: "¿Hiciste una mueca de asco ante la suciedad? Veamos si puedes enseñar a los viejos magos a hacer muecas\n(haz muecas ante tu clan hasta que alguno se ría)"
+        fr: "Tu as grimacé de dégout devant la saleté ? Voyons si tu peux apprendre aux vieux mages à faire la grimace\n\nFaire un défi en famille : tu dois grimacer devant ton clan jusqu'à ce que l'un d'eux rigole."
+        en: "Grimacing in disgust at the filth? Let's see if you can teach the old mages how to pull a face\n\nTake on a family challenge: make faces at your clan until one of them laughs."
+        es: "¿Hiciste una mueca de asco ante la suciedad? Veamos si puedes enseñar a los viejos magos a hacer muecas\n\nHaz un desafío en familia: haz muecas ante tu clan hasta que alguno se ría."
       gage_03:
-        fr: "Pffff…. Tué par des chaussettes… tu as le droit de garder le silence\n(chaque membre du clan te dit un mot que tu dois faire deviner aux autres sans parler ni écrire ni signer)"
-        en: "Pffff.... Killed by socks... you have the right to remain silent\n(each clan member gives you a word you must get the others to guess, without speaking, writing or signing)"
-        es: "Pffff.... Muerto por unos calcetines... tienes derecho a guardar silencio\n(cada miembro del clan te da una palabra que debes hacer adivinar a los demás sin hablar, escribir ni hacer señas)"
+        fr: "Pffff…. Tué par des chaussettes… tu as le droit de garder le silence\n\nFaire un défi en famille : chaque membre du clan te dit un mot que tu dois faire deviner aux autres sans parler ni écrire ni signer."
+        en: "Pffff.... Killed by socks... you have the right to remain silent\n\nTake on a family challenge: each clan member gives you a word you must get the others to guess, without speaking, writing or signing."
+        es: "Pffff.... Muerto por unos calcetines... tienes derecho a guardar silencio\n\nHaz un desafío en familia: cada miembro del clan te da una palabra que debes hacer adivinar a los demás sin hablar, escribir ni hacer señas."
       gage_04:
-        fr: "Tu as laissé la saleté se répandre, le monde court à sa perte ! Il faut rassembler plus d'aventuriers !\n(convaincre trois autres familles d'essayer Donjons & Savons)"
-        en: "You let the filth spread, the world is doomed! We must rally more adventurers!\n(convince three other families to try Dungeons & Dusting)"
-        es: "¡Dejaste que la suciedad se propagara, el mundo corre a su perdición! ¡Hay que reunir a más aventureros!\n(convence a otras tres familias de probar Calabozos & Jabones)"
+        fr: "Tu as laissé la saleté se répandre, le monde court à sa perte ! Il faut rassembler plus d'aventuriers !\n\nFaire un défi en famille : convaincre trois autres familles d'essayer Donjons & Savons."
+        en: "You let the filth spread, the world is doomed! We must rally more adventurers!\n\nTake on a family challenge: convince three other families to try Dungeons & Dusting."
+        es: "¡Dejaste que la suciedad se propagara, el mundo corre a su perdición! ¡Hay que reunir a más aventureros!\n\nHaz un desafío en familia: convence a otras tres familias de probar Calabozos & Jabones."
       gage_05:
-        fr: "Tu dois récupérer tes forces brave aventurier, mais le remède a un goût de chiottes\n(chaque membre du clan élabore une boisson (un shot) avec des ingrédients secrets. Bois-les tous)"
-        en: "You must recover your strength, brave adventurer, but the remedy tastes like crap\n(each clan member concocts a drink (a shot) with secret ingredients. Drink them all)"
-        es: "Debes recuperar tus fuerzas, valiente aventurero, pero el remedio sabe fatal\n(cada miembro del clan prepara una bebida (un chupito) con ingredientes secretos. Bébetelas todas)"
+        fr: "Tu dois récupérer tes forces brave aventurier, mais le remède a un goût de chiottes\n\nFaire un défi en famille : chaque membre du clan élabore une boisson (un shot) avec des ingrédients secrets. Bois-les tous."
+        en: "You must recover your strength, brave adventurer, but the remedy tastes like crap\n\nTake on a family challenge: each clan member concocts a drink (a shot) with secret ingredients. Drink them all."
+        es: "Debes recuperar tus fuerzas, valiente aventurero, pero el remedio sabe fatal\n\nHaz un desafío en familia: cada miembro del clan prepara una bebida (un chupito) con ingredientes secretos. Bébetelas todas."
       gage_06:
-        fr: "Le foyer s'écroule sous le désordre et la saleté. Ça te fait rire morveux ?\n(simuler un rire pendant 45 secondes)"
-        en: "The home is collapsing under mess and filth. Think it's funny, brat?\n(fake a laugh for 45 seconds)"
-        es: "El hogar se derrumba bajo el desorden y la suciedad. ¿Te hace gracia, mocoso?\n(simula una risa durante 45 segundos)"
+        fr: "Le foyer s'écroule sous le désordre et la saleté. Ça te fait rire morveux ?\n\nFaire un défi en famille : simuler un rire pendant 45 secondes."
+        en: "The home is collapsing under mess and filth. Think it's funny, brat?\n\nTake on a family challenge: fake a laugh for 45 seconds."
+        es: "El hogar se derrumba bajo el desorden y la suciedad. ¿Te hace gracia, mocoso?\n\nHaz un desafío en familia: simula una risa durante 45 segundos."
       gage_07:
-        fr: "Ta frêle armure n'a pas tenu longtemps face aux attaques de linge sale et la poussière venimeuse. Tu dois en trouver une autre.\n(faire un défilé en revêtant 3 tenues épiques et drôles)"
-        en: "Your flimsy armor didn't last long against the assaults of dirty laundry and venomous dust. You must find another.\n(put on a fashion show wearing 3 epic and funny outfits)"
-        es: "Tu frágil armadura no aguantó mucho ante los ataques de la ropa sucia y el polvo venenoso. Debes encontrar otra.\n(haz un desfile luciendo 3 atuendos épicos y graciosos)"
+        fr: "Ta frêle armure n'a pas tenu longtemps face aux attaques de linge sale et la poussière venimeuse. Tu dois en trouver une autre.\n\nFaire un défi en famille : faire un défilé en revêtant 3 tenues épiques et drôles."
+        en: "Your flimsy armor didn't last long against the assaults of dirty laundry and venomous dust. You must find another.\n\nTake on a family challenge: put on a fashion show wearing 3 epic and funny outfits."
+        es: "Tu frágil armadura no aguantó mucho ante los ataques de la ropa sucia y el polvo venenoso. Debes encontrar otra.\n\nHaz un desafío en familia: haz un desfile luciendo 3 atuendos épicos y graciosos."
       gage_08:
-        fr: "La prochaine fois qu'une meute de mauvaises hig-hyènes s'approche, ne bouge pas, fais le mort.\n(tu ne peux pas rire ni sourire pendant 3 minutes, malgré tout ce que peut faire ton clan)"
-        en: "Next time a pack of nasty giggle-hyenas comes near, don't move, play dead.\n(you can't laugh or smile for 3 minutes, whatever your clan does)"
-        es: "La próxima vez que se acerque una manada de malvadas ji-hienas, no te muevas, hazte el muerto.\n(no puedes reír ni sonreír durante 3 minutos, haga lo que haga tu clan)"
+        fr: "La prochaine fois qu'une meute de mauvaises hig-hyènes s'approche, ne bouge pas, fais le mort.\n\nFaire un défi en famille : tu ne peux pas rire ni sourire pendant 3 minutes, malgré tout ce que peut faire ton clan."
+        en: "Next time a pack of nasty giggle-hyenas comes near, don't move, play dead.\n\nTake on a family challenge: you can't laugh or smile for 3 minutes, whatever your clan does."
+        es: "La próxima vez que se acerque una manada de malvadas ji-hienas, no te muevas, hazte el muerto.\n\nHaz un desafío en familia: no puedes reír ni sonreír durante 3 minutos, haga lo que haga tu clan."
       gage_09:
-        fr: "C'était une bataille épique ! Il y avait un énorme dragon de linge sale qui crachait du feu et de la saleté partout, j'étais encerclé par des crocomoisi et je n'ai rien pu faire ! …\n(raconte une histoire complètement fictive pendant au moins 3 minutes)"
-        en: "It was an epic battle! There was a huge dragon of dirty laundry spitting fire and filth everywhere, I was surrounded by moldy-crocs and there was nothing I could do! ...\n(tell a completely made-up story for at least 3 minutes)"
-        es: "¡Fue una batalla épica! Había un enorme dragón de ropa sucia que escupía fuego y suciedad por todas partes, estaba rodeado de cocodrimohos y no pude hacer nada! ... 
-        \n(cuenta una historia totalmente inventada durante al menos 3 minutos)"
+        fr: "C'était une bataille épique ! Il y avait un énorme dragon de linge sale qui crachait du feu et de la saleté partout, j'étais encerclé par des crocomoisi et je n'ai rien pu faire ! …\n\nFaire un défi en famille : raconte une histoire complètement fictive pendant au moins 3 minutes."
+        en: "It was an epic battle! There was a huge dragon of dirty laundry spitting fire and filth everywhere, I was surrounded by moldy-crocs and there was nothing I could do! ...\n\nTake on a family challenge: tell a completely made-up story for at least 3 minutes."
+        es: "¡Fue una batalla épica! Había un enorme dragón de ropa sucia que escupía fuego y suciedad por todas partes, estaba rodeado de cocodrimohos y no pude hacer nada! ...\n\nHaz un desafío en familia: cuenta una historia totalmente inventada durante al menos 3 minutos."
       gage_10:
-        fr: "Il est encore temps de t'échapper du donjon, mais attention il y a des pièges partout. Des pièges verticaux et des pièges horizontaux.\n(tu ne peux dire ni oui ni non pendant au moins 3 minutes)"
-        en: "There's still time to escape the dungeon, but beware, there are traps everywhere. Vertical traps and horizontal traps.\n(you can't say yes or no for at least 3 minutes)"
-        es: "Aún estás a tiempo de escapar del calabozo, pero cuidado, hay trampas por todas partes. Trampas verticales y trampas horizontales.\n(no puedes decir ni sí ni no durante al menos 3 minutos)"
+        fr: "Il est encore temps de t'échapper du donjon, mais attention il y a des pièges partout. Des pièges verticaux et des pièges horizontaux.\n\nFaire un défi en famille : tu ne peux dire ni oui ni non pendant au moins 3 minutes."
+        en: "There's still time to escape the dungeon, but beware, there are traps everywhere. Vertical traps and horizontal traps.\n\nTake on a family challenge: you can't say yes or no for at least 3 minutes."
+        es: "Aún estás a tiempo de escapar del calabozo, pero cuidado, hay trampas por todas partes. Trampas verticales y trampas horizontales.\n\nHaz un desafío en familia: no puedes decir ni sí ni no durante al menos 3 minutos."
       gage_11:
-        fr: "Pourquoi l'aventurier aime les escaliers ? Parce qu'il adore monter de niveau… sauf toi apparemment.\n(raconter des blagues jusqu'à faire rire au moins un membre du clan)"
-        en: "Why does the adventurer love stairs? Because he loves leveling up... except you, apparently.\n(tell jokes until at least one clan member laughs)"
-        es: "¿Por qué al aventurero le gustan las escaleras? Porque le encanta subir de nivel... salvo a ti, por lo visto.\n(cuenta chistes hasta hacer reír al menos a un miembro del clan)"
+        fr: "Pourquoi l'aventurier aime les escaliers ? Parce qu'il adore monter de niveau… sauf toi apparemment.\n\nFaire un défi en famille : raconter des blagues jusqu'à faire rire au moins un membre du clan."
+        en: "Why does the adventurer love stairs? Because he loves leveling up... except you, apparently.\n\nTake on a family challenge: tell jokes until at least one clan member laughs."
+        es: "¿Por qué al aventurero le gustan las escaleras? Porque le encanta subir de nivel... salvo a ti, por lo visto.\n\nHaz un desafío en familia: cuenta chistes hasta hacer reír al menos a un miembro del clan."
 
       #------------- Réalisation des gages (rédemption après soin) -----------
       # Texte dédié décrivant l'accomplissement du gage correspondant (cf. dt_d_ des tâches).
@@ -115,11 +114,12 @@ data:
         en: "Joke after joke, @@@session.user.name@@@ finally landed the saving laugh from a clan member (the stairs pun surely helped). Crowned king of the punchline, our adventurer levels up at last and heads back out on the adventure."
         es: "Chiste tras chiste, @@@session.user.name@@@ acabó arrancando la risa salvadora de un miembro del clan (el juego de palabras con las escaleras algo tuvo que ver). Coronado rey del chascarrillo, nuestro aventurero por fin sube de nivel y vuelve a la aventura."
 
-      # Ajouté automatiquement après chaque gage (2 sauts de ligne + cette phrase).
+      # Ajouté automatiquement à la suite de chaque gage (espace + cette phrase),
+      # dans le même paragraphe que la consigne « Faire un défi en famille : … ».
       gage_heal:
-        fr: "Ensuite, demande à un chef de clan de te soigner"
-        en: "Then, ask a clan leader to heal you"
-        es: "Luego, pide a un jefe de clan que te cure"
+        fr: "Seulement si tes chefs de clan considèrent que tu as réussi, alors ils pourront te soigner."
+        en: "Only if your clan leaders consider that you succeeded will they be able to heal you."
+        es: "Solo si tus jefes de clan consideran que lo has conseguido podrán curarte."
 
       # Bouton de l'écran de mort, réservé à l'admin solo (worker.resurrect_self).
       resurrection:
@@ -459,10 +459,29 @@ data:
         en: "Continue with Google"
         es: "Continuar con Google"
 
-      link_failed:
-        fr: "La liaison a échoué. Réessaie dans un instant."
-        en: "Linking failed. Try again in a moment."
-        es: "La vinculación falló. Inténtalo de nuevo en un momento."
+      # Message UNIQUE de tout sign-in Google qui n'aboutit pas — écran d'accueil comme écran
+      # de liaison. Il ne dit pas « réessaie dans un instant » (l'ancien link_failed), qui était
+      # un mauvais conseil : sur un compte supervisé, réessayer ne changera rien tant qu'un
+      # parent n'a pas autorisé. Et il ne peut pas être plus précis — Google remonte le même
+      # code pour un refus parental et pour une feuille refermée par l'enfant.
+      signin_failed_parent:
+        fr: "La connexion n'a pas abouti. Si un parent veille sur ce compte Google, il doit d'abord autoriser Donjons & Savons depuis Family Link. Tu pourras réessayer ensuite."
+        en: "Sign-in did not go through. If a parent supervises this Google account, they must first allow Dungeons & Dusting from Family Link. You can try again afterwards."
+        es: "La conexión no se completó. Si un padre supervisa esta cuenta de Google, primero debe autorizar Calabozos & Jabones desde Family Link. Después podrás intentarlo de nuevo."
+
+      # « Je pars à l'aventure » : la session anonyme n'a pas pu s'ouvrir. Aucun compte Google
+      # n'est en jeu sur cette porte — parler d'autorisation parentale ici n'aurait aucun sens.
+      start_failed:
+        fr: "Impossible d'ouvrir ton aventure pour l'instant. Vérifie ta connexion et réessaie."
+        en: "Your adventure could not be started right now. Check your connection and try again."
+        es: "No se pudo empezar tu aventura ahora mismo. Comprueba tu conexión e inténtalo de nuevo."
+
+      # Écran de liaison, toujours visible : l'étape est bloquante mais reprenable, et un enfant
+      # dont le parent n'est pas là doit savoir qu'il peut partir sans rien perdre.
+      link_account_notice:
+        fr: "Ta place dans le clan est déjà gardée. Si tu as besoin d'un parent pour te connecter, tu peux fermer le jeu et revenir ici plus tard."
+        en: "Your place in the clan is already saved. If you need a parent to sign in, you can close the game and come back here later."
+        es: "Tu lugar en el clan ya está guardado. Si necesitas a un padre para conectarte, puedes cerrar el juego y volver aquí más tarde."
 
       link_flush_failed:
         fr: "Impossible d'inscrire ton aventure dans les registres. Vérifie ta connexion et réessaie."
@@ -489,10 +508,14 @@ data:
         en: "This Google account already belongs to another hero. Ask your clan chief to free the old character before starting over."
         es: "Esta cuenta de Google ya pertenece a otro héroe. Pide a tu jefe de clan que libere al personaje antiguo antes de volver a empezar."
 
+      # La 2e phrase n'est pas une politesse : le refus révoque l'autorisation OAuth du compte
+      # (dvcloud _rollbackRejectedLogin → disconnect/revokeAccess). Un compte supervisé devra
+      # donc repasser par l'accord du parent au moment de la liaison. Le taire, c'est laisser
+      # croire à un bug quand la demande d'autorisation revient une seconde fois.
       link_no_account_found:
-        fr: "Aucun héros n'est rattaché à ce compte Google. Si tu débutes, choisis « Je pars à l'aventure »."
-        en: "No hero is attached to this Google account. If you are new here, choose \"Off on my adventure\"."
-        es: "Ningún héroe está vinculado a esta cuenta de Google. Si empiezas, elige «Me voy de aventura»."
+        fr: "Aucun héros n'est rattaché à ce compte Google. Si tu débutes, choisis « Je pars à l'aventure ». Si un parent veille sur ton compte, il devra autoriser le jeu à nouveau."
+        en: "No hero is attached to this Google account. If you are new here, choose \"Off on my adventure\". If a parent supervises your account, they will have to allow the game again."
+        es: "Ningún héroe está vinculado a esta cuenta de Google. Si empiezas, elige «Me voy de aventura». Si un padre supervisa tu cuenta, tendrá que autorizar el juego de nuevo."
 
       link_check_failed:
         fr: "Impossible de consulter les registres pour l'instant. Ton compte n'a pas été touché — réessaie dans un moment."
@@ -644,18 +667,28 @@ data:
         en: "Under my banner, a new clan rises!\n(Create a clan)"
         es: "¡Bajo mi estandarte, un nuevo clan se alza!\n(Crear un clan)"
 
+      # ⚠️ Le seul garde-fou contre le clan en double, et il est DÉFINITIF : on ne quitte pas un clan
+      # une fois dedans, et le fondateur en reste chef à vie. Deux parents qui créent chacun le leur
+      # coupent la famille en deux, avec deux cotisations. Le message dit donc la conséquence, et
+      # surtout il indique le bon geste : le second parent ne crée rien, il rejoint et se fait
+      # nommer chef — il a alors exactement les mêmes droits.
       confirm_create_clan_msg:
-        fr: "Es-tu certain de vouloir créer un nouveau clan ?\nQuelqu'un de ta famille n'en a-t-il pas déjà créé un ?"
-        en: "Are you sure you want to create a new clan?\nHasn't someone in your family already created one?"
-        es: "¿Seguro que quieres crear un nuevo clan?\n¿Alguien de tu familia no ha creado ya uno?"
+        fr: "Un seul clan par famille !\n\nSi un autre adulte de ton foyer a déjà créé le clan, ne crée pas le tien : rejoins le sien avec son QR code, il te nommera chef et tu auras exactement les mêmes pouvoirs.\n\nOn ne peut pas changer de clan par la suite."
+        en: "One clan per family!\n\nIf another adult in your household has already created the clan, do not create yours: join theirs with their QR code and they will make you a chief, with exactly the same powers.\n\nYou cannot switch clans afterwards."
+        es: "¡Un solo clan por familia!\n\nSi otro adulto de tu hogar ya ha creado el clan, no crees el tuyo: únete al suyo con su código QR y te nombrará jefe, con exactamente los mismos poderes.\n\nDespués no se puede cambiar de clan."
+      # Vient EN PREMIER dans l'overlay : c'est la sortie, et elle doit se voir avant le « oui ».
+      confirm_create_scan:
+        fr: "Quelqu'un l'a déjà créé : je scanne son QR code"
+        en: "Someone already created it: I'll scan their QR code"
+        es: "Ya lo ha creado alguien: escaneo su código QR"
       confirm_create_yes:
-        fr: "Oui, je crée mon clan"
-        en: "Yes, create my clan"
-        es: "Sí, creo mi clan"
+        fr: "Personne ne l'a créé : je crée le clan de la famille"
+        en: "Nobody created it: I'll create the family clan"
+        es: "Nadie lo ha creado: creo el clan de la familia"
       confirm_create_no:
-        fr: "Non, revenir"
-        en: "No, go back"
-        es: "No, volver"
+        fr: "Revenir"
+        en: "Go back"
+        es: "Volver"
 
       # Politique de confidentialité (option kebab Personnage → documents.open_doc?privacy)
       # Rappels de relance, vus du kebab Personnage : la MÊME bascule que celle du roster,
@@ -858,6 +891,13 @@ data:
         en: "By carrier pigeon"
         es: "Por paloma mensajera"
 
+      # Révélé au MINEUR seulement. La connexion Google est la toute dernière étape, après
+      # l'admission : autant l'annoncer pendant que le chef de clan est encore là.
+      join_clan_google_notice:
+        fr: "Une fois accepté dans le clan, tu te connecteras avec ton compte Google. Si un parent veille sur ce compte, demande-lui d'être là — ou d'autoriser le jeu à l'avance dans Family Link."
+        en: "Once you are accepted into the clan, you will sign in with your Google account. If a parent supervises that account, ask them to be there — or to allow the game in advance in Family Link."
+        es: "Cuando te acepten en el clan, te conectarás con tu cuenta de Google. Si un padre supervisa esa cuenta, pídele que esté presente, o que autorice el juego por adelantado en Family Link."
+
       accept_invitation_clan_title:
         fr: "Tu es attendu !"
         en: "You are expected!"
@@ -902,15 +942,32 @@ data:
         en: "Recruit an adventurer"
         es: "Reclutar un aventurero"
 
+      # Bannière d'appel au recrutement (clan_page/invite_cta), révélée au chef tant que le clan
+      # n'a qu'un membre. Elle dit les DEUX choses que le parent ignore : que sa famille doit
+      # installer le jeu, et qu'un QR code l'attend ici.
+      clan_invite_cta:
+        fr: "Ton clan est encore vide !\nFais installer le jeu à ta famille, puis montre-leur ton QR code."
+        en: "Your clan is still empty!\nHave your family install the game, then show them your QR code."
+        es: "¡Tu clan aún está vacío!\nQue tu familia instale el juego y luego enséñales tu código QR."
+
       share_invite_btn:
         fr: "Afficher le sceau du clan"
         en: "Display the clan seal"
         es: "Mostrar el sello del clan"
 
+      # Texte du partage d'invitation. Il s'adresse à quelqu'un qui n'a PAS le jeu — sinon on ne
+      # l'inviterait pas. « Rejoins mon clan ! » seul ne disait ni de quoi il s'agit, ni qu'il faut
+      # installer quelque chose : le destinataire recevait trois mots et une URL qui ne s'ouvre pas.
       share_clan_invite_text:
-        fr: "Rejoins mon clan !"
-        en: "Join my clan!"
-        es: "¡Únete a mi clan!"
+        fr: "Rejoins mon clan sur Donjons & Savons ! On transforme les corvées de la maison en monstres à abattre : chaque tâche accomplie rapporte de l'XP, et quand le coffre du clan est plein, on ouvre le butin."
+        en: "Join my clan on Donjons & Savons! We turn household chores into monsters to defeat: every task earns XP, and when the clan chest is full we open the loot."
+        es: "¡Únete a mi clan en Donjons & Savons! Convertimos las tareas de casa en monstruos que derrotar: cada tarea da XP, y cuando el cofre del clan está lleno abrimos el botín."
+      # Consigne commune aux deux invitations (QR/lien et lien+code) : l'ordre des opérations, parce
+      # que suivre le lien AVANT d'installer le jeu ne produit rien et laisse croire à une panne.
+      share_clan_invite_link:
+        fr: "Installe d'abord le jeu (lien plus bas), puis ouvre ce lien pour entrer dans le clan :"
+        en: "Install the game first (link below), then open this link to enter the clan:"
+        es: "Instala primero el juego (enlace abajo) y luego abre este enlace para entrar en el clan:"
 
       #------------- Invite Clan (à distance, PIN) ------------------------
 
@@ -930,9 +987,16 @@ data:
         es: "Compartir el enlace"
 
       share_clan_invite_pin_text:
-        fr: "Rejoins mon clan ! Utilise le code que je t'ai donné."
-        en: "Join my clan! Use the code I gave you."
-        es: "¡Únete a mi clan! Usa el código que te di."
+        fr: "Rejoins mon clan sur Donjons & Savons ! On transforme les corvées de la maison en monstres à abattre. Il te faudra le code à 6 chiffres que je t'ai donné de vive voix."
+        en: "Join my clan on Donjons & Savons! We turn household chores into monsters to defeat. You will need the 6-digit code I read out to you."
+        es: "¡Únete a mi clan en Donjons & Savons! Convertimos las tareas de casa en monstruos que derrotar. Necesitarás el código de 6 cifras que te dicté."
+
+      # Écran d'invitation à distance, côté chef. Avec le QR il est dans la pièce ; ici non, et
+      # personne d'autre ne peut prévenir l'invité que la connexion Google l'attend au bout.
+      invite_pin_family_notice:
+        fr: "Si tu invites un enfant, préviens son parent : à la fin, l'enfant se connectera avec son compte Google, et un compte surveillé par Family Link demande l'accord d'un parent."
+        en: "If you are inviting a child, warn their parent: at the end, the child signs in with their Google account, and an account supervised by Family Link needs a parent's approval."
+        es: "Si invitas a un niño, avisa a su padre o madre: al final, el niño se conectará con su cuenta de Google, y una cuenta supervisada por Family Link necesita la aprobación de un adulto."
 
       enter_invite_pin_title:
         fr: "Rejoindre avec un code"
@@ -1617,6 +1681,17 @@ data:
         fr: "Raté... essaie encore."
         en: "Missed... try again."
         es: "Fallaste... inténtalo de nuevo."
+
+      # Tête de la notification de demande de validation, VERSION SANS BOUTONS —
+      # celle qu'un clan sans cotisation reçoit (cf. _notifyAdmins). Elle doit dire
+      # que le corps est tapable : privée de ses trois boutons, une notification qui
+      # n'annonce rien a l'air cassée, et le chef attendrait un geste qui n'existe pas.
+      # Le pendant à boutons (`notif_validate_request`) n'est déclaré nulle part et
+      # retombe sur son littéral français, dans le code.
+      notif_validate_request_open:
+        fr: "demande une validation — touchez pour l'ouvrir"
+        en: "is asking for a review — tap to open it"
+        es: "pide una validación — toca para abrirla"
 
       #------------- Shop ------------------------------------
 

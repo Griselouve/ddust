@@ -358,6 +358,37 @@ extension Worker_screen_clan on worker {
                                 // intégralement sinon (un membre supprimé disparaît de la liste fraîche).
                                 ActionRegistry.get("dvroster.set_members")?.call(null, members);
                                 deva_log("info", "[clan] roster: ${members.length} membre(s) poussé(s), minXp=$_clanMinXp");
+
+                                // Source AUTORITAIRE du drapeau « clan seul » (reminders de recrutement) : c'est
+                                // le seul endroit où le nombre de membres est déjà connu sans lecture dédiée.
+                                // `members` est le bon compte : les révoqués en sont sortis (enabled=false), mais
+                                // les joueurs sans appareil (has_device=false) y sont — un enfant créé par le chef
+                                // EST un recrutement, le clan n'est plus seul.
+                                final bool alone = members.length <= 1;
+                                await _setClanAlone(alone);
+
+                                // Appel au recrutement en bas du roster : seul un CHEF peut inviter, et seul un
+                                // clan encore vide a de quoi le montrer. Même garde que l'option du kebab, pour
+                                // qu'un non-chef ne voie pas un bouton qui refuserait de s'ouvrir.
+                                await _syncVisible(await DvOrb.wait_for_shape("clan_page/invite_cta"),
+                                    "clan_page/invite_cta", alone && admins.contains(_userId));
+    }
+
+    // Drapeau `worker.clan_alone` ("true"/"false", convention des autres drapeaux du worker) : condition
+    // des reminders de recrutement (dvtuto.yml → recruit_dashboard / recruit_clan).
+    //
+    // Le dashboard ne lit pas le roster (ce serait une requête Firestore à chaque affichage de l'écran
+    // le plus fréquenté du jeu) : il se contente de ce drapeau, tenu à jour par les rares endroits qui
+    // connaissent déjà le compte — la lecture du roster ici, la création du clan, et les deux gestes de
+    // recrutement (créer un joueur, admettre un candidat). Une valeur périmée ne coûte au pire qu'un
+    // reminder de trop ou de moins ; une lecture par affichage coûterait à chaque joueur, tous les jours.
+    Future<void> _setClanAlone(bool alone) async {
+
+                                final String next = alone ? "true" : "false";
+                                if ((await deva_get("worker.clan_alone"))?.toString() == next) return;
+                                await deva_set("worker.clan_alone", next);
+                                await Deva.instance.store();
+                                deva_log("info", "[clan] clan_alone=$next");
     }
 
     //-----------------------------------------------------------------------

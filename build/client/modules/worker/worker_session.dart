@@ -89,6 +89,8 @@ extension Worker_session on worker {
 
                                 ActionRegistry.register("worker.on_account_rejected",       on_account_rejected);
 
+                                ActionRegistry.register("worker.on_login_failed",           on_login_failed);
+
                                 ActionRegistry.register("worker.on_rejected_close",         on_rejected_close);
 
                                 ActionRegistry.register("worker.on_account_linked",         on_account_linked);
@@ -558,17 +560,42 @@ extension Worker_session on worker {
                                 return unreachable ? "error" : "not_found";
     }
 
+    // Overlay d'explication de l'écran d'accueil. Ramène d'abord sur `home` : l'échec peut
+    // survenir alors que l'app est déjà partie ailleurs, et un overlay révélé sur une page
+    // qui n'est plus affichée ne serait jamais vu.
+    Future<void> _showHomeOverlay(String translationKey) async {
+
+                                if (DvOrb.get_current_page()?.dvid != "home") DvOrb.navigate_reset("home");
+                                await DvOrb.wait_for_shape("home/rejected_text");
+                                DvOrb.get_shape_by_id("home/rejected_scrim")?..set("shape.visible", true)..refreshUI();
+                                await _revealLabel("home/rejected_text", translationKey);
+                                DvOrb.get_shape_by_id("home/rejected_close")?..set("shape.visible", true)..refreshUI();
+    }
+
     // Compte refusé : 'not_found' (l'entrée Auth vient d'être supprimée) ou 'error'
     // (rien n'a été touché, on peut réessayer). Overlay, jamais de popup modale.
     Future<void> on_account_rejected(DvShape? caller, dynamic event) async {
 
                                 final reason = event?.toString() ?? "error";
-                                if (DvOrb.get_current_page()?.dvid != "home") DvOrb.navigate_reset("home");
-                                await DvOrb.wait_for_shape("home/rejected_text");
-                                DvOrb.get_shape_by_id("home/rejected_scrim")?..set("shape.visible", true)..refreshUI();
-                                await _revealLabel("home/rejected_text",
+                                await _showHomeOverlay(
                                     reason == "not_found" ? "link_no_account_found" : "link_check_failed");
-                                DvOrb.get_shape_by_id("home/rejected_close")?..set("shape.visible", true)..refreshUI();
+    }
+
+    // La connexion n'a pas abouti, sur l'une des deux portes de `home`. On arrive ici AVANT
+    // toute vérification de compte : la seule chose qu'on sache, c'est qu'aucune session n'a
+    // pu s'ouvrir.
+    //
+    // Un SEUL tri, et il porte sur la porte empruntée, pas sur la cause : « Je pars à
+    // l'aventure » n'implique aucun compte Google, lui parler d'autorisation parentale serait
+    // absurde. Au-delà, on ne trie plus — sur un compte supervisé Family Link, le refus du
+    // parent et l'enfant qui referme la feuille remontent le même `canceled`, et prétendre les
+    // distinguer produirait un message faux une fois sur deux. Un texte couvre les deux.
+    Future<void> on_login_failed(DvShape? caller, dynamic event) async {
+
+                                final reason = event?.toString() ?? "";
+                                deva_log("warning", "[worker] connexion échouée: $reason");
+                                await _showHomeOverlay(
+                                    reason == "anonymous_failed" ? "start_failed" : "signin_failed_parent");
     }
 
     Future<void> on_rejected_close(DvShape? caller, dynamic event) async {
@@ -609,10 +636,14 @@ extension Worker_session on worker {
                                 await on_login(caller, _cloud?.currentUser());
     }
 
+    // Même texte que on_login_failed, et pour la même raison : à ce stade l'échec vient
+    // presque toujours du sign-in Google lui-même (_acquireGoogleCredential avale l'exception
+    // et rend `transient`), refus parental Family Link compris. « Réessaie dans un instant »
+    // était un mauvais conseil — réessayer ne changera rien tant qu'un parent n'a pas autorisé.
     Future<void> on_link_failed(DvShape? caller, dynamic event) async {
 
                                 deva_log("warning", "[worker] link échoué: ${event?.toString() ?? ""}");
-                                await _revealLabel("link_account/error", "link_failed");
+                                await _revealLabel("link_account/error", "signin_failed_parent");
     }
 
     // Conflit : le compte Google visé porte déjà un héros.
@@ -777,6 +808,11 @@ extension Worker_session on worker {
                                 await Deva.instance.set("worker.session.create_clan_disabled", "");
                                 await Deva.instance.set("worker.pending_member_joined",        null);
                                 await Deva.instance.set("worker.pending_clan_welcome",         "");
+                                // Revue armée par une notification et jamais consommée (chef mort au
+                                // moment du tap, app jamais rouverte) : elle désigne une tâche d'un clan
+                                // qu'on vient de quitter. La laisser ferait ouvrir une revue étrangère à
+                                // la première arrivée sur le dashboard du clan suivant.
+                                await Deva.instance.set("worker.pending_review_task",          "");
                                 await Deva.instance.set("session.user.name",                   "");
                                 await Deva.instance.store();
                                 if (!navigate) return;

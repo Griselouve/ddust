@@ -50,6 +50,11 @@ extension Worker_verdict on worker {
 
                                 ActionRegistry.register("worker.on_notif_validate_ko",      on_notif_validate_ko);
 
+                                // Tap sur le CORPS de la notification de validation, version sans
+                                // boutons — celle qu'un clan sans cotisation reçoit. Ouvre l'app sur
+                                // la tâche à valider au lieu de rendre un verdict en sous-main.
+                                ActionRegistry.register("worker.on_notif_open_task",        on_notif_open_task);
+
     }
 
     // Tâche → "validating" : preuve déposée (read-modify-write, ownerId du doc = clanSecret).
@@ -554,6 +559,16 @@ extension Worker_verdict on worker {
                                       "xp": playerXp, "xp_base": xp,
                                       "boss": bossTaskId.isNotEmpty}));
 
+                    // RELANCE DE CONVERSION : ce clan vient de mener une tâche à son terme.
+                    // Après le journal, donc après que tout ce qui devait être crédité l'a été —
+                    // un compteur qui avancerait sur un verdict à moitié appliqué mentirait.
+                    // `accept` seulement : une tâche à moitié validée a été faite, créditée et
+                    // fêtée, elle prouve que le jeu tourne ; un refus ne prouve rien.
+                    // Le double comptage est impossible : la garde d'idempotence `validating`
+                    // en tête de cette fonction est déjà franchie, un second admin qui tranche
+                    // la même tâche est ressorti bien avant d'arriver ici.
+                    if (accept) await _storeCountValidation(clanId, clanSecret, region);
+
                     // L'ADMIN qui tranche contribue au jeu : trancher COMPTE comme avoir joué. On recale
                     // SON last_task=now → la dégradation temporelle repart de zéro, il ne perd plus de PV
                     // pendant qu'il arbitre les tâches des autres. Vrai pour les trois verdicts (arbitrer
@@ -663,6 +678,99 @@ extension Worker_verdict on worker {
     Future<void> on_notif_validate_partial(DvShape? caller, dynamic event) async => _handleNotifVerdict("partial", event);
 
     Future<void> on_notif_validate_ko(DvShape? caller, dynamic event)      async => _handleNotifVerdict("ko", event);
+
+    // Tap sur le CORPS de la notification de validation SANS boutons (clan qui n'a pas
+    // de cotisation, cf. _notifyAdmins). Contrairement aux trois verdicts ci-dessus, on
+    // ne tranche rien ici : on amène le chef DEVANT la tâche, dans l'app.
+    //
+    // Le drapeau n'est pas une précaution de confort, il est nécessaire. `on_pulse_open`
+    // navigue de lui-même sans attendre la session, mais il vise le `dashboard` —
+    // c'est-à-dire la destination que l'ouverture de session aurait choisie de toute
+    // façon, si bien que la course est sans conséquence. Nous visons `combat` AVEC un
+    // contexte de revue : la navigation d'ouverture de session l'écraserait sans bruit.
+    // On ne navigue donc tout de suite que si l'app est déjà en jeu ; sinon on arme, et
+    // le dashboard consommera au seul instant où la session est réellement prête.
+    Future<void> on_notif_open_task(DvShape? caller, dynamic event) async {
+
+                                final dv     = event is Dvidle ? event : Dvidle(event is Map ? Map<String, dynamic>.from(event) : {});
+                                final data   = _msgData(dv);
+                                final taskId = data["taskId"]?.toString() ?? "";
+                                if (taskId.isEmpty) {
+                                    deva_log("warning", "[combat] notif ouverture: taskId manquant");
+                                    return;
+                                }
+
+                                await deva_set("worker.pending_review_task", taskId);
+                                await Deva.instance.store();
+
+                                // App déjà en jeu (premier plan ou arrière-plan réveillé) : une page est
+                                // montée ET le clan est résolu. Même test qu'à la fin de _handleClanJoin,
+                                // pour la même raison — savoir si quelqu'un est encore là pour consommer.
+                                final page   = DvOrb.get_current_page();
+                                final clanId = (await Deva.instance.get("session.clan.id"))?.toString() ?? "";
+                                if (page != null && clanId.isNotEmpty) {
+                                    await _consumePendingReviewTask();
+                                    return;
+                                }
+                                deva_log("info", "[combat] notif ouverture tapée app fermée — revue différée au dashboard");
+    }
+
+    // Consomme la revue armée par la notification. Rend `true` si l'écran a été pris en
+    // main (l'appelant ne doit alors rien enchaîner derrière).
+    //
+    // ONE-SHOT, sauf une exception assumée : le drapeau est effacé AVANT tout await
+    // risqué (patron _playPendingClanWelcome), pour qu'un plantage en aval ne fasse pas
+    // ressurgir une revue trois jours plus tard.
+    Future<bool> _consumePendingReviewTask() async {
+
+                                final taskId = (await deva_get("worker.pending_review_task"))?.toString() ?? "";
+                                if (taskId.isEmpty) return false;
+
+                                // CLAN GELÉ. `seltask` fait un navigate_reset("combat") sans repasser par
+                                // on_dashboard_appear, seul endroit qui garde la porte du gel : sans ce
+                                // test, un chef de clan gelé atterrirait sur une revue au lieu de l'écran
+                                // qui lui explique pourquoi le donjon est fermé.
+                                if (await _storeLocked()) {
+                                    await deva_set("worker.pending_review_task", "");
+                                    await Deva.instance.store();
+                                    deva_log("info", "[combat] revue abandonnée — clan gelé");
+                                    DvOrb.navigate_reset("locked_page");
+                                    return true;
+                                }
+
+                                // CHEF MORT : _selectTask sort sans rien afficher, et la notification
+                                // aurait donc l'air cassée. SEULE SORTIE QUI NE CONSOMME PAS, et elle est
+                                // délibérée : un mort ne peut littéralement rien arbitrer, ce n'est pas un
+                                // échec mais un report. Le drapeau attend le prochain dashboard, donc
+                                // l'après-résurrection ou l'après-soin. Le logout le purge.
+                                if ((await Deva.instance.get("session.player_dead")) == true) {
+                                    deva_log("info", "[combat] revue $taskId reportée — le chef est mort");
+                                    return false;
+                                }
+
+                                await deva_set("worker.pending_review_task", "");
+                                await Deva.instance.store();
+
+                                // On DÉLÈGUE à seltask plutôt que de poser review_task/review_assignee
+                                // nous-mêmes : _selectTask relit le statut FRAIS sur Firestore, revérifie
+                                // que l'utilisateur est bien admin ET qu'il n'est pas l'assignee, puis
+                                // navigue. Trois contrôles qu'un second chemin ferait tôt ou tard diverger
+                                // — et le premier règle gratuitement le cas de la tâche déjà tranchée par
+                                // l'autre chef, qui ne mène alors à aucune revue.
+                                //
+                                // GARDE ASSUMÉE : si le chef a lui-même une tâche en cours, _selectTask le
+                                // ramène à SON combat et pas à la revue. On laisse faire — l'app est
+                                // ouverte, ce qui est tout l'objet de cette notification, et la tâche à
+                                // valider l'attend dans le tiroir avec sa flamme, à deux taps.
+                                final act = ActionRegistry.get("seltask.$taskId");
+                                if (act == null) {
+                                    deva_log("warning", "[combat] revue $taskId : action seltask introuvable");
+                                    return false;
+                                }
+                                deva_log("info", "[combat] ouverture de la revue $taskId");
+                                await act(null, null);
+                                return true;
+    }
 
     // Bouton "Le monstre est vaincu !" : la tâche est validée et libérée (XP plein).
     Future<void> on_validate_ok(DvShape? caller, dynamic event) async => _handleVerdict("ok");

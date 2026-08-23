@@ -2,6 +2,10 @@ build:
   sequence:
   - backend
   - client
+  # Verrou de production : a passer a true le jour ou l'app sert de vrais clans. Le mot-clef
+  # reset reste tapable mais ne supprime plus rien (ni Firestore, ni GCS, ni Auth, ni les
+  # caches locaux ci-dessous). Cle optionnelle : absente, le reset fonctionne normalement.
+  production_on: false
   reset:
     local_paths:
       - "%APPDATA%/com.grisloup/ddust_client"
@@ -21,6 +25,10 @@ build:
           - clans_chest_history
           - clans_logs
           - clans_players
+          # Un document par clan, écrit par pulse_sweeper (backend/config.yml, clans_pulse).
+          # Absente de cette liste, elle survivrait au reset : le balayeur quotidien
+          # continuerait de travailler sur des clans qui n'existent plus.
+          - clans_pulse
           # Sans cette purge, un clan recréé après un reset retrouverait l'abonnement du
           # précédent : état payant, crédits de mois et timers de défaut de paiement
           # ressuscités sur des données de jeu vides.
@@ -39,6 +47,12 @@ build:
         collections: &store_collections
           - store_purchases
           - store_tokens
+          # Codes cadeaux et compteurs d'essais. Même raison que les jetons : un code
+          # déjà réclamé refuserait d'être rejoué sur un clan neuf, et le banc d'essai
+          # deviendrait inutilisable au deuxième passage. La sous-collection `claims`
+          # part avec son parent.
+          - store_codes
+          - store_code_attempts
       - project: dvddust
         database: us-store
         collections: *store_collections
@@ -82,11 +96,766 @@ build:
       - project: dvddust
         database: us-sessions
         collections: *sessions_collections
-    storage:
-      - bucket: dvddust-eu-assets-storage
-      - bucket: dvddust-us-assets-storage
+    # NEUTRALISE pour le grand reset d'avant-beta : ces buckets ne portent AUCUNE donnee
+    # de joueur (layers YAML du catalogue, images, sons), seulement du contenu republie
+    # par un build. Les vider sans enchainer un build+deploy laisserait l'app installee
+    # incapable de charger ses assets. A decommenter pour retrouver le reset complet du
+    # banc d'essai, qui lui est toujours suivi d'un build.
+    # storage:
+    #   - bucket: dvddust-eu-assets-storage
+    #   - bucket: dvddust-us-assets-storage
     # L'annuaire Firebase Auth : sans cette purge, le compte Google reste lié à l'uid de la
     # partie précédente et le prochain onboarding tombe sur l'écran de conflit « ce compte
     # Google est déjà lié à un autre héros » — alors que Firestore est vide.
     auth:
       - project: dvddust
+
+# =============================================================================
+# ÉDITEUR — L'IDENTITÉ JURIDIQUE, EN UN SEUL ENDROIT
+# -----------------------------------------------------------------------------
+# La même identité doit se retrouver, à l'identique, en six endroits : profil de
+# paiement Play, déclaration de statut de vendeur (DSA), facturation GCP, éditeur
+# déclaré aux CGU, mention « éditeur » du site, et responsable de traitement de
+# stores/google/dpa.md §3. Un écart bloque la validation ou fragilise le dossier
+# RGPD — d'où une source unique plutôt que six saisies.
+#
+# ⚠ AUCUN bloc `layer:` ici, et c'est délibéré. builder._ingest_shared_conf ne
+# donne la section entière qu'aux apps `pulumi` ; pour une app embarquée, une
+# section sans `layer.publish` déclaré tombe dans un `continue` (« Aucun layer
+# declare : rien ne part »). L'adresse du domicile ne descend donc ni dans l'APK,
+# ni dans le layer du bucket, que l'app lit sans authentification.
+# En ajouter un exposerait une donnée personnelle dans un APK décompressable.
+#
+# Ce que la console rend PUBLIC, et quand : se déclarer « professionnel » au sens
+# du DSA fait afficher nom + adresse complète + téléphone sur la fiche Play dans
+# l'EEE — mais seulement à partir du moment où une fiche est publique. Tant que la
+# diffusion reste en piste fermée, rien n'est exposé. Détail et arbitrage :
+# stores/google/compte.md, et stores/google/publication.md §6.1.
+# =============================================================================
+
+publisher:
+
+  # Feuille de saisie des consoles, RENDUE au build depuis le gabarit : les valeurs
+  # ci-dessous y sont injectées telles quelles. C'est ce qu'on ouvre devant le
+  # formulaire — plus rien à recouper, plus aucune référence à résoudre de tête.
+  # Une référence @@@C:...@@@ qui ne résout pas FAIT ÉCHOUER le build : un champ
+  # vide dans une procédure de saisie, c'est une case remplie de mémoire.
+  # Une saisie par section de conf partagée : `publisher` donne saisie_compte.md,
+  # `store` donnera saisie_produits.md le jour où le catalogue en aura besoin.
+  doc:
+    template: ../stores/google/saisie_compte.tpl.md
+    path: ../stores/google/saisie_compte.md
+
+  # Nom CIVIL, à l'orthographe exacte de la pièce d'identité — c'est ce que
+  # contrôle la vérification d'identité. Surtout pas « grisloup.com », qui n'est
+  # qu'un nom commercial : l'écart avec la pièce d'identité est une cause
+  # classique de blocage.
+  # Orthographe VALIDÉE PAR GOOGLE le 2026-08-20 contre la pièce d'identité, donc
+  # référence pour tous les autres écrans. Sans trait d'union : le profil de paiement
+  # verrouille le nom une fois vérifié, et le modifier exigerait un justificatif de
+  # changement de nom. C'est ce champ-ci qui s'aligne sur la console, jamais l'inverse.
+  legal_name: "Guillaume Marchal De Greef"
+
+  # Résidence RÉELLE. Google refuse les boîtes postales comme les adresses de
+  # domiciliation pour les comptes personnels, justificatif à l'appui.
+  # Recopiée telle que Google l'affiche après validation (2026-08-19), majuscules
+  # comprises : c'est la forme de référence, et elle sera affichée publiquement sur
+  # la fiche au titre du statut de vendeur.
+  address:
+    street: "16 Rue du Fief À Cavan"
+    postal_code: "95800"
+    city: "Courdimanche"
+    country: FR
+
+  # Numéro joignable, format international.
+  phone: "+33783310851"
+
+  # Personne physique : aucun numéro d'immatriculation à déclarer. Le jour où une
+  # structure existe, ce champ porte le SIREN et le compte bascule en organisation
+  # (D-U-N-S + 72 h, conversion irréversible — cf. publication.md §0.2).
+  registration_number: ~
+
+  # ---------------------------------------------------------------------------
+  # DÉJÀ PUBLICS AILLEURS — regroupés ici pour que l'identité tienne d'un bloc
+  # ---------------------------------------------------------------------------
+  # ⚠ Trois « noms » distincts, que la console ne distingue pas clairement :
+  #   legal_name     → le nom civil, pour le juridique et le paiement
+  #   trade_name     → le nom commercial, éditeur déclaré aux CGU et au site
+  #   developer_name → ce qui s'affiche sur la fiche Play, champ à part entière
+  #                    des paramètres du compte
+  trade_name: grisloup.com
+  developer_name: Grisloup
+  email: donjons@grisloup.com
+  website: https://donjons.grisloup.com
+
+# =============================================================================
+# SOUS-TRAITANCE RGPD — CONTACTS ET ARCHIVAGE
+# -----------------------------------------------------------------------------
+# Les contrats d'adhésion de Google ne se signent plus : aucune case « j'accepte »
+# n'existe dans les consoles récentes. La preuve d'adhésion, au titre de
+# l'accountability (art. 5.2 RGPD), c'est l'ARCHIVE DATÉE du texte en vigueur,
+# plus les contacts renseignés. À refaire à chaque version publiée par Google —
+# donc exactement ce qu'une mémoire humaine ne tient pas, d'où l'automatisation.
+#
+# Des trois démarches de dpa.md §2, une seule reste manuelle (le contact Firebase,
+# sans API) : les contacts essentiels GCP sont posés par puproject au déploiement,
+# et l'archivage est fait par le build.
+#
+# Clés PLATES (`cdpa_*`, `dpst_*`) : le moteur de rendu des gabarits fait de la
+# substitution sans boucle, une liste y rendrait son repr Python. `archive:` ne
+# liste que les préfixes — c'est le code qui compose les noms de clés.
+#
+# Pas de bloc `layer:` : rien de tout ceci ne descend au client ni au bucket.
+# =============================================================================
+
+dpa:
+
+  doc:
+    template: ../stores/google/saisie_dpa.tpl.md
+    path: ../stores/google/saisie_dpa.md
+    # Filet : si l'archivage a échoué plusieurs builds de suite, le document sort
+    # quand même mais le build le dit en jaune.
+    expect:
+      - legal/cdpa-*.pdf
+      - legal/firebase-dpst-*.pdf
+
+  # Chemin où le build écrit, relatif à build/ — c'est ce que le code consomme.
+  archive_dir: legal/
+  # Le MÊME endroit, vu depuis la feuille de saisie (qui vit dans stores/google/).
+  # Les deux existent parce qu'ils ne s'adressent pas au même lecteur : afficher
+  # `legal/` dans la feuille envoyait chercher dans `stores/google/legal/`, qui
+  # n'existe pas.
+  archive_dir_doc: ../../build/legal/
+  archive: [cdpa, dpst]
+
+  # Catégorie de contact essentiel GCP. La RESSOURCE est déclarée dans
+  # backend/config.yml → conf.project.essential_contacts, et c'est elle qui fait
+  # foi ; les deux clés ci-dessous n'existent que pour l'AFFICHER dans la feuille.
+  #
+  # Elles étaient une seconde source de vérité muette : changer la catégorie côté
+  # backend aurait fait mentir la feuille sans que rien ne le signale. Le code du
+  # builder recoupe désormais `contact_category_code` avec ce que déclare
+  # réellement le backend et sort un avertissement jaune en cas d'écart.
+  contact_category: Juridique       # libellé affiché par la console GCP (fr)
+  contact_category_code: LEGAL      # code API — recoupé avec backend/config.yml
+
+  # `_anchor` : fragment de texte qui doit être présent dans la page. Il ne vérifie
+  # pas le PDF (le texte d'un PDF Chrome est compressé) mais qu'on est bien sur le
+  # bon document avant d'archiver quoi que ce soit.
+  cdpa_name: Cloud Data Processing Addendum
+  cdpa_url: https://cloud.google.com/terms/data-processing-addendum
+  cdpa_anchor: Cloud Data Processing Addendum
+  cdpa_file: cdpa
+
+  dpst_name: Firebase Data Processing and Security Terms
+  dpst_url: https://firebase.google.com/terms/data-processing-terms
+  dpst_anchor: Data Processing and Security Terms
+  dpst_file: firebase-dpst
+
+  # Second canal de veille, celui-là humain : la liste des sous-traitants Google se
+  # suit par abonnement à la page, pas par notification contractuelle.
+  subprocessors_url: https://cloud.google.com/terms/subprocessors
+
+# =============================================================================
+# FICHE PLAY STORE — TEXTES, RÉGLAGES ET ASSETS
+# -----------------------------------------------------------------------------
+# Les cinq formulaires de l'étape 8 (Sécurité des données, IARC, Public cible,
+# Accès à l'app, fiche) sont tous obligatoires AVANT la première release, test
+# fermé compris. Ce bloc porte ce qui s'y saisit ; playstore.md garde le pourquoi.
+#
+# `assets:` est une LISTE parce qu'elle est consommée par du code (la copie), pas
+# par un gabarit — le moteur de rendu, lui, substitue sans boucle, d'où des clés
+# plates pour tout ce que la feuille cite. Même partage des rôles que dpa.archive.
+#
+# L'ORDRE de la liste est l'ordre de téléversement : le build renomme en
+# 01-icone / 02-feature / 03-capture-N, de sorte que le dossier de destination se
+# lise sans se reporter ici.
+#
+# Pas de bloc `layer:` : rien ne descend au client.
+# =============================================================================
+
+listing:
+
+  doc:
+    template: ../stores/google/saisie_playstore.tpl.md
+    path: ../stores/google/saisie_playstore.md
+
+  assets_dir: ../stores/google/assets/
+  assets:
+    - kind: icon
+      expect: 512x512
+      source: hosting/web/icon-512.png
+    - kind: feature
+      expect: 1024x500
+      source: hosting/web/assets/img/playstore.png
+    # Captures : Play impose un intervalle (côté court ≥ 320 px, ratio ≤ 2:1) et
+    # non une taille fixe — d'où l'absence d'`expect`, le contrôle est la règle.
+    - kind: screenshot
+      source: hosting/web/assets/img/04-welcome.png
+    - kind: screenshot
+      source: hosting/web/assets/img/21-birth-of-clan.png
+    - kind: screenshot
+      source: hosting/web/assets/img/40-time-to-clean.png
+    - kind: screenshot
+      source: hosting/web/assets/img/32-choose-avatar.png
+    - kind: screenshot
+      source: hosting/web/assets/img/33-me.png
+    - kind: screenshot
+      source: hosting/web/assets/img/54-pocket-money.png
+    - kind: screenshot
+      source: hosting/web/assets/img/59-loot-chest.png
+    - kind: screenshot
+      source: hosting/web/assets/img/67-clan.png
+
+  # ---------------------------------------------------------------------------
+  # TEXTES
+  # ---------------------------------------------------------------------------
+  name: Donjons & Savons
+
+  short_fr: "Transformez les corvées en aventure familiale : tâches-monstres, XP et butins."
+  short_en: "Turn chores into a family adventure: monster tasks, XP, levels and loot chests."
+  short_es: "Convierte las tareas en una aventura familiar: monstruos, XP, niveles y botín."
+
+  # ⚠ Copie COMMERCIALE, pas de la conf technique : elle se relit avant d'être
+  # collée. Les versions EN et ES sont des ADAPTATIONS — la chute joue sur
+  # épées/éponges, qui ne se traduit pas mot à mot. Les arguments de conformité
+  # (pas de pub, pas de traceur, photos qui restent sur l'appareil, données en
+  # Europe) sont conservés tels quels dans les trois : ce sont eux qui portent la
+  # promesse, et ils doivent rester vrais.
+  long_fr: |
+    ⚔️ Les corvées sont des monstres. Abattez-les en famille !
+
+    Donjons & Savons transforme la maison en donjon : la famille devient un clan, chaque tâche ménagère devient un monstre à vaincre, et chaque victoire rapporte de l'expérience au joueur comme au clan. Quand le coffre du clan est plein, la famille ouvre un butin — une vraie récompense, décidée à l'avance par les parents. Le jeu ne simule pas la récompense : il structure la promesse familiale.
+
+    🛡️ Comment ça marche
+    • Un parent fonde le clan et invite la famille (QR code ou lien sécurisé).
+    • Chacun choisit son avatar et son nom d'aventurier.
+    • Ranger sa chambre, sortir les poubelles, mettre la table : 19 domaines et plus de 150 tâches, ajustés à votre foyer — et vos propres tâches en plus.
+    • Les parents valident les exploits (preuve photo possible — elle reste sur le téléphone).
+    • XP, niveaux, titres, points de vie, journal du clan et cérémonies d'ouverture du butin.
+
+    👨‍👩‍👧‍👦 Pensé pour les familles
+    • Aucune publicité, aucun traceur, aucun achat surprise.
+    • Les mineurs ne rejoignent un clan qu'avec le consentement d'un adulte responsable.
+    • Les photos ne quittent jamais l'appareil ; les données restent hébergées en Europe.
+    • Suppression de compte autonome, dans l'app ou sur le site.
+
+    Le butin est la promesse tenue. À vos épées — et à vos éponges !
+
+  long_en: |
+    ⚔️ Chores are monsters. Defeat them as a family!
+
+    Donjons & Savons turns your home into a dungeon: the family becomes a clan, every household chore becomes a monster to defeat, and every victory earns experience for the player and for the clan. When the clan chest is full, the family opens a loot chest — a real reward, agreed in advance by the parents. The game doesn't simulate the reward: it gives the family promise a structure.
+
+    🛡️ How it works
+    • A parent founds the clan and invites the family (QR code or secure link).
+    • Everyone picks an avatar and an adventurer name.
+    • Tidying a bedroom, taking out the bins, setting the table: 19 areas and more than 150 tasks, tuned to your household — plus any you add yourself.
+    • Parents validate each feat (photo proof optional — it never leaves the phone).
+    • XP, levels, titles, hit points, clan log and loot-opening ceremonies.
+
+    👨‍👩‍👧‍👦 Built for families
+    • No ads, no trackers, no surprise purchases.
+    • Minors only join a clan with the consent of a responsible adult.
+    • Photos never leave the device; data stays hosted in Europe.
+    • Delete your account yourself, in the app or on the website.
+
+    The loot is the promise kept. Grab your swords — and your sponges!
+
+  long_es: |
+    ⚔️ Las tareas del hogar son monstruos. ¡Derrotadlas en familia!
+
+    Donjons & Savons convierte la casa en una mazmorra: la familia se convierte en un clan, cada tarea del hogar se convierte en un monstruo al que vencer, y cada victoria da experiencia al jugador y al clan. Cuando el cofre del clan está lleno, la familia abre un botín: una recompensa de verdad, acordada de antemano por los padres. El juego no simula la recompensa: da estructura a la promesa familiar.
+
+    🛡️ Cómo funciona
+    • Un adulto funda el clan e invita a la familia (código QR o enlace seguro).
+    • Cada cual elige su avatar y su nombre de aventurero.
+    • Ordenar la habitación, sacar la basura, poner la mesa: 19 ámbitos y más de 150 tareas, ajustadas a vuestro hogar, además de las que añadáis vosotros.
+    • Los padres validan las hazañas (con foto opcional, que nunca sale del teléfono).
+    • XP, niveles, títulos, puntos de vida, diario del clan y ceremonias de apertura del botín.
+
+    👨‍👩‍👧‍👦 Pensado para familias
+    • Sin publicidad, sin rastreadores, sin compras sorpresa.
+    • Los menores solo entran en un clan con el consentimiento de un adulto responsable.
+    • Las fotos nunca salen del dispositivo; los datos se alojan en Europa.
+    • Puedes eliminar tu cuenta tú mismo, en la app o en la web.
+
+    El botín es la promesa cumplida. ¡A por vuestras espadas... y vuestras esponjas!
+
+  # ---------------------------------------------------------------------------
+  # RÉGLAGES DE LA FICHE
+  # ---------------------------------------------------------------------------
+  category: "Application → Parentalité"
+  tags: "famille, corvées, tâches, enfants, motivation, RPG"
+  languages: "fr-FR (par défaut), en-US, es-ES"
+  # Zone UE uniquement, et c'est un choix : le corpus légal ne couvre que l'UE et
+  # les US. Un testeur suisse ou canadien tomberait dans un angle mort — ni CGU
+  # taillées pour lui, ni région de données prévue. À rouvrir quand le corpus
+  # suivra, pas avant.
+  countries_closed: "France, Belgique"
+  countries_prod: "zone EU au lancement, les US ensuite"
+  privacy_url: https://donjons.grisloup.com/fr/legal/
+  delete_url: https://donjons.grisloup.com/delete-account/
+
+  # ---------------------------------------------------------------------------
+  # ACCÈS À L'APP (App access)
+  # ---------------------------------------------------------------------------
+  # L'app exige une connexion Google : sans compte fonctionnel, la revue rejette
+  # pour « impossible d'accéder au contenu ». Les deux comptes sont aussi les
+  # testeurs sous licence declares dans store.play.license_testers.
+  #
+  # ⚠ Mot de passe en clair, décision assumée : une feuille de saisie qui renvoie
+  # ailleurs pour un seul champ cesse d'être une feuille de saisie. C'est ICI que
+  # ces identifiants font foi, et nulle part ailleurs.
+  app_access:
+    adult_email: daddy.ddust@gmail.com
+    adult_role: chef de clan adulte
+    kid_email: kiddy.ddust@gmail.com
+    kid_role: membre mineur
+    password: "Ddust!12345678"
+    instructions: "Le compte fourni a déjà un clan pour accéder immédiatement au jeu, et une connexion avec un compte Google neuf déroule le parcours complet de consentement."
+
+# =============================================================================
+# BOUTIQUE — LA SOURCE UNIQUE
+# -----------------------------------------------------------------------------
+# Ce bloc est ici, et pas dans le config.yml d'une app, parce que les MÊMES
+# identifiants servent à trois endroits qui ne doivent jamais diverger :
+#
+#   - l'APP les affiche         (layer publié au bucket + conf embarquée)
+#   - le BACKEND les vérifie    (TRIAL_OFFER_ID des trois fonctions de pustore)
+#   - pucatalog les CRÉE        (chez Google, en Play Console)
+#
+# Trois copies, ce sont deux occasions de diverger. Et la divergence ne se voit
+# pas : une variante d'orthographe sur `essai-14j` ne casse rien à l'écran, elle
+# fait juste passer tous les essais pour des abonnements payants dans les
+# chiffres. Un identifiant Play, lui, ne se corrige jamais — il se contourne.
+#
+# Le builder redistribue ce bloc : conf du client, config.yaml du backend, et le
+# layer cloud déclaré ci-dessous. On n'écrit donc un identifiant qu'ICI.
+# =============================================================================
+
+store:
+
+  # Où publier la part du bloc que l'APP doit voir. Un layer au bucket se relit
+  # sans nouvelle version sur le store : ouvrir un palier ou corriger un barème ne
+  # coûte pas une release. `publish` restreint volontairement à ce qui regarde
+  # l'app — la grille de prix par pays n'a aucune raison de voyager jusqu'aux
+  # appareils.
+  #
+  # ⚠ Ce champ s'est d'abord appelé `keys`, ce qui cassait TOUT le chargement de la
+  # conf : dvidle range les clefs en attributs Python, un champ nommé `keys` écrase
+  # donc la méthode `keys()` et le premier `mask()` venu meurt sur « 'list' object is
+  # not callable ». Noms à ne jamais employer dans une conf : keys, get, set, values,
+  # mask, tojson, toyaml, fromjson, fromyamlfile, toyamlfile, to_repr.
+  layer:
+    path: resources_cloud/general/layers/store-catalog-global.yml
+    publish:
+      - catalog
+
+  # ---------------------------------------------------------------------------
+  # CE QUI N'EXISTE QUE POUR GOOGLE PLAY
+  # ---------------------------------------------------------------------------
+  play:
+
+    package: com.grisloup.ddust_client
+
+    # Référentiel des régions Play. Le figer évite qu'une mise à jour du
+    # référentiel chez Google ne déplace des pays sous nos pieds au prochain build.
+    regions_version: "2022/02"
+
+    # Pas de `developer_id` ici : ce serait une action manuelle déguisée (aller lire
+    # un nombre dans une URL pour le recopier). pucatalog le DÉCOUVRE — le champ
+    # `name` d'un utilisateur du compte suit `developers/{id}/users/{email}` — puis le
+    # range à côté de son marqueur de câblage. Introuvable, il ouvre l'URL générique
+    # de la console : un clic de menu en plus, et rien à saisir.
+
+    # Les deux identifiants d'offre que lisent store_verify, store_rtdn et
+    # store_sweeper (cf. backend/config.yml). Ils ne sont plus écrits qu'ici : les
+    # fonctions les reçoivent par référence @@@C:...@@@, et pucatalog crée chez
+    # Google des offres portant exactement ces noms. Ils ne PEUVENT plus diverger.
+    trial_offer:   essai-14j
+    founder_offer: fondateur
+
+    # --- Qui a droit à l'offre fondateurs ---------------------------------------
+    # Play sait arbitrer lui-même l'essai « nouveaux clients ». L'offre de lancement,
+    # non : son éligibilité est DÉLÉGUÉE au développeur, et tant que personne ne
+    # tranche, personne n'en bénéficie. C'est cette date qui tranche.
+    #
+    # Un clan CRÉÉ AVANT cet instant est fondateur. Un clan dont la date de création
+    # est illisible rend 0, donc l'est aussi — délibéré : les clans les plus anciens
+    # sont précisément ceux d'avant que le champ n'existe, et l'offre de lancement
+    # leur est due.
+    #
+    # pucatalog écrit ce couple dans {région}-store/store_config/founders, d'où
+    # `store_eligibility` le relit à chaque achat. Sans ce document la fonction sort
+    # sur `if (!conf.exists)` et AUCUN clan n'est jamais fondateur — l'offre existe
+    # chez Google mais l'app ne la demande pour personne.
+    #
+    # LA CONF FAIT FOI : la retoucher en console dépanne, rejouer un build réaligne
+    # le document sur la valeur ci-dessous (et le dit à l'écran).
+    #
+    # Fin de la période de lancement : couvre le test fermé et les premières semaines
+    # de production. À avancer si les betas s'étirent — ce n'est qu'une date.
+    founder_cutoff: "2026-09-30T23:59:59+02:00"
+
+    # Réserve de mois offerts posée d'office sur le document. Rien ne la lit
+    # aujourd'hui (les crédits s'accordent un par un via store_grant) : 0 est la
+    # valeur qui respecte la forme documentée sans rien distribuer.
+    founder_credit_months: 0
+
+    # --- Les comptes qui achètent gratuitement, pour la recette ---------------
+    # Leurs achats sont RÉELS côté Play — vraie commande, vrai RTDN, vraie
+    # vérification par store_verify — mais GRATUITS. C'est ce qui fait apparaître
+    # les moyens de paiement de test dans la feuille d'achat, dont « refuse
+    # toujours » et « approuve puis rétrofacture » : les seuls moyens d'éprouver un
+    # impayé et un remboursement sans payer pour de bon.
+    #
+    # À ne pas confondre avec le banc d'essai du client, qui fabrique des états
+    # sans jamais parler à Play. Les deux se complètent.
+    #
+    # C'est un réglage du COMPTE développeur, pas de l'app, et aucune API Play ne
+    # l'expose : pucatalog ne peut que guider le geste en console. Être testeur sous
+    # licence n'ouvre AUCUN accès à l'app — il faut aussi être sur une piste.
+    license_testers:
+      - daddy.ddust@gmail.com
+      - kiddy.ddust@gmail.com
+
+    # --- Les deux offres, déclarées une fois, attachées à chaque base plan ----
+    offers:
+
+      # Quatorze jours et pas un mois : un mois complet laissait passer le pic
+      # d'enthousiasme avant le premier paiement. Éligibilité « acquisition de
+      # nouveaux clients » : Play vérifie lui-même qu'aucun abonnement n'a jamais
+      # existé sur ce compte — rien à coder côté serveur.
+      # ⚠ PROMESSE COMMERCIALE EMBARQUÉE : les quatorze jours sont annoncés dans
+      # lang.yml. Les deux durées doivent bouger ensemble.
+      essai-14j:
+        eligibility: new_customers
+        phases:
+          - { duration: P14D, free: true }
+
+      # Offre de lancement. Éligibilité DÉTERMINÉE PAR LE DÉVELOPPEUR : Play ne
+      # filtre rien, c'est `store_eligibility` qui tranche à partir du cutoff posé
+      # dans store_config/founders — voir `founder_cutoff` plus haut, dont pucatalog
+      # fait ce document. C'est précisément ce qui permet de décaler la fenêtre sans
+      # redéploiement — une offre de lancement dont la date est figée dans du code
+      # ne sert pas à grand-chose.
+      # Un mois offert, puis la première année à -30%.
+      fondateur:
+        eligibility: developer
+        phases:
+          - { duration: P1M, free: true }
+          - { duration: P1Y, discount_percent: 30 }
+
+    # --- Zones de prix -------------------------------------------------------
+    # Play exige un prix par pays. On les groupe par devise : un pays absent de
+    # toute zone n'est simplement pas servi — aucune conversion automatique, aucun
+    # tarif décidé par Google dans notre dos.
+    #
+    # Les prix EUR viennent de revenus.md et ne se touchent pas. Les autres devises
+    # sont une conversion arrondie au palier psychologique local (le .99), pas un
+    # taux de change appliqué à la virgule : 2,15 £ n'est pas un prix, c'est un
+    # résultat de calcul.
+    zones:
+      eur:
+        currency: EUR
+        countries: [FR, DE, ES, IT, BE, NL, PT, IE, AT, LU, FI, GR, SK, SI, EE, LV, LT, CY, MT, HR]
+      usd:
+        currency: USD
+        countries: [US]
+      cad:
+        currency: CAD
+        countries: [CA]
+      gbp:
+        currency: GBP
+        countries: [GB]
+      chf:
+        currency: CHF
+        countries: [CH]
+
+  # ---------------------------------------------------------------------------
+  # LE CATALOGUE
+  # ---------------------------------------------------------------------------
+  # Ne vit ici que la STRUCTURE. Les libellés affichés dans l'app et les images
+  # sont du THÈME (theme-donjon-global.yml), exactement comme pour les items : le
+  # catalogue dit « il existe un abonnement standard », le thème dit comment on
+  # l'appelle dans ce décor-là. Les textes `play.listings` sont autre chose : ce
+  # sont les fiches de la Play Console, vues hors de l'app et donc hors du décor.
+  #
+  #   type       : subscription | product (produit à l'unité, non consommable)
+  #   order      : rang d'affichage dans la boutique
+  #   base_plans : périodicités déclarées en Play Console pour CE produit.
+  #                ⚠ LE SUFFIXE EST CONTRACTUEL : `dvstore.basePlanFor` choisit la
+  #                périodicité par `endsWith("-$period")`, avec period ∈ {monthly,
+  #                yearly}. Un base plan nommé autrement rend l'annuel inachetable,
+  #                en silence — on repart alors sur le mensuel sans qu'un mot le
+  #                dise. C'est pourquoi `base_plans` reste une LISTE et que les
+  #                détails Play vivent dans `play.plans` : pucatalog vérifie que les
+  #                deux coïncident exactement et refuse de déployer sinon.
+  #   offers     : offres attachées aux base plans (essai, offre réservée)
+  #   label      : nom affiché — token de traduction (thème)
+  #   description: texte de la fiche — token de traduction (thème)
+  #   price_hint : REPLI d'affichage seulement. Le prix réel vient TOUJOURS de Play
+  #                (localisé, taxes incluses) : c'est une exigence de la politique
+  #                du store, et cela évite de maintenir une table de prix par pays
+  #                côté app.
+  #   price_hint_yearly :
+  #                le même repli, pour la périodicité ANNUELLE. Sans lui, un écran
+  #                affichant l'annuel et privé de canal Play retombait sur
+  #                `price_hint` — donc annonçait le tarif MENSUEL sous l'étiquette
+  #                « par an ». C'est l'état de toute la recette au banc d'essai, où
+  #                aucun canal Play n'est ouvert. Une grille tarifaire qui ment est
+  #                pire qu'une grille vide.
+  #   grants     : LE seul endroit où un produit rencontre une règle de jeu. Le
+  #                serveur ne connaît que Play (« ce clan possède ddust_clan, état
+  #                active ») ; c'est cette table qui traduit cela en « 4 joueurs ».
+  #                Aucune règle métier n'est dupliquée côté backend.
+  #   play       : ce que Google exige en plus — fiches par langue, périodicités,
+  #                prix par zone.
+  #
+  # CONVENTION DES PLAFONDS : -1 = illimité. Pas 0 — un plafond à zéro se lit
+  # « aucun joueur autorisé », ce qui est très exactement le contraire, et un test
+  # `count >= max` écrit sans précaution bloquerait tout le monde sur le palier le
+  # plus cher.
+  #
+  # UN SEUL COMPTEUR : `max_players`. Le catalogue a longtemps porté deux plafonds
+  # distincts (`max_kids` / `max_adults`), ce qui obligeait à savoir de quelle
+  # NATURE était chaque membre pour dire s'il restait de la place — un candidat
+  # dont on ne connaissait pas encore le `legal_state` n'était donc contrôlable
+  # qu'à moitié, et « Déclarer majeur » devait vérifier un plafond parce que la
+  # promotion DÉPLAÇAIT une place d'un compteur à l'autre. Une famille n'y
+  # comprenait rien et le code non plus. Désormais un membre est un membre :
+  # enfant, adulte, chef ou joueur du dimanche, chacun occupe une place et une
+  # seule. Le décompte se lit sans explication.
+  #
+  # LES TITRES PLAY portent le plafond (« Clan — jusqu'à 4 joueurs ») là où ceux de
+  # l'app ne le portent pas : dans la Play Console, l'abonnement s'affiche seul,
+  # sans la page des paliers qui met les cinq en regard. Le titre doit donc se
+  # suffire à lui-même. Limites Google : 55 caractères pour le titre, 80 pour la
+  # description — c'est pourquoi deux descriptions sont ici plus courtes que leur
+  # équivalent du thème.
+  # ---------------------------------------------------------------------------
+  catalog:
+
+    # --- LES CINQ PALIERS ----------------------------------------------------
+    # Ils ne se distinguent QUE par le nombre de joueurs. Aucun bénéfice de jeu
+    # n'est réservé à un palier : le jeu est le même pour tous, on ne paie jamais
+    # pour être plus fort — c'est ce qu'annoncent les CGU enfants comme la fiche
+    # du store.
+    #
+    # Le palier 1.99 € avait été supprimé en juillet 2026 au profit d'une entrée à
+    # 2.99 €, pour l'ancrage de prix. Il revient : la grille à cinq paliers ne se
+    # règle plus sur un ancrage mais sur la TAILLE DU FOYER. Et ce n'est pas un cas
+    # limite — les 1-2 joueurs sont ~40% des clans, soit le palier le plus souscrit.
+    #
+    # Les bornes suivent la démographie réelle des foyers (révision 2026-08-20), pas
+    # une progression régulière : c'est pourquoi Clan s'arrête à 4 et Tribu à 7. Les
+    # décaler d'un cran déplacerait des milliers de foyers d'un palier à l'autre.
+
+    # 1 à 2 joueurs — parent seul et un enfant, ou un couple sans enfant joueur.
+    # ~40% des clans : c'est le cas le PLUS fréquent, pas un cas marginal.
+    ddust_essentiel:
+      type: subscription
+      order: 1
+      base_plans:
+        - essentiel-monthly
+        - essentiel-yearly
+      offers:
+        - essai-14j
+        - fondateur
+      label: "@@@T:store_essentiel@@@"
+      description: "@@@T:store_essentiel_desc@@@"
+      price_hint: "1.99 €"
+      price_hint_yearly: "19.99 €"
+      grants:
+        shop: true
+        max_players: 2
+      play:
+        listings:
+          fr-FR:
+            title: "Essentiel — jusqu'à 2 joueurs"
+            description: "Une petite escouade : un adulte et son aventurier, ou deux compagnons."
+          en-US:
+            title: "Essential — up to 2 players"
+            description: "A small squad: one adult and their adventurer, or two companions."
+          es-ES:
+            title: "Esencial — hasta 2 jugadores"
+            description: "Una pequeña escuadra: un adulto y su aventurero, o dos compañeros."
+        plans:
+          essentiel-monthly:
+            period: P1M
+            prices: { eur: "1.99", usd: "2.19", cad: "2.99", gbp: "1.79", chf: "1.99" }
+          essentiel-yearly:
+            period: P1Y
+            prices: { eur: "19.99", usd: "21.99", cad: "29.99", gbp: "17.99", chf: "19.99" }
+
+    # 3 à 4 joueurs — le foyer nucléaire classique. ~30% des clans.
+    ddust_clan:
+      type: subscription
+      order: 2
+      base_plans:
+        - clan-monthly
+        - clan-yearly
+      offers:
+        - essai-14j
+        - fondateur
+      label: "@@@T:store_clan@@@"
+      description: "@@@T:store_clan_desc@@@"
+      price_hint: "2.99 €"
+      price_hint_yearly: "24.99 €"
+      grants:
+        shop: true
+        max_players: 4
+      play:
+        listings:
+          fr-FR:
+            title: "Clan — jusqu'à 4 joueurs"
+            description: "La maisonnée ordinaire : parents et enfants autour des mêmes quêtes."
+          en-US:
+            title: "Clan — up to 4 players"
+            description: "The ordinary household: parents and children on the same quests."
+          es-ES:
+            title: "Clan — hasta 4 jugadores"
+            description: "El hogar corriente: padres e hijos en torno a las mismas misiones."
+        plans:
+          clan-monthly:
+            period: P1M
+            prices: { eur: "2.99", usd: "3.29", cad: "4.49", gbp: "2.59", chf: "2.99" }
+          clan-yearly:
+            period: P1Y
+            prices: { eur: "24.99", usd: "27.99", cad: "36.99", gbp: "21.99", chf: "24.99" }
+
+    # 5 à 7 joueurs — grande fratrie, ou famille recomposée. ~25% des clans.
+    ddust_tribu:
+      type: subscription
+      order: 3
+      base_plans:
+        - tribu-monthly
+        - tribu-yearly
+      offers:
+        - essai-14j
+        - fondateur
+      label: "@@@T:store_tribu@@@"
+      description: "@@@T:store_tribu_desc@@@"
+      price_hint: "4.99 €"
+      price_hint_yearly: "39.99 €"
+      grants:
+        shop: true
+        max_players: 7
+      play:
+        listings:
+          fr-FR:
+            title: "Tribu — jusqu'à 7 joueurs"
+            description: "Quand la maisonnée déborde : grande fratrie, foyers réunis."
+          en-US:
+            title: "Tribe — up to 7 players"
+            description: "When the household overflows: a big sibling crew, homes joined."
+          es-ES:
+            title: "Tribu — hasta 7 jugadores"
+            description: "Cuando la casa se desborda: hermandad numerosa, hogares reunidos."
+        plans:
+          tribu-monthly:
+            period: P1M
+            prices: { eur: "4.99", usd: "5.49", cad: "7.49", gbp: "4.29", chf: "4.99" }
+          tribu-yearly:
+            period: P1Y
+            prices: { eur: "39.99", usd: "43.99", cad: "58.99", gbp: "34.99", chf: "39.99" }
+
+    # 8 à 12 joueurs — deux foyers réunis, cousins, grands-parents. ~4% des clans.
+    ddust_guilde:
+      type: subscription
+      order: 4
+      base_plans:
+        - guilde-monthly
+        - guilde-yearly
+      offers:
+        - essai-14j
+        - fondateur
+      label: "@@@T:store_guilde@@@"
+      description: "@@@T:store_guilde_desc@@@"
+      price_hint: "5.99 €"
+      price_hint_yearly: "49.99 €"
+      grants:
+        shop: true
+        max_players: 12
+      play:
+        listings:
+          fr-FR:
+            title: "Guilde — jusqu'à 12 joueurs"
+            description: "Cousins, grands-parents, deux maisons qui n'en font plus qu'une."
+          en-US:
+            title: "Guild — up to 12 players"
+            description: "Cousins, grandparents, two houses that have become one."
+          es-ES:
+            title: "Gremio — hasta 12 jugadores"
+            description: "Primos, abuelos, dos casas que ya son una."
+        plans:
+          guilde-monthly:
+            period: P1M
+            prices: { eur: "5.99", usd: "6.49", cad: "8.99", gbp: "5.29", chf: "5.99" }
+          guilde-yearly:
+            period: P1Y
+            prices: { eur: "49.99", usd: "54.99", cad: "73.99", gbp: "42.99", chf: "49.99" }
+
+    # 13 joueurs et plus — aucun plafond. `-1`, jamais 0 (cf. convention ci-dessus).
+    # ~1% des clans : la queue de distribution, pas le cœur de cible.
+    ddust_royaume:
+      type: subscription
+      order: 5
+      base_plans:
+        - royaume-monthly
+        - royaume-yearly
+      offers:
+        - essai-14j
+        - fondateur
+      label: "@@@T:store_royaume@@@"
+      description: "@@@T:store_royaume_desc@@@"
+      price_hint: "7.99 €"
+      price_hint_yearly: "64.99 €"
+      grants:
+        shop: true
+        max_players: -1
+      play:
+        listings:
+          fr-FR:
+            title: "Royaume — joueurs illimités"
+            description: "Pour les clans sans fin : aucun plafond, tous les aventuriers."
+          en-US:
+            title: "Kingdom — unlimited players"
+            description: "For clans without end: no cap, as many adventurers as you like."
+          es-ES:
+            title: "Reino — jugadores ilimitados"
+            description: "Para los clanes sin fin: sin límite, tantos aventureros como queráis."
+        plans:
+          royaume-monthly:
+            period: P1M
+            prices: { eur: "7.99", usd: "8.99", cad: "11.99", gbp: "6.99", chf: "7.99" }
+          royaume-yearly:
+            period: P1Y
+            prices: { eur: "64.99", usd: "71.99", cad: "96.99", gbp: "56.99", chf: "64.99" }
+
+    # --- Produits à l'unité --------------------------------------------------
+    # Volontairement ABSENTS au lancement. Le socle technique (achat, activation par
+    # clan, gating, restauration) est livré et se teste avec les abonnements ; les
+    # produits eux-mêmes n'arrivent qu'avec le contenu qu'ils vendent (livrables
+    # `eco` et `themes`). Déclarer ici un pack dont le contenu n'existe pas
+    # afficherait une boutique qui vend du vide. Forme attendue :
+    #
+    #   ddust_autovalidation:
+    #     type: product
+    #     order: 10
+    #     label: "@@@T:store_autovalidation@@@"
+    #     description: "@@@T:store_autovalidation_desc@@@"
+    #     price_hint: "1.99 €"
+    #     grants: { auto_validation: true }
+    #
+    #   ddust_pack_quetes:
+    #     type: product
+    #     order: 20
+    #     price_hint: "3.99 €"
+    #     grants: { pack_quetes: true }
+    #     tag: pack_quetes          # active le layer de contenu du même nom
+    #
+    # ⚠ pucatalog ne gère aujourd'hui QUE les abonnements : il ignore les entrées
+    # `type: product`. Les ouvrir demandera d'étendre le module aux in-app products
+    # (endpoint `inappproducts`, sans base plan ni offre).

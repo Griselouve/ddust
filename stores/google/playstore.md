@@ -1,7 +1,7 @@
 <!-- généré : 20260808 -->
 # playstore — donjons & savons
 
-Dossier de publication Play Store : tout ce qu'il y a à renseigner, section par section, dans l'ordre où la console le demande. Complète `legal/dpa.md` (registre RGPD) et `readme.md` §14 (aspects légaux). Les champs `[à renseigner]` sont les seuls qui attendent une décision.
+Dossier de publication Play Store : tout ce qu'il y a à renseigner, section par section, dans l'ordre où la console le demande. Complète `legal/dpa.md` (registre RGPD) et `readme.md` §14 (aspects légaux). L'identité de l'éditeur n'est jamais recopiée ici : elle vit dans `build.yml` → `publisher:` et se lit dans les feuilles générées `saisie_*.md`.
 
 > **Ce document dit QUOI saisir. `publication.md` dit dans quel ORDRE agir, et pourquoi.**
 > Les deux se lisent ensemble : la marche à suivre phase par phase (démarches, dépendances,
@@ -22,15 +22,20 @@ Rappel du parcours : compte développeur → **compte marchand** → créer l'ap
 
 Le « DPA Google » ne se signe pas : le **Cloud Data Processing Addendum** (GCP, dont Vertex AI) et les **Firebase Data Processing and Security Terms** sont incorporés automatiquement aux conditions d'utilisation. Ce qui reste est du renseignement de contacts et de l'archivage — détail juridique complet dans `legal/dpa.md`.
 
-À renseigner, dans l'ordre :
+> **Valeurs et marche à suivre : `saisie_dpa.md`**, généré au build. Elles ne sont pas recopiées
+> ici : ce document couvre la fiche de l'**app**, et l'identité de l'éditeur n'a qu'une source,
+> `build.yml` → `publisher:`.
 
-| Où | Champ | Valeur |
-|---|---|---|
-| Console Firebase → projet `dvddust` → ⚙️ *Paramètres du projet* → onglet *Confidentialité des données* | Contact « responsable de la protection des données » (DPO — facultatif pour un indé, mais renseigner un contact) | **[à renseigner : nom civil de l'éditeur]**, donjons@grisloup.com |
-| Même onglet | Représentant UE (art. 27) | **Néant** — éditeur établi dans l'UE, ne rien renseigner |
-| Console GCP → *IAM et administration* → *Contacts essentiels* | Contact catégorie « Juridique » (notifications sous-traitants, incidents) | donjons@grisloup.com |
-| Console GCP → *Facturation* | Vérifier que l'identité du compte de facturation = l'éditeur déclaré dans les CGU et le compte Play Console | **[à vérifier]** — au lancement : personne physique sous le nom commercial « grisloup.com » (cf. `legal/dpa.md` §3) |
-| `legal/` | Archiver un PDF **daté** des deux textes : cloud.google.com/terms/data-processing-addendum et firebase.google.com/terms/data-processing-terms | à refaire à chaque nouvelle version Google |
+Trois gestes, dont **un seul est manuel** :
+
+| Geste | Qui le fait |
+|---|---|
+| Contact protection des données, onglet *Confidentialité des données* de la console Firebase | **toi** — aucune API ne l'expose (`saisie_dpa.md` §1) |
+| Contact essentiel GCP, catégorie *Juridique* | `puproject`, au déploiement (`saisie_dpa.md` §2) |
+| Archivage daté du CDPA et des DPST dans `legal/` | le **build**, qui détecte aussi les nouvelles versions (`saisie_dpa.md` §3) |
+
+Reste une vérification qui n'appartient à aucun des trois : l'identité du **compte de facturation
+GCP** doit être celle de l'éditeur déclaré aux CGU et au compte Play Console (cf. `legal/dpa.md` §3).
 
 Aucune case « j'accepte » n'existe plus dans les consoles récentes : l'archive datée + les contacts renseignés constituent la preuve d'adhésion (accountability art. 5.2). L'emplacement des onglets peut varier légèrement selon les versions de la console.
 
@@ -38,32 +43,18 @@ Aucune case « j'accepte » n'existe plus dans les consoles récentes : l'archiv
 
 ## data safety
 
-Formulaire *Play Console → Contenu de l'app → Sécurité des données*. Réponses dans l'ordre du questionnaire — la justification de chaque ligne est dans `legal/dpa.md` §4 et §6.
+> **Réponses à recopier : `saisie_playstore.md` §1** (généré au build). Ici, ce qui les justifie.
 
-**Questions générales :**
+Formulaire *Play Console → Contenu de l'app → Sécurité des données*. La justification de chaque ligne est dans `legal/dpa.md` §4 et §6.
 
-| Question | Réponse |
-|---|---|
-| L'app collecte-t-elle ou partage-t-elle des données utilisateur ? | **Oui** |
-| Toutes les données sont-elles chiffrées en transit ? | **Oui** |
-| Proposez-vous un moyen de demander la suppression des données ? | **Oui** — URL : `https://donjons.grisloup.com/delete-account/` |
-| L'app permet-elle de créer un compte ? | **Oui** (compte via Google) — suppression : la même URL, plus l'option in-app (écran Personnage → menu kebab → suppression de compte) |
+**Ce que déclarent les cinq types**, et pourquoi ce sont ceux-là : le **nom** parce que les pseudos sont choisis librement et sont souvent de vrais prénoms ; l'**e-mail** et l'**ID utilisateur** parce que Firebase Auth les conserve ; les **contenus générés** pour le journal du clan, les descriptions de tâches et les noms de clan ; les **ID d'appareil** pour le device ID d'acceptation des CGU et les tokens FCM.
 
-**Types de données à déclarer** — pour chacun : *collecté* oui, *partagé* non, *traité de façon éphémère* non, *obligatoire* (pas facultatif) :
+**Deux pièges, qui sont des omissions volontaires :**
 
-| Catégorie → type | Contenu réel | Finalités à cocher |
-|---|---|---|
-| Infos personnelles → **Nom** | pseudos choisis librement (souvent de vrais prénoms) | Fonctionnement de l'appli |
-| Infos personnelles → **Adresse e-mail** | e-mail du compte Google conservé par Firebase Auth | Fonctionnement de l'appli, Gestion du compte |
-| Infos personnelles → **ID utilisateur** | UID Firebase opaque | Fonctionnement de l'appli, Gestion du compte |
-| Activité dans l'app → **Autres contenus générés par l'utilisateur** | journal du clan, descriptions de tâches, noms/descriptions de clan | Fonctionnement de l'appli |
-| **Appareil ou autres ID** | device ID d'acceptation CGU, tokens FCM | Fonctionnement de l'appli |
+- **Photos — ne pas les déclarer.** Les preuves sont stockées uniquement sur l'appareil et ne sont jamais transmises : il n'y a pas de collecte au sens de Play. Les déclarer serait faux et engagerait à tort sur un traitement qui n'existe pas.
+- **Partage avec des tiers : non, partout.** Vertex AI est un sous-traitant agissant pour le compte de l'éditeur, pas un « partage » au sens du formulaire. La nuance est celle de l'art. 28 RGPD, et elle tient.
 
-**À ne PAS déclarer** (non collecté au sens Play) :
-
-- **Photos** : preuves stockées uniquement sur l'appareil, jamais transmises → traitement local, hors périmètre.
-- Localisation, contacts, ID publicitaire, analytics, historique web, santé, finances : rien.
-- **Partage avec des tiers : Non partout** — Vertex AI est un sous-traitant agissant pour le compte de l'éditeur, pas un « partage » au sens du formulaire.
+Localisation, contacts, ID publicitaire, analytics, historique web, santé, finances : rien, par construction.
 
 ---
 
@@ -71,16 +62,13 @@ Formulaire *Play Console → Contenu de l'app → Sécurité des données*. Rép
 
 *Play Console → Présence sur le Play Store → Fiche principale.*
 
-**Textes** (fr = langue par défaut ; décliner en/es dans les fiches traduites) :
+> **Textes, réglages et assets à recopier : `saisie_playstore.md` §5** (généré au build depuis
+> `build.yml` → `listing:`). Les descriptions existent désormais dans les **trois** langues, et
+> les 10 images sont rassemblées par le build dans `stores/google/assets/`, numérotées dans
+> l'ordre de téléversement.
 
-| Champ | Contenu |
-|---|---|
-| Nom de l'app (30 car. max) | `Donjons & Savons` |
-| Description courte FR (80 car. max) | `Transformez les corvées en aventure familiale : tâches-monstres, XP et butins.` |
-| Description courte EN | `Turn chores into a family adventure: monster tasks, XP, levels and loot chests.` |
-| Description courte ES | `Convierte las tareas en una aventura familiar: monstruos, XP, niveles y botín.` |
-
-Description longue FR (4000 car. max) — proposition, à ajuster puis traduire :
+Ce qui reste ici est le raisonnement de la fiche. Version FR de référence, dont les versions EN
+et ES sont des **adaptations** — la chute joue sur épées/éponges et ne se traduit pas mot à mot :
 
 > ⚔️ Les corvées sont des monstres. Abattez-les en famille !
 >
@@ -110,34 +98,37 @@ Description longue FR (4000 car. max) — proposition, à ajuster puis traduire 
 | Captures d'écran téléphone | 2 à 8, PNG/JPEG, ≤ 8 Mo, ratio entre 16:9 et 9:16 | **prêtes** : `hosting/web/assets/img/*.png` (720×1236, conformes — au-dessus du minimum Play de 320 px de côté court). Prendre les 8 `.png`, pas les `.webp` : `04-welcome`, `21-birth-of-clan`, `40-time-to-clean`, `32-choose-avatar`, `33-me`, `54-pocket-money`, `59-loot-chest`, `67-clan` |
 | Tablette 7"/10" (facultatif mais recommandé) | 2 à 8 par format | à capturer si distribution tablette |
 
-**Réglages de la fiche :**
+Ces **sources** sont déclarées dans `build.yml` → `listing.assets`, et le build les copie sous
+des noms canoniques dans `stores/google/assets/`. On ne téléverse jamais depuis les chemins
+ci-dessus : ils disent d'où viennent les images, pas ce qu'on manipule.
 
-| Champ | Valeur |
-|---|---|
-| Type / catégorie | Application → **Parentalité** (alternative défendable : Jeux → Jeux de rôle ; Parentalité colle mieux à l'usage réel et à l'audience mixte) |
-| Tags | famille, corvées, tâches, enfants, motivation, RPG |
-| E-mail de contact (public) | donjons@grisloup.com |
-| Site web | `https://donjons.grisloup.com` |
-| Langues de la fiche | fr-FR (défaut), en-US, es-ES |
-| Pays — test fermé | France (+ Belgique, Suisse, Canada si des testeurs s'y trouvent) |
-| Pays — production | zone EU au lancement (le backend `us-*` existe, ouvrir les US ensuite) |
+**Un arbitrage à connaître, sur la catégorie :** Application → **Parentalité** plutôt que
+Jeux → Jeux de rôle. Les deux sont défendables ; Parentalité colle mieux à l'usage réel et à
+l'audience mixte, et c'est l'acheteur — le parent — qui cherche dans cette catégorie-là. Les
+valeurs de réglage elles-mêmes sont dans `saisie_playstore.md` §5.
 
 ---
 
 ## autres déclarations « contenu de l'app »
 
-Toutes obligatoires avant la première release, y compris en test fermé :
+> **Réponses à recopier : `saisie_playstore.md` §2, §3 et §4.** Toutes obligatoires avant la
+> première release, test fermé compris — aucune ne peut être remise à la production.
 
-| Déclaration | Réponse |
-|---|---|
-| URL de politique de confidentialité | `https://donjons.grisloup.com/fr/legal/` (pointe vers les versions adulte/mineur en 3 langues) |
-| Publicités | **Non**, aucune |
-| **Achats dans l'application** | **Oui** — abonnements 1.99–7.99 €/mois (19.99–64.99 €/an) et achats à l'unité 1.99–5.99 €. Play calcule et affiche lui-même la fourchette de prix sur la fiche |
-| **Public cible** | cocher **6-8, 9-12, 13-15, 16-17 et 18+** → app « audience mixte » → questionnaire Family Policy : pas de pub, pas d'ID publicitaire, pas d'analytics, parental gate en place — tout est déjà conforme (`readme.md` §14) |
-| Classification du contenu (IARC) | questionnaire en tant qu'app. Déclarer : violence fantastique très légère (monstres caricaturaux, mécanique de « mort » du personnage), interactions entre utilisateurs **au sein d'un cercle privé** (clan familial), pas d'échange avec des inconnus, pas de partage de localisation, et **oui aux achats numériques** (⚠️ corrigé le 2026-08-11 : le dossier déclarait « pas d'achats numériques », valable pour la beta gratuite abandonnée — une déclaration IARC fausse est un motif de retrait). Attendu : PEGI 3/7, éventuellement assorti de la mention « achats intégrés » |
-| Contenu généré par IA (si le questionnaire apparaît) | déclarer la génération de noms (« Inspire-moi ») et le conte narratif du butin ; contenu borné, pas de chat libre |
-| Applis d'actualités / santé / gouvernement / financières | Non partout |
-| **Accès à l'app** (App access) | l'app exige une connexion Google → fournir un **compte Google de test dédié** avec un clan pré-créé + instructions pas à pas pour l'équipe de revue. **[à créer : compte de test]** |
+Ce qui mérite d'être compris avant de répondre :
+
+- **IARC — « oui aux achats numériques ».** ⚠️ Corrigé le 2026-08-11 : le dossier déclarait
+  « pas d'achats numériques », ce qui était vrai de la beta gratuite abandonnée depuis. **Une
+  déclaration IARC fausse est un motif de retrait de l'app** — c'est la case la plus coûteuse du
+  lot. Attendu : PEGI 3/7, éventuellement assorti de « achats intégrés ».
+- **Public cible — audience mixte assumée.** Cocher de 6-8 à 18+ déclenche le questionnaire
+  Family Policy. On y est conforme par construction (`readme.md` §14) : pas de pub, pas d'ID
+  publicitaire, analytics désactivés, porte parentale.
+- **Contenu généré par IA**, si le questionnaire apparaît : déclarer la génération de noms
+  (« Inspire-moi ») et le conte narratif du butin. Contenu borné, pas de chat libre.
+- **Accès à l'app — la seule qui demande de la préparation.** Deux gestes avant de remplir :
+  abonner le compte adulte (gratuit, il est testeur sous licence — sinon le reviewer tombe sur
+  un paywall dès deux validations) et garnir son clan. Détail en `saisie_playstore.md` §4.
+- Applis d'actualités / santé / gouvernement / financières : non partout.
 
 ---
 
@@ -208,11 +199,16 @@ Produits à l'unité (non consommables) : validations auto 1.99 €, packs conte
 |---|---|
 | Lier Play Console au projet GCP | *Configuration → Accès à l'API* → projet `dvddust`, puis activer `androidpublisher.googleapis.com` |
 | Compte de service | `deva-store@dvddust` (créé par `pustore`), à inviter dans *Utilisateurs et autorisations* avec « Afficher les données financières » + « Gérer les commandes et abonnements » |
-| Topic Pub/Sub | `eu-play-rtdn`, créé par `pustore` avec `google-play-developer-notifications@system.gserviceaccount.com` déjà en publieur. À renseigner dans *Monétisation → Configuration de la monétisation* sous la forme `projects/dvddust/topics/eu-play-rtdn` |
+| Topic Pub/Sub | `eu-play-rtdn`, créé par `pustore` avec `google-play-developer-notifications@system.gserviceaccount.com` déjà en publieur. **Le build guide la saisie et la vérifie** : `pucatalog` ouvre la console, dicte `projects/dvddust/topics/eu-play-rtdn` et écoute le sujet jusqu'à recevoir le « message test » |
 
 ⚠ Play n'accepte **qu'un seul topic par application** alors que l'infra en crée un par région
 (`eu-play-rtdn`, `us-play-rtdn`). C'est voulu : ne renseigner que celui d'Europe — la fonction
 européenne traite les deux régions de données (`STORE_REGIONS: "eu,us"`), l'autre reste muet.
+Le build ne propose jamais le topic américain.
+
+L'étape reste manuelle parce que l'API Play Developer n'expose **aucune** ressource RTDN : ni le
+nom du sujet, ni la case « Activer les notifications en temps réel ». Tout le reste est automatisé,
+y compris la preuve — le marqueur n'est posé que si le message test arrive vraiment.
 
 **Identifiants à respecter au caractère près** — ils sont câblés dans le catalogue
 (`resources_cloud/general/layers/store-base-global.yml`) et dans la conf backend :
@@ -233,14 +229,21 @@ peut proposer que ce que Play lui renvoie : un base plan inactif rend sa périod
 inachetable, et le journal le dit à l'ouverture (`[dvstore] ddust_clan: N entrée(s) Play
 […]`). C'est le premier endroit à regarder si l'annuel n'apparaît pas.
 
-### deux gestes hors console
+### un geste hors console
 
-Ni Play ni Pulumi ne peuvent les poser :
+Ni Play ni Pulumi ne peuvent le poser :
 
 | Geste | Détail |
 |---|---|
-| Document `store_config/founders` | Base Firestore `eu-store`, collection `store_config`, document `founders` : `{ cutoff: <Timestamp>, offer_id: "fondateur", default_credit_months: 0 }`. Sans lui, `store_eligibility` rend `""` et **personne n'est fondateur** — l'offre existe en console mais n'est jamais demandée. Le cutoff vit là et pas en variable d'environnement précisément pour se décaler sans redéploiement |
 | `GRANT_ADMINS` | UID Firebase du compte d'exploitation, dans l'environnement de `store_grant` (`backend/config.yml`). **Vide = fonction fermée à tout le monde**, ce qui est le bon défaut pour une fonction qui distribue des mois gratuits. À renseigner avant de compenser la première famille du test fermé |
+
+Le **cutoff fondateurs**, lui, ne se pose plus à la main : `store.play.founder_cutoff`
+dans `build/build.yml` (`2026-09-30T23:59:59+02:00`), et `pucatalog` écrit
+`store_config/founders` — `{ cutoff: <Timestamp>, offer_id: "fondateur",
+default_credit_months: 0 }` — dans **`eu-store` et `us-store`** à chaque build. Sans ce
+document, `store_eligibility` rend `""` et **personne n'est fondateur** ; il vit en
+Firestore et pas en variable d'environnement pour se décaler sans redéploiement, mais
+c'est la conf qui fait foi : une retouche console tient jusqu'au build suivant.
 
 ### banc de test
 
@@ -251,8 +254,11 @@ et les valeurs de référence.
 signée par Play et au bon `versionCode` — pas un build local. Compter quelques heures avant qu'elle
 ne devienne installable pour un testeur qui vient de rejoindre.
 
-**Testeurs sous licence** (*Configuration → Test de licence*) : leurs achats sont **gratuits**. Ils
+**Testeurs sous licence** (*Paramètres → Test de licence*) : leurs achats sont **gratuits**. Ils
 doivent **aussi** avoir rejoint la piste via son lien d'opt-in — les deux listes sont distinctes.
+Les adresses sont déclarées en conf (`store.play.license_testers`) et `pucatalog` guide le geste en
+console à chaque déploiement tant qu'il n'est pas confirmé ; aucune API Play n'expose ce réglage,
+c'est un paramètre du **compte développeur** et non de l'application.
 Conséquence directe sur le lancement : les familles du test fermé ne paieront jamais et ne peuvent
 pas être récompensées par une offre Play ; leur compensation passe par les crédits de mois côté
 serveur (`store_grant`, voir `strategie.md`).

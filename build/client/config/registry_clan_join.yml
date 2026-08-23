@@ -17,6 +17,7 @@ conf:
         - new_or_pick_clan/create
         - new_or_pick_clan/confirm_scrim
         - new_or_pick_clan/confirm_panel
+        - new_or_pick_clan/confirm_scan
         - new_or_pick_clan/confirm_yes
         - new_or_pick_clan/confirm_no
 
@@ -81,9 +82,12 @@ conf:
         x: 8%
         y: 4%
         w: 84%
-        h: 24%
+        h: 30%
         text_align: CENTER
-        font_size: 16.0
+        # 14 et non 16 : le message dit désormais la CONSÉQUENCE (un seul clan par foyer, définitif)
+        # et non plus une simple politesse — il est plus long. Le plafond reste 35 % : dvpops attache
+        # l'elfe et le chevalier à partir de là, en layer popup, donc par-dessus ce panneau.
+        font_size: 14.0
         font_color: "amber_200" # lisible sur le voile noir
         # DvLabel se rend via DvImageView, qui enveloppe TOUT le widget (texte compris) dans un
         # Opacity : ce 0.6 n'est pas décoratif, il reproduit celui que confirm_yes/confirm_no
@@ -94,14 +98,37 @@ conf:
         label: "@@@T:confirm_create_clan_msg@@@"
         visible: false
 
+    # Trois boutons, et l'ORDRE est le message. La sortie « quelqu'un l'a déjà créé » vient EN
+    # PREMIER : c'est le seul garde-fou contre le clan en double, qui est irréparable une fois
+    # commis (aucune action « quitter le clan », fondateur admin à vie, multi-clan post-lancement).
+    # L'ancienne version se contentait de demander « quelqu'un n'en a-t-il pas déjà créé un ? » et
+    # renvoyait, sur « non », vers un écran qui ne proposait rien d'autre — une question à la place
+    # d'une issue.
+    new_or_pick_clan/confirm_scan:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 56%
+        h: 12%
+        text_align: CENTER
+        font_size: 13.0
+        label: "@@@T:confirm_create_scan@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_create_clan_goto_join
+
     new_or_pick_clan/confirm_yes:
       masks:
         - commons/btn_wide
       layer: overlay
       shape:
-        y: 58%
+        y: 70%
         h: 12%
         text_align: CENTER
+        font_size: 13.0
         label: "@@@T:confirm_create_yes@@@"
         visible: false
         events:
@@ -114,9 +141,10 @@ conf:
         - commons/btn_wide
       layer: overlay
       shape:
-        y: 72%
-        h: 12%
+        y: 84%
+        h: 10%
         text_align: CENTER
+        font_size: 13.0
         label: "@@@T:confirm_create_no@@@"
         visible: false
         events:
@@ -286,6 +314,7 @@ conf:
         - invite_clan_pin/instructions
         - invite_clan_pin/pin
         - invite_clan_pin/share
+        - invite_clan_pin/family_notice
 
     invite_clan_pin/instructions:
       masks:
@@ -331,6 +360,24 @@ conf:
           tap: true
         freezing_actions:
           tap: share.clan_invite_pin
+
+    # Écran de l'invitation À DISTANCE, et lui seul : c'est le cas où le chef ne sera PAS à côté
+    # de l'invité au moment où celui-ci se connectera à Google. Avec le QR, le chef est dans la
+    # pièce et la feuille d'autorisation s'ouvre sous ses yeux ; ici, un enfant supervisé peut
+    # se retrouver seul devant l'écran de liaison. Le chef est le seul qui puisse prévenir.
+    invite_clan_pin/family_notice:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 8%
+        y: 87%
+        w: 84%
+        h: 11%
+        label: "@@@T:invite_pin_family_notice@@@"
+        text_align: CENTER
+        font_size: 11.0
 
     #//------------------------------- Enter invite PIN — côté candidat ---------------------
     # Saisie manuelle : coller le lien reçu (pré-rempli si arrivé via deeplink) + taper le PIN
@@ -462,6 +509,7 @@ conf:
           appear: worker.on_kid_wants_clan_appear
       registry:
         - commons/icon_background
+        - kid_wants_clan/notice
         - kid_wants_clan/scan_qr
         - kid_wants_clan/send_request
         - kid_wants_clan/back
@@ -483,6 +531,26 @@ conf:
           tap: true
         actions:
           tap: worker.on_back_to_choice
+
+    # Annonce de l'étape d'après — révélée pour le MINEUR seulement (worker.on_kid_wants_clan_appear),
+    # dans la même bande que le bouton « marche arrière » de l'adulte, dont elle est donc
+    # exclusive par construction. Une fois admis, l'enfant devra se connecter avec son compte
+    # Google : si ce compte est supervisé (Family Link), un parent doit l'autoriser. Le dire ICI,
+    # pendant que le chef de clan est encore là avec son QR code, plutôt que de le découvrir
+    # deux écrans plus loin devant un bouton qui ne peut pas marcher.
+    kid_wants_clan/notice:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 8%
+        w: 90%
+        h: 13%
+        font_size: 12.0
+        label: "@@@T:join_clan_google_notice@@@"
+        visible: false
 
     kid_wants_clan/scan_qr:
       masks:

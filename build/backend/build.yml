@@ -25,6 +25,10 @@ build:
   # Abonnements et achats in-app (Google Play) : base dédiée du miroir d'achats,
   # vérification serveur, et projection du bénéfice sur le clan (workers/clans_store).
   - pustore
+  # Le CATALOGUE : ce qui est en vente, cree et mis a jour dans la Play Console
+  # depuis `store.catalog` (build.yml de la suite). Pendant de pustore, qui sait ce
+  # qui a ete achete : l'un decide de l'offre, l'autre constate les achats.
+  - pucatalog
   # Balayage quotidien des timers de facturation. Les echeances de defaut de paiement
   # (grace 10j, locked j50, suppression j90) ne peuvent pas dependre d'une ouverture de
   # l'app : un clan en defaut est justement un clan que plus personne n'ouvre.

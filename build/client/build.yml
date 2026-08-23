@@ -60,6 +60,12 @@ build:
     store:
       target: layers
       source: resources_cloud/general/layers/store-base-global.yml
+    # GÉNÉRÉ par le builder depuis `store.catalog` (build.yml de la suite). Embarqué
+    # comme les autres pour que la boutique naisse remplie : sans lui, le premier
+    # affichage attendrait le bucket et montrerait une grille vide.
+    store-catalog:
+      target: layers
+      source: resources_cloud/general/layers/store-catalog-global.yml
     fairy:
       target: layers
       source: resources_cloud/general/layers/fairy-base-global.yml

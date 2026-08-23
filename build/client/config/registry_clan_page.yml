@@ -32,6 +32,9 @@ conf:
         - clan_page/butin_chest_ok
         - clan_page/butin_label
         - clan_page/roster
+        # Appel au recrutement, PAR-DESSUS le bas du roster : listé après lui pour le z-order.
+        # N'existe visuellement que quand le clan est seul, donc au-dessus d'un vide.
+        - clan_page/invite_cta
         - clan_page/roster_menu
         - clan_page/settings
         - clan_page/settings_menu
@@ -596,6 +599,35 @@ conf:
         # lieu de passer par le kebab. Même clef, même selector (worker.clan_selector) → inerte
         # pour qui n'y a pas droit (non-chef) ou n'a rien à encaisser (bourse vide, option grisée).
         purse_option: "pay_tribute"
+
+    # APPEL AU RECRUTEMENT. Un roster d'une seule tuile n'est pas un état neutre du jeu, c'est un
+    # clan qui n'a pas encore commencé : il doit se réclamer lui-même. Le geste de recrutement vivait
+    # uniquement derrière le kebab (5 taps, une icône de 10%×5% à deviner) — c'est le geste que les
+    # parents ratent le plus, alors que c'est le seul qui compte à ce moment-là.
+    #
+    # Le tap appelle `worker.on_invite_clan`, donc EXACTEMENT le même chemin que l'option du kebab :
+    # overlay de consentement RGPD d'abord (l'invitation peut faire entrer un enfant), lobby ensuite.
+    # Aucun raccourci sur le consentement, seulement sur la découverte.
+    #
+    # Visibilité pilotée par _syncInviteCta (worker_screen_clan.dart) et PERSISTÉE en config registry
+    # (idiome écran born-filled) : la bannière naît dans le bon état au rebuild, sans clignoter.
+    # Placée en bas de la zone du roster (qui court jusqu'à ~86%, taskbar à 88%) : avec une seule
+    # tuile, tout le bas de l'écran est vide.
+    clan_page/invite_cta:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        y: 74%
+        h: 11%
+        text_align: CENTER
+        font_size: 14.0
+        label: "@@@T:clan_invite_cta@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_invite_clan
 
     # Menu contextuel ouvert au clic sur une tuile joueur (worker.dvroster.tap appelle
     # act("show", {x,y})). Trigger invisible (show_label:false) : c'est un « fantôme »

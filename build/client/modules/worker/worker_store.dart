@@ -72,9 +72,17 @@ extension Worker_store on worker {
                                 ActionRegistry.register("worker.tiers_set_monthly",        tiers_set_monthly);
                                 ActionRegistry.register("worker.tiers_set_yearly",         tiers_set_yearly);
 
+                                // --- Codes cadeaux ---
+                                ActionRegistry.register("worker.on_giftcode_appear",       on_giftcode_appear);
+                                ActionRegistry.register("worker.on_giftcode_confirm",      on_giftcode_confirm);
+                                ActionRegistry.register("worker.on_giftcode_close",        on_giftcode_close);
+
                                 // --- Banc d'essai (mode test seulement) ---
                                 ActionRegistry.register("worker.on_store_scenario_appear", on_store_scenario_appear);
                                 ActionRegistry.register("worker.store_scenario_apply",     store_scenario_apply);
+                                ActionRegistry.register("worker.on_giftcode_mint_appear",  on_giftcode_mint_appear);
+                                ActionRegistry.register("worker.on_giftcode_mint",         on_giftcode_mint);
+                                ActionRegistry.register("worker.on_giftcode_revoke",       on_giftcode_revoke);
 
                                 // Rappel du contrôle parental : dvparentalgate ne rend pas un
                                 // booléen, il rappelle cette action quand la porte est franchie.
@@ -148,12 +156,44 @@ extension Worker_store on worker {
                                 await _evaluateDunning();
     }
 
+    // L'ÉTAT COMMERCIAL DU CLAN, normalisé — et c'est le seul point d'où on le lit.
+    //
+    // `store.subscription.state` peut être TOTALEMENT ABSENT du dictionnaire, et pas
+    // seulement vide : dvstore ne publie que depuis `_applyEntitlement(doc)`, qui sort
+    // sans rien écrire quand le document n'existe pas. Or un clan qui n'a jamais
+    // souscrit n'a justement pas de document `clans_store/<clanId>` — le cas le plus
+    // fréquent n'est donc pas « la clef vaut none », c'est « la clef n'a jamais été
+    // écrite ». Une lecture naïve rend `null` et casse toute comparaison.
+    //
+    // Il n'existe AUCUN état « je ne sais pas encore » dans l'énumération de dvstore
+    // (none|trial|active|canceled|grace|hold|locked|expired). « Absent », « vide » et
+    // « none » disent donc ici la même chose, et les distinguer reviendrait à inventer
+    // une information que personne ne publie.
+    Future<String> _storeState() async {
+
+                                final s = (await deva_get("store.subscription.state"))?.toString() ?? "";
+                                return s.isEmpty ? "none" : s;
+    }
+
+    // Le clan a-t-il une cotisation VIVANTE ?
+    //
+    // Miroir exact de `_subscribed` dans dvstore : c'est le module qui décide ce qu'est
+    // un abonnement en cours, on recopie sa liste plutôt que d'en inventer une seconde
+    // qui divergerait au premier état ajouté. `canceled` en fait partie — un abonnement
+    // résilié court jusqu'à son échéance et le clan y a droit jusqu'au bout. `locked` et
+    // `expired` en sont exclus : il n'y a plus rien à faire valoir.
+    Future<bool> _storeSubscribed() async {
+
+                                const alive = ["trial", "active", "canceled", "grace", "hold"];
+                                return alive.contains(await _storeState());
+    }
+
     // Le clan est-il gelé ? Un seul état ferme le jeu, et il n'est atteint qu'au
     // 50e jour d'un impayé jamais régularisé — après dix jours de grâce et quarante
     // jours de relances adressées aux seuls adultes.
     Future<bool> _storeLocked() async {
 
-                                return (await deva_get("store.subscription.state"))?.toString() == "locked";
+                                return (await _storeState()) == "locked";
     }
 
     // Déjà sur l'écran de gel : évite de rejouer un navigate_reset sur lui-même à
@@ -163,6 +203,21 @@ extension Worker_store on worker {
                                 try {
                                     for (final p in DvPage.actives) {
                                         if (p.get_shape_by_id("locked_page/revive") != null) return true;
+                                    }
+                                } catch (_) {}
+                                return false;
+    }
+
+    // Vrai si la page des paliers est à l'écran, bloquante ou non — on repeint
+    // alors son bandeau en place au lieu de renaviguer (cf. _storeShowPurchaseError).
+    // Même idiome de détection que ci-dessus : on cherche une shape qui n'existe
+    // que sur cette page. `tiers_page/notice` est le bandeau lui-même, donc
+    // toujours présent dans la registry de la page, visible ou non.
+    bool _storeOnTiersPage() {
+
+                                try {
+                                    for (final p in DvPage.actives) {
+                                        if (p.get_shape_by_id("tiers_page/notice") != null) return true;
                                     }
                                 } catch (_) {}
                                 return false;
@@ -198,6 +253,51 @@ extension Worker_store on worker {
                                     return;
                                 }
                                 deva_log("warning", "[store] achat non abouti: ${m["product"]} ($reason)");
+
+                                // ... et surtout : LE DIRE. Sans ce bandeau, un achat qui échoue est
+                                // indiscernable d'un bouton cassé — la feuille Play se referme, rien
+                                // ne bouge, et la famille conclut que l'app ne marche pas. C'est la
+                                // pire issue possible au moment précis où quelqu'un voulait payer.
+                                //
+                                // Un seul texte par famille de causes, jamais le code d'erreur : ce
+                                // qui compte pour l'utilisateur est de savoir s'il doit réessayer,
+                                // et qu'il n'a rien été prélevé.
+                                await _storeShowPurchaseError(reason);
+    }
+
+    // Affiche l'échec sur le bandeau de la page des paliers.
+    //
+    // Deux situations, et une seule sortie : si l'on est déjà sur `tiers_page` —
+    // le cas ordinaire, la feuille Play s'est refermée par-dessus — on repeint le
+    // bandeau en place, sans renavigation qui ferait clignoter l'écran. Sinon
+    // (achat lancé depuis la boutique ou la fiche produit) on ouvre la page, qui
+    // est de toute façon l'endroit où réessayer.
+    //
+    // Jamais de popup : idiome des overlays du projet.
+    Future<void> _storeShowPurchaseError(String reason) async {
+
+                                // `unavailable` : la facturation n'existe pas sur cet appareil (Play
+                                // Services absent, profil restreint). Réessayer n'y changera rien, le
+                                // texte le dit. Tout le reste — refus de Play, vérification serveur
+                                // en échec, périodicité absente — relève du « ça n'a pas abouti,
+                                // vous n'avez pas été débité ».
+                                final token = (reason == "unavailable")
+                                    ? "@@@T:store_unavailable@@@"
+                                    : "@@@T:store_error@@@";
+
+                                if (_storeOnTiersPage()) {
+                                    await deva_set("worker.store.notice", token);
+                                    final banner = await DvOrb.wait_for_shape("tiers_page/notice");
+                                    await _syncLabel(banner, "tiers_page/notice",
+                                                     TranslationRegistry.processLabel(token));
+                                    await _syncVisible(banner, "tiers_page/notice", true);
+                                    return;
+                                }
+
+                                // `oneMore: false` : un échec d'achat n'est pas une demande de place
+                                // supplémentaire — sans ce découplage la page flécherait le palier
+                                // au-dessus (cf. le piège `one_more`).
+                                await _storeGotoTiers(notice: token);
     }
 
     // Le clan entre en abonnement : le donjon s'ouvre pour tout le monde.
@@ -386,14 +486,64 @@ extension Worker_store on worker {
     // peint en tête d'écran. Elle est REMISE À ZÉRO quand il n'y en a pas, sans quoi
     // une venue ordinaire hériterait du bandeau de la précédente.
     //
-    // AUCUN mode bloquant : la page s'empile par-dessus le jeu et se quitte par la
-    // flèche arrière. Le jeu ne se ferme pour aucun état commercial — ni fin
-    // d'abonnement, ni clan gelé.
-    Future<void> _storeGotoTiers({String notice = ""}) async {
+    // DEUX MODES, et le défaut reste le mode doux. `blocking: false` empile la page
+    // par-dessus le jeu, qu'on quitte par la flèche arrière — c'est la forme de tous
+    // les motifs qui répondent à une demande de la famille (plafond atteint, relance
+    // d'impayé, réabonnement) : elle a voulu quelque chose, on lui dit le prix, elle
+    // décide. Le jeu ne se ferme pour AUCUN état commercial, ni fin d'abonnement ni
+    // clan gelé, et cela n'a pas changé.
+    //
+    // `blocking: true` pose au contraire la page en RACINE d'une pile réinitialisée,
+    // sans appbar ni flèche : le seul geste possible est de souscrire. Réservé à la
+    // première cotisation d'un clan qui a fait la preuve qu'il joue — c'est le mur, et
+    // il ne s'adresse qu'aux chefs (cf. _storePitchDue). Un enfant n'y arrive jamais.
+    //
+    // `oneMore` dit s'il faut viser une place de PLUS que l'effectif ou l'effectif tel
+    // quel. Publié, jamais déduit : cf. le commentaire de _tiersPushRows.
+    Future<void> _storeGotoTiers({
 
-                                await deva_set("worker.store.notice", notice);
+        String notice   = "",
+        bool   oneMore  = false,
+        bool   blocking = false,
+    }) async {
+
+                                await deva_set("worker.store.notice",   notice);
+                                await deva_set("worker.store.one_more", oneMore);
+
+                                // Les deux drapeaux de conf de l'écran sont posés AVANT la navigation —
+                                // idiome de _applyDunning : la page naît dans le bon mode, on ne la
+                                // retouche pas après coup. La RESTAURATION à `true` n'est pas
+                                // optionnelle : `tiers_page` est un singleton de conf, et une venue
+                                // bloquante qui ne rendrait pas la flèche laisserait toutes les visites
+                                // suivantes sans sortie — y compris celles d'un clan qui a payé.
+                                await deva_set("registry.tiers_page.show_back",   !blocking);
+                                await deva_set("registry.tiers_page.show_appbar", !blocking);
+
                                 if (notice.isNotEmpty) deva_log("info", "[store] raison de la venue : $notice");
+                                if (blocking) {
+                                    deva_log("info", "[store] paliers en écran bloquant (racine de pile)");
+                                    DvOrb.navigate_reset("tiers_page");
+                                    return;
+                                }
                                 DvOrb.navigate_new("tiers_page");
+    }
+
+    // Sommes-nous sur la page des paliers en mode BLOQUANT ? Deux conditions, et les
+    // deux comptent : l'écran est bien à l'affiche (même lecture de la pile que
+    // _storeOnLockedPage — DvPage.actives est la seule vérité sur ce qui est montré),
+    // ET il a été ouvert sans sortie. Le drapeau de conf seul ne suffirait pas : il
+    // reste posé jusqu'à la prochaine venue non bloquante, donc il décrirait encore un
+    // mur alors qu'on est reparti jouer depuis longtemps.
+    Future<bool> _storeOnBlockingTiers() async {
+
+                                var onPage = false;
+                                try {
+                                    for (final p in DvPage.actives) {
+                                        if (p.get_shape_by_id("tiers_page/list") != null) { onPage = true; break; }
+                                    }
+                                } catch (_) {}
+                                if (!onPage) return false;
+                                return (await deva_get("registry.tiers_page.show_back")) == false;
     }
 
     // Entrée ordinaire : bandeau d'impayé, notification de relance, « Se réabonner ».
@@ -405,10 +555,12 @@ extension Worker_store on worker {
                                 await _storeGotoTiers();
     }
 
-    // Sortie après un achat abouti : on revient d'où l'on vient. L'écran est
-    // toujours empilé au-dessus du jeu (jamais la racine d'une pile), la flèche
-    // arrière est donc toujours la bonne sortie. Le bandeau de raison, lui, n'a plus
-    // lieu d'être — la raison vient d'être satisfaite.
+    // Sortie après un achat abouti : on revient d'où l'on vient. Le bandeau de raison
+    // n'a plus lieu d'être — la raison vient d'être satisfaite.
+    //
+    // Deux écrans font exception et se traitent avant : ceux qui sont la RACINE d'une
+    // pile réinitialisée (clan gelé, mur de première cotisation). Il n'y a rien
+    // derrière eux, un retour arrière ne mènerait nulle part — on rouvre le donjon.
     //
     // SAUF depuis le banc d'essai : basculer de scénario passe par _publish(), qui
     // voit une transition d'abonnement et appelle on_store_subscription — donc ici.
@@ -427,6 +579,16 @@ extension Worker_store on worker {
                                 // rouvre le donjon, ce qui est très exactement ce qu'il a payé.
                                 if (_storeOnLockedPage()) {
                                     deva_log("info", "[store] cotisation reprise — donjon rouvert");
+                                    DvOrb.navigate_reset("dashboard");
+                                    return;
+                                }
+
+                                // Sortie du MUR de première cotisation, pour la même raison exactement :
+                                // la page bloquante est la RACINE d'une pile réinitialisée, un retour
+                                // arrière n'y mènerait nulle part. Le clan vient de souscrire — on lui
+                                // ouvre le donjon, ce qui est très précisément ce qu'il a payé.
+                                if (await _storeOnBlockingTiers()) {
+                                    deva_log("info", "[store] première cotisation prise — donjon ouvert");
                                     DvOrb.navigate_reset("dashboard");
                                     return;
                                 }
@@ -449,6 +611,29 @@ extension Worker_store on worker {
     // --- Plafonds de membres (grants du catalogue)
     // -----------------------------------------------------------------------
 
+    // Le plafond du PALIER D'ENTRÉE — ce qu'on oppose à un clan sans droit acquis.
+    // Lu au catalogue et jamais codé en dur : insérer un palier moins cher ou
+    // renuméroter la grille ne doit pas demander de retoucher ce fichier.
+    //
+    // Rend -1 (= illimité) quand LE CATALOGUE N'EST PAS LÀ, et c'est le point
+    // délicat. `store.catalog` vient d'un layer de bucket : tant qu'il n'est pas
+    // descendu, on ne connaît ni les paliers ni leurs plafonds. Plafonner sur cette
+    // ignorance refuserait des membres à une famille pour une raison qui n'existe
+    // pas. Des deux erreurs possibles c'est de très loin la pire — elle est visible,
+    // injuste et sans recours —, là où laisser passer un membre de trop coûte une
+    // place, une fois, et se rattrape au contrôle suivant. Même arbitrage que
+    // _storeCapNotice sur un effectif illisible et _storeTierForCount sur un effectif
+    // inconnu : la doctrine du fichier est déjà celle-là, on ne fait que l'étendre.
+    Future<int> _storeEntryCap() async {
+
+                                final entry = await _storeEntryTier();
+                                if (entry.isEmpty) {
+                                    deva_log("warning", "[store] catalogue absent — plafond d'entrée inconnu");
+                                    return -1;
+                                }
+                                return await _storeTierCapacity(entry);
+    }
+
     // Plafond publié par le catalogue : UN SEUL compteur, toutes places confondues.
     //
     // Il y en a eu deux (`max_kids` / `max_adults`). Les fusionner n'est pas une
@@ -462,15 +647,33 @@ extension Worker_store on worker {
     // joueur autorisé », l'exact contraire, et un `count >= max` écrit sans
     // précaution bloquerait tout le monde sur le palier le plus cher.
     //
-    // Sans droit acquis, dvstore republie le grant à `false` (il ne l'omet pas, cf.
-    // _allGrantKeys) : la valeur n'est alors pas un nombre et l'on rend -1. C'est
-    // voulu — un clan sans abonnement relève de la paywall, pas d'un plafond, et
-    // lui compter ses places par-dessus serait un second refus pour la même raison.
+    // CE QUE CETTE FONCTION REND N'EST PAS LE DROIT ACQUIS, c'est le plafond
+    // OPPOSABLE. La nuance est tout le sujet : sans abonnement, elle rendait -1 —
+    // illimité — au motif qu'« un clan sans abonnement relève de la paywall, pas d'un
+    // plafond ». Le raisonnement se tenait tant qu'une paywall existait. Elle a été
+    // supprimée (_checkStoreAccess), et plus rien n'a pris le relais : un clan qui ne
+    // souscrivait pas n'était jamais plafonné, donc jamais amené à la page des
+    // paliers, donc jamais sollicité — il jouait gratuitement, sans limite
+    // d'effectif, indéfiniment. Une paywall n'existe que si quelque chose y mène.
+    //
+    // Deux valeurs disent « aucun droit », et elles sont INDISCERNABLES à dessein :
+    //   - le booléen `false`, republié par dvstore quand le catalogue est là mais le
+    //     droit absent (cf. _allGrantKeys — il n'omet pas la clef, il la remet à faux
+    //     et, s'agissant d'un grant numérique, le repli est un `false` littéral) ;
+    //   - la clef ABSENTE, quand dvstore n'a jamais rien publié du tout. C'est le cas
+    //     d'un clan qui n'a jamais souscrit : sans document `clans_store/<clanId>`,
+    //     `_applyEntitlement` sort avant la publication. Le cas le plus fréquent.
+    // Les distinguer supposerait un état « je ne sais pas » que personne ne publie.
+    //
+    // Le repli est le plafond du PALIER D'ENTRÉE, et _storeEntryCap rend lui-même -1
+    // si le catalogue n'est pas descendu : on ne plafonne jamais sur une ignorance.
     Future<int> _storeMaxPlayers() async {
 
                                 final raw = await deva_get("store.grants.max_players");
                                 if (raw is num) return raw.toInt();
-                                return int.tryParse(raw?.toString() ?? "") ?? -1;
+                                final n = int.tryParse(raw?.toString() ?? "");
+                                if (n != null) return n;
+                                return await _storeEntryCap();
     }
 
     // Effectif du clan : toute ligne de clans_players qui n'est pas un tombstone.
@@ -526,7 +729,19 @@ extension Worker_store on worker {
                                 }
 
                                 deva_log("info", "[store] places : $count/$max joueur(s)");
-                                return count >= max ? "@@@T:store_cap_full@@@" : "";
+                                if (count < max) return "";
+
+                                // DEUX bandeaux, et le choix se fait sur l'HISTOIRE COMMERCIALE du clan,
+                                // jamais sur le plafond. À un clan qui n'a jamais souscrit on annonce ce
+                                // qui l'attend — cotisation, quatorze jours offerts, arrêt quand il veut ;
+                                // « le clan est au complet » se lirait comme un refus alors que c'est une
+                                // proposition. À tous les autres — abonné qui déborde, résilié, expiré,
+                                // gelé — on ne promet PAS les quatorze jours : Play ne re-servira pas
+                                // l'offre `essai-14j` à un compte qui l'a déjà eue, et une promesse que
+                                // la feuille de paiement dément est pire que pas de promesse du tout.
+                                return (await _storeState()) == "none"
+                                    ? "@@@T:store_cap_start@@@"
+                                    : "@@@T:store_cap_full@@@";
     }
 
     // Vrai si la place manque — et ouvre alors la page des paliers sur celui qui la
@@ -542,8 +757,126 @@ extension Worker_store on worker {
                                 final notice = await _storeCapNotice();
                                 if (notice.isEmpty) return false;
                                 deva_log("info", "[store] place refusée — plafond du palier atteint");
-                                await _storeGotoTiers(notice: notice);
+                                // `oneMore` EXPLICITE, et c'est le seul appelant qui le pose : la
+                                // famille vient de se voir refuser un membre, elle veut une place DE
+                                // PLUS. Cette intention était auparavant devinée par _tiersPushRows à
+                                // la présence du bandeau ; elle se dit maintenant à l'endroit où on la
+                                // connaît. L'oublier ici ne casserait rien de visible — la page
+                                // s'ouvrirait, sans flécher aucun palier.
+                                await _storeGotoTiers(notice: notice, oneMore: true);
                                 return true;
+    }
+
+    // -----------------------------------------------------------------------
+    // --- Relance de conversion : la première cotisation
+    //
+    // Le plafond ci-dessus attrape les clans qui GRANDISSENT. Il ne dit jamais rien à
+    // un foyer d'un parent et un enfant, qui tient dans le palier d'entrée et n'en
+    // sortira pas — soit environ quatre clans sur dix. Pour ceux-là, le seul moment
+    // qui vaille est celui où le jeu a fait sa preuve : la DEUXIÈME tâche menée à son
+    // terme. Pas la première, qu'une famille joue dans les dix minutes qui suivent
+    // l'installation ; la deuxième, c'est-à-dire le moment où elle est revenue.
+    // -----------------------------------------------------------------------
+
+    // Compte une tâche validée AU CLAN. Le compteur ne peut pas vivre dans le
+    // dictionnaire : c'est un fait du clan, pas de l'appareil. La 1re validation peut
+    // être rendue par le chef A sur son téléphone et la 2e par le chef B sur le sien,
+    // et un chef qui change d'appareil ne doit pas repartir de zéro.
+    //
+    // Il est FALSIFIABLE — la règle Firestore de `clans` autorise tout détenteur du
+    // clanSecret à écrire n'importe quel champ. Sans gravité : le fausser ne peut
+    // qu'AVANCER la demande de cotisation, jamais la retarder ni accorder un droit.
+    //
+    // Écriture en deep-merge CIBLÉ (un Dvidle neuf ne portant que le compteur), et
+    // surtout pas le read-modify-write du document complet de _creditClanXp : on ne
+    // réécrit pas l'XP, le butin et le titre d'un clan pour incrémenter un entier.
+    Future<void> _storeCountValidation(String clanId, String clanSecret, String region) async {
+
+                                if (clanId.isEmpty || clanSecret.isEmpty) return;
+                                // Le clan cotise déjà : rien à compter, et surtout aucune lecture cloud
+                                // à payer sur le chemin le plus chaud du jeu. Ce compteur n'a pas
+                                // d'autre lecteur que la relance.
+                                if (await _storeSubscribed()) return;
+
+                                try {
+                                    final doc = await _cloud?.read("workers", "clans", clanId,
+                                        ownerId: clanSecret, region: region);
+                                    final n = int.tryParse(doc?.get("validations")?.toString() ?? "0") ?? 0;
+
+                                    final out = Dvidle({});
+                                    out.set("validations", n + 1);
+                                    await _cloud?.write("workers", "clans", clanId, out,
+                                        region: region, ownerId: clanSecret);
+                                    deva_log("info", "[store] tâches validées par le clan : ${n + 1}");
+                                } catch (e) {
+                                    // Un compteur commercial ne doit JAMAIS faire échouer une validation :
+                                    // la famille a fait son travail, elle est créditée et fêtée quoi qu'il
+                                    // arrive ici. Au pire la relance part une tâche plus tard.
+                                    deva_log("error", "[store] _storeCountValidation FAILED: $e");
+                                }
+    }
+
+    // Le mur est-il dû ? État DÉRIVÉ, recalculé à chaque arrivée au dashboard depuis
+    // des faits persistants — patron _evaluateDunning, et surtout pas un drapeau
+    // one-shot. Conséquence directe : il survit au changement d'appareil comme à une
+    // réinstallation, et il vaut pour les deux chefs d'un clan sans qu'il y ait rien à
+    // synchroniser ni à purger. Un drapeau local n'aurait tenu que sur l'appareil qui
+    // l'a armé.
+    //
+    // TROIS conditions, et la deuxième est celle qui protège les enfants.
+    Future<bool> _storePitchDue() async {
+
+                                try {
+                                    if (await _storeSubscribed()) return false;
+
+                                    // CHEFS SEULEMENT. Un enfant ne peut pas payer (l'achat est réservé
+                                    // aux administrateurs, derrière le contrôle parental) : lui fermer le
+                                    // jeu ne servirait à rien qu'à l'inquiéter. Couvre au passage la prise
+                                    // de place (take_place), qui change l'identité agissante.
+                                    if (!await _storeCanBuy()) return false;
+
+                                    // CLAN ENCORE SEUL : on ne demande rien. Un fondateur teste volontiers
+                                    // deux tâches en attendant que sa famille installe le jeu — et l'admin
+                                    // solo auto-valide sans preuve, si bien que le compteur atteint le seuil
+                                    // en quelques minutes. Le mur tomberait alors AVANT que le clan existe
+                                    // vraiment : un écran de paiement sans issue en face d'un roster d'une
+                                    // tuile, et l'essai de quatorze jours qui démarre pendant la phase de
+                                    // constitution — celle qui a le plus de chances d'échouer.
+                                    //
+                                    // Lu sur le drapeau local (_setClanAlone) et pas par une requête : ABSENT
+                                    // = on ne sait pas = comportement d'avant. Se tromper ici ne coûte au pire
+                                    // qu'un mur retardé, jamais une famille enfermée — même arbitrage que le
+                                    // catch plus bas.
+                                    if ((await deva_get("worker.clan_alone"))?.toString() == "true") {
+                                        deva_log("info", "[store] mur ajourné : le clan n'a encore qu'un membre");
+                                        return false;
+                                    }
+
+                                    final ctx = await _butinCtx();
+                                    if (ctx == null) return false;
+                                    final clanId     = ctx.get("clanId").toString();
+                                    final clanSecret = ctx.get("clanSecret").toString();
+                                    final region     = ctx.get("region").toString();
+                                    if (clanId.isEmpty || clanSecret.isEmpty) return false;
+
+                                    final doc = await _cloud?.read("workers", "clans", clanId,
+                                        ownerId: clanSecret, region: region);
+                                    final n = int.tryParse(doc?.get("validations")?.toString() ?? "0") ?? 0;
+
+                                    // Seuil réglable depuis le BUCKET, comme le catalogue, les scénarios
+                                    // du banc et la cadence de la fée : décaler le moment de la conversion
+                                    // ne doit pas demander une version sur les stores.
+                                    final raw   = await deva_get("store.pitch.min_validations");
+                                    final min   = raw is num ? raw.toInt()
+                                                             : int.tryParse(raw?.toString() ?? "") ?? 2;
+                                    return n >= min;
+                                } catch (e) {
+                                    // Un mur qu'on n'arrive pas à évaluer ne ferme rien : le prochain
+                                    // passage au dashboard réessaiera. Se tromper dans ce sens coûte une
+                                    // session ; se tromper dans l'autre enferme une famille à jour.
+                                    deva_log("error", "[store] _storePitchDue FAILED: $e");
+                                    return false;
+                                }
     }
 
     // -----------------------------------------------------------------------
@@ -603,8 +936,18 @@ extension Worker_store on worker {
                                     final product = (await deva_get("store.subscription.product"))?.toString() ?? "";
                                     final canBuy  = await _storeCanBuy();
                                     if (product.isNotEmpty && canBuy) options.add("store_manage");
+                                    // Saisir un code : sous la même garde que l'achat, et pour la même
+                                    // raison — c'est le clan qu'on engage. Proposée abonné ou non : un
+                                    // crédit réclamé pendant une cotisation payante n'est pas perdu,
+                                    // il attend simplement son tour.
+                                    if (canBuy) options.add("store_code");
                                     if (canBuy && await deva_get("store.debug.test_mode") == true) {
                                         options.add("store_scenario");
+                                        // Fabriquer des codes : même garde que le banc d'essai, donc
+                                        // absente du bucket de production. La vraie garde est serveur
+                                        // (GRANT_ADMINS), celle-ci ne fait qu'éviter de montrer une
+                                        // porte qui ne s'ouvrirait pas.
+                                        options.add("store_mint");
                                         // « Faire venir la fée » : elle n'apparaît sinon qu'au terme d'un
                                         // tirage quotidien étalé sur trente jours, impossible à revoir à la
                                         // demande. Sous la MÊME garde que le banc d'essai — donc absente du
@@ -861,8 +1204,16 @@ extension Worker_store on worker {
                                 final notice = (await deva_get("worker.store.notice"))?.toString() ?? "";
                                 final banner = await DvOrb.wait_for_shape("tiers_page/notice");
                                 if (notice.isNotEmpty) {
-                                    await _syncLabel(banner, "tiers_page/notice",
-                                        TranslationRegistry.processLabel(notice));
+                                    // {n} = le plafond courant. Même idiome de substitution que
+                                    // tiers_upto et tiers_headcount plus bas : le texte de traduction
+                                    // ne chiffre jamais la grille, qui se règle depuis le bucket.
+                                    // Garde `cap >= 0` : par construction un bandeau de plafond suppose
+                                    // un plafond, mais on n'écrira pas « au-delà de -1 aventuriers » le
+                                    // jour où un autre motif passera par ici.
+                                    var text = TranslationRegistry.processLabel(notice);
+                                    final cap = await _storeMaxPlayers();
+                                    if (cap >= 0) text = text.replaceAll("{n}", "$cap");
+                                    await _syncLabel(banner, "tiers_page/notice", text);
                                 }
                                 await _syncVisible(banner, "tiers_page/notice", notice.isNotEmpty);
 
@@ -918,12 +1269,19 @@ extension Worker_store on worker {
 
                                 final current = (await deva_get("store.subscription.product"))?.toString() ?? "";
                                 final count   = await _storePlayerCount();
-                                // La présence d'une raison de venue dit qu'un refus de plafond nous
-                                // a amenés ici, donc qu'il faut viser une place de plus. Une venue
-                                // sans motif (fin d'essai, relance) ne vise que l'effectif actuel.
-                                final reason  = (await deva_get("worker.store.notice"))?.toString() ?? "";
+                                // Viser une place de PLUS que l'effectif, ou l'effectif tel quel ?
+                                // L'intention est PUBLIÉE par _storeGotoTiers, elle n'est plus déduite
+                                // de la présence d'un bandeau. L'ancienne inférence (« il y a un motif,
+                                // donc c'est un refus de plafond, donc il faut une place de plus ») ne
+                                // tombait juste que par accident : le refus de plafond se trouvait être
+                                // le seul appelant à passer un motif. Toute venue portant un motif SANS
+                                // demander de place — première cotisation, relance — se serait vu
+                                // flécher le palier du dessus, donc vendre Clan à un foyer de deux qui
+                                // tient très bien dans Essentiel, et précisément au moment où l'on
+                                // cherche à ne pas faire peur.
+                                final oneMore = (await deva_get("worker.store.one_more")) == true;
                                 final next    = await _storeNextTier(
-                                    current: current, count: count, oneMore: reason.isNotEmpty);
+                                    current: current, count: count, oneMore: oneMore);
 
                                 for (final id in tiers) {
                                     final cap = await _storeTierCapacity(id);
@@ -1331,6 +1689,253 @@ extension Worker_store on worker {
                                 // Périodicité non déclarée pour ce produit : le premier base plan,
                                 // qui est aussi celui que Play sert par défaut (cf. basePlanFor).
                                 return plans.keys.first;
+    }
+
+    // -----------------------------------------------------------------------
+    // --- Codes cadeaux
+    // -----------------------------------------------------------------------
+    //
+    // Ce que fait cet écran : présenter un code. Rien d'autre. Le droit s'acquiert
+    // serveur (cloud function `store_claim`), qui vérifie l'appartenance au clan, le
+    // droit de l'engager, le plafond d'essais, puis consomme le code dans une
+    // transaction avant de créditer. Un client modifié ne gagnerait donc rien à mentir
+    // ici — il n'a rien à mentir, il transmet une chaîne de caractères.
+    //
+    // Les mois obtenus rejoignent la MÊME réserve que les mois offerts à la main
+    // (`credit_months`), consommée par le balayage quotidien. Réclamer pendant une
+    // cotisation payante ne perd donc rien : la réserve attend que l'abonnement
+    // retombe.
+
+    Future<void> on_giftcode_appear(dynamic caller, dynamic event) async {
+
+                                final code  = await DvOrb.wait_for_shape("giftcode_page/code");
+                                code?..set("shape.value", "")..refreshUI();
+
+                                _giftcodeError("");
+                                _setGiftcodeOkVisible(false);
+    }
+
+    // Ligne d'erreur : un seul widget, dont on change le libellé avant de le révéler.
+    // MÉMOIRE SEULE (aucun deva_set, aucun store) — même raison que le bandeau
+    // d'impayé : un message d'échec persisté sur disque réapparaîtrait à la prochaine
+    // ouverture de l'écran, alors que le code est passé depuis.
+    void _giftcodeError(String token) {
+
+                                final err = DvOrb.get_shape_by_id("giftcode_page/error");
+                                if (err == null) return;
+                                if (token.isEmpty) {
+                                    err..set("shape.visible", false)..refreshUI();
+                                    return;
+                                }
+                                err
+                                    ..set("shape.label", TranslationRegistry.processLabel("@@@T:$token@@@"))
+                                    ..set("shape.visible", true)
+                                    ..refreshUI();
+    }
+
+    // Overlay de succès : widgets invisibles rendus visibles, jamais une popup modale
+    // (idiome commons/death_* et clan_page/invite_*).
+    void _setGiftcodeOkVisible(bool v) {
+
+                                for (final id in const [
+                                    "giftcode_page/ok_scrim",
+                                    "giftcode_page/ok_panel",
+                                    "giftcode_page/ok_close",
+                                ]) {
+                                    final s = DvOrb.get_shape_by_id(id);
+                                    s?.set("shape.visible", v);
+                                    s?.refreshUI();
+                                }
+    }
+
+    Future<void> on_giftcode_confirm(dynamic caller, dynamic event) async {
+
+                                _giftcodeError("");
+
+                                final code = DvOrb.get_shape_by_id("giftcode_page/code")
+                                    ?.get("shape.value")?.toString().trim() ?? "";
+                                if (code.isEmpty) {
+                                    _giftcodeError("giftcode_empty");
+                                    return;
+                                }
+
+                                // Garde d'écran seulement : la vraie est serveur (SCOPE_ADMIN_FIELD).
+                                // Elle évite d'envoyer une réclamation vouée au refus — et donc de
+                                // brûler un essai — depuis un bouton laissé visible par une
+                                // synchronisation en retard.
+                                if (!await _storeCanBuy()) {
+                                    _giftcodeError("giftcode_not_admin");
+                                    return;
+                                }
+
+                                final ctx = await _butinCtx();
+                                if (ctx == null) {
+                                    _giftcodeError("giftcode_network");
+                                    return;
+                                }
+
+                                String status = "";
+                                int    months = 0;
+                                try {
+                                    final res = await _cloud?.call("store_claim", Dvidle({
+                                        "code":        code,
+                                        "scopeId":     ctx.get("clanId").toString(),
+                                        "scopeSecret": ctx.get("clanSecret").toString(),
+                                    }));
+                                    status = res?.get("status")?.toString() ?? "";
+                                    months = int.tryParse(res?.get("months")?.toString() ?? "0") ?? 0;
+                                } catch (e) {
+                                    // Hors-ligne, fonction pas encore déployée, panne : on ne sait
+                                    // pas si le code est bon, on ne prétend donc rien. Réessayer
+                                    // plus tard ne coûte rien — un code n'expire pas d'un aller-retour.
+                                    deva_log("error", "[store] réclamation de code injoignable: $e");
+                                    _giftcodeError("giftcode_network");
+                                    return;
+                                }
+
+                                if (status != "ok") {
+                                    // Un statut inconnu (fonction plus récente que l'app) retombe
+                                    // sur le message générique plutôt que d'afficher un jeton brut.
+                                    const known = ["invalid", "used", "exhausted", "expired",
+                                                   "throttled", "not_admin"];
+                                    final token = known.contains(status) ? status : "network";
+                                    deva_log("info", "[store] code refusé : $status");
+                                    _giftcodeError("giftcode_$token");
+                                    return;
+                                }
+
+                                deva_log("info", "[store] code accepté : +$months mois offerts");
+
+                                // La projection vient de changer côté serveur. On ne l'attend pas de
+                                // la vigilance temps réel : le chef est devant son écran, il doit
+                                // voir l'effet tout de suite.
+                                await ActionRegistry.get("store.refresh")?.call(null, null);
+
+                                // Le message dit ce qui a été reçu, pas quand ça s'ouvre : un mois
+                                // offert commence au prochain balayage, et promettre une date que
+                                // l'app ne décide pas serait un mensonge poli.
+                                final panel = DvOrb.get_shape_by_id("giftcode_page/ok_panel");
+                                if (panel is DvLabel) {
+                                    panel.write(TranslationRegistry.processLabel(
+                                        months > 1 ? "@@@T:giftcode_success@@@" : "@@@T:giftcode_success_one@@@")
+                                        .replaceAll("@@@months@@@", "$months"));
+                                }
+                                _setGiftcodeOkVisible(true);
+    }
+
+    Future<void> on_giftcode_close(dynamic caller, dynamic event) async {
+
+                                _setGiftcodeOkVisible(false);
+                                DvOrb.navigate_back();
+    }
+
+    // --- Fabrique de codes (mode test) ---------------------------------------
+    // N'existe que derrière store.debug.test_mode + administrateur, comme le banc
+    // d'essai. La garde qui compte est serveur : `store_mint` refuse tout compte
+    // absent de GRANT_ADMINS, et cet écran ne rend donc rien entre d'autres mains.
+
+    Future<void> on_giftcode_mint_appear(dynamic caller, dynamic event) async {
+
+                                final result = await DvOrb.wait_for_shape("giftcode_mint_page/result");
+                                if (result is DvLabel) result.write("");
+
+                                final share = DvOrb.get_shape_by_id("giftcode_mint_page/share");
+                                share?..set("shape.visible", false)..refreshUI();
+
+                                await deva_set("worker.mint.codes", "");
+    }
+
+    Future<void> on_giftcode_mint(dynamic caller, dynamic event) async {
+
+                                final result = DvOrb.get_shape_by_id("giftcode_mint_page/result");
+                                final share  = DvOrb.get_shape_by_id("giftcode_mint_page/share");
+
+                                int intOf(String id, int fallback) {
+                                    final raw = DvOrb.get_shape_by_id(id)?.get("shape.value")?.toString().trim() ?? "";
+                                    return int.tryParse(raw) ?? fallback;
+                                }
+
+                                final count   = intOf("giftcode_mint_page/count",  0);
+                                final months  = intOf("giftcode_mint_page/months", 0);
+                                final maxUses = intOf("giftcode_mint_page/uses",   1);
+                                // 0 = sans fin. La date est calculée au SERVEUR à partir de ce
+                                // nombre de jours : l'horloge de l'appareil de l'éditeur n'a pas
+                                // à décider quand un lot se ferme.
+                                final days    = intOf("giftcode_mint_page/days",   0);
+                                final label   = DvOrb.get_shape_by_id("giftcode_mint_page/label")
+                                    ?.get("shape.value")?.toString().trim() ?? "";
+
+                                share?..set("shape.visible", false)..refreshUI();
+
+                                try {
+                                    final res = await _cloud?.call("store_mint", Dvidle({
+                                        "count":        count,
+                                        "months":       months,
+                                        "max_uses":     maxUses,
+                                        "expires_days": days,
+                                        "label":        label,
+                                    }));
+                                    if (res?.get("status")?.toString() != "ok") {
+                                        if (result is DvLabel) result.write("mint: réponse inattendue");
+                                        return;
+                                    }
+
+                                    final codes = List<dynamic>.from(res?.get("codes") as List? ?? [])
+                                        .map((c) => c.toString()).toList();
+                                    final batch = res?.get("batch")?.toString() ?? "";
+
+                                    // Les codes ne repasseront JAMAIS : seule leur empreinte est
+                                    // conservée serveur. Ils sont posés dans le dictionnaire pour
+                                    // que `share.gift_codes` puisse les sortir de l'app, et c'est
+                                    // le seul moyen de les garder.
+                                    final validity = days > 0 ? "$days j" : "sans fin";
+                                    final text = "$batch — $months mois × ${codes.length} "
+                                                 "($maxUses usage(s), $validity)\n\n${codes.join("\n")}";
+                                    await deva_set("worker.mint.codes", text);
+                                    if (result is DvLabel) result.write(text);
+                                    share?..set("shape.visible", codes.isNotEmpty)..refreshUI();
+
+                                    deva_log("info", "[store] lot $batch : ${codes.length} codes de $months mois "
+                                                     "($validity)");
+                                } catch (e) {
+                                    deva_log("error", "[store] fabrication de codes FAILED: $e");
+                                    if (result is DvLabel) result.write("mint: $e");
+                                }
+    }
+
+    // Couper un lot (son identifiant, rendu à la fabrication) ou un code isolé. Le
+    // serveur distingue les deux à la longueur : un identifiant de lot fait 8 signes,
+    // un code 12. On lui transmet donc le champ dans les deux cases et il tranche.
+    Future<void> on_giftcode_revoke(dynamic caller, dynamic event) async {
+
+                                final result = DvOrb.get_shape_by_id("giftcode_mint_page/result");
+                                final field  = DvOrb.get_shape_by_id("giftcode_mint_page/revoke");
+                                final raw    = field?.get("shape.value")?.toString().trim() ?? "";
+                                if (raw.isEmpty) return;
+
+                                // Normalisation locale, uniquement pour COMPTER les signes : le
+                                // serveur refait la sienne, elle seule fait foi.
+                                final bare = raw.toUpperCase().replaceAll(RegExp(r"[^0-9A-Z]"), "");
+                                final asBatch = bare.length <= 8;
+
+                                try {
+                                    final res = await _cloud?.call("store_revoke", Dvidle({
+                                        if (asBatch) "batch": bare else "code": raw,
+                                    }));
+                                    final status  = res?.get("status")?.toString() ?? "";
+                                    final revoked = int.tryParse(res?.get("revoked")?.toString() ?? "0") ?? 0;
+
+                                    final line = status == "ok"
+                                        ? "$bare — $revoked code(s) coupé(s)"
+                                        : "$bare — introuvable";
+                                    if (result is DvLabel) result.write(line);
+                                    field?..set("shape.value", "")..refreshUI();
+
+                                    deva_log("info", "[store] coupure : $line");
+                                } catch (e) {
+                                    deva_log("error", "[store] coupure de codes FAILED: $e");
+                                    if (result is DvLabel) result.write("revoke: $e");
+                                }
     }
 
 }

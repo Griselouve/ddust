@@ -60,6 +60,9 @@ extension Worker_clan on worker {
 
                                 ActionRegistry.register("worker.on_cancel_create_clan",       on_cancel_create_clan);
 
+                                // Sortie « un autre parent a déjà créé le clan » → scan du QR (anti-doublon).
+                                ActionRegistry.register("worker.on_create_clan_goto_join",    on_create_clan_goto_join);
+
                                 // Bouton « marche arrière » adulte sur l'écran de rejointe (kid_wants_clan).
                                 ActionRegistry.register("worker.on_kid_wants_clan_appear",    on_kid_wants_clan_appear);
 
@@ -199,6 +202,11 @@ extension Worker_clan on worker {
                                         // Le créateur est le premier membre ET chef d'emblée (asAdmin).
                                         await _writeClanPlayer(clanId, clanSecret, userId, device, region,
                                             asAdmin: true, firstClan: firstClan);
+                                        // Un clan qui naît est seul, par construction. Posé ICI parce que le
+                                        // fondateur file au dashboard sans passer par l'écran Clan : sans cet
+                                        // amorçage, le reminder de recrutement n'aurait pas sa condition au moment
+                                        // précis où il est le plus utile — juste après la cérémonie de bienvenue.
+                                        await _setClanAlone(true);
                                         // Coffre du butin + portefeuille, dès la naissance du clan (la
                                         // collection est vide : rien à vérifier, on crée les deux).
                                         await _ensureButinDocs(clanId, clanSecret, region, const <Dvidle>[]);
@@ -226,6 +234,20 @@ extension Worker_clan on worker {
 
                                 await Deva.instance.set("session.clan.name", internalName);
                                 await Deva.instance.set("worker.session.clan_done", "true");
+
+                                // Le SCOPE de dvstore, c'est le clan — et il n'existait pas encore au
+                                // démarrage du module. `store_scope` a donc rendu vide, `_resolveScope`
+                                // n'a rien résolu, et sans cette relecture le PREMIER achat de chaque
+                                // nouveau client échouerait en `no_scope` : le fondateur d'un clan tout
+                                // juste créé est exactement la personne à qui l'on va présenter les
+                                // paliers. Ici et pas ailleurs, parce que c'est le seul endroit du jeu
+                                // où un scope naît (rejoindre un clan passe par une session déjà
+                                // ouverte, donc par le démarrage normal du module).
+                                //
+                                // Sans await : la boutique n'est pas la prochaine seconde du parcours,
+                                // et un aller-retour Play ne doit pas retarder l'entrée dans le donjon.
+                                ActionRegistry.get("store.refresh")?.call(null, null);
+
                                 // Bienvenue clan jouée à la 1re arrivée sur dashboard (cf. on_dashboard_appear).
                                 await deva_set("worker.pending_clan_welcome", "created");
                                 return "ok";
@@ -326,6 +348,7 @@ extension Worker_clan on worker {
                                 for (final id in const [
                                     "new_or_pick_clan/confirm_scrim",
                                     "new_or_pick_clan/confirm_panel",
+                                    "new_or_pick_clan/confirm_scan",
                                     "new_or_pick_clan/confirm_yes",
                                     "new_or_pick_clan/confirm_no",
                                 ]) {
@@ -343,6 +366,25 @@ extension Worker_clan on worker {
     Future<void> on_cancel_create_clan(DvShape? caller, dynamic event) async {
 
                                 _setCreateConfirmVisible(false);
+    }
+
+    // « Quelqu'un l'a déjà créé : je scanne son QR code. » LE garde-fou du clan en double, et il
+    // fallait qu'il soit une ACTION, pas une question.
+    //
+    // Le foyer où deux parents installent l'app chacun de son côté est le cas d'erreur le plus
+    // probable de tout l'onboarding, et il est aujourd'hui IRRÉPARABLE : il n'existe aucune action
+    // « quitter le clan » (revoke_player et nomore_chief refusent tous deux le fondateur), le
+    // fondateur est admin à vie, et le multi-clan est post-lancement. Le second parent resterait
+    // enfermé dans un clan vide, avec sa propre cotisation, sans autre issue que de supprimer son
+    // compte. On ne peut donc que PRÉVENIR — et prévenir en donnant une sortie, là où l'écran ne
+    // posait qu'une question à laquelle le parent, par définition, ne sait pas répondre.
+    Future<void> on_create_clan_goto_join(DvShape? caller, dynamic event) async {
+
+                                _setCreateConfirmVisible(false);
+                                // Même route que le bouton « rejoindre » de l'écran (steps.navigate.join
+                                // → kid_wants_clan), pour ne pas dupliquer la navigation d'onboarding.
+                                final r = ActionRegistry.get("steps.navigate.join")?.call(caller, event);
+                                if (r is Future) await r;
     }
 
     Future<void> on_confirm_create_clan_choice(DvShape? caller, dynamic event) async {
@@ -378,7 +420,21 @@ extension Worker_clan on worker {
                                 }
 
                                 final raw   = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "k";
-                                if (_gameplayLegal(raw) != "a") return;
+                                // Mineur : on l'avertit que la connexion Google viendra APRÈS l'admission, et
+                                // qu'un compte supervisé demandera l'accord d'un parent. C'est le seul moment où
+                                // le chef de clan est probablement encore à côté de lui, son QR code à la main.
+                                // (Même bande que le bouton « marche arrière » de l'adulte : jamais les deux.)
+                                //
+                                // Conditionné à _anon, et pas au seul état légal : un mineur DÉJÀ lié qui vient
+                                // rejoindre un second clan n'a plus aucune liaison devant lui, lui annoncer une
+                                // connexion Google serait faux.
+                                if (_gameplayLegal(raw) != "a") {
+                                    if (_anon) {
+                                        final notice = await DvOrb.wait_for_shape("kid_wants_clan/notice");
+                                        notice?..set("shape.visible", true)..refreshUI();
+                                    }
+                                    return;
+                                }
                                 final back = await DvOrb.wait_for_shape("kid_wants_clan/back");
                                 back?.set("shape.visible", true);
                                 back?.set("shape.events.tap", true);
@@ -567,6 +623,10 @@ extension Worker_clan on worker {
                                             deva_log("info", "[worker] publishSecret: lobbyId=$lobbyId groupId=$groupId");
                                             final lobby = ModuleRegistry.create("dvvirtuallobby");
                                             await (lobby as dynamic).publishSecret(lobbyId, groupId, {"clanId": clanId, "clanSecret": clanSecret, "adminId": _userId});
+                                            // Le clan s'agrandit réellement ici, sur l'appareil du chef : le
+                                            // reminder de recrutement doit s'éteindre TOUT DE SUITE, sans attendre
+                                            // la prochaine lecture du roster (le chef repart au dashboard).
+                                            await _setClanAlone(false);
                                         } else {
                                             deva_log("error", "[worker] on_virtuallobby_accepted: clanId ou clanSecret absent de la session");
                                         }
@@ -1076,7 +1136,40 @@ extension Worker_clan on worker {
                                 final groupId = await _clanIdIfChief("on_confirm_invite_consent");
                                 if (groupId.isEmpty) return;
                                 if (kind == "pin") await deva_set("worker.invite_mode", "pin");
+                                await _stampFirstInvite(groupId);
                                 ActionRegistry.get("virtuallobby.create_management")?.call(null, {"group_id": groupId});
+    }
+
+    \ Horodate la PREMIÈRE invitation ouverte par le clan (`clans.first_invite_at`, écrit une seule
+    // fois). Sert au balayage serveur (pulse_sweeper) à distinguer deux clans d'un seul membre qui
+    // n'ont rien à voir : celui dont le chef a essayé d'inviter et n'y est pas arrivé, et celui qui
+    // joue seul délibérément — un clan de 1 à 2 joueurs, c'est ~40 % des clans, le palier le plus
+    // souscrit. « Un seul membre » ne discrimine donc rien ; « n'a jamais ouvert d'invitation », si.
+    //
+    // Posé ici, au consentement confirmé, et non à l'admission : ce qu'on mesure est la TENTATIVE.
+    // Best-effort — un compteur d'analyse ne fait jamais échouer un recrutement.
+    Future<void> _stampFirstInvite(String clanId) async {
+
+                                try {
+                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final session    = region.isNotEmpty ? await _readSession(region) : null;
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (clanId.isEmpty || clanSecret.isEmpty || region.isEmpty) return;
+
+                                    final doc = await _cloud?.read("workers", "clans", clanId,
+                                        ownerId: clanSecret, region: region);
+                                    // Écrit UNE SEULE FOIS : c'est la date de la première tentative qui
+                                    // renseigne, pas celle de la dernière.
+                                    if ((doc?.get("first_invite_at")?.toString() ?? "").isNotEmpty) return;
+
+                                    final out = Dvidle({});
+                                    out.set("first_invite_at", DateTime.now().toUtc().toIso8601String());
+                                    await _cloud?.write("workers", "clans", clanId, out,
+                                        region: region, ownerId: clanSecret);
+                                    deva_log("info", "[clan] first_invite_at posé sur $clanId");
+                                } catch (e) {
+                                    deva_log("error", "[clan] _stampFirstInvite FAILED: $e");
+                                }
     }
 
     Future<void> on_cancel_invite_consent(DvShape? caller, dynamic event) async {

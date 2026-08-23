@@ -504,10 +504,22 @@ extension Worker_notify on worker {
     }
 
     // Notifie les admins du clan qu'un joueur demande la validation d'une tâche.
-    // Un envoi PAR admin (langue + devices propres au destinataire). La notif porte 3 boutons
-    // (valider / à moitié / refuser) mappés sur on_notif_validate_* et mode:'noorb' : app
-    // fermée, le tap relance l'app sans UI (mode restreint), exécute le verdict, puis s'arrête
-    // (wakeup=false). Payload métier (data) = clan + tâche + demandeur, lu par le handler.
+    // Un envoi PAR admin (langue + devices propres au destinataire). Payload métier
+    // (data) = clan + tâche + demandeur, lu par le handler.
+    //
+    // DEUX FORMES, selon que le clan cotise ou non.
+    //
+    // Clan ABONNÉ — 3 boutons (valider / à moitié / refuser) mappés sur
+    // on_notif_validate_* et mode:'noorb' : app fermée, le tap relance l'app sans UI
+    // (mode restreint), exécute le verdict, puis s'arrête (wakeup=false). C'est le
+    // confort du produit : arbitrer sans ouvrir quoi que ce soit.
+    //
+    // Clan SANS COTISATION — une action unique et sans libellé, donc aucun bouton, et
+    // le tap sur le corps ouvre l'app sur la tâche à valider. C'est délibéré et c'est
+    // le seul levier du genre dans le jeu : les trois boutons résolvaient la
+    // validation SANS jamais ouvrir l'app, donc sans jamais amener le chef devant
+    // quoi que ce soit. Un chef qui n'ouvre pas l'app ne verra jamais ni la page des
+    // paliers, ni le mur. Ils reviennent dès qu'une cotisation est active.
     Future<void> _notifyAdmins(String clanId, String clanSecret, String region,
                                String taskId, String requester, String requesterName) async {
 
@@ -518,6 +530,16 @@ extension Worker_notify on worker {
                 final admins = List<dynamic>.from(clanDoc?.get("admins") as List? ?? [])
                     .map((a) => a.toString()).where((a) => a.isNotEmpty).toList();
                 if (admins.isEmpty) { deva_log("info", "[combat] notif admins: aucun admin"); return; }
+
+                // Lu UNE fois, hors de la boucle : la cotisation est un fait du CLAN, pas
+                // du destinataire. Et lu ici, sur l'appareil du JOUEUR qui vient de finir
+                // sa tâche — souvent celui d'un enfant. Il le sait : la projection
+                // `clans_store` a pour portée le clan, tout membre la lit (cf. store_scope).
+                //
+                // Défaut sûr si l'état n'est pas connu : PAS de boutons. _storeSubscribed
+                // rend faux sur une clef absente, ce qui est exactement ce qu'on veut — se
+                // tromper dans ce sens coûte un tap de plus, jamais un droit refusé.
+                final subscribed = await _storeSubscribed();
 
                 final titleKey = _leafTaskRe.hasMatch(taskId) ? "dt_t_$taskId" : "task_$taskId";
                 final data     = {"clanId": clanId, "taskId": taskId, "assignee": requester};
@@ -541,27 +563,51 @@ extension Worker_notify on worker {
                     }
 
                     final title = await tr(titleKey);
-                    var   head  = await tr("notif_validate_request"); if (head.isEmpty)  head  = "demande la validation";
-                    var   okL   = await tr("notif_validate_ok");      if (okL.isEmpty)   okL   = "Valider";
-                    var   halfL = await tr("notif_validate_partial"); if (halfL.isEmpty) halfL = "À moitié";
-                    var   koL   = await tr("notif_validate_ko");      if (koL.isEmpty)   koL   = "Refuser";
+                    // La tête annonce ce qu'on peut FAIRE, et les deux formes ne proposent
+                    // pas la même chose : avec boutons on arbitre sur place, sans boutons il
+                    // faut toucher le bandeau. Le dire est indispensable — une notification
+                    // muette et sans bouton a l'air cassée.
+                    var head = await tr(subscribed ? "notif_validate_request"
+                                                   : "notif_validate_request_open");
+                    if (head.isEmpty) head = subscribed ? "demande la validation"
+                                                        : "demande une validation — touchez pour l'ouvrir";
 
                     final label = title.isNotEmpty
                         ? "[$title] $requesterName $head"
                         : "$requesterName $head";
 
-                    final actions = {
-                        "v_ok":      {"action": "worker.on_notif_validate_ok",      "label": okL,   "wakeup": false},
-                        "v_partial": {"action": "worker.on_notif_validate_partial", "label": halfL, "wakeup": false},
-                        "v_ko":      {"action": "worker.on_notif_validate_ko",      "label": koL,   "wakeup": false},
-                    };
+                    Map<String, dynamic> actions;
+                    if (subscribed) {
+                        var okL   = await tr("notif_validate_ok");      if (okL.isEmpty)   okL   = "Valider";
+                        var halfL = await tr("notif_validate_partial"); if (halfL.isEmpty) halfL = "À moitié";
+                        var koL   = await tr("notif_validate_ko");      if (koL.isEmpty)   koL   = "Refuser";
+                        actions = {
+                            "v_ok":      {"action": "worker.on_notif_validate_ok",      "label": okL,   "wakeup": false},
+                            "v_partial": {"action": "worker.on_notif_validate_partial", "label": halfL, "wakeup": false},
+                            "v_ko":      {"action": "worker.on_notif_validate_ko",      "label": koL,   "wakeup": false},
+                        };
+                    } else {
+                        // UNE action, SANS libellé : c'est la seule forme où dvmessaging
+                        // déclenche quelque chose au tap du CORPS de la notification. Un
+                        // bouton n'est rendu que si l'action porte un `label`, et avec deux
+                        // actions ou plus le tap corps est SANS EFFET — une action sans
+                        // libellé y serait tout bonnement injoignable. Modèle : _notifyAssignee.
+                        actions = {
+                            "open": {"action": "worker.on_notif_open_task", "wakeup": true},
+                        };
+                    }
 
                     try {
                         final result = await _messaging?.send(dvmsg(
                             range:   'global',
                             label:   label,
                             recipes: devices,
-                            mode:    'noorb',
+                            // `noorb` déclare `orb.idle`, donc EMPÊCHE runApp() : l'app se
+                            // relance sans interface. C'est ce qu'il faut pour rendre un
+                            // verdict et s'éteindre ; c'est l'exact contraire de ce qu'il faut
+                            // pour OUVRIR un écran. Il doit donc tomber avec les boutons.
+                            // `dvmsg` déclare `String? mode` : null fait disparaître la clef.
+                            mode:    subscribed ? 'noorb' : null,
                             data:    data,
                             actions: actions,
                         ));
