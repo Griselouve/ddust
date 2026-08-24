@@ -1,236 +1,137 @@
-<!-- généré : 20260719 -->
+<!-- généré : 20260823 -->
 # progress — donjons & savons
 
 ## avancement
 
-**~50 % implémenté**
+**95 % du livrable `ddust/beta`** (le lancement commercial), mesuré en story points de
+`deva/roadmap.md` : 1 473 sp au total, dont 1 152 comptabilisés à la génération du KPI
+(20260723) et ~275 livrés depuis — monétisation et facturation (233), socle extensions (8),
+grille à cinq paliers (5), offre fondateurs et crédits de mois (13), trigger Pub/Sub du
+module de fonctions (8), versioning du builder (8).
 
-Estimation par décomposition de `vision.md` en blocs fonctionnels pondérés par leur ampleur.
-La boucle de jeu complète et sa méta tournent de bout en bout — tâches, validation croisée, XP,
-niveaux, titres, PV, mort, guérison, journal, célébrations — et toute la couche d'administration
-et de profils est désormais en place (promotion/rétrogradation de chef, passage à l'âge adulte,
-révocation, édition de tâche, recommandation « boss », avatars). Le cœur du MVP est mûr et
-stable ; les onglets boutique et inventaire restent des coquilles. Ce qui reste est surtout du
-produit à fort volume : l'ouverture du butin, toute l'économie (or, boutique, loot, quêtes,
-potions, objets, classes, faveurs, succès, saisons), la multitenancy, la monétisation et le
-légal définitif.
+Le KPI de `roadmap.md` est donc **périmé** : il annonce encore 321 sp restants et décrit la
+monétisation comme « entièrement absente ». Il reste en réalité ~46 sp, dont l'essentiel
+n'est pas du développement mais de l'exploitation (flyers, seeding, gate S+12) et une seule
+fonctionnalité produit, le parrainage.
 
-> **Révisé 2026-08-11.** La monétisation passe de « après la beta » à **prérequis de la
-> première publication** : l'app se lance payante, avec une offre fondateurs en contrepartie
-> (voir `strategie.md`). L'onglet boutique n'est donc plus une coquille acceptable au
-> lancement — c'est l'écran d'abonnement.
+Maturité : la boucle de jeu, sa méta et son socle commercial sont **stables** et éprouvés au
+banc d'essai. Trois zones restent des **brouillons assumés** : les questions du decisiontree,
+les documents légaux (non validés juridiquement), et le balayage de relance, livré mais
+maintenu en mode simulation.
+
+Sur le périmètre complet du projet (beta + mvp + eco + themes, 2 119 sp), l'avancement est
+d'environ **70 %** — l'essentiel du reste étant le pack économie, du contenu à produire plus
+qu'une architecture à concevoir.
 
 ## ce qui est fait
 
-**Authentification et onboarding** : flux complet — Google OAuth PKCE, choix de région (EU),
-nom d'aventurier avec « Inspire moi » (Vertex AI, timeout 3 s + repli statique + cache de la
-réponse tardive), calcul du `legal_state` sans persister la date de naissance, parental gate,
-vidéo d'intro passable, CGU par `(region, legal_state, lang)` depuis GCS, reprise de session
-partielle ou complète à la reconnexion, musique d'ambiance en boucle.
+**La boucle de jeu, de bout en bout.** Bibliothèque de 151 tâches sur 20 domaines, filtrée
+par le foyer via le decisiontree ; prise de tâche arbitrée par verrou distribué puis par
+statut ; preuve photo locale ; validation croisée à trois verdicts, rendue depuis l'app ou
+directement depuis les boutons d'une notification, app fermée. XP à part fixe et part
+indexée sur la recharge, plafonnée par tâche selon le niveau du joueur, écrêtée de même côté
+clan. Niveaux dérivés (jamais stockés), titres livrés comme **objets** portables ou jetables,
+six célébrations déclaratives déclenchées par détection.
 
-**Clans** : création réservée aux adultes (nom externe non-PII généré), sécurité par
-`clanSecret` croisé via `userindexes`, adhésion par trois chemins (scan QR, lien partagé
-warm/cold start, demande) avec consentement parental pour les mineurs, notification « nouveau
-membre », animation de bienvenue (scène dvflame « burn » + DvSplash).
+**La méta.** PV entièrement dérivés de la date de dernière tâche (aucun batch serveur), mort
+avec gage et overlay global, guérison et coup de pouce sous cooldown porté par l'admin
+acteur, résurrection de secours pour l'admin solo. Jauge de butin à deux plafonds, coffre
+avec objets, argent de poche et **notes de chefs**, notification de dépôt au ton modulé par
+l'historique du clan, et **cérémonie d'ouverture synchronisée** multi-joueurs — verrou de 30
+minutes, appel du clan, attente des réponses avec forçage possible d'un absent, distribution
+en un seul lot, réclamation par joueur, révélation des notes, puis conte IA de l'aventure.
 
-**Boucle de combat et validation croisée** : tiroir des domaines (19 câblés, 151 tâches,
-tri actives-puis-grisées, bornes de grille + scroll), verrou `dvlock` + statut Firestore,
-preuve photo locale **optionnelle** (sentinelle `noproof` si caméra indisponible), trois
-verdicts (accept / partiel / reject) avec fenêtre de régénération préservée, **validation
-croisée** (un admin ne juge pas sa propre tâche ; auto-validation réservée à l'admin solo),
-notification admin à **3 boutons** exécutable app fermée (mode restreint `noorb`, garde
-d'idempotence), vigilance `dvcloud.watch` côté joueur (push natif Android), overlays main /
-flamme / crâne / pansement avec barres de respawn, tâches `multiple` clonées par joueur qualifié.
+**L'administration.** Chefs promus et rétrogradés, fondateur admin à vie, révocation et
+départ volontaire par tombstone, passage à l'âge adulte avec CGU bloquante, joueurs déclarés
+hors-ligne, **création d'un joueur sans compte** et **prise de place** pour jouer à sa place.
+Mode admin du tiroir (activer, masquer, éditer, créer, ressusciter, libérer, recommander),
+persisté sur trois surfaces.
 
-**Progression et célébrations** : XP `effort × 10` modulée par la fenêtre `dead → revive`,
-niveaux joueur et clan dérivés (jamais stockés), titres tous les 5 niveaux (20 par échelle) —
-**depuis peu des items** (`titre_perso`/`titre_clan`) gagnés au palier et **portés par choix**
-(option « Porter ce titre »), plus une dérivation automatique ; montée de niveau de CLAN
-désormais **détectée** (`_creditClanXp`, elle ne l'était pas) avec son propre item et son log
-`ClanLeveledUp`, XP clan divisée par le nombre de membres, jauge de butin plafonnée à 10000 avec
-contribution par joueur, montée de niveau joueur détectée en temps réel sur tout écran, barèmes
-réglables par conf `worker.*`. **Six interludes** dvinterlude câblés : burn (level-up + promotion
-chef), victory (tâche validée), giftxp (cadeau de guilde + coup de pouce boss), heal
-(résurrection), gameover (0 PV) ; giftgold (hausse d'or) est câblé mais dormant tant qu'aucune
-source d'or n'existe.
+**L'identité et le légal.** Onboarding **entièrement anonyme** — Firebase Auth ne détient ni
+email ni nom avant l'acceptation des CGU — puis liaison du compte Google avec flush ordonné,
+gestion du conflit de compte (adoption pour un adulte, blocage pour un mineur déjà enrôlé),
+« Retrouver mon héros » qui vérifie avant d'écrire et nettoie derrière lui. Consentement
+parental rappelé au moment de l'acte sur trois écrans, seuil unique à 18 ans, suppression de
+compte en cascade récursive (in-app et page web), preuve de consentement close et datée
+plutôt qu'effacée.
 
-**PV, mort et guérison** : dégradation temporelle des PV dérivée côté client
-(`jours d'inactivité / decay`), écran de mort global (scrim + crâne + gage aléatoire parmi 11)
-persistant au redémarrage, blocage des tâches quand mort, menu contextuel du roster pour les
-admins — guérir (3 PV, cooldown 3 j), coup de pouce (+50 XP au moins avancé, cooldown 3 j),
-résurrection auto-servie de l'admin solo.
+**Le commercial, complet.** Cinq paliers créés chez Google depuis la conf, essai de 14 jours,
+offre fondateurs à éligibilité serveur, vérification d'achat, RTDN, balayage quotidien du
+cycle de défaut de paiement, projection de droits en lecture seule, bandeau d'impayé réservé
+aux chefs, écran de clan gelé, page des paliers avec fléchage du palier utile, plafond de
+membres opposable, mur de première cotisation, codes cadeaux (réclamation, fabrication,
+révocation) et porte parentale sur chaque achat.
 
-**Administration et profils** : promotion/rétrogradation de chef (couronne roster, fondateur
-protégé, `clans.admins` + miroir `is_admin`, anim burn au promu + notif clan), **passage à
-l'âge adulte** (un admin du clan d'origine pose `legal_state = "t"`, CGU adulte bloquante
-survivant au kill, écriture de `"a"` dans `users` + `clans_players`), **révocation / départ**
-par tombstone `clans_players.enabled = false` (fondateur protégé, éjection vers decisiontree),
-**édition de tâche** (effort + respawn en picklists, écriture partielle des seuls champs
-modifiés), **création de tâche** (tuile « + » d'un sous-tiroir → doc `user_created` exempté du
-réconciliateur ; la création de *domaine* est hors scope : contenu vendu en packs),
-**recommandation « boss »** (`adm_recommend` → badge XP, notif clan, XP boostée
-décroissante, anim coup de pouce), **avatars** joueur et clan (grille `DvExplorer`, persistés
-et relus depuis Firestore, cross-device), **contrôles admin du tiroir** (visible/enabled
-persistés conf + runtime + Firestore).
+**L'engagement.** Notifications d'événement traduites dans la langue du destinataire et
+regroupées par langue ; balayage serveur de relance à deux pistes cloisonnées, avec boss
+réellement convoqué avant d'être annoncé ; réglage « ne plus me faire signe » à un tap.
+Tutoriel spotlight de neuf leçons avec overrides par rôle et panneaux d'options, et rappels
+de recrutement à cadence pour le fondateur resté seul.
 
-**Journal de clan** : audit append-only `clans_logs` (règles Firestore inaltérables), écran de
-récit narratif ouvert par `DvMenuButton` (mon journal, journal d'un joueur, journal du clan
-complet), groupé par jour, localisé, tokens substitués, partage social des 15 derniers
-événements.
-
-**Socle** : thèmes par layers (`theme-pirate` en preuve de concept), animations dvflame
-déclaratives, images redimensionnées par gabarit au build, écrans « born-filled » (géométrie
-persistée en registry), backend Pulumi complet (Firebase Auth, Firestore multi-bases avec
-règles custom, GCS + pointeurs versionnés, Cloud Functions, FCM broadcast, Vertex AI, budget
-avec auto-disable et alertes Telegram, verrous, TTL lobby).
+**Le décor et l'exploitation.** Deux régions provisionnées, assets par racines de thème avec
+vagues de priorité réglables sans release, catalogue de la boutique en source unique
+redistribuée à trois consommateurs, feuilles de saisie des consoles rendues au build,
+archivage automatique des contrats de sous-traitance, site vitrine trilingue avec liste
+d'attente beta, et un banc d'essai complet (scénarios commerciaux, fabrique de codes,
+invocation de la fée, forçage d'une relance).
 
 ## ce qui reste à faire
 
-**Butin (débouché du clan)** : l'accumulation, les jauges, le coffre et son contenu existent, ainsi
-que la notification de dépôt au clan (ton modulé par comparaison à la moyenne des 20 derniers
-butins) et la table d'historique `clans_chest_history` — déjà lue, mais **encore sans écrivain**.
-Reste : gestion du contenu par les parents, sélection des participants, ouverture synchronisée
-multi-joueurs (avec recalage de `last_butin_xp`, et c'est elle qui remplira l'historique), écran de
-récompense, journal narratif IA du clan, idées de butin et affiliations.
+**Butin** — l'écriture de `clans_chest_history` : la table existe, elle est déjà lue pour
+situer un dépôt, et la cérémonie ne l'alimente toujours pas. C'est le dernier reliquat d'un
+chantier par ailleurs terminé.
 
-**Économie de jeu** : le plus gros volume restant — or gagné aux tâches, boutique à reset
-hebdomadaire, loot aléatoire, quêtes individuelles et de clan, potions, objets et équipement,
-classes de personnage, faveurs parentales, succès, saisons. L'onglet inventaire porte sa
-première vraie famille d'items (les titres, cf. ci-dessus) ; le reste des familles (potions,
-magie, skills) et l'onglet boutique restent des coquilles. La boutique portera aussi les
-**packs de domaines** : les domaines supplémentaires sont du contenu vendu, jamais créé par le
-chef de clan.
+**Monétisation** — le programme de parrainage (13 sp) est la seule fonctionnalité produit
+encore absente du lancement : le moteur de crédits qu'il partage avec l'offre fondateurs est
+livré, il manque le suivi du filleul, l'écran et les notifications. Restent aussi la
+correction de la classification IARC, l'ouverture effective de la piste (12 testeurs pendant
+14 jours), et l'extension du module de catalogue aux produits à l'unité — inutile tant
+qu'aucun contenu n'est à vendre.
 
-**Profils et statuts** : switch d'utilisateur (jouer à la place d'un autre joueur : déconnecté,
-sans device), choix du titre affiché parmi les débloqués, statuts hors-ligne et sans-téléphone
-(exclusion du diviseur d'XP, du decay et du butin), mode adulte sans XP.
+**Relances** — sortir le balayage du mode simulation, une fois plusieurs passes jugées
+crédibles ; puis, si le volume le justifie, découper la passe par heure locale réelle (le
+décalage horaire est déjà collecté).
 
-**Préférences et IA** : écran de préférences utilisateur avec choix de la langue après
-l'onboarding (le sélecteur `dvlang` n'est plus accessible ensuite), toggle IA global
-(propositions toutes faites en remplacement quand l'IA est coupée pour maîtriser les coûts).
+**Contenus** — le pack économie (or, boutique hebdomadaire, loot, quêtes, potions, objets,
+classes, faveurs, succès, saisons, packs de tâches, affiliation) et les packs de thèmes.
+C'est le plus gros volume restant du projet, et il attend la preuve que la base paye.
 
-**Multitenancy** : changement de clan / rejoindre un autre clan, clans multiples par joueur,
-suppression de clan et cascades.
+**Multitenancy** — changement de clan, clans multiples et facturation multi-clan. Le modèle
+de données est déjà par clan, il n'y aura pas de migration ; c'est l'UI qui reste mono-clan.
 
-**Monétisation et légal** (**bloquant la première publication depuis le 2026-08-11** — l'app
-se lance payante, la beta gratuite préalable est supprimée) : reste le **parrainage** (l'app
-n'a pas d'écran ni de code de parrainage, alors que son moteur de crédits est livré) et
-l'**effacement matériel à 30 jours** annoncé par la politique de confidentialité (§ 8), qui
-manque aux *deux* chemins de suppression — celui du compte comme celui du clan, tous deux
-n'étant aujourd'hui que des suppressions fonctionnelles.
+**Finitions** — mode adulte sans XP, toggle IA global avec propositions de remplacement,
+écran de demande d'entrée à refaire, nom du clan dans la bannière d'invitation, choix
+photo/vidéo pour la preuve, ordre de priorité des avatars, icônes de menu en gabarit `small`.
 
-*Livré le 2026-08-18* : le socle complet de monétisation. Module framework **`dvstore`**
-(catalogue en layer cloud, droits publiés dans `store.*`, routeur de gate, onze callbacks
-métier, banc d'essai `simulate_state`), backend **`pustore`** (vérification serveur via
-l'API Google Play, RTDN, balayage quotidien : réconciliation + cycle de défaut de paiement
-grâce 10 j / relances / gel J50 / drapeau de purge J90), cinq écrans (boutique, abonnement,
-fiche produit, mes achats, clan gelé) et `worker_store.dart`.
-
-*Complété le 2026-08-18 (revue du socle)* — le socle était structurellement juste et
-fonctionnellement creux ; six trous comblés :
-
-- **Achat du bon base plan et de la bonne offre.** Play renvoie une entrée `ProductDetails`
-  par couple (base plan × offre) ; le moteur n'en gardait qu'une, ce qui rendait **l'annuel
-  inachetable** et **l'essai 14 j inatteignable**. Toutes les entrées sont désormais
-  conservées et l'achat choisit la bonne, avec cascade de replis (une offre à laquelle le
-  compte n'est pas éligible n'est pas une erreur : Play ne la renvoie simplement pas). Les
-  prix sont publiés **par périodicité** — sans quoi la bascule mensuel/annuel n'affichait
-  rien. Aucune dépendance ajoutée : le jeton d'offre voyage avec l'entrée choisie.
-- **Paywall.** Il n'existait aucune différence entre un clan abonné et un clan qui ne l'était
-  pas, jusqu'au gel du 50ᵉ jour. `worker._checkStoreAccess` interroge maintenant le routeur
-  `store.gate` à l'entrée du dashboard — seul point de passage obligé, et le même que le gel :
-  `locked` → écran de repos, `paywall` → écran d'abonnement sans flèche de retour. C'est la
-  lettre des CGU v5. `grace` et `hold` continuent de ne rien fermer.
-- **Plafonds de membres.** `max_kids` / `max_adults` n'étaient que journalisés. Ils sont tenus
-  aux quatre points d'entrée d'un clan (créer un joueur, inviter par QR ou par lien, accepter
-  une demande, déclarer majeur), du côté du chef — le seul qui connaisse l'effectif et puisse
-  payer pour l'augmenter. Un refus ouvre le palier illimité au lieu d'être un cul-de-sac, et
-  une descente de palier n'évince jamais personne.
-  *(Refondu le 2026-08-20 — voir ci-dessous : un seul compteur `max_players`, et « déclarer
-  majeur » ne contrôle plus rien.)*
-- **Offre fondateurs et crédits de mois.** L'éligibilité était circulaire (l'app demandait
-  l'offre fondateurs si elle était *déjà* fondateur) : elle passe à une cloud function
-  souveraine `store_eligibility`, dont le cutoff vit dans un document `store_config/founders`
-  ajustable sans redéploiement. `store_verify` écrit `founder` sur constat de ce que Play a
-  appliqué. Nouvelle fonction `store_grant` (allowlist d'exploitation) et consommation des
-  crédits par le balayage : **c'est le seul levier capable de récompenser les familles du test
-  fermé**, dont les achats sous licence sont gratuits.
-- **« Mes achats ».** L'écran était inatteignable (aucun point d'entrée) et sa liste câblée
-  vide, alors que le serveur écrivait déjà `clans_store/{clanId}/events`. Option de menu
-  réservée aux chefs, et lecture réelle du journal de facturation.
-- **Purge J90.** Le drapeau `purge_due` n'avait aucun lecteur — et n'était en fait **jamais
-  posé** : le balayage ne regardait pas l'état `locked`, si bien qu'un clan gelé à J50 sortait
-  de la requête et que le calendrier des CGU s'arrêtait là. Requête élargie, et nouvelle
-  fonction `clan_purge` (planifiée à 6 h, une heure après le balayage) qui dissout le clan en
-  réutilisant la cascade de `delete_user_data`.
-
-Deux correctifs de bord au passage : l'entitlement est désormais lu **même quand la
-facturation est indisponible** sur l'appareil (sans quoi la tablette d'un enfant refusait de
-jouer alors que le parent avait payé depuis son téléphone), et `debug.simulate_state` est
-repassé à `""` — non vide, il n'ouvre aucun canal Play et rien de tout ce qui précède ne
-fonctionne.
-
-Le modèle est à **deux niveaux**, et c'est ce qui permet qu'un enfant profite de tout sans
-rien pouvoir acheter : les achats sont **personnels** (base dédiée `store`, un document par
-achat, rangé par compte payeur — plusieurs adultes peuvent donc payer chacun avec sa carte),
-et le bénéfice est **collectif** (projection `workers/clans_store/{clanId}`, écrite
-uniquement par Cloud Function, lisible par tout membre du clan).
-
-*Refondu le 2026-08-20 — **grille à cinq paliers au nombre de joueurs**.* La grille à deux
-paliers portait **deux plafonds distincts** (5 enfants, 4 adultes). Une famille ne pouvait pas
-prévoir son propre palier sans répondre à des questions que le produit ne pose jamais — l'admin
-joue-t-il ? l'ado de 17 ans compte-t-il comme enfant ? — et le code héritait de la même
-ambiguïté : le refus dépendait de la nature du candidat, dont le `legal_state` n'est pas encore
-écrit au moment où l'on recrute.
-
-Un seul compteur désormais, `max_players` : **les membres actifs du clan, admins compris**.
-Essentiel 1-2 (1,99 €), Clan 3-4 (2,99 €), Tribu 5-7 (4,99 €), Guilde 8-12 (5,99 €), Royaume
-13+ (7,99 €), plans annuels de 19,99 € à 64,99 € — bornes calées sur la démographie des
-foyers, effet revenu quasi nul (+3%). Trois conséquences de code :
-
-- **Le contrôle devient exact** aux quatre points d'entrée, y compris quand on ignore encore qui
-  frappe à la porte — ce qui **clôt le point 10** de la revue de `publication.md` par conception
-  plutôt que par correctif.
-- **« Déclarer majeur » ne vérifie plus rien.** La promotion ne déplace plus de place : le joueur
-  en occupait une avant, il en occupe une après.
-- **Un seul jeton de refus** (`store_cap_full`) au lieu de trois, et il ne nomme plus de palier —
-  celui qu'il faut dépend de l'effectif, et l'écran le flèche lui-même.
-
-*Écran des paliers (`tiers_page`), au même moment.* Le choix de palier **sort de la boutique** :
-celle-ci est un étal, qu'on parcourt quand on veut, et qui vendra des packs à l'unité. Une grille
-tarifaire ne se lit qu'au moment où elle répond à une question. La page ne s'atteint donc jamais
-par navigation libre — elle s'ouvre sur plafond atteint, bandeau d'impayé, relance push ou
-réabonnement — et surligne exactement deux lignes : le palier courant (coché, effectif du clan
-rappelé dessous) et le palier **conseillé**, celui qui ouvre réellement la place manquante et non
-le suivant dans l'ordre. Rien de bloquant, conformément au reste : elle s'empile et se quitte.
-
-Elle remplace le `subscription_page` supprimé en août et comble un trou réel — depuis le retrait
-de `shop/list`, **aucun écran ne permettait plus de souscrire quoi que ce soit**.
-
-Deux correctifs `dvstore` au passage, tous deux dictés par cet écran : le catalogue publie
-désormais son propre libellé (`store.catalog.<id>.label`) à côté du titre Play, que Play décore du
-nom de l'application — sur cinq lignes comparées, la parenthèse se répétait et noyait le seul mot
-qui distingue les offres ; et le repli de prix devient **conscient de la périodicité**
-(`price_hint_yearly`), là où il servait le tarif mensuel sous l'étiquette « par an » dès que le
-canal Play était fermé, c'est-à-dire pendant toute la recette.
-
-*Déjà livrés dans ce bloc* : suppression de compte (page web exigée par le Play Store **et**
-depuis l'app), politique de confidentialité mineurs, DPA Google.
-
-**Finitions** : questions du decisiontree définitives, validation d'âge < 13 ans, écran
-`kid_wants_clan`, flux « je n'ai pas le QR code », nom du clan dans la bannière d'invitation,
-notifications restantes (rappel butin vide, adhésion en un tap), reclassement des icônes de
-menu dans le gabarit `small`.
+**Avant production** — validation juridique des CGU et politiques de confidentialité (elles
+restent des brouillons de test), AIPD (mineurs et IA générative, deux critères CNIL),
+finalisation des questions du decisiontree, et ouverture effective de la région US.
 
 ## écarts roadmap ↔ implémentation
 
-**Diviseur d'XP clan = nombre total de membres (écart assumé).** L'XP de clan est divisée par
-le nombre **total** de docs `clans_players`, alors que la vision veut le nombre de membres
-*actifs* (hors profils hors-ligne, sans-téléphone, adulte-sans-XP). L'exclusion viendra avec
-les statuts de joueur.
-
-**Dégradation des PV côté client (choix d'implémentation).** La roadmap envisageait une Cloud
-Function planifiée (`pv_decay`) ; l'implémentation dérive les PV affichés à la lecture, sans
-batch serveur. La mort n'est donc « constatée » que lorsqu'un écran calcule les PV. Par
-ailleurs `player_decay` vaut 1 jour/PV là où la vision évoquait une attaque tous les 3 jours —
-réglage de conf assumé.
+- **Le module de facturation n'a pas le nom prévu.** La roadmap annonce un module `dvbilling`
+  et une collection `clans_billing` ; c'est livré sous `dvstore` (client), `pustore` (backend)
+  et `pucatalog` (publication du catalogue), avec la projection `workers/clans_store`. Le
+  principe est respecté à la lettre — écriture réservée au SDK Admin, `write: if false` côté
+  client — seuls les noms diffèrent.
+- **Le dashboard des achats n'existe pas, et c'est délibéré.** La roadmap le liste dans le lot
+  monétisation ; il a été écrit puis **supprimé** : il redisait l'état que la boutique porte
+  déjà. L'historique de facturation se lit désormais au journal du clan.
+- **La suppression des données passe de J90 à J730.** Le calendrier d'impayé est inchangé
+  jusqu'au gel (grâce 10 j, relances jusqu'à J50, gel à J50), mais la purge intervient deux
+  ans plus tard et non quarante jours, avec une phase d'adieu un mois avant. Les CGU disent
+  encore J90 : **c'est le principal écart à corriger au prochain bump documentaire.**
+- **Quatre items estampillés `ddust/mvp` sont déjà livrés** : l'invitation à distance (par
+  lien chiffré par PIN, et non par la « demande » décrite), le profil sans téléphone (création
+  d'un joueur par un chef + prise de place), le choix de la langue en préférence utilisateur,
+  et la majeure partie des notifications métier (le rappel de coffre vide est livré côté
+  serveur ; l'adhésion acceptée validable en un tap ne l'est pas).
+- **La paywall par fonctionnalité n'est câblée nulle part.** Le routeur de gating existe dans
+  le module et le design le prévoyait ; le jeu ne se ferme finalement pour aucun état
+  commercial, sauf deux portes explicites (clan gelé, mur de première cotisation). C'est un
+  choix produit, pas un manque.
+- **Trois écarts avec `vision.md`**, qui n'a pas été repris : la dégradation des PV est réglée
+  à 1 jour par point et non 3 ; le butin ne s'ouvre pas « tous les 10 000 XP » mais sur une
+  jauge à 1 000 alimentée par une part d'XP plafonnée ; et la recherche d'un clan par son nom
+  a été **écartée** au profit du lien chiffré par PIN (la vision le note déjà). Le fichier
+  reste par ailleurs la référence du ton et des intentions produit.

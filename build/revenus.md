@@ -1,6 +1,8 @@
 # Revenus — Ddust (Donjons et Savons)
 
-> Généré : 2026-07-07 · Révisé : 2026-08-20 (**grille à cinq paliers au nombre de joueurs** :
+> Généré : 2026-07-07 · Révisé : 2026-08-24 (livraison confirmée au 3 sept 2026 ; trajectoire
+> par livrable et taux d'érosion ajoutés).
+> Révisé : 2026-08-20 (**grille à cinq paliers au nombre de joueurs** :
 > les deux paliers « 5 enfants / 4 adultes » et « illimité » sont remplacés, le palier 1.99€
 > est rétabli. Bornes calées sur la démographie des foyers, panier **3.05€**, plateau
 > **1 495€**. Effet revenu **quasi nul (+3%)** — c'est une refonte de lisibilité, pas de
@@ -120,7 +122,7 @@ supplémentaire.
   d'abonnement : upside estimé +10–15% d'ARPU si le gate passe — à réviser sur données
   réelles au gate S+12.
 
-## Estimation (livraison ~fin août 2026 — voir kpi roadmap, ligne `ddust/beta`)
+## Estimation (livraison 3 septembre 2026 — voir kpi roadmap, ligne `ddust/beta`)
 
 Les périodes se lisent en mois écoulés depuis la livraison, pas en dates figées : la date
 de livraison est recalculée à chaque régénération du KPI. Les mois calendaires ci-dessous
@@ -137,6 +139,35 @@ ne sont qu'une commodité de lecture.
 | An 8–10 | ~570 | 1 220€ |
 
 Plateau : ~700 familles × 3.05€ × 0.70 ≈ 1 495€ net/mois (An 4–5), hors upside extensions.
+
+**Taux d'érosion sans nouveau contenu : ~3,8 %/an** — dérivé de l'écart An 4–5 → An 8–10
+(−18 %, le plus faible du portefeuille hors TodoAist). `déclaré`. Justification : une famille
+ne quitte pas Ddust parce qu'elle a « fini le contenu », elle le quitte parce que les enfants
+grandissent ou se lassent du principe. Le contenu n'est pas ce qui la retient — c'est le
+mécanisme d'habitude, et le churn de 8 % le capture déjà.
+
+## Trajectoire par livrable
+
+| État | Livré | Familles | Churn | Panier | Plateau | Δ direct | Δ rétention | Perte évitée |
+|---|---|---|---|---|---|---|---|---|
+| `beta` + `mvp` | 2026-09 | 700 | 8 % | 3,05 € | **1 495 €** | — | — | — |
+| `+ eco` | 2026-12 | 730 | 7,7 % | 3,05 € | **1 630 €** | +70 € | +65 € | — |
+| `+ themes` | 2027-08 | 745 | 7,6 % | 3,05 € | **1 690 €** | +35 € | +25 € | — |
+| *contrefactuel : ni eco ni themes* | — | 672 | dérive à 8,3 % | 3,05 € | 1 495 → **1 435 €** | | | |
+
+`déclaré` sur toute la ligne. Le taux d'attachement des packs sera `mesuré` dès leur sortie.
+
+**Ddust est le projet où les contenus additionnels rapportent le plus en direct** — pack
+économie et packs de thèmes sont des achats one-time à 5,99 € sur une base de 700 familles,
+sans abattement d'inférence (coefficient 0,70 au lieu de 0,574). Et **le contrefactuel est
+clément** : ne rien livrer après le MVP ne coûte que 60 €/mois.
+
+C'est l'inverse exact d'Ennui Mortel, dont les contenus ne rapportent presque rien en direct
+mais dont l'absence coûte 240 €/mois. Deux projets, deux économies opposées — et c'est
+exactement ce que la colonne « perte évitée » sert à rendre visible.
+
+⚠ Ces deux livrables restent **conditionnels au gate Ddust ≥ maintenir** (fin novembre 2026).
+Ils ne sont donc pas comptés dans les tableaux consolidés tant que le gate n'est pas tranché.
 
 ### Effet de l'offre fondateurs (décision 2026-08-11)
 
