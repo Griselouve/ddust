@@ -1056,13 +1056,13 @@ Donjons & Savons est une suite `projects/` avec vision produit propre. Son assem
 
 ## 22. chantiers actifs
 
-La boucle complète « tâche → preuve → verdict croisé → XP → niveau → titre → célébration » tourne de bout en bout, avec sa méta (PV, mort, gage, guérison, coup de pouce, boss, journal, titres-objets, coffre et cérémonie d'ouverture, fée), son administration (chefs, révocation, passage à l'âge adulte, joueur sans compte, prise de place, édition et création de tâches), son onboarding anonyme, son tutoriel, son socle commercial complet et son dispositif de relance. Les chantiers ouverts, par ordre de valeur (`deva/roadmap.md`, livrables `ddust/beta`, `ddust/mvp`, `ddust/eco`, `ddust/themes`) :
+La boucle complète « tâche → preuve → verdict croisé → XP → niveau → titre → célébration » tourne de bout en bout, avec sa méta (PV, mort, gage, guérison, coup de pouce, boss, journal, titres-objets, coffre et cérémonie d'ouverture, fée), son administration (chefs, révocation, passage à l'âge adulte, joueur sans compte, prise de place, édition et création de tâches), son onboarding anonyme, son tutoriel, son socle commercial complet et son dispositif de relance. Les chantiers ouverts, par ordre de valeur (`deva/roadmap.md`, livrables `ddust/beta`, `ddust/mvp`, `ddust/defis`, `ddust/loots`, `ddust/minijeux`, `ddust/classes`, `ddust/themes`, `ddust/packs`) :
 
 - **Butin** — l'**écriture de `clans_chest_history`** reste à faire : la table existe, elle est déjà lue (comparaison à la moyenne des 20 derniers butins), et la cérémonie ne l'alimente pas. Elle prendra le docId à l'idiome de `clans_logs` et calculera son effectif avec le filtre standard des agrégats.
 - **Relances** — sortir `pulse_sweeper` du mode simulation après plusieurs passes jugées crédibles ; le découpage de la passe par heure locale réelle (le décalage horaire est déjà collecté, il n'y aura pas de reprise de données).
 - **Statuts de joueur** — le mode adulte sans XP (jouer sans peser sur le jeu des enfants) reste à faire ; hors-ligne, sans-téléphone et prise de place sont livrés.
 - **Préférences et IA** — toggle IA global, avec propositions toutes faites en remplacement quand l'IA est coupée.
-- **Économie de jeu** (`ddust/eco`) — le plus gros volume : or, boutique à reset hebdomadaire, loot, quêtes, potions, objets, classes, faveurs, succès, saisons, et les **packs de domaines**. C'est aussi ce qui réveillera la célébration `giftgold`, déjà câblée et dormante.
+- **Économie de jeu** (`ddust/loots`) — le plus gros volume : or, boutique à reset hebdomadaire, loot, quêtes, potions, objets, classes, faveurs, succès, saisons, et les **packs de domaines**. C'est aussi ce qui réveillera la célébration `giftgold`, déjà câblée et dormante.
 - **Thèmes** (`ddust/themes`) — packs cosmétiques à 5,99 €, contenu YAML + assets, sur le socle de layers déjà éprouvé par `theme-pirate`.
 - **Multitenancy** — changement de clan, clans multiples, facturation multi-clan.
 - **Monétisation** — parrainage, produits à l'unité au catalogue (`pucatalog` devra être étendu aux in-app products), choix fin de l'offre et du base plan à l'achat.

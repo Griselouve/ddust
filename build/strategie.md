@@ -47,15 +47,30 @@ compensation doit être souverain côté serveur (crédits de mois), pas délég
 |---|---|---|
 | `ddust/beta` *(le lancement commercial)* | Boucle de jeu complète (tâches, XP, PV, butin, boss), administration/profils, legal + abonnements (5 paliers 1.99→7.99€ au nombre de joueurs, essai 14 jours), **offre fondateurs**, cycle de défaut de paiement, dashboard achats, socle extensions, viralité de lancement (bilan hebdo partageable, parrainage v1, notation post-boss) | — |
 | `ddust/mvp` *(consolidation post-lancement)* | Multitenancy et facturation multi-clan, **relances d'engagement** (balayage serveur `pulse_sweeper` : onboarding, validation en souffrance, coffre oublié ou vide côté adultes ; boss réellement convoqué et retour du clan côté enfants — cf. vision.md § « Les relances d'engagement »), invitations à distance, réserve refactor sur le feedback des premières familles payantes | — |
-| `ddust/eco` | Pack économie : or, boutique des héros, loot, quêtes, potions, objets, classes, faveurs, succès/titres, saisons + packs de tâches (bricolage, routine) + affiliation butins. Commercialisé en extensions (packs 3.99€, cf. vision) | gate ≥ maintenir |
-| `ddust/themes` | Packs de thèmes 5.99€ (« Station Spatiale », « Académie de Magie », « Far West », « Mafia ») : contenu YAML + assets | gate ≥ maintenir |
+| `ddust/defis` | **Mise à jour gratuite** — défis hebdomadaires, succès et titres, POKEDEX, objets de collection. Ce que le site annonce sous « Plus de contenu » | gate ≥ maintenir |
+| `ddust/loots` | **Extension « Butin » à 7.99€, le produit le plus cher du catalogue** — or, boutique des héros, loot, mécaniques de quêtes et de potions, objets et équipement, faveurs, saisons + affiliation butins. Ouvre la boutique et livre ses quatre premiers packs à 3.99€ (Quêtes 1, Potions 1, Bricolage, Routine) et les validations auto à 1.99€ | gate ≥ maintenir |
+| `ddust/minijeux` | **Mise à jour gratuite** — mini-jeux pour vaincre les monstres aléatoires, bâtis sur le moteur d'événements du MVP | gate ≥ maintenir |
+| `ddust/classes` | **Extension majeure vendue 6.99€**, le produit le plus cher du catalogue — classes de personnage : voies, avantages et inconvénients, synergies de clan. Un thème rhabille l'aventure, une classe la rejoue autrement | gate ≥ maintenir |
+| `ddust/themes` | **Trois thèmes complets à 5.99€ pièce** (« Star Sweep », « La Casa Nostra », « Pirates of the accariens ») : contenu YAML + assets. **102sp, pas 34** — l'ancienne estimation ne couvrait qu'un thème | gate ≥ maintenir |
+| `ddust/packs` | Les cinq packs de contenu restants à 3.99€ : Quêtes 2 et 3, Potions 2 et 3, Devoirs faits | gate ≥ maintenir |
 
-Rationnel de l'ordre : le pack économie arrive ~3 mois après le lancement, au
-moment où la nouveauté s'essouffle pour les premières familles — il relance l'engagement
-des enfants et ouvre la monétisation additionnelle. Les thèmes sont purement cosmétiques
-et attendent la preuve que la base paye. La multitenancy suit le lancement plutôt que de
-le précéder : l'entitlement est modélisé **par clan** dès le départ (aucune migration
-ultérieure), mais l'UI reste mono-clan tant que le multi-clan n'est pas livré.
+*(Table refaite le 2026-08-24 : elle décrivait encore `ddust/eco`, renommé `loots` et éclaté en
+cinq lots successifs. Ne pas réintroduire la clé `eco` — elle ne porte aucun story point dans
+`log.md`.)*
+
+Rationnel de l'ordre : **les mises à jour gratuites alternent avec les payantes.** `defis`
+arrive ~3 mois après le lancement, au moment où la nouveauté s'essouffle pour les premières
+familles — il n'a pas à se vendre, il a à ramener les familles, et il prépare la vente de
+`loots` un mois plus tard. Même rôle pour `minijeux` avant `classes`. Les thèmes sont purement
+cosmétiques et attendent la preuve que la base paye ; `packs` ferme la marche parce qu'il n'ajoute
+aucune mécanique — c'est du contenu pur sur des systèmes déjà vendus.
+
+**L'espacement est délibéré** : six lots enchaînés seraient un seul rendez-vous avec les
+familles, six lots étalés sur onze mois en font six.
+
+La multitenancy suit le lancement plutôt que de le précéder : l'entitlement est modélisé **par
+clan** dès le départ (aucune migration ultérieure), mais l'UI reste mono-clan tant que le
+multi-clan n'est pas livré.
 
 ## Leviers acquisition & rétention
 

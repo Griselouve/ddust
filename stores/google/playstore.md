@@ -189,7 +189,7 @@ Offres attachées à chaque base plan :
 - `essai-14j` — essai gratuit 14 jours, éligibilité *acquisition de nouveaux clients*
 - `fondateur` — **éligibilité déterminée par le développeur** : essai allongé + première année remisée. L'app ne transmet l'`offerToken` fondateur que pour les clans éligibles, le cutoff étant lu côté serveur
 
-Produits à l'unité (non consommables) : validations auto 1.99 €, packs contenu 3.99 €, pack thèmes 5.99 €. Livrés avec le socle extensions ; les contenus suivent avec `ddust/eco` et `ddust/themes`.
+Produits à l'unité (non consommables) : validations auto 1.99 €, packs contenu 3.99 €, pack thèmes 5.99 €. Livrés avec le socle extensions ; les contenus suivent avec `ddust/loots`, `ddust/classes`, `ddust/packs` et `ddust/themes`.
 
 ⚠️ Un abonnement est souscrit **par clan**, jamais par utilisateur — c'est ce qu'annoncent déjà les CGU (« un seul abonnement et un seul payeur par clan »). Le rattachement passe par l'identifiant de compte obfusqué transmis à l'achat.
 

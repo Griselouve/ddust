@@ -611,18 +611,77 @@ n'est bloquant : la page s'empile par-dessus le jeu et se quitte par la flèche 
 
 ### Extensions
 
-Validations auto (configurable par enfant) : achat 1.99 euros
-Packs contenu à 3.99 euros:
-- Pack "Quêtes"  (3 packs au total)
-- Pack "Potions" (3 packs au total)
-- Pack "Devoirs faits" (1 pack)
-(Exemple de contenu "Devoirs faits" : Quête "13 de moyenne générale", Tache additionnelle "Apprendre le cours de maths", Potion "+15% XP sur les exercices de SVT")
+**Le catalogue complet, aligné sur `deva/roadmap.md` le 2026-08-24.** Cette section et la
+roadmap se contredisaient : trois packs de tâches n'existaient que dans la roadmap, quatre
+packs de contenu n'existaient que dans la vision, et les thèmes n'y portaient ni les mêmes
+noms ni le même nombre. Les deux disent désormais la même chose.
 
-Pack "Themes" à 5.99 euros
-("Station Spatiale", "Académie de Magie", "Far West", "Mafia")
+Une extension s'applique à **un seul clan** : celui avec lequel l'adulte est connecté au moment
+de l'achat. S'il possède plusieurs clans, un écran de confirmation précise qu'il s'agit d'un
+« achat pour le clan XXX ».
 
-Une extension s'applique à un seul clan : celui avec lequel l'adulte est connecté au moment de l'achat.
-Si l'adulte possède plusieurs clan, au moment de l'achat, un écran de confirmation qu'il s'agit d'un "achat pour le clan XXX"
+#### Ce qui s'achète
+
+**Quinze produits**, de 1.99 € à 7.99 €.
+
+| Prix | Produit | Nb | Où c'est fabriqué |
+|---|---|---|---|
+| **1.99 €** | Validations automatiques (configurable par enfant) | 1 | `ddust/loots` |
+| **3.99 €** | Pack « Quêtes » | **3** | 1 avec `ddust/loots`, 2 avec `ddust/packs` |
+| **3.99 €** | Pack « Potions » | **3** | 1 avec `ddust/loots`, 2 avec `ddust/packs` |
+| **3.99 €** | Pack « Devoirs faits » | 1 | `ddust/packs` |
+| **3.99 €** | Pack de tâches « Bricolage » | 1 | `ddust/loots` |
+| **3.99 €** | Pack de tâches « Routine » | 1 | `ddust/loots` |
+| **5.99 €** | Thème complet | **3** | `ddust/themes` |
+| **6.99 €** | **Classes de personnage** | 1 | `ddust/classes` |
+| **7.99 €** | **Extension « Butin »** — or, boutique des héros, loot aléatoire, objets et équipement, faveurs, saisons | 1 | `ddust/loots` |
+
+**L'extension « Butin » est le produit le plus cher, et c'est le plus gros morceau du jeu** :
+elle transforme les tâches en économie — on gagne de l'or, on le dépense à la boutique des
+héros, on s'équipe, on obtient des faveurs réelles, on joue les saisons. 269sp, sept fois le
+coût des classes. À 7.99 € elle vaut environ deux mois et demi d'abonnement au palier moyen, une
+fois pour toutes.
+
+⚠ **Prix proposé, pas mesuré.** C'est le seul achat du catalogue qui dépasse le prix de
+l'abonnement mensuel le plus élevé (7.99 € au palier Royaume) ; si le taux d'attachement déçoit
+au gate, c'est la première ligne à baisser.
+
+**Les trois thèmes** : « Star Sweep », « La Casa Nostra », « Pirates of the accariens ».
+*(Remplacent les quatre noms de travail de la roadmap — Station Spatiale, Académie de Magie,
+Far West, Mafia — qui n'avaient jamais été reportés ici.)*
+
+Exemple de contenu « Devoirs faits » : quête « 13 de moyenne générale », tâche additionnelle
+« Apprendre le cours de maths », potion « +15 % XP sur les exercices de SVT ».
+
+⚠ **Chaque thème est un produit séparé à 5.99 €**, pas trois thèmes dans un pack unique — même
+lecture que « 3 packs au total » pour les Quêtes et les Potions, qui désigne trois achats
+distincts. C'est aussi ce que coûte leur fabrication : **34sp par thème**, soit 102sp au total,
+et non 34sp pour les trois.
+
+#### Ce qui arrive sans achat
+
+Le premier pack de chaque famille sort avec sa mécanique, pour qu'une boutique qui s'ouvre ne
+soit jamais vide. Et deux mises à jour sont entièrement gratuites, en alternance avec les
+payantes — une mise à jour offerte entretient l'abonnement et prépare la vente suivante.
+
+| Lot | Contenu | Modèle |
+|---|---|---|
+| `ddust/defis` | Défis hebdomadaires, succès et titres, POKEDEX, objets de collection | **gratuit** |
+| `ddust/loots` | Extension « Butin » **7.99 €** + ses quatre premiers packs à 3.99 € + les validations auto à 1.99 €. Les **mécaniques** de quêtes et de potions y sont incluses : ce sont les packs qui se vendent, pas le système | **payant** |
+| `ddust/minijeux` | Mini-jeux pour vaincre les monstres aléatoires | **gratuit** |
+| `ddust/classes` | Classes de personnage : voies, avantages et inconvénients, synergies de clan | **vendu 6.99 €** |
+| `ddust/packs` | Quêtes 2 & 3, Potions 2 & 3, Devoirs faits | **packs vendus** |
+| `ddust/themes` | Trois thèmes complets | **vendus 5.99 € pièce** |
+
+**Les classes sont la deuxième extension majeure du jeu** (décision 2026-08-24), derrière
+« Butin » et devant les thèmes. Ce n'est pas un pack de contenu : elle change la façon dont un
+joueur progresse, ce qu'il peut faire et comment les membres d'un clan se complètent. **Un thème
+rhabille l'aventure, une classe la rejoue autrement.**
+
+⚠ **Ces deux prix placent le catalogue hors de la doctrine P7**, qui réserve l'achat unique au
+contenu. C'est assumé : « Butin » et les classes ne sont pas des tours de jeu vendus à la pièce,
+ce sont des extensions achetées une fois et possédées pour toujours — le mur que P7 interdit
+n'existe pas ici.
 
 ### Renommer
 

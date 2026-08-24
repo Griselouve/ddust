@@ -14,10 +14,10 @@ Key facts
   * Platform              : Android (Google Play)
   * Languages             : French, English, Spanish
   * Business model        : family subscription after a 14-day trial,
-                            one subscription per clan; shop selling
-                            content and cosmetics individually,
-                            reserved for adults. No ads, no trackers,
-                            no purchasable progression advantage
+                            one subscription per clan; a-la-carte shop
+                            (backdrops, items, classes), reserved for
+                            adults. No ads, no trackers, no purchasable
+                            shortcut: nothing bought does the chore
   * Release               : autumn 2026 on Google Play, in France
                             then across the European Union
   * Audience              : families — children play with the consent
@@ -47,11 +47,11 @@ Faits clés
   * Plateforme            : Android (Google Play)
   * Langues               : français, anglais, espagnol
   * Modèle économique     : abonnement familial après 14 jours d'essai,
-                            un seul abonnement par clan ; boutique de
-                            contenus et de cosmétiques à l'unité,
-                            réservée aux adultes. Sans publicité, sans
-                            traqueur, sans avantage de progression
-                            achetable
+                            un seul abonnement par clan ; boutique à
+                            l'unité (décors, objets, classes), réservée
+                            aux adultes. Sans publicité, sans traqueur,
+                            sans raccourci achetable : rien de ce qui
+                            s'achète ne dispense de faire la tâche
   * Sortie                : automne 2026 sur Google Play, en France
                             puis dans l'Union Européenne
   * Public                : les familles — les enfants jouent avec le
