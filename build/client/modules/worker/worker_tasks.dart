@@ -78,12 +78,18 @@ extension Worker_tasks on worker {
                                 if (_userId.isEmpty) _userId = await _resolveUserId();
                                 if (_userId.isEmpty) { deva_log("error", "[worker] on_fast_test_skip: userId introuvable"); return; }
 
+                                // `market` est le royaume (ce que le joueur aurait choisi), `region` le
+                                // datacenter qui le sert. Les deux valaient "eu" du temps où la
+                                // « région » désignait le datacenter ; les garder distincts ici évite
+                                // que ce raccourci de développement fabrique une session qu'aucun
+                                // parcours réel ne produit.
+                                const market       = "fr";
                                 const region       = "eu";
                                 const legalState   = "a";
                                 const internalName = "TestClan";
                                 const playerName   = "TestPlayer";
 
-                                await ActionRegistry.get("documents.on_region_selected")?.call(null, region);
+                                await ActionRegistry.get("documents.on_region_selected")?.call(null, market);
                                 _cloud?.configure("region", region);
                                 final _ai = Deva.instance.module("dvvertexai");
                                 if (_ai != null) try { await (_ai as dynamic).startVertexMotor(); } catch (_) {}
@@ -104,11 +110,11 @@ extension Worker_tasks on worker {
                                 userDoc.set("clans.$clanId.clanSecret",   clanSecret);
                                 userDoc.set("steps.region_intro.status",  "done");
                                 userDoc.set("steps.region_intro.date",    now);
-                                userDoc.set("steps.region_intro.result",  region);
+                                userDoc.set("steps.region_intro.result",  market);
                                 userDoc.set("steps.region_intro.device",  device);
                                 userDoc.set("steps.region.status",        "done");
                                 userDoc.set("steps.region.date",          now);
-                                userDoc.set("steps.region.result",        region);
+                                userDoc.set("steps.region.result",        market);
                                 userDoc.set("steps.region.device",        device);
                                 userDoc.set("steps.legal_state.status",   "done");
                                 userDoc.set("steps.legal_state.date",     now);
@@ -392,7 +398,7 @@ extension Worker_tasks on worker {
                                 deva_log("info", "[worker] clans_tasks: $enabledCount enabled, $disabledCount disabled → persist");
 
                                 // Persister en Firestore
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isEmpty) return;
                                 final session    = await _readSession(region);
                                 final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
@@ -806,7 +812,7 @@ extension Worker_tasks on worker {
     // écriture locale d'un doc tâche — sinon le cache resservirait l'état d'avant l'écriture.
     Future<void> _refreshTaskStatuses({bool force = false}) async {
 
-                                final region  = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region  = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final userDoc = await _readSession(region) ?? Dvidle({});
                                 var   clanId  = userDoc.get("steps.clan.clanId")?.toString() ?? "";
                                 if (clanId.isEmpty) clanId = (await Deva.instance.get("session.clan.id"))?.toString() ?? "";
@@ -1078,7 +1084,7 @@ extension Worker_tasks on worker {
                                 }
 
                                 // clanId/clanSecret : doc session (autoritatif), repli sur le store local rempli par dvsession.
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final userDoc    = await _readSession(region) ?? Dvidle({});
                                 var   clanId     = userDoc.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = userDoc.get("steps.clan.clanSecret")?.toString() ?? "";

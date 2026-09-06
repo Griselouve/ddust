@@ -299,7 +299,18 @@ extension Worker_session on worker {
                                 if (partial != null) {
                                     final (partialRegion, partialSession) = partial;
                                     _cloud?.configure("region", partialRegion);
-                                    final regionValue = partialSession.get("steps.region_intro.result")?.toString() ?? partialRegion;
+                                    // `partialRegion` vient du balayage des DATACENTERS : c'est un `eu`,
+                                    // pas un royaume. On ne peut donc plus s'en servir de repli pour
+                                    // rejouer le choix — un datacenter passé à on_region_selected serait
+                                    // refusé par le bouton (région absente des options) et laisserait
+                                    // l'écran d'âge sans royaume. Sans royaume enregistré, on renvoie au
+                                    // choix : c'est le cas d'une session ouverte avant que royaume et
+                                    // datacenter ne soient distingués.
+                                    final regionValue = partialSession.get("steps.region_intro.result")?.toString() ?? "";
+                                    if (regionValue.isEmpty) {
+                                        await _enterOnboarding(caller, event);
+                                        return;
+                                    }
                                     await ActionRegistry.get("documents.on_region_selected")?.call(null, regionValue);
                                     // Royaume choisi, âge pas encore déclaré. Le nom ne se juge plus ici :
                                     // il est demandé après la liaison du compte, bien plus loin. Ce cas ne
@@ -313,12 +324,30 @@ extension Worker_session on worker {
                                 // Aucune session active : soit vrai premier lancement, soit compte supprimé qui
                                 // se reconnecte. Dans ce 2e cas on remet le doc users à plat avant l'onboarding.
                                 await _resetDisabledSession();
-                                await ActionRegistry.get("steps.navigate.region")?.call(caller, event);
+                                await _enterOnboarding(caller, event);
+    }
+
+    // Entrée dans l'onboarding. Le premier écran n'est PAS toujours le royaume :
+    // quand une seule région est ouverte, il n'y a rien à choisir et dvdocuments
+    // l'a déjà posée en session. On enchaîne alors directement sur l'âge.
+    //
+    // ⚠ LA DÉCISION APPARTIENT AU MODULE, pas au worker. Elle dépend de la conf
+    //   des régions ouvertes et de leurs datacenters — la recopier ici la ferait
+    //   diverger à la première ouverture de marché. Le worker se contente de
+    //   traduire la réponse en navigation, ce que le module ne sait pas faire.
+    Future<void> _enterOnboarding(DvShape? caller, dynamic event) async {
+
+                                final verdict = await ActionRegistry
+                                    .get("documents.needs_region_choice")?.call(null, null);
+                                final step = (verdict?.toString() == "false")
+                                    ? "steps.navigate.age"
+                                    : "steps.navigate.region";
+                                await ActionRegistry.get(step)?.call(caller, event);
     }
 
     Future<void> on_documents_ready(DvShape? caller, dynamic event) async {
 
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 _cloud?.configure("region", region);
                                 // Session anonyme : on n'écrit RIEN. L'index, les steps et l'enregistrement
                                 // du device partent d'un bloc au flush (_flushOnboarding), une fois le
@@ -336,7 +365,13 @@ extension Worker_session on worker {
                                         }
                                     }
                                     final legalState = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "a";
-                                    await _writeStep(region, "region",      region);
+                                    // Deux valeurs distinctes dans le même appel : le 1er argument ROUTE
+                                    // (datacenter), le 3e est ce qu'on ENREGISTRE — le royaume choisi par
+                                    // le joueur. Y écrire la région cloud effacerait le choix : plusieurs
+                                    // royaumes partagent un datacenter, ils s'y confondraient, et la
+                                    // reprise de session ne saurait plus lequel rejouer.
+                                    final market = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    await _writeStep(region, "region",      market);
                                     await _writeStep(region, "legal_state", legalState);
                                 }
                                 await ActionRegistry.get("steps.navigate")?.call(caller, event);
@@ -351,7 +386,7 @@ extension Worker_session on worker {
                                 if (pendingAdult == "true") {
                                     await Deva.instance.set("worker.pending_adult_transition", null);
                                     await Deva.instance.store();
-                                    final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     if (region.isNotEmpty) {
                                         // users : steps.legal_state = "a" (+ date/status via _writeStep).
                                         await _writeStep(region, "legal_state", "a");
@@ -381,7 +416,7 @@ extension Worker_session on worker {
                                     return;
                                 }
 
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 // Anonyme : ni le step cgu, ni Vertex. Le step part au flush ; Vertex a
                                 // besoin des secrets, que dvcloud refuse volontairement de charger pour une
                                 // session anonyme — il démarrera au prochain on_login, une fois le compte lié.
@@ -397,13 +432,21 @@ extension Worker_session on worker {
 
     Future<void> on_region_screen_done(DvShape? caller, dynamic event) async {
 
-                                final region = (event?.toString()?.isNotEmpty == true)
+                                // L'event porte le ROYAUME que le joueur vient de choisir, pas le
+                                // datacenter. Les deux se confondaient du temps où la « région »
+                                // désignait le datacenter ; ils sont désormais tenus séparés — le
+                                // premier s'enregistre, le second route — et un seul royaume ouvert
+                                // aujourd'hui ne rend pas la distinction facultative demain.
+                                // dvdocuments a déjà persisté les deux (persistRegionEarly) avant
+                                // de déclencher cette action.
+                                final market = (event?.toString()?.isNotEmpty == true)
                                     ? event.toString()
                                     : (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
-                                if (region.isEmpty) return;
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                if (market.isEmpty || region.isEmpty) return;
                                 // Anonyme : le choix du royaume ne crée plus le doc `users`. Il vit dans
                                 // documents.session.region et sera inscrit au flush avec le reste.
-                                if (!_anon) await _writeStep(region, "region_intro", region);
+                                if (!_anon) await _writeStep(region, "region_intro", market);
                                 await ActionRegistry.get("steps.navigate")?.call(caller, event);
     }
 
@@ -425,7 +468,7 @@ extension Worker_session on worker {
     Future<String> legalstate(DvShape? caller, dynamic event) async {
 
                                 try {
-                                    final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     if (region.isNotEmpty) {
                                         final session = await _readSession(region);
                                         final clanId  = session?.get("steps.clan.clanId")?.toString() ?? "";
@@ -697,13 +740,18 @@ extension Worker_session on worker {
     // plus obscure que le message ré-essayable affiché à cet instant.
     Future<bool> _flushOnboarding() async {
 
-                                final region      = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                // `region` route (datacenter), `market` s'enregistre (royaume choisi).
+                                // Les deux sont exigés : sans le royaume, la reprise de session ne
+                                // saurait plus lequel rejouer, et rien ne permettrait de le retrouver
+                                // puisque plusieurs royaumes partagent un datacenter.
+                                final region      = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                final market      = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
                                 final legalState  = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "";
                                 final firebaseUid = _cloud?.currentUser()?.providerUid ?? "";
                                 final docId       = _sessionDocId();
-                                if (region.isEmpty || legalState.isEmpty || firebaseUid.isEmpty || docId.isEmpty) {
+                                if (region.isEmpty || market.isEmpty || legalState.isEmpty || firebaseUid.isEmpty || docId.isEmpty) {
                                     deva_log("error", "[worker] _flushOnboarding: état incomplet "
-                                        "(region='$region' legal='$legalState' uid=${firebaseUid.isNotEmpty} docId=${docId.isNotEmpty}) → rien n'est écrit");
+                                        "(region='$region' market='$market' legal='$legalState' uid=${firebaseUid.isNotEmpty} docId=${docId.isNotEmpty}) → rien n'est écrit");
                                     return false;
                                 }
                                 _cloud?.configure("region", region);
@@ -743,9 +791,14 @@ extension Worker_session on worker {
                                     existing.set("ownerId", firebaseUid);
                                     existing.set("userId",  docId);
                                     existing.set("enabled", true);
+                                    // `region_intro` et `region` enregistrent le ROYAUME choisi, pas
+                                    // le datacenter qui route l'écriture : c'est cette valeur que
+                                    // _findPartialSession relit pour rejouer le choix à la reprise.
+                                    // Les deux se confondaient du temps où la « région » désignait
+                                    // le datacenter.
                                     final steps = {
-                                        "region_intro": region,
-                                        "region":       region,
+                                        "region_intro": market,
+                                        "region":       market,
                                         "legal_state":  legalState,
                                         "cgu":          "accepted",
                                     };
@@ -798,7 +851,7 @@ extension Worker_session on worker {
     // compte existant, qui se termine par son on_login).
     Future<void> _restartAnonymousOnboarding({bool navigate = true}) async {
 
-                                final residue = ((await Deva.instance.get("documents.session.region"))?.toString() ?? "").isNotEmpty;
+                                final residue = ((await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "").isNotEmpty;
 
                                 final dvdocs = ModuleRegistry.create("documents");
                                 if (dvdocs != null) {
@@ -821,7 +874,7 @@ extension Worker_session on worker {
                                     DvOrb.navigate_reset("home");
                                 } else {
                                     deva_log("info", "[worker] session anonyme ouverte → entrée dans l'onboarding");
-                                    await ActionRegistry.get("steps.navigate.region")?.call(null, null);
+                                    await _enterOnboarding(null, null);
                                 }
     }
 
@@ -1057,7 +1110,7 @@ extension Worker_session on worker {
 
     Future<void> do_reset(DvShape? caller, dynamic event) async {
 
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isNotEmpty) {
                                     try { await _deleteSession(region); } catch (_) {}
                                 }
@@ -1195,7 +1248,7 @@ extension Worker_session on worker {
                                 // Illisible (hors clan, réseau) : on n'affiche NI l'une NI l'autre plutôt
                                 // que de deviner.
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -1328,7 +1381,7 @@ extension Worker_session on worker {
                                 deva_log("info", "[delete_account] compte supprimé → déconnexion");
                                 // Même chemin que do_reset : nettoyage de la session locale puis logout
                                 // (→ on_logout → reset mémoire complet → navigate_reset("home")).
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isNotEmpty) { try { await _deleteSession(region); } catch (_) {} }
                                 await Deva.instance.set("worker.session.clan_done", "");
                                 _setDeleteVisible(false);

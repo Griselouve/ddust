@@ -170,7 +170,7 @@ extension Worker_combat on worker {
                                 // le prochain appear réconciliera.
                                 if (!freshlySelected) {
                                     try {
-                                        final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                        final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                         final userDoc    = await _readSession(region) ?? Dvidle({});
                                         var   clanIdR    = userDoc.get("steps.clan.clanId")?.toString()     ?? "";
                                         final clanSecret = userDoc.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -307,7 +307,7 @@ extension Worker_combat on worker {
                                     deva_log("error", "[combat] on_combat_ok: contexte incomplet (user=$_userId owner=$ownerId)");
                                     return;
                                 }
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final userDoc    = await _readSession(region) ?? Dvidle({});
                                 var   clanId     = userDoc.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = userDoc.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -467,7 +467,7 @@ extension Worker_combat on worker {
                                 final activeTask = (await Deva.instance.get("session.active_task"))?.toString() ?? "";
                                 if (activeTask.isEmpty) { DvOrb.navigate_reset("combat"); return; }
 
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final userDoc    = await _readSession(region) ?? Dvidle({});
                                 var   clanId     = userDoc.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = userDoc.get("steps.clan.clanSecret")?.toString() ?? "";

@@ -625,7 +625,7 @@ extension Worker_verdict on worker {
                                 final reviewTask = (await Deva.instance.get("session.review_task"))?.toString() ?? "";
                                 if (reviewTask.isEmpty) { DvOrb.navigate_reset("combat"); return; }
 
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final userDoc    = await _readSession(region) ?? Dvidle({});
                                 var   clanId     = userDoc.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = userDoc.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -659,7 +659,7 @@ extension Worker_verdict on worker {
                                 // l'admin (userId + clanSecret) soit résolu avant d'appliquer le verdict.
                                 String region = "", clanId = "", clanSecret = "";
                                 for (var i = 0; i < 100; i++) {
-                                    region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     if (_userId.isEmpty) _userId = await _resolveUserId();
                                     final userDoc = _userId.isEmpty ? null : await _readSession(region);
                                     clanId     = userDoc?.get("steps.clan.clanId")?.toString()     ?? "";
@@ -786,7 +786,7 @@ extension Worker_verdict on worker {
     // autoritaire (au lieu d'attendre le prochain tick Fibonacci).
     Future<void> on_validation_resolved(DvShape? caller, dynamic event) async {
 
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final userDoc    = await _readSession(region) ?? Dvidle({});
                                 var   clanId     = userDoc.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = userDoc.get("steps.clan.clanSecret")?.toString() ?? "";

@@ -292,15 +292,37 @@ data:
         fr: "Conformément aux conditions générales d'utilisation, en créant un profil de joueur pour un enfant, vous déclarez être son responsable légal et vous consentez à la collecte de ses données. Plus de détails sur ((les conditions générales d'utilisation|documents.open_doc?cgu@a))."
         en: "In accordance with the terms of service, by creating a player profile for a child you declare that you are their legal guardian and you consent to the collection of their data. More details in ((the terms of service|documents.open_doc?cgu@a))."
         es: "De conformidad con las condiciones generales de uso, al crear un perfil de jugador para un niño declaras ser su responsable legal y consientes la recogida de sus datos. Más detalles en ((las condiciones generales de uso|documents.open_doc?cgu@a))."
-      # Mention de l'overlay d'INVITATION (et de l'écran d'admission) : à cet instant on ne sait
-      # pas qui viendra. Les trois cas possibles sont donc énoncés, et le chef ne déclare que
-      # celui qui le concerne. Un enfant déjà membre d'un clan garde son clan d'ORIGINE pour
-      # responsable (original_clan est gelé, cf. _writeClanPlayer) : rejoindre un second clan
-      # ne transfère rien. Cf. CGU art. 6.
+      # Mention de l'overlay d'INVITATION : à cet instant on ne sait pas qui viendra. Le chef
+      # DÉCLARE donc le cas qui s'applique, en cochant l'une des options ci-dessous — c'est le
+      # bloc documents.acknowledgements.guardian (screens_meta.yml), et sa déclaration part avec
+      # l'invitation pour se coller à la preuve d'acceptation des CGU du nouveau venu.
+      # Un enfant déjà membre d'un clan garde son clan d'ORIGINE pour responsable (original_clan
+      # est gelé, cf. _writeClanPlayer) : rejoindre un second clan ne transfère rien. Cf. CGU art. 6.
+      # ⚠ Cette mention INTRODUIT les cases, elle ne les redit pas : énoncer les trois cas en
+      #   prose puis les faire cocher juste en dessous ferait lire deux fois la même chose, et la
+      #   seconde lecture est celle qui engage.
       invite_consent_notice:
-        fr: "En invitant quelqu'un dans votre clan, vous déclarez qu'il s'agit soit d'un adulte, soit d'un enfant dont vous êtes le responsable légal — vous consentez alors à la collecte de ses données de jeu —, soit d'un enfant déjà membre d'un clan, invité avec l'accord de son responsable légal. Plus de détails sur ((les conditions générales d'utilisation|documents.open_doc?cgu@a))."
-        en: "By inviting someone into your clan, you declare that they are either an adult, or a child for whom you are the legal guardian — in which case you consent to the collection of their game data —, or a child who already belongs to a clan, invited with their legal guardian's agreement. More details in ((the terms of service|documents.open_doc?cgu@a))."
-        es: "Al invitar a alguien a tu clan, declaras que se trata de un adulto, de un niño del que eres el responsable legal —en cuyo caso consientes la recogida de sus datos de juego— o de un niño que ya pertenece a un clan, invitado con el acuerdo de su responsable legal. Más detalles en ((las condiciones generales de uso|documents.open_doc?cgu@a))."
+        fr: "En invitant quelqu'un dans votre clan, vous déclarez de qui il s'agit. S'il s'agit d'un enfant dont vous êtes le responsable légal, vous consentez à la collecte de ses données de jeu. Plus de détails sur ((les conditions générales d'utilisation|documents.open_doc?cgu@a))."
+        en: "By inviting someone into your clan, you declare who they are. If it is a child for whom you are the legal guardian, you consent to the collection of their game data. More details in ((the terms of service|documents.open_doc?cgu@a))."
+        es: "Al invitar a alguien a tu clan, declaras de quién se trata. Si es un niño del que eres el responsable legal, consientes la recogida de sus datos de juego. Más detalles en ((las condiciones generales de uso|documents.open_doc?cgu@a))."
+      # Les trois cas, à COCHER (une seule option : choice "one"). Le libellé retenu est
+      # enregistré TEL QUEL dans la preuve d'acceptation du nouveau venu, à côté de son id :
+      # une déclaration se prouve par la phrase qu'on a mise sous les yeux du chef, et retrouver
+      # cette phrase des années plus tard ne doit pas dépendre d'un fichier de traduction.
+      # ⚠ Reformuler une option, c'est changer ce qui sera déclaré. Les preuves déjà écrites
+      #   gardent l'ancienne phrase, et c'est exactement ce qu'on veut.
+      invite_ack_adult:
+        fr: "Il s'agit d'un adulte"
+        en: "This is an adult"
+        es: "Se trata de un adulto"
+      invite_ack_child_reads:
+        fr: "Mon enfant sait lire — je lui présente ses conditions d'utilisation"
+        en: "My child can read — I am showing them their terms of use"
+        es: "Mi hijo sabe leer — le presento sus condiciones de uso"
+      invite_ack_child_read_aloud:
+        fr: "Mon enfant ne sait pas encore lire — je viens de lui lire ses conditions d'utilisation"
+        en: "My child cannot read yet — I have just read them their terms of use"
+        es: "Mi hijo aún no sabe leer — acabo de leerle sus condiciones de uso"
       # Boutons de l'overlay de consentement, révélé au chef quand il demande à recruter
       # (QR ou invitation à distance), AVANT que le lobby ne soit créé — cf. worker.on_invite_clan.
       # Le libellé n'assume AUCUNE responsabilité : la mention ci-dessus est conditionnelle, le
@@ -558,6 +580,16 @@ data:
         fr: "Je commence ici"
         en: "I start here"
         es: "Empiezo aquí"
+
+      # Libellés des régions ouvertes (documents.region.options). Ils vivent ici et
+      # non dans dvdocuments : le module fournit la mécanique et le catalogue, mais
+      # ne sait pas qu'une région s'appelle un « royaume » chez nous. Une région
+      # ouverte en plus, c'est une entrée de plus ici — et seulement une fois son
+      # corpus légal rédigé, faute de quoi le build refusera de l'ouvrir.
+      documents_region_france:
+        fr: "Royaume de France"
+        en: "Kingdom of France"
+        es: "Reino de Francia"
 
       #------------- Age screen ------------------------------------
 

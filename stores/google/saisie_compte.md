@@ -22,20 +22,27 @@ Ouvrir Play Console sur le **bon compte** : `https://play.google.com/console/u/1
 | Champ | À saisir |
 |---|---|
 | Statut de vendeur | **Professionnel** |
-| Nom / Nom légal | `Guillaume Marchal De Greef` |
-| Adresse | `16 Rue du Fief À Cavan` |
-| Code postal | `95800` |
-| Ville | `Courdimanche` |
+| Nom / Nom légal | `MARCHAL DE GREEF Guillaume` |
+| Adresse | `20 rue Lavoisier` |
+| Code postal | `95300` |
+| Ville | `Pontoise` |
 | Pays | **France** (`FR`) |
-| Téléphone | `+33783310851` |
+| Téléphone | `+33744470944` |
 | Adresse e-mail | `donjons@grisloup.com` |
 | Site web | `https://donjons.grisloup.com` |
-| Numéro d'immatriculation / TVA | *laisser vide* |
+| Numéro d'immatriculation | `109354092` — le **SIREN**, immatriculé le 2026-09-02 |
+| Numéro de TVA | *laisser vide* — franchise en base, et le n° intracommunautaire n'est pas encore attribué |
 | Consentement à l'affichage public | **cocher** |
+
+⚠ **L'adresse ci-dessus est une DOMICILIATION, et elle n'est saisissable qu'en compte
+organisation.** Google la refuse sur un compte personnel. Si la console est encore en compte
+particulier au moment où tu lis cette feuille, **ne rien saisir** : la conversion (D-U-N-S → profil
+de paiement organisation → 72 h) vient d'abord. C'est la phase 4 de
+`grisloup/docs/plan-creation-micro-entreprise.md`.
 
 **Trois erreurs possibles, une ligne chacune :**
 
-- « Nom » attend le nom civil. Ne **pas** y mettre `grisloup.com`.
+- « Nom » attend le nom civil. Ne **pas** y mettre `Grisloup`.
 - Le nom affiché sur la fiche est `Grisloup` : autre champ, autre écran, ne pas le saisir ici.
 - « Non professionnel » n'est pas une option ouverte : vendre des abonnements en l'ayant déclaré = retrait de l'app.
 
@@ -67,8 +74,8 @@ Les trois vivent dans des écrans différents et la console ne les distingue pas
 
 | Nom | Où | Valeur |
 |---|---|---|
-| Nom légal | profil de paiement, statut de vendeur (§1) | `Guillaume Marchal De Greef` |
-| Nom commercial | CGU et pages légales du site | `grisloup.com` |
+| Nom légal | profil de paiement, statut de vendeur (§1) | `MARCHAL DE GREEF Guillaume` |
+| Nom commercial | CGU et pages légales du site | `Grisloup` |
 | **Nom du développeur** | **sous le titre de l'app, sur la fiche** | `Grisloup` |
 
 C'est celui-ci que verront les familles, sous « Donjons & Savons ». Il n'a aucune contrainte
@@ -80,9 +87,9 @@ l'historique de l'app y sont attachés.
 ## contrôle avant de fermer la console
 
 - [ ] Statut affiché : **Professionnel**
-- [ ] Nom légal identique, caractère pour caractère, au profil de paiement Play
-- [ ] Adresse identique au justificatif de domicile — si elle diffère, **corriger `build.yml`** et relancer un build, jamais la console seule
-- [ ] Numéro d'immatriculation resté vide
+- [ ] Nom légal identique, caractère pour caractère, au profil de paiement Play **et à l'extrait d'immatriculation** — sans trait d'union, forme du RNE
+- [ ] Adresse identique au contrat de domiciliation et à l'extrait — si elle diffère, **corriger `build.yml`** et relancer un build, jamais la console seule
+- [ ] Numéro d'immatriculation : le SIREN, neuf chiffres, sans espaces
 - [ ] Nom du développeur affiché : `Grisloup`
 - [ ] Groupe de comptes créé, aucun compte associé déclaré, conditions acceptées
 - [ ] Les deux lignes cochées dans la checklist de `publication.md`

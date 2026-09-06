@@ -30,7 +30,7 @@ build:
   # qui a ete achete : l'un decide de l'offre, l'autre constate les achats.
   - pucatalog
   # Balayage quotidien des timers de facturation. Les echeances de defaut de paiement
-  # (grace 10j, locked j50, suppression j90) ne peuvent pas dependre d'une ouverture de
+  # (grace 10j, gel j50, suppression j730) ne peuvent pas dependre d'une ouverture de
   # l'app : un clan en defaut est justement un clan que plus personne n'ouvre.
   - puscheduler
   resources:

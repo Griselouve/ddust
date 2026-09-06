@@ -352,7 +352,7 @@ extension Worker_tuning on worker {
                             final cached = _maxXpCache[userId];
                             if (cached != null) return cached;
                             try {
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region);
                                 final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";

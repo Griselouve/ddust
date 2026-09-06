@@ -11,18 +11,31 @@ conf:
     # bucket), et les documents eux-mêmes sont ensuite lus à leur URL régionale. Un joueur
     # américain fait donc un seul aller-retour vers l'Europe, au tout premier lancement.
     bucket_base_url: "https://storage.googleapis.com/dvddust-eu-documents-storage"
+    # ⚠ RÉGION = MARCHÉ, PAS DATACENTER. Ce que le joueur choisit ici décide des
+    #   documents légaux qu'on lui présente, et de rien d'autre. Le datacenter — la
+    #   clé `documents.session.cloud_region` — en est déduit par le `regions_catalog`
+    #   de dvdocuments : `fr` pointe vers `eu`.
+    # ⚠ CONSÉQUENCE VOULUE, le jour où un second royaume européen s'ouvrira : deux
+    #   joueurs de royaumes différents mais du même datacenter partagent une base,
+    #   donc peuvent appartenir au même clan tout en lisant des conditions générales
+    #   différentes. Toute comparaison « sont-ils joignables ? » se fait pour cette
+    #   raison sur cloud_region, jamais sur la région (cf. _inviteRegionMismatch).
+    # ⚠ La liste des régions OUVERTES (`documents.regions`) n'est pas ici : elle vit
+    #   dans le build.yml de la suite et descend jusqu'au client par `layer.publish`.
+    #   Ce bloc ne porte que l'habillage — le module ne fournit ni libellé ni image.
+    # ⚠ UNE SEULE OPTION AUJOURD'HUI, et c'est volontaire : `documents.regions` du
+    #   build.yml n'ouvre que la France. L'écran de choix reste affiché malgré tout
+    #   — choisir son royaume est l'acte par lequel le joueur reconnaît le droit
+    #   qui lui sera appliqué, et un écran sauté ne vaut pas déclaration.
     region:
       enabled: true
-      default: "eu"
+      default: "fr"
       options:
-        eu:
-          label: "@@@T:documents_region_europe@@@"
+        fr:
+          label: "@@@T:documents_region_france@@@"
           # Drapeau EMBARQUÉ (build/resources/icon/eu.png) : sur cet écran la région n'est pas
           # encore choisie, donc aucun asset cloud n'a pu être téléchargé.
           image: "assets/icon/eu.png"
-        us:
-          label: "@@@T:documents_region_us@@@"
-          image: "assets/icon/us.png"
     birthdate:
       enabled: true
       display: 26
@@ -32,11 +45,36 @@ conf:
       cgu:
         mode: "checkbox"
         title: "@@@T:documents_acceptance_title@@@"
+    # Déclaration du chef de clan au moment d'ouvrir un recrutement (overlay clan_page/invite_*).
+    # Elle voyage avec l'invitation et se colle à la preuve d'acceptation des CGU de celui qui
+    # entre — c'est le couplage qui manquait entre l'acte du chef et la personne du nouveau venu.
+    #
+    # ⚠ CES TROIS CAS SONT CEUX DE invite_consent_notice, et ils doivent le rester : la mention
+    #   les énonce, les cases les font déclarer. En changer un ici sans changer l'autre ferait
+    #   déclarer au chef quelque chose qu'il n'a pas lu.
+    # ⚠ Le chef déclare AVANT de savoir qui viendra (un QR affiché une fois peut servir à
+    #   plusieurs candidats) : la déclaration vaut pour l'invitation, et se recopie dans la
+    #   preuve de chaque entrant.
+    # ⚠ `guardian: true` pose `accepted_as_parental_guardian` sur la preuve. « Il s'agit d'un
+    #   adulte » ne le pose PAS — un adulte n'a pas de responsable légal.
+    acknowledgements:
+      guardian:
+        doc: "cgu"
+        choice: "one"
+        items:
+          - id: "adult"
+            label: "@@@T:invite_ack_adult@@@"
+            guardian: false
+          - id: "child_reads"
+            label: "@@@T:invite_ack_child_reads@@@"
+            guardian: true
+          - id: "child_read_aloud"
+            label: "@@@T:invite_ack_child_read_aloud@@@"
+            guardian: true
+    # Indexé par région-marché, comme age_thresholds : c'est le droit qui décide si
+    # une porte parentale est requise, et le droit suit le marché.
     parentalgate:
-      eu:
-        a: "parentalgate.invoke_gate"
-        k: ""
-      us:
+      fr:
         a: "parentalgate.invoke_gate"
         k: ""
     # Un SEUL seuil opère, des deux côtés de l'Atlantique : 18 ans, l'âge de la majorité
@@ -48,12 +86,12 @@ conf:
     # ⚠ Le seuil bas reste déclaré à 0 : la clé `k` DOIT exister, car _computeLegalState
     # (dvdocuments_motor) initialise l'état légal à la clé du plus petit seuil. La
     # supprimer ferait basculer le défaut sur `a` et rendrait adulte un enfant de cinq ans.
-    # À garder synchrone avec backend/config.yml.
+    # ⚠ Ce bloc est désormais une SURCHARGE : dvdocuments livre déjà ces mêmes seuils
+    # pour chaque région de son catalogue. On les redéclare ici parce que le choix de
+    # ne jamais exploiter le consentement propre du mineur est un choix de ddust, et
+    # qu'il doit rester lisible dans la conf de ddust — pas hérité en silence.
     age_thresholds:
-      eu:
-        k: 0
-        a: 18
-      us:
+      fr:
         k: 0
         a: 18
     actions:

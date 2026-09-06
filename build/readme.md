@@ -28,6 +28,7 @@
 20. [hors scope](#20-hors-scope)
 21. [philosophie deva](#21-philosophie-deva)
 22. [chantiers actifs](#22-chantiers-actifs)
+23. [écarts connus](#23-écarts-connus)
 
 ---
 
@@ -45,9 +46,9 @@ La famille est le clan. Les corvées sont les monstres. Le butin est la promesse
 
 ### positionnement
 
-Application mobile B2C familiale, Android en cible principale (le client compile aussi pour Windows, qui sert de banc de développement). Version courante `1.0.6+7`, en préparation de test fermé Play (France, Belgique), zone UE au lancement, les US ensuite.
+Application mobile B2C familiale, Android en cible principale (le client compile aussi pour Windows, qui sert de banc de développement). Version courante `1.0.6+7`, en préparation de test fermé Play (France), le reste de l'UE au lancement puis les US. La Belgique a été retirée de la piste fermée le 2026-08-27 : depuis que les documents légaux suivent le marché, seul le marché `fr` est ouvert et un testeur belge n'aurait pas de conditions générales qui le visent.
 
-**Monétisation tranchée et livrée** : abonnement par clan, cinq paliers indexés sur le seul nombre de joueurs (1,99 € à 7,99 €/mois), essai gratuit de 14 jours, offre fondateurs pour les premiers clans. L'app se lance payante — la beta gratuite préalable a été supprimée (`strategie.md`, décision du 2026-08-11) : une beta gratuite produit de la rétention, jamais de la conversion, et faire commencer à payer des familles déjà installées coûte plus de churn qu'un prix affiché dès le premier écran.
+**Monétisation tranchée et livrée** : abonnement par clan, cinq paliers indexés sur le seul nombre de joueurs (1,99 € à 7,99 €/mois), essai gratuit de 14 jours, offre fondateurs pour les premiers clans. L'app se lance payante — la beta gratuite préalable a été supprimée (décision du 2026-08-11, motif repris dans `docs/vision.md` § Stratégie) : une beta gratuite produit de la rétention, jamais de la conversion, et faire commencer à payer des familles déjà installées coûte plus de churn qu'un prix affiché dès le premier écran.
 
 Développée en indépendant, éditeur personne physique (`build.yml` → `publisher`), sans publicité, sans traceur, sans achat surprise, et sans qu'aucune photo ne quitte l'appareil.
 
@@ -1056,7 +1057,7 @@ Donjons & Savons est une suite `projects/` avec vision produit propre. Son assem
 
 ## 22. chantiers actifs
 
-La boucle complète « tâche → preuve → verdict croisé → XP → niveau → titre → célébration » tourne de bout en bout, avec sa méta (PV, mort, gage, guérison, coup de pouce, boss, journal, titres-objets, coffre et cérémonie d'ouverture, fée), son administration (chefs, révocation, passage à l'âge adulte, joueur sans compte, prise de place, édition et création de tâches), son onboarding anonyme, son tutoriel, son socle commercial complet et son dispositif de relance. Les chantiers ouverts, par ordre de valeur (`deva/roadmap.md`, livrables `ddust/beta`, `ddust/mvp`, `ddust/defis`, `ddust/loots`, `ddust/minijeux`, `ddust/classes`, `ddust/themes`, `ddust/packs`) :
+La boucle complète « tâche → preuve → verdict croisé → XP → niveau → titre → célébration » tourne de bout en bout, avec sa méta (PV, mort, gage, guérison, coup de pouce, boss, journal, titres-objets, coffre et cérémonie d'ouverture, fée), son administration (chefs, révocation, passage à l'âge adulte, joueur sans compte, prise de place, édition et création de tâches), son onboarding anonyme, son tutoriel, son socle commercial complet et son dispositif de relance. Les chantiers ouverts, par ordre de valeur (console `deva`, écran **Livrables** : `ddust/mvp`, `ddust/defis`, `ddust/loots`, `ddust/minijeux`, `ddust/classes`, `ddust/packs`, puis les trois thèmes) :
 
 - **Butin** — l'**écriture de `clans_chest_history`** reste à faire : la table existe, elle est déjà lue (comparaison à la moyenne des 20 derniers butins), et la cérémonie ne l'alimente pas. Elle prendra le docId à l'idiome de `clans_logs` et calculera son effectif avec le filtre standard des agrégats.
 - **Relances** — sortir `pulse_sweeper` du mode simulation après plusieurs passes jugées crédibles ; le découpage de la passe par heure locale réelle (le décalage horaire est déjà collecté, il n'y aura pas de reprise de données).
@@ -1069,4 +1070,58 @@ La boucle complète « tâche → preuve → verdict croisé → XP → niveau �
 - **Finitions onboarding** — écran de demande d'entrée à remplacer, nom du clan dans la bannière d'invitation, finalisation des questions du decisiontree.
 - **Légal et production** — validation juridique des CGU/privacy, AIPD, ouverture effective de la région US.
 
-État d'avancement détaillé : `progress.md`. Stratégie et modèle de revenus : `strategie.md`, `revenus.md`.
+État d'avancement : la **console deva** le calcule depuis les lots livrés — c'est la
+seule source à jour. Stratégie : `docs/vision.md` § Stratégie. Modèle de revenus : le bloc
+`revenus` du `build.yml`, calculé par la console `deva`.
+
+---
+
+## 23. écarts connus
+
+Ce que le code fait **et que les documents d'intention ne disent pas**. Récupéré de
+`progress.md` le 2026-09-02, au moment de sa suppression : c'était la seule section de ce
+fichier qui ne redisait pas le présent readme, et c'est la carte des pièges — chaque ligne
+est un endroit où faire confiance au document plutôt qu'au code conduit à se tromper.
+
+⚠ **Cette liste se relit avant toute production de contenu public**, fiche de store ou
+site : elle recense précisément les points où l'intention et la réalité divergent.
+
+### Divergences avec `vision.md`
+
+`vision.md` reste la référence du **ton et des intentions produit**. Il n'a pas été repris
+sur trois points de règle, et c'est le code qui fait foi :
+
+- **Dégradation des PV** — 1 jour par point, et non 3 comme l'annonce la vision.
+- **Ouverture du butin** — sur une **jauge à 1 000**, alimentée par une part d'XP plafonnée,
+  et non « tous les 10 000 XP ».
+- **Recherche d'un clan par son nom** — **écartée**, au profit du lien chiffré par PIN. La
+  vision le note déjà.
+
+### Divergences avec le plan
+
+- **Le module de facturation n'a pas le nom prévu.** Le plan annonce un module `dvbilling`
+  et une collection `clans_billing` ; c'est livré sous `dvstore` (client), `pustore`
+  (backend) et `pucatalog` (publication du catalogue), avec la projection
+  `workers/clans_store`. Le principe est respecté à la lettre — écriture réservée au SDK
+  Admin, `write: if false` côté client — seuls les noms diffèrent. **Chercher `dvbilling`
+  dans le dépôt ne rend rien.**
+- **Le dashboard des achats n'existe pas, et c'est délibéré.** Il a été écrit puis
+  **supprimé** : il redisait l'état que la boutique porte déjà. L'historique de facturation
+  se lit au journal du clan.
+- **La suppression des données passe de J90 à J730.** Le calendrier d'impayé est inchangé
+  jusqu'au gel (grâce 10 j, relances jusqu'à J50, gel à J50), mais la purge intervient deux
+  ans plus tard et non quarante jours, avec une phase d'adieu un mois avant. `purge_day: 730`
+  fait foi.
+- **La paywall par fonctionnalité n'est câblée nulle part.** Le routeur de gating existe
+  dans le module et le design le prévoyait ; le jeu ne se ferme pour aucun état commercial,
+  sauf deux portes explicites — clan gelé, mur de première cotisation. C'est un choix
+  produit, pas un manque.
+- **Quatre items rattachés à `ddust/mvp` sont déjà livrés** : l'invitation à distance (par
+  lien chiffré par PIN, et non par la « demande » décrite), le profil sans téléphone
+  (création d'un joueur par un chef + prise de place), le choix de la langue en préférence
+  utilisateur, et la majeure partie des notifications métier — le rappel de coffre vide est
+  livré côté serveur ; l'adhésion acceptée validable en un tap ne l'est pas.
+
+  ⚠ **Écart ouvert au 2026-09-02, et il porte sur des CHIFFRES, pas sur du texte.** Ces
+  quatre items comptent encore dans le backlog de `ddust/mvp` et dans ses 987 rsp : le lot
+  est donc surévalué, et sa date de livraison trop tardive. À reprendre dans la console.

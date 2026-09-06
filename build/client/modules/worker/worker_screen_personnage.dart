@@ -77,7 +77,7 @@ extension Worker_screen_personnage on worker {
                                 final pvLabel = await DvOrb.wait_for_shape("personnage/pv_label");
 
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";

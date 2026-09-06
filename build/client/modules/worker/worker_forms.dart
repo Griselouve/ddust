@@ -454,7 +454,7 @@ extension Worker_forms on worker {
                                 }
 
                                 // Contexte clan (comme _admApply).
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region) ?? Dvidle({});
                                 final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -530,7 +530,7 @@ extension Worker_forms on worker {
                                 final respawn = _selRespawnH > 0 ? _selRespawnH : 72;
                                 final type    = _selType.isNotEmpty ? _selType : "immortelle";
 
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region) ?? Dvidle({});
                                 final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -621,7 +621,7 @@ extension Worker_forms on worker {
                                 // liaison du compte, qui recharge le layer runtime depuis le disque et vide
                                 // le store (cf. _handleClanJoin). Le drapeau ne sert plus que de repli quand
                                 // la lecture Firestore échoue.
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isNotEmpty) {
                                     try {
                                         final session = await _readSession(region);
@@ -648,7 +648,7 @@ extension Worker_forms on worker {
     // uniquement dans clans_players (seule source pour un joueur sans compte, no_account).
     Future<void> _persistPlayerName(String name) async {
 
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isNotEmpty && !_impersonating) {
                                     final docId = _sessionDocId();
                                     if (docId.isNotEmpty) {
@@ -835,7 +835,7 @@ extension Worker_forms on worker {
                                 final raw       = nameEntry?.get("shape.value")?.toString().trim() ?? "";
                                 if (raw.isEmpty) return;
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";

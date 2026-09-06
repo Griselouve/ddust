@@ -143,7 +143,7 @@ extension Worker_avatars on worker {
     // Écrit MON avatar dans clans_players/{clanId}/players/{userId}.avatar (deep-merge).
     Future<void> _persistPlayerAvatar(String path) async {
 
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isEmpty || _userId.isEmpty) return;
                                 final session    = await _readSession(region);
                                 final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
@@ -215,7 +215,7 @@ extension Worker_avatars on worker {
     // + session.clan.name. Rechargé au boot via dvsession (session.clanname ↔ clans.internal.name).
     Future<void> _persistClanName(String name) async {
 
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isNotEmpty) {
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
@@ -274,7 +274,7 @@ extension Worker_avatars on worker {
     // Écrit l'avatar du clan dans clans/{clanId}.avatar (deep-merge, ownerId: clanSecret).
     Future<void> _persistClanAvatar(String path) async {
 
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isEmpty) return;
                                 final session    = await _readSession(region);
                                 final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";

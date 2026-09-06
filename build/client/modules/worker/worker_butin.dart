@@ -89,7 +89,7 @@ extension Worker_butin on worker {
     // besoin. Renvoie null si la session n'est pas exploitable (rien à faire, alors).
     Future<Dvidle?> _butinCtx() async {
 
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region);
                                 final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";

@@ -62,6 +62,26 @@ référence de détail, mais c'est **cette liste** qui dit quoi faire et dans qu
 | 17 | À J+14 : demander l'accès à la production | toi | §3.4 |
 | 18 | Déployer en production par paliers progressifs | toi | §6.3 |
 
+**⚠️ Chaîne ajoutée le 2026-09-03 — l'immatriculation en a ouvert une seconde, parallèle.** Elle ne
+s'intercale pas dans la liste ci-dessus : elle court **à côté**, et les étapes 17-18 ne peuvent pas
+tomber avant qu'elle soit finie. Ses six maillons sont surtout des attentes, d'où l'urgence du
+premier.
+
+| # | Étape | Qui | Détail |
+|---|---|---|---|
+| A | **Demander le D-U-N-S** chez Altares — nom et adresse **exactement** ceux du RNE | toi | ⚠️ **aujourd'hui.** 5 à 30 jours ouvrés, chemin critique |
+| B | Ouvrir le compte bancaire pro — titulaire **sans trait d'union** | toi | plan §2.3 |
+| C | Demander le n° de TVA intracom au SIE, migrer la facturation Cloud | toi | plan §2.1-2.2 |
+| D | Créer le profil de paiement **organisation**, le faire vérifier | toi | §0.2. Attend A et B |
+| E | **Convertir le compte** en organisation, puis attendre **72 h** | toi | §0.2. Attend D |
+| F | Fixer le nouveau package, **créer l'entrée d'app neuve**, refaire le SHA-1 | toi + dev | §0.1, §2.2. Attend E |
+
+**Ce que F entraîne côté conf**, et qui n'est pas un détail de saisie : nouveau package dans
+`backend/config.yml` et dans le `PACKAGE_NAME` des trois Cloud Functions du store, `unprotect` de
+l'`AndroidApp` Firebase, nouveau SHA-1 mesuré sur le binaire installé, second client OAuth
+redéployé, et **recréation des cinq abonnements avec leurs base plans et leurs offres** — les
+produits sont attachés à l'entrée d'app, pas au compte.
+
 **Groupements.** Les étapes 2 à 4 partent dans **un seul build** (étape 5). Les étapes 6 et 7 lancent
 un compteur de 14 jours pendant lequel tout le reste avance — pousser une mise à jour sur la piste
 fermée ne réinitialise rien. Les étapes 8 à 13 forment une chaîne, chacune conditionne la suivante.
@@ -81,17 +101,27 @@ layer.
 
 ## chemin critique
 
-Un seul poste commande tout le reste : **le profil de paiement Play**. Tant qu'il n'est pas vérifié,
-aucun produit d'abonnement ne peut être créé en console, donc aucun achat ne peut être testé, donc
-ni la phase 4 ni la phase 5 n'existent. Ses vérifications (identité, compte bancaire) se comptent en
-jours et ne peuvent pas être accélérées.
+> ⚠️ **LE CHEMIN CRITIQUE A CHANGÉ DE MAIN LE 2026-09-02.** Le poste qui commandait tout était le
+> **profil de paiement Play** ; il est vérifié depuis le 2026-08-20 et le compte est activé. C'est
+> désormais le **D-U-N-S** — 5 à 30 jours ouvrés chez Altares, un délai que personne ne maîtrise —
+> parce que rien ne se publie sans compte organisation, et qu'aucun compte ne devient organisation
+> sans lui. **À lancer aujourd'hui**, avant tout le reste : c'est la seule tâche dont le retard ne se
+> rattrape par aucun effort.
 
-**Conséquence pratique : ouvrir le profil de paiement AVANT tout le reste**, même avant d'avoir une
-app à publier. Tout le reste — build, fiche, test fermé, correctifs — avance pendant que les
-vérifications courent.
+Ce qu'il commande, en descendant : D-U-N-S → profil de paiement organisation → conversion du compte
+(**+72 h**) → **entrée d'app neuve** → 12 testeurs × 14 jours → production. Six maillons, dont
+quatre sont des attentes. Le seul geste qui les raccourcit est de commencer le premier tôt.
 
-Le second poste par la durée est le **test fermé** : 14 jours calendaires incompressibles, à démarrer
-le plus tôt possible. Il n'exige pas que la monétisation fonctionne — un build en piste fermée suffit.
+**Ce qui n'attend pas et doit avancer en parallèle** : build, fiche, correctifs de code, recette de
+la monétisation, AIPD et relecture juridique — tout cela se fait sur l'**entrée existante**, qui
+reste le bac à sable technique. Rien n'y est perdu : seuls le package et l'AAB changent à la fin.
+
+⚠️ **Le piège d'ordonnancement est de créer l'entrée neuve trop tôt.** Créée avant que le compte
+n'affiche « organisation », elle hérite des 12 × 14 et coûte deux semaines pour rien (§0.1).
+
+Le second poste par la durée est le **test fermé** : 14 jours calendaires incompressibles. ⚠️ Il ne
+comptera que s'il court sur l'**entrée neuve** : un test fermé mené sur l'entrée actuelle ne
+s'y reporte pas. Il n'exige pas que la monétisation fonctionne — un build en piste fermée suffit.
 
 ```
 S0   profil de paiement ─────────────────────────────────┐ (vérifications : plusieurs jours)
@@ -109,8 +139,11 @@ S4   correctifs de recette                     │
 S5-6 déploiement progressif
 ```
 
-Cible réaliste : **début octobre 2026**, cohérent avec la communication publique du site
-(« automne 2026 »).
+⚠️ **La cible de « début octobre 2026 » qui figurait ici est retirée** : elle datait d'avant
+l'immatriculation et ne tenait aucun des quatre délais ci-dessus. La date de publication se lit
+du mécanisme de roadmap, pas de ce document — une échéance recopiée à la main dans un document
+de procédure vieillit sans prévenir. La communication publique du site annonce « automne 2026 »,
+formulation qui reste tenable.
 
 ---
 
@@ -130,7 +163,7 @@ keystore persisté en Firestore, site vitrine trilingue.
 | §0.2 — profil de paiement | ✅ créé, compte bancaire validé, fiscal US + Taïwan renseignés, **compte activé** |
 | §0.4 — écran de consentement OAuth → « En production » | ✅ fait |
 | §0.6 — comptes de test | ✅ `daddy.ddust@gmail.com` et `kiddy.ddust@gmail.com` — un adulte et un mineur, la revue Play peut éprouver les deux rôles. À déclarer **aussi** comme testeurs sous licence (étape 12) |
-| §2.2 — app créée en console | ✅ `com.grisloup.ddust_client`, sans frais, fr-FR |
+| §2.2 — app créée en console | ✅ `com.grisloup.ddust_client`, sans frais, fr-FR. ⚠️ **Bac à sable désormais** : l'entrée de lancement sera neuve, sous un autre package (§0.1, §2.2) |
 | §2.3 — AAB uploadé, examen de première release | ✅ passé, piste interne |
 | §2.4 — SHA-1 de signature Play | ✅ `33:1E:56:BC:…`, **mesuré sur l'APK réel**, enregistré dans Firebase et dans `conf.oauth.android.play_sha1s.client` |
 | **Connexion Google depuis le Store** | ✅ **fonctionne** |
@@ -182,41 +215,108 @@ et le J50, un clan qui ne paie pas joue normalement.**
 
 Rien ici ne dépend du code. Tout est à faire en console, et tout peut démarrer aujourd'hui.
 
-### 0.1 — âge du compte développeur
+### 0.1 — 12 testeurs × 14 jours : l'exemption suit l'ENTRÉE D'APP, pas le compte
 
-Détermine si la règle « 12 testeurs × 14 jours » s'applique : elle vise les **comptes personnels
-créés après le 13 novembre 2023**. Les comptes personnels antérieurs et les comptes organisation en
-sont exemptés.
+**Corrigé le 2026-09-03, et c'est le fait qui commande toute la phase 4.** Une version antérieure de
+cette section raisonnait sur l'**âge du compte** — « les comptes personnels créés après le
+13 novembre 2023 » — et en déduisait qu'une conversion en compte organisation lèverait l'exigence.
+Elle ne la lève pas.
 
-Comment vérifier : l'e-mail « Google Play Developer registration » dans Gmail, ou le reçu des 25 $
-sur `pay.google.com`. **Confirmation définitive** : une fois l'app créée, le tableau de bord de la
-Play Console affiche — ou n'affiche pas — l'exigence de test fermé. C'est la seule source qui fasse
-foi.
+> ## ➜ L'exigence est attachée à **l'entrée d'app**, pas au compte
+>
+> Une app **créée sous un compte personnel** conserve l'exigence **après** la conversion du compte
+> en organisation. Une app **créée après** la conversion, sous un compte déjà organisation, en est
+> exemptée.
 
-Le présent document suppose que la règle s'applique. Si elle ne s'applique pas, la phase 3 reste
-**recommandée** mais cesse d'être bloquante, et on gagne deux semaines.
+**Conséquence directe : il faut une entrée d'app NEUVE**, donc un nouveau nom de package, créée
+**après** la conversion. `com.grisloup.ddust_client` a déjà reçu un AAB et un examen de première
+release : quoi qu'il advienne du compte, cette entrée-là garde les 12 × 14. Le geste et ses deux
+obstacles techniques sont en §2.2 ; l'arbitrage, dans
+`grisloup/docs/plan-creation-micro-entreprise.md` §0.3.
+
+En une phrase : **on garde le compte, on repart de zéro sur l'app.**
+
+**Confirmation définitive**, quel que soit le raisonnement : une fois l'app créée, le tableau de
+bord de la Play Console affiche — ou n'affiche pas — l'exigence de test fermé. C'est la seule source
+qui fasse foi, et c'est elle qu'on regarde juste après avoir créé l'entrée neuve.
+
+⚠ **Ne pas supprimer l'app existante.** Elle reste le bac à sable technique — recrutement des
+testeurs, SHA-1, banc d'essai — jusqu'à ce que la nouvelle entrée soit vivante. Les familles
+testeuses **sont déjà prévenues** que le lancement se fera sur une entrée différente, avec
+désinstallation et réinstallation : le coût social est réglé (2026-08-28).
+
+Tant que l'entrée neuve n'existe pas, le présent document suppose que la règle s'applique — et elle
+s'appliquera aussi à l'entrée neuve si la conversion n'est pas faite avant sa création. **L'ordre est
+la substance de la phase 4 : convertir, PUIS créer.**
 
 ### 0.2 — profil de paiement Play ⚠️ LE POSTE BLOQUANT
 
-Deux temps distincts, à faire dans cet ordre. Le RIB **n'est pas** demandé au temps 1 et
-n'apparaît nulle part dans ce formulaire : le chercher à ce moment-là est une perte de temps.
+> ## ⚠️ SECTION RETOURNÉE LE 2026-09-03 — ON PASSE EN **ORGANISATION**
+>
+> Tout ce qui suivait recommandait le profil **Particulier**, et le recommandait bien : c'était le
+> choix réversible tant qu'aucune structure n'existait. **Une structure existe depuis le
+> 2026-09-02** — entreprise individuelle, SIREN `109354092`, domiciliée 20 rue Lavoisier à Pontoise.
+> L'arbitrage du §6.1 est donc tranché **dans l'autre sens**, et il l'est *avant* le passage en
+> production, exactement là où cette section demandait qu'il le soit.
+>
+> Ce qui a changé n'est pas l'analyse mais le fait : le seul défaut du compte organisation était
+> d'exiger une entité et un D-U-N-S. Son seul avantage — **publier une domiciliation au lieu d'un
+> domicile** — est devenu le motif central de toute la démarche.
 
-**Temps 1 — créer le profil de paiement.**
+**Ce qui est déjà fait, et qu'on ne refait pas** : un profil **Particulier** existe, vérifié le
+2026-08-20 (identité + compte bancaire), et le compte est **activé**. Il a rempli son office : il a
+permis de créer l'app, d'uploader un AAB, de passer l'examen de première release et de valider la
+connexion Google depuis le Store. Il n'est pas à défaire.
+
+**Ce qui reste à faire, dans cet ordre — c'est la phase 4 du plan de création :**
+
+| # | Geste | Attend |
+|---|---|---|
+| 1 | **D-U-N-S** chez Altares, gratuit | le SIREN ✅. **5 à 30 jours ouvrés — le chemin critique** |
+| 2 | Compte bancaire professionnel, titulaire **sans trait d'union** | le SIREN ✅ |
+| 3 | **Nouveau** profil de paiement, de type **Organisation** | 1 et 2 |
+| 4 | Vérification identité + bancaire de ce nouveau profil | 3 |
+| 5 | **Convertir le compte développeur** — *Compte développeur → À propos de vous → Modifier le type de compte* | 4, puis **72 h d'attente** |
+| 6 | **Entrée d'app neuve** (§0.1, §2.2) | le compte affiché « organisation » |
+
+⚠️ **Le compte se convertit, le profil de paiement NON.** C'est le point qui surprend : la
+conversion préserve le compte, l'adresse Google, les 25 $, l'historique et les informations fiscales
+déjà déposées — mais il faut créer un **second** profil de paiement, de type organisation, le faire
+vérifier, puis le lier. Le profil Particulier ne se transforme pas.
+
+⚠️ **La conversion est à sens unique.** Organisation → particulier est **impossible** et imposerait
+d'ouvrir un compte développeur neuf, donc de tout republier. Une fois la phase engagée, on ne revient
+pas en arrière. C'est acté.
+
+**Temps 1 — créer le profil de paiement de type Organisation.**
 *Play Console → Configuration → Informations de paiement → Créer un profil de paiement.*
 
 ⚠️ **Si la console propose de choisir parmi des profils existants** — elle le fait dès qu'un profil
-de paiement Google existe déjà sur le compte, typiquement celui de la facturation GCP — **prendre le
-profil Particulier au nom civil, jamais le profil Organisation de Cloud.**
+de paiement Google existe déjà sur le compte — **créer un profil neuf, ne réutiliser ni le
+Particulier de Play ni celui de Cloud.**
 
 | Profil proposé | Verdict |
 |---|---|
-| *Particulier*, au nom civil (ex. « Profil Particulier pour Play ») | ✅ **celui-ci** — conforme à la décision actée, et convertible en organisation plus tard |
-| *Organisation*, nom commercial, « pour Cloud » | ❌ ferait du compte développeur un **compte organisation** : D-U-N-S exigé et vérifié (or un nom commercial n'est pas une société), adresse **et** téléphone publiés **même sans monétisation**, et **conversion inverse impossible** |
-| Créer un nouveau profil | ❌ doublon inutile si le profil Particulier existe déjà |
+| **Créer un nouveau profil, type Organisation** | ✅ **celui-ci.** C'est le seul chemin vers un compte organisation, et le seul qui accepte une adresse de domiciliation |
+| *Particulier*, au nom civil (« Profil Particulier pour Play ») | ❌ **plus celui-ci.** Il reste en place et continue de servir l'ancienne entrée d'app ; il ne peut pas devenir organisation |
+| *Organisation*, « pour Cloud » | ❌ profil de **facturation**, pas de versement. La facturation Cloud se migre à part (plan §2.2) |
 
-Avant de valider : vérifier que le nom est l'orthographe **exacte de la pièce d'identité** (c'est ce
-que contrôle la vérification d'identité) et que l'adresse est la résidence réelle (c'est elle qui
-sera publiée à la monétisation).
+Avant de valider, les trois lignes qui font échouer une vérification organisation :
+
+| Champ | Valeur | Le piège |
+|---|---|---|
+| Nom légal | `MARCHAL DE GREEF Guillaume` | ⚠ **Règle de nommage**, tenue sur tous les fronts : ordre du registre, **sans trait d'union** (forme du RNE, pas de la carte), **sans « EI »**, sans second prénom. Google confronte ce champ à l'extrait d'immatriculation |
+| Adresse | `20 rue Lavoisier, 95300 Pontoise` | La **domiciliation**. Google la refusait sur un compte personnel ; sur une organisation, c'est la valeur attendue |
+| Numéro d'immatriculation | SIREN `109354092` | Neuf chiffres, sans espaces. Le SIRET n'est pas demandé ici |
+| D-U-N-S | *(en attente)* | Déclaré au **même nom et à la même adresse**, caractère pour caractère. C'est le recoupement que Google fait |
+
+⚠️ **Le titulaire du compte bancaire est confronté au nom du profil.** Demander à la banque
+d'enregistrer le titulaire **sans trait d'union**, à l'ouverture et pas après. Un compte ouvert à la
+forme de la carte d'identité produirait un échec de vérification pour un caractère.
+
+⚠️ **La pièce que Google réclamera est l'extrait d'immatriculation délivré par le greffe**, pas le
+contrat de domiciliation. L'activité ayant été déclarée commerciale, cet extrait existe — c'est un
+bénéfice direct du choix « commerciale » à l'immatriculation.
 
 **Écran « Profil public de marchand » — le vocabulaire trompe.** Google parle d'« informations
 publiques de l'**entreprise** » pour tous les vendeurs, y compris les personnes physiques : il n'y a
@@ -225,7 +325,7 @@ pas de variante « particulier ». Remplir ce formulaire ne crée aucune structu
 | Champ | Quoi mettre |
 |---|---|
 | Case « utiliser le nom, les coordonnées et l'adresse comme informations juridiques » | Cochée — ce qui est saisi ici fait office d'information **juridique** |
-| **Nom de l'entreprise** | Le **nom civil**, pas le nom commercial. Sans entité légale, l'identité juridique est la personne physique ; y déclarer un nom commercial non enregistré crée un écart avec la pièce d'identité (cause classique de blocage) et avec `legal/dpa.md` §3 |
+| **Nom de l'entreprise** | La **dénomination au RNE**, pas le nom commercial. Une entreprise individuelle n'est pas une personne morale séparée : son identité juridique reste celle de la personne physique. Y déclarer « Grisloup » crée un écart avec l'extrait d'immatriculation (cause classique de blocage) et avec `dpa.md` §3 |
 | Site Web (facultatif) | `https://donjons.grisloup.com` — à renseigner, cela facilite la vérification |
 | Produits ou services vendus | La catégorie *logiciels / applications* (ou divertissement selon la liste) — sert au profilage de risque, pas à la fiscalité |
 
@@ -233,38 +333,43 @@ pas de variante « particulier ». Remplir ce formulaire ne crée aucune structu
 champ distinct, réglé dans les paramètres du compte. C'est là que « Grisloup » a sa place. Cet
 écran-ci relève du paiement et du juridique, pas de la vitrine.
 
-À préparer **avant** de commencer la saisie :
+À préparer **avant** de commencer la saisie. Toutes ces valeurs viennent de `build/build.yml`, bloc
+`publisher:`, et sont restituées telles quelles dans **`saisie_compte.md`** — ne rien réinventer au
+clavier :
 
 | Élément | Valeur pour ce projet |
 |---|---|
-| Type de profil | **Particulier** (personne physique) — voir la note SASU plus bas |
-| Nom légal | Le **nom civil**, tel qu'il figure sur la pièce d'identité. Pas « grisloup.com », qui n'est qu'un nom commercial |
-| Adresse légale | Adresse **physique réelle**. Les boîtes postales sont refusées |
-| Téléphone | Numéro joignable |
+| Type de profil | **Organisation** — décidé le 2026-09-03, l'entreprise existant depuis la veille |
+| Nom légal | `MARCHAL DE GREEF Guillaume` — ordre du registre, sans trait d'union, sans « EI » |
+| Adresse légale | `20 rue Lavoisier, 95300 Pontoise, France` — la **domiciliation**, qui est l'adresse de l'entreprise au registre |
+| Numéro d'immatriculation | SIREN `109354092` |
+| D-U-N-S | *(en attente d'Altares — chemin critique)* |
+| Téléphone | `+33 7 44 47 09 44` — celui de la **structure**, pas le mobile personnel |
 | Contact | Nom du représentant + e-mail |
 | E-mail d'assistance public | `donjons@grisloup.com` |
 | Site web | `https://donjons.grisloup.com` |
 | Catégorie de produits vendus | Applications / divertissement familial |
-| Informations fiscales | Selon le statut retenu (cf. §6.2) |
+| Informations fiscales | Taïwan et États-Unis uniquement (§0.2 bis) — déjà déposées sur le compte, la conversion ne les redemande pas |
 
-⚠️ **L'adresse sera publique — mais seulement à la monétisation.** Vendre des abonnements dans l'UE
-fait de toi un « vendeur » au sens de la réglementation européenne : nom, **adresse complète** et
-téléphone sont alors affichés. Sans monétisation, seuls le nom et le pays le sont. Aucun réglage ne
-permet de la masquer : ce n'est pas une option Play mais une obligation répercutée. Et **Google
-refuse les boîtes postales comme les adresses de domiciliation pour les comptes personnels** —
-l'adresse doit être la résidence réelle, justificatif à l'appui.
+✅ **L'adresse publiée est désormais une domiciliation — le verrou est levé, pas reporté.**
+Pour un compte **organisation**, nom, **adresse complète** et téléphone sont affichés sur la fiche
+dans l'EEE, et ils le sont **même sans monétisation**. C'est sans conséquence : ce sont ceux de
+l'entreprise. C'était le verrou de tout le dossier, et c'est ce qu'a acheté l'immatriculation.
 
-Le seul contournement propre est le **compte organisation** : l'adresse publiée devient le siège
-social, qui peut légalement être une société de domiciliation (20 à 50 €/mois). Contrepartie : pour
-une organisation, adresse **et** téléphone sont publiés **même sans monétisation**. Les
-contournements lus ailleurs — adresse d'un proche, résidence secondaire, coworking délivrant une
-attestation — sont à écarter : l'adresse doit rester l'adresse légale réelle, et elle est liée aux
-quatre autres points de cohérence ci-dessous.
+Ce qu'il faut avoir compris pour ne pas défaire ce résultat :
 
-⚠️ **Verrou reporté, pas levé.** L'exposition ne commence qu'avec une fiche **publique**. Tout le
-chemin jusqu'à la fin de la phase 5 — profil de paiement, premier AAB, test fermé, recette complète
-de la monétisation — se déroule en piste fermée devant des familles connues. La décision se prend
-donc en **§6.1**, avant le passage en production, et pas aujourd'hui.
+- Google **refuse une domiciliation sur un compte PERSONNEL** — l'adresse doit y être la résidence
+  réelle, justificatif à l'appui. Seul un compte organisation l'accepte. **Saisir la domiciliation
+  avant la conversion fait échouer la vérification** ; saisir le domicile après la conversion
+  republie ce qu'on venait d'écarter.
+- Aucun réglage ne masque ces informations : ce n'est pas une option Play mais une obligation
+  européenne répercutée. Il n'y a donc rien à négocier, seulement une bonne adresse à déclarer.
+- Les contournements lus ailleurs — adresse d'un proche, résidence secondaire, coworking délivrant
+  une attestation — restent à écarter : l'adresse doit être l'adresse **légale**, celle du registre.
+  Une domiciliation agréée en est une ; les trois autres, non.
+
+⚠️ **Avant la première publication : ouvrir la fiche publique et vérifier qu'aucune trace de
+l'adresse personnelle n'y figure.** C'est la seule porte qu'on ne peut pas refermer.
 
 **Temps 2 — ajouter le compte bancaire**, une fois le profil enregistré.
 *<https://play.google.com/console> → Paramètres → rubrique **Monétisation** → Profil de paiement
@@ -307,21 +412,46 @@ avec `myaccount.google.com` ni avec `pay.google.com`.
 ⚠️ **Ce n'est pas une formalité.** Google indique que les développeurs dont le compte bancaire reste
 non vérifié voient leur présence développeur **et leurs applications retirées** de Google Play.
 
-⚠️ **Cohérence d'identité sur cinq points.** Le titulaire du profil de paiement doit coïncider avec :
-la facturation GCP, l'éditeur déclaré dans les CGU, la mention « éditeur » du site, et le responsable
-de traitement de `legal/dpa.md` §3. Un écart bloque la validation ou fragilise le dossier RGPD.
+⚠️ **Cohérence d'identité sur cinq points.** Le titulaire du profil de paiement doit coïncider avec
+la facturation GCP, l'éditeur déclaré dans les CGU, la mention « éditeur » du site et le responsable
+de traitement de `dpa.md` §3. Un écart bloque la validation ou fragilise le dossier RGPD. **Les cinq
+bougent ensemble ou pas du tout** — c'est pour cela qu'ils sont listés ici plutôt que traités chacun
+dans sa section.
 
-**Et la SASU plus tard ?** Le chemin de migration existe et va dans le bon sens : un compte
-**particulier peut être converti en organisation** — il faut alors un numéro **D-U-N-S**, un site web
-d'organisation vérifié, un profil de paiement organisationnel, puis attendre **72 h** avant de
-soumettre quoi que ce soit. L'inverse — organisation vers particulier — est **impossible** et impose
-de créer un nouveau compte développeur, donc de tout republier. Démarrer en particulier est le choix
-réversible : c'est le bon.
+État au **2026-09-03**, l'identité étant désormais connue :
 
-Le **déclencheur** de cette conversion n'est plus « si les revenus le justifient » mais le **passage
-en production** (cf. §6.1) : c'est l'affichage public de l'adresse qui commande, pas le chiffre
-d'affaires. Prévoir le délai cumulé — D-U-N-S, création de la structure, domiciliation, 72 h — en
-amont de §6.3, pas au moment de cliquer.
+| # | Point | État |
+|---|---|---|
+| 1 | **Profil de paiement Play** | ⏳ attend la conversion en organisation (§0.2). Le profil Particulier vérifié le 2026-08-20 reste en place jusque-là |
+| 2 | **Facturation Google Cloud** | ⏳ nouveau compte de facturation au nom de l'entreprise, avec SIRET et n° de TVA intracom — plan §2.2. ⚠️ À caler au plus près du SIRET : avant, les dépenses d'inférence sont personnelles ; après, elles sont celles de l'activité |
+| 3 | **Éditeur déclaré dans les CGU** | ✅ 72 documents adultes, 12 marchés × 3 langues — `tools/set_publisher_siren.py` |
+| 4 | **Mention « éditeur » du site** | ✅ les 3 pages légales, avec directeur de publication |
+| 5 | **Responsable de traitement, `dpa.md` §3** | ✅ qualification, SIREN, domiciliation |
+
+**Source unique des cinq : `build/build.yml`, bloc `publisher:`.** Il porte la dénomination au RNE,
+l'adresse de domiciliation, le SIREN et le téléphone de la structure ; `saisie_compte.md` en est
+rendu au build. Corriger la console sans corriger `build.yml` fait revenir l'écart au build suivant.
+
+⚠️ **Il ne manque plus qu'une chose : le n° de TVA intracommunautaire**, à demander au SIE, et il
+n'est bloquant que pour la **facturation Google Cloud** — pas pour le corpus, qui n'a pas à porter un
+numéro de TVA que l'entreprise ne facture pas. Suivi au §5.2 de
+`grisloup/docs/plan-creation-micro-entreprise.md`.
+
+Relevés le 2026-09-03 et désormais dans `build.yml` : **SIRET `10935409200016`**, **APE `58.29C`**
+(`58.29Y` en NAF 2025). La mention **RCS Pontoise** est posée dans le corpus : c'est elle que
+R123-237 exige d'un commerçant, le SIREN seul étant une mention incomplète.
+
+**Et la SASU ?** Elle est **sortie du plan** (2026-08-28). Le portefeuille est publié sous une
+**micro-entreprise**, sans bascule programmée : ~970 €/an de régime contre ~2 200 € en SASU
+minimaliste, ni bilan ni liasse — et le seul avantage que la société conservait, publier une adresse
+qui n'est pas le domicile, est atteint sans elle. Le dossier ne se rouvrirait que sur un signal
+précis (plafond du régime approché, besoin d'accumuler plutôt que de distribuer, client exigeant une
+entité) ; le premier atteint rouvre la question, il ne la tranche pas. Cf. `grisloup/docs/vision.md`.
+
+Le **déclencheur** de la conversion du compte n'a jamais été « si les revenus le justifient » mais le
+**passage en production** : c'est l'affichage public de l'adresse qui commande, pas le chiffre
+d'affaires. Ce déclencheur est **atteint**, et le délai cumulé — D-U-N-S, profil organisation, 72 h —
+court à partir d'aujourd'hui. Il est en amont de §6.3, pas au moment de cliquer.
 
 ### 0.2 bis — informations fiscales : Taïwan et États-Unis, pas la France
 
@@ -333,7 +463,13 @@ où il a lui-même une obligation de retenue à la source** sur ce qu'il te vers
 |---|---|---|
 | **États-Unis** | Google est une société américaine ; le fisc américain l'oblige à recueillir un certificat de statut étranger de tous ses partenaires non américains | Retenue par défaut sur la part de revenus de source américaine |
 | **Taïwan** | La loi taïwanaise oblige Google à retenir sur les paiements liés aux ventes à des utilisateurs taïwanais | **3 % de retenue** sur les transactions taïwanaises, et **5 % de TVA sur la commission** faute de numéro de TVA taïwanais |
-| **France** | Rien à collecter : sur les ventes UE, Google est le vendeur au sens fiscal et reverse lui-même la TVA. L'impôt sur le revenu se règle directement avec l'administration française | — |
+| **France** | Rien à collecter : sur les ventes UE, Google est le vendeur au sens fiscal et reverse lui-même la TVA. Cotisations et impôt se règlent directement avec l'URSSAF et l'administration fiscale | — |
+
+⚠️ **Ce que la conversion en compte organisation change ici : rien.** Les informations fiscales sont
+attachées au **compte**, pas au profil de paiement, et la conversion les préserve — c'est l'un des
+arguments qui ont fait garder le compte plutôt qu'en ouvrir un second. Le formulaire reste un
+**W-8BEN** et non un W-8BEN-E : une entreprise individuelle n'est pas une société, le bénéficiaire
+effectif reste la personne physique. Il n'y a donc **rien à refaire** après la conversion.
 
 **À remplir :**
 
@@ -364,6 +500,26 @@ où il a lui-même une obligation de retenue à la source** sur ce qu'il te vers
     Cocher une case ne crée aucun revenu : on pré-autorise le taux conventionnel au cas où. Pour la
     France ces catégories sont à 0 %, donc couvrir large est sans inconvénient — alors que
     l'inverse en a un : un revenu dans une catégorie non cochée subirait le taux plein.
+
+    > ### ⛔ NE JAMAIS LAISSER LIRE CETTE CASE COMME UNE CLASSIFICATION FISCALE FRANÇAISE
+    >
+    > La case cochée dit « royalties liées aux droits d'auteur », et l'activité est immatriculée en
+    > **BIC prestations de services** — catégorie **commerciale**, APE `58.29C`, division 58
+    > « Édition ». Ce n'est pas une contradiction, et c'est l'erreur la plus courante sur le sujet.
+    >
+    > Une **convention fiscale** répond à *« quel État peut taxer, et à quel taux »*. Le **CGI**
+    > répond à *« dans quelle catégorie française »*. Un même flux peut parfaitement être une
+    > redevance au sens conventionnel et un produit d'exploitation commerciale au sens interne.
+    >
+    > La ligne de partage du droit interne est ailleurs : **l'auteur qui *concède* ses droits à un
+    > tiers qui les exploite relève du BNC ; l'entreprise qui *exploite elle-même*, de façon
+    > répétée, vers un public indéterminé, relève du BIC.** Google distribue et encaisse pour le
+    > compte de l'éditeur ; il n'exploite pas l'œuvre en reversant une part de *son* succès.
+    >
+    > En cas de contrôle, c'est le dossier d'exploitation commerciale qui parle — catalogue, grille
+    > tarifaire, CGV, site, feuille de route — **pas la case de ce formulaire**. Raisonnement complet
+    > et argument juridique : `grisloup/docs/plan-creation-micro-entreprise.md` §0.1 ; sécurisation
+    > par **rescrit** fiscal et social : §2.4 du même plan.
   - **« … a-t-il effectué des services ou des activités pour Google aux États-Unis ? » → NON.** La
     question porte sur le lieu **physique** d'exercice, pas sur l'origine des clients : vendre à des
     utilisateurs américains depuis la France n'est pas y effectuer un service. Répondre « oui » à
@@ -376,7 +532,8 @@ où il a lui-même une obligation de retenue à la source** sur ce qu'il te vers
 ⚠️ **Remplir les deux, même celle qui semble sans objet** : des informations fiscales incomplètes
 peuvent **retarder les versements**.
 
-⚠️ À refaire en cas de passage en société : le W-8BEN devient un W-8BEN-E (cf. §6.2).
+⚠️ Le W-8BEN ne deviendrait un **W-8BEN-E** que le jour où une **société** existerait. Ce n'est pas
+le cas d'une entreprise individuelle, et la SASU est sortie du plan (cf. §6.2).
 
 ### 0.2 ter — programme de frais de service réduits
 
@@ -523,19 +680,46 @@ supprimé.
 
 ### 2.2 — créer l'app et remplir la fiche
 
+> ## ⚠️ L'ENTRÉE D'APP SERA **NEUVE**, ET SON PACKAGE N'EST PAS ENCORE CHOISI
+>
+> `com.grisloup.ddust_client` a reçu un AAB et passé un examen de première release : sur tout Google
+> Play, il est **brûlé définitivement**, y compris si l'app est supprimée. Et comme l'exemption des
+> 12 testeurs suit **l'entrée d'app** (§0.1), cette entrée-là gardera les 12 × 14 quoi qu'il arrive
+> au compte.
+>
+> Ce qui suit décrit donc **le geste, pas la valeur** : l'app existante reste le bac à sable
+> technique, et une seconde entrée sera créée **après** la conversion du compte en organisation. Le
+> nom de package définitif — de la forme `com.grisloup.<app>` — est **à fixer avant la phase 4** :
+> `grisloup/docs/plan-creation-micro-entreprise.md` §0.3.
+
 **La création elle-même ne demande aucun binaire** et tient en une boîte de dialogue. Réponses :
 
 | Champ | Valeur | Note |
 |---|---|---|
 | Nom de l'application | `Donjons & Savons` | modifiable ensuite |
-| **Nom du package** | `com.grisloup.ddust_client` | ⚠️ **définitif**. Composé par le builder (`org` + projet + `_client`) et déjà câblé dans `firebase.android_package` et le `PACKAGE_NAME` des trois Cloud Functions du store. Cliquer « Vérifier la disponibilité » : il doit être unique sur tout le Play Store |
+| **Nom du package** | *à fixer — cf. l'encadré ci-dessus* | ⚠️ **irréversible et unique sur tout le Play Store.** Composé par le builder (`org` + projet + `_client`), donc **pas saisi à la main** : c'est la conf qui décide, et la console ne fait que le constater. Cliquer « Vérifier la disponibilité » avant de valider |
 | Langue par défaut | **français (France) – fr-FR** | la console propose en-US par défaut : **à changer**. C'est la langue de la fiche principale (`playstore.md` § fiche), en-US et es-ES étant des traductions. Modifiable ensuite |
 | Application ou jeu | **Appli** | catégorie *Parentalité* (cf. `playstore.md` § fiche) |
 | Gratuite ou payante | **Sans frais** (libellé actuel de la console pour « gratuite ») | Modifiable via *Tarification de l'application* **tant que l'app n'est pas publiée**. À la première publication le choix se verrouille, et seulement dans ce sens : une appli sans frais ne peut plus devenir payante. Bon choix de toute façon — la monétisation passe par l'abonnement in-app |
 | Déclarations | règles du programme + lois d'exportation US | à cocher |
 
+**Trois choses que le renommage entraîne, et qu'il vaut mieux avoir vues d'avance :**
+
+1. Le package est câblé dans `backend/config.yml → firebase.android_package` et dans le
+   `PACKAGE_NAME` des **trois Cloud Functions** du store. ⚠️ Changer `org` renommerait les **douze**
+   projets du portefeuille : le renommage doit être **ciblé sur ddust seul**.
+2. `gcp.firebase.AndroidApp` est créée avec **`protect=True`**
+   (`deva/pulumi/modules/pufirebase/brick.py:71-79`) : **Pulumi refusera de la remplacer**. Il faut
+   une étape délibérée d'`unprotect`, ou accepter une seconde Android app dans le même projet
+   Firebase. Sans utilisateurs réels, perdre l'ancienne est sans conséquence — l'obstacle est le
+   garde-fou, pas la donnée.
+3. Toute la danse **SHA-1** du §2.4 est à refaire : mesurer l'empreinte sur le binaire réellement
+   installé, jamais la lire dans la console, puis renseigner `conf.oauth.android.play_sha1s.client`
+   et l'empreinte côté Firebase, puis redéployer pour le second client OAuth.
+
 **Juste après la création**, le tableau de bord indique — ou non — l'exigence de test fermé. C'est la
-**confirmation définitive** du §0.1, celle qui fait foi.
+**confirmation définitive** du §0.1, celle qui fait foi. ⚠️ Si l'exigence apparaît sur l'entrée neuve,
+c'est que la conversion du compte n'avait pas encore pris : la créer trop tôt coûte deux semaines.
 
 Le remplissage de la fiche (textes, assets, Data Safety, IARC, public cible, App access) vient
 ensuite, section par section, depuis `playstore.md`.
@@ -607,6 +791,10 @@ discriminant fiable est le test APK local contre installation Store** : si l'APK
 s'authentifie et que la version du Store échoue, c'est le certificat, quoi que dise le message.
 
 La seule source de vérité est le binaire installé :
+
+⚠️ **Le package ci-dessous est celui de l'entrée ACTUELLE.** Toute cette danse est à refaire à
+l'identique sur l'entrée d'app neuve (§0.1, §2.2), avec son propre package : une empreinte de
+signature Play est propre à une entrée d'app, elle ne se reporte pas.
 
 ```
 adb shell pm path com.grisloup.ddust_client     → repérer le chemin de base.apk
@@ -1073,12 +1261,17 @@ La lecture de Firestore se fait en **REST + token ADC** (gRPC est bloqué sur ce
 
 ### 6.1 — juridique
 
-- ⚠️ **Structure ou adresse publique — l'arbitrage se tranche ici.** Activer les abonnements sur un
-  compte **particulier** affiche l'**adresse personnelle complète** sur la fiche Play, sans aucun
-  moyen de la masquer (cf. §0.2). La seule alternative est un **compte organisation**, dont
-  l'adresse publiée peut être une société de domiciliation. Décider **avant** 6.3, et remonter le
-  délai en amont : D-U-N-S, création de la structure, domiciliation, profil de paiement
-  organisationnel, puis 72 h d'attente. Ne pas décider, c'est décider d'exposer l'adresse.
+- ✅ **Structure ou adresse publique — RÉSOLU le 2026-09-02.** Cet arbitrage a commandé tout le
+  dossier ; il est tranché, et dans le sens de la structure. **Entreprise individuelle, SIREN
+  `109354092`, immatriculée au RNE le 2026-09-02, domiciliée `20 rue Lavoisier, 95300 Pontoise`.**
+  L'adresse publiée sur la fiche sera celle de la domiciliation, jamais le domicile — ce qui était le
+  motif central de toute la démarche.
+  **Ce qui reste, ce n'est plus une décision mais un délai** : D-U-N-S (5 à 30 jours ouvrés, chemin
+  critique), profil de paiement de type organisation, conversion du compte, 72 h d'attente, puis
+  entrée d'app neuve. Détail et ordre : §0.2, et phase 4 de
+  `grisloup/docs/plan-creation-micro-entreprise.md`.
+  ⚠️ **Tant que la conversion n'a pas pris, ne rien publier.** Une fiche publique sous compte
+  particulier afficherait le domicile, et c'est la seule porte qu'on ne peut pas refermer.
 - **AIPD** (analyse d'impact relative à la protection des données, art. 35 RGPD) : **requise**, deux
   critères CNIL étant réunis — traitement de données de **mineurs** et recours à l'**IA générative**.
   Cf. `legal/dpa.md` §7. Non bloquante pour les tests, **bloquante pour la production**.
@@ -1089,15 +1282,40 @@ La lecture de Firestore se fait en **REST + token ADC** (gRPC est bloqué sur ce
 
 ### 6.2 — fiscal
 
-Confirmer le cadre avant d'encaisser. Un particulier peut vendre, mais des revenus d'abonnement
-**réguliers** relèvent d'une activité : la micro-entreprise (déclarable en ligne, gratuite) est le
-palier intermédiaire naturel avant la SASU. À trancher au plus tard au moment du passage en
-production — rien ne bloque avant.
+✅ **RÉSOLU le 2026-09-02, en même temps que §6.1 — et c'est bien ainsi que les deux devaient se
+prendre.** Le cadre est posé avant le premier encaissement, ce que cette section demandait :
 
-⚠️ Attention à ne pas confondre ce choix avec celui de §6.1 : la micro-entreprise règle la question
-**fiscale** mais **pas** celle de l'adresse publique. Son adresse légale est le domicile, sauf à
-souscrire une domiciliation, et Google exige un **D-U-N-S** pour reconnaître un compte comme
-organisation. Les deux arbitrages se prennent ensemble.
+| | Retenu |
+|---|---|
+| Forme | **Entreprise individuelle**, régime **micro** |
+| Régime | **BIC prestations de services** — 21,2 % de cotisations, 50 % d'abattement, ~15 % d'IR en part du CA |
+| Code APE | `58.29C` — édition de logiciels applicatifs, division 58 « Édition » |
+| TVA | **Franchise en base** — pas de TVA facturée, pas de TVA récupérée |
+| Déclaration de CA | **Trimestrielle**, à l'URSSAF, **même à zéro** (58 € par oubli) |
+| SASU | **Hors plan.** ~970 €/an de régime contre ~2 200 €, sans bilan ni liasse |
+
+**Ce qui n'est pas encore fait et qui touche l'encaissement :**
+
+- [ ] **Numéro de TVA intracommunautaire** à faire attribuer par le SIE — **le dernier élément
+      d'identité manquant**. ⚠️ **`FR43109354092`, affiché par Verif, societe.com et Pappers, N'EST
+      PAS ATTRIBUÉ** : ces sites le *calculent* depuis le SIREN. Interrogé à VIES le 2026-09-06,
+      il répond `isValid: false`. Le recopier dans la facturation Google Cloud ne déclencherait pas
+      l'autoliquidation — il produirait une TVA irlandaise irrécupérable. ⚠️ Sous franchise en base, on ne
+      facture pas de TVA — **mais recevoir des services de Google Ireland oblige à en disposer et à
+      déclarer l'autoliquidation**. Avec des coûts d'inférence à ~15 % du brut, c'est exactement le
+      profil concerné. Gratuit, mais à demander.
+- [ ] **Rescrit fiscal (SIE) et rescrit social (URSSAF)** sur la position BIC. Gratuits, ~3 mois, et
+      c'est ce qui transforme un pari annuel en position acquise opposable. Ne bloquent rien.
+- [ ] **[PRO]** Le chiffre d'affaires déclaré est-il le **brut payé par l'utilisateur** ou le **net
+      reversé par Google** ? La réponse commande la base des cotisations, la date d'atteinte du
+      plafond du régime, et le sort de la commission Play au regard de l'autoliquidation.
+- [ ] **Formulaire 1447-C avant le 31/12/2026** — il déclenche l'exonération de cotisation foncière
+      de la première année.
+
+⚠️ **La règle à tenir dans la durée.** Une seule facture de **développement sur commande** fragilise
+la position BIC. Vendre un produit standard à un public indéterminé, c'est commercial ; vendre du
+sur-mesure ou du conseil, c'est libéral — et pas seulement sur la ligne concernée. Le risque se
+dégrade si le portefeuille dérive vers le sur-mesure, **pas s'il grossit**.
 
 ### 6.3 — lancement
 
@@ -1127,18 +1345,27 @@ organisation. Les deux arbitrages se prennent ensemble.
 - [ ] Compte de test de revue fonctionnel, avec instructions
 - [ ] IARC déclarant les achats numériques
 - [ ] Data Safety cohérent avec `legal/dpa.md`
-- [ ] **Arbitrage §6.1 tranché** : particulier avec adresse personnelle publique, ou structure +
-      domiciliation en compte organisation (délai D-U-N-S + 72 h à anticiper)
+- [x] **Arbitrage §6.1 tranché** — structure + domiciliation, SIREN `109354092` du 2026-09-02
+- [ ] **Compte développeur affiché « organisation »** : D-U-N-S obtenu, profil de paiement
+      organisation vérifié, conversion faite, 72 h écoulées (§0.2)
+- [ ] **Entrée d'app neuve créée APRÈS la conversion**, sous son package définitif — c'est ce qui
+      achète l'exemption des 12 testeurs (§0.1, §2.2)
+- [ ] **Fiche publique relue** : aucune trace de l'adresse personnelle
+- [ ] **N° de TVA intracommunautaire** obtenu, puis reporté dans les mentions légales du site et sur
+      la facturation Google Cloud (§6.2)
 - [ ] **Statut de vendeur DSA déclaré « professionnel »**, coordonnées renseignées (affichage
       public assumé) — `compte.md`
 - [ ] **Programme de frais de service réduits** : groupe de comptes créé, conditions acceptées —
       `compte.md`
-- [ ] CGU v5 et privacy v3 **servies** et cohérentes avec le site
+- [ ] Corpus légal **v1** servi et cohérent avec le site (le corpus entier a été reposé en `v1` le
+      2026-08-28 ; les mentions « CGU v5 / privacy v3 » qui traînent ailleurs sont périmées)
+- [x] Identification de l'éditeur complète dans le corpus et sur le site — nom, qualité,
+      domiciliation, **SIREN** (`tools/set_publisher_siren.py`, 2026-09-03)
 - [ ] `store_config/founders` posé par le build dans les deux régions, `GRANT_ADMINS` renseigné
 - [ ] Phase 3 bis : points 1 à 13 traités
 - [ ] Recette de monétisation : les 12 scénarios verts
 - [ ] AIPD menée, relecture juridique faite
-- [ ] Cadre fiscal confirmé
+- [x] Cadre fiscal confirmé — micro-entreprise, BIC prestations de services (§6.2)
 - [ ] `debug.simulate_state` vide dans le build publié
 
 ---

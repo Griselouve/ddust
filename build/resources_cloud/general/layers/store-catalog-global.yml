@@ -12,6 +12,7 @@ data:
     catalog:
       ddust_essentiel:
         type: subscription
+        enabled: true
         order: 1
         base_plans:
         - essentiel-monthly
@@ -43,22 +44,41 @@ data:
           plans:
             essentiel-monthly:
               period: P1M
+              part_base: 0.3
               prices:
                 eur: '1.99'
-                usd: '2.19'
+                sek: '29'
+                dkk: '19'
+                nok: '29'
+                gbp: '1.99'
+                chf: '2.90'
+                usd: '2.99'
                 cad: '2.99'
-                gbp: '1.79'
-                chf: '1.99'
+                aud: '3.49'
+                nzd: '3.49'
+                brl: '7.90'
+                mxn: '25.49'
+                cop: '5900'
             essentiel-yearly:
               period: P1Y
+              part_base: 0.1
               prices:
                 eur: '19.99'
-                usd: '21.99'
-                cad: '29.99'
-                gbp: '17.99'
-                chf: '19.99'
+                sek: '275'
+                dkk: '185'
+                nok: '315'
+                gbp: '18.49'
+                chf: '28.00'
+                usd: '28.99'
+                cad: '30.99'
+                aud: '37.49'
+                nzd: '37.49'
+                brl: '78.90'
+                mxn: '254.49'
+                cop: '55900'
       ddust_clan:
         type: subscription
+        enabled: true
         order: 2
         base_plans:
         - clan-monthly
@@ -90,22 +110,41 @@ data:
           plans:
             clan-monthly:
               period: P1M
+              part_base: 0.225
               prices:
                 eur: '2.99'
-                usd: '3.29'
+                sek: '39'
+                dkk: '29'
+                nok: '49'
+                gbp: '2.99'
+                chf: '4.00'
+                usd: '4.49'
                 cad: '4.49'
-                gbp: '2.59'
-                chf: '2.99'
+                aud: '5.49'
+                nzd: '5.49'
+                brl: '11.90'
+                mxn: '37.99'
+                cop: '7900'
             clan-yearly:
               period: P1Y
+              part_base: 0.075
               prices:
                 eur: '24.99'
-                usd: '27.99'
-                cad: '36.99'
-                gbp: '21.99'
-                chf: '24.99'
+                sek: '339'
+                dkk: '235'
+                nok: '395'
+                gbp: '23.49'
+                chf: '35.00'
+                usd: '36.49'
+                cad: '38.49'
+                aud: '46.99'
+                nzd: '46.49'
+                brl: '98.90'
+                mxn: '318.49'
+                cop: '69900'
       ddust_tribu:
         type: subscription
+        enabled: true
         order: 3
         base_plans:
         - tribu-monthly
@@ -136,22 +175,41 @@ data:
           plans:
             tribu-monthly:
               period: P1M
+              part_base: 0.1875
               prices:
                 eur: '4.99'
-                usd: '5.49'
+                sek: '69'
+                dkk: '45'
+                nok: '79'
+                gbp: '4.49'
+                chf: '7.00'
+                usd: '7.49'
                 cad: '7.49'
-                gbp: '4.29'
-                chf: '4.99'
+                aud: '9.49'
+                nzd: '9.49'
+                brl: '19.90'
+                mxn: '63.49'
+                cop: '13900'
             tribu-yearly:
               period: P1Y
+              part_base: 0.0625
               prices:
                 eur: '39.99'
-                usd: '43.99'
-                cad: '58.99'
-                gbp: '34.99'
-                chf: '39.99'
+                sek: '549'
+                dkk: '375'
+                nok: '629'
+                gbp: '37.49'
+                chf: '56.50'
+                usd: '58.49'
+                cad: '61.49'
+                aud: '74.99'
+                nzd: '74.99'
+                brl: '158.90'
+                mxn: '509.49'
+                cop: '111900'
       ddust_guilde:
         type: subscription
+        enabled: true
         order: 4
         base_plans:
         - guilde-monthly
@@ -181,22 +239,41 @@ data:
           plans:
             guilde-monthly:
               period: P1M
+              part_base: 0.03
               prices:
                 eur: '5.99'
-                usd: '6.49'
-                cad: '8.99'
-                gbp: '5.29'
-                chf: '5.99'
+                sek: '79'
+                dkk: '55'
+                nok: '95'
+                gbp: '5.49'
+                chf: '8.50'
+                usd: '8.49'
+                cad: '9.49'
+                aud: '10.99'
+                nzd: '10.99'
+                brl: '23.90'
+                mxn: '76.49'
+                cop: '16900'
             guilde-yearly:
               period: P1Y
+              part_base: 0.01
               prices:
                 eur: '49.99'
-                usd: '54.99'
-                cad: '73.99'
-                gbp: '42.99'
-                chf: '49.99'
+                sek: '685'
+                dkk: '465'
+                nok: '789'
+                gbp: '46.99'
+                chf: '70.50'
+                usd: '72.99'
+                cad: '76.99'
+                aud: '93.49'
+                nzd: '93.49'
+                brl: '197.90'
+                mxn: '636.99'
+                cop: '139900'
       ddust_royaume:
         type: subscription
+        enabled: true
         order: 5
         base_plans:
         - royaume-monthly
@@ -227,17 +304,335 @@ data:
           plans:
             royaume-monthly:
               period: P1M
+              part_base: 0.0075
               prices:
                 eur: '7.99'
-                usd: '8.99'
-                cad: '11.99'
-                gbp: '6.99'
-                chf: '7.99'
+                sek: '109'
+                dkk: '75'
+                nok: '125'
+                gbp: '7.49'
+                chf: '11.50'
+                usd: '11.49'
+                cad: '12.49'
+                aud: '14.99'
+                nzd: '14.99'
+                brl: '31.90'
+                mxn: '101.99'
+                cop: '21900'
             royaume-yearly:
               period: P1Y
+              part_base: 0.0025
               prices:
                 eur: '64.99'
-                usd: '71.99'
-                cad: '96.99'
-                gbp: '56.99'
-                chf: '64.99'
+                sek: '889'
+                dkk: '605'
+                nok: '1025'
+                gbp: '60.99'
+                chf: '91.50'
+                usd: '94.99'
+                cad: '100.49'
+                aud: '121.99'
+                nzd: '121.49'
+                brl: '257.90'
+                mxn: '827.99'
+                cop: '180900'
+      ddust_validations:
+        libelle: Validations automatiques
+        type: product
+        enabled: true
+        lot: loots
+        attachement_mensuel: 0.0067
+        prix:
+          eur: 1.99
+          sek: 29
+          dkk: 19
+          nok: 29
+          gbp: 1.99
+          chf: 2.9
+          usd: 2.99
+          cad: 2.99
+          aud: 3.49
+          nzd: 3.49
+          brl: 7.9
+          mxn: 25.49
+          cop: 5900
+      ddust_quetes_1:
+        libelle: Pack « Quêtes » I
+        type: product
+        enabled: true
+        lot: loots
+        attachement_mensuel: 0.0034
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_potions_1:
+        libelle: Pack « Potions » I
+        type: product
+        enabled: true
+        lot: loots
+        attachement_mensuel: 0.0034
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_bricolage:
+        libelle: Pack de tâches « Bricolage »
+        type: product
+        enabled: true
+        lot: loots
+        attachement_mensuel: 0.0034
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_routine:
+        libelle: Pack de tâches « Routine »
+        type: product
+        enabled: true
+        lot: loots
+        attachement_mensuel: 0.0034
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_butin:
+        libelle: Extension « Butin »
+        type: product
+        enabled: true
+        lot: loots
+        attachement_mensuel: 0.0017
+        prix:
+          eur: 7.99
+          sek: 109
+          dkk: 75
+          nok: 125
+          gbp: 7.49
+          chf: 11.5
+          usd: 11.49
+          cad: 12.49
+          aud: 14.99
+          nzd: 14.99
+          brl: 31.9
+          mxn: 101.99
+          cop: 21900
+      ddust_quetes_2:
+        libelle: Pack « Quêtes » II
+        type: product
+        enabled: true
+        lot: packs
+        attachement_mensuel: 0.0008
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_quetes_3:
+        libelle: Pack « Quêtes » III
+        type: product
+        enabled: true
+        lot: packs
+        attachement_mensuel: 0.0008
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_potions_2:
+        libelle: Pack « Potions » II
+        type: product
+        enabled: true
+        lot: packs
+        attachement_mensuel: 0.0008
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_potions_3:
+        libelle: Pack « Potions » III
+        type: product
+        enabled: true
+        lot: packs
+        attachement_mensuel: 0.0008
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_devoirs:
+        libelle: Pack « Devoirs faits »
+        type: product
+        enabled: true
+        lot: packs
+        attachement_mensuel: 0.0008
+        prix:
+          eur: 3.99
+          sek: 55
+          dkk: 39
+          nok: 65
+          gbp: 3.49
+          chf: 5.5
+          usd: 5.99
+          cad: 5.99
+          aud: 7.49
+          nzd: 7.49
+          brl: 15.9
+          mxn: 50.99
+          cop: 10900
+      ddust_theme_starsweep:
+        libelle: Thème « Star Sweep »
+        type: product
+        enabled: true
+        lot: themes
+        attachement_mensuel: 0.0014
+        prix:
+          eur: 5.99
+          sek: 79
+          dkk: 55
+          nok: 95
+          gbp: 5.49
+          chf: 8.5
+          usd: 8.49
+          cad: 9.49
+          aud: 10.99
+          nzd: 10.99
+          brl: 23.9
+          mxn: 76.49
+          cop: 16900
+      ddust_theme_casanostra:
+        libelle: Thème « La Casa Nostra »
+        type: product
+        enabled: true
+        lot: themes
+        attachement_mensuel: 0.0014
+        prix:
+          eur: 5.99
+          sek: 79
+          dkk: 55
+          nok: 95
+          gbp: 5.49
+          chf: 8.5
+          usd: 8.49
+          cad: 9.49
+          aud: 10.99
+          nzd: 10.99
+          brl: 23.9
+          mxn: 76.49
+          cop: 16900
+      ddust_theme_pirates:
+        libelle: Thème « Pirates of the accariens »
+        type: product
+        enabled: true
+        lot: themes
+        attachement_mensuel: 0.0014
+        prix:
+          eur: 5.99
+          sek: 79
+          dkk: 55
+          nok: 95
+          gbp: 5.49
+          chf: 8.5
+          usd: 8.49
+          cad: 9.49
+          aud: 10.99
+          nzd: 10.99
+          brl: 23.9
+          mxn: 76.49
+          cop: 16900
+      ddust_classes:
+        libelle: Classes de personnage
+        type: product
+        enabled: true
+        lot: classes
+        attachement_mensuel: 0.0022
+        prix:
+          eur: 6.99
+          sek: 95
+          dkk: 65
+          nok: 109
+          gbp: 6.49
+          chf: 9.9
+          usd: 9.99
+          cad: 10.99
+          aud: 12.99
+          nzd: 12.99
+          brl: 27.9
+          mxn: 88.99
+          cop: 19900

@@ -76,21 +76,31 @@ Toutes les valeurs viennent de `build/build.yml`, bloc `publisher:` — ne rien 
 | Champ (libellés variables) | Valeur | Source |
 |---|---|---|
 | Statut de vendeur | **Professionnel** | — |
-| Nom / Nom légal | le **nom civil**, orthographe exacte de la pièce d'identité | `publisher.legal_name` |
-| Adresse — rue | résidence réelle | `publisher.address.street` |
+| Nom / Nom légal | la **dénomination au RNE**, orthographe exacte de l'extrait d'immatriculation — **sans trait d'union**, et **sans « EI »** | `publisher.legal_name` |
+| Adresse — rue | **adresse de domiciliation** | `publisher.address.street` |
 | Adresse — code postal | | `publisher.address.postal_code` |
 | Adresse — ville | | `publisher.address.city` |
 | Adresse — pays | France | `publisher.address.country` |
 | Téléphone | format international | `publisher.phone` |
 | Adresse e-mail | `donjons@grisloup.com` | `publisher.email` |
 | Site web (si demandé) | `https://donjons.grisloup.com` | `publisher.website` |
-| Numéro d'immatriculation / TVA | **laisser vide** — personne physique, aucune immatriculation | `publisher.registration_number: ~` |
+| Numéro d'immatriculation | le **SIREN**, neuf chiffres sans espaces | `publisher.registration_number` |
+| Numéro de TVA | **laisser vide** — franchise en base, et le n° intracommunautaire n'est pas encore attribué (plan §2.1) | — |
 | Case de consentement à l'affichage public | à cocher — c'est l'objet même de la déclaration | — |
 
-⚠️ **Nom civil, pas « grisloup.com ».** Le champ attend l'identité **juridique**, qui est celle
-d'une personne physique tant qu'aucune structure n'existe. Y déclarer un nom commercial non
-enregistré crée un écart avec la pièce d'identité — cause classique de blocage — et avec
-`dpa.md` §3.
+⚠️ **Nom du registre, pas « Grisloup ».** Le champ attend l'identité **juridique**, qui reste
+celle d'une personne physique : une entreprise individuelle n'est pas une société séparée de son
+entrepreneur. Y déclarer le nom commercial crée un écart avec l'extrait d'immatriculation — cause
+classique de blocage — et avec `dpa.md` §3.
+
+⚠️ **RÉÉCRIT LE 2026-09-03, L'IMMATRICULATION ÉTANT OBTENUE** (SIREN `109354092`, RNE du
+2026-09-02, APE `58.29C`). Ce tableau décrivait une personne physique sans structure. Deux
+conséquences qui ne sont pas cosmétiques : l'adresse publiée devient la **domiciliation** au lieu du
+domicile, et le numéro d'immatriculation cesse d'être vide. **Mais Google refuse une domiciliation
+sur un compte PERSONNEL** : ces valeurs ne se saisissent qu'après la conversion en compte
+organisation — D-U-N-S, second profil de paiement, 72 h, cf. `publication.md` §0.2. Saisir la
+domiciliation trop tôt fait échouer la vérification ; saisir le domicile après la conversion
+republie ce qu'on venait d'écarter.
 
 ### ⚠️ ne pas confondre trois « noms »
 
@@ -98,8 +108,8 @@ C'est le piège propre à ce dossier, et la console ne les distingue pas clairem
 
 | Nom | Valeur | Où il vit |
 |---|---|---|
-| Nom **légal** | le nom civil | déclaration DSA (ici) + profil de paiement |
-| Nom **commercial** | `grisloup.com` | CGU, politique de confidentialité, mention « éditeur » du site |
+| Nom **légal** | `MARCHAL DE GREEF Guillaume` — règle de nommage du 2026-09-03, ordre du registre | déclaration DSA (ici) + profil de paiement |
+| Nom **commercial** | `Grisloup` — déclaré au RNE, confirmé sur l'extrait. ⚠ Le domaine `grisloup.com` est déclaré à côté : c'est une adresse, pas un nom | CGU, politique de confidentialité, mention « éditeur » du site |
 | Nom **du développeur** | `Grisloup` | fiche Play — **champ distinct**, paramètres du compte, réglé ailleurs |
 
 Le nom commercial n'est pas perdu en déclarant le nom civil ici : ce sont trois champs séparés.

@@ -64,7 +64,7 @@ extension Worker_celebrations on worker {
                                 if (pending.isEmpty) return false;
 
                                 await deva_set("worker.pending_clan_welcome", "");   // one-shot
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final page = DvOrb.get_current_page();
                                 if (page is DvPage) page.freeze();
                                 try {
@@ -112,7 +112,7 @@ extension Worker_celebrations on worker {
     Future<void> _evaluateDeath({bool celebrateHeal = true, bool celebrateDeath = true}) async {
 
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -276,7 +276,7 @@ extension Worker_celebrations on worker {
     Future<void> resurrect_self(dynamic caller, dynamic event) async {
 
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -380,7 +380,7 @@ extension Worker_celebrations on worker {
                                 _levelUpChecking = true;
                                 bool celebrated = false;
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -537,7 +537,7 @@ extension Worker_celebrations on worker {
                                 _goldChecking = true;
                                 bool celebrated = false;
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -709,7 +709,7 @@ extension Worker_celebrations on worker {
                                 _chiefChecking = true;
                                 bool celebrated = false;
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";

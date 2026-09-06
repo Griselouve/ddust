@@ -14,11 +14,21 @@ conf:
   # sans rien ecrire. C'est le seul moment ou une faute de frappe se rattrape encore,
   # un identifiant Play cree ne se supprimant JAMAIS.
   #
+  # ⚠ NE PAS TOUCHER CE CHAMP POUR UN SIMPLE ESSAI. Depuis le 2026-08-27, le mot-clef
+  #   `dryrun` passe au builder force la simulation du catalogue :
+  #
+  #       python builder.py suite=ddust upload dryrun
+  #
+  #   Le mot-clef ne peut qu'AJOUTER de la prudence — il ne desactive jamais un
+  #   dry_run demande ici. Editer ce champ pour un essai, c'est prendre le risque
+  #   d'oublier de le remettre : le catalogue annoncerait alors ses changements a
+  #   chaque build sans jamais en ecrire un seul, et rien ne le signalerait.
+  #
   # Passe a false le 2026-08-21, plan relu. Les cinq identifiants d'abonnement et les
   # dix base plans existent desormais chez Google : les remettre a true ne les
-  # effacerait pas, cela ne ferait que suspendre les mises a jour. A rebasculer
-  # ponctuellement avant tout changement de grille tarifaire, pour relire l'effet
-  # avant de l'appliquer.
+  # effacerait pas, cela ne ferait que suspendre les mises a jour. Ce champ ne se
+  # rebascule donc que pour SUSPENDRE durablement les mises a jour du catalogue —
+  # pour relire l'effet d'un changement de grille, c'est le mot-clef qui sert.
   catalog:
     enabled: true
     dry_run: false
@@ -75,8 +85,8 @@ conf:
       # ce projet et accorder la publication a
       # google-play-developer-notifications@system.gserviceaccount.com.
       - pubsub.googleapis.com
-      # Balayage quotidien des timers de defaut de paiement (grace 10j, locked j50,
-      # suppression j90) : ces echeances doivent tomber meme si plus personne n'ouvre l'app.
+      # Balayage quotidien des timers de defaut de paiement (grace 10j, gel j50,
+      # suppression j730) : ces echeances doivent tomber meme si plus personne n'ouvre l'app.
       - cloudscheduler.googleapis.com
       # Contacts essentiels (project.essential_contacts) : sans cette API, la ressource
       # echoue au deploiement. Le compte de service master doit aussi porter
@@ -404,23 +414,37 @@ conf:
     legal_states:
       - a
       - k
-    default_region: eu
+    # /!\ `regions` N'EST PAS DECLARE ICI. La liste des regions ouvertes vit dans
+    #     documents.regions du build.yml de la suite, d'ou le builder la redistribue
+    #     au backend ET au client. Une valeur qui doit etre la meme des deux cotes
+    #     n'a de sens que si personne ne peut la redefinir localement -- c'est tout
+    #     l'interet de l'avoir remontee au projet.
+    #
+    # /!\ UNE REGION EST UN MARCHE. Elle decide des documents legaux applicables et
+    #     rien d'autre ; le datacenter en est deduit par le catalogue de pudocuments.
+    #     `fr` et `euo` vivent tous deux dans le cloud `eu`, donc un seul bucket de
+    #     documents pour les deux.
+    default_region: fr
     default_language: en
-    # Une entree par region declaree, sinon pudocuments se contente d'un log.warn au
-    # deploiement. Un SEUL seuil opere : 18 ans, l'age de la majorite contractuelle. Tout
-    # mineur, quel que soit son age, releve du consentement de son responsable legal :
-    # ddust n'exploite jamais le consentement propre du mineur que l'article 8 du RGPD
+    # Ou le builder va chercher le corpus, relativement a la racine de la suite.
+    # Sans cette cle, le controle de completude n'a lieu qu'au `pulumi up` -- trop
+    # tard pour epargner un APK construit avec un marche sans documents.
+    corpus_dir: legal/documents
+    # Declaratif ici : pudocuments se contente de les tracer au deploiement. La conf
+    # qui OPERE est celle du client, et les valeurs par defaut vivent desormais dans
+    # le `regions_catalog` de dvdocuments -- ce bloc n'est plus qu'une surcharge.
+    #
+    # Un SEUL seuil opere : 18 ans, l'age de la majorite contractuelle. Tout mineur,
+    # quel que soit son age, releve du consentement de son responsable legal : ddust
+    # n'exploite jamais le consentement propre du mineur que l'article 8 du RGPD
     # autorise a partir de 13-16 ans selon l'Etat membre. COPPA (moins de 13 ans aux
     # Etats-Unis) est porte par la redaction des documents us-*, pas par un palier ici.
-    # Le seuil bas reste declare a 0 : la cle `k` doit exister, car dvdocuments initialise
-    # l'etat legal a la cle du plus petit seuil (_computeLegalState). La supprimer ferait
-    # basculer le defaut sur `a` et rendrait adulte un enfant de cinq ans.
-    # A garder synchrone avec client/config/screens_meta.yml.
+    # Le seuil bas reste declare a 0 : la cle `k` doit exister, car dvdocuments
+    # initialise l'etat legal a la cle du plus petit seuil (_computeLegalState). La
+    # supprimer ferait basculer le defaut sur `a` et rendrait adulte un enfant de cinq
+    # ans.
     age_thresholds:
-      EU:
-        k: 0
-        a: 18
-      US:
+      fr:
         k: 0
         a: 18
 
@@ -1051,9 +1075,9 @@ conf:
             return { ok: true, deleted: Array.from(visited), firebaseUids: Array.from(fbUids) };
           });
       # -----------------------------------------------------------------------------
-      # Purge des clans au terme du calendrier de défaut de paiement (J90)
+      # Purge des clans au terme du calendrier de défaut de paiement (J730)
       # -----------------------------------------------------------------------------
-      # `pustore` ne supprime JAMAIS une donnée métier : à J90 son balayage pose
+      # `pustore` ne supprime JAMAIS une donnée métier : à J730 son balayage pose
       # `purge_due` et s'arrête là, par conception — définir ce que « supprimer »
       # veut dire chez soi est une décision applicative aux conséquences
       # irréversibles. C'est cette décision-ci, et elle est annoncée aux CGU
@@ -2014,7 +2038,7 @@ conf:
   # l'invocation du balayage.
   scheduler:
     jobs:
-      # Purge des clans à J90. Une heure APRÈS le balayage : c'est lui qui pose
+      # Purge des clans à J730. Une heure APRÈS le balayage : c'est lui qui pose
       # `purge_due`, et l'ordre fait que le drapeau posé à 5 h est honoré le matin même
       # plutôt que le lendemain.
       clan_purge:

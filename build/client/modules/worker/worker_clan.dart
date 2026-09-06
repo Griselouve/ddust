@@ -73,6 +73,7 @@ extension Worker_clan on worker {
                                 ActionRegistry.register("worker.on_request_link",              (c, e) async { if (e is Map) await on_request_link(c, e); });
 
                                 ActionRegistry.register("worker.on_accept_request_clan",       on_accept_request_clan);
+                                ActionRegistry.register("worker.on_invite_ack_changed",        on_invite_ack_changed);
 
                                 ActionRegistry.register("worker.on_virtuallobby_accepted",     (c, e) async { if (e is Map) await on_virtuallobby_accepted(c, e); });
 
@@ -108,7 +109,7 @@ extension Worker_clan on worker {
 
     Future<void> on_join_clan(DvShape? caller, dynamic event) async {
 
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isNotEmpty) await _writeStep(region, "clan", "joined");
                                 await Deva.instance.set("worker.session.clan_done", "true");
                                 // Bienvenue clan jouée à la 1re arrivée sur dashboard (cf. on_dashboard_appear).
@@ -118,7 +119,7 @@ extension Worker_clan on worker {
 
     Future<String> on_create_clan_complete(DvShape? caller, dynamic event) async {
 
-                                final region       = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region       = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final data         = event is Map ? event as Map : <String, dynamic>{};
                                 final internalName = data["internal_name"]?.toString() ?? "";
                                 final aiName       = data["ai_name"]?.toString()       ?? "";
@@ -493,7 +494,7 @@ extension Worker_clan on worker {
 
                                 var isAdmin = false;
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -513,9 +514,17 @@ extension Worker_clan on worker {
     //-- Join clan (candidat) ---------------------------------------------
     //-----------------------------------------------------------------------
 
-    // Un clan vit dans UNE SEULE région : ses données sont dans la base de cette région et
+    // Un clan vit dans UNE SEULE base : ses données sont dans celle de son datacenter et
     // rien ne traverse. Une invitation émise ailleurs ne mènerait donc qu'à un « clan
     // introuvable » silencieux — autant le dire franchement.
+    //
+    // ⚠ LA COMPARAISON PORTE SUR LE DATACENTER (cloud_region), PAS SUR LE ROYAUME.
+    //   La question posée n'est pas « avons-nous le même droit ? » mais « nos données
+    //   sont-elles dans la même base ? ». Un joueur du royaume de France et un joueur
+    //   des royaumes d'Europe lisent des conditions générales différentes et vivent
+    //   pourtant tous deux dans `eu` : ils doivent pouvoir jouer ensemble. Comparer
+    //   les royaumes les séparerait sans aucune raison technique.
+    //
     // Une invitation sans région (lien émis avant l'ouverture de la seconde région) passe :
     // il n'y avait alors qu'une région, la comparaison n'a pas de sens.
     // Retourne true si l'invitation doit être refusée (le message est déjà affiché).
@@ -523,7 +532,7 @@ extension Worker_clan on worker {
 
                                 if (inviteRegion.isEmpty) return false;
 
-                                final mine = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final mine = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (mine.isEmpty || mine.toLowerCase() == inviteRegion.toLowerCase()) return false;
 
                                 deva_log("info", "[worker] invitation région=$inviteRegion, session région=$mine — refusée");
@@ -566,7 +575,7 @@ extension Worker_clan on worker {
 
     Future<void> on_accept_request_clan(DvShape? caller, dynamic event) async {
 
-                                final region  = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region  = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session = region.isNotEmpty ? await _readSession(region) : null;
                                 final groupId = session?.get("steps.clan.clanId")?.toString() ?? "";
                                 final lobbyId = (await deva_get("worker.pending_lobby_id"))?.toString() ?? "";
@@ -591,7 +600,7 @@ extension Worker_clan on worker {
 
                                 final groupId = event["group_id"]?.toString() ?? "";
                                 final lobbyId = event["lobby_id"]?.toString() ?? "";
-                                final region  = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region  = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session = region.isNotEmpty ? await _readSession(region) : null;
                                 final hasClan = session?.get("steps.clan") != null;
 
@@ -622,7 +631,18 @@ extension Worker_clan on worker {
                                         if (clanId.isNotEmpty && clanSecret.isNotEmpty) {
                                             deva_log("info", "[worker] publishSecret: lobbyId=$lobbyId groupId=$groupId");
                                             final lobby = ModuleRegistry.create("dvvirtuallobby");
-                                            await (lobby as dynamic).publishSecret(lobbyId, groupId, {"clanId": clanId, "clanSecret": clanSecret, "adminId": _userId});
+                                            // La déclaration du chef voyage avec le secret : c'est le seul
+                                            // canal qui serve les DEUX chemins de recrutement (QR et PIN),
+                                            // et sa charge est libre. Elle sera collée par l'appareil du
+                                            // nouvel entrant à sa propre preuve d'acceptation des CGU —
+                                            // seul lui a le droit d'y écrire.
+                                            final ack = (await deva_get("worker.pending_ack"))?.toString() ?? "";
+                                            await (lobby as dynamic).publishSecret(lobbyId, groupId, {
+                                                "clanId":     clanId,
+                                                "clanSecret": clanSecret,
+                                                "adminId":    _userId,
+                                                if (ack.isNotEmpty) "ack": ack,
+                                            });
                                             // Le clan s'agrandit réellement ici, sur l'appareil du chef : le
                                             // reminder de recrutement doit s'éteindre TOUT DE SUITE, sans attendre
                                             // la prochaine lecture du roster (le chef repart au dashboard).
@@ -643,7 +663,7 @@ extension Worker_clan on worker {
 
                                 if (status == "accepted" && groupId.isNotEmpty) {
                                     ActionRegistry.get("virtuallobby.stop_watching")?.call(null, null);
-                                    final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     await _handleClanJoin(groupId, lobbyId, region);
                                 }
     }
@@ -661,6 +681,18 @@ extension Worker_clan on worker {
                                 final clanSecret = secret?.get("clanSecret")?.toString() ?? "";
                                 final adminId    = secret?.get("adminId")?.toString()    ?? "";
                                 deva_log("info", "[worker] _handleClanJoin: secret=${secret != null ? 'ok' : 'null'} clanId=${clanId.isNotEmpty ? 'ok' : 'vide'}");
+
+                                // Déclaration du chef, faite au moment d'ouvrir l'invitation. On la colle
+                                // à la preuve d'acceptation des CGU de CE joueur — la CGU a été acceptée
+                                // pendant l'inscription, donc bien avant d'arriver ici : dvdocuments
+                                // complète la preuve existante (cf. documents.attach_ack).
+                                // Best-effort : une déclaration qu'on n'a pas su coller ne doit pas
+                                // empêcher une admission déjà acquise des deux côtés.
+                                final ack = secret?.get("ack")?.toString() ?? "";
+                                if (ack.isNotEmpty) {
+                                    final r = await ActionRegistry.get("documents.attach_ack")?.call(null, ack);
+                                    deva_log("info", "[worker] _handleClanJoin: attach_ack → ${r ?? 'action absente'}");
+                                }
 
                                 if (clanId.isEmpty || clanSecret.isEmpty) {
                                     deva_log("error", "[worker] _handleClanJoin: virtuallobbysecret introuvable pour lobbyId=$lobbyId");
@@ -1062,11 +1094,12 @@ extension Worker_clan on worker {
     // --- Overlay de consentement du chef au recrutement (écran clan_page) ---------------------
     // Widgets posés en layer:overlay, invisibles par défaut — même idiome que l'overlay
     // « Créer un clan » (_setCreateConfirmVisible), jamais de fenêtre modale.
-    void _setInviteConsentVisible(bool v) {
+    Future<void> _setInviteConsentVisible(bool v) async {
 
                                 for (final id in const [
                                     "clan_page/invite_scrim",
                                     "clan_page/invite_panel",
+                                    "documents/ack_options",
                                     "clan_page/invite_yes",
                                     "clan_page/invite_no",
                                 ]) {
@@ -1074,6 +1107,45 @@ extension Worker_clan on worker {
                                     s?.set("shape.visible", v);
                                     s?.refreshUI();
                                 }
+                                if (!v) return;
+                                // Ouverture : on repose la question À NEUF. Les cases sont
+                                // reconstruites depuis la conf (donc décochées) et le bouton repart
+                                // éteint — une déclaration faite pour l'invitation précédente ne vaut
+                                // pas pour celle-ci.
+                                // Les cases sont reconstruites depuis la conf (donc décochées) par
+                                // show_ack : le bouton doit repartir éteint avec elles.
+                                await ActionRegistry.get("documents.show_ack")?.call(null, "guardian");
+                                _setInviteYesReady(false);
+    }
+
+    // Opacités du bouton « Invitons ! ». Deux valeurs et pas de mémoire : l'extension ne peut
+    // pas porter de champ, et relire l'opacité courante de la shape prendrait le bouton grisé
+    // pour la référence du bouton allumé dès la deuxième ouverture de l'overlay.
+    static const double _inviteYesOn  = 1.0;
+    static const double _inviteYesOff = 0.25;
+
+    // Bouton éteint ET sourd : `shape.events.tap` coupe le tap (idiome ddust d'un bouton hors
+    // service, cf. on_kid_wants_clan_appear), l'opacité dit pourquoi. Les deux vont ensemble —
+    // grisé sans être sourd, il laisserait passer un tap ; sourd sans être grisé, il
+    // n'expliquerait rien.
+    // ⚠ On ne le CACHE pas : un bouton éteint qui reste là dit qu'il manque quelque chose, un
+    //   bouton disparu laisse croire que l'écran est cassé.
+    void _setInviteYesReady(bool ready) {
+
+                                DvOrb.get_shape_by_id("clan_page/invite_yes")
+                                    ?..set("shape.opacity", ready ? _inviteYesOn : _inviteYesOff)
+                                    ..set("shape.events.tap", ready)
+                                    ..refreshUI();
+    }
+
+    // Le chef vient de cocher (ou décocher) l'un des trois cas.
+    Future<void> on_invite_ack_changed(DvShape? caller, dynamic event) async {
+
+                                final fn = ActionRegistry.get("documents.ack_ready");
+                                final ready = fn == null
+                                    ? true
+                                    : (await fn(null, null))?.toString() == "true";
+                                _setInviteYesReady(ready);
     }
 
     // Recruter est réservé au chef (double garde : clan_settings_selector cache déjà l'option).
@@ -1088,14 +1160,14 @@ extension Worker_clan on worker {
 
                                 if ((await _clanIdIfChief("on_invite_clan")).isEmpty) return;
                                 await deva_set("worker.pending_invite_kind", "qr");
-                                _setInviteConsentVisible(true);
+                                await _setInviteConsentVisible(true);
     }
 
     // Contrôles communs aux deux modes de recrutement (QR et invitation à distance) : le clan doit
     // être connu de la session et l'appelant doit en être chef. Rend le clanId, ou "" si refusé.
     Future<String> _clanIdIfChief(String who) async {
 
-                                final region  = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region  = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session = region.isNotEmpty ? await _readSession(region) : null;
                                 final groupId = session?.get("steps.clan.clanId")?.toString() ?? "";
                                 if (groupId.isEmpty) {
@@ -1128,7 +1200,24 @@ extension Worker_clan on worker {
     // l'écran PIN + partage au lieu du QR.
     Future<void> on_confirm_invite_consent(DvShape? caller, dynamic event) async {
 
-                                _setInviteConsentVisible(false);
+                                // Le chef n'a pas dit DE QUI il s'agit : on ne bouge pas. Le bouton est
+                                // déjà sourd, cette garde est celle qui va avec.
+                                // ⚠ On interroge `ack_ready` et NON le scellé : une conf sans
+                                //   acquittement déclaré rend un scellé vide sans que rien ne manque,
+                                //   et bloquer là-dessus casserait le recrutement de toute application
+                                //   qui ne se sert pas du mécanisme.
+                                final readyFn = ActionRegistry.get("documents.ack_ready");
+                                if (readyFn != null && (await readyFn(null, null))?.toString() != "true") {
+                                    deva_log("info", "[worker] on_confirm_invite_consent: aucune déclaration cochée");
+                                    return;
+                                }
+                                // Voyage avec l'invitation jusqu'à la preuve d'acceptation de l'entrant
+                                // (cf. on_virtuallobby_accepted → publishSecret).
+                                final sealed = (await ActionRegistry.get("documents.seal_ack")
+                                    ?.call(null, "guardian"))?.toString() ?? "";
+                                await deva_set("worker.pending_ack", sealed);
+
+                                await _setInviteConsentVisible(false);
                                 final kind = (await deva_get("worker.pending_invite_kind"))?.toString() ?? "qr";
                                 await deva_set("worker.pending_invite_kind", "");
                                 // Le clan est relu ici et pas conservé depuis la garde : entre le tap sur
@@ -1151,7 +1240,7 @@ extension Worker_clan on worker {
     Future<void> _stampFirstInvite(String clanId) async {
 
                                 try {
-                                    final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = region.isNotEmpty ? await _readSession(region) : null;
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
                                     if (clanId.isEmpty || clanSecret.isEmpty || region.isEmpty) return;
@@ -1175,7 +1264,7 @@ extension Worker_clan on worker {
     Future<void> on_cancel_invite_consent(DvShape? caller, dynamic event) async {
 
                                 await deva_set("worker.pending_invite_kind", "");
-                                _setInviteConsentVisible(false);
+                                await _setInviteConsentVisible(false);
     }
 
     // Invitation à distance : même chemin que le QR (consentement puis create_management), mais le
@@ -1186,7 +1275,7 @@ extension Worker_clan on worker {
 
                                 if ((await _clanIdIfChief("on_invite_clan_remote")).isEmpty) return;
                                 await deva_set("worker.pending_invite_kind", "pin");
-                                _setInviteConsentVisible(true);
+                                await _setInviteConsentVisible(true);
     }
 
     Future<void> on_management_created(DvShape? caller, Map event) async {
@@ -1203,7 +1292,7 @@ extension Worker_clan on worker {
                                 // La région voyage avec l'invitation : le clan n'existe que dans la sienne,
                                 // et celui qui la reçoit doit pouvoir le savoir avant de tenter d'entrer.
                                 // Posée dans le store pour le texte de partage (screens_meta : share_clan_invite).
-                                final region = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 await deva_set("worker.pending_region", region);
 
                                 ActionRegistry.get("virtuallobby.watch_management")?.call(null, {"group_id": groupId, "lobby_id": lobbyId});

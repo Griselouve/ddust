@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
 """Génère la version suivante des CGU à partir de la version courante.
 
+⚠ SCRIPT DÉJÀ JOUÉ — il archive le bump du 2026-08-11, et ne se relance pas tel
+  quel. Deux raisons, toutes deux dues à la bascule du 2026-08-27 :
+
+    - `BUMPS` nomme des RÉGIONS CLOUD (`eu`, `us`) alors que les documents sont
+      désormais déclinés par MARCHÉ (`fr` est le seul ouvert). Le corpus `eu-*`
+      est conservé comme preuve mais n'est plus servi à personne ;
+    - ses versions source (`eu` v4, `us` v2) n'existent plus. La remise à plat du
+      2026-08-28 (`reset_corpus_v1.py`) a reposé le corpus ENTIER — `eu` et `us`
+      compris — en v1 : plus aucun fichier ne porte la version que `BUMPS` cherche.
+
+  Pour un prochain bump : reprendre la mécanique (une substitution = une
+  occurrence attendue, sinon échec) en repointant `BUMPS` sur les marchés
+  ouverts, et `WITHDRAW_OLD`/`WITHDRAW_NEW` sur leurs clefs — la clause de
+  rétractation reste une construction du droit européen, elle suit donc le
+  marché et non le datacenter.
+
+  Pour ouvrir un marché de plus, ce n'est pas ce script mais
+  `derive_market_corpus.py` : dériver n'est pas bumper.
+
 Contexte : décision du 2026-08-11 de lancer l'app payante d'emblée (voir strategie.md).
 Les CGU en vigueur (EU v4, US v2) annoncent un essai de 15 jours alors que la grille
 retenue le 2026-07-07 est de 14 jours, ne décrivent pas le cycle de défaut de paiement

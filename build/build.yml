@@ -1,3 +1,298 @@
+# =============================================================================
+# NOM COMMERCIAL — le nom qu'on lit, la ou le code est le nom qu'on tape
+# =============================================================================
+# Ecrit depuis la fiche du projet, dans la console deva.
+#
+# A LA RACINE DU build.yml, et non dans `conf.application.display_name` du
+# client : la moitie du portefeuille n'a pas encore de partie Flutter, et son
+# nom n'aurait alors eu aucun endroit ou se poser.
+# =============================================================================
+display_name: 'Donjons & Savons'
+
+
+# =============================================================================
+# ACCROCHE — une phrase, affichée sous le nom dans la console deva
+# =============================================================================
+# Ce qu'on répondrait à quelqu'un qui demande « c'est quoi ? ». Une seule
+# phrase : au-delà, ce n'est plus une accroche, c'est la description.
+#
+# ⚠ SI LE PROJET A UN SITE, C'EST LA MÊME PHRASE. Celle de ddust est reprise
+#   telle quelle de `hosting/web/fr/index.html` : elle est déjà publiée, et en
+#   entretenir deux versions garantirait qu'elles divergent.
+# =============================================================================
+accroche: 'Vos enfants ne rangent pas leur chambre ? Transformez votre maison en donjon.'
+
+
+# =============================================================================
+# DESCRIPTION DU PROJET — affichée par la console deva (icône « œil »)
+# =============================================================================
+# Le CONCEPT du projet, écrit pour soi et pour dans six mois : ce qu'il est, à
+# qui il s'adresse, ce qui le distingue. 2000 caractères au plus.
+#
+# ⚠ CE N'EST PAS `listing`. Celui-ci porte la fiche du store — écrite pour un
+#   client, en trois langues, sous contrainte de longueur et de ton. Les deux
+#   divergeraient aussitôt si on les confondait : l'une se réécrit à chaque
+#   campagne, l'autre décrit une intention qui, elle, ne bouge presque pas.
+#
+# ⚠ SOURCE UNIQUE. La console la LIT et ne l'écrit jamais : elle se rédige ici,
+#   dans le dépôt, versionnée avec le reste. Firestore n'en porte qu'une copie,
+#   parce qu'Android n'a pas de build.yml sous la main.
+# =============================================================================
+description: |-
+  Les corvées du foyer transformées en monstres, à abattre en famille. Application, abonnement, publiée sur le Play Store.
+
+  Le foyer est un donjon poussiéreux ; les parents n'y arrivent plus et recrutent des aventuriers : les enfants. Chaque tâche ménagère est un monstre. Le vaincre rapporte de l'expérience au joueur ET au clan tout entier.
+
+  Ce qui fait le jeu, c'est le BUTIN : quand le clan monte de niveau, les parents ouvrent un coffre dont ils ont eux-mêmes défini le contenu (argent de poche, sortie, privilèges) et il se répartit entre les joueurs au prorata de leur expérience acquise après avoir vaincu des monstres. La récompense est donc réelle, décidée par les parents, et le mérite s'y lit directement. Un coup de pouce en XP permet de relancer un retardataire sans fausser le compte du clan.
+
+
+# =============================================================================
+# ICÔNE DU PROJET — affichée par la console deva
+# =============================================================================
+# Chemin du PNG, relatif à la racine de la suite (là où vit ce fichier). La
+# console le réduit à 256 px de large, l'encode en base64 et le range dans la
+# collection `apps_icons` — c'est de là que l'app le relit, y compris sur
+# Android, qui n'a aucun dépôt sous la main.
+#
+# ⚠ FACULTATIF. Sans cette clef, la console retombe sur la convention : le
+#   dernier `<racine>/<paquet>/icon/icon.png` trouvé parmi les `build.resources`
+#   de la partie Flutter. On ne la déclare donc que quand le fichier existe —
+#   une clef qui désigne un fichier absent serait un mensonge de plus à
+#   entretenir.
+# =============================================================================
+icon: 'resources/icon/icon.png'
+
+# =============================================================================
+# TYPE DE PROJET — lu par prompt_roadmap.py et prompt_revenus.py
+# =============================================================================
+# ⚠ C'EST LE TYPE QUI DÉCIDE DU TRAITEMENT, JAMAIS LE NOM. Les scripts n'ont
+#   aucune connaissance des projets : ajouter une douzième application ou une
+#   seconde société ne demande aucune ligne de code.
+#
+#   application  vend quelque chose. Plateau, cadence, marchés, note de
+#                confiance, lots au catalogue.
+#   structure    ne vend rien et porte les coûts communs (société, comptabilité,
+#                comptes store). Ses lots se somment en euros NÉGATIFS : c'est du
+#                revenu en moins, daté. Ni plateau ni note de confiance — un coût
+#                est certain.
+#   interne      livraison interne : ni revenu, ni coût propre. Coûte des sp.
+# =============================================================================
+type: application
+
+# =============================================================================
+# LANGUES SUPPORTÉES — décision du 2026-08-26
+# =============================================================================
+# ⚠ CETTE LISTE DÉCIDE DE QUATRE CHOSES À LA FOIS, et c'est pour ça qu'elle vit
+#   en premier niveau plutôt que dans `listing:` :
+#     - la fiche du store (titre, description, captures) par langue ;
+#     - le contenu de l'app elle-même ;
+#     - les DOCUMENTS LÉGAUX, qui se déclinent par région x état légal x langue ;
+#     - les marchés réellement adressables — un enfant a besoin de SA langue,
+#       l'anglais ne rattrape rien avant l'adolescence.
+#
+# ⚠ AJOUTER UNE LANGUE COÛTE PLUS QUE LA TRADUCTION. Les documents légaux se
+#   multiplient : régions x états légaux x langues x documents. Passer de trois
+#   à sept langues fait passer ddust de 24 à 56 familles de documents à rédiger
+#   et à maintenir en version. C'est le poste le plus lourd, et le moins visible.
+#
+# ⚠ L'ORDRE EST CELUI DE LA PRIORITÉ, pas de l'alphabet. Le premier est la
+#   langue par défaut : celle qui sert de repli quand la langue du système n'est
+#   pas couverte, et celle dans laquelle les documents font foi.
+# =============================================================================
+langues:
+  - fr      # langue par défaut et de référence
+  - en
+  - es
+  - it
+  - de
+  - pt
+  - nl
+
+# =============================================================================
+# DOCUMENTS LÉGAUX — les régions ouvertes. Décision du 2026-08-27.
+# =============================================================================
+# ⚠ LA NOTION DE « ZONE » A DISPARU, et c'est délibéré. Elle avait été introduite
+#   la veille pour grouper les marchés partageant un droit ; elle imposait un
+#   troisième découpage à tenir (zone / marché / datacenter) pour une économie
+#   qui ne valait pas sa complexité. Un corpus recopié de `fr` vers `euo` ne
+#   coûte rien ; un niveau d'indirection de plus se paie à chaque lecture.
+#
+# ⚠ UNE RÉGION EST UN MARCHÉ. Elle décide des documents légaux applicables et
+#   déclare le datacenter qu'elle consomme. Rien d'autre — ni la langue (déclarée
+#   au-dessus), ni le prix (fixé par devise).
+#
+# ⚠ RÉGION ≠ DATACENTER, et c'est tout l'intérêt du découplage. `fr` et `euo`
+#   vivent tous deux dans le cloud `eu` : leurs joueurs partagent une base et
+#   peuvent donc appartenir au même clan, tout en lisant des conditions
+#   générales différentes. Le datacenter se déduit du catalogue de dvdocuments,
+#   il ne se déclare pas ici.
+#
+# ⚠ CETTE LISTE, C'EST CE QUI EST OUVERT — pas ce qui est préparé. Le build
+#   S'ARRÊTE si une région y figure sans corpus légal complet. C'est voulu :
+#   `store.play.devises` tarifie déjà GBP, CHF, CAD, AUD, BRL, MXN et COP, mais
+#   aucun de ces marchés n'a de documents. Les ouvrir ici avant de les avoir
+#   rédigés servirait à un utilisateur des conditions qui ne sont pas les
+#   siennes. Ajouter une région ici est donc le DERNIER geste d'une ouverture,
+#   jamais le premier.
+#
+# ⚠ AUCUNE GÉOLOCALISATION. Le joueur déclare sa région au premier lancement et
+#   cette déclaration fait foi — un Colombien vivant en France choisit la France,
+#   parce que c'est le droit français qui s'applique à lui.
+#
+# ⚠ `layer.publish` : `regions` est la SEULE sous-clef qui parte au client. Le
+#   reste de ce bloc est de la conf de déploiement.
+# =============================================================================
+documents:
+
+  layer:
+    publish:
+      - regions
+
+  # ⚠ LA FRANCE SEULE, et cette liste doit rester alignée sur ce qui est
+  #   RÉELLEMENT VENDU : `store.play.devises.eur.publish` ne publie que "FR", et
+  #   la piste fermée ne teste que la France. Ouvrir `euo` pour un testeur belge
+  #   reviendrait à maintenir un second corpus — douze fichiers à re-versionner à
+  #   chaque révision des CGU — pour un texte identique au mot près.
+  #   Le jour où la Belgique ou l'Allemagne se vendent, `euo` s'ouvre ici et
+  #   `tools/derive_market_corpus.py` produit son corpus. Pas avant.
+  regions:
+    - fr      # France — corpus de référence
+
+# =============================================================================
+# PRÉREQUIS — lus par prompt_roadmap.py
+# =============================================================================
+# ⚠ CE DONT CE PROJET A BESOIN, et qui est construit AILLEURS. Chaque entrée dit
+#   « ce livrable-ci ne peut pas sortir avant ceux-là ». L'ordonnanceur insère
+#   le prérequis juste avant son dépendant le plus précoce.
+#
+# ⚠ DÉCLARÉ CHEZ LE DÉPENDANT, JAMAIS CHEZ LA BRIQUE : un projet vendu seul ou
+#   publié en open source doit emporter la liste de ce qu'il réclame. La brique
+#   ne sait pas qui la consomme, et si elle le savait, retirer un projet du
+#   portefeuille demanderait de l'éditer.
+#
+# ⚠ La contrainte est DURE : elle passe avant la cadence. Un lot de contenu peut
+#   glisser d'un mois, un prérequis non livré rend son dépendant impossible.
+# =============================================================================
+
+requis:
+  mvp:
+    # ⚠ LA STRUCTURE PASSE AVANT LE LANCEMENT (décision 2026-08-28, câblée ici le
+    #   2026-08-29). Ce n'est pas une préférence d'ordre : la micro-entreprise est
+    #   ce qui ouvre le compte Play ORGANISATION, seul moyen de masquer l'adresse
+    #   personnelle sur la fiche publique, et c'est elle qui fournit le SIREN que
+    #   les 144 documents légaux doivent porter.
+    #   Chaîne réelle : domiciliation → compte bancaire pro → immatriculation →
+    #   DUNS → conversion du compte Play → nouvelle entrée d'app → CGU refaites.
+    #   ⚠ `grisloup/mvp` ne pèse que 55rsp de DÉMARCHES, mais son délai réel est
+    #     administratif et se compte en semaines : le modèle ne sait pas
+    #     l'exprimer. C'est pour ça que le lot porte en plus une échéance
+    #     `avant le` au 2026-11-07 dans la table `## livrables` — sans elle,
+    #     l'ordonnanceur le liquiderait en trois jours.
+    - grisloup/micro
+  ios:
+    # ⚠ LE PORTAGE VIENT APRÈS L'APP QU'IL PORTE, et ça n'était écrit nulle
+    #   part. Sans cette ligne, l'ordonnanceur voyait un livrable de 13 sp dont
+    #   le seul prérequis était `deva/ios` : il le plaçait donc très tôt, parfois
+    #   AVANT le MVP. Chez Spirits, `ios` s'est retrouvé en tête du projet et,
+    #   comme le livrable de référence se déduisait de la position, il a verrouillé
+    #   la table à chaque exécution suivante — le MVP a glissé d'un an derrière
+    #   son propre portage.
+    - ddust/premierpas
+    - deva/ios
+  socle:
+    - deva/dvorb
+    - deva/dvcore
+    - deva/dvassets
+    - deva/dvcloudassets
+    - deva/dvlayers
+    - deva/dvtheme
+    - deva/dvsound
+  clan:
+    - deva/dvcloud
+    - deva/dvvirtuallobby
+    - deva/dvqrcode
+    - deva/dvqrcodereader
+    - deva/dvparentalgate
+  personnage:
+    - deva/dvsession
+    - deva/dvcamera
+    - deva/dvdocuments
+  taches:
+    - deva/dvlock
+    - deva/dvtaskbar
+    - deva/dvsteps
+  progression:
+    - deva/dvorb
+  notifications:
+    - deva/dvmessaging
+    - deva/pumessaging
+    - deva/puscheduler
+  journal:
+    - deva/dvmarkdown
+    - deva/dvsocialshare
+  contenu_visuel:
+    - deva/dvcloudassets
+    - deva/puassets
+  contenu_sonore:
+    - deva/dvsound
+  celebrations:
+    - deva/dvflame
+    - deva/dvinterlude
+    - deva/dvvibrations
+    - deva/dvpops
+  administration:
+    - deva/dvorb
+  butin:
+    - deva/dvorb
+    - deva/dvcloudassets
+  boutique:
+    - deva/dvstore
+    - deva/pustore
+    - deva/pucatalog
+  quetes_1:
+    - ddust/loots
+  quetes_2:
+    - ddust/loots
+  quetes_3:
+    - ddust/loots
+  potions_1:
+    - ddust/loots
+  potions_2:
+    - ddust/loots
+  potions_3:
+    - ddust/loots
+  devoirs:
+    - ddust/loots
+  Pack « Quêtes » I:
+    - ddust/loots
+  Pack « Potions » I:
+    - ddust/loots
+  Pack « Devoirs faits »:
+    - ddust/loots
+  Pack « Quêtes » II:
+    - ddust/loots
+  Pack « Potions » II:
+    - ddust/loots
+  Pack « Quêtes » III:
+    - ddust/loots
+  Pack « Potions » III:
+    - ddust/loots
+  quetes I:
+    - ddust/loots
+  potions I:
+    - ddust/loots
+  devoirs faits:
+    - ddust/loots
+  quêtes II:
+    - ddust/loots
+  potions II:
+    - ddust/loots
+  quêtes III:
+    - ddust/loots
+  potions III:
+    - ddust/loots
+  premier pas:
+    - grisloup/micro
 build:
   sequence:
   - backend
@@ -119,18 +414,40 @@ build:
 # stores/google/dpa.md §3. Un écart bloque la validation ou fragilise le dossier
 # RGPD — d'où une source unique plutôt que six saisies.
 #
+# ⚠ RÉÉCRIT LE 2026-09-03 — L'IMMATRICULATION EST OBTENUE.
+# SIREN 109354092, RNE du 2026-09-02, APE 58.29C. Ce bloc portait jusqu'ici
+# l'identité d'une PERSONNE PRIVÉE (domicile de Courdimanche, mobile personnel,
+# aucun numéro d'immatriculation) parce qu'il n'y avait rien d'autre à écrire. Il
+# porte désormais celle d'une ENTREPRISE, dont l'adresse est FAITE pour être
+# publique. C'était le motif central de toute la démarche : cf.
+# grisloup/docs/plan-creation-micro-entreprise.md, dont le tableau d'identité en
+# tête est la source unique que ce bloc recopie.
+#
+# ⚠ CE BLOC DÉCRIT LA CIBLE, PAS L'ÉTAT DE LA CONSOLE AUJOURD'HUI. Le compte Play
+# est encore un compte PARTICULIER dont le profil de paiement, vérifié le
+# 2026-08-20, porte la résidence réelle — et Google refuse une domiciliation sur
+# un compte personnel. La bascule se fait en une fois, à la phase 4 du plan :
+# D-U-N-S, second profil de paiement de type organisation, conversion, 72 h. Tant
+# qu'elle n'a pas eu lieu, `saisie_compte.md` décrit des écrans qui n'accepteront
+# pas encore ces valeurs. C'est voulu : la feuille de saisie sert le jour de la
+# conversion, et une feuille qui porterait l'ancienne adresse ferait republier le
+# domicile.
+#
 # ⚠ AUCUN bloc `layer:` ici, et c'est délibéré. builder._ingest_shared_conf ne
 # donne la section entière qu'aux apps `pulumi` ; pour une app embarquée, une
 # section sans `layer.publish` déclaré tombe dans un `continue` (« Aucun layer
-# declare : rien ne part »). L'adresse du domicile ne descend donc ni dans l'APK,
-# ni dans le layer du bucket, que l'app lit sans authentification.
-# En ajouter un exposerait une donnée personnelle dans un APK décompressable.
+# declare : rien ne part »). Rien de tout ceci ne descend donc dans l'APK ni dans
+# le layer du bucket, que l'app lit sans authentification.
+# La règle SURVIT au changement d'adresse : la domiciliation est publiable, mais
+# une identité qui circule dans un binaire décompressable ne se corrige plus.
+# L'éditeur est déjà annoncé aux utilisateurs là où c'est dû — corpus légal et
+# pages du site — et ces textes-là, eux, se republient.
 #
 # Ce que la console rend PUBLIC, et quand : se déclarer « professionnel » au sens
 # du DSA fait afficher nom + adresse complète + téléphone sur la fiche Play dans
-# l'EEE — mais seulement à partir du moment où une fiche est publique. Tant que la
-# diffusion reste en piste fermée, rien n'est exposé. Détail et arbitrage :
-# stores/google/compte.md, et stores/google/publication.md §6.1.
+# l'EEE. Pour un compte ORGANISATION, adresse et téléphone sont publiés même sans
+# monétisation. C'est désormais sans conséquence : ce sont ceux de la structure.
+# Détail : stores/google/compte.md, et stores/google/publication.md §6.1.
 # =============================================================================
 
 publisher:
@@ -146,34 +463,114 @@ publisher:
     template: ../stores/google/saisie_compte.tpl.md
     path: ../stores/google/saisie_compte.md
 
-  # Nom CIVIL, à l'orthographe exacte de la pièce d'identité — c'est ce que
-  # contrôle la vérification d'identité. Surtout pas « grisloup.com », qui n'est
-  # qu'un nom commercial : l'écart avec la pièce d'identité est une cause
+  # ===========================================================================
+  # RÈGLE DE NOMMAGE DU PORTEFEUILLE — arrêtée le 2026-09-03
+  # ---------------------------------------------------------------------------
+  # UNE SEULE CHAÎNE, TENUE SUR TOUS LES FRONTS : D-U-N-S, profil de paiement
+  # Google, compte bancaire, facturation Cloud, corpus légal, site. Sans
+  # exception et sans variante. Ce champ en est la source.
+  #
+  # ⚠ IL N'EXISTE AUCUNE FORME OFFICIELLE À RECOPIER, et c'est ce qui rend la
+  # règle nécessaire. Une entreprise individuelle n'a AUCUNE dénomination
+  # sociale : ni l'INSEE ni le greffe ne stockent un « nom d'entreprise », mais
+  # des champs séparés — nom, nom d'usage, prénoms — que chaque service
+  # RECOMPOSE à sa façon. Il fallait choisir une écriture, puis s'y tenir.
+  #
+  # ⚠ ORDRE DU REGISTRE, pas l'ordre naturel. Le premier formulaire qui réclame
+  # un « nom de l'entreprise » est celui du D-U-N-S, et c'est LUI qui fixe la
+  # référence pour tout le reste : Google confronte le profil de paiement à la
+  # fiche D&B, la banque au profil, la facturation Cloud à la banque. Autant que
+  # la chaîne partie chez Altares soit celle du KBIS, qui est la pièce jointe.
+  #
+  # ⚠ CE QUI EST DÉLIBÉRÉMENT ABSENT DE LA CHAÎNE :
+  #   - le TRAIT D'UNION de la pièce d'identité (« MARCHAL-DE GREEF ») : c'est
+  #     l'extrait d'immatriculation que Google confronte en vérification
+  #     ORGANISATION, pas la carte. Celle-ci ne ressert qu'aux contrôles
+  #     d'identité de la personne physique, où l'écart s'explique ;
+  #   - le SECOND PRÉNOM « Flavien » : le risque de vérification porte sur la
+  #     chaîne du NOM DE FAMILLE, jamais sur les prénoms ;
+  #   - la VIRGULE du Kbis (« Guillaume, Flavien ») : elle sépare les prénoms,
+  #     elle n'appartient pas au nom ;
+  #   - la mention « EI » : obligatoire sur les FACTURES et les MENTIONS LÉGALES
+  #     seulement. Ici, deux lettres de plus fabriqueraient la divergence qu'on
+  #     cherche justement à éviter.
+  #
+  # ⚠ LES CAPITALES SONT VOULUES. Convention des registres français, et elle
+  # lève une ambiguïté réelle : « Marchal De Greef » est fait de trois mots dont
+  # on ne devine pas, hors contexte, lesquels forment le patronyme.
+  #
+  # ⚠ SURTOUT PAS « Grisloup » NI « grisloup.com » ICI : c'est le nom commercial,
+  # il vit dans `trade_name`. L'écart avec la pièce justificative est une cause
   # classique de blocage.
-  # Orthographe VALIDÉE PAR GOOGLE le 2026-08-20 contre la pièce d'identité, donc
-  # référence pour tous les autres écrans. Sans trait d'union : le profil de paiement
-  # verrouille le nom une fois vérifié, et le modifier exigerait un justificatif de
-  # changement de nom. C'est ce champ-ci qui s'aligne sur la console, jamais l'inverse.
-  legal_name: "Guillaume Marchal De Greef"
+  #
+  # ⚠ CE QUE CETTE RÈGLE A REMPLACÉ : jusqu'au 2026-09-03 le portefeuille
+  # écrivait « Guillaume Marchal De Greef », forme validée par Google le
+  # 2026-08-20 sur le profil de paiement PARTICULIER. Cette validation n'est pas
+  # perdue : le profil organisation est un profil NEUF, vérifié de zéro. L'ancien
+  # reste en place avec son ancienne écriture jusqu'à la conversion — deux
+  # profils distincts, aucune conséquence.
+  # ===========================================================================
+  legal_name: "MARCHAL DE GREEF Guillaume"
 
-  # Résidence RÉELLE. Google refuse les boîtes postales comme les adresses de
-  # domiciliation pour les comptes personnels, justificatif à l'appui.
-  # Recopiée telle que Google l'affiche après validation (2026-08-19), majuscules
-  # comprises : c'est la forme de référence, et elle sera affichée publiquement sur
-  # la fiche au titre du statut de vendeur.
+  # ⚠ ADRESSE DE DOMICILIATION, ET C'EST TOUT L'OBJET DE L'OPÉRATION. Elle a
+  # remplacé la résidence réelle le 2026-09-03, l'immatriculation ayant été
+  # obtenue la veille. C'est l'adresse d'établissement inscrite au registre, et
+  # c'est elle que publieront la fiche Play, les CGU et le site.
+  # ⚠ CE QUI EST ACQUIS ICI NE L'EST PAS AU REGISTRE. L'extrait Kbis du 02/09
+  # renseigne encore une rubrique « Domicile personnel ». Ce fichier-ci est
+  # propre ; l'occultation INSEE, elle, reste à vérifier — cf. l'encadré rouge en
+  # tête de grisloup/docs/plan-creation-micro-entreprise.md. Ne pas conclure de
+  # ce bloc que l'adresse personnelle a disparu partout.
+  #
+  # ⚠ Google REFUSE une domiciliation sur un compte PERSONNEL. Cette adresse
+  # n'est donc saisissable qu'après la bascule en compte organisation (phase 4 du
+  # plan). D'ici là, la console porte encore l'ancienne — c'est l'unique écart
+  # assumé entre ce fichier et l'écran, et il se referme en une seule fois.
   address:
-    street: "16 Rue du Fief À Cavan"
-    postal_code: "95800"
-    city: "Courdimanche"
+    street: "20 rue Lavoisier"
+    postal_code: "95300"
+    city: "Pontoise"
     country: FR
 
-  # Numéro joignable, format international.
-  phone: "+33783310851"
+  # ⚠ NUMÉRO DE LA STRUCTURE, PAS LE MOBILE PERSONNEL (échangé le 2026-09-03).
+  # Le statut de vendeur DSA PUBLIE ce numéro sur la fiche Play dans l'EEE, et un
+  # compte organisation le publie même sans monétisation. Y laisser le mobile
+  # privé aurait rendu publique la donnée personnelle que la domiciliation venait
+  # d'écarter. C'est déjà ce numéro que porte le corpus légal et les pages du
+  # site depuis le 2026-08-31 : les six points de cohérence se rejoignent ici.
+  phone: "+33744470944"
 
-  # Personne physique : aucun numéro d'immatriculation à déclarer. Le jour où une
-  # structure existe, ce champ porte le SIREN et le compte bascule en organisation
-  # (D-U-N-S + 72 h, conversion irréversible — cf. publication.md §0.2).
-  registration_number: ~
+  # SIREN, attribué le 2026-09-02. `~` jusque-là, faute d'immatriculation.
+  # ⚠ SIREN À NEUF CHIFFRES, PAS LE SIRET : les cinq chiffres d'établissement
+  # sont à relever sur l'extrait et ne sont pas encore connus. Les formulaires
+  # Google demandent le numéro d'immatriculation de l'ENTREPRISE — c'est bien
+  # celui-ci. Le SIRET, lui, servira à la facturation Cloud et au SIE.
+  # ⚠ Pas de numéro de TVA intracommunautaire : il n'existe pas encore (demande
+  # au SIE, plan §2.1). Le champ n'est pas créé tant qu'il serait vide — une clé
+  # vide dans une feuille de saisie, c'est une case remplie de mémoire.
+  registration_number: "109354092"
+
+  # SIRET de l'établissement — SIREN + clef NIC `00016`, relevé le 2026-09-03.
+  # ⚠ AUCUN FORMULAIRE GOOGLE NE LE DEMANDE : les consoles veulent le numéro de
+  # l'ENTREPRISE, donc `registration_number` ci-dessus. Ce champ existe pour la
+  # FACTURATION GOOGLE CLOUD, le SIE et les déclarations — c'est-à-dire tout ce
+  # qui identifie l'établissement et non la personne. Il est ici parce que ce
+  # bloc est l'identité en un seul endroit, pas parce qu'un gabarit le lit.
+  # ⚠ NE FIGURE PAS AU KBIS : c'est une donnée INSEE, pas greffe.
+  siret: "10935409200016"
+
+  # Code d'activité. Deux valeurs coexistent, et ce n'est PAS une divergence :
+  # l'INSEE publie l'ancienne nomenclature et la NAF 2025 en parallèle pendant la
+  # transition. `58.29C` est celui du champ « Code NAF/APE de l'établissement »,
+  # et celui qu'attendent encore les administrations françaises — c'est donc lui
+  # qu'on donne quand un formulaire n'en accepte qu'un.
+  # ⚠ CE QUI COMPTE EST LA DIVISION 58, « Édition », qui se lit comme une
+  # activité commerciale et fonde la position BIC. Les deux codes y sont. Un code
+  # en 62 — « programmation informatique » — se lirait comme une prestation de
+  # services et ruinerait l'argument : si l'un d'eux dérive un jour vers 62, ce
+  # n'est pas une correction cosmétique, c'est un signal fiscal.
+  ape: "58.29C"
+  ape_naf2025: "58.29Y"
 
   # ---------------------------------------------------------------------------
   # DÉJÀ PUBLICS AILLEURS — regroupés ici pour que l'identité tienne d'un bloc
@@ -183,7 +580,12 @@ publisher:
   #   trade_name     → le nom commercial, éditeur déclaré aux CGU et au site
   #   developer_name → ce qui s'affiche sur la fiche Play, champ à part entière
   #                    des paramètres du compte
-  trade_name: grisloup.com
+  # ⚠ « Grisloup », pas « grisloup.com » (corrigé le 2026-09-03). C'est le nom
+  # commercial DÉCLARÉ AU RNE et confirmé sur l'extrait — un seul mot, une
+  # majuscule. `grisloup.com` est le domaine, déclaré à côté ; le confondre avec
+  # le nom commercial faisait diverger le build du registre et du corpus légal,
+  # qui écrit « Grisloup » depuis le 2026-08-31.
+  trade_name: Grisloup
   developer_name: Grisloup
   email: donjons@grisloup.com
   website: https://donjons.grisloup.com
@@ -388,12 +790,15 @@ listing:
   category: "Application → Parentalité"
   tags: "famille, corvées, tâches, enfants, motivation, RPG"
   languages: "fr-FR (par défaut), en-US, es-ES"
-  # Zone UE uniquement, et c'est un choix : le corpus légal ne couvre que l'UE et
-  # les US. Un testeur suisse ou canadien tomberait dans un angle mort — ni CGU
-  # taillées pour lui, ni région de données prévue. À rouvrir quand le corpus
-  # suivra, pas avant.
-  countries_closed: "France, Belgique"
-  countries_prod: "zone EU au lancement, les US ensuite"
+  # ⚠ LA FRANCE SEULE, ET LA BELGIQUE EN A ÉTÉ RETIRÉE LE 2026-08-27. Elle était
+  #   là du temps où un corpus `eu` unique couvrait toute l'Union : un testeur
+  #   belge y trouvait des CGU faites pour lui. Depuis que les documents suivent
+  #   le MARCHÉ et que seul `fr` est ouvert, il n'aurait plus qu'un « Royaume de
+  #   France » à choisir — soit des conditions qui ne le visent pas.
+  #   Rouvrir la Belgique, c'est ouvrir le marché `euo` : d'abord son corpus,
+  #   ensuite ce pays. Le build refuse l'ordre inverse.
+  countries_closed: "France"
+  countries_prod: "France au lancement, le reste de l'UE ensuite"
   privacy_url: https://donjons.grisloup.com/fr/legal/
   delete_url: https://donjons.grisloup.com/delete-account/
 
@@ -435,6 +840,30 @@ listing:
 # =============================================================================
 
 store:
+  # ===========================================================================
+  # PAYS EXCLUS DE LA DISTRIBUTION — décision du 2026-08-26
+  # ===========================================================================
+  # ⚠ TROIS CRITÈRES, dans cet ordre : régime politique, existence d'un rail de
+  #   paiement, état du droit (données personnelles, mineurs). Le premier est un
+  #   choix, pas une contrainte technique — on ne vend pas à une dictature.
+  #
+  # ⚠ Un pays retiré ici ne doit jamais réapparaître dans
+  #   `store.play.devises.*.countries`.
+  #   Le motif est écrit pour que la décision se rediscute sur son fond, et non
+  #   qu'elle se perde : un pays absent d'une liste, sans explication, finit
+  #   rajouté par quelqu'un qui complète.
+  pays_exclus:
+    CU: "parti unique. Google Play y est de toute façon indisponible (sanctions)."
+    VE: "régime autoritaire. Sanctions, et rails de paiement inopérants."
+    NI: "régime autoritaire — société civile et presse démantelées."
+    HT: "pas une dictature, mais pas d'État : aucun paiement viable."
+    # ⚠ Les deux cas limites, tranchés le 2026-08-26. Ni l'un ni l'autre n'est
+    #   un régime à parti unique — c'est du RECUL DÉMOCRATIQUE, et la ligne a
+    #   été placée là volontairement. Les deux marchés sont minuscules : la
+    #   décision ne coûte presque rien et évite d'avoir à retrancher à chaque
+    #   élection.
+    SV: "état d'exception prolongé — suspension continue des garanties."
+    BO: "crise institutionnelle récurrente, droit des données faible."
 
   # Où publier la part du bloc que l'APP doit voir. Un layer au bucket se relit
   # sans nouvelle version sur le store : ouvrir un palier ou corriger un barème ne
@@ -547,94 +976,133 @@ store:
           - { duration: P1M, free: true }
           - { duration: P1Y, discount_percent: 30 }
 
-    # --- Zones de prix -------------------------------------------------------
+    # --- Grille de prix par devise -------------------------------------------
     # Play exige un prix par pays. On les groupe par devise : un pays absent de
-    # toute zone n'est simplement pas servi — aucune conversion automatique, aucun
-    # tarif décidé par Google dans notre dos.
+    # toute devise n'est simplement pas servi — aucune conversion automatique,
+    # aucun tarif décidé par Google dans notre dos.
     #
-    # Les prix EUR viennent de revenus.md et ne se touchent pas. Les autres devises
-    # sont une conversion arrondie au palier psychologique local (le .99), pas un
-    # taux de change appliqué à la virgule : 2,15 £ n'est pas un prix, c'est un
-    # résultat de calcul.
-    zones:
+    # ⚠ CE FICHIER EST LA SOURCE DE VÉRITÉ DU PRIX. Ce commentaire disait
+    # auparavant que « les prix EUR viennent de revenus.md », ce qui confondait
+    # deux choses : revenus.md porte le RAISONNEMENT qui a fixé 1,99 € — la
+    # démographie des foyers, l'ancrage, le panier moyen — mais la VALEUR vit
+    # ici, et nulle part ailleurs. C'est la seule qui porte les devises et les
+    # pays, et la seule que Google applique réellement. Le modèle de revenus lit
+    # ce fichier ; l'inverse serait un prix décidé dans de la prose.
+    #
+    # Les autres devises sont une conversion arrondie au palier psychologique
+    # local (le .99), pas un taux de change appliqué à la virgule : 2,15 £ n'est
+    # pas un prix, c'est un résultat de calcul.
+    #
+    # ⚠ CE BLOC GROUPE LES PAYS PAR DEVISE, et ne décide que d'une colonne de
+    # prix. Le modèle de revenus, lui, raisonne en MARCHÉS (voir `revenus:` en
+    # fin de fichier) — et les deux découpages ne coïncident pas : la France et
+    # l'Allemagne partagent l'euro mais pas le marché. Ne pas dériver l'un de
+    # l'autre.
+    #
+    # ⚠ HISTORIQUE. Ce bloc s'appelait `zones` jusqu'au 2026-08-26, renommé pour
+    #   libérer le mot au profit d'un découpage juridique de premier niveau —
+    #   lui-même supprimé le 2026-08-27 au profit du seul MARCHÉ. Le mot « zone »
+    #   ne désigne donc plus rien dans ce fichier : chaque marché porte ses
+    #   documents légaux et déclare son `cloud`, et c'est tout.
+    #
+    # ⚠ `coefficient` est le prix réel visé, en multiple du prix européen. Il ne
+    #   pilote rien à l'exécution : la grille de `catalog` est ÉCRITE, pas
+    #   convertie. Il sert à la régénérer et à contrôler qu'elle reste cohérente.
+    # ⚠ `change` = unités locales pour 1 €. Sert à relire la grille en euros pour
+    #   la projection de revenus, et à rien d'autre. `déclaré`, il vieillira.
+    #
+    # --- `publish` : ce qui part réellement chez Google ------------------------
+    # ⚠ ABSENT VAUT FAUX. Une monnaie sans `publish` n'est vendue nulle part. Le
+    #   défaut ferme, il n'ouvre pas : un pays qu'on a oublié de déclarer ne doit
+    #   pas se retrouver en vente parce que personne n'a rien dit.
+    #
+    # ⚠ LE PRIX RESTE DÉCLARÉ QUAND LE MARCHÉ EST FERMÉ, et c'est tout l'intérêt.
+    #   Les treize grilles ci-dessous sont arrêtées ; `publish` ne dit pas ce qu'on
+    #   a décidé de vendre, il dit ce qu'on a décidé d'OUVRIR. Le modèle de revenus
+    #   (bloc `revenus:`) continue de chiffrer les treize marchés — un marché fermé
+    #   est du revenu daté, pas du revenu absent. Effacer le prix pour fermer le
+    #   marché aurait perdu la valeur en même temps que la vente.
+    #
+    # Trois formes :  publish: true      toute la monnaie
+    #                 publish: ["FR"]    ces pays seulement (ils doivent figurer
+    #                                    dans `countries`, sinon ils n'ont pas de prix)
+    #                 publish: false     aucun — identique à l'absence
+    #
+    # ⚠ DÉCISION DU 2026-08-27 : LA FRANCE SEULE. La première beta commence, et
+    #   ouvrir vingt-quatre pays pour l'éprouver reviendrait à faire porter les
+    #   premiers défauts à des clients qu'on ne peut ni prévenir ni rembourser
+    #   facilement. Les douze autres monnaies sont tarifées et attendent : ouvrir
+    #   un marché coûtera un mot ici, et le différentiel de `pucatalog` montrera
+    #   exactement les pays qui s'ajoutent avant d'écrire quoi que ce soit.
+    devises:
       eur:
         currency: EUR
-        countries: [FR, DE, ES, IT, BE, NL, PT, IE, AT, LU, FI, GR, SK, SI, EE, LV, LT, CY, MT, HR]
-      usd:
-        currency: USD
-        countries: [US]
-      cad:
-        currency: CAD
-        countries: [CA]
+        coefficient: 1.00
+        change: 1.00
+        # ⚠ La France seule, alors que la monnaie en porte vingt. Le prix est le
+        #   même pour les vingt — c'est l'OUVERTURE qui est restreinte, pas le tarif.
+        publish: ["FR"]
+        countries: ["FR", "DE", "ES", "IT", "BE", "NL", "PT", "IE", "AT", "LU", "FI", "GR", "SK", "SI", "EE", "LV", "LT", "CY", "MT", "HR"]
+      sek:
+        currency: SEK
+        coefficient: 1.20
+        change: 11.40
+        countries: ["SE"]
+      dkk:
+        currency: DKK
+        coefficient: 1.25
+        change: 7.46
+        countries: ["DK"]
+      nok:
+        currency: NOK
+        coefficient: 1.35
+        change: 11.70
+        countries: ["NO"]
       gbp:
         currency: GBP
-        countries: [GB]
+        coefficient: 1.10
+        change: 0.85
+        countries: ["GB"]
       chf:
         currency: CHF
-        countries: [CH]
-
-  # ---------------------------------------------------------------------------
-  # LE CATALOGUE
-  # ---------------------------------------------------------------------------
-  # Ne vit ici que la STRUCTURE. Les libellés affichés dans l'app et les images
-  # sont du THÈME (theme-donjon-global.yml), exactement comme pour les items : le
-  # catalogue dit « il existe un abonnement standard », le thème dit comment on
-  # l'appelle dans ce décor-là. Les textes `play.listings` sont autre chose : ce
-  # sont les fiches de la Play Console, vues hors de l'app et donc hors du décor.
-  #
-  #   type       : subscription | product (produit à l'unité, non consommable)
-  #   order      : rang d'affichage dans la boutique
-  #   base_plans : périodicités déclarées en Play Console pour CE produit.
-  #                ⚠ LE SUFFIXE EST CONTRACTUEL : `dvstore.basePlanFor` choisit la
-  #                périodicité par `endsWith("-$period")`, avec period ∈ {monthly,
-  #                yearly}. Un base plan nommé autrement rend l'annuel inachetable,
-  #                en silence — on repart alors sur le mensuel sans qu'un mot le
-  #                dise. C'est pourquoi `base_plans` reste une LISTE et que les
-  #                détails Play vivent dans `play.plans` : pucatalog vérifie que les
-  #                deux coïncident exactement et refuse de déployer sinon.
-  #   offers     : offres attachées aux base plans (essai, offre réservée)
-  #   label      : nom affiché — token de traduction (thème)
-  #   description: texte de la fiche — token de traduction (thème)
-  #   price_hint : REPLI d'affichage seulement. Le prix réel vient TOUJOURS de Play
-  #                (localisé, taxes incluses) : c'est une exigence de la politique
-  #                du store, et cela évite de maintenir une table de prix par pays
-  #                côté app.
-  #   price_hint_yearly :
-  #                le même repli, pour la périodicité ANNUELLE. Sans lui, un écran
-  #                affichant l'annuel et privé de canal Play retombait sur
-  #                `price_hint` — donc annonçait le tarif MENSUEL sous l'étiquette
-  #                « par an ». C'est l'état de toute la recette au banc d'essai, où
-  #                aucun canal Play n'est ouvert. Une grille tarifaire qui ment est
-  #                pire qu'une grille vide.
-  #   grants     : LE seul endroit où un produit rencontre une règle de jeu. Le
-  #                serveur ne connaît que Play (« ce clan possède ddust_clan, état
-  #                active ») ; c'est cette table qui traduit cela en « 4 joueurs ».
-  #                Aucune règle métier n'est dupliquée côté backend.
-  #   play       : ce que Google exige en plus — fiches par langue, périodicités,
-  #                prix par zone.
-  #
-  # CONVENTION DES PLAFONDS : -1 = illimité. Pas 0 — un plafond à zéro se lit
-  # « aucun joueur autorisé », ce qui est très exactement le contraire, et un test
-  # `count >= max` écrit sans précaution bloquerait tout le monde sur le palier le
-  # plus cher.
-  #
-  # UN SEUL COMPTEUR : `max_players`. Le catalogue a longtemps porté deux plafonds
-  # distincts (`max_kids` / `max_adults`), ce qui obligeait à savoir de quelle
-  # NATURE était chaque membre pour dire s'il restait de la place — un candidat
-  # dont on ne connaissait pas encore le `legal_state` n'était donc contrôlable
-  # qu'à moitié, et « Déclarer majeur » devait vérifier un plafond parce que la
-  # promotion DÉPLAÇAIT une place d'un compteur à l'autre. Une famille n'y
-  # comprenait rien et le code non plus. Désormais un membre est un membre :
-  # enfant, adulte, chef ou joueur du dimanche, chacun occupe une place et une
-  # seule. Le décompte se lit sans explication.
-  #
-  # LES TITRES PLAY portent le plafond (« Clan — jusqu'à 4 joueurs ») là où ceux de
-  # l'app ne le portent pas : dans la Play Console, l'abonnement s'affiche seul,
-  # sans la page des paliers qui met les cinq en regard. Le titre doit donc se
-  # suffire à lui-même. Limites Google : 55 caractères pour le titre, 80 pour la
-  # description — c'est pourquoi deux descriptions sont ici plus courtes que leur
-  # équivalent du thème.
-  # ---------------------------------------------------------------------------
+        coefficient: 1.50
+        change: 0.94
+        countries: ["CH"]
+      usd:
+        currency: USD
+        coefficient: 1.35
+        change: 1.08
+        countries: ["US"]
+      cad:
+        currency: CAD
+        coefficient: 1.05
+        change: 1.47
+        countries: ["CA"]
+      aud:
+        currency: AUD
+        coefficient: 1.15
+        change: 1.63
+        countries: ["AU"]
+      nzd:
+        currency: NZD
+        coefficient: 1.05
+        change: 1.78
+        countries: ["NZ"]
+      brl:
+        currency: BRL
+        coefficient: 0.64
+        change: 6.20
+        countries: ["BR"]
+      mxn:
+        currency: MXN
+        coefficient: 0.65
+        change: 19.60
+        countries: ["MX"]
+      cop:
+        currency: COP
+        coefficient: 0.60
+        change: 4650
+        countries: ["CO"]
   catalog:
 
     # --- LES CINQ PALIERS ----------------------------------------------------
@@ -656,6 +1124,9 @@ store:
     # ~40% des clans : c'est le cas le PLUS fréquent, pas un cas marginal.
     ddust_essentiel:
       type: subscription
+      # ⚠ Drapeau de BUILDER : `false` = `pucatalog` ne crée rien en console.
+      #   Ce n'est pas une intention produit.
+      enabled: true
       order: 1
       base_plans:
         - essentiel-monthly
@@ -684,14 +1155,27 @@ store:
         plans:
           essentiel-monthly:
             period: P1M
-            prices: { eur: "1.99", usd: "2.19", cad: "2.99", gbp: "1.79", chf: "1.99" }
+            # Part de la base payante sur ce plan : 40 % du palier x 75 %
+            # de mensuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.3000
+            prices: { eur: "1.99", sek: "29", dkk: "19", nok: "29", gbp: "1.99", chf: "2.90", usd: "2.99", cad: "2.99", aud: "3.49", nzd: "3.49", brl: "7.90", mxn: "25.49", cop: "5900" }
           essentiel-yearly:
             period: P1Y
-            prices: { eur: "19.99", usd: "21.99", cad: "29.99", gbp: "17.99", chf: "19.99" }
+            # Part de la base payante sur ce plan : 40 % du palier x 25 %
+            # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.1000
+            prices: { eur: "19.99", sek: "275", dkk: "185", nok: "315", gbp: "18.49", chf: "28.00", usd: "28.99", cad: "30.99", aud: "37.49", nzd: "37.49", brl: "78.90", mxn: "254.49", cop: "55900" }
 
     # 3 à 4 joueurs — le foyer nucléaire classique. ~30% des clans.
     ddust_clan:
       type: subscription
+      # ⚠ Drapeau de BUILDER : `false` = `pucatalog` ne crée rien en console.
+      #   Ce n'est pas une intention produit.
+      enabled: true
       order: 2
       base_plans:
         - clan-monthly
@@ -720,14 +1204,27 @@ store:
         plans:
           clan-monthly:
             period: P1M
-            prices: { eur: "2.99", usd: "3.29", cad: "4.49", gbp: "2.59", chf: "2.99" }
+            # Part de la base payante sur ce plan : 30 % du palier x 75 %
+            # de mensuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.2250
+            prices: { eur: "2.99", sek: "39", dkk: "29", nok: "49", gbp: "2.99", chf: "4.00", usd: "4.49", cad: "4.49", aud: "5.49", nzd: "5.49", brl: "11.90", mxn: "37.99", cop: "7900" }
           clan-yearly:
             period: P1Y
-            prices: { eur: "24.99", usd: "27.99", cad: "36.99", gbp: "21.99", chf: "24.99" }
+            # Part de la base payante sur ce plan : 30 % du palier x 25 %
+            # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.0750
+            prices: { eur: "24.99", sek: "339", dkk: "235", nok: "395", gbp: "23.49", chf: "35.00", usd: "36.49", cad: "38.49", aud: "46.99", nzd: "46.49", brl: "98.90", mxn: "318.49", cop: "69900" }
 
     # 5 à 7 joueurs — grande fratrie, ou famille recomposée. ~25% des clans.
     ddust_tribu:
       type: subscription
+      # ⚠ Drapeau de BUILDER : `false` = `pucatalog` ne crée rien en console.
+      #   Ce n'est pas une intention produit.
+      enabled: true
       order: 3
       base_plans:
         - tribu-monthly
@@ -756,14 +1253,27 @@ store:
         plans:
           tribu-monthly:
             period: P1M
-            prices: { eur: "4.99", usd: "5.49", cad: "7.49", gbp: "4.29", chf: "4.99" }
+            # Part de la base payante sur ce plan : 25 % du palier x 75 %
+            # de mensuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.1875
+            prices: { eur: "4.99", sek: "69", dkk: "45", nok: "79", gbp: "4.49", chf: "7.00", usd: "7.49", cad: "7.49", aud: "9.49", nzd: "9.49", brl: "19.90", mxn: "63.49", cop: "13900" }
           tribu-yearly:
             period: P1Y
-            prices: { eur: "39.99", usd: "43.99", cad: "58.99", gbp: "34.99", chf: "39.99" }
+            # Part de la base payante sur ce plan : 25 % du palier x 25 %
+            # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.0625
+            prices: { eur: "39.99", sek: "549", dkk: "375", nok: "629", gbp: "37.49", chf: "56.50", usd: "58.49", cad: "61.49", aud: "74.99", nzd: "74.99", brl: "158.90", mxn: "509.49", cop: "111900" }
 
     # 8 à 12 joueurs — deux foyers réunis, cousins, grands-parents. ~4% des clans.
     ddust_guilde:
       type: subscription
+      # ⚠ Drapeau de BUILDER : `false` = `pucatalog` ne crée rien en console.
+      #   Ce n'est pas une intention produit.
+      enabled: true
       order: 4
       base_plans:
         - guilde-monthly
@@ -792,15 +1302,28 @@ store:
         plans:
           guilde-monthly:
             period: P1M
-            prices: { eur: "5.99", usd: "6.49", cad: "8.99", gbp: "5.29", chf: "5.99" }
+            # Part de la base payante sur ce plan : 4 % du palier x 75 %
+            # de mensuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.0300
+            prices: { eur: "5.99", sek: "79", dkk: "55", nok: "95", gbp: "5.49", chf: "8.50", usd: "8.49", cad: "9.49", aud: "10.99", nzd: "10.99", brl: "23.90", mxn: "76.49", cop: "16900" }
           guilde-yearly:
             period: P1Y
-            prices: { eur: "49.99", usd: "54.99", cad: "73.99", gbp: "42.99", chf: "49.99" }
+            # Part de la base payante sur ce plan : 4 % du palier x 25 %
+            # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.0100
+            prices: { eur: "49.99", sek: "685", dkk: "465", nok: "789", gbp: "46.99", chf: "70.50", usd: "72.99", cad: "76.99", aud: "93.49", nzd: "93.49", brl: "197.90", mxn: "636.99", cop: "139900" }
 
     # 13 joueurs et plus — aucun plafond. `-1`, jamais 0 (cf. convention ci-dessus).
     # ~1% des clans : la queue de distribution, pas le cœur de cible.
     ddust_royaume:
       type: subscription
+      # ⚠ Drapeau de BUILDER : `false` = `pucatalog` ne crée rien en console.
+      #   Ce n'est pas une intention produit.
+      enabled: true
       order: 5
       base_plans:
         - royaume-monthly
@@ -829,33 +1352,3634 @@ store:
         plans:
           royaume-monthly:
             period: P1M
-            prices: { eur: "7.99", usd: "8.99", cad: "11.99", gbp: "6.99", chf: "7.99" }
+            # Part de la base payante sur ce plan : 1 % du palier x 75 %
+            # de mensuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.0075
+            prices: { eur: "7.99", sek: "109", dkk: "75", nok: "125", gbp: "7.49", chf: "11.50", usd: "11.49", cad: "12.49", aud: "14.99", nzd: "14.99", brl: "31.90", mxn: "101.99", cop: "21900" }
           royaume-yearly:
             period: P1Y
-            prices: { eur: "64.99", usd: "71.99", cad: "96.99", gbp: "56.99", chf: "64.99" }
+            # Part de la base payante sur ce plan : 1 % du palier x 25 %
+            # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
+            # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
+            # déplacer une borne déplacerait des milliers de foyers.
+            part_base: 0.0025
+            prices: { eur: "64.99", sek: "889", dkk: "605", nok: "1025", gbp: "60.99", chf: "91.50", usd: "94.99", cad: "100.49", aud: "121.99", nzd: "121.49", brl: "257.90", mxn: "827.99", cop: "180900" }
 
-    # --- Produits à l'unité --------------------------------------------------
-    # Volontairement ABSENTS au lancement. Le socle technique (achat, activation par
-    # clan, gating, restauration) est livré et se teste avec les abonnements ; les
-    # produits eux-mêmes n'arrivent qu'avec le contenu qu'ils vendent (livrables
-    # `eco` et `themes`). Déclarer ici un pack dont le contenu n'existe pas
-    # afficherait une boutique qui vend du vide. Forme attendue :
+# =============================================================================
+# MODÈLE DE REVENUS — contrat de saisie du 2026-08-25
+# =============================================================================
+# Lu par docs/prompt_revenus.py. Référence : docs/build_yml.md § bloc revenus.
+#
+# TROIS SOURCES, JAMAIS DUPLIQUÉES :
+#   - les PRIX viennent de store.catalog (une seule source, celle qui part chez
+#     Google) ; revenus.md porte le RAISONNEMENT qui les a fixés, pas la valeur ;
+#   - les DATES et les STORY POINTS viennent de roadmap.md ;
+#   - ce bloc ne déclare que ce qui n'est ni un prix ni une date.
+# Le reste est CALCULÉ : coefficient, indice de prix, téléchargements requis,
+# courbe mensuelle, espérance, €/sp par lot.
+#
+# ⚠ Chaque valeur porte ci-dessous l'hypothèse qui l'a fixée. Une valeur dont on
+#   a perdu le pourquoi ne se corrige plus : on la recopie.
+# ⚠ Hors de store.layer.publish : le modèle économique ne voyage pas jusqu'aux
+#   appareils.
+# ⚠ On dit "marches" et non "regions" : le backend appelle déjà "regions" la
+#   RÉSIDENCE DES DONNÉES. Un Brésilien appartient au marché "latam" mais ses
+#   données vivent dans la région US. Confondre les deux mots finirait par
+#   router quelqu'un sur le mauvais backend.
+# ⚠ Noms interdits par dvidle : keys, get, set, values, mask, tojson, toyaml,
+#   fromjson, fromyamlfile, toyamlfile, to_repr.
+# =============================================================================
+
+
+
+
+
+
+
+
+
+    # -------------------------------------------------------------------------
+    # LES QUINZE PRODUITS À L'UNITÉ
+    # -------------------------------------------------------------------------
+    # ⚠ TRANSCRITS DE vision.md § Extensions le 2026-08-26. Ils y étaient nommés,
+    #   tarifés et rattachés à leur lot ; le catalogue n'en portait que six,
+    #   génériques, avec les thèmes au mauvais prix. Un catalogue générique ne
+    #   permet ni de tarifer un produit seul, ni de relier une vente à ce qui la
+    #   fabrique.
+    # ⚠ Une extension s'applique à UN SEUL CLAN — celui avec lequel l'adulte est
+    #   connecté à l'achat. S'il en possède plusieurs, un écran confirme lequel.
+    # ⚠ `attachement_mensuel` est DÉRIVÉ : le revenu direct du lot, partagé entre
+    #   ses produits, divisé par le prix et la base. `déclaré` jusqu'à la 1re vente.
+
+    ddust_validations:
+      libelle: "Validations automatiques"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '3df87efd34d2'
+      attachement_mensuel: 0.0067
+      prix:
+        eur:  1.99
+        sek:  29
+        dkk:  19
+        nok:  29
+        gbp:  1.99
+        chf:  2.90
+        usd:  2.99
+        cad:  2.99
+        aud:  3.49
+        nzd:  3.49
+        brl:  7.90
+        mxn:  25.49
+        cop:  5900
+
+    ddust_quetes_1:
+      libelle: "Pack « Quêtes » I"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '71b889d2505e'
+      attachement_mensuel: 0.0034
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_potions_1:
+      libelle: "Pack « Potions » I"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: 'ecb38169ab68'
+      attachement_mensuel: 0.0034
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_bricolage:
+      libelle: "Pack de tâches « Bricolage »"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '258ff7d2b854'
+      attachement_mensuel: 0.0034
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_routine:
+      libelle: "Pack de tâches « Routine »"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: 'cbe53f2e0c9b'
+      attachement_mensuel: 0.0034
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_butin:
+      libelle: "Extension « Butin »"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '0877dd1dcfb0'
+      # Le produit le PLUS CHER et le plus gros morceau du jeu : or, boutique
+      # des héros, loot aléatoire, objets, faveurs, saisons. C'est aussi lui
+      # qui OUVRE LA BOUTIQUE, donc qui rend les cinq lots suivants vendables.
+      attachement_mensuel: 0.0017
+      prix:
+        eur:  7.99
+        sek:  109
+        dkk:  75
+        nok:  125
+        gbp:  7.49
+        chf:  11.50
+        usd:  11.49
+        cad:  12.49
+        aud:  14.99
+        nzd:  14.99
+        brl:  31.90
+        mxn:  101.99
+        cop:  21900
+
+    ddust_quetes_2:
+      libelle: "Pack « Quêtes » II"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '81291102e209'
+      attachement_mensuel: 0.0008
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_quetes_3:
+      libelle: "Pack « Quêtes » III"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '0ab7912989d0'
+      attachement_mensuel: 0.0008
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_potions_2:
+      libelle: "Pack « Potions » II"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '09a10ee9b42d'
+      attachement_mensuel: 0.0008
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_potions_3:
+      libelle: "Pack « Potions » III"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '4333deadd8b3'
+      attachement_mensuel: 0.0008
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_devoirs:
+      libelle: "Pack « Devoirs faits »"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '13a9e8d0a1b9'
+      attachement_mensuel: 0.0008
+      prix:
+        eur:  3.99
+        sek:  55
+        dkk:  39
+        nok:  65
+        gbp:  3.49
+        chf:  5.50
+        usd:  5.99
+        cad:  5.99
+        aud:  7.49
+        nzd:  7.49
+        brl:  15.90
+        mxn:  50.99
+        cop:  10900
+
+    ddust_theme_starsweep:
+      libelle: "Thème « Star Sweep »"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '1521505a498c'
+      # ⚠ 5,99 € et non 3,99 : un thème complet est plus cher qu'un pack
+      # de contenu. J'avais écrit 3,99 en créant une entrée générique.
+      attachement_mensuel: 0.0014
+      prix:
+        eur:  5.99
+        sek:  79
+        dkk:  55
+        nok:  95
+        gbp:  5.49
+        chf:  8.50
+        usd:  8.49
+        cad:  9.49
+        aud:  10.99
+        nzd:  10.99
+        brl:  23.90
+        mxn:  76.49
+        cop:  16900
+
+    ddust_theme_casanostra:
+      libelle: "Thème « La Casa Nostra »"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: 'b4483c2704e7'
+      attachement_mensuel: 0.0014
+      prix:
+        eur:  5.99
+        sek:  79
+        dkk:  55
+        nok:  95
+        gbp:  5.49
+        chf:  8.50
+        usd:  8.49
+        cad:  9.49
+        aud:  10.99
+        nzd:  10.99
+        brl:  23.90
+        mxn:  76.49
+        cop:  16900
+
+    ddust_theme_pirates:
+      libelle: "Thème « Pirates of the accariens »"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '0b7c8f278959'
+      attachement_mensuel: 0.0014
+      prix:
+        eur:  5.99
+        sek:  79
+        dkk:  55
+        nok:  95
+        gbp:  5.49
+        chf:  8.50
+        usd:  8.49
+        cad:  9.49
+        aud:  10.99
+        nzd:  10.99
+        brl:  23.90
+        mxn:  76.49
+        cop:  16900
+
+    ddust_classes:
+      libelle: "Classes de personnage"
+      type: product
+      enabled: true
+      # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
+      # `catalog_sequence` et roadmap.md.
+      lot: '5b617e0e5480'
+      # Deuxième produit du catalogue par le prix. Son attachement devrait
+      # DÉPASSER celui d'un pack de contenu : une classe change la façon de
+      # jouer, pas seulement ce qu'il y a à jouer. Prix décidé le 2026-08-24.
+      attachement_mensuel: 0.0022
+      prix:
+        eur:  6.99
+        sek:  95
+        dkk:  65
+        nok:  109
+        gbp:  6.49
+        chf:  9.90
+        usd:  9.99
+        cad:  10.99
+        aud:  12.99
+        nzd:  12.99
+        brl:  27.90
+        mxn:  88.99
+        cop:  19900
+
+revenus:
+
+  # ===========================================================================
+  # RIEN DE CHIFFRÉ NE VIT À CE NIVEAU
+  # ===========================================================================
+  # `churn`, `conversion`, `confiance`, `acquisition`, `panier` et `inference`
+  # ont tous été déclarés ici jusqu'au 2026-08-25, PUIS recopiés dans les
+  # cellules — deux sources pour la même valeur, donc une dérive certaine. Ils
+  # n'existent plus qu'en `marches.<marché>.stores.<store>`.
+  #
+  # Ce qui reste ci-dessous ne se décline ni par marché ni par store : la nature
+  # du produit, son livrable de référence, le type d'audience.
+  # ===========================================================================
+  canal: store
+  modele: abonnement
+
+  # Nom de colonne dans les tableaux consolidés (la place y est comptée).
+  court: "Ddust"
+  # Quel livrable du kpi donne la DATE de mise en service. La date elle-même
+  # ne se saisit jamais ici : elle vient de roadmap.md.
+  livrable: '37efb92085ab'
+  # De nouveaux parents d'enfants de 6-12 ans arrivent chaque année : le bassin
+  # se remplit tout seul.
+  audience: renouvelable
+  # ===========================================================================
+  # LA CELLULE DU MODÈLE EST LE COUPLE (MARCHÉ x STORE)
+  # ===========================================================================
+  # Pas une moyenne pondérée : deux cellules d'un même marché sont traitées
+  # comme deux marchés distincts. Un utilisateur iOS américain n'a ni la
+  # conversion, ni la rétention, ni le coût d'inférence d'un utilisateur Android
+  # brésilien — les mélanger effacerait précisément ce qu'on cherche à voir.
+  #
+  # Ce qui vit AU MARCHÉ (une juridiction, un backend) :
+  #   tva         taxe incluse dans le prix affiché
+  #   inference   part du brut consommée par l'IA — le backend décide, pas le
+  #               store. Un marché servi par un modèle plus ancien, ou par un
+  #               fournisseur local imposé, coûte davantage par unité utile.
+  #   indice      CONTRÔLE DE COHÉRENCE seulement, jamais utilisé au calcul
+  #
+  # Ce qui vit À LA CELLULE (un public, une plateforme) :
+  #   part        part de l'acquisition payante du projet, en courbe
+  #   prix        multiplicateur du prix affiché, à devise convertie
+  #   conversion  taux téléchargement -> payant, ABSOLU
+  #   churn       fond et précoce, ABSOLUS
+  #   confiance   probabilité d'atteindre le plateau SUR CETTE CELLULE
+  #
+  # ⚠ Les valeurs de tête (`churn`, `conversion`, `confiance`, `acquisition`,
+  #   `inference`) restent la RÉFÉRENCE du projet : les lots les déplacent, et
+  #   le script reporte le déplacement sur chaque cellule au prorata. Le mode
+  #   `check` vérifie que le mélange des cellules les redonne.
+  # ⚠ `acquisition` est en PAYANTS PAR MOIS, pas en part : on la lit sans
+  #   calcul, et poser une cellule à zéro montre aussitôt ce qu'on perd. La
+  #   somme des huit cellules doit redonner l'acquisition de référence du
+  #   projet ; le mode `check` le vérifie.
+  # ⚠ LA RÉPARTITION ENTRE STORES EST CELLE DES PAYANTS, PAS DES APPAREILS.
+  #   Aux États-Unis, ~57 % du parc est iOS mais ~65 % des payants : l'écart EST
+  #   le meilleur taux de conversion d'iOS. Prorater sur les appareils le
+  #   compterait une seconde fois, `conversion` le portant déjà.
+  # ===========================================================================
+  # ⚠ `inference` N'EST PLUS UNE FRACTION DU BRUT, C'EST UN COÛT EN EUROS, par
+  #   payant et par mois (changement du 2026-08-26). Une fraction rendait le
+  #   ratio « revenu / coût d'inférence » constant, donc muet — alors que c'est
+  #   lui qui dit si une app à IA tient sur un marché à faible pouvoir d'achat.
+  #   Les valeurs de départ dérivent de l'ancienne fraction x le panier : aucun
+  #   chiffre inventé, seule l'unité change. `déclaré`, à mesurer.
+  # ⚠ `devise` et `change` servent à convertir les prix des offres. Le change est
+  #   `déclaré` et vieillira : il ne pilote aucun prix réel, seulement la
+  #   lecture en euros d'une grille libellée en monnaie locale.
+  marches:
+    fr:
+      # FR et EU ont le même indice : ce qui les sépare n'est pas ce que paie un
+      # abonné, c'est COMBIEN ON EN TROUVE. La France est le marché d'amorce, le
+      # seul où le réseau du développeur existe déjà — cet écart est porté par
+      # les parts d'acquisition, et par rien d'autre.
+      # inference : le backend UE n'a pas accès aux dernières générations de
+      #   modèles. Même prix au token, mais une génération de retard, donc un
+      #   coût SUPÉRIEUR par unité de sortie utile. D'où +10 %.
+      cloud: eu
+      monnaies: { eur: 1.00 }
+      tva: 0.20
+      # Backend UE : une génération de modèles en retard sur les États-Unis.
+      # Même prix au token, mais un coût SUPÉRIEUR par unité de sortie utile —
+      # d'où la pénalité de 10 % déjà présente dans l'ancienne fraction.
+      datacenter: europe-west1
+      inference: 0.0000       # € par payant et par mois
+      indice: 100
+      confiance: 0.080
+      stores:
+
+        appstore:
+          # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
+          # l'écart connu entre les deux plateformes, et c'est lui qui fait que
+          # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
+          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
+          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
+          #   Play-only, et le manque à gagner se lit directement.
+          # payants/mois — 12.50 % de l'acquisition du projet au plateau
+          # ⚠ RECALIBRÉ le 2026-08-26. Les cellules `play` portent désormais
+          #   L'ESTIMATION D'ORIGINE du projet — celle des revenus.md, écrite
+          #   pour un lancement Play, seul store où le portefeuille sera présent
+          #   avant longtemps. Elles n'en portaient que ~53 %, ce qui revenait à
+          #   annoncer que le lancement réel ferait la moitié de ce qui avait
+          #   été estimé pour lui.
+          #   Les cellules `appstore` gardent leur rapport : elles chiffrent ce
+          #   qu'iOS APPORTERAIT EN PLUS, et non une part qu'on se retire.
+          acquisition: { m1_3: 36.492, an4_5: 13.033 }
+          conversion: 0.03200
+          churn:
+            fond: 0.06800
+            precoce: 0.13600
+
+        play:
+          # Référence : les facteurs de marché s'appliquent sans correction.
+          # payants/mois — 12.50 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 36.492, an4_5: 13.033 }
+          conversion: 0.02000
+          churn:
+            fond: 0.08000
+            precoce: 0.16000
+    # ⚠ QUATRE MARCHÉS LÀ OÙ IL Y EN AVAIT UN, depuis le 2026-08-26. Le marché
+    #   `eu` unique mettait l'Allemagne et le Portugal sur la même ligne, et
+    #   comptait au taux de conversion allemand 34 M d'habitants dont aucune des
+    #   sept langues n'est parlée. Le découpage suit LA LANGUE d'abord, le revenu
+    #   ensuite : pour une app destinée à des enfants, la langue décide avant le
+    #   pouvoir d'achat.
+    # ⚠ Les quatre partagent le cloud `eu` — même RGPD, une seule grille de prix
+    #   en euros, et surtout UNE SEULE BASE : leurs joueurs peuvent appartenir au
+    #   même clan. Seuls la TVA, l'acquisition, le panier, le churn, la conversion
+    #   et le corpus légal diffèrent. Ce corpus est recopié depuis `fr` et
+    #   versionné séparément — depuis le 2026-08-27, chaque marché porte le sien.
+    euo:
+      # Europe de l'Ouest — DE AT NL BE LU IE MT
+      # Tes sept langues y sont natives et le pouvoir d'achat y est le plus élevé de
+      # la zone euro. C'est le marché de référence : ses valeurs sont celles de
+      # l'ancien marché `eu`, dont il hérite le rôle.
+      cloud: eu
+      monnaies: { eur: 1.00 }
+      # pouvoir d'achat le plus eleve de la zone euro : plus d'annuel, paliers plus hauts.
+      mix_facteur: 1.056
+      tva: 0.200
+      datacenter: europe-west1
+      inference: 0.0000
+      indice: 100
+      confiance: 0.08
+      stores:
+        appstore:
+          acquisition: { m1_3: 5.062, an4_5: 8.865 }
+          conversion: 0.032
+          churn: { fond: 0.068, precoce: 0.136 }
+        play:
+          acquisition: { m1_3: 6.187, an4_5: 10.835 }
+          conversion: 0.020
+          churn: { fond: 0.080, precoce: 0.160 }
+    eus:
+      # Europe du Sud — ES IT PT
+      # Langues couvertes (es, it, pt), mais 45 à 55 k$ de PIB par habitant en PPA
+      # contre 68 k$ à l'ouest. Même prix affiché, mélange de paliers plus bas,
+      # churn plus élevé, et Android nettement dominant.
+      cloud: eu
+      monnaies: { eur: 1.00 }
+      # meme prix affiche, melange de paliers plus bas (PIB/hab en PPA 45-55 k$ contre 68 k$ a l'ouest).
+      mix_facteur: 0.907
+      tva: 0.217
+      datacenter: europe-west1
+      inference: 0.0000
+      indice: 100
+      confiance: 0.08
+      stores:
+        appstore:
+          acquisition: { m1_3: 1.939, an4_5: 3.395 }
+          conversion: 0.026
+          churn: { fond: 0.078, precoce: 0.156 }
+        play:
+          acquisition: { m1_3: 3.600, an4_5: 6.305 }
+          conversion: 0.017
+          churn: { fond: 0.090, precoce: 0.180 }
+    eun:
+      # Europe du Nord — SE DK NO FI
+      # ⚠ AUCUNE de tes langues n'y est native — l'anglais y supplée, ce qui n'est
+      # vrai NULLE PART AILLEURS dans cette liste. Revenu le plus élevé, churn le
+      # plus bas, iOS majoritaire.
+      # ⚠ VOLUME RÉELLEMENT NOUVEAU : SE, DK et NO n'étaient vendables dans aucune
+      #   devise avant le 2026-08-26. Il est pourtant pris sur le total existant et
+      #   non ajouté — la redistribution reste à somme constante, volontairement.
+      # ⚠ TVA à 25 %, contre 20 % en France. C'est le cas d'usage de la TVA par
+      #   marché : même cloud, même droit de fond, fiscalité différente.
+      cloud: eu
+      # SE DK NO FI — la Finlande est le seul des quatre a l'euro.
+      monnaies: { sek: 0.38, dkk: 0.22, nok: 0.20, eur: 0.20 }
+      # revenu le plus eleve et churn le plus bas : plus d'annuel.
+      mix_facteur: 1.057
+      tva: 0.250
+      datacenter: europe-west1
+      inference: 0.0000
+      indice: 100
+      confiance: 0.08
+      stores:
+        appstore:
+          acquisition: { m1_3: 1.816, an4_5: 3.180 }
+          conversion: 0.038
+          churn: { fond: 0.060, precoce: 0.120 }
+        play:
+          acquisition: { m1_3: 1.211, an4_5: 2.120 }
+          conversion: 0.024
+          churn: { fond: 0.070, precoce: 0.140 }
+    eux:
+      # Europe, le reste — GR SK SI EE LV LT CY HR
+      # ⚠ NI TA LANGUE, NI L'ANGLAIS COURANT. Ils restent distribués parce qu'ils sont
+      # déjà dans la devise `eur` : même monnaie, même cloud, corpus recopié de `fr`,
+      # coût marginal nul. On n'ouvre pas un marché pour une langue qu'on n'a pas ;
+      # on ne ferme pas un pays qui est déjà gratuit.
+      # ⚠ SEUL MARCHÉ À CONFIANCE 0,05 au lieu de 0,08, et ce n'est pas du
+      #   pessimisme sur le produit : un enfant grec ne peut pas lire l'app. C'est
+      #   l'hypothèse « ça prend » qui est plus faible, exactement ce que la note de
+      #   confiance sert à porter.
+      cloud: eu
+      monnaies: { eur: 1.00 }
+      # ni ta langue ni l'anglais courant : ceux qui paient prennent l'entree de gamme.
+      mix_facteur: 0.825
+      tva: 0.225
+      datacenter: europe-west1
+      inference: 0.0000
+      indice: 100
+      confiance: 0.05
+      stores:
+        appstore:
+          acquisition: { m1_3: 0.206, an4_5: 0.360 }
+          conversion: 0.020
+          churn: { fond: 0.090, precoce: 0.180 }
+        play:
+          acquisition: { m1_3: 0.822, an4_5: 1.440 }
+          conversion: 0.013
+          churn: { fond: 0.105, precoce: 0.210 }
+    uk:
+      # Royaume-Uni — GB
+      # Anglophone natif, forte dépense applicative par habitant, et une culture du
+      # jeu de rôle qui ne demande aucune traduction du décor. Copié du marché `us`,
+      # dont il partage le profil : pas de réseau, pas de bouche-à-oreille.
+      # tva : de nombreux États ne taxent pas le numérique. C'est le premier
+      #   moteur du coefficient américain, avant même le prix.
+      # inference : backend US, dernières générations de modèles disponibles.
+      #   C'est la référence, sans pénalité.
+      cloud: eu
+      monnaies: { gbp: 1.00 }
+      tva: 0.200
+      # ⚠ CORRIGÉ LE 2026-08-27 : ce marché déclarait `us-central1` alors que son
+      #   `cloud` est européen, ce qui n'était visible d'aucun côté tant que les
+      #   deux découpages n'étaient pas rapprochés. Le UK GDPR bénéficie d'une
+      #   décision d'adéquation européenne : héberger en Europe est le choix
+      #   défendable, et le surcoût d'inférence est celui de toute la zone.
+      datacenter: europe-west1
+      inference: 0.0000       # € par payant et par mois
+      indice: 167
+      # ⚠ prix des cellules : calculé sur la grille RÉELLE de
+      #   store.catalog — 1,99 € contre 2,19 $, soit 1,02 après
+      #   change. Seul chiffre du portefeuille qui soit mesuré.
+      confiance: 0.080
+      stores:
+
+        appstore:
+          # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
+          # l'écart connu entre les deux plateformes, et c'est lui qui fait que
+          # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
+          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
+          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
+          #   Play-only, et le manque à gagner se lit directement.
+          # payants/mois — 13.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 0.609, an4_5: 2.434 }
+          conversion: 0.0416
+          churn:
+            fond: 0.0544
+            precoce: 0.1088
+
+        play:
+          # Référence : les facteurs de marché s'appliquent sans correction.
+          # payants/mois — 7.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 0.609, an4_5: 2.434 }
+          conversion: 0.0260
+          churn:
+            fond: 0.0640
+            precoce: 0.1280
+    ch:
+      # Suisse — CH
+      # LE MEILLEUR COEFFICIENT DU PORTEFEUILLE : prix à 1,50 x l'Europe et TVA à
+      # 8,1 %, les deux jouant dans le même sens. Trois de tes sept langues y sont
+      # officielles.
+      # Seul des quatre à être copié de `euo` et non de `us` : marché continental,
+      # adjacent au marché français, où le bouche-à-oreille peut porter. Il en a
+      # hérité les valeurs — et, jusqu'au 2026-08-28, la liste de pays de `euo`
+      # (« DE AT NL BE LU IE MT »), restée là par copie. `ch`, c'est la Suisse et
+      # elle seule ; le pays est déclaré ligne 1799 et nulle part ailleurs.
+      cloud: eu
+      monnaies: { chf: 1.00 }
+      tva: 0.081
+      datacenter: europe-west1
+      inference: 0.0000
+      indice: 100
+      confiance: 0.08
+      stores:
+        appstore:
+          acquisition: { m1_3: 0.607, an4_5: 1.064 }
+          conversion: 0.0358
+          churn: { fond: 0.0591, precoce: 0.1183 }
+        play:
+          acquisition: { m1_3: 0.405, an4_5: 0.709 }
+          conversion: 0.0224
+          churn: { fond: 0.0696, precoce: 0.1391 }
+    us:
+      # tva : de nombreux États ne taxent pas le numérique. C'est le premier
+      #   moteur du coefficient américain, avant même le prix.
+      # inference : backend US, dernières générations de modèles disponibles.
+      #   C'est la référence, sans pénalité.
+      cloud: us
+      monnaies: { usd: 1.00 }
+      tva: 0.04
+      # Dernières générations de modèles disponibles : c'est la référence de
+      # coût du portefeuille, sans pénalité.
+      datacenter: us-central1
+      inference: 0.0000       # € par payant et par mois
+      indice: 167
+      # ⚠ prix des cellules : calculé sur la grille RÉELLE de
+      #   store.catalog — 1,99 € contre 2,19 $, soit 1,02 après
+      #   change. Seul chiffre du portefeuille qui soit mesuré.
+      confiance: 0.080
+      stores:
+
+        appstore:
+          # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
+          # l'écart connu entre les deux plateformes, et c'est lui qui fait que
+          # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
+          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
+          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
+          #   Play-only, et le manque à gagner se lit directement.
+          # payants/mois — 13.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 3.390, an4_5: 13.554 }
+          conversion: 0.04160
+          churn:
+            fond: 0.05440
+            precoce: 0.10880
+
+        play:
+          # Référence : les facteurs de marché s'appliquent sans correction.
+          # payants/mois — 7.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 1.826, an4_5: 7.298 }
+          conversion: 0.02600
+          churn:
+            fond: 0.06400
+            precoce: 0.12800
+    ca:
+      # Canada — CA
+      # Anglophone et francophone : le Québec est le seul marché hors France où ta
+      # langue par défaut est native. Pouvoir d'achat proche de la France, d'où un
+      # prix à 1,05 x seulement.
+      # tva : de nombreux États ne taxent pas le numérique. C'est le premier
+      #   moteur du coefficient américain, avant même le prix.
+      # inference : backend US, dernières générations de modèles disponibles.
+      #   C'est la référence, sans pénalité.
+      cloud: us
+      monnaies: { cad: 1.00 }
+      tva: 0.120
+      # Dernières générations de modèles disponibles : c'est la référence de
+      # coût du portefeuille, sans pénalité.
+      datacenter: us-central1
+      inference: 0.0000       # € par payant et par mois
+      indice: 167
+      # ⚠ prix des cellules : calculé sur la grille RÉELLE de
+      #   store.catalog — 1,99 € contre 2,19 $, soit 1,02 après
+      #   change. Seul chiffre du portefeuille qui soit mesuré.
+      confiance: 0.080
+      stores:
+
+        appstore:
+          # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
+          # l'écart connu entre les deux plateformes, et c'est lui qui fait que
+          # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
+          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
+          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
+          #   Play-only, et le manque à gagner se lit directement.
+          # payants/mois — 13.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 0.351, an4_5: 1.404 }
+          conversion: 0.0416
+          churn:
+            fond: 0.0544
+            precoce: 0.1088
+
+        play:
+          # Référence : les facteurs de marché s'appliquent sans correction.
+          # payants/mois — 7.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 0.287, an4_5: 1.148 }
+          conversion: 0.0260
+          churn:
+            fond: 0.0640
+            precoce: 0.1280
+    oceanie:
+      # Australie et Nouvelle-Zélande — AU NZ
+      # Anglophones natifs, pouvoir d'achat élevé, aucune traduction à faire.
+      # SERVIS DEPUIS us-central1 : ~200 ms depuis Sydney. Acceptable pour une app
+      # asynchrone, à revoir si un projet devient temps réel.
+      # L'Australie prépare un Children's Online Privacy Code attendu fin 2026 —
+      # à vérifier avant le build de toute app à mineurs.
+      # tva : de nombreux États ne taxent pas le numérique. C'est le premier
+      #   moteur du coefficient américain, avant même le prix.
+      # inference : backend US, dernières générations de modèles disponibles.
+      #   C'est la référence, sans pénalité.
+      cloud: us
+      # AU 27 M / NZ 5 M.
+      monnaies: { aud: 0.84, nzd: 0.16 }
+      tva: 0.110
+      # Dernières générations de modèles disponibles : c'est la référence de
+      # coût du portefeuille, sans pénalité.
+      datacenter: us-central1
+      inference: 0.0000       # € par payant et par mois
+      indice: 167
+      # ⚠ prix des cellules : calculé sur la grille RÉELLE de
+      #   store.catalog — 1,99 € contre 2,19 $, soit 1,02 après
+      #   change. Seul chiffre du portefeuille qui soit mesuré.
+      confiance: 0.080
+      stores:
+
+        appstore:
+          # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
+          # l'écart connu entre les deux plateformes, et c'est lui qui fait que
+          # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
+          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
+          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
+          #   Play-only, et le manque à gagner se lit directement.
+          # payants/mois — 13.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 0.302, an4_5: 1.205 }
+          conversion: 0.0416
+          churn:
+            fond: 0.0555
+            precoce: 0.1110
+
+        play:
+          # Référence : les facteurs de marché s'appliquent sans correction.
+          # payants/mois — 7.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 0.247, an4_5: 0.986 }
+          conversion: 0.0260
+          churn:
+            fond: 0.0653
+            precoce: 0.1306
+    bresil:
+      # ⚠ MARCHÉ ENTIÈREMENT INFÉRÉ. La source ne publie aucun revenu par
+      #   install pour cette zone : l'indice de 45 était déjà une estimation.
+      #   Les cellules ci-dessous le REPRODUISENT, elles ne le mesurent pas.
+      # inference : servi par le backend US, donc sans pénalité de modèle.
+      cloud: us
+      monnaies: { brl: 1.00 }
+      tva: 0.10
+      # ⚠ SERVI DEPUIS LES ÉTATS-UNIS — décision du 2026-08-26, après avoir
+      #   envisagé un datacenter à São Paulo. Quatre raisons, dans l'ordre :
+      #
+      #   1. LE CATALOGUE DE MODÈLES DÉCIDE, pas la latence.
+      #      `southamerica-east1` reçoit les modèles Vertex tard, quand il les
+      #      reçoit. Un modèle plus ancien consomme PLUS de tokens pour la même
+      #      qualité — on paierait donc davantage sur le marché où le panier est
+      #      déjà décoté de 40 %. C'est le pire endroit où accepter une pénalité.
+      #   2. LA LATENCE EST DU BRUIT. Une génération prend 2 à 4 secondes ;
+      #      130 ms de réseau, c'est 4 % du trajet. Aucune app du portefeuille
+      #      n'est temps réel — Prompt To Kill est co-présent mais tour par tour.
+      #      (À vol d'oiseau, São Paulo serait plus près de Santiago, et les US
+      #      plus près de Mexico : la latence ne départage même pas la zone.)
+      #   3. UN TROISIÈME BACKEND COÛTE EN PERMANENCE — base Firestore, pile
+      #      Pulumi, entrées de reset, surveillance — pour ~9 % du revenu. La
+      #      ressource rare est le temps du soir.
+      #   4. RIEN NE L'IMPOSE : la LGPD autorise le transfert international avec
+      #      garanties, sans obligation de résidence brésilienne.
+      #
+      # ⚠ LA ZONE RESTE UNE ZONE À PART, volontairement. Elle garde ses parts,
+      #   son panier décoté et ses propres valeurs d'inférence — même si celles-ci
+      #   recopient aujourd'hui celles des États-Unis. Basculer sur São Paulo
+      #   redevient alors UNE LIGNE à changer, et le modèle recalcule tout seul.
+      #   Si le Brésil impose un jour la localisation, c'est le seul geste à faire.
+      #
+      # ⚠ C'EST LE MARCHÉ OÙ LE RATIO PROCEEDS / INFÉRENCE EST LE PLUS TENDU : le
+      #   panier y est décoté de 40 %, le coût d'un token ne l'est pas. Servir
+      #   depuis les US ne le sauve pas, ça évite de l'aggraver.
+      datacenter: us-central1
+      inference: 0.0000       # € par payant et par mois — recopié des
+      #   États-Unis, puisque c'est le backend qui sert la zone.
+      indice: 45
+      confiance: 0.080
+      stores:
+
+        appstore:
+          # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
+          # l'écart connu entre les deux plateformes, et c'est lui qui fait que
+          # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
+          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
+          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
+          #   Play-only, et le manque à gagner se lit directement.
+          # payants/mois — 6.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 0.938, an4_5: 3.754 }
+          conversion: 0.02400
+          churn:
+            fond: 0.06800
+            precoce: 0.13600
+
+        play:
+          # Référence : les facteurs de marché s'appliquent sans correction.
+          # payants/mois — 14.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 2.189, an4_5: 8.758 }
+          conversion: 0.01500
+          churn:
+            fond: 0.08000
+            precoce: 0.16000
+
+  # ===========================================================================
+  # CADENCE SOUHAITÉE — un VŒU, pas un engagement
+  # ===========================================================================
+  # ⚠ LA ROADMAP TRANCHE. Si la bande passante ne permet pas cet intervalle,
+  #   elle l'allonge, et le modèle en subit la conséquence : PLUS D'ÉROSION,
+  #   jamais moins de contenu. Ce bloc dit ce qu'on voudrait, le kpi dit ce
+  #   qu'on peut, et le mode `check` mesure l'écart entre les deux.
+  #
+  # Repères, mesurés et non supposés :
+  #   - les jeux en service qui livrent toutes les 4 à 6 SEMAINES ont une
+  #     rétention J90 supérieure de 25 à 35 % à ceux qui sont sur 8 à 12
+  #     semaines (Game Growth Advisor, LiveOps 2026) ;
+  #   - J30-J60 est la fenêtre de décrochage sérieux, J60-J90 celle où la
+  #     réactivation s'effondre (AppFollow 2026). Un intervalle de plus de trois
+  #     mois fait traverser les deux ;
+  #   - le DLC AAA classique tourne autour de trois mois, un an durant.
+  # ===========================================================================
+    hispam:
+      # ⚠ SCINDÉ DE `latam` LE 2026-08-26. Le marché unique portait le Brésil, le
+      #   Mexique et la Colombie sous une TVA de 20 % recopiée d'Europe — fausse
+      #   pour les trois. Deux marchés parce que deux DROITS : le Brésil a son
+      #   régime fiscal, son autorité, et surtout une loi de protection des
+      #   mineurs en ligne sans équivalent européen. C'est le seul marché dont une
+      #   app à mineurs pourrait devoir sortir seule, et il doit donc pouvoir
+      #   se retirer d'une ligne.
+      # ⚠ UN SEUL CORPUS POUR LE MEXIQUE ET LA COLOMBIE : une politique de
+      #   confidentialité sait nommer les deux autorités dans le même document.
+      #   C'est ce qui dispense de savoir où se trouve précisément l'utilisateur.
+      # ⚠ CORRIGÉ LE 2026-08-28 : cette note disait « l'INAI pour les Mexicains ».
+      #   L'INAI N'EXISTE PLUS — la réforme constitutionnelle de décembre 2024 l'a
+      #   supprimé, et la nouvelle LFPDPPP (DOF du 20 mars 2025) a transféré la
+      #   protection des données à la Secretaría Anticorrupción y Buen Gobierno.
+      #   Le corpus `hispam` nomme donc la SIC en Colombie et la Secretaría au
+      #   Mexique. Changement institutionnel récent : à revérifier avant publication.
+      # ⚠ La Colombie exige de DÉMONTRER l'intérêt supérieur de l'enfant — une
+      #   note d'analyse écrite, pas une expertise. À produire avant d'ouvrir.
+      # ⚠ MEXIQUE + COLOMBIE. La Colombie n'est pas là pour son revenu — ~30 €/mois
+      #   au plateau — mais pour son VIVIER DE TESTEURS hispanophones. Pour un
+      #   développeur seul, une beta qui remonte de vrais retours vaut plus que
+      #   la ligne de revenu qu'elle porte. Ne pas la juger sur ce tableau.
+      # ⚠ Chili, Argentine, Pérou et le reste : ÉCARTÉS, pas oubliés. Le Chili
+      #   attend ses textes d'application (loi 21.719, fin 2026) et un signal de
+      #   traction hispanophone. Cuba, Venezuela, Nicaragua, Haïti, Salvador et
+      #   Bolivie sont exclus par `store.pays_exclus`, avec leur motif.
+      # ⚠ Datacenter, latence, catalogue de modèles : voir le marché `bresil`,
+      #   le raisonnement est le même et il n'est pas dupliqué ici.
+      cloud: us
+      # MX 130 M / CO 52 M.
+      monnaies: { mxn: 0.71, cop: 0.29 }
+      tva: 0.17
+      # ⚠ SERVI DEPUIS LES ÉTATS-UNIS — décision du 2026-08-26, après avoir
+      #   envisagé un datacenter à São Paulo. Quatre raisons, dans l'ordre :
+      #
+      #   1. LE CATALOGUE DE MODÈLES DÉCIDE, pas la latence.
+      #      `southamerica-east1` reçoit les modèles Vertex tard, quand il les
+      #      reçoit. Un modèle plus ancien consomme PLUS de tokens pour la même
+      #      qualité — on paierait donc davantage sur le marché où le panier est
+      #      déjà décoté de 40 %. C'est le pire endroit où accepter une pénalité.
+      #   2. LA LATENCE EST DU BRUIT. Une génération prend 2 à 4 secondes ;
+      #      130 ms de réseau, c'est 4 % du trajet. Aucune app du portefeuille
+      #      n'est temps réel — Prompt To Kill est co-présent mais tour par tour.
+      #      (À vol d'oiseau, São Paulo serait plus près de Santiago, et les US
+      #      plus près de Mexico : la latence ne départage même pas la zone.)
+      #   3. UN TROISIÈME BACKEND COÛTE EN PERMANENCE — base Firestore, pile
+      #      Pulumi, entrées de reset, surveillance — pour ~9 % du revenu. La
+      #      ressource rare est le temps du soir.
+      #   4. RIEN NE L'IMPOSE : la LGPD autorise le transfert international avec
+      #      garanties, sans obligation de résidence brésilienne.
+      #
+      # ⚠ LA ZONE RESTE UNE ZONE À PART, volontairement. Elle garde ses parts,
+      #   son panier décoté et ses propres valeurs d'inférence — même si celles-ci
+      #   recopient aujourd'hui celles des États-Unis. Basculer sur São Paulo
+      #   redevient alors UNE LIGNE à changer, et le modèle recalcule tout seul.
+      #   Si le Brésil impose un jour la localisation, c'est le seul geste à faire.
+      #
+      # ⚠ C'EST LE MARCHÉ OÙ LE RATIO PROCEEDS / INFÉRENCE EST LE PLUS TENDU : le
+      #   panier y est décoté de 40 %, le coût d'un token ne l'est pas. Servir
+      #   depuis les US ne le sauve pas, ça évite de l'aggraver.
+      datacenter: us-central1
+      inference: 0.0000       # € par payant et par mois — recopié des
+      #   États-Unis, puisque c'est le backend qui sert la zone.
+      indice: 45
+      confiance: 0.080
+      stores:
+
+        appstore:
+          # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
+          # l'écart connu entre les deux plateformes, et c'est lui qui fait que
+          # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
+          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
+          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
+          #   Play-only, et le manque à gagner se lit directement.
+          # payants/mois — 6.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 0.626, an4_5: 2.502 }
+          conversion: 0.02400
+          churn:
+            fond: 0.06800
+            precoce: 0.13600
+
+        play:
+          # Référence : les facteurs de marché s'appliquent sans correction.
+          # payants/mois — 14.00 % de l'acquisition du projet au plateau
+          acquisition: { m1_3: 1.460, an4_5: 5.839 }
+          conversion: 0.01500
+          churn:
+            fond: 0.08000
+            precoce: 0.16000
+
+  # ===========================================================================
+  # CADENCE SOUHAITÉE — un VŒU, pas un engagement
+  # ===========================================================================
+  # ⚠ LA ROADMAP TRANCHE. Si la bande passante ne permet pas cet intervalle,
+  #   elle l'allonge, et le modèle en subit la conséquence : PLUS D'ÉROSION,
+  #   jamais moins de contenu. Ce bloc dit ce qu'on voudrait, le kpi dit ce
+  #   qu'on peut, et le mode `check` mesure l'écart entre les deux.
+  #
+  # Repères, mesurés et non supposés :
+  #   - les jeux en service qui livrent toutes les 4 à 6 SEMAINES ont une
+  #     rétention J90 supérieure de 25 à 35 % à ceux qui sont sur 8 à 12
+  #     semaines (Game Growth Advisor, LiveOps 2026) ;
+  #   - J30-J60 est la fenêtre de décrochage sérieux, J60-J90 celle où la
+  #     réactivation s'effondre (AppFollow 2026). Un intervalle de plus de trois
+  #     mois fait traverser les deux ;
+  #   - le DLC AAA classique tourne autour de trois mois, un an durant.
+  # ===========================================================================
+
+  cadence:
+
+    # Le PREMIER lot arrive vite, et c'est le plus important des trois nombres :
+    # il tombe pendant la fenêtre où l'utilisateur juge encore si le produit
+    # vaut son abonnement, avant la première annulation de masse — le mois 1
+    # concentre 35 % des annulations annuelles (RevenueCat 2026).
+    premier_lot_semaines: 5
+
+    # Puis un lot tous les N mois.
+    intervalle_mois: 2
+  lots:
+
+    # contenu offert : aucune vente, uniquement de la rétention
+    'a6728b19f4b1':
+      # --- roadmap (console deva) ---
+      rank: 120
+      store: true
+      rsp: 233
+      nom: 'defis'
+      id: 'a6728b19f4b1'
+      accroche: 'fantastiques'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**mise à jour gratuite** — défis hebdomadaires, succès et titres, POKEDEX et objets de collection. Ce que le site annonce sous « Plus de contenu ». Premier update après le lancement : il n''a pas à se vendre, il a à ramener les familles'
+      last_modification: '2026-09-06T21:15:49'
+      # --- economie (console deva) ---
+      churn_facteur: 0.9875
+      duree_contenu_mois: 2
+      perte_evitee: 45
+      gratuit: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # l'Extension « Butin » SEULE, 7.99 € — revenu hors abonnement.
     #
-    #   ddust_autovalidation:
-    #     type: product
-    #     order: 10
-    #     label: "@@@T:store_autovalidation@@@"
-    #     description: "@@@T:store_autovalidation_desc@@@"
-    #     price_hint: "1.99 €"
-    #     grants: { auto_validation: true }
+    # ⚠ SES CINQ AUTRES PRODUITS SONT PARTIS dans leurs propres lots le
+    #   2026-09-04 : `revenu_direct` tombe de 95 à 16, la part du seul
+    #   Butin. Et le `churn_facteur` 0.9625 l'a quitté pour `routine`,
+    #   qui ferme le bloc des onze — « dernier livré l'emporte ».
+    '0877dd1dcfb0':
+      # --- roadmap (console deva) ---
+      rank: 200
+      store: true
+      rsp: 610
+      nom: 'loots'
+      id: '0877dd1dcfb0'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — « Extension Butin », 7.99 €, le produit le plus cher du catalogue** — or, boutique des héros, loot aléatoire, objets et équipement, faveurs, saisons et affiliation. ⚠ **CE LOT PORTE LES MOTEURS DE QUÊTES ET DE POTIONS**, pas seulement l''économie : c''est lui qui ouvre la boutique et rend vendables les dix lots de contenu qui le suivent. Ses six packs sont partis vivre dans leurs propres lots. *Éclaté le 2026-09-04 : il agrégeait six produits vendus séparément.*'
+      last_modification: '2026-09-06T20:20:38'
+      # --- economie (console deva) ---
+      revenu_direct: 16
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '1c1703f9c5bd':
+      # --- roadmap (console deva) ---
+      rank: 290
+      store: true
+      rsp: 377
+      nom: 'minijeux'
+      id: '1c1703f9c5bd'
+      accroche: 'maxifun'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**mise à jour gratuite** — mini-jeux pour vaincre les monstres aléatoires (énigme, réflexe, memory, question piège). **Code assumé**, bâti sur le moteur d''événements livré au MVP'
+      last_modification: '2026-09-06T21:43:26'
+      # --- economie (console deva) ---
+      churn_facteur: 0.95
+      duree_contenu_mois: 2
+      perte_evitee: 40
+      gratuit: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '5b617e0e5480':
+      # --- roadmap (console deva) ---
+      rank: 370
+      store: true
+      rsp: 233
+      nom: 'classes'
+      id: '5b617e0e5480'
+      accroche: 'En costard'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante à 6.99 €** (décision 2026-08-24), deuxième prix du catalogue derrière « Butin » — classes de personnage : voies, avantages et inconvénients, synergies de clan. Ce n''est pas un pack de contenu mais une **extension majeure du jeu** : un thème rhabille l''aventure, une classe la rejoue autrement'
+      last_modification: '2026-09-06T20:24:06'
+      # --- economie (console deva) ---
+      churn_facteur: 0.9375
+      revenu_direct: 18
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '0b7c8f278959':
+      # --- roadmap (console deva) ---
+      rank: 500
+      store: true
+      rsp: 144
+      nom: 'theme_pirates'
+      id: '0b7c8f278959'
+      accroche: 'A l''abordage !'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 1er thème, 5.99 €** — rejouer l''aventure en univers pirate. ⚠ **CE LOT PORTE LE SYSTÈME DE THÈMES**, pas seulement son contenu : c''est lui qui essuie les plâtres — bascule d''univers, déclinaison des assets, des libellés et du ton. Les deux thèmes suivants n''ont plus que leur contenu à produire, d''où leur estimation bien plus basse. *Détaché de `themes` le 2026-09-02.*'
+      last_modification: '2026-09-06T21:50:37'
+      # --- economie (console deva) ---
+      revenu_direct: 10
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    'b4483c2704e7':
+      # --- roadmap (console deva) ---
+      rank: 580
+      store: true
+      rsp: 55
+      nom: 'theme_casanostra'
+      id: 'b4483c2704e7'
+      accroche: 'Bienvenue dans la mafia'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 2e thème, 5.99 €** — univers mafia. Le système de thèmes existe déjà (`theme_pirates`) : il ne reste que le contenu. *Détaché de `themes` le 2026-09-02.'
+      last_modification: '2026-09-06T21:50:47'
+      # --- economie (console deva) ---
+      revenu_direct: 10
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '1521505a498c':
+      # --- roadmap (console deva) ---
+      rank: 680
+      store: true
+      rsp: 55
+      nom: 'theme_starsweep'
+      id: '1521505a498c'
+      accroche: 'Que le ménage soit avec toi'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 3e thème, 5.99 €** — space opera. Contenu seul, comme le précédent. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DES TROIS**, et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et la valeur 0.9312 décrivait l''état du modèle une fois les TROIS thèmes sortis. Le poser sur chacun aurait fait obtenir au premier thème seul le bénéfice de rétention des trois. *Détaché de `themes` le 2026-09-02.*'
+      last_modification: '2026-09-06T20:23:18'
+      # --- economie (console deva) ---
+      churn_facteur: 0.925
+      revenu_direct: 10
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # --- LES DIX LOTS DETACHES DE `loots` ET `packs` (2026-09-04) --------------
+    # Un lot par produit vendu, comme les trois themes depuis le 2026-09-02.
+    # `loots` ci-dessus ne porte plus que l'Extension Butin a 7.99 EUR et les
+    # MECANIQUES de quetes et de potions ; ici, ce n'est que du contenu.
     #
-    #   ddust_pack_quetes:
-    #     type: product
-    #     order: 20
-    #     price_hint: "3.99 €"
-    #     grants: { pack_quetes: true }
-    #     tag: pack_quetes          # active le layer de contenu du même nom
-    #
-    # ⚠ pucatalog ne gère aujourd'hui QUE les abonnements : il ignore les entrées
-    # `type: product`. Les ouvrir demandera d'étendre le module aux in-app products
-    # (endpoint `inappproducts`, sans base plan ni offre).
+    # ⚠ LES CHAMPS DE ROADMAP (rank, rsp, description...) N'Y SONT PAS ENCORE :
+    #   ils descendent de la console a la premiere synchro, comme pour tout lot
+    #   ne en base. Ne pas les ecrire a la main, ils seraient ecrases.
+
+    '3df87efd34d2':
+      # --- roadmap (console deva) ---
+      rank: 160
+      store: true
+      rsp: 21
+      nom: 'validations automatiques'
+      id: '3df87efd34d2'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — validations automatiques, 1.99 €** — réglables par enfant, et définitives. À ne pas confondre avec l''effet temporaire « validation auto 3 jours » d''une potion. Le produit le moins cher du catalogue, et le seul du bloc qui ne dépende d''aucune mécanique de `loots` : il ne réclame que le socle d''achat d''extensions, livré au MVP. *Détaché de `loots` le 2026-09-04.*'
+      last_modification: '2026-09-06T21:16:56'
+      # --- economie (console deva) ---
+      revenu_direct: 16
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '71b889d2505e':
+      # --- roadmap (console deva) ---
+      rank: 210
+      store: true
+      rsp: 34
+      nom: 'quetes I'
+      id: '71b889d2505e'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 1er pack de quêtes, 3.99 €** — contenu seul : la mécanique de quêtes vit dans `loots`, publié avant. Il sort dans la foulée de l''Extension Butin, pour qu''une boutique qui s''ouvre ne soit pas vide. *Détaché de `loots` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:20:54'
+      # --- economie (console deva) ---
+      revenu_direct: 16
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '81291102e209':
+      # --- roadmap (console deva) ---
+      rank: 300
+      store: true
+      rsp: 34
+      nom: 'quêtes II'
+      id: '81291102e209'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 2e pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:21:30'
+      # --- economie (console deva) ---
+      revenu_direct: 4
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '0ab7912989d0':
+      # --- roadmap (console deva) ---
+      rank: 380
+      store: true
+      rsp: 34
+      nom: 'quêtes III'
+      id: '0ab7912989d0'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 3e et dernier pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:21:53'
+      # --- economie (console deva) ---
+      revenu_direct: 4
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    'ecb38169ab68':
+      # --- roadmap (console deva) ---
+      rank: 220
+      store: true
+      rsp: 34
+      nom: 'potions I'
+      id: 'ecb38169ab68'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 1er pack de potions, 3.99 €** — contenu seul : la mécanique de potions vit dans `loots`, publié avant. Livré dans la même foulée que le premier pack de quêtes. *Détaché de `loots` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:21:06'
+      # --- economie (console deva) ---
+      revenu_direct: 16
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '09a10ee9b42d':
+      # --- roadmap (console deva) ---
+      rank: 310
+      store: true
+      rsp: 34
+      nom: 'potions II'
+      id: '09a10ee9b42d'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 2e pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:21:38'
+      # --- economie (console deva) ---
+      revenu_direct: 4
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '4333deadd8b3':
+      # --- roadmap (console deva) ---
+      rank: 390
+      store: true
+      rsp: 34
+      nom: 'potions III'
+      id: '4333deadd8b3'
+      accroche: 'blurp'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — 3e et dernier pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:23:49'
+      # --- economie (console deva) ---
+      revenu_direct: 4
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '13a9e8d0a1b9':
+      # --- roadmap (console deva) ---
+      rank: 280
+      store: true
+      rsp: 55
+      nom: 'devoirs faits'
+      id: '13a9e8d0a1b9'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — pack « Devoirs faits », 3.99 €** — **le seul pack qui traverse les trois mécaniques** : quête (« 13 de moyenne générale »), tâches additionnelles (« Apprendre le cours de maths ») et potion (« +15 % XP sur les exercices de SVT »). D''où 55rsp là où les autres packs valent 34. C''est aussi le plus vendable aux parents — il répond à la seule chose qu''ils n''arrivent pas à faire tenir par la routine. *Détaché de `packs` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:21:22'
+      # --- economie (console deva) ---
+      revenu_direct: 2
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '258ff7d2b854':
+      # --- roadmap (console deva) ---
+      rank: 400
+      store: true
+      rsp: 21
+      nom: 'pack bricolage'
+      id: '258ff7d2b854'
+      accroche: 'Mc Gyver'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — pack de tâches « Bricolage », 3.99 €** — contenu YAML pur dans un pipeline déjà livré : aucune mécanique requise, d''où la cotation la plus basse du bloc. *Détaché de `loots` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:23:39'
+      # --- economie (console deva) ---
+      revenu_direct: 16
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # ⚠ ROUTINE FERME LE BLOC, DONC IL EN PORTE LE `churn_facteur` — et lui seul.
+    #   Le facteur fonctionne en « dernier livre l'emporte » : le poser sur chacun
+    #   des onze lots ferait obtenir au premier le benefice de retention des onze.
+    #   Meme regle que `theme_starsweep` pour les themes.
+    'cbe53f2e0c9b':
+      # --- roadmap (console deva) ---
+      rank: 270
+      store: true
+      rsp: 21
+      nom: 'routine'
+      id: 'cbe53f2e0c9b'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**extension payante — pack de tâches « Routine », 3.99 €** — se brosser les dents, préparer son cartable la veille… Contenu YAML pur, aucune mécanique requise. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DU BLOC** (0.9625), et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et cette valeur décrit l''état du modèle une fois les ONZE lots sortis. Même règle que `theme_starsweep` pour les thèmes. *Détaché de `loots` le 2026-09-04.*'
+      last_modification: '2026-09-06T20:21:15'
+      # --- economie (console deva) ---
+      churn_facteur: 0.9625
+      revenu_direct: 15
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  # ===========================================================================
+  # CONSTANTES COMMUNES — dupliquées dans CHAQUE projet, volontairement
+  # ===========================================================================
+  # ⚠ NE PAS FACTORISER CE BLOC dans un fichier partagé. Il est répété dans les
+  #   douze build.yml pour que chaque projet soit AUTOPORTANT : vendu seul,
+  #   publié en open source ou repris par quelqu'un d'autre, il doit contenir
+  #   son modèle économique en entier, sans dépendre d'un fichier de portefeuille
+  #   qui ne le suivrait pas.
+  #   Un premier essai les avait rangées dans deva/deva.yml — fichier non
+  #   versionné, extérieur aux projets. Elles en sont redescendues le 2026-08-25.
+  #
+  # ⚠ DEUX BLOCS FONT EXCEPTION et vivent chez `grisloup` SEUL : `fiscalite`
+  #   et `politique`. Le critère : un paramètre vit dans un projet s'il entre
+  #   dans le calcul de SON revenu. L'impôt et les dividendes n'y entrent pas —
+  #   ils décrivent qui encaisse, pas ce qu'on vend. Les chiffres d'un projet
+  #   sont donc des NETS AVANT IMPÔT.
+  #
+  # ⚠ CE SONT DES VALEURS DE DÉPART, PAS DES CONSTANTES. Chacune se modifie ici
+  #   sans toucher aux autres projets : un jeu et un outil B2B n'ont ni la même
+  #   fiscalité, ni les mêmes marchés, ni la même politique de distribution.
+  # ===========================================================================
+
+
+  # --- Canal de vente ---------------------------------------------------------
+  # ⚠ LA CLÉ VIDE `produit:` A ÉTÉ RETIRÉE LE 2026-09-04. C'était un orphelin :
+  #   `ddust/produit` a été découpé en treize lots d'historique le 2026-09-02, le
+  #   document a disparu de `apps_lots`, mais sa clé est restée ici — sans une
+  #   seule ligne sous elle, donc avec la valeur `null`. Rien ne la référençait
+  #   (ni `catalog_sequence`, ni un `lot:` de produit, ni un `requis`), et une
+  #   entrée nulle sous `lots` est un piège pour tout ce qui parcourt le bloc en
+  #   supposant des dictionnaires. La synchro ne la recréera pas : elle n'écrit
+  #   que les lots qui existent en base.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '37efb92085ab':
+      # --- roadmap (console deva) ---
+      rank: 40
+      store: false
+      rsp: 987
+      nom: 'premier pas'
+      id: '37efb92085ab'
+      rampup_semaines: 10
+      maint_demarrage: 3.0
+      maint_croisiere: 2.0
+      description: '**le MVP complet : lancement commercial FR/EN/ES puis consolidation.** Boucle de jeu, butin, abonnements, offre fondateurs, parrainage, corpus légal multirégion, publication Play — puis multitenancy, facturation multi-clan, notifications métier, invitations à distance et réserve de feedback. *Fusion du 2026-08-29 des lots `beta` (lancement, 377rsp) et `mvp` (consolidation, 610rsp). Ddust rentre dans la forme commune du portefeuille — un MVP puis des extensions — et les deux noms trompeurs disparaissent. L''historique du produit n''est pas perdu : il vit dans `ddust/produit`, livré le 2026-08-22.* ⚠ **Prérequis : `grisloup/mvp`** — seule l''immatriculation ouvre le compte Play organisation et fournit le SIREN du corpus légal.'
+      last_modification: '2026-09-06T21:50:09'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '0f3ce68de9ba':
+      # --- roadmap (console deva) ---
+      rank: 150
+      store: false
+      rsp: 34
+      nom: 'ios'
+      id: '0f3ce68de9ba'
+      accroche: 'La pomme d''or'
+      rampup_semaines: 1
+      maint_demarrage: 0.25
+      maint_croisiere: 0.25
+      description: '**portage iOS de l''app** — fiche App Store Connect dans les sept langues, catalogue d''achats recréé côté Apple, revue, recette sur appareil. ⚠ **C''est CE lot qui fait entrer les utilisateurs iOS**, pas `deva/ios` : le passage framework rend le portage possible, il ne publie rien. *Une plateforme de plus à entretenir.*'
+      last_modification: '2026-09-06T21:16:20'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '32329fd13dae':
+      # --- roadmap (console deva) ---
+      rank: 20000
+      store: false
+      rsp: 377
+      nom: 'socle'
+      id: '32329fd13dae'
+      livre: '2026-05-20'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**ce sur quoi tout le reste se pose** — conf découpée en layers, thèmes, écrans de base, son, langues, démarrage. Rien de spectaculaire, et le premier écran qui gèle rend l''app inutilisable.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '3ee5cdbbf4e8':
+      # --- roadmap (console deva) ---
+      rank: 20010
+      store: false
+      rsp: 610
+      nom: 'clan'
+      id: '3ee5cdbbf4e8'
+      livre: '2026-06-10'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**le clan** — le créer, le rejoindre par QR code ou par lien, le roster de ses membres, la promotion d''un chef. C''est la porte d''entrée de l''app : un joueur qui n''arrive pas à rejoindre son clan n''a rien à faire dedans.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '81a9612bcfad':
+      # --- roadmap (console deva) ---
+      rank: 20020
+      store: false
+      rsp: 377
+      nom: 'personnage'
+      id: '81a9612bcfad'
+      livre: '2026-06-20'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**le joueur** — enrollment, session, nom, avatar, photo, écran personnage, passage à l''âge adulte. Tout ce qui fait qu''un enfant se reconnaît dans l''application.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '982e1c595070':
+      # --- roadmap (console deva) ---
+      rank: 20030
+      store: false
+      rsp: 610
+      nom: 'taches'
+      id: '982e1c595070'
+      livre: '2026-06-27'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**le cœur de la boucle** — prendre, relâcher, terminer une tâche, la faire valider par un parent, gérer les domaines, les tâches mortelles et immortelles et leur respawn. C''est ce que l''app fait, tout le reste l''entoure.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '3b81e080ee72':
+      # --- roadmap (console deva) ---
+      rank: 20040
+      store: false
+      rsp: 233
+      nom: 'progression'
+      id: '3b81e080ee72'
+      livre: '2026-07-01'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**ce qui donne envie de recommencer** — XP du joueur et du clan, niveaux, titres, points de vie et leur décroissance, barème d''effort. La mécanique de jeu qui transforme une corvée en partie.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '5ad520b40c19':
+      # --- roadmap (console deva) ---
+      rank: 20050
+      store: false
+      rsp: 233
+      nom: 'notifications'
+      id: '5ad520b40c19'
+      livre: '2026-07-05'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**garder l''app vivante quand elle est fermée** — notifications push, décroissance des PV, balayeur de relance d''engagement. Sans ça une app familiale s''oublie en trois jours.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    'a245b12c4cb8':
+      # --- roadmap (console deva) ---
+      rank: 20060
+      store: false
+      rsp: 144
+      nom: 'journal'
+      id: 'a245b12c4cb8'
+      livre: '2026-07-08'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**la mémoire du clan** — le journal narratif reconstruit depuis les logs, et son partage social. C''est ce qui donne au travail accompli une trace qu''on relit.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    'c03a9e06baad':
+      # --- roadmap (console deva) ---
+      rank: 20070
+      store: false
+      rsp: 610
+      nom: 'contenu_visuel'
+      id: 'c03a9e06baad'
+      livre: '2026-07-12'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**269 images, faites une par une** — 218 medium, 33 small, 14 big, 4 splashs, plus les 10 visuels du Play Store. Le code de ddust est vibe-codé, donc rapide ; ces pièces-là ne le sont pas, et trouver les bons outils a pris du temps. Rien de tout cela n''apparaît dans une mesure de volume de code.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    'e525cb94cb33':
+      # --- roadmap (console deva) ---
+      rank: 20080
+      store: false
+      rsp: 233
+      nom: 'contenu_sonore'
+      id: 'e525cb94cb33'
+      livre: '2026-07-15'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**19 pièces sonores** — 9 musiques, 7 effets, 3 vidéos. Un autre métier que l''image, et le même constat : invisible dans le code, bien réel dans le temps passé.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '3ca5a6277c98':
+      # --- roadmap (console deva) ---
+      rank: 20090
+      store: false
+      rsp: 377
+      nom: 'celebrations'
+      id: '3ca5a6277c98'
+      livre: '2026-07-16'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**le moment où l''app prend la main sur les sens** — montée de niveau, mort et gage, guérison, coup de pouce, la Fée. Une image, un son qui l''annonce, une vibration, et un écran qui ne répond plus le temps que ça se joue.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '992f6f465ef6':
+      # --- roadmap (console deva) ---
+      rank: 20100
+      store: false
+      rsp: 144
+      nom: 'administration'
+      id: '992f6f465ef6'
+      livre: '2026-07-20'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**les gestes du chef de clan** — cacher, désactiver, modifier ou recommander une tâche, déconnecter un joueur, gérer un départ, jouer à la place d''un autre. Tout ce qui n''est pas du jeu mais sans quoi le jeu s''enraye.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    'bfdf9b81c269':
+      # --- roadmap (console deva) ---
+      rank: 20110
+      store: false
+      rsp: 610
+      nom: 'butin'
+      id: 'bfdf9b81c269'
+      livre: '2026-07-28'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**la récompense** — inventaire, coffre, distribution, et la cérémonie d''ouverture. Le seul moment de l''app où l''objet numérique renvoie à un objet physique posé sur une table.'
+      last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '4facbb5b056a':
+      # --- roadmap (console deva) ---
+      rank: 20120
+      store: false
+      rsp: 377
+      nom: 'boutique'
+      id: '4facbb5b056a'
+      livre: '2026-08-22'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**la monétisation** — abonnements, achats, entitlement vérifié côté serveur. Le principe tient en une phrase : l''entitlement n''est jamais écrit par un client.'
+      last_modification: '2026-09-04T11:12:06'
+
+  canaux:
+    # Un store par ligne, et non un taux unique : les commissions divergeront,
+    # et adresser un marché exotique demandera d'en ajouter un — pas de refaire
+    # le modèle.
+    stores:
+      play:
+        libelle: Google Play
+        # Taux RÉEL depuis 2022 : Play Media Experience, et tout développeur
+        # sous 1 M$/an.
+        commission: 0.15
+        # ⚠ `actif` dit si le store est RÉELLEMENT OUVERT aujourd'hui. Un store
+        # inactif garde ses cellules et son chiffre : la projection l'affiche
+        # ENTRE PARENTHÈSES — l'argent qu'on ne capte pas est plus utile à voir
+        # qu'un zéro, qui donnerait l'illusion que le marché n'existe pas.
+        actif: true
+      appstore:
+        libelle: Apple App Store
+        # Small Business Program (< 1 M$/an) : 15 %. Un abonnement de plus d'un
+        # an y retombe de toute façon.
+        # ⚠ IDENTIQUE À PLAY AUJOURD'HUI — cette ligne ne change aucun chiffre.
+        #   Elle existe pour que le jour où l'un des deux bouge, ou qu'un
+        #   troisième store apparaisse, il n'y ait rien à réécrire.
+        commission: 0.15
+        # ⚠ LE STORE S'OUVRE À LA LIVRAISON DE CE LIVRABLE, et la DATE vient du
+        # kpi de roadmap.md — jamais d'ici.
+        # ⚠ C'EST LE LOT DE PORTAGE DE CETTE APP, pas `deva/ios`. Le passage iOS
+        # du framework rend le portage POSSIBLE ; il ne publie rien et n'ouvre
+        # l'App Store à personne. Ce sont la fiche App Store Connect, le
+        # catalogue recréé côté Apple et la revue qui font entrer les
+        # utilisateurs — donc ce lot-ci, avec sa propre date.
+        # Avant lui, les colonnes App Store sont entre parenthèses : revenu non
+        # capté. Après, elles entrent dans le total.
+        actif_depuis: '0f3ce68de9ba'
+        # ⚠ MONTÉE EN CHARGE À L'OUVERTURE, en mois. Une app qui ouvre un second
+        # store n'est PAS une app qui naît : sa notoriété, son bouche-à-oreille
+        # et son catalogue sont déjà là, et sa communauté relaie l'arrivée.
+        # Mais le classement App Store, les avis et l'historique ASO repartent
+        # de zéro, et les utilisateurs Android ne migrent pas.
+        # Trois mois pour atteindre le rythme d'acquisition de régime — contre
+        # les quarante-huit d'un lancement à froid. `déclaré`, à mesurer au
+        # premier portage.
+        montee_mois: 3
+    direct:
+      # Stripe. C'est ce taux qui donnait le coefficient de 0,778.
+      frais: 0.051
+
+# =============================================================================
+# ORDRE DE LIVRAISON DES LOTS
+# =============================================================================
+# ⚠ SOURCE DE L'ORDRE. Il n'existait jusqu'ici que par la position des clés dans
+#   `revenus.lots` — un ordre réel mais non déclaré, donc invérifiable : ranger
+#   ce bloc par ordre alphabétique aurait changé le modèle sans un mot.
+#
+# ⚠ CE QUE `prompt_roadmap.py` EN FAIT. La table `## livrables` de roadmap.md
+#   porte l'ordre GLOBAL, tous projets confondus, et intercale délibérément les
+#   projets entre eux — l'espacement est l'instrument de fidélisation. Mais elle
+#   ne doit JAMAIS inverser deux lots d'un même projet : cette liste-ci fait foi
+#   pour l'ordre interne, la roadmap décide seulement de ce qui s'intercale.
+#
+# ⚠ CE N'EST PAS UN CALENDRIER. Les dates viennent du kpi, jamais d'ici. Cette
+#   liste dit dans quel ordre, pas quand — et `revenus.cadence` dit à quel
+#   intervalle on voudrait les voir tomber.
+# =============================================================================
+catalog_sequence:
+  - 'a6728b19f4b1'
+  - '3df87efd34d2'
+  - '0877dd1dcfb0'
+  - '71b889d2505e'
+  - 'ecb38169ab68'
+  - 'cbe53f2e0c9b'
+  - '13a9e8d0a1b9'
+  - '1c1703f9c5bd'
+  - '81291102e209'
+  - '09a10ee9b42d'
+  - '5b617e0e5480'
+  - '0ab7912989d0'
+  - '4333deadd8b3'
+  - '258ff7d2b854'
+  - '0b7c8f278959'
+  - 'b4483c2704e7'
+  - '1521505a498c'

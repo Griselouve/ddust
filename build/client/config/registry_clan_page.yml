@@ -48,6 +48,7 @@ conf:
         # panneau doivent couvrir jusqu'au coffre.
         - clan_page/invite_scrim
         - clan_page/invite_panel
+        - documents/ack_options
         - clan_page/invite_yes
         - clan_page/invite_no
 
@@ -419,21 +420,46 @@ conf:
       layer: overlay
       shape:
         x: 8%
-        y: 16%
+        y: 8%
         w: 84%
-        h: 34%
+        h: 30%
         font_size: 13.0
         font_color: "amber_200" # lisible sur le voile noir
         label: "@@@T:invite_consent_notice@@@"
         visible: false
 
+    # Les trois cas énoncés par la mention ci-dessus, mais À COCHER : le chef ne se contente
+    # plus d'accuser réception, il déclare CELUI qui s'applique — et cette déclaration part avec
+    # l'invitation pour se coller à la preuve d'acceptation de celui qui entrera (cf.
+    # documents.acknowledgements dans screens_meta.yml).
+    # Les options ne sont PAS écrites ici : documents.show_ack les pousse depuis la conf du
+    # module, coquille vide comme documents/region_menu.
+    documents/ack_options:
+      layer: overlay # override : le défaut du module est en layer content
+      shape:
+        x: 8%
+        y: 39%
+        w: 84%
+        h: 27%
+        font_color: "amber_200" # même lisibilité que la mention, sur le même voile noir
+        font_size: 12.0
+        row_height: 28.0
+        visible: false
+        events:
+          change: true
+        actions:
+          change: worker.on_invite_ack_changed
+
+    # Le bouton est ÉTEINT ET SOURD à l'ouverture de l'overlay, et ne s'allume qu'une fois une
+    # case cochée (worker._setInviteYesReady) : une invitation sans déclaration ne part pas.
+    # `events.tap` est déclaré à true ici — c'est le worker qui le coupe et le rétablit.
     clan_page/invite_yes:
       masks:
         - commons/btn_wide
       layer: overlay
       shape:
-        y: 56%
-        h: 12%
+        y: 68%
+        h: 11%
         text_align: CENTER
         label: "@@@T:invite_consent_yes@@@"
         visible: false
@@ -447,8 +473,8 @@ conf:
         - commons/btn_wide
       layer: overlay
       shape:
-        y: 70%
-        h: 12%
+        y: 81%
+        h: 11%
         text_align: CENTER
         label: "@@@T:invite_consent_no@@@"
         visible: false

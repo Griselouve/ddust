@@ -40,13 +40,19 @@ Point notable pour Vertex AI : selon les conditions Google Cloud, les données s
 
 | Rôle | Entité |
 |---|---|
-| Responsable de traitement | **Personne physique exerçant sous le nom commercial « grisloup.com »** — éditeur de Donjons & Savons. Nom civil, adresse postale et contact données : `build.yml` → `publisher:`, restitués dans `saisie_dpa.md`. Ils ne sont pas recopiés ici : une identité qui vit à deux endroits finit par y différer |
+| Responsable de traitement | **Entrepreneur individuel immatriculé, exerçant sous le nom commercial « Grisloup »** — éditeur de Donjons & Savons. SIREN `109354092`, immatriculé au RNE le **2026-09-02**, code APE `58.29C`. Dénomination, adresse de domiciliation et contact données : `build.yml` → `publisher:`, restitués dans `saisie_dpa.md`. Ils ne sont pas recopiés ici : une identité qui vit à deux endroits finit par y différer |
 | Sous-traitant principal | **Google Ireland Limited**, Gordon House, Barrow Street, Dublin 4, Irlande (contractant UE pour GCP/Firebase) |
 | Sous-sous-traitants | Liste Google publiée (cloud.google.com/terms/subprocessors) — la notification des changements se fait par abonnement à cette page |
 
 Aucun autre sous-traitant : pas d'analytics, pas de régie publicitaire, pas de SDK tiers collecteur. Les alertes budget Telegram ne portent aucune donnée personnelle d'utilisateur.
 
-⚠️ **Le responsable de traitement est une personne physique au lancement.** La même identité doit se retrouver, à l'identique, sur le compte marchand Play, le compte de facturation GCP, l'éditeur déclaré dans les CGU et la mention « éditeur » des pages légales du site. Un passage ultérieur en société (SASU) change la partie au CDPA : il imposera de reprendre ces cinq endroits, de publier une nouvelle version des CGU et de mettre à jour ce registre. Rappel Play : un vendeur d'abonnements dans l'UE voit son nom et son adresse **affichés publiquement** sur sa fiche store.
+⚠️ **Le responsable de traitement reste une personne physique**, et l'immatriculation ne change pas cela : une entreprise individuelle n'est pas une personne morale distincte de son entrepreneur. Ce sont sa **qualification**, son **adresse** et son **numéro** qui ont changé le 2026-09-02, pas son identité.
+
+C'est ce qui a permis de trancher, le 2026-09-03, en faveur d'une mise à jour des **mentions légales et de la politique de confidentialité SANS re-acceptation des CGU** : la partie au traitement est la même, aucun droit ni aucune obligation n'est modifié, et bumper les CGU aurait forcé à re-notifier tous les inscrits de la beta pour l'ajout d'un numéro. Les documents restent en `v1`, complétés sur place — cf. `build/tools/set_publisher_siren.py`, qui porte l'arbitrage et le geste. **Un changement de FOND, lui, se bumperait** ; c'est la ligne de partage à tenir.
+
+La même identité doit se retrouver, à l'identique, sur le compte marchand Play, le compte de facturation GCP, l'éditeur déclaré dans les CGU et la mention « éditeur » des pages légales du site. Le jour où une société existerait, la partie au CDPA changerait vraiment : il faudrait alors reprendre ces cinq endroits, publier une nouvelle version des CGU et mettre à jour ce registre. Ce n'est pas le cas ici — et la SASU est sortie du plan.
+
+Rappel Play : un vendeur d'abonnements dans l'UE voit son nom et son adresse **affichés publiquement** sur sa fiche store. Depuis le 2026-09-02, cette adresse est une **domiciliation** : l'exposition est devenue sans conséquence, ce qui était le motif central de toute la démarche.
 
 ---
 

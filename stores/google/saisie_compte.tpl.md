@@ -24,8 +24,15 @@ Ouvrir Play Console sur le **bon compte** : `https://play.google.com/console/u/1
 | Téléphone | `@@@C:publisher.phone@@@` |
 | Adresse e-mail | `@@@C:publisher.email@@@` |
 | Site web | `@@@C:publisher.website@@@` |
-| Numéro d'immatriculation / TVA | *laisser vide* |
+| Numéro d'immatriculation | `@@@C:publisher.registration_number@@@` — le **SIREN**, immatriculé le 2026-09-02 |
+| Numéro de TVA | *laisser vide* — franchise en base, et le n° intracommunautaire n'est pas encore attribué |
 | Consentement à l'affichage public | **cocher** |
+
+⚠ **L'adresse ci-dessus est une DOMICILIATION, et elle n'est saisissable qu'en compte
+organisation.** Google la refuse sur un compte personnel. Si la console est encore en compte
+particulier au moment où tu lis cette feuille, **ne rien saisir** : la conversion (D-U-N-S → profil
+de paiement organisation → 72 h) vient d'abord. C'est la phase 4 de
+`grisloup/docs/plan-creation-micro-entreprise.md`.
 
 **Trois erreurs possibles, une ligne chacune :**
 
@@ -74,9 +81,9 @@ l'historique de l'app y sont attachés.
 ## contrôle avant de fermer la console
 
 - [ ] Statut affiché : **Professionnel**
-- [ ] Nom légal identique, caractère pour caractère, au profil de paiement Play
-- [ ] Adresse identique au justificatif de domicile — si elle diffère, **corriger `build.yml`** et relancer un build, jamais la console seule
-- [ ] Numéro d'immatriculation resté vide
+- [ ] Nom légal identique, caractère pour caractère, au profil de paiement Play **et à l'extrait d'immatriculation** — sans trait d'union, forme du RNE
+- [ ] Adresse identique au contrat de domiciliation et à l'extrait — si elle diffère, **corriger `build.yml`** et relancer un build, jamais la console seule
+- [ ] Numéro d'immatriculation : le SIREN, neuf chiffres, sans espaces
 - [ ] Nom du développeur affiché : `@@@C:publisher.developer_name@@@`
 - [ ] Groupe de comptes créé, aucun compte associé déclaré, conditions acceptées
 - [ ] Les deux lignes cochées dans la checklist de `publication.md`

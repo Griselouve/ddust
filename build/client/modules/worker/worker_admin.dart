@@ -114,7 +114,7 @@ extension Worker_admin on worker {
 
                                 // 2) Firestore (doc partagé du clan). Écriture par champ : le deep-merge dvcloud
                                 //    préserve les autres champs. ownerId == clanSecret requis par les règles.
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region) ?? Dvidle({});
                                 final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -181,7 +181,7 @@ extension Worker_admin on worker {
                                 //    préserver l'identité (domain + champs de clone). Vider dead/revive/proof
                                 //    EXPLICITEMENT ("") → le deep-merge dvcloud efface le champ (fenêtre absente).
                                 //    ownerId == clanSecret requis par les règles.
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region) ?? Dvidle({});
                                 final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -237,7 +237,7 @@ extension Worker_admin on worker {
                                 final id = (event is Map ? event["id"]?.toString() : "") ?? "";
                                 if (id.isEmpty || _taskDomains.contains(id)) return;   // feuilles de tâche uniquement
 
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region) ?? Dvidle({});
                                 final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -272,7 +272,7 @@ extension Worker_admin on worker {
                                 final id = (event is Map ? event["id"]?.toString() : "") ?? "";
                                 if (id.isEmpty || _taskDomains.contains(id)) return;   // feuilles de tâche uniquement
 
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region) ?? Dvidle({});
                                 final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
@@ -316,7 +316,7 @@ extension Worker_admin on worker {
                                 final id = (event is Map ? event["id"]?.toString() : "") ?? "";
                                 if (id.isEmpty || _taskDomains.contains(id)) return;   // feuilles de tâche uniquement
 
-                                final region     = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
+                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region) ?? Dvidle({});
                                 final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";

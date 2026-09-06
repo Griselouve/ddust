@@ -24,7 +24,7 @@ onglet **Confidentialité des données**.*
 
 | Champ | À saisir |
 |---|---|
-| Responsable de la protection des données — nom | `Guillaume Marchal De Greef` |
+| Responsable de la protection des données — nom | `MARCHAL DE GREEF Guillaume` |
 | Responsable de la protection des données — e-mail | `donjons@grisloup.com` |
 | Représentant UE (art. 27) | **laisser vide** |
 
@@ -92,7 +92,7 @@ la même que celle déclarée à Play, aux CGU et aux pages légales du site.
 
 *Console GCP → Facturation → compte de facturation → **Paramètres de paiement**.*
 
-| Ce qu'on veut | `Guillaume Marchal De Greef`, personne physique |
+| Ce qu'on veut | `MARCHAL DE GREEF Guillaume`, personne physique |
 |---|---|
 | Ce qui est en place | un profil de paiement de type **Organisation**, nommé `Grisloup` |
 
