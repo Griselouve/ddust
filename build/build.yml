@@ -310,6 +310,12 @@ build:
     # Une entrée par région déclarée (backend/config.yml → conf.regions) : sans cela un
     # reset ne viderait que la moitié des données et laisserait des sessions fantômes
     # que le balayage multi-région du login retrouverait.
+    # ⚠ LES BASES `us-*` ONT ÉTÉ RETIRÉES LE 2026-09-08 avec le datacenter qui les
+    #   portait (backend/config.yml → regions). Les ancres YAML `&worker_collections`
+    #   et consorts restent DÉFINIES bien que plus personne ne les référence : elles
+    #   décrivent le contenu d'une base, pas le nombre de régions, et elles reprennent
+    #   du service telles quelles le jour où une seconde région s'ouvre. Les effacer
+    #   ferait perdre la liste au moment précis où on en aurait besoin.
     firestore:
       - project: dvddust
         database: eu-workers
@@ -330,9 +336,6 @@ build:
           - clans_store
           - userindexes
           - users
-      - project: dvddust
-        database: us-workers
-        collections: *worker_collections
       # Registre PERSONNEL des achats (base dédiée du module pustore) : un document par
       # achat, rangé par compte payeur, plus les verrous de jetons Play. À purger avec le
       # reste — sinon un jeton déjà réclamé refuserait d'être rejoué sur un clan neuf, et
@@ -349,9 +352,6 @@ build:
           - store_codes
           - store_code_attempts
       - project: dvddust
-        database: us-store
-        collections: *store_collections
-      - project: dvddust
         database: eu-virtuallobby
         collections: &lobby_collections
           - virtuallobbylock
@@ -359,9 +359,6 @@ build:
           - virtuallobbysubmission
           - virtuallobbyexit
           - virtuallobbysecret
-      - project: dvddust
-        database: us-virtuallobby
-        collections: *lobby_collections
       # documents_sessions a pour doc-id l'uid Firebase, stable pour un compte Google donné :
       # sans cette purge un compte réutilisé après un reset retrouve sa région, son état légal
       # et ses CGU acceptées, et saute une partie de l'onboarding alors que son héros n'existe plus.
@@ -371,9 +368,6 @@ build:
           - documents_sessions
           - documents_acceptance
       - project: dvddust
-        database: us-documents
-        collections: *documents_collections
-      - project: dvddust
         database: eu-messaging
         collections: &messaging_collections
           - msgregistry
@@ -382,15 +376,9 @@ build:
           - msgdata
           - msgdesktops
       - project: dvddust
-        database: us-messaging
-        collections: *messaging_collections
-      - project: dvddust
         database: eu-sessions
         collections: &sessions_collections
           - sessions
-      - project: dvddust
-        database: us-sessions
-        collections: *sessions_collections
     # NEUTRALISE pour le grand reset d'avant-beta : ces buckets ne portent AUCUNE donnee
     # de joueur (layers YAML du catalogue, images, sons), seulement du contenu republie
     # par un build. Les vider sans enchainer un build+deploy laisserait l'app installee
@@ -398,7 +386,6 @@ build:
     # banc d'essai, qui lui est toujours suivi d'un build.
     # storage:
     #   - bucket: dvddust-eu-assets-storage
-    #   - bucket: dvddust-us-assets-storage
     # L'annuaire Firebase Auth : sans cette purge, le compte Google reste lié à l'uid de la
     # partie précédente et le prochain onboarding tombe sur l'écran de conflit « ce compte
     # Google est déjà lié à un autre héros » — alors que Firestore est vide.
@@ -558,6 +545,22 @@ publisher:
   # bloc est l'identité en un seul endroit, pas parce qu'un gabarit le lit.
   # ⚠ NE FIGURE PAS AU KBIS : c'est une donnée INSEE, pas greffe.
   siret: "10935409200016"
+
+  # Numéro D-U-N-S, attribué par Altares/D&B après l'immatriculation.
+  # ⚠ C'EST LA CLEF DU COMPTE ORGANISATION, et rien d'autre. Google l'exige pour
+  # créer un profil de paiement de type organisation (phase 4.1 du plan) : c'est
+  # lui qui débloque la conversion, donc la domiciliation sur la fiche publique.
+  # Sans lui, tout le bloc ci-dessus décrit une cible que la console refuse.
+  # ⚠ CE N'EST PAS UNE MENTION LÉGALE. Aucun texte français ne l'exige — ni la
+  # LCEN, ni R123-237 du code de commerce, qui demandent le RCS. Il ne descend
+  # donc ni dans le corpus légal, ni sur le site. Il est ici parce que ce bloc est
+  # l'identité en un seul endroit, et parce que `saisie_compte.tpl.md` le lit.
+  # ⚠ LA FICHE D&B EST CE QUE GOOGLE CONFRONTE au profil de paiement, et c'est
+  # ELLE dont Apple tire l'adresse « trader » affichée sur l'App Store européen,
+  # souvent sans correction possible ensuite. Le NOM y est vérifié conforme
+  # (2026-09-06, « MARCHAL DE GREEF GUILLAUME ») ; l'ADRESSE reste à contrôler —
+  # cf. grisloup/docs/plan-creation-micro-entreprise.md, phase 3.
+  duns: "28-814-9658"
 
   # Code d'activité. Deux valeurs coexistent, et ce n'est PAS une divergence :
   # l'INSEE publie l'ancienne nomenclature et la NAF 2025 en parallèle pendant la
@@ -976,6 +979,20 @@ store:
           - { duration: P1M, free: true }
           - { duration: P1Y, discount_percent: 30 }
 
+    # --- Les deux défauts qu'exigent les produits à l'unité -------------------
+    # Play réclame une `defaultLanguage` et un `defaultPrice` sur chaque produit à
+    # l'unité — les abonnements, eux, s'en passent. Ils ne se devinent pas : prendre
+    # « la première langue triée » ou « la première devise publiée » donnerait une
+    # fiche juste par accident, et fausse le jour où l'ordre change. pucatalog exige
+    # donc ces deux clés dès qu'un `type: product` existe, et échoue au build sinon.
+    #
+    # ⚠ `devise_defaut` N'A PAS À ÊTRE OUVERTE. Le prix par défaut est une référence
+    #   de conversion pour Google, pas une mise en vente : fermer la France ne doit
+    #   pas rendre le catalogue invalide. Chaque produit doit en revanche porter un
+    #   prix dans cette devise, sinon il n'y a rien à poser.
+    langue_defaut: fr-FR
+    devise_defaut: eur
+
     # --- Grille de prix par devise -------------------------------------------
     # Play exige un prix par pays. On les groupe par devise : un pays absent de
     # toute devise n'est simplement pas servi — aucune conversion automatique,
@@ -1163,6 +1180,28 @@ store:
             prices: { eur: "1.99", sek: "29", dkk: "19", nok: "29", gbp: "1.99", chf: "2.90", usd: "2.99", cad: "2.99", aud: "3.49", nzd: "3.49", brl: "7.90", mxn: "25.49", cop: "5900" }
           essentiel-yearly:
             period: P1Y
+            # ⚠ PAYS-BAS FERMÉS SUR L'ANNUEL, et sur l'annuel seulement.
+            #   La Wet van Dam (art. 6:236 sub j BW) autorise un premier engagement
+            #   ferme d'un an, mais interdit qu'une reconduction tacite en impose un
+            #   SECOND : passé la première échéance, le consommateur néerlandais doit
+            #   pouvoir sortir à tout moment, avec un mois de préavis au maximum. Or
+            #   résilier sur Play arrête la reconduction SUIVANTE sans faire sortir de
+            #   la période en cours — l'année 2 est donc verrouillée. Et la clause est
+            #   sur la LISTE NOIRE de l'art. 6:236 : nulle d'office, pas seulement
+            #   contestable. Le mensuel ne pose aucun problème et reste ouvert.
+            #
+            #   ⚠ SANS AUCUN EFFET AUJOURD'HUI, et c'est le but : `eur.publish` ne
+            #     porte que "FR", donc la ligne ne retire rien. Elle est posée
+            #     MAINTENANT pour agir toute seule le jour où `euo` s'ouvrira — un
+            #     commentaire s'oublie, une exclusion non. Les exclusions ne peuvent
+            #     que fermer, jamais rouvrir (`pucatalog._base_plan_payload`), donc
+            #     la poser d'avance ne peut rien casser.
+            #
+            #   Alternative écartée : servir l'annuel aux Pays-Bas en plan PRÉPAYÉ
+            #   Play, qui ne se reconduit pas du tout — correct, mais c'est une
+            #   seconde forme d'offre à maintenir pour un seul pays, alors que
+            #   l'annuel n'est qu'une remise. Le Néerlandais garde le mensuel.
+            pays_exclus: [NL]
             # Part de la base payante sur ce plan : 40 % du palier x 25 %
             # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
             # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
@@ -1212,6 +1251,7 @@ store:
             prices: { eur: "2.99", sek: "39", dkk: "29", nok: "49", gbp: "2.99", chf: "4.00", usd: "4.49", cad: "4.49", aud: "5.49", nzd: "5.49", brl: "11.90", mxn: "37.99", cop: "7900" }
           clan-yearly:
             period: P1Y
+            pays_exclus: [NL]   # Wet van Dam - motif complet sur `essentiel-yearly`
             # Part de la base payante sur ce plan : 30 % du palier x 25 %
             # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
             # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
@@ -1261,6 +1301,7 @@ store:
             prices: { eur: "4.99", sek: "69", dkk: "45", nok: "79", gbp: "4.49", chf: "7.00", usd: "7.49", cad: "7.49", aud: "9.49", nzd: "9.49", brl: "19.90", mxn: "63.49", cop: "13900" }
           tribu-yearly:
             period: P1Y
+            pays_exclus: [NL]   # Wet van Dam - motif complet sur `essentiel-yearly`
             # Part de la base payante sur ce plan : 25 % du palier x 25 %
             # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
             # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
@@ -1310,6 +1351,7 @@ store:
             prices: { eur: "5.99", sek: "79", dkk: "55", nok: "95", gbp: "5.49", chf: "8.50", usd: "8.49", cad: "9.49", aud: "10.99", nzd: "10.99", brl: "23.90", mxn: "76.49", cop: "16900" }
           guilde-yearly:
             period: P1Y
+            pays_exclus: [NL]   # Wet van Dam - motif complet sur `essentiel-yearly`
             # Part de la base payante sur ce plan : 4 % du palier x 25 %
             # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
             # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
@@ -1360,6 +1402,7 @@ store:
             prices: { eur: "7.99", sek: "109", dkk: "75", nok: "125", gbp: "7.49", chf: "11.50", usd: "11.49", cad: "12.49", aud: "14.99", nzd: "14.99", brl: "31.90", mxn: "101.99", cop: "21900" }
           royaume-yearly:
             period: P1Y
+            pays_exclus: [NL]   # Wet van Dam - motif complet sur `essentiel-yearly`
             # Part de la base payante sur ce plan : 1 % du palier x 25 %
             # de souscriptions annuelles. La répartition entre paliers (40/30/25/4/1) suit la
             # DÉMOGRAPHIE RÉELLE DES FOYERS, pas une progression régulière —
@@ -1412,126 +1455,203 @@ store:
     #   connecté à l'achat. S'il en possède plusieurs, un écran confirme lequel.
     # ⚠ `attachement_mensuel` est DÉRIVÉ : le revenu direct du lot, partagé entre
     #   ses produits, divisé par le prix et la base. `déclaré` jusqu'à la 1re vente.
+    #
+    # ⚠ LES QUINZE SONT `enabled: false`, ET AUCUN N'EST PRÊT À NE PLUS L'ÊTRE.
+    #   Chacun porte un `lot:` — le livrable qui le fabrique — et aucun de ces onze
+    #   lots n'est développé. Publier le produit avant son lot mettrait en vente du
+    #   contenu qui n'existe pas : l'acheteur paierait un pack vide, et l'identifiant
+    #   Play, lui, serait créé pour toujours. Le prix, les treize devises et les
+    #   fiches sont donc arrêtés et relus D'AVANCE — c'est du travail fait, pas du
+    #   travail en attente —, mais rien ne part chez Google.
+    #
+    #   ON REPASSE À `true` PRODUIT PAR PRODUIT, quand son lot est livré, et jamais
+    #   en bloc. `pucatalog` valide alors sa fiche et sa grille avant la première
+    #   écriture, et son différentiel montre exactement ce qui s'ajoute.
 
     ddust_validations:
       libelle: "Validations automatiques"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '3df87efd34d2'
       attachement_mensuel: 0.0067
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Validations automatiques"
+            description: "Certaines tâches se valident seules : plus personne ne repasse derrière. Réglable enfant par enfant, et acquis pour de bon."
+          en-US:
+            title: "Automatic approvals"
+            description: "Some tasks approve themselves — nobody has to check behind. Set it child by child, and it stays set."
+          es-ES:
+            title: "Validaciones automáticas"
+            description: "Algunas tareas se validan solas: nadie tiene que repasarlas. Se ajusta niño por niño, y queda para siempre."
       prix:
-        eur:  1.99
-        sek:  29
-        dkk:  19
-        nok:  29
-        gbp:  1.99
-        chf:  2.90
-        usd:  2.99
-        cad:  2.99
-        aud:  3.49
-        nzd:  3.49
-        brl:  7.90
-        mxn:  25.49
-        cop:  5900
+        eur:  "1.99"
+        sek:  "29"
+        dkk:  "19"
+        nok:  "29"
+        gbp:  "1.99"
+        chf:  "2.90"
+        usd:  "2.99"
+        cad:  "2.99"
+        aud:  "3.49"
+        nzd:  "3.49"
+        brl:  "7.90"
+        mxn:  "25.49"
+        cop:  "5900"
 
     ddust_quetes_1:
       libelle: "Pack « Quêtes » I"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '71b889d2505e'
       attachement_mensuel: 0.0034
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack « Quêtes » I"
+            description: "Un premier recueil de quêtes à mener en clan : des objectifs qui durent plus qu'une journée, et une récompense au bout."
+          en-US:
+            title: "Quest Pack I"
+            description: "A first book of quests for the clan: goals that last longer than a day, and a reward at the end."
+          es-ES:
+            title: "Pack « Misiones » I"
+            description: "Un primer libro de misiones para el clan: objetivos que duran más de un día, y una recompensa al final."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_potions_1:
       libelle: "Pack « Potions » I"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: 'ecb38169ab68'
       attachement_mensuel: 0.0034
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack « Potions » I"
+            description: "Un premier assortiment de potions : des effets temporaires qui changent une semaine d'aventure — bonus d'XP, coups de pouce, sursis."
+          en-US:
+            title: "Potion Pack I"
+            description: "A first assortment of potions: temporary effects that change a week of adventure — XP bonuses, helping hands, reprieves."
+          es-ES:
+            title: "Pack « Pociones » I"
+            description: "Un primer surtido de pociones: efectos temporales que cambian una semana de aventura — bonus de XP, empujones, prórrogas."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_bricolage:
       libelle: "Pack de tâches « Bricolage »"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '258ff7d2b854'
       attachement_mensuel: 0.0034
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack de tâches « Bricolage »"
+            description: "Une réserve de tâches prêtes à poser, du côté des outils : réparer, monter, ranger l'atelier. À piocher dedans plutôt qu'à les écrire."
+          en-US:
+            title: "Task Pack: Handiwork"
+            description: "A ready-made stack of tasks from the toolbox side: fix it, build it, tidy the workshop. Pick from them instead of writing them."
+          es-ES:
+            title: "Pack de tareas « Bricolaje »"
+            description: "Una reserva de tareas listas para usar, del lado de las herramientas: reparar, montar, ordenar el taller. Elegir en vez de escribir."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_routine:
       libelle: "Pack de tâches « Routine »"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: 'cbe53f2e0c9b'
       attachement_mensuel: 0.0034
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack de tâches « Routine »"
+            description: "Se brosser les dents, préparer son cartable la veille, ranger sa chambre. Les tâches de tous les jours, déjà écrites."
+          en-US:
+            title: "Task Pack: Routine"
+            description: "Brushing teeth, packing the schoolbag the night before, tidying the room. The everyday tasks, already written."
+          es-ES:
+            title: "Pack de tareas « Rutina »"
+            description: "Lavarse los dientes, preparar la mochila la víspera, ordenar el cuarto. Las tareas de cada día, ya escritas."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_butin:
       libelle: "Extension « Butin »"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '0877dd1dcfb0'
@@ -1539,211 +1659,328 @@ store:
       # des héros, loot aléatoire, objets, faveurs, saisons. C'est aussi lui
       # qui OUVRE LA BOUTIQUE, donc qui rend les cinq lots suivants vendables.
       attachement_mensuel: 0.0017
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Extension « Butin »"
+            description: "Le plus gros morceau du jeu : l'or, la boutique des héros, le butin aléatoire, l'équipement, les faveurs et les saisons. Les tâches deviennent une économie."
+          en-US:
+            title: "Loot Expansion"
+            description: "The biggest piece of the game: gold, the heroes' shop, random loot, equipment, favours and seasons. Chores become an economy."
+          es-ES:
+            title: "Expansión « Botín »"
+            description: "La pieza más grande del juego: el oro, la tienda de los héroes, el botín aleatorio, el equipo, los favores y las temporadas."
       prix:
-        eur:  7.99
-        sek:  109
-        dkk:  75
-        nok:  125
-        gbp:  7.49
-        chf:  11.50
-        usd:  11.49
-        cad:  12.49
-        aud:  14.99
-        nzd:  14.99
-        brl:  31.90
-        mxn:  101.99
-        cop:  21900
+        eur:  "7.99"
+        sek:  "109"
+        dkk:  "75"
+        nok:  "125"
+        gbp:  "7.49"
+        chf:  "11.50"
+        usd:  "11.49"
+        cad:  "12.49"
+        aud:  "14.99"
+        nzd:  "14.99"
+        brl:  "31.90"
+        mxn:  "101.99"
+        cop:  "21900"
 
     ddust_quetes_2:
       libelle: "Pack « Quêtes » II"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '81291102e209'
       attachement_mensuel: 0.0008
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack « Quêtes » II"
+            description: "Un deuxième recueil de quêtes, pour les clans qui ont fait le tour du premier."
+          en-US:
+            title: "Quest Pack II"
+            description: "A second book of quests, for clans that have been all the way through the first."
+          es-ES:
+            title: "Pack « Misiones » II"
+            description: "Un segundo libro de misiones, para los clanes que ya han terminado el primero."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_quetes_3:
       libelle: "Pack « Quêtes » III"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '0ab7912989d0'
       attachement_mensuel: 0.0008
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack « Quêtes » III"
+            description: "Le troisième et dernier recueil de quêtes. De quoi tenir une saison de plus."
+          en-US:
+            title: "Quest Pack III"
+            description: "The third and last book of quests. Enough to carry one more season."
+          es-ES:
+            title: "Pack « Misiones » III"
+            description: "El tercer y último libro de misiones. Suficiente para aguantar otra temporada."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_potions_2:
       libelle: "Pack « Potions » II"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '09a10ee9b42d'
       attachement_mensuel: 0.0008
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack « Potions » II"
+            description: "Un deuxième assortiment de potions, avec des effets que le premier n'avait pas."
+          en-US:
+            title: "Potion Pack II"
+            description: "A second assortment of potions, with effects the first one did not have."
+          es-ES:
+            title: "Pack « Pociones » II"
+            description: "Un segundo surtido de pociones, con efectos que el primero no tenía."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_potions_3:
       libelle: "Pack « Potions » III"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '4333deadd8b3'
       attachement_mensuel: 0.0008
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack « Potions » III"
+            description: "Le troisième et dernier assortiment de potions, le plus corsé des trois."
+          en-US:
+            title: "Potion Pack III"
+            description: "The third and last assortment of potions, the strongest of the three."
+          es-ES:
+            title: "Pack « Pociones » III"
+            description: "El tercer y último surtido de pociones, el más fuerte de los tres."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_devoirs:
       libelle: "Pack « Devoirs faits »"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '13a9e8d0a1b9'
       attachement_mensuel: 0.0008
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Pack « Devoirs faits »"
+            description: "Le seul pack qui traverse les trois mécaniques : la quête « 13 de moyenne », la tâche « apprendre le cours », la potion « +15 % d'XP en SVT »."
+          en-US:
+            title: "Homework Done Pack"
+            description: "The one pack that crosses all three mechanics: a quest for the term average, a task for learning the lesson, a potion for +15% XP."
+          es-ES:
+            title: "Pack « Deberes hechos »"
+            description: "El único pack que atraviesa las tres mecánicas: la misión de la nota media, la tarea de estudiar la lección, la poción de +15 % de XP."
       prix:
-        eur:  3.99
-        sek:  55
-        dkk:  39
-        nok:  65
-        gbp:  3.49
-        chf:  5.50
-        usd:  5.99
-        cad:  5.99
-        aud:  7.49
-        nzd:  7.49
-        brl:  15.90
-        mxn:  50.99
-        cop:  10900
+        eur:  "3.99"
+        sek:  "55"
+        dkk:  "39"
+        nok:  "65"
+        gbp:  "3.49"
+        chf:  "5.50"
+        usd:  "5.99"
+        cad:  "5.99"
+        aud:  "7.49"
+        nzd:  "7.49"
+        brl:  "15.90"
+        mxn:  "50.99"
+        cop:  "10900"
 
     ddust_theme_starsweep:
       libelle: "Thème « Star Sweep »"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '1521505a498c'
       # ⚠ 5,99 € et non 3,99 : un thème complet est plus cher qu'un pack
       # de contenu. J'avais écrit 3,99 en créant une entrée générique.
       attachement_mensuel: 0.0014
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Thème « Star Sweep »"
+            description: "Tout le jeu rhabillé en space opera : décors, monstres, objets et ton. La même aventure, jouée ailleurs."
+          en-US:
+            title: "Star Sweep Theme"
+            description: "The whole game re-skinned as space opera: art, monsters, items and tone. The same adventure, played somewhere else."
+          es-ES:
+            title: "Tema « Star Sweep »"
+            description: "Todo el juego revestido de ópera espacial: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar."
       prix:
-        eur:  5.99
-        sek:  79
-        dkk:  55
-        nok:  95
-        gbp:  5.49
-        chf:  8.50
-        usd:  8.49
-        cad:  9.49
-        aud:  10.99
-        nzd:  10.99
-        brl:  23.90
-        mxn:  76.49
-        cop:  16900
+        eur:  "5.99"
+        sek:  "79"
+        dkk:  "55"
+        nok:  "95"
+        gbp:  "5.49"
+        chf:  "8.50"
+        usd:  "8.49"
+        cad:  "9.49"
+        aud:  "10.99"
+        nzd:  "10.99"
+        brl:  "23.90"
+        mxn:  "76.49"
+        cop:  "16900"
 
     ddust_theme_casanostra:
       libelle: "Thème « La Casa Nostra »"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: 'b4483c2704e7'
       attachement_mensuel: 0.0014
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Thème « La Casa Nostra »"
+            description: "Tout le jeu rhabillé en univers mafieux : décors, monstres, objets et ton. La même aventure, jouée ailleurs."
+          en-US:
+            title: "La Casa Nostra Theme"
+            description: "The whole game re-skinned as a mob story: art, monsters, items and tone. The same adventure, played somewhere else."
+          es-ES:
+            title: "Tema « La Casa Nostra »"
+            description: "Todo el juego revestido de universo mafioso: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar."
       prix:
-        eur:  5.99
-        sek:  79
-        dkk:  55
-        nok:  95
-        gbp:  5.49
-        chf:  8.50
-        usd:  8.49
-        cad:  9.49
-        aud:  10.99
-        nzd:  10.99
-        brl:  23.90
-        mxn:  76.49
-        cop:  16900
+        eur:  "5.99"
+        sek:  "79"
+        dkk:  "55"
+        nok:  "95"
+        gbp:  "5.49"
+        chf:  "8.50"
+        usd:  "8.49"
+        cad:  "9.49"
+        aud:  "10.99"
+        nzd:  "10.99"
+        brl:  "23.90"
+        mxn:  "76.49"
+        cop:  "16900"
 
     ddust_theme_pirates:
       libelle: "Thème « Pirates of the accariens »"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '0b7c8f278959'
       attachement_mensuel: 0.0014
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Thème « Pirates of the accariens »"
+            description: "Tout le jeu rhabillé en univers pirate : décors, monstres, objets et ton. La même aventure, jouée ailleurs."
+          en-US:
+            title: "Pirates of the Accarians Theme"
+            description: "The whole game re-skinned as a pirate tale: art, monsters, items and tone. The same adventure, played somewhere else."
+          es-ES:
+            title: "Tema « Pirates of the accariens »"
+            description: "Todo el juego revestido de universo pirata: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar."
       prix:
-        eur:  5.99
-        sek:  79
-        dkk:  55
-        nok:  95
-        gbp:  5.49
-        chf:  8.50
-        usd:  8.49
-        cad:  9.49
-        aud:  10.99
-        nzd:  10.99
-        brl:  23.90
-        mxn:  76.49
-        cop:  16900
+        eur:  "5.99"
+        sek:  "79"
+        dkk:  "55"
+        nok:  "95"
+        gbp:  "5.49"
+        chf:  "8.50"
+        usd:  "8.49"
+        cad:  "9.49"
+        aud:  "10.99"
+        nzd:  "10.99"
+        brl:  "23.90"
+        mxn:  "76.49"
+        cop:  "16900"
 
     ddust_classes:
       libelle: "Classes de personnage"
       type: product
-      enabled: true
+      enabled: false
       # Le livrable qui fabrique ce produit — même clé que `revenus.lots`,
       # `catalog_sequence` et roadmap.md.
       lot: '5b617e0e5480'
@@ -1751,20 +1988,33 @@ store:
       # DÉPASSER celui d'un pack de contenu : une classe change la façon de
       # jouer, pas seulement ce qu'il y a à jouer. Prix décidé le 2026-08-24.
       attachement_mensuel: 0.0022
+      # Ce que Google affiche sur la fiche du produit. Play refuse un produit
+      # sans titre ni description, et `pucatalog` échoue avant lui.
+      play:
+        listings:
+          fr-FR:
+            title: "Classes de personnage"
+            description: "Chaque héros choisit une voie, avec ses avantages, ses inconvénients et ses synergies de clan. Un thème rhabille l'aventure ; une classe la rejoue autrement."
+          en-US:
+            title: "Character Classes"
+            description: "Each hero picks a path, with its strengths, its weaknesses and its clan synergies. A theme re-skins the adventure; a class replays it."
+          es-ES:
+            title: "Clases de personaje"
+            description: "Cada héroe elige una vía, con sus ventajas, sus inconvenientes y sus sinergias de clan. Un tema reviste la aventura; una clase la rejuega."
       prix:
-        eur:  6.99
-        sek:  95
-        dkk:  65
-        nok:  109
-        gbp:  6.49
-        chf:  9.90
-        usd:  9.99
-        cad:  10.99
-        aud:  12.99
-        nzd:  12.99
-        brl:  27.90
-        mxn:  88.99
-        cop:  19900
+        eur:  "6.99"
+        sek:  "95"
+        dkk:  "65"
+        nok:  "109"
+        gbp:  "6.49"
+        chf:  "9.90"
+        usd:  "9.99"
+        cad:  "10.99"
+        aud:  "12.99"
+        nzd:  "12.99"
+        brl:  "27.90"
+        mxn:  "88.99"
+        cop:  "19900"
 
 revenus:
 
@@ -2414,7 +2664,7 @@ revenus:
     # contenu offert : aucune vente, uniquement de la rétention
     'a6728b19f4b1':
       # --- roadmap (console deva) ---
-      rank: 120
+      rank: 104
       store: true
       rsp: 233
       nom: 'defis'
@@ -2424,12 +2674,19 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**mise à jour gratuite** — défis hebdomadaires, succès et titres, POKEDEX et objets de collection. Ce que le site annonce sous « Plus de contenu ». Premier update après le lancement : il n''a pas à se vendre, il a à ramener les familles'
-      last_modification: '2026-09-06T21:15:49'
+      last_modification: '2026-09-08T17:16:32'
       # --- economie (console deva) ---
       churn_facteur: 0.9875
       duree_contenu_mois: 2
       perte_evitee: 45
       gratuit: true
+
+
+
+
+
+
+
 
 
 
@@ -2521,7 +2778,7 @@ revenus:
     #   qui ferme le bloc des onze — « dernier livré l'emporte ».
     '0877dd1dcfb0':
       # --- roadmap (console deva) ---
-      rank: 200
+      rank: 170
       store: true
       rsp: 610
       nom: 'loots'
@@ -2530,7 +2787,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — « Extension Butin », 7.99 €, le produit le plus cher du catalogue** — or, boutique des héros, loot aléatoire, objets et équipement, faveurs, saisons et affiliation. ⚠ **CE LOT PORTE LES MOTEURS DE QUÊTES ET DE POTIONS**, pas seulement l''économie : c''est lui qui ouvre la boutique et rend vendables les dix lots de contenu qui le suivent. Ses six packs sont partis vivre dans leurs propres lots. *Éclaté le 2026-09-04 : il agrégeait six produits vendus séparément.*'
-      last_modification: '2026-09-06T20:20:38'
+      last_modification: '2026-09-07T12:36:40'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
@@ -2617,9 +2874,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '1c1703f9c5bd':
       # --- roadmap (console deva) ---
-      rank: 290
+      rank: 270
       store: true
       rsp: 377
       nom: 'minijeux'
@@ -2629,7 +2893,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**mise à jour gratuite** — mini-jeux pour vaincre les monstres aléatoires (énigme, réflexe, memory, question piège). **Code assumé**, bâti sur le moteur d''événements livré au MVP'
-      last_modification: '2026-09-06T21:43:26'
+      last_modification: '2026-09-07T12:37:19'
       # --- economie (console deva) ---
       churn_facteur: 0.95
       duree_contenu_mois: 2
@@ -2718,9 +2982,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '5b617e0e5480':
       # --- roadmap (console deva) ---
-      rank: 370
+      rank: 360
       store: true
       rsp: 233
       nom: 'classes'
@@ -2730,7 +3001,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante à 6.99 €** (décision 2026-08-24), deuxième prix du catalogue derrière « Butin » — classes de personnage : voies, avantages et inconvénients, synergies de clan. Ce n''est pas un pack de contenu mais une **extension majeure du jeu** : un thème rhabille l''aventure, une classe la rejoue autrement'
-      last_modification: '2026-09-06T20:24:06'
+      last_modification: '2026-09-08T03:43:12'
       # --- economie (console deva) ---
       churn_facteur: 0.9375
       revenu_direct: 18
@@ -2818,9 +3089,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '0b7c8f278959':
       # --- roadmap (console deva) ---
-      rank: 500
+      rank: 445
       store: true
       rsp: 144
       nom: 'theme_pirates'
@@ -2830,10 +3108,17 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er thème, 5.99 €** — rejouer l''aventure en univers pirate. ⚠ **CE LOT PORTE LE SYSTÈME DE THÈMES**, pas seulement son contenu : c''est lui qui essuie les plâtres — bascule d''univers, déclinaison des assets, des libellés et du ton. Les deux thèmes suivants n''ont plus que leur contenu à produire, d''où leur estimation bien plus basse. *Détaché de `themes` le 2026-09-02.*'
-      last_modification: '2026-09-06T21:50:37'
+      last_modification: '2026-09-07T12:37:56'
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
+
 
 
 
@@ -2915,7 +3200,7 @@ revenus:
 
     'b4483c2704e7':
       # --- roadmap (console deva) ---
-      rank: 580
+      rank: 490
       store: true
       rsp: 55
       nom: 'theme_casanostra'
@@ -2925,10 +3210,17 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e thème, 5.99 €** — univers mafia. Le système de thèmes existe déjà (`theme_pirates`) : il ne reste que le contenu. *Détaché de `themes` le 2026-09-02.'
-      last_modification: '2026-09-06T21:50:47'
+      last_modification: '2026-09-08T03:43:43'
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
+
 
 
 
@@ -3010,7 +3302,7 @@ revenus:
 
     '1521505a498c':
       # --- roadmap (console deva) ---
-      rank: 680
+      rank: 580
       store: true
       rsp: 55
       nom: 'theme_starsweep'
@@ -3020,11 +3312,18 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e thème, 5.99 €** — space opera. Contenu seul, comme le précédent. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DES TROIS**, et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et la valeur 0.9312 décrivait l''état du modèle une fois les TROIS thèmes sortis. Le poser sur chacun aurait fait obtenir au premier thème seul le bénéfice de rétention des trois. *Détaché de `themes` le 2026-09-02.*'
-      last_modification: '2026-09-06T20:23:18'
+      last_modification: '2026-09-07T12:38:28'
       # --- economie (console deva) ---
       churn_facteur: 0.925
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
+
 
 
 
@@ -3180,9 +3479,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '71b889d2505e':
       # --- roadmap (console deva) ---
-      rank: 210
+      rank: 180
       store: true
       rsp: 34
       nom: 'quetes I'
@@ -3191,10 +3497,17 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er pack de quêtes, 3.99 €** — contenu seul : la mécanique de quêtes vit dans `loots`, publié avant. Il sort dans la foulée de l''Extension Butin, pour qu''une boutique qui s''ouvre ne soit pas vide. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:20:54'
+      last_modification: '2026-09-07T12:36:54'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
+
 
 
 
@@ -3314,9 +3627,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '0ab7912989d0':
       # --- roadmap (console deva) ---
-      rank: 380
+      rank: 370
       store: true
       rsp: 34
       nom: 'quêtes III'
@@ -3325,7 +3645,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e et dernier pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:21:53'
+      last_modification: '2026-09-08T03:43:12'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
@@ -3381,9 +3701,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     'ecb38169ab68':
       # --- roadmap (console deva) ---
-      rank: 220
+      rank: 190
       store: true
       rsp: 34
       nom: 'potions I'
@@ -3392,10 +3719,17 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er pack de potions, 3.99 €** — contenu seul : la mécanique de potions vit dans `loots`, publié avant. Livré dans la même foulée que le premier pack de quêtes. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:21:06'
+      last_modification: '2026-09-07T12:36:56'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
+
 
 
 
@@ -3515,9 +3849,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '4333deadd8b3':
       # --- roadmap (console deva) ---
-      rank: 390
+      rank: 380
       store: true
       rsp: 34
       nom: 'potions III'
@@ -3527,7 +3868,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e et dernier pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:23:49'
+      last_modification: '2026-09-08T03:43:12'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
@@ -3583,9 +3924,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '13a9e8d0a1b9':
       # --- roadmap (console deva) ---
-      rank: 280
+      rank: 290
       store: true
       rsp: 55
       nom: 'devoirs faits'
@@ -3594,7 +3942,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack « Devoirs faits », 3.99 €** — **le seul pack qui traverse les trois mécaniques** : quête (« 13 de moyenne générale »), tâches additionnelles (« Apprendre le cours de maths ») et potion (« +15 % XP sur les exercices de SVT »). D''où 55rsp là où les autres packs valent 34. C''est aussi le plus vendable aux parents — il répond à la seule chose qu''ils n''arrivent pas à faire tenir par la routine. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:21:22'
+      last_modification: '2026-09-07T12:37:19'
       # --- economie (console deva) ---
       revenu_direct: 2
       duree_contenu_mois: 2
@@ -3650,9 +3998,16 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '258ff7d2b854':
       # --- roadmap (console deva) ---
-      rank: 400
+      rank: 390
       store: true
       rsp: 21
       nom: 'pack bricolage'
@@ -3662,10 +4017,17 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack de tâches « Bricolage », 3.99 €** — contenu YAML pur dans un pipeline déjà livré : aucune mécanique requise, d''où la cotation la plus basse du bloc. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:23:39'
+      last_modification: '2026-09-08T03:43:12'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
+
 
 
 
@@ -3724,7 +4086,7 @@ revenus:
     #   Meme regle que `theme_starsweep` pour les themes.
     'cbe53f2e0c9b':
       # --- roadmap (console deva) ---
-      rank: 270
+      rank: 280
       store: true
       rsp: 21
       nom: 'routine'
@@ -3733,11 +4095,18 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack de tâches « Routine », 3.99 €** — se brosser les dents, préparer son cartable la veille… Contenu YAML pur, aucune mécanique requise. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DU BLOC** (0.9625), et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et cette valeur décrit l''état du modèle une fois les ONZE lots sortis. Même règle que `theme_starsweep` pour les thèmes. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:21:15'
+      last_modification: '2026-09-07T12:37:19'
       # --- economie (console deva) ---
       churn_facteur: 0.9625
       revenu_direct: 15
       duree_contenu_mois: 2
+
+
+
+
+
+
+
 
 
 
@@ -3886,16 +4255,23 @@ revenus:
 
     '37efb92085ab':
       # --- roadmap (console deva) ---
-      rank: 40
+      rank: 80
       store: false
-      rsp: 987
+      rsp: 610
       nom: 'premier pas'
       id: '37efb92085ab'
       rampup_semaines: 10
       maint_demarrage: 3.0
       maint_croisiere: 2.0
       description: '**le MVP complet : lancement commercial FR/EN/ES puis consolidation.** Boucle de jeu, butin, abonnements, offre fondateurs, parrainage, corpus légal multirégion, publication Play — puis multitenancy, facturation multi-clan, notifications métier, invitations à distance et réserve de feedback. *Fusion du 2026-08-29 des lots `beta` (lancement, 377rsp) et `mvp` (consolidation, 610rsp). Ddust rentre dans la forme commune du portefeuille — un MVP puis des extensions — et les deux noms trompeurs disparaissent. L''historique du produit n''est pas perdu : il vit dans `ddust/produit`, livré le 2026-08-22.* ⚠ **Prérequis : `grisloup/mvp`** — seule l''immatriculation ouvre le compte Play organisation et fournit le SIREN du corpus légal.'
-      last_modification: '2026-09-06T21:50:09'
+      last_modification: '2026-09-10T20:06:45'
+
+
+
+
+
+
+
 
 
 
@@ -4048,6 +4424,13 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '32329fd13dae':
       # --- roadmap (console deva) ---
       rank: 20000
@@ -4061,6 +4444,13 @@ revenus:
       maint_croisiere: 0.0
       description: '**ce sur quoi tout le reste se pose** — conf découpée en layers, thèmes, écrans de base, son, langues, démarrage. Rien de spectaculaire, et le premier écran qui gèle rend l''app inutilisable.'
       last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
 
 
 
@@ -4188,6 +4578,13 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '81a9612bcfad':
       # --- roadmap (console deva) ---
       rank: 20020
@@ -4201,6 +4598,13 @@ revenus:
       maint_croisiere: 0.0
       description: '**le joueur** — enrollment, session, nom, avatar, photo, écran personnage, passage à l''âge adulte. Tout ce qui fait qu''un enfant se reconnaît dans l''application.'
       last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
 
 
 
@@ -4328,6 +4732,13 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '3b81e080ee72':
       # --- roadmap (console deva) ---
       rank: 20040
@@ -4341,6 +4752,13 @@ revenus:
       maint_croisiere: 0.0
       description: '**ce qui donne envie de recommencer** — XP du joueur et du clan, niveaux, titres, points de vie et leur décroissance, barème d''effort. La mécanique de jeu qui transforme une corvée en partie.'
       last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
 
 
 
@@ -4468,6 +4886,13 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     'a245b12c4cb8':
       # --- roadmap (console deva) ---
       rank: 20060
@@ -4481,6 +4906,13 @@ revenus:
       maint_croisiere: 0.0
       description: '**la mémoire du clan** — le journal narratif reconstruit depuis les logs, et son partage social. C''est ce qui donne au travail accompli une trace qu''on relit.'
       last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
 
 
 
@@ -4608,6 +5040,13 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     'e525cb94cb33':
       # --- roadmap (console deva) ---
       rank: 20080
@@ -4621,6 +5060,13 @@ revenus:
       maint_croisiere: 0.0
       description: '**19 pièces sonores** — 9 musiques, 7 effets, 3 vidéos. Un autre métier que l''image, et le même constat : invisible dans le code, bien réel dans le temps passé.'
       last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
 
 
 
@@ -4748,6 +5194,13 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '992f6f465ef6':
       # --- roadmap (console deva) ---
       rank: 20100
@@ -4761,6 +5214,13 @@ revenus:
       maint_croisiere: 0.0
       description: '**les gestes du chef de clan** — cacher, désactiver, modifier ou recommander une tâche, déconnecter un joueur, gérer un départ, jouer à la place d''un autre. Tout ce qui n''est pas du jeu mais sans quoi le jeu s''enraye.'
       last_modification: '2026-09-04T11:12:06'
+
+
+
+
+
+
+
 
 
 
@@ -4888,6 +5348,13 @@ revenus:
 
 
 
+
+
+
+
+
+
+
     '4facbb5b056a':
       # --- roadmap (console deva) ---
       rank: 20120
@@ -4901,6 +5368,54 @@ revenus:
       maint_croisiere: 0.0
       description: '**la monétisation** — abonnements, achats, entitlement vérifié côté serveur. Le principe tient en une phrase : l''entitlement n''est jamais écrit par un client.'
       last_modification: '2026-09-04T11:12:06'
+
+
+
+    '2fb66c075ba3':
+      # --- roadmap (console deva) ---
+      rank: 62
+      store: false
+      rsp: 144
+      nom: 'requisites'
+      id: '2fb66c075ba3'
+      accroche: 'Le développement exigé par une contrainte légale ou par la revue « intérêt supérieur de l''enfant »'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**Ce que le produit doit faire pour que les documents ne mentent pas.** Correctifs et écrans dictés par une obligation — RGPD, politique Google Play Families, article 7 de la loi colombienne 1581 — et par les points de `docs/interestActionPoints.txt` : journal filtré des relances de paiement, photos effacées au verdict, prénoms substitués avant l''appel au modèle, avis de l''enfant recueilli avant tout traitement, retrait de consentement proportionné, relances sorties du mode simulation. *Ne porte aucune fonctionnalité produit : chaque tâche d''ici existe parce qu''une phrase publiée en dépend.*'
+      last_modification: '2026-09-11T01:27:06'
+
+
+
+    'dc31b23a0d6c':
+      # --- roadmap (console deva) ---
+      rank: 65
+      store: false
+      rsp: 34
+      nom: 'légal'
+      id: 'dc31b23a0d6c'
+      accroche: 'Le corpus juridique et les démarches, sans une ligne de code'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**Les documents et les formalités, rien d''exécutable.** Reprises de fond du corpus des 336 documents (contradiction sur l''adresse électronique, relecture des 84 politiques enfant, description de la boutique alignée sur le catalogue réel), préalables d''ouverture de marché (`hispam`, Loi 25 québécoise, représentant suisse), mention de l''éditeur, AIPD. *Se livre APRÈS `requisites` : le dossier « intérêt supérieur de l''enfant » décrit l''application dans son état cible et n''est communicable qu''une fois cette cible atteinte.*'
+      last_modification: '2026-09-11T01:27:06'
+
+
+
+    'b68ba8193315':
+      # --- roadmap (console deva) ---
+      rank: 70
+      store: false
+      rsp: 21
+      nom: 'pub'
+      id: 'b68ba8193315'
+      accroche: 'Ce qui manque entre une app qui marche et une app sur le store'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**Les prérequis de la publication.** Chaîne de versioning (builder, et détection de mise à jour côté client), feuilles de saisie versionnées dans `delivery/`, lien Play Console ↔ projet GCP sans lequel `store_verify` ne peut acquitter aucun achat, visuels de la fiche. *Porte le drapeau `mvp` : c''est sa livraison qui signifie « l''app est publiée », et qui fait basculer le projet de `implementation` à `exploitation`.*'
+      last_modification: '2026-09-10T20:06:45'
 
   canaux:
     # Un store par ligne, et non un taux unique : les commissions divergeront,
@@ -4971,9 +5486,9 @@ catalog_sequence:
   - '0877dd1dcfb0'
   - '71b889d2505e'
   - 'ecb38169ab68'
+  - '1c1703f9c5bd'
   - 'cbe53f2e0c9b'
   - '13a9e8d0a1b9'
-  - '1c1703f9c5bd'
   - '81291102e209'
   - '09a10ee9b42d'
   - '5b617e0e5480'

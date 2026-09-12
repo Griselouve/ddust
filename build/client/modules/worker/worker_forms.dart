@@ -58,11 +58,23 @@ extension Worker_forms on worker {
 
                                 ActionRegistry.register("worker.on_player_name_changed",  on_player_name_changed);
 
+                                ActionRegistry.register("worker.on_player_name_desc_changed", on_player_name_desc_changed);
+
+                                ActionRegistry.register("worker.on_inspire_player_name",  on_inspire_player_name);
+
+                                ActionRegistry.register("worker.on_replay_player_name",   on_replay_player_name);
+
                                 ActionRegistry.register("worker.on_confirm_player_name",  on_confirm_player_name);
 
                                 ActionRegistry.register("worker.on_rename_appear",        on_rename_appear);
 
                                 ActionRegistry.register("worker.on_rename_changed",       on_rename_changed);
+
+                                ActionRegistry.register("worker.on_rename_desc_changed",  on_rename_desc_changed);
+
+                                ActionRegistry.register("worker.on_inspire_rename",       on_inspire_rename);
+
+                                ActionRegistry.register("worker.on_replay_rename",        on_replay_rename);
 
                                 ActionRegistry.register("worker.on_rename_confirm",       on_rename_confirm);
 
@@ -72,54 +84,130 @@ extension Worker_forms on worker {
 
                                 ActionRegistry.register("worker.on_create_player_changed",  on_create_player_changed);
 
+                                ActionRegistry.register("worker.on_create_player_desc_changed", on_create_player_desc_changed);
+
+                                ActionRegistry.register("worker.on_inspire_create_player",  on_inspire_create_player);
+
+                                ActionRegistry.register("worker.on_replay_create_player",   on_replay_create_player);
+
                                 ActionRegistry.register("worker.on_create_player_confirm",  on_create_player_confirm);
 
     }
 
-    // Applique un résultat IA aux champs <prefix>/name et <prefix>/desc, active le bouton confirm
-    // et révèle le lien « Autre chose ! ». Partagé create_clan / rename_task (prefix paramétré).
-    void _applyAiResultTo(String prefix, String result, DvShape? nameEntry, DvShape? descEntry) {
+    // Remet le brouillon d'inspiration à neuf. Appelé par les CINQ appear qui portent un
+    // formulaire « Inspire moi » : create_clan, rename_task, player_name_screen,
+    // player_rename_screen, create_player_screen. Un oubli ferait fuiter l'alias d'un écran
+    // sur le suivant — c'est le seul vrai risque d'un brouillon porté par un singleton.
+    void _resetAiDraft() {
 
-                                final name = _parseAiName(result);
-                                final desc = _parseAiDescription(result);
-                                if (name.isNotEmpty) {
-                                    _aiName = name;
-                                    nameEntry?.set("shape.value", name); nameEntry?.refreshUI();
+                                _draft        = _AiDraft();
+                                _cachedDraft  = null;
+                                _originalName = null;
+                                _originalDesc = null;
+    }
+
+    // Traduction TOLÉRANTE : TranslationRegistry.translate rend LA CLÉ quand elle manque.
+    // Sans ce test, une clé absente du layer produirait un nom de joueur littéralement
+    // nommé « substitute_bank_player_names ».
+    String _trOrEmpty(String key) {
+
+                                final v = TranslationRegistry.translate(key);
+                                return (v == key || v.isEmpty) ? "" : v;
+    }
+
+    // Une entrée au hasard dans une liste traduite « a|b|c » du layer. `seed` est la graine
+    // ultime, en dur : elle ne doit jamais servir — si elle sert, c'est le layer qu'il faut
+    // corriger, pas ce code.
+    String _pickFromBank(String key, List<String> seed) {
+
+                                final raw   = _trOrEmpty(key);
+                                final items = raw.isEmpty
+                                    ? seed
+                                    : raw.split('|').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+                                if (items.isEmpty) return seed[Random().nextInt(seed.length)];
+                                return items[Random().nextInt(items.length)];
+    }
+
+    // Repli SANS IA : un nom tiré d'une banque locale traduite. Pour un joueur on lui accole
+    // cinq chiffres (« Benji12312 »), ce qui rend la collision improbable sans rien révéler ;
+    // pour un clan c'est inutile, le suffixe « -region-compteur » s'en charge déjà.
+    // Ce repli ne retombe JAMAIS sur le nom interne : c'est toute sa raison d'être.
+    _AiDraft _bankSubstitute(String kind) {
+
+                                const seedNames = ["Sasha", "Charlie", "Noa"];
+                                const seedDescs = ["Un aventurier discret."];
+                                final pick   = _pickFromBank("substitute_bank_${kind}_names", seedNames);
+                                final suffix = kind == "player" ? "${10000 + Random().nextInt(90000)}" : "";
+                                final d = _AiDraft();
+                                d.extName = "$pick$suffix";
+                                d.extDesc = _pickFromBank("substitute_bank_${kind}_descs", seedDescs);
+                                d.source  = "bank";
+                                return d;
+    }
+
+    // Applique un brouillon aux champs <prefix>/name et <prefix>/desc, active le bouton confirm
+    // et révèle le lien « Autre chose ! ». Partagé create_clan / rename_task / écrans joueur.
+    // Le couple extName/extDesc n'est écrit NULLE PART dans l'UI : une identité de substitution
+    // qu'on montrerait au joueur ne protégerait plus rien.
+    void _applyDraftTo(String prefix, _AiDraft draft, DvShape? nameEntry, DvShape? descEntry) {
+
+                                if (draft.name.isNotEmpty) {
+                                    nameEntry?.set("shape.value", draft.name); nameEntry?.refreshUI();
                                     final confirm = DvOrb.get_shape_by_id("$prefix/confirm");
                                     confirm?.set("shape.opacity", 0.6);
                                     confirm?.set("shape.events.tap", true);
                                     confirm?.refreshUI();
                                 }
-                                if (desc.isNotEmpty) { descEntry?.set("shape.value", desc); descEntry?.refreshUI(); }
+                                if (draft.desc.isNotEmpty) {
+                                    descEntry?.set("shape.value", draft.desc); descEntry?.refreshUI();
+                                }
                                 final replay = DvOrb.get_shape_by_id("$prefix/replay");
                                 replay?.set("shape.visible", true); replay?.refreshUI();
     }
 
-    // Repli statique (timeout IA) : tire une des 3 variantes <fallbackPrefix>{0..2}_name/_desc.
-    Future<void> _showStaticFallbackTo(String prefix, String fallbackPrefix,
-        DvShape? nameEntry, DvShape? descEntry) async {
+    // Lit les QUATRE valeurs d'une réponse IA en un seul passage — c'est ce qui évite un second
+    // appel au moment de la confirmation — les mémorise dans le brouillon, et n'en affiche que
+    // les deux premières.
+    _AiDraft _draftFromAi(String result) {
 
-                            final idx  = Random().nextInt(3);
-                            final name = TranslationRegistry.translate("$fallbackPrefix${idx}_name");
-                            final desc = TranslationRegistry.translate("$fallbackPrefix${idx}_desc");
-                            if (name.isNotEmpty) {
-                                _aiName = name;
-                                nameEntry?.set("shape.value", name); nameEntry?.refreshUI();
-                                final confirm = DvOrb.get_shape_by_id("$prefix/confirm");
-                                confirm?.set("shape.opacity", 0.6);
-                                confirm?.set("shape.events.tap", true);
-                                confirm?.refreshUI();
-                            }
-                            if (desc.isNotEmpty) { descEntry?.set("shape.value", desc); descEntry?.refreshUI(); }
-                            final replay = DvOrb.get_shape_by_id("$prefix/replay");
-                            replay?.set("shape.visible", true); replay?.refreshUI();
+                                final b = _parseAiBlocks(result);
+                                final d = _AiDraft();
+                                d.name    = b['name']       ?? "";
+                                d.desc    = b['desc']       ?? "";
+                                d.extName = b['alias']      ?? "";
+                                d.extDesc = b['alias_desc'] ?? "";
+                                d.source  = d.extName.isEmpty ? "" : "ai";
+                                return d;
     }
 
-    // Moteur « Inspire moi » partagé (create_clan / rename_task). `prefix` = id d'écran (shapes
-    // <prefix>/name, <prefix>/desc, <prefix>/confirm, <prefix>/replay). `promptName` = agent dvprompts.
-    // `fallbackPrefix` != null → repli statique <fallbackPrefix>{0..2}_name/_desc sur timeout ; null →
-    // pas de repli (les champs restent, réponse tardive mise en cache pour un futur « Autre chose ! »).
-    Future<void> _runInspire(String prefix, String promptName, String? fallbackPrefix) async {
+    void _applyAiResultTo(String prefix, String result, DvShape? nameEntry, DvShape? descEntry) {
+
+                                _draft = _draftFromAi(result);
+                                _applyDraftTo(prefix, _draft, nameEntry, descEntry);
+    }
+
+    // Repli statique (timeout IA) : tire une des 3 variantes <fallbackPrefix>{0..2}_name/_desc.
+    // `kind` non vide → le brouillon repart AUSSI avec un substitut de la banque : un joueur qui
+    // subit le timeout puis confirme a déjà son identité externe, sans second appel.
+    Future<void> _showStaticFallbackTo(String prefix, String fallbackPrefix,
+        DvShape? nameEntry, DvShape? descEntry, {String kind = ""}) async {
+
+                            final idx = Random().nextInt(3);
+                            final d   = kind.isEmpty ? _AiDraft() : _bankSubstitute(kind);
+                            d.name    = _trOrEmpty("$fallbackPrefix${idx}_name");
+                            d.desc    = _trOrEmpty("$fallbackPrefix${idx}_desc");
+                            _draft    = d;
+                            _applyDraftTo(prefix, d, nameEntry, descEntry);
+    }
+
+    // Moteur « Inspire moi » partagé (create_clan / rename_task / écrans joueur). `prefix` = id
+    // d'écran (shapes <prefix>/name, <prefix>/desc, <prefix>/confirm, <prefix>/replay).
+    // `promptName` = agent dvprompts. `fallbackPrefix` != null → repli statique
+    // <fallbackPrefix>{0..2}_name/_desc sur timeout ; null → pas de repli (les champs restent,
+    // réponse tardive mise en cache pour un futur « Autre chose ! »). `kind` = "player"/"clan"
+    // pour les écrans porteurs d'une identité externe, "" pour une tâche (qui n'en a pas).
+    Future<void> _runInspire(String prefix, String promptName, String? fallbackPrefix,
+        {String kind = ""}) async {
 
                                 final nameEntry = DvOrb.get_shape_by_id("$prefix/name");
                                 final descEntry = DvOrb.get_shape_by_id("$prefix/desc");
@@ -147,6 +235,15 @@ extension Worker_forms on worker {
                                 final prompt  = prompts != null
                                     ? await (prompts as dynamic).get_prompt(promptName) as String
                                     : "";
+                                // get_prompt rend "" pour un agent absent du fichier de prompts : un binaire
+                                // livré AVANT le push du layer ne doit pas envoyer une requête vide à Vertex.
+                                if (prompt.isEmpty) {
+                                    deva_log("error", "[$prefix] prompt '$promptName' introuvable → repli");
+                                    if (fallbackPrefix != null) {
+                                        await _showStaticFallbackTo(prefix, fallbackPrefix, nameEntry, descEntry, kind: kind);
+                                    }
+                                    return;
+                                }
                                 deva_log("debug", "[worker] inspire prompt: $prompt");
 
                                 final aiFuture = ((ai as dynamic).sendMessage(prompt)) as Future<String?>;
@@ -155,14 +252,11 @@ extension Worker_forms on worker {
                                     if (result != null) _applyAiResultTo(prefix, result, nameEntry, descEntry);
                                 } on TimeoutException {
                                     if (fallbackPrefix != null) {
-                                        await _showStaticFallbackTo(prefix, fallbackPrefix, nameEntry, descEntry);
+                                        await _showStaticFallbackTo(prefix, fallbackPrefix, nameEntry, descEntry, kind: kind);
                                     }
                                     // Mettre en cache la réponse IA si elle arrive après le timeout
                                     aiFuture.then((r) {
-                                        if (r != null) {
-                                            _cachedAiName = _parseAiName(r);
-                                            _cachedAiDesc = _parseAiDescription(r);
-                                        }
+                                        if (r != null) _cachedDraft = _draftFromAi(r);
                                     }).catchError((_) {});
                                 } catch (e) {
                                     // Échec réel (capacité IA saturée, modèle injoignable) : même repli
@@ -171,36 +265,56 @@ extension Worker_forms on worker {
                                     // « Erreur: Resource exhausted… » atterrissait dans les champs.
                                     deva_log("error", "[$prefix] _runInspire FAILED: $e");
                                     if (fallbackPrefix != null) {
-                                        await _showStaticFallbackTo(prefix, fallbackPrefix, nameEntry, descEntry);
+                                        await _showStaticFallbackTo(prefix, fallbackPrefix, nameEntry, descEntry, kind: kind);
                                     }
                                 }
     }
 
     // « Autre chose ! » partagé : rejoue la réponse IA en cache (arrivée après timeout) si présente,
     // sinon restaure les saisies originales et relance l'IA.
-    Future<void> _runReplay(String prefix, String promptName, String? fallbackPrefix) async {
+    Future<void> _runReplay(String prefix, String promptName, String? fallbackPrefix,
+        {String kind = ""}) async {
 
                                 final nameEntry = DvOrb.get_shape_by_id("$prefix/name");
                                 final descEntry = DvOrb.get_shape_by_id("$prefix/desc");
-                                if (_cachedAiName != null) {
-                                    final name = _cachedAiName!;
-                                    final desc = _cachedAiDesc ?? "";
-                                    _cachedAiName = null;
-                                    _cachedAiDesc = null;
-                                    if (name.isNotEmpty) {
-                                        _aiName = name;
-                                        nameEntry?.set("shape.value", name); nameEntry?.refreshUI();
-                                        final confirm = DvOrb.get_shape_by_id("$prefix/confirm");
-                                        confirm?.set("shape.opacity", 0.6); confirm?.refreshUI();
-                                    }
-                                    if (desc.isNotEmpty) { descEntry?.set("shape.value", desc); descEntry?.refreshUI(); }
-                                    final replay = DvOrb.get_shape_by_id("$prefix/replay");
-                                    replay?.set("shape.visible", true); replay?.refreshUI();
+                                final cached    = _cachedDraft;
+                                if (cached != null) {
+                                    _cachedDraft = null;
+                                    _draft       = cached;
+                                    _applyDraftTo(prefix, cached, nameEntry, descEntry);
                                     return;
                                 }
                                 nameEntry?.set("shape.value", _originalName ?? ""); nameEntry?.refreshUI();
                                 descEntry?.set("shape.value", _originalDesc ?? ""); descEntry?.refreshUI();
-                                await _runInspire(prefix, promptName, fallbackPrefix);
+                                await _runInspire(prefix, promptName, fallbackPrefix, kind: kind);
+    }
+
+    // Point de couture UNIQUE des quatre écrans qui font naître une identité (nom de joueur,
+    // renommage, création d'un enfant, création de clan).
+    //
+    // 1. Le brouillon d'un « Inspire moi » est réutilisable → on le rend tel quel : l'IA a déjà
+    //    fourni les quatre valeurs en une seule réponse. Le double test name/desc n'est pas de la
+    //    prudence gratuite — si l'utilisateur a retouché son nom APRÈS s'être fait inspirer,
+    //    l'alias ne lui correspond plus.
+    // 2. Sinon, la banque locale. Et SURTOUT PAS un appel de substitution dédié : le modèle ne
+    //    doit jamais être sollicité sans que l'utilisateur l'ait demandé. Interroger l'IA pour
+    //    fabriquer une protection reviendrait à lui transmettre, à son insu, le nom même qu'on
+    //    protège — et à rendre fausse la seule phrase qui compte ici : le recours au modèle est
+    //    ponctuel, jamais automatique, jamais en arrière-plan.
+    //    Contrepartie assumée : sans inspiration, le substitut est un nom neutre de la banque
+    //    suivi de cinq chiffres. Il ne respecte ni la langue ni le genre de l'original — mais
+    //    personne ne le lit jamais, et il ne trahit rien.
+    //
+    // Le résultat est DÉFINITIF : écrit une fois, jamais régénéré (gel, cf. _persistPlayerName).
+    Future<_AiDraft> _resolveExternal(String kind, String name, String desc) async {
+
+                                final d = _draft;
+                                // Comparaison insensible à la casse et aux espaces : le nom confirmé
+                                // passe par _capitalizeFirst, il ne serait jamais ÉGAL à celui que le
+                                // modèle a rendu — et on perdrait le brouillon pour rien.
+                                bool same(String a, String b) => a.trim().toLowerCase() == b.trim().toLowerCase();
+                                if (d.hasExt && same(d.name, name) && same(d.desc, desc)) return d;
+                                return _bankSubstitute(kind);
     }
 
     //-----------------------------------------------------------------------
@@ -216,11 +330,7 @@ extension Worker_forms on worker {
     // DvView._resolveActions → le handler ne tournerait jamais). Idem on_dashboard/combat/tiroir_appear.
     Future<void> on_rename_task_appear(dynamic caller, dynamic event) async {
 
-                                _aiName       = "";
-                                _originalDesc = null;
-                                _originalName = null;
-                                _cachedAiName = null;
-                                _cachedAiDesc = null;
+                                _resetAiDraft();
                                 final base     = _editTaskId;
                                 // Mode création (tuile « + ») : écran vierge, item traité comme une feuille de
                                 // tâche (picklists visibles). Sinon, feuille détectée par le suffixe _<n>.
@@ -496,12 +606,12 @@ extension Worker_forms on worker {
                                 try { await Deva.instance.store(); }
                                 catch (e) { deva_log("error", "[admin] store() edit FAILED: $e"); }
 
-                                // Rafraîchit l'affichage : libellés du tiroir + clones (label figé avec prénom),
+                                // Rafraîchit l'affichage : libellés du tiroir + clones (label figé avec pseudonyme),
                                 // seulement si le nom a changé (effort/respawn se recalculent au prochain chargement).
                                 if (nameChanged) {
                                     _notifyTiroirLabels(_titleOverride);
                                     if (ns == "tasks" && clanId.isNotEmpty) {
-                                        // Clones (« <titre> - <prénom> ») : le doc renommé vient d'être
+                                        // Clones (« <titre> - <pseudonyme> ») : le doc renommé vient d'être
                                         // estampillé → le refresh forcé le récupère en delta et repousse
                                         // lui-même labels + clones (plus de full list ici).
                                         try { await _refreshTaskStatuses(force: true); } catch (_) {}
@@ -608,9 +718,17 @@ extension Worker_forms on worker {
     Future<String> on_confirm_player_name(DvShape? caller, dynamic event) async {
 
                                 final nameEntry = DvOrb.get_shape_by_id("player_name_screen/name");
+                                final descEntry = DvOrb.get_shape_by_id("player_name_screen/desc");
                                 final raw       = nameEntry?.get("shape.value")?.toString().trim() ?? "";
                                 if (raw.isEmpty) return "cancel";
-                                await _persistPlayerName(_capitalizeFirst(raw));
+                                final name = _capitalizeFirst(raw);
+                                final desc = descEntry?.get("shape.value")?.toString().trim() ?? "";
+                                // Identité de substitution résolue AVANT l'écriture. Gratuite et
+                                // immédiate : soit le brouillon d'« Inspire moi » la portait déjà, soit
+                                // elle sort de la banque locale. Rien n'est envoyé nulle part, et
+                                // _persistPlayerName ne l'écrira que si le joueur n'en a pas encore.
+                                final ext = await _resolveExternal("player", name, desc);
+                                await _persistPlayerName(name, description: desc, ext: ext);
                                 // Le nom est saisi APRÈS la liaison du compte : un mineur qui vient d'être
                                 // admis part au tableau de bord, un adulte n'a pas encore de clan et va le
                                 // créer ou en rejoindre un.
@@ -646,7 +764,7 @@ extension Worker_forms on worker {
     // l'ADMIN — et ce nom lui reviendrait au prochain démarrage, dvsession réhydratant
     // session.user.name depuis users.internal.name. Le nom d'un joueur incarné vit donc
     // uniquement dans clans_players (seule source pour un joueur sans compte, no_account).
-    Future<void> _persistPlayerName(String name) async {
+    Future<void> _persistPlayerName(String name, {String description = "", _AiDraft? ext}) async {
 
                                 final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isNotEmpty && !_impersonating) {
@@ -661,7 +779,18 @@ extension Worker_forms on worker {
                                             existing.set("ownerId",           firebaseUid);
                                             existing.set("userId",            docId);
                                             existing.set("internal.name",     name);
-                                            existing.set("external.name",     name);
+                                            if (description.isNotEmpty) {
+                                                existing.set("internal.description", description);
+                                            }
+                                            // GEL DE L'IDENTITÉ EXTERNE. Elle naît une fois, à la première
+                                            // pose du nom, et ne bouge plus : un renommage ne la régénère
+                                            // pas (on_rename_confirm n'envoie d'ailleurs aucun `ext`).
+                                            // Ce qui se trouvait ici — `external.name = name` — était le
+                                            // bug : le pseudonyme public valait celui que la famille voit.
+                                            if (ext != null && ext.extName.isNotEmpty &&
+                                                (existing.get("external.name")?.toString() ?? "").isEmpty) {
+                                                _setExternal(existing, ext);
+                                            }
                                             existing.set("steps.name.status", "done");
                                             existing.set("steps.name.date",   now);
                                             existing.set("steps.name.result", name);
@@ -696,13 +825,19 @@ extension Worker_forms on worker {
                                                 // (vol du token FCM) et forcerait has_device=true — c'est exactement ce
                                                 // que take_place s'interdit.
                                                 final patch = Dvidle({});
-                                                patch.set("name", name);
+                                                patch.set("name",          name);
+                                                patch.set("internal.name", name);
+                                                if (description.isNotEmpty) {
+                                                    patch.set("internal.description", description);
+                                                }
+                                                // Jamais external.* ici : le substitut de la cible a été figé
+                                                // à SA création, et l'admin qui la joue n'a pas à le refaire.
                                                 await _cloud?.write("workers", "clans_players/$clanId/players", _userId,
                                                     patch, region: region, ownerId: clanSecret);
                                             } else {
                                                 final device = await _cloud?.deviceId() ?? "";
                                                 await _writeClanPlayer(clanId, clanSecret, _userId, device, region,
-                                                    nameOverride: name);
+                                                    nameOverride: name, internalDesc: description, ext: ext);
                                             }
                                         }
                                     } catch (e) {
@@ -718,9 +853,14 @@ extension Worker_forms on worker {
 
     Future<void> on_player_name_appear(DvShape? caller, dynamic event) async {
 
+                                _resetAiDraft();
                                 final nameEntry = await DvOrb.wait_for_shape("player_name_screen/name");
+                                final descEntry = DvOrb.get_shape_by_id("player_name_screen/desc");
+                                final replay    = DvOrb.get_shape_by_id("player_name_screen/replay");
                                 final confirm   = DvOrb.get_shape_by_id("player_name_screen/confirm");
                                 nameEntry?.set("shape.value", ""); nameEntry?.refreshUI();
+                                descEntry?.set("shape.value", ""); descEntry?.refreshUI();
+                                replay?.set("shape.visible", false); replay?.refreshUI();
                                 confirm?.set("shape.opacity", 0.3);
                                 confirm?.set("shape.events.tap", false);
                                 confirm?.refreshUI();
@@ -729,12 +869,26 @@ extension Worker_forms on worker {
     Future<void> on_player_name_changed(DvShape caller, dynamic event) async {
 
                                 final value   = caller.get("shape.value")?.toString() ?? "";
+                                // Mémorisé pour « Inspire moi », qui repart de ce que le joueur a saisi
+                                // (et pour « Autre chose ! », qui sait ainsi quoi restaurer).
+                                _originalName = value.trim();
                                 final confirm = DvOrb.get_shape_by_id("player_name_screen/confirm");
                                 final enabled = value.trim().isNotEmpty;
                                 confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
     }
+
+    Future<void> on_player_name_desc_changed(DvShape caller, dynamic event) async {
+
+                                _originalDesc = caller.get("shape.value")?.toString().trim() ?? "";
+    }
+
+    Future<void> on_inspire_player_name(DvShape? caller, dynamic event) async =>
+        _runInspire("player_name_screen", "inspire_player", "inspire_player_fallback_", kind: "player");
+
+    Future<void> on_replay_player_name(DvShape? caller, dynamic event) async =>
+        _runReplay("player_name_screen", "inspire_player", "inspire_player_fallback_", kind: "player");
 
     String _capitalizeFirst(String s) {
 
@@ -749,10 +903,20 @@ extension Worker_forms on worker {
     // Apparition : pré-remplit le champ avec le nom courant et active le bouton d'emblée.
     Future<void> on_rename_appear(DvShape? caller, dynamic event) async {
 
+                                _resetAiDraft();
                                 final nameEntry = await DvOrb.wait_for_shape("player_rename_screen/name");
+                                final descEntry = DvOrb.get_shape_by_id("player_rename_screen/desc");
+                                final replay    = DvOrb.get_shape_by_id("player_rename_screen/replay");
                                 final confirm   = DvOrb.get_shape_by_id("player_rename_screen/confirm");
                                 final current   = (await Deva.instance.get("session.user.name"))?.toString() ?? "";
                                 nameEntry?.set("shape.value", current); nameEntry?.refreshUI();
+                                final desc = await _currentPlayerDescription();
+                                descEntry?.set("shape.value", desc); descEntry?.refreshUI();
+                                replay?.set("shape.visible", false); replay?.refreshUI();
+                                // Le formulaire s'ouvre déjà rempli : c'est CE contenu que « Inspire moi »
+                                // prendra pour point de départ, d'où la mémorisation immédiate.
+                                _originalName = current.trim();
+                                _originalDesc = desc;
                                 final enabled = current.trim().isNotEmpty;
                                 confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
                                 confirm?.set("shape.events.tap", enabled);
@@ -764,10 +928,47 @@ extension Worker_forms on worker {
 
                                 final value   = caller.get("shape.value")?.toString() ?? "";
                                 final confirm = DvOrb.get_shape_by_id("player_rename_screen/confirm");
+                                _originalName = value.trim();
                                 final enabled = value.trim().isNotEmpty;
                                 confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
+    }
+
+    Future<void> on_rename_desc_changed(DvShape caller, dynamic event) async {
+
+                                _originalDesc = caller.get("shape.value")?.toString().trim() ?? "";
+    }
+
+    Future<void> on_inspire_rename(DvShape? caller, dynamic event) async =>
+        _runInspire("player_rename_screen", "inspire_player", "inspire_player_fallback_", kind: "player");
+
+    Future<void> on_replay_rename(DvShape? caller, dynamic event) async =>
+        _runReplay("player_rename_screen", "inspire_player", "inspire_player_fallback_", kind: "player");
+
+    // Description de personnage COURANTE, pour pré-remplir un formulaire d'édition. Le doc MEMBRE
+    // (clans_players) d'abord : c'est la seule source juste pendant une prise de place et pour un
+    // joueur sans compte. Le doc `users` ne sert qu'à l'adulte qui n'a pas encore de clan.
+    Future<String> _currentPlayerDescription() async {
+
+                                try {
+                                    final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                    if (region.isEmpty) return "";
+                                    final session    = await _readSession(region);
+                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (clanId.isNotEmpty && clanSecret.isNotEmpty && _userId.isNotEmpty) {
+                                        final p = await _cloud?.read("workers", "clans_players/$clanId/players",
+                                            _userId, ownerId: clanSecret, region: region);
+                                        final d = p?.get("internal.description")?.toString() ?? "";
+                                        if (d.isNotEmpty) return d;
+                                    }
+                                    if (_impersonating) return "";
+                                    return session?.get("internal.description")?.toString() ?? "";
+                                } catch (e) {
+                                    deva_log("error", "[worker] _currentPlayerDescription FAILED: $e");
+                                    return "";
+                                }
     }
 
     // Confirmation : persiste, revient à l'écran Personnage, rafraîchit le label et sort
@@ -775,9 +976,15 @@ extension Worker_forms on worker {
     Future<void> on_rename_confirm(DvShape? caller, dynamic event) async {
 
                                 final nameEntry = DvOrb.get_shape_by_id("player_rename_screen/name");
+                                final descEntry = DvOrb.get_shape_by_id("player_rename_screen/desc");
                                 final raw       = nameEntry?.get("shape.value")?.toString().trim() ?? "";
                                 if (raw.isEmpty) return;
-                                await _persistPlayerName(_capitalizeFirst(raw));
+                                // Aucun `ext` : renommer ne régénère PAS l'identité de substitution. Elle
+                                // a été figée à la création du personnage, et c'est ce gel qui lui donne sa
+                                // valeur — un pseudonyme public qui suivrait chaque humeur ne servirait
+                                // plus à identifier qui que ce soit hors du clan.
+                                await _persistPlayerName(_capitalizeFirst(raw),
+                                    description: descEntry?.get("shape.value")?.toString().trim() ?? "");
 
                                 // Recalcule le label (re-résout @@@session.user.name@@@ depuis la session).
                                 final lbl = DvOrb.get_shape_by_id("personnage/label");
@@ -805,19 +1012,36 @@ extension Worker_forms on worker {
     // Apparition : champ vide + bouton confirmer grisé (calqué sur on_player_name_appear).
     Future<void> on_create_player_appear(DvShape? caller, dynamic event) async {
 
+                                _resetAiDraft();
                                 final nameEntry = await DvOrb.wait_for_shape("create_player_screen/name");
+                                final descEntry = DvOrb.get_shape_by_id("create_player_screen/desc");
+                                final replay    = DvOrb.get_shape_by_id("create_player_screen/replay");
                                 final confirm   = DvOrb.get_shape_by_id("create_player_screen/confirm");
                                 nameEntry?.set("shape.value", ""); nameEntry?.refreshUI();
+                                descEntry?.set("shape.value", ""); descEntry?.refreshUI();
+                                replay?.set("shape.visible", false); replay?.refreshUI();
                                 confirm?.set("shape.opacity", 0.3);
                                 confirm?.set("shape.events.tap", false);
                                 confirm?.refreshUI();
     }
+
+    Future<void> on_create_player_desc_changed(DvShape caller, dynamic event) async {
+
+                                _originalDesc = caller.get("shape.value")?.toString().trim() ?? "";
+    }
+
+    Future<void> on_inspire_create_player(DvShape? caller, dynamic event) async =>
+        _runInspire("create_player_screen", "inspire_player", "inspire_player_fallback_", kind: "player");
+
+    Future<void> on_replay_create_player(DvShape? caller, dynamic event) async =>
+        _runReplay("create_player_screen", "inspire_player", "inspire_player_fallback_", kind: "player");
 
     // Champ modifié : active/grise le bouton selon que le champ est vide ou non.
     Future<void> on_create_player_changed(DvShape caller, dynamic event) async {
 
                                 final value   = caller.get("shape.value")?.toString() ?? "";
                                 final confirm = DvOrb.get_shape_by_id("create_player_screen/confirm");
+                                _originalName = value.trim();
                                 final enabled = value.trim().isNotEmpty;
                                 confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
                                 confirm?.set("shape.events.tap", enabled);
@@ -832,8 +1056,10 @@ extension Worker_forms on worker {
     Future<void> on_create_player_confirm(DvShape? caller, dynamic event) async {
 
                                 final nameEntry = DvOrb.get_shape_by_id("create_player_screen/name");
+                                final descEntry = DvOrb.get_shape_by_id("create_player_screen/desc");
                                 final raw       = nameEntry?.get("shape.value")?.toString().trim() ?? "";
                                 if (raw.isEmpty) return;
+                                final childDesc = descEntry?.get("shape.value")?.toString().trim() ?? "";
                                 try {
                                     final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
@@ -850,8 +1076,13 @@ extension Worker_forms on worker {
 
                                     final childId   = _generateUuid();
                                     final childName = _capitalizeFirst(raw);
+                                    // L'enfant n'a pas de doc `users` : son identité de substitution naît
+                                    // ICI ou nulle part. Résolue AVANT l'écriture — le champ est init-si-null,
+                                    // un doc créé sans lui le resterait pour toujours.
+                                    final ext = await _resolveExternal("player", childName, childDesc);
                                     await _writeClanPlayer(clanId, clanSecret, childId, "", region,
                                         firstClan: clanId, nameOverride: childName,
+                                        internalDesc: childDesc, ext: ext,
                                         legalStateOverride: "k", noAccount: true);
 
                                     await _writeClanLog(clanId, clanSecret, region, "MemberCreated",
@@ -865,38 +1096,55 @@ extension Worker_forms on worker {
                                 }
     }
 
-    String _parseAiName(String r) {
+    // Marqueurs reconnus en tête de ligne, tous en MAJUSCULES dans les prompts. Les variantes
+    // espagnoles sont là parce que le modèle traduit parfois le marqueur malgré la consigne :
+    // les accepter coûte deux entrées de table et évite de perdre une réponse entière.
+    static const Map<String, String> _aiMarkers = {
+        'NOM':                'name',
+        'NOMBRE':             'name',
+        'NAME':               'name',
+        'DESCRIPTION':        'desc',
+        'DESCRIPCION':        'desc',
+        'DESCRIPCIÓN':        'desc',
+        'ALIAS':              'alias',
+        'ALIAS_NOM':          'alias',
+        'ALIAS_NOMBRE':       'alias',
+        'ALIAS_DESCRIPTION':  'alias_desc',
+        'ALIAS_DESCRIPCION':  'alias_desc',
+        'ALIAS_DESCRIPCIÓN':  'alias_desc',
+    };
 
+    // Découpe une réponse IA en blocs « MARQUEUR: valeur », valeurs multi-lignes comprises :
+    // toute ligne sans marqueur prolonge le bloc courant, un marqueur ferme le précédent.
+    //
+    // ⚠ C'est ce dernier point qui impose l'ORDRE des prompts (ALIAS d'abord, texte libre en
+    // dernier). Les binaires DÉJÀ INSTALLÉS n'ont pas cette fonction : leur parseur avale tout
+    // ce qui suit DESCRIPTION:. Un layer poussé avec le bloc ALIAS EN TÊTE leur reste inerte ;
+    // le même layer avec ALIAS en queue leur ferait afficher l'alias dans la description.
+    Map<String, String> _parseAiBlocks(String r) {
+
+                                final out  = <String, List<String>>{};
+                                String? cur;
                                 for (final line in r.split('\n')) {
-                                    final t  = line.trim();
-                                    final tu = t.toUpperCase();
-                                    if (tu.startsWith('NOM:'))    return t.substring(4).trim();
-                                    if (tu.startsWith('NOMBRE:')) return t.substring(7).trim();
-                                }
-                                return "";
-    }
-
-    String _parseAiDescription(String r) {
-
-                                bool cap = false;
-                                final parts = <String>[];
-                                for (final line in r.split('\n')) {
-                                    final t  = line.trim();
-                                    final tu = t.toUpperCase();
-                                    int? prefixLen;
-                                    if      (tu.startsWith('DESCRIPTION:'))  prefixLen = 12;
-                                    else if (tu.startsWith('DESCRIPCION:'))  prefixLen = 12;
-                                    else if (tu.startsWith('DESCRIPCIÓN:'))  prefixLen = 12;
-                                    if (prefixLen != null) {
-                                        cap = true;
-                                        final rest = t.substring(prefixLen).trim();
-                                        if (rest.isNotEmpty) parts.add(rest);
-                                    } else if (cap && t.isNotEmpty) {
-                                        parts.add(t);
+                                    final t = line.trim();
+                                    final i = t.indexOf(':');
+                                    String? field;
+                                    if (i > 0) field = _aiMarkers[t.substring(0, i).trim().toUpperCase()];
+                                    if (field != null) {
+                                        cur = field;
+                                        final rest = t.substring(i + 1).trim();
+                                        out.putIfAbsent(cur, () => <String>[]);
+                                        if (rest.isNotEmpty) out[cur]!.add(rest);
+                                    } else if (cur != null && t.isNotEmpty) {
+                                        out[cur]!.add(t);
                                     }
                                 }
-                                return parts.join('\n').trim();
+                                return out.map((k, v) => MapEntry(k, v.join('\n').trim()));
     }
+
+    String _parseAiName(String r)        => _parseAiBlocks(r)['name'] ?? "";
+
+    String _parseAiDescription(String r) => _parseAiBlocks(r)['desc'] ?? "";
 
 }
 

@@ -15,7 +15,17 @@ conf:
         player_name: player_name_screen
         age: age_screen
         link: link_account_screen
-        join: kid_wants_clan
+        # Reprise à froid d'un mineur anonyme déjà passé par les CGU mais pas encore admis
+        # (worker_session.on_login → steps.navigate.join, gardé par legalstate == "k").
+        # Passe par l'écran d'avis et NON directement par kid_wants_clan : l'assentiment
+        # n'est persisté nulle part — le persister reviendrait à enregistrer la réponse d'un
+        # enfant qui n'a pas encore consenti, et un « non » n'a par principe rien à écrire.
+        # La question est donc reposée à chaque reprise tant qu'il n'est pas admis. Un tap de
+        # plus dans un état rare, contre un invariant qui se défend sans condition : le funnel
+        # de jointure ne s'ouvre JAMAIS sans que l'enfant ait été interrogé.
+        # L'homonyme `join` de new_or_pick_clan est une AUTRE table de routes (adulte qui
+        # renonce à créer son clan, worker_clan.on_create_clan_goto_join) et n'est pas concerné.
+        join: kid_assent_screen
         clan: new_or_pick_clan
         dashboard: dashboard
 
@@ -57,11 +67,32 @@ conf:
       routeur: worker.legalstate
       navigate: reset
       routes:
-        k: kid_wants_clan
+        k: kid_assent_screen
         a: link_account_screen
         a_linked: player_name_screen
         dashboard: dashboard
         player_name: player_name_screen
+
+    # AVIS DU MINEUR — condition n° 3 de l'article 2.2.2.25.2.9 du Decreto 1074 de 2015
+    # (qui compile l'art. 12 du Decreto 1377 de 2013) : l'autorisation du représentant légal
+    # n'est valable qu'« previo ejercicio del menor de su derecho a ser escuchado ». Les deux
+    # autres conditions sont remplies par la CGU de l'écran précédent ; celle-ci ne l'était pas.
+    #
+    # PLACEMENT NON NÉGOCIABLE — entre la route "k" des documents et kid_wants_clan. À ce
+    # stade la session est encore ANONYME : rien n'a été écrit en base, et un enfant qui ne
+    # valide pas ne laisse aucune trace. C'est ce qui rend l'engagement publié dans les
+    # documents français (« l'avis du mineur est recueilli avant toute collecte ») littéralement
+    # vrai — aucun traitement ne commence avant que l'enfant ait répondu. Déplacer ce pas d'un
+    # cran vers l'aval le rendrait faux.
+    #
+    # Deux sorties et pas de `default` : « oui » avance, la flèche renvoie aux documents. Un
+    # enfant qui ne veut pas ne valide simplement pas — il n'y a rien à décliner, donc aucune
+    # trace d'un refus, et il peut revenir quand il veut.
+    kid_assent_screen:
+      navigate: reset
+      routes:
+        go: kid_wants_clan
+        back: documents_acceptance_screen
 
     # Écran bloquant : aucune route de sortie « plus tard ». La navigation qui en part est
     # décidée par worker.on_account_linked, qui rejoue on_login une fois le flush réussi.

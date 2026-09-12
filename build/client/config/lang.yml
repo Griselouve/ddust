@@ -8,194 +8,13 @@ conf:
   # libellés doivent survivre à un changement de thème. Fusionnées dans lang.translations.
   lang:
     translations:
-      # Prompts « inspire » (VertexAI) rédigés nativement par langue. Résolus par
-      # dvprompts.get_prompt via @@@T:...@@@ (repli fr pour toute langue non traduite).
-      # NE PAS traduire les marqueurs NOM: / DESCRIPTION: (le worker les parse).
-      prompt_inspire_clan:
-        fr: |
-          Tu es un assistant créatif pour le jeu Donjons & Savons, où les clans sont des familles qui combattent courageusement des monstres (les tâches ménagères).
-          Invente un nom épique et une description engageante pour un clan, en te basant sur ce nom et cette description : '@@@worker.inspire_input@@@'.
-          Réponds UNIQUEMENT dans ce format exact, en conservant les marqueurs NOM: et DESCRIPTION: tels quels (ne les traduis pas) :
-          NOM: <nom du clan, 2 à 4 mots>
-          DESCRIPTION: <description épique en 2 à 3 phrases>
-          Le contenu (nom et description) doit être rédigé en @@@worker.inspire_lang@@@.
-        en: |
-          You are a creative assistant for the game Dungeons & Soaps, where clans are families who bravely battle monsters (household chores).
-          Invent an epic name and an engaging description for a clan, based on this name and description: '@@@worker.inspire_input@@@'.
-          Reply ONLY in this exact format, keeping the markers NOM: and DESCRIPTION: unchanged (do not translate them):
-          NOM: <clan name, 2 to 4 words>
-          DESCRIPTION: <epic description, 2 to 3 sentences>
-          The content (name and description) must be written in @@@worker.inspire_lang@@@.
-        es: |
-          Eres un asistente creativo para el juego Mazmorras y Jabones, donde los clanes son familias que combaten con valentía a monstruos (las tareas del hogar).
-          Inventa un nombre épico y una descripción atractiva para un clan, basándote en este nombre y descripción: '@@@worker.inspire_input@@@'.
-          Responde ÚNICAMENTE con este formato exacto, conservando los marcadores NOM: y DESCRIPTION: tal cual (no los traduzcas):
-          NOM: <nombre del clan, de 2 a 4 palabras>
-          DESCRIPTION: <descripción épica, de 2 a 3 frases>
-          El contenido (nombre y descripción) debe estar redactado en @@@worker.inspire_lang@@@.
-      prompt_inspire_task:
-        fr: |
-          Tu es un assistant créatif pour le jeu Donjons & Savons. Les tâches ménagères y sont des monstres-quêtes que les membres du clan affrontent héroïquement : chaque tâche a un nom épique (le monstre) et une description de quête qui met en scène la corvée de façon amusante.
-          Invente un nom épique de monstre-corvée et une description de quête engageante, en te basant sur ce nom et cette description : '@@@worker.inspire_input@@@'.
-          Réponds UNIQUEMENT dans ce format exact, en conservant les marqueurs NOM: et DESCRIPTION: tels quels (ne les traduis pas) :
-          NOM: <nom de la tâche, 2 à 4 mots>
-          DESCRIPTION: <description de quête en 2 à 3 phrases>
-          Le contenu (nom et description) doit être rédigé en @@@worker.inspire_lang@@@.
-        en: |
-          You are a creative assistant for the game Dungeons & Soaps. Household chores are quest-monsters that clan members heroically face: each task has an epic name (the monster) and a quest description that stages the chore in a fun, heroic way.
-          Invent an epic chore-monster name and an engaging quest description, based on this name and description: '@@@worker.inspire_input@@@'.
-          Reply ONLY in this exact format, keeping the markers NOM: and DESCRIPTION: unchanged (do not translate them):
-          NOM: <task name, 2 to 4 words>
-          DESCRIPTION: <quest description, 2 to 3 sentences>
-          The content (name and description) must be written in @@@worker.inspire_lang@@@.
-        es: |
-          Eres un asistente creativo para el juego Mazmorras y Jabones. Las tareas del hogar son monstruos-misión a los que los miembros del clan se enfrentan heroicamente: cada tarea tiene un nombre épico (el monstruo) y una descripción de misión que presenta la faena de forma divertida y heroica.
-          Inventa un nombre épico de monstruo-faena y una descripción de misión atractiva, basándote en este nombre y descripción: '@@@worker.inspire_input@@@'.
-          Responde ÚNICAMENTE con este formato exacto, conservando los marcadores NOM: y DESCRIPTION: tal cual (no los traduzcas):
-          NOM: <nombre de la tarea, de 2 a 4 palabras>
-          DESCRIPTION: <descripción de misión, de 2 a 3 frases>
-          El contenido (nombre y descripción) debe estar redactado en @@@worker.inspire_lang@@@.
-      # Conte du butin (worker._narrateClanStory), déclenché depuis butin_tale_page. Contrairement
-      # aux prompts « inspire » ci-dessus (sortie contrainte NOM:/DESCRIPTION:), celui-ci produit un
-      # texte libre — d'où les consignes de STYLE détaillées : sans elles, un modèle générique verse
-      # vite dans le lyrisme creux (« Dans un monde où… ») que ce récit doit justement éviter pour
-      # sonner comme une vraie chronique de famille, pas comme une réponse d'IA.
-      # Le LECTEUR VISÉ est explicitement redéfini dans ce prompt : ce ne sont PAS les membres du
-      # clan (qui ont déjà vécu la scène), ce sont D'AUTRES FAMILLES qui ne jouent pas encore — le
-      # texte doit leur montrer des enfants qui jouent ensemble, pour leur donner envie de commencer.
-      # Le texte doit rester COURT (format partage WhatsApp, pas un article) : une phrase d'accroche
-      # puis 3-4 phrases sur UN SEUL moment. Un premier jet, nourri d'agrégats détaillés (XP par
-      # joueur), avait produit un INVENTAIRE reformulé du journal (« a nettoyé le couloir (432 XP)… »)
-      # au lieu d'un récit — d'où les interdits explicites ci-dessous ET l'appauvrissement volontaire
-      # des agrégats transmis (cf. worker._narrateClanStory : un seul total d'XP, jamais un par
-      # joueur). L'argent de poche n'est PAS mentionné par l'IA : une phrase de clôture FIXE
-      # (share_tale_outro, cf. worker.on_log_appear) en parle après coup, hors du texte généré.
-      # @@@worker.narrate_clan@@@ = nom INTERNE du clan (celui choisi par la famille, jamais le nom
-      # externe généré) + sa description. @@@worker.narrate_input@@@ = le journal du clan, DÉJÀ
-      # résolu et localisé. @@@worker.narrate_totals@@@ = agrégats PAUVRES calculés EN DART (prénoms,
-      # XP totale du clan — jamais un détail par joueur, jamais laissés au modèle qui ferait mal les
-      # sommes).
-      prompt_narrate_clan:
-        fr: |
-          Tu es le chroniqueur d'une guilde, dans le jeu Donjons & Savons où les tâches ménagères d'une famille sont vécues comme des quêtes de clan.
-
-          Ce texte n'est PAS destiné à la famille qui l'a vécu : il sera lu par D'AUTRES familles, qui ne jouent pas encore à Donjons & Savons. Ton but est de leur donner envie de s'y mettre, en leur montrant des enfants qui jouent ensemble.
-
-          Voici le nom du clan et sa description :
-          ---
-          @@@worker.narrate_clan@@@
-          ---
-          Voici son journal (chronologique, du plus récent au plus ancien) :
-          ---
-          @@@worker.narrate_input@@@
-          ---
-          Quelques chiffres, à citer au plus UNE fois dans tout le texte (n'en invente ni n'en arrondis d'autres) :
-          ---
-          @@@worker.narrate_totals@@@
-          ---
-
-          Ce texte est un message COURT, fait pour être partagé sur WhatsApp — pas un article. Écris D'ABORD une phrase d'accroche enthousiaste sur la forme du clan, PUIS 3 à 4 phrases maximum qui racontent UN SEUL moment marquant de ce journal — le reste sert de toile de fond, tu n'as pas à tout mentionner. Au total : 5 phrases maximum, 60 à 90 mots.
-
-          INTERDITS stricts :
-          - Tu ne connais le genre d'AUCUN enfant : son prénom seul ne te le dit pas. N'utilise donc JAMAIS « il » ou « elle » pour désigner un enfant, ni aucun adjectif ou participe accordé en genre à son sujet (proscris « petit »/« petite », « motivé »/« motivée »… accolés à un prénom) — répète son prénom à la place, ou formule la phrase sans accord de genre.
-          - N'énumère JAMAIS les tâches une par une ; ce texte n'est pas un inventaire du journal.
-          - N'accole JAMAIS un nombre d'XP à une action précise (proscris toute forme « a fait X (N XP) »).
-          - Pas de phrase-bilan qui résume des totaux en fin de texte (« le coffre a été ouvert N fois, rapportant… »).
-          - Pas plus d'UN chiffre dans tout le texte.
-          - Pas d'ouverture toute faite du type « Dans un monde où… », « Il était une fois… », « À l'heure où… ».
-          - Aucune phrase méta sur toi-même ou sur le texte (« Voici le récit… », « Cette histoire montre que… »).
-          - Pas de superlatifs vides (« incroyable », « exceptionnel », « légendaire ») sans un fait concret derrière.
-          - Pas de tirade moralisatrice ni de conclusion qui fait la leçon.
-          - Pas d'émojis en rafale (un ou deux maximum, ou aucun).
-          - Ne parle JAMAIS de la création, de la fondation ni des débuts du clan : on raconte ce qu'une famille vit, pas son acte de naissance.
-          - N'emploie JAMAIS les mots « pièces », « or », « monnaie », « argent » ou « argent de poche », et ne mentionne JAMAIS le coffre ni une récompense : ce sujet est traité ailleurs, pas dans ce texte.
-
-          À FAIRE :
-          - Ne raconte QUE des faits présents dans le journal ci-dessus ; n'invente aucun événement.
-          - Phrases courtes, ton chaleureux et un peu drôle, comme un parent qui raconte sa semaine — pas une chronique de guilde ni une fantasy pompeuse.
-          - Nomme les enfants par leur prénom.
-          - Termine sur ce que le clan a concrètement vécu, jamais sur un appel à l'action ni un slogan publicitaire.
-          - Rédige entièrement en @@@worker.inspire_lang@@@.
-        en: |
-          You are the chronicler of a guild, in the game Dungeons & Soaps where a family's household chores play out as clan quests.
-
-          This text is NOT for the family that lived it: it will be read by OTHER families, who don't play Dungeons & Soaps yet. Your goal is to make them want to start, by showing children playing together.
-
-          Here is the clan's name and description:
-          ---
-          @@@worker.narrate_clan@@@
-          ---
-          Here is its log (chronological, most recent first):
-          ---
-          @@@worker.narrate_input@@@
-          ---
-          A few figures, to be cited AT MOST once in the whole text (invent or round no others):
-          ---
-          @@@worker.narrate_totals@@@
-          ---
-
-          This text is a SHORT message, made to be shared on WhatsApp — not an article. Write FIRST one enthusiastic hook sentence about how well the clan is doing, THEN 3 to 4 sentences at most telling ONE single memorable moment from this log — the rest is backdrop, you don't have to mention everything. Total: 5 sentences max, 60-90 words.
-
-          Strict BANS:
-          - You do NOT know any child's gender: a first name alone doesn't tell you. NEVER use "he" or "she" for a child, and never use a gendered word to describe them — repeat their first name instead, or phrase the sentence so it needs no gender.
-          - NEVER list tasks one by one; this is not an inventory of the log.
-          - NEVER attach an XP number to a specific action (ban any form of "did X (N XP)").
-          - No summary sentence tallying totals at the end ("the chest was opened N times, yielding…").
-          - No more than ONE number in the whole text.
-          - No stock opening like "In a world where…", "Once upon a time…", "At a time when…".
-          - No meta-commentary about yourself or the text ("Here is the tale…", "This story shows that…").
-          - No empty superlatives ("incredible", "exceptional", "legendary") without a concrete fact behind them.
-          - No moralizing tirade or lesson-teaching conclusion.
-          - No emoji spam (one or two at most, or none).
-          - NEVER mention the clan's creation, founding or early days: we tell what a family lives, not its birth certificate.
-          - NEVER use the words "coins", "gold", "currency", "money" or "pocket money", and never mention the chest or any reward: that topic is handled elsewhere, not in this text.
-
-          TO DO:
-          - Tell ONLY facts present in the log above; invent no event.
-          - Short sentences, warm and lightly funny tone, like a parent telling their week — not a guild chronicle nor pompous fantasy.
-          - Name the children by their first name.
-          - End on what the clan actually experienced, never on a call to action or an ad slogan.
-          - Write entirely in @@@worker.inspire_lang@@@.
-        es: |
-          Eres el cronista de un gremio, en el juego Mazmorras y Jabones donde las tareas domésticas de una familia se viven como misiones de clan.
-
-          Este texto NO es para la familia que lo vivió: lo leerán OTRAS familias, que todavía no juegan a Mazmorras y Jabones. Tu objetivo es darles ganas de empezar, mostrando niños que juegan juntos.
-
-          Aquí están el nombre del clan y su descripción:
-          ---
-          @@@worker.narrate_clan@@@
-          ---
-          Aquí está su registro (cronológico, del más reciente al más antiguo):
-          ---
-          @@@worker.narrate_input@@@
-          ---
-          Algunas cifras, a citar como MÁXIMO una vez en todo el texto (no inventes ni redondees otras):
-          ---
-          @@@worker.narrate_totals@@@
-          ---
-
-          Este texto es un mensaje CORTO, hecho para compartirse por WhatsApp — no un artículo. Escribe PRIMERO una frase de apertura entusiasta sobre cómo le va al clan, LUEGO 3 a 4 frases como máximo que cuenten UN ÚNICO momento memorable de este registro — el resto es telón de fondo, no tienes que mencionarlo todo. En total: 5 frases máximo, 60 a 90 palabras.
-
-          PROHIBICIONES estrictas:
-          - No conoces el género de NINGÚN niño: su nombre solo no te lo dice. NUNCA uses «él» o «ella» para referirte a un niño, ni ningún adjetivo o participio con concordancia de género sobre él — repite su nombre en su lugar, o formula la frase sin necesidad de concordancia de género.
-          - NUNCA enumeres las tareas una por una; esto no es un inventario del registro.
-          - NUNCA añadas un número de XP a una acción concreta (prohibida toda forma «hizo X (N XP)»).
-          - Sin frase-balance que resuma totales al final («el cofre se abrió N veces, aportando…»).
-          - No más de UNA cifra en todo el texto.
-          - Sin aperturas trilladas como «En un mundo donde…», «Érase una vez…», «En una época en que…».
-          - Sin comentarios meta sobre ti mismo o el texto («Aquí está el relato…», «Esta historia muestra que…»).
-          - Sin superlativos vacíos («increíble», «excepcional», «legendario») sin un hecho concreto detrás.
-          - Sin discurso moralizante ni conclusión aleccionadora.
-          - Sin avalancha de emojis (uno o dos como máximo, o ninguno).
-          - NUNCA hables de la creación, la fundación ni los inicios del clan: se cuenta lo que vive una familia, no su acta de nacimiento.
-          - NUNCA uses las palabras «monedas», «oro», «dinero del juego» ni «dinero de bolsillo», y nunca menciones el cofre ni ninguna recompensa: ese tema se trata en otro lugar, no en este texto.
-
-          QUÉ HACER:
-          - Cuenta SOLO hechos presentes en el registro anterior; no inventes ningún evento.
-          - Frases cortas, tono cálido y algo divertido, como un padre contando su semana — no una crónica de gremio ni fantasía pomposa.
-          - Nombra a los niños por su nombre de pila.
-          - Termina con lo que el clan realmente vivió, nunca con una llamada a la acción ni un eslogan publicitario.
-          - Redacta todo en @@@worker.inspire_lang@@@.
+      # ⚠ LES TROIS CORPS DE PROMPT ONT DÉMÉNAGÉ dans le layer cloud
+      #   `resources_cloud/donjon/layers/theme-donjon-global.yml`. Ici ils étaient
+      #   COMPILÉS : ajuster une contrainte de ton après un incident en production
+      #   aurait demandé un build ET une release au store. Dans le layer, le garde-fou
+      #   se corrige en poussant un fichier — c'est ce qui lui donne sa valeur.
+      #   Ne PAS les redéclarer ici : la conf compilée est SOUS le layer (`above: conf`),
+      #   une copie oubliée ne se verrait pas et servirait de repli silencieux.
       clan_menu_tutorials:
         fr: "Tutoriels"
         en: "Tutorials"
@@ -363,6 +182,17 @@ conf:
         fr: "Le déclarer majeur."
         en: "Declare them an adult."
         es: "Declararlo mayor de edad."
+      # Hors concours. Les libellés des deux options vivent dans le layer de thème, comme tous
+      # les roster_menu_* ; seules les descriptions sont ici — elles ne s'affichent pas dans le
+      # menu, elles alimentent le panneau du tutoriel (leçon roster_options).
+      roster_menu_hors_concours_on_desc:
+        fr: "Il continue de jouer et de faire gagner le clan, mais ne concourt plus : ni part du butin, ni comparaison avec les enfants."
+        en: "They keep playing and keep earning for the clan, but no longer compete: no share of the loot, and no comparison with the children."
+        es: "Sigue jugando y haciendo ganar al clan, pero ya no compite: ni parte del botín, ni comparación con los niños."
+      roster_menu_hors_concours_off_desc:
+        fr: "Il concourt de nouveau : sa part du butin, son niveau et sa progression redeviennent visibles du clan."
+        en: "They compete again: their share of the loot, their level and their progress become visible to the clan once more."
+        es: "Vuelve a competir: su parte del botín, su nivel y su progreso vuelven a ser visibles para el clan."
       roster_menu_pay_tribute_desc:
         fr: "Lui remettre en vrai l'argent de sa bourse."
         en: "Hand over the money in their purse for real."
@@ -371,6 +201,16 @@ conf:
         fr: "Le retirer du clan."
         en: "Remove them from the clan."
         es: "Expulsarlo del clan."
+      # ⚠ La nuance avec la ligne ci-dessus est TOUT le sujet : « A quitté le clan » retire du
+      # clan et ne supprime rien ; ceci cesse de traiter les données. Les deux restent offerts.
+      roster_menu_withdraw_consent_desc:
+        fr: "Cesser de traiter ses données. Il quitte le jeu ; un chef peut revenir sur cette décision pendant 3 jours."
+        en: "Stop processing their data. They leave the game; a chief can reverse this for 3 days."
+        es: "Dejar de tratar sus datos. Sale del juego; un jefe puede revocarlo durante 3 días."
+      roster_menu_restore_consent_desc:
+        fr: "Annuler le retrait : il retrouve sa place et son personnage, intacts."
+        en: "Cancel the withdrawal: they get back their place and their character, untouched."
+        es: "Cancelar la retirada: recupera su lugar y su personaje, intactos."
       tuto_clan_menu_title:
         fr: "Les options du clan"
         en: "Clan options"
@@ -617,6 +457,32 @@ conf:
         fr: "Ton clan a besoin de héros ! Ouvre ce menu, puis « QR Code du clan » : ta famille installe le jeu sur son téléphone et scanne le code pour te rejoindre."
         en: "Your clan needs heroes! Open this menu, then « Clan QR Code »: your family installs the game on their phone and scans the code to join you."
         es: "¡Tu clan necesita héroes! Abre este menú y luego « Código QR del clan »: tu familia instala el juego en su teléfono y escanea el código para unirse."
+      # --- Relances de PRUDENCE (dvtuto.yml → safety_child / safety_adult) ---
+      # Le jeu ne classe aucune tâche par danger : il ne peut pas savoir ce qui convient à CET
+      # enfant-là. Ces rappels portent ce que l'application ne peut pas garantir elle-même, et
+      # reprennent délibérément le vocabulaire des CGU — l'article 6 de la CGU adulte pour le
+      # parent, le § 3 « La prudence avant tout » de la CGU enfant pour l'enfant — afin que
+      # l'app et les documents disent exactement la même chose.
+      reminder_header_safety:
+        fr: "PRUDENCE"
+        en: "SAFETY"
+        es: "PRUDENCIA"
+      # Écran Combat, joueur mineur. Écho du § 3 de la CGU enfant.
+      reminder_safety_child:
+        fr: "Les monstres sont imaginaires, mais les tâches sont réelles. Préviens toujours tes parents avant de commencer une tâche, et demande de l'aide tout de suite si quelque chose ne va pas. Aucun point d'expérience ne vaut une blessure."
+        en: "The monsters are imaginary, but the chores are real. Always tell your parents before you start a chore, and ask for help straight away if anything goes wrong. No amount of XP is worth getting hurt."
+        es: "Los monstruos son imaginarios, ¡pero las tareas son reales! Avisa siempre a tus padres antes de empezar una tarea y pide ayuda enseguida si algo va mal. Ningún punto de experiencia vale una herida."
+      # Dashboard, joueur adulte (chef ou non). Message plein écran : il ne désigne rien dans
+      # l'app, justement parce que la supervision ne s'y joue pas.
+      reminder_safety_adult:
+        fr: "Les tâches du jeu se réalisent dans le monde réel. Restez à portée de votre enfant pendant qu'il les accomplit : l'application ne surveille rien et ne peut pas savoir si une tâche lui convient à ce moment-là."
+        en: "The game's chores are carried out in the real world. Stay within reach of your child while they do them: the app supervises nothing, and cannot know whether a chore suits your child at that moment."
+        es: "Las tareas del juego se realizan en el mundo real. Permanezca cerca de su hijo mientras las hace: la aplicación no vigila nada y no puede saber si una tarea le conviene en ese momento."
+      # Dashboard, adulte CHEF uniquement (le seul à pouvoir curer). Flèche sur l'onglet Combat.
+      reminder_safety_curate:
+        fr: "C'est vous qui décidez des tâches proposées à votre clan. Désactivez à tout moment, depuis le mode administration de la liste des tâches, celles qui ne conviennent pas à votre enfant."
+        en: "You decide which chores your clan is offered. From the administration mode of the task list, you can disable at any time those that do not suit your child."
+        es: "Usted decide qué tareas se ofrecen a su clan. Desde el modo de administración de la lista de tareas, puede desactivar en cualquier momento las que no convengan a su hijo."
       # --- Impersonation (prendre la place d'un joueur) ---
       impersonating_as:
         fr: "Vous incarnez"
@@ -626,6 +492,59 @@ conf:
         fr: "touchez pour revenir"
         en: "tap to return"
         es: "toca para volver"
+      # --- Code temporaire de l'emprunt ---
+      # Le code est choisi AU MOMENT du prêt et meurt avec lui : le texte le dit, pour qu'aucun
+      # adulte ne réutilise le code de son téléphone ou une date de naissance. On ne promet
+      # jamais « sécurisé » — c'est un cran contre le retour opportuniste, pas une serrure.
+      imp_pin_set_title:
+        fr: "Un code pour revenir"
+        en: "A code to come back"
+        es: "Un código para volver"
+      imp_pin_set_intro:
+        fr: "Choisissez un code à 4 chiffres. Il vous sera demandé pour reprendre votre compte, et il sera oublié dès que vous l'aurez repris. Inutile d'en choisir un que vous utilisez ailleurs."
+        en: "Choose a 4-digit code. You will be asked for it to take your account back, and it is forgotten as soon as you do. No need to pick one you use elsewhere."
+        es: "Elige un código de 4 cifras. Se te pedirá para recuperar tu cuenta, y se olvidará en cuanto lo hagas. No hace falta elegir uno que uses en otro sitio."
+      imp_pin_set_cancel:
+        fr: "Annuler"
+        en: "Cancel"
+        es: "Cancelar"
+      imp_pin_ask_title:
+        fr: "Reprendre mon compte"
+        en: "Take my account back"
+        es: "Recuperar mi cuenta"
+      imp_pin_ask_intro:
+        fr: "Saisissez le code choisi en prêtant votre compte."
+        en: "Enter the code you chose when you lent your account."
+        es: "Introduce el código que elegiste al prestar tu cuenta."
+      # {n} = essais restants. Formulé comme un décompte et non comme une menace : c'est un
+      # enfant qui le lit le plus souvent.
+      imp_pin_ask_left:
+        fr: "Ce n'est pas le bon code. Plus que {n} essai(s)."
+        en: "That is not the right code. {n} attempt(s) left."
+        es: "Ese no es el código correcto. Quedan {n} intento(s)."
+      imp_pin_ask_blocked:
+        fr: "Code bloqué. Déverrouillez avec votre appareil pour reprendre votre compte."
+        en: "Code blocked. Unlock with your device to take your account back."
+        es: "Código bloqueado. Desbloquea con tu dispositivo para recuperar tu cuenta."
+      imp_pin_ask_unlock:
+        fr: "Déverrouiller avec l'appareil"
+        en: "Unlock with device"
+        es: "Desbloquear con el dispositivo"
+      # {n} = minutes restantes. Cet écran n'apparaît que sur un appareil SANS verrou : il n'y a
+      # aucune sortie à proposer, l'application rend la main d'elle-même à l'échéance.
+      imp_pin_ask_locked:
+        fr: "Code bloqué. Votre compte vous sera rendu dans {n} minute(s)."
+        en: "Code blocked. Your account will be returned to you in {n} minute(s)."
+        es: "Código bloqueado. Tu cuenta te será devuelta en {n} minuto(s)."
+      imp_pin_ask_cancel:
+        fr: "Continuer à jouer"
+        en: "Keep playing"
+        es: "Seguir jugando"
+      # Phrase affichée par le dialogue SYSTÈME du verrou de l'appareil (dvdevicelock).
+      imp_pin_unlock_reason:
+        fr: "Confirmez que vous êtes le propriétaire de cet appareil pour reprendre votre compte."
+        en: "Confirm you are the owner of this device to take your account back."
+        es: "Confirma que eres el propietario de este dispositivo para recuperar tu cuenta."
       tuto_impersonation_title:
         fr: "Retour au compte"
         en: "Back to account"
@@ -1144,3 +1063,301 @@ conf:
         fr: "La cotisation ne court plus"
         en: "The dues no longer run"
         es: "La cuota ya no corre"
+
+      # --- LES DEUX GUIDES (leçons dvtuto `guide_parent` / `guide_enfant`) -----------
+      # Ce ne sont pas des textes d'interface : ce sont les seuls endroits de l'app où
+      # l'INTENTION est dite. Trois règles de rédaction, à tenir dans les trois langues :
+      #   - aucune injonction à l'enfant ; on lui dit ses droits, pas ses devoirs ;
+      #   - aucun chiffre qui ne soit vérifiable dans le code (10 PV, 1 PV/jour, demi-XP) ;
+      #   - le vouvoiement pour le parent, le tutoiement pour l'enfant.
+      tuto_guide_parent_title:
+        fr: "Guide du parent"
+        en: "Parent's guide"
+        es: "Guía para padres"
+      tuto_guide_enfant_title:
+        fr: "Guide de l'aventurier"
+        en: "Adventurer's guide"
+        es: "Guía del aventurero"
+      perso_menu_guide_parent_desc:
+        fr: "Ce que l'application attend de vous : l'effort, l'alerte, le butin, votre place dans le jeu."
+        en: "What the app expects from you: effort, the alert, the loot, and your own place in the game."
+        es: "Lo que la aplicación espera de ti: el esfuerzo, la alerta, el botín y tu lugar en el juego."
+      perso_menu_guide_enfant_desc:
+        fr: "Tes droits dans le jeu : recommencer, refuser un gage, garder ta photo."
+        en: "Your rights in the game: start over, refuse a forfeit, keep your photo."
+        es: "Tus derechos en el juego: volver a empezar, rechazar una prenda, guardar tu foto."
+
+      # --- Parent, écran 1 : l'effort. Il OUVRE le guide, avant l'écran sur la mort —
+      #     commencer par « votre enfant est mort » installerait le contresens qu'on défait.
+      guide_p1_title:
+        fr: "L'effort avant le résultat"
+        en: "Effort before result"
+        es: "El esfuerzo antes que el resultado"
+      guide_p1_situation:
+        fr: "Le lit est fait… à moitié. Votre enfant vous montre fièrement sa photo, et attend votre verdict."
+        en: "The bed is made… halfway. Your child proudly shows you the photo, and waits for your verdict."
+        es: "La cama está hecha… a medias. Tu hijo te enseña la foto con orgullo y espera tu veredicto."
+      guide_p1_a:
+        fr: "Trois verdicts, aucune punition"
+        en: "Three verdicts, no punishment"
+        es: "Tres veredictos, ningún castigo"
+      guide_p1_a_desc:
+        fr: "Accepté, partiel — la moitié des points —, ou refusé : la tâche revient simplement à l'enfant. Rien ne lui est jamais retiré."
+        en: "Accepted, partial — half the points —, or refused: the task simply comes back to the child. Nothing is ever taken away."
+        es: "Aceptada, parcial —la mitad de los puntos— o rechazada: la tarea vuelve al niño. Nunca se le quita nada."
+      guide_p1_b:
+        fr: "Aucun compteur d'échecs"
+        en: "No failure tally"
+        es: "Ningún recuento de fracasos"
+      guide_p1_b_desc:
+        fr: "Le journal ne garde pas trace d'un refus, et le jeu n'a ni classement ni note. N'en tenez pas non plus à la maison."
+        en: "The log keeps no trace of a refusal, and the game has no ranking and no grades. Don't keep any at home either."
+        es: "El diario no guarda rastro de un rechazo, y el juego no tiene ni clasificación ni notas. Tampoco las lleves en casa."
+      guide_p1_c:
+        fr: "Dites d'abord ce qui est réussi"
+        en: "Say what went right first"
+        es: "Di primero lo que salió bien"
+      guide_p1_c_desc:
+        fr: "Un mot pèse plus lourd qu'un verdict. C'est le geste qui compte, pas la perfection du résultat."
+        en: "A word weighs more than a verdict. What counts is the effort, not a perfect result."
+        es: "Una palabra pesa más que un veredicto. Lo que cuenta es el gesto, no un resultado perfecto."
+
+      # --- Parent, écran 2 : la mort. LE point du dossier « intérêt de l'enfant » § 5.2 —
+      #     un dispositif d'alerte que le destinataire ne sait pas lire n'alerte personne.
+      #     Chiffres : `pv` init 10, `decay` 1 jour/PV → 0 PV au dixième jour d'inactivité.
+      guide_p2_title:
+        fr: "Un crâne ? C'est une alerte"
+        en: "A skull? That's an alert"
+        es: "¿Una calavera? Es una alerta"
+      guide_p2_situation:
+        fr: "Le personnage de votre enfant est mort, et un gage l'attend. Ce n'est pas le jeu qui le punit : c'est l'application qui vous rend la main."
+        en: "Your child's character has died, and a forfeit awaits. The game is not punishing them: the app is handing things back to you."
+        es: "El personaje de tu hijo ha muerto y le espera una prenda. No es el juego que lo castiga: es la aplicación que te devuelve la mano."
+      guide_p2_a:
+        fr: "Dix jours sans rien terminer"
+        en: "Ten days without finishing anything"
+        es: "Diez días sin terminar nada"
+      guide_p2_a_desc:
+        fr: "Un point de vie par jour d'inactivité, dix au départ. Le crâne vous dit d'aller voir pourquoi : de l'ennui, des tâches trop dures, ou tout autre chose."
+        en: "One life point per idle day, ten to begin with. The skull is telling you to go and find out why: boredom, tasks that are too hard, or something else entirely."
+        es: "Un punto de vida por día sin actividad, diez al principio. La calavera te dice que vayas a ver por qué: aburrimiento, tareas demasiado difíciles u otra cosa."
+      guide_p2_b:
+        fr: "Une seule tâche répare tout"
+        en: "A single task repairs everything"
+        es: "Una sola tarea lo repara todo"
+      guide_p2_b_desc:
+        fr: "Terminer une tâche rend l'intégralité des points de vie. Rien ne s'accumule, rien ne se rattrape : une punition ne s'effacerait pas si vite."
+        en: "Finishing one task restores every life point. Nothing piles up, nothing has to be made up for: a punishment would not clear that easily."
+        es: "Terminar una tarea devuelve todos los puntos de vida. Nada se acumula, nada hay que recuperar: un castigo no se borraría tan rápido."
+      guide_p2_c:
+        fr: "Le gage est un jeu de famille"
+        en: "The forfeit is a family game"
+        es: "La prenda es un juego de familia"
+      guide_p2_c_desc:
+        fr: "Rien ne vérifie qu'il a été fait. Il se joue devant le clan, jamais seul, et votre enfant a le droit de le refuser."
+        en: "Nothing checks that it was carried out. It is played in front of the clan, never alone, and your child is free to refuse it."
+        es: "Nada comprueba que se haya cumplido. Se juega ante el clan, nunca a solas, y tu hijo tiene derecho a negarse."
+
+      # --- Parent, écran 3 : le butin. Le seul endroit où l'on dit quoi mettre dedans.
+      guide_p3_title:
+        fr: "Que mettre dans le butin ?"
+        en: "What goes into the loot?"
+        es: "¿Qué poner en el botín?"
+      guide_p3_situation:
+        fr: "Le coffre du clan est plein et va s'ouvrir. Toute la famille se demande ce qu'il y a dedans."
+        en: "The clan chest is full and about to open. The whole family is wondering what is inside."
+        es: "El cofre del clan está lleno y va a abrirse. Toda la familia se pregunta qué hay dentro."
+      guide_p3_a:
+        fr: "Du temps plutôt que des objets"
+        en: "Time rather than things"
+        es: "Tiempo más que objetos"
+      guide_p3_a_desc:
+        fr: "Une sortie, un repas choisi, une soirée jeux. Un peu d'argent de poche si c'est déjà votre habitude."
+        en: "An outing, a meal of their choosing, a games night. A little pocket money if that is already your habit."
+        es: "Una salida, una comida elegida, una noche de juegos. Algo de paga si ya es vuestra costumbre."
+      guide_p3_b:
+        fr: "Ni gâter, ni marchander"
+        en: "Neither spoiling nor bargaining"
+        es: "Ni malcriar ni negociar"
+      guide_p3_b_desc:
+        fr: "Le butin n'est pas un salaire. Et « pas de butin tant que… » retourne le jeu contre lui-même."
+        en: "The loot is not a wage. And « no loot until… » turns the game against itself."
+        es: "El botín no es un sueldo. Y «no hay botín hasta que…» vuelve el juego contra sí mismo."
+      guide_p3_c:
+        fr: "Chacun reçoit sa part"
+        en: "Everyone gets a share"
+        es: "Cada uno recibe su parte"
+      guide_p3_c_desc:
+        fr: "Y compris celui qui a peu joué. Une surprise ne doit pas se transformer en bulletin de notes."
+        en: "Including the one who hardly played. A surprise must not turn into a report card."
+        es: "Incluido quien apenas jugó. Una sorpresa no debe convertirse en un boletín de notas."
+
+      # --- Parent, écran 4 : votre propre place. Hors concours, coup de pouce, photo.
+      guide_p4_title:
+        fr: "Jouer sans les écraser"
+        en: "Play without crushing them"
+        es: "Jugar sin aplastarlos"
+      guide_p4_situation:
+        fr: "Vous prenez goût au jeu, et vous abattez trois fois plus de tâches que les enfants."
+        en: "You are getting a taste for the game, and you are clearing three times as many tasks as the children."
+        es: "Le has cogido el gusto al juego y despachas tres veces más tareas que los niños."
+      guide_p4_a:
+        fr: "Passez hors concours"
+        en: "Play out of contest"
+        es: "Ponte fuera de concurso"
+      guide_p4_a_desc:
+        fr: "Vous continuez à faire progresser le clan, mais vous sortez des comparaisons et des récompenses. La jauge des enfants se mesure au meilleur du cycle : ce serait vous."
+        en: "You keep the clan moving forward, but you step out of comparisons and rewards. The children's gauge is measured against the best of the cycle — that would be you."
+        es: "Sigues haciendo avanzar al clan, pero sales de las comparaciones y las recompensas. El medidor de los niños se mide con el mejor del ciclo: serías tú."
+      guide_p4_b:
+        fr: "Recommandez plutôt que comparer"
+        en: "Recommend rather than compare"
+        es: "Recomienda en vez de comparar"
+      guide_p4_b_desc:
+        fr: "Un enfant à la traîne ? Recommandez-lui une tâche : elle rapporte davantage, sans que personne ait été désigné devant les autres."
+        en: "A child falling behind? Recommend a task to them: it is worth more, and no one has been singled out in front of the others."
+        es: "¿Un niño que se queda atrás? Recomiéndale una tarea: vale más, y nadie ha sido señalado ante los demás."
+      guide_p4_c:
+        fr: "Les photos restent chez eux"
+        en: "Photos stay with them"
+        es: "Las fotos se quedan con ellos"
+      guide_p4_c_desc:
+        fr: "La preuve photo ne quitte jamais le téléphone de l'enfant : elle se montre en personne, elle ne se réclame pas. Pour tout effacer : Personnage, puis Supprimer mon compte."
+        en: "The photo proof never leaves the child's phone: it is shown in person, it cannot be demanded. To erase everything: Character, then Delete my account."
+        es: "La foto de prueba nunca sale del teléfono del niño: se enseña en persona, no se reclama. Para borrarlo todo: Personaje y luego Eliminar mi cuenta."
+
+      # --- Enfant, écran 1 : à quoi sert ce que tu fais.
+      guide_k1_title:
+        fr: "Ton clan compte sur toi"
+        en: "Your clan is counting on you"
+        es: "Tu clan cuenta contigo"
+      guide_k1_situation:
+        fr: "Chaque monstre que tu bats, c'est une tâche faite à la maison. Tes points font monter ton personnage, et tout ton clan avec toi."
+        en: "Every monster you beat is a task done at home. Your points level up your character, and your whole clan with you."
+        es: "Cada monstruo que vences es una tarea hecha en casa. Tus puntos suben a tu personaje, y a todo tu clan contigo."
+      guide_k1_a:
+        fr: "On avance ensemble"
+        en: "We move forward together"
+        es: "Avanzamos juntos"
+      guide_k1_a_desc:
+        fr: "Tes points s'ajoutent à ceux du clan. Personne ne joue contre toi : il n'y a pas de classement."
+        en: "Your points add to the clan's. Nobody plays against you: there is no ranking."
+        es: "Tus puntos se suman a los del clan. Nadie juega contra ti: no hay clasificación."
+      guide_k1_b:
+        fr: "C'est toi qui choisis"
+        en: "You are the one who chooses"
+        es: "Tú eliges"
+      guide_k1_b_desc:
+        fr: "Tu prends le monstre que tu veux, tu le bats, puis un chef de clan valide."
+        en: "You take whichever monster you want, you beat it, then a clan chief validates it."
+        es: "Coges el monstruo que quieras, lo vences y luego un jefe de clan lo valida."
+      guide_k1_c:
+        fr: "Un monstre à la fois"
+        en: "One monster at a time"
+        es: "Un monstruo cada vez"
+      guide_k1_c_desc:
+        fr: "Prends ton temps. Rien ne t'oblige à jouer tous les jours."
+        en: "Take your time. Nothing forces you to play every day."
+        es: "Tómate tu tiempo. Nada te obliga a jugar todos los días."
+
+      # --- Enfant, écran 2 : les PV et le gage, dits comme un droit et non comme une menace.
+      guide_k2_title:
+        fr: "Tes points de vie baissent ?"
+        en: "Your life points going down?"
+        es: "¿Te bajan los puntos de vida?"
+      guide_k2_situation:
+        fr: "Tu as vu tes cœurs diminuer tout seuls ? Ce n'est pas une punition : c'est juste le temps qui passe sans monstre battu."
+        en: "Have you seen your hearts go down on their own? That is not a punishment: it is just time passing with no monster beaten."
+        es: "¿Has visto bajar tus corazones solos? No es un castigo: es solo el tiempo que pasa sin vencer monstruos."
+      guide_k2_a:
+        fr: "Un cœur par jour sans tâche"
+        en: "One heart per day without a task"
+        es: "Un corazón por día sin tarea"
+      guide_k2_a_desc:
+        fr: "Tu commences avec dix. Ils ne descendent que si plus rien n'est terminé."
+        en: "You start with ten. They only go down when nothing is being finished."
+        es: "Empiezas con diez. Solo bajan si ya no terminas nada."
+      guide_k2_b:
+        fr: "Une tâche les rend tous"
+        en: "One task gives them all back"
+        es: "Una tarea te los devuelve todos"
+      guide_k2_b_desc:
+        fr: "Bats un seul monstre et tu récupères tous tes cœurs d'un coup."
+        en: "Beat a single monster and you get every heart back at once."
+        es: "Vence un solo monstruo y recuperas todos tus corazones de golpe."
+      guide_k2_c:
+        fr: "À zéro, un gage rigolo"
+        en: "At zero, a funny forfeit"
+        es: "A cero, una prenda divertida"
+      guide_k2_c_desc:
+        fr: "Un défi drôle à faire devant ta famille. Tu as le droit de dire non, et personne ne vérifie."
+        en: "A funny challenge to do in front of your family. You are allowed to say no, and nobody checks."
+        es: "Un reto gracioso para hacer ante tu familia. Tienes derecho a decir que no, y nadie lo comprueba."
+
+      # --- Enfant, écran 3 : le refus. Rien n'est retiré, rien n'est archivé contre toi.
+      guide_k3_title:
+        fr: "Refusé ? Tu recommences"
+        en: "Refused? You start again"
+        es: "¿Rechazada? Vuelves a empezar"
+      guide_k3_situation:
+        fr: "Un chef de clan a refusé ta tâche. Ça arrive, et ça ne t'enlève rien du tout."
+        en: "A clan chief refused your task. It happens, and it takes nothing away from you."
+        es: "Un jefe de clan ha rechazado tu tarea. Pasa, y no te quita nada."
+      guide_k3_a:
+        fr: "Trois réponses possibles"
+        en: "Three possible answers"
+        es: "Tres respuestas posibles"
+      guide_k3_a_desc:
+        fr: "Réussi, à moitié réussi — la moitié des points —, ou à refaire. Aucune ne te retire de points."
+        en: "Done, half done — half the points —, or to be done again. None of them takes points off you."
+        es: "Conseguida, a medias —la mitad de los puntos— o a repetir. Ninguna te quita puntos."
+      guide_k3_b:
+        fr: "La tâche te revient"
+        en: "The task comes back to you"
+        es: "La tarea vuelve a ti"
+      guide_k3_b_desc:
+        fr: "Elle retourne dans ta liste : tu peux la reprendre quand tu veux."
+        en: "It goes back into your list: you can pick it up again whenever you want."
+        es: "Vuelve a tu lista: puedes retomarla cuando quieras."
+      guide_k3_c:
+        fr: "Seuls tes exploits sont écrits"
+        en: "Only your feats get written down"
+        es: "Solo se escriben tus hazañas"
+      guide_k3_c_desc:
+        fr: "Le journal du clan ne raconte pas tes ratés. Personne n'en garde la liste."
+        en: "The clan log does not tell of your misses. Nobody keeps a list of them."
+        es: "El diario del clan no cuenta tus fallos. Nadie guarda la lista."
+
+      # --- Enfant, écran 4 : le partage, et l'intimité de la preuve photo.
+      guide_k4_title:
+        fr: "Le butin et ta photo"
+        en: "The loot and your photo"
+        es: "El botín y tu foto"
+      guide_k4_situation:
+        fr: "Quand le coffre du clan est plein, il s'ouvre pour tout le monde en même temps."
+        en: "When the clan chest is full, it opens for everyone at the same time."
+        es: "Cuando el cofre del clan está lleno, se abre para todos a la vez."
+      guide_k4_a:
+        fr: "Le butin se partage"
+        en: "The loot is shared"
+        es: "El botín se reparte"
+      guide_k4_a_desc:
+        fr: "Tu reçois ta part même si tu as joué moins que les autres."
+        en: "You get your share even if you played less than the others."
+        es: "Recibes tu parte aunque hayas jugado menos que los demás."
+      guide_k4_b:
+        fr: "Ta photo reste chez toi"
+        en: "Your photo stays with you"
+        es: "Tu foto se queda contigo"
+      guide_k4_b_desc:
+        fr: "La photo de preuve ne sort jamais de ton téléphone. Personne ne peut la regarder à distance, même pas un chef de clan."
+        en: "The proof photo never leaves your phone. Nobody can look at it from afar, not even a clan chief."
+        es: "La foto de prueba nunca sale de tu teléfono. Nadie puede verla a distancia, ni siquiera un jefe de clan."
+      guide_k4_c:
+        fr: "La fête est en vrai"
+        en: "The celebration is real life"
+        es: "La fiesta es de verdad"
+      guide_k4_c_desc:
+        fr: "Ce que le clan gagne se vit en famille, pas dans l'application."
+        en: "What the clan wins is lived with your family, not inside the app."
+        es: "Lo que el clan gana se vive en familia, no dentro de la aplicación."

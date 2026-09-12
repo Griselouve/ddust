@@ -18,6 +18,7 @@ build:
     - dvtaskbar
     - dvdocuments
     - dvparentalgate
+    - dvdevicelock
     - dvvideo
     - dvdecisiontree
     - dvvertexai

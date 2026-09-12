@@ -135,7 +135,14 @@ extension Worker_tasks on worker {
                                 userDoc.set("steps.decisiontree.result",  "done");
                                 userDoc.set("steps.decisiontree.device",  device);
                                 userDoc.set("internal.name",              playerName);
-                                userDoc.set("external.name",              playerName);
+                                // Chemin de TEST rapide : jamais d'appel IA ici (un skip qui dépendrait du
+                                // réseau ne serait plus un skip). La banque locale suffit — et surtout, elle
+                                // ne recopie pas le nom interne, ce que faisait cette ligne auparavant.
+                                final playerExt = _bankSubstitute("player");
+                                userDoc.set("external.name",              playerExt.extName);
+                                userDoc.set("external.description",       playerExt.extDesc);
+                                userDoc.set("external.source",            playerExt.source);
+                                userDoc.set("external.date",              now);
                                 userDoc.set("steps.name.status",          "done");
                                 userDoc.set("steps.name.date",            now);
                                 userDoc.set("steps.name.result",          playerName);
@@ -170,9 +177,14 @@ extension Worker_tasks on worker {
                                 clanDoc.set("date",           now);
                                 clanDoc.set("admins",         [_userId]);
                                 clanDoc.set("founder",        _userId);
-                                clanDoc.set("internal.name",  internalName);
-                                clanDoc.set("external.name",  "$internalName-$region-0");
-                                clanDoc.set("description",    "Fast test clan");
+                                final clanExt = _bankSubstitute("clan");
+                                clanDoc.set("internal.name",        internalName);
+                                clanDoc.set("internal.description", "Fast test clan");
+                                clanDoc.set("external.name",        "${clanExt.extName}-$region-0");
+                                clanDoc.set("external.description", clanExt.extDesc);
+                                clanDoc.set("external.source",      clanExt.source);
+                                clanDoc.set("external.date",        now);
+                                clanDoc.set("description",          "Fast test clan");
                                 clanDoc.set("avatar",         _defaultClanAvatar);
                                 try {
                                     await _cloud?.write("workers", "clans", clanId, clanDoc, region: region, ownerId: clanSecret);
@@ -945,7 +957,7 @@ extension Worker_tasks on worker {
                                     // ADMIN après un logout ou une sortie de mode ratée (tâche morte cliquable).
                                     _declareTiroirVocabulary();
                                     // Libellés surchargés AVANT les clones : _buildClonesMap reconstruit
-                                    // « <titre> - <prénom> » à partir de _titleOverride.
+                                    // « <titre> - <pseudonyme> » à partir de _titleOverride.
                                     _notifyTiroirLabels(_titleOverride);
                                     _notifyTiroirClones(await _buildClonesMap(taskDocs));
                                     // Tuiles NEUVES (tâches user-created) : repoussées à chaque refresh, pas
@@ -1381,9 +1393,9 @@ extension Worker_tasks on worker {
     //   - DOMAINE multiple (domains.<d>.multiple) : la clé <d> (icône du combat/tiroir) reçoit
     //     une entrée ENFANT-DOMAINE par `owner` distinct (action seldomain.<d>__<owner>) ; les
     //     tâches du domaine (clés <baseTask>) ne reçoivent QUE le clone de l'owner sélectionné
-    //     (session.selected_owner), label de base (sans prénom).
+    //     (session.selected_owner), label de base (sans pseudonyme).
     //   - TÂCHE multiple dans un domaine normal (tasks.<id>.multiple) : la clé <baseTask> reçoit
-    //     TOUS les clones (label figé avec prénom, action seltask.<clone>).
+    //     TOUS les clones (label figé avec pseudonyme, action seltask.<clone>).
     // On amorce une entrée VIDE pour chaque template multiple (domaine + tâches concernées) →
     // le tiroir masque le template même sans clone (jamais d'icône de base sélectionnable).
     Future<Map<String, List<Map<String, String>>>> _buildClonesMap(List<dynamic> taskDocs) async {
@@ -1439,8 +1451,8 @@ extension Worker_tasks on worker {
                                         (clones[original] ??= []).add({"id": id, "label": "", "action": "seltask.$id"});
                                     }
                                 } else {
-                                    // Tâche-multiple dans un domaine normal : tous les clones, label figé (prénom).
-                                    // Si la tâche a été renommée (override), reconstruire « <titre> - <prénom> »
+                                    // Tâche-multiple dans un domaine normal : tous les clones, label figé (pseudonyme).
+                                    // Si la tâche a été renommée (override), reconstruire « <titre> - <pseudonyme> »
                                     // à partir du titre surchargé plutôt que du label figé au moment du clonage.
                                     final ov  = _titleOverride[original];
                                     final lbl = (ov != null && ov.isNotEmpty && ownerName.isNotEmpty)

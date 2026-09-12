@@ -410,7 +410,7 @@ conf:
 
     # Le parchemin des notes : même livrée que log_page/story (noir bordé d'or, opacité 0.8) —
     # c'est cette opacité qui ne laisse voir du halo que sa frange, exactement comme prévu.
-    # Un bloc par note, en-tête centré (le prénom de son auteur) puis le texte, même idiome que
+    # Un bloc par note, en-tête centré (le pseudonyme de son auteur) puis le texte, même idiome que
     # les en-têtes de date du journal (worker._StoryBuffer) — posé par worker.on_butin_notes_appear.
     butin_notes_page/story:
       class: DvRichLabel
@@ -453,9 +453,11 @@ conf:
     # Dernière marche de la cérémonie, juste après « ta part du butin » : le clan vient de vivre
     # quelque chose, on lui propose de le raconter. Écran volontairement nu — un parchemin, une
     # icône, un bouton — pour ne pas retenir ceux qui veulent juste refermer.
-    # L'icône de partage est visible pour TOUT joueur (pas réservée aux chefs) : c'est déclencher
-    # l'appel IA, pas partager en soi — le partage effectif reste un geste conscient au moment du
-    # share sheet Android.
+    # L'icône de cet écran est visible pour TOUT joueur : elle ne partage rien, elle demande le
+    # récit à l'IA et ouvre le journal en mode conte. L'EXPORT vers l'extérieur, lui, est réservé
+    # aux adultes — c'est log_page/share qui le porte, et c'est là qu'est la garde (§ 5.3 du
+    # dossier « intérêt supérieur de l'enfant » : « un enfant ne peut rien publier »).
+    # Un enfant fait donc raconter l'histoire de son clan et la lit ; il ne l'expédie pas.
     # block_back comme la page de récompenses : on sort par le bouton, pas par le geste système
     # (la pile a été réinitialisée sur cet écran, un retour ne mènerait nulle part).
     butin_tale_page:
@@ -506,10 +508,12 @@ conf:
         scrollable: true
         label: "@@@T:butin_tale_text@@@"
 
-    # Icône « Partager », copie conforme de log_page/share (pastille circulaire fond sombre +
-    # bordure or), visible pour TOUT joueur — pas de garde admin. Elle ne partage RIEN directement :
-    # elle demande le récit à l'IA puis ouvre le journal en mode conte, où l'icône de partage
-    # habituelle prend le relais.
+    # Icône « Conter », copie conforme de log_page/share (pastille circulaire fond sombre +
+    # bordure or), visible pour TOUT joueur. Elle ne partage RIEN : elle demande le récit à l'IA
+    # puis ouvre le journal en mode conte. C'est là, et seulement là, que l'icône d'export prend
+    # le relais — et elle, log_page/share, n'apparaît qu'aux adultes. Ne pas répliquer ici la
+    # garde d'âge : elle priverait un enfant d'entendre l'histoire de son propre clan, alors que
+    # la règle porte sur la publication vers l'extérieur, pas sur la lecture.
     # `freezing_actions` : la génération du récit est un aller-retour réseau, l'écran doit être gelé
     # le temps qu'elle parte (sans quoi un double tap lancerait deux inférences).
     # Posée SOUS le parchemin (16 %, soit 2 % après sa fin) et non plus par-dessus : tant que le

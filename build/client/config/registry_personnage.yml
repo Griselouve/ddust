@@ -304,6 +304,24 @@ conf:
             label: "@@@T:clan_menu_tutorials@@@"
           actions:
             tap: navigate_new.tutoriels
+        # Les deux GUIDES. Ils n'ouvrent pas un écran : ils rejouent une leçon dvtuto SUR PLACE
+        # (`play`, sans navigation), donc rien à ajouter à la liste de routes de l'orb.
+        # Options EXCLUSIVES, arbitrées par perso_settings_selector sur `worker.player_is_adult` :
+        # un adulte n'a rien à faire du guide de l'aventurier, et l'inverse encore moins.
+        guide_parent:
+          icon: "menu_book"
+          desc: "@@@T:perso_menu_guide_parent_desc@@@"
+          shape:
+            label: "@@@T:tuto_guide_parent_title@@@"
+          actions:
+            tap: dvtuto.play.guide_parent
+        guide_enfant:
+          icon: "auto_stories"
+          desc: "@@@T:perso_menu_guide_enfant_desc@@@"
+          shape:
+            label: "@@@T:tuto_guide_enfant_title@@@"
+          actions:
+            tap: dvtuto.play.guide_enfant
         # Rappels de relance : deux options EXCLUSIVES, arbitrées par
         # perso_settings_selector qui lit `clans_players.nudges` du joueur courant.
         # Même bascule que celle du menu roster (registry_clan_page), à ceci près
@@ -499,9 +517,11 @@ conf:
 
     #//------------------------------- Player rename screen ------------------------------
     # Écran plein de renommage de l'avatar (remplace l'ancienne popup DvInput). Réutilise
-    # le modèle commons/nameform_* (comme player_name_screen). Ouvert via
-    # worker.edit_player_name → navigate_new. Confirmation → worker.on_rename_confirm
-    # persiste, revient à Personnage et sort du mode édition.
+    # le modèle commons/inspireform_* (comme player_name_screen) : nom + description +
+    # « Inspire moi ». Ouvert via worker.edit_player_name → navigate_new. Confirmation →
+    # worker.on_rename_confirm persiste, revient à Personnage et sort du mode édition.
+    # Le renommage ne régénère PAS l'identité de substitution : elle est figée à la création
+    # du personnage (cf. worker._persistPlayerName).
     player_rename_screen:
       masks:
         - page
@@ -516,28 +536,59 @@ conf:
         - player_rename_screen/icon_background
         - player_rename_screen/name_label
         - player_rename_screen/name
+        - player_rename_screen/desc_label
+        - player_rename_screen/desc
+        - player_rename_screen/inspire
+        - player_rename_screen/replay
         - player_rename_screen/confirm
 
     player_rename_screen/icon_background:
       masks:
-        - commons/nameform_bg
+        - commons/inspireform_bg
 
     player_rename_screen/name_label:
       masks:
-        - commons/nameform_label
+        - commons/inspireform_name_label
       shape:
         label: "@@@T:player_name_label@@@"
 
     player_rename_screen/name:
       masks:
-        - commons/nameform_entry
+        - commons/inspireform_name
       shape:
         actions:
           changed: worker.on_rename_changed
 
+    player_rename_screen/desc_label:
+      masks:
+        - commons/inspireform_desc_label
+      shape:
+        label: "@@@T:player_description_label@@@"
+
+    player_rename_screen/desc:
+      masks:
+        - commons/inspireform_desc
+      shape:
+        actions:
+          changed: worker.on_rename_desc_changed
+
+    player_rename_screen/inspire:
+      masks:
+        - commons/inspireform_inspire
+      shape:
+        freezing_actions:
+          tap: worker.on_inspire_rename
+
+    player_rename_screen/replay:
+      masks:
+        - commons/inspireform_replay
+      shape:
+        freezing_actions:
+          tap: worker.on_replay_rename
+
     player_rename_screen/confirm:
       masks:
-        - commons/nameform_confirm
+        - commons/inspireform_confirm
       shape:
         label: "@@@T:ok@@@"
         freezing_actions:
@@ -545,9 +596,16 @@ conf:
 
     #//------------------------------- Créer un joueur (enfant sans compte) ----------------
     # Écran « donne ton nom » ouvert par l'option clan « Créer un joueur » (chef seulement).
-    # Réutilise les templates commons/nameform_* (comme player_rename_screen). À la
-    # confirmation, worker.on_create_player_confirm crée un doc clans_players SANS doc users
-    # (l'enfant n'a pas de compte) et l'admet directement dans le clan courant.
+    # Réutilise les templates commons/inspireform_* (comme player_rename_screen) : nom +
+    # description + « Inspire moi ». À la confirmation, worker.on_create_player_confirm crée un
+    # doc clans_players SANS doc users (l'enfant n'a pas de compte) et l'admet directement dans
+    # le clan courant. C'est le seul écran où l'identité de substitution de l'enfant peut naître :
+    # faute de doc `users`, elle ne vit que sur ce document membre.
+    #
+    # GÉOMÉTRIE — le seul écran des trois où le gabarit commun ne suffit pas : la mention de
+    # consentement parental doit tenir ENTRE le formulaire et le bouton. Chaque nœud ne surcharge
+    # que ce qu'il déplace, les masks communs ne bougent pas :
+    #   description 38→66 %, inspire/replay 67 %, consentement 74→84 %, valider 85 %.
     create_player_screen:
       masks:
         - page
@@ -562,37 +620,73 @@ conf:
         - create_player_screen/icon_background
         - create_player_screen/name_label
         - create_player_screen/name
+        - create_player_screen/desc_label
+        - create_player_screen/desc
+        - create_player_screen/inspire
+        - create_player_screen/replay
         - create_player_screen/consent
         - create_player_screen/confirm
 
     create_player_screen/icon_background:
       masks:
-        - commons/nameform_bg
+        - commons/inspireform_bg
 
     create_player_screen/name_label:
       masks:
-        - commons/nameform_label
+        - commons/inspireform_name_label
       shape:
         label: "@@@T:create_player_label@@@"
 
     create_player_screen/name:
       masks:
-        - commons/nameform_entry
+        - commons/inspireform_name
       shape:
         actions:
           changed: worker.on_create_player_changed
 
-    # Entre le champ de saisie (65 % → 73 %) et le bouton de confirmation (85 %) : la mention
+    create_player_screen/desc_label:
+      masks:
+        - commons/inspireform_desc_label
+      shape:
+        label: "@@@T:create_player_description_label@@@"
+
+    create_player_screen/desc:
+      masks:
+        - commons/inspireform_desc
+      shape:
+        h: 28%
+        actions:
+          changed: worker.on_create_player_desc_changed
+
+    create_player_screen/inspire:
+      masks:
+        - commons/inspireform_inspire
+      shape:
+        y: 67%
+        freezing_actions:
+          tap: worker.on_inspire_create_player
+
+    create_player_screen/replay:
+      masks:
+        - commons/inspireform_replay
+      shape:
+        y: 67%
+        freezing_actions:
+          tap: worker.on_replay_create_player
+
+    # Entre « Autre chose ! » (67 % → 73 %) et le bouton de confirmation (85 %) : la mention
     # est lue avant que le chef ne valide la création du profil de l'enfant.
     create_player_screen/consent:
       masks:
         - commons/parental_consent
       shape:
-        y: 70%
+        y: 74%
+        h: 10%
+        font_size: 10
 
     create_player_screen/confirm:
       masks:
-        - commons/nameform_confirm
+        - commons/inspireform_confirm
       shape:
         label: "@@@T:create_player_confirm@@@"
         freezing_actions:

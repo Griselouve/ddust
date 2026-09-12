@@ -39,19 +39,24 @@ strictement nécessaire à son fonctionnement.</p>
   <tr><td>Statut légal</td><td>La seule distinction mineur / adulte. <strong>Votre date de naissance n'est jamais
   conservée</strong> : elle ne sert, à la première connexion, qu'à calculer ce statut, puis elle est
   oubliée.</td></tr>
-  <tr><td>Pseudonymes</td><td>Le pseudonyme de votre personnage et le nom de votre clan, choisis par vous. Ils ne
-  sont visibles que par les membres de votre clan. Le nom du clan possède en outre une version externe générée par
-  l'application.</td></tr>
+  <tr><td>Pseudonymes</td><td>Le pseudonyme de votre personnage et le nom de votre clan, choisis par vous, ainsi que les descriptions que vous leur donnez. Ils ne sont visibles que par les membres
+  de votre clan. Le pseudonyme du personnage comme le nom du clan possèdent en outre une version externe
+  générée par l'application, sans rapport avec celle que vous avez choisie : c'est la seule que l'application
+  emploierait pour vous désigner hors de votre clan.</td></tr>
   <tr><td>Données de jeu</td><td>Avatar, expérience, niveaux, points de vie, or, objets, tâches accomplies, journal
   d'activité du clan, date de dernière connexion, langue d'interface, preuves d'acceptation des conditions
   d'utilisation.</td></tr>
   <tr><td>Notifications</td><td>Un jeton technique d'envoi de notifications, associé à votre appareil.</td></tr>
+  <tr><td>Réglages techniques</td><td>La version de l'application installée, et le décalage horaire de
+  l'appareil. Ce dernier ne sert qu'à une chose : envoyer les rappels destinés à un enfant à une heure raisonnable
+  chez lui, et non au milieu de sa nuit. <strong>Ce n'est pas une donnée de localisation</strong> : l'application
+  ne mesure ni ne demande jamais votre position.</td></tr>
 </table>
 <p>Surtout, ce que l'application <strong>ne collecte pas</strong> :</p>
 <ul>
-  <li><strong>Les photos de tâches ne quittent jamais le téléphone</strong> : elles sont enregistrées dans l'espace
-  privé de l'application sur votre appareil. Seul un identifiant technique est envoyé à nos serveurs pour indiquer
-  qu'une preuve existe ; l'image elle-même n'est jamais transmise ni montrée à quiconque.</li>
+  <li><strong>Les photos de tâches ne sont jamais sauvegardées en ligne</strong> : elles sont enregistrées dans l'espace privé de l'application sur votre appareil, et la sauvegarde automatique d'Android est désactivée pour l'application — aucune copie ne part vers un espace de stockage en ligne. Elles peuvent en revanche être reprises par le transfert direct d'un ancien téléphone vers un nouveau, si vous utilisez cette fonction d'Android au moment d'en changer. Seul un identifiant technique est envoyé à nos serveurs pour indiquer
+  qu'une preuve existe ; l'image, elle, n'est jamais transmise : elle reste sur l'appareil du joueur, qui est le seul à
+  pouvoir la revoir et le seul à décider de la montrer, en personne, à l'adulte qui apprécie son travail.</li>
   <li><strong>Aucune mesure d'audience</strong> : la collecte Google Analytics est désactivée.</li>
   <li><strong>Aucun identifiant publicitaire (AD_ID)</strong> et aucune publicité, conformément à la politique
   Google Play Families.</li>
@@ -133,8 +138,8 @@ ou tuteur, écrivez à <a href="mailto:donjons@grisloup.com">donjons@grisloup.co
   notifications. Le traitement est encadré par le Google Cloud Data Processing Addendum, que nous avons
   accepté.</li>
   <li><strong>Google Play</strong> : distribution de l'application.</li>
-  <li><strong>API Google Gemini (Vertex AI)</strong> : génération de contenus narratifs. Trois usages, chacun
-  déclenché par une action explicite d'un utilisateur : suggérer un nom et une description de clan, suggérer un nom
+  <li><strong>API Google Gemini (Vertex AI)</strong> : génération de contenus narratifs. Les contenus produits sont destinés à être lus par des enfants : les filtres de sécurité du modèle sont réglés au niveau le plus strict que l'interface propose, pour les quatre catégories de contenus préjudiciables (harcèlement, propos haineux, contenus sexuels, contenus dangereux), et ce réglage est imposé par nos serveurs et non par l'appareil. Les instructions données au modèle bornent en outre le registre : pas de violence envers une personne ou un animal, rien qui fasse peur, aucun thème d'adulte, aucun mot grossier. Quatre usages, chacun
+  déclenché par une action explicite d'un utilisateur : suggérer un nom et une description de personnage, suggérer un nom et une description de clan, suggérer un nom
   et une description de tâche, et rédiger le récit d'aventure du clan proposé au partage après l'ouverture d'un
   butin. Pour ce dernier usage, <strong>le nom du clan, sa description et le journal des événements du clan —
   lequel contient les pseudonymes choisis par les joueurs — sont transmis au modèle</strong>. Aucune autre
@@ -148,12 +153,14 @@ inter-contextuelle</strong> — ni les vôtres, ni celles de votre enfant. Nous 
 douze derniers mois et nous n'avons pas l'intention de le faire.</p>
 
 <h2>6. Partages effectués par l'utilisateur</h2>
-<p>L'application propose deux formes de partage, toujours à l'initiative d'un adulte du clan et au moyen des
+<p>L'application propose trois formes de partage, toujours à l'initiative d'un adulte du clan et au moyen des
 applications de partage de votre appareil :</p>
 <ul>
   <li>une <strong>invitation à rejoindre le clan</strong> (lien ou QR code) ;</li>
-  <li>le <strong>récit d'aventure du clan</strong>, proposé après l'ouverture d'un butin. Ce texte contient le nom
-  du clan et les pseudonymes de ses membres.</li>
+  <li>le <strong>journal d'activité du clan</strong>, ou le <strong>récit d'aventure</strong> qui en est tiré après
+  l'ouverture d'un butin. Ce texte contient le nom du clan, les pseudonymes de ses membres et les tâches qu'ils
+  ont accomplies.</li>
+  <li>un <strong>code cadeau</strong> de la boutique, qui ne comporte aucune donnée personnelle.</li>
 </ul>
 <p>Une fois partagés, ces contenus échappent à notre contrôle et relèvent des conditions du service destinataire
 (messagerie, réseau social, etc.). Nous vous invitons à en tenir compte avant de partager, en particulier lorsque
@@ -185,8 +192,12 @@ limitée</strong> hors du service, puis l'<strong>effacement définitif</strong>
   qu'un consentement valable — en particulier le consentement parental exigé par la Loi 25 au Québec — a bien été obtenu, et à
   quelle date il a été retiré. Elle est conservée close et désactivée : elle ne sert plus à faire fonctionner le
   service.</li>
-  <li><strong>Photos de tâches</strong> : elles restent sur votre appareil et disparaissent avec
-  l'application.</li>
+  <li><strong>Données d'un clan dont la cotisation s'est interrompue</strong> : conservées
+  <strong>deux ans</strong> à compter du blocage du clan, puis définitivement supprimées. Cette durée est
+  volontairement longue : ce qui coûte à reconstituer n'est pas le clan mais son histoire — les tâches
+  réglées, les niveaux atteints, le journal de chacun — et une famille qui s'interrompt n'a pas toujours
+  renoncé. Un mois avant l'échéance, nous prévenons les adultes du clan.</li>
+  <li><strong>Photos de tâches</strong> : elles restent sur l'appareil du joueur et sont effacées dès que la tâche est jugée — au plus tard à l'ouverture suivante de l'application, lorsque le verdict a été rendu pendant qu'elle était fermée. Supprimer son compte depuis l'application efface également celles qui resteraient.</li>
 </ul>
 
 <p><strong>Liste d'attente des betas</strong> : supprimée en totalité à la fin de la phase de beta, ou
@@ -195,10 +206,8 @@ plus tôt sur simple demande (article 12).</p>
 <h2>9. Vos droits, et le retrait de votre consentement</h2>
 <p>Selon votre province ou territoire de résidence, vous pouvez avoir le droit de savoir quelles informations personnelles nous
 détenons sur vous, d'en obtenir une copie, de les faire corriger, de les faire supprimer, et de ne pas subir de
-traitement discriminatoire pour avoir exercé ces droits. Plusieurs lois d'État — dont le California Consumer
-Privacy Act modifié par le CPRA, et des lois comparables en Virginie, au Colorado, dans le Connecticut, en Utah,
-au Texas, en Oregon et dans d'autres États — prévoient de tels droits. <strong>Nous les étendons à tous les
-utilisateurs de cette région, leur province ou territoire de résidence</strong>, ainsi qu'aux informations des enfants
+traitement discriminatoire pour avoir exercé ces droits. La LPRPDE et, au Québec, la Loi 25 consacrent ces droits. <strong>Nous les étendons à tous les
+utilisateurs de cette région, quels que soient la province ou le territoire où ils résident</strong>, ainsi qu'aux informations des enfants
 dont vous êtes le parent ou le tuteur légal.</p>
 <p>Nous ne vendons pas vos informations personnelles et ne les partageons pas à des fins de publicité
 comportementale inter-contextuelle : il n'y a donc, sur ce point, aucune opposition à exercer. Nous ne collectons
@@ -208,8 +217,8 @@ aucune information personnelle sensible au sens de ces lois.</p>
   <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a> (connexion avec votre
   compte Google). Elle suit le calendrier décrit à l'article 8.</li>
   <li><strong>Toute autre demande</strong> — accès, copie, rectification, ou simple question : écrivez à
-  <a href="mailto:donjons@grisloup.com">donjons@grisloup.com</a>. Nous répondons sous 45 jours au plus, et nous vous
-  prévenons s'il nous faut davantage de temps. Vous pouvez passer par un mandataire ; nous demanderons alors la
+  <a href="mailto:donjons@grisloup.com">donjons@grisloup.com</a>. Nous répondons sous trente (30) jours au plus, conformément à la LPRPDE et, au Québec, à l'article 32
+  de la Loi 25. Si un report est nécessaire, nous vous en informons dans ce même délai. Vous pouvez passer par un mandataire ; nous demanderons alors la
   preuve de ce mandat.</li>
 </ul>
 <p>Pour vous protéger, nous vérifions qu'une demande provient bien du compte Google auquel les données sont
@@ -218,10 +227,19 @@ plutôt que d'y donner suite.</p>
 <h3>Retrait du consentement</h3>
 <p>Vous pouvez <strong>retirer votre consentement à tout moment</strong> — le vôtre comme celui que vous avez donné
 en qualité de parent ou tuteur légal pour un enfant que vous faites jouer.</p>
-<p><strong>Le retrait s'exerce par la suppression de votre compte</strong>, depuis l'application ou via
-<a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>. Il n'existe pas d'autre forme
-de retrait : les données de jeu que nous détenons n'ont pas d'existence séparée du compte auquel elles se
-rattachent.</p>
+<p><strong>Pour un enfant que vous faites jouer, le retrait s'exerce depuis l'application</strong>, dans le menu de
+gestion de son personnage : l'option « Retirer mon consentement et effacer les données de cet enfant » est proposée
+aux chefs de son clan d'origine. Elle prend effet immédiatement — l'enfant ne joue plus et ses données ne sont plus
+exposées dans le jeu — puis, après un délai de réflexion de 3 jours pendant lequel un chef du clan d'origine peut revenir sur sa
+  décision, ses données de jeu sont supprimées, puis conservées 30 jours dans les conditions de l'article 8
+  avant leur effacement définitif.</p>
+<p><strong>Pour votre propre consentement, le retrait s'exerce par la suppression de votre compte</strong>, depuis
+l'application ou via <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>.</p>
+<p>Retirer votre consentement met fin au traitement des données de l'enfant. Cela n'empêche pas qu'un autre adulte
+responsable l'invite un jour dans un autre clan, sous sa propre responsabilité : <strong>nous ne tenons aucune liste
+d'enfants écartés</strong>, car elle supposerait de conserver indéfiniment des informations sur un enfant dont on
+nous a précisément demandé de tout effacer. Un enfant ne peut en revanche jamais entrer seul — il faut toujours
+l'invitation d'un adulte qui déclare en répondre.</p>
 <p>Pour un enfant, la suppression du compte du chef de clan entraîne la dissolution de ce clan et, par cascade,
 celle des profils des enfants dont c'était le clan d'origine, ainsi que de tout profil qui n'appartient plus à
 aucun clan actif — y compris
@@ -258,8 +276,7 @@ l'ouverture des phases de test (« betas »).</p>
   <li><strong>Finalité</strong> : vous informer des prochaines dates de beta et de l'avancement du projet, et rien
   d'autre. <strong>Nous ne vendons ni ne partageons votre adresse</strong>, en aucune circonstance.</li>
   <li><strong>Consentement</strong> : l'inscription résulte de votre seule initiative. Le formulaire est réservé
-  aux adultes ; il ne s'adresse pas aux enfants, et nous ne collectons sciemment aucune adresse d'un enfant de
-  moins de 13 ans (voir l'article 4). Si vous pensez qu'un enfant s'est inscrit, écrivez-nous : nous effacerons
+  aux adultes ; il ne s'adresse pas aux enfants, et nous ne collectons sciemment aucune adresse appartenant à un mineur (voir l'article 4). Si vous pensez qu'un enfant s'est inscrit, écrivez-nous : nous effacerons
   l'adresse.</li>
   <li><strong>Durée de conservation</strong> : <strong>la liste est supprimée en totalité dès la fin de la phase de
   beta</strong>. Chaque message envoyé comporte un moyen de se désinscrire, et vous pouvez demander votre retrait à

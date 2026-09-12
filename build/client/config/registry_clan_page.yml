@@ -51,6 +51,13 @@ conf:
         - documents/ack_options
         - clan_page/invite_yes
         - clan_page/invite_no
+        # Overlay de retrait du consentement parental — listé APRÈS celui du recrutement :
+        # les deux ne s'ouvrent jamais ensemble, mais celui-ci porte une suppression et doit
+        # couvrir tout le reste sans exception.
+        - clan_page/consent_scrim
+        - clan_page/consent_panel
+        - clan_page/consent_yes
+        - clan_page/consent_no
 
     clan_page/lvl_track:
       class: DvLabel
@@ -483,6 +490,81 @@ conf:
         actions:
           tap: worker.on_cancel_invite_consent
 
+    #//------------------ Retrait du consentement parental (art. 7(3) RGPD) -------------
+    # Overlay de confirmation du retrait, et de sa rétractation. Idiome maison — layer overlay
+    # + visible:false + scrim worker.noop —, JAMAIS de popup modale (cf. personnage/delete_*,
+    # dont ceci est le décalque). Ouvert par worker.withdraw_consent / worker.restore_consent,
+    # qui écrivent le texte du panneau et les libellés des deux boutons à l'exécution : le même
+    # overlay sert les deux gestes, en sens inverse.
+    #
+    # Le texte dit ce que le retrait FAIT et ce qu'il NE FAIT PAS — il n'interdit pas à l'enfant
+    # de jouer un jour ailleurs, et il n'efface pas la preuve du consentement, qui est close et
+    # datée. C'est ce que promettent les documents publiés ; le panneau ne peut pas dire moins.
+    clan_page/consent_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.9
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop # avale les taps derrière le panneau
+
+    clan_page/consent_panel:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 6%
+        y: 14%
+        w: 88%
+        h: 48%
+        text_align: CENTER
+        font_size: 14.0
+        font_color: "amber_200"
+        # Même opacité que consent_yes/consent_no (héritée de commons/shape) : DvImageView
+        # applique shape.opacity au texte lui-même (cf. personnage/delete_panel).
+        opacity: 0.6
+        border: false
+        label: " "
+        visible: false
+
+    clan_page/consent_yes:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 66%
+        h: 12%
+        text_align: CENTER
+        label: " "
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_consent_confirm
+
+    clan_page/consent_no:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 81%
+        h: 12%
+        text_align: CENTER
+        label: " "
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_consent_cancel
+
     #//------------------------------- Tutoriels (dvtuto) ------------------------------
     # Page listant les leçons (accès via le menu settings du Clan). DvTiroir SANS selector → un tap
     # sur une leçon exécute directement dvtuto.replay.<id> : navigue vers l'écran de la leçon et la
@@ -759,6 +841,24 @@ conf:
             label: "@@@T:roster_menu_nudges_on@@@"
           actions:
             tap: worker.nudges_on
+        # Hors concours. Deux options EXCLUSIVES arbitrées par clan_selector, réservées aux
+        # joueurs ADULTES (masquées ailleurs, pas grisées) et proposées y compris sur soi-même :
+        # le cas nominal est le chef qui se met lui-même en retrait pour ne pas écraser ses
+        # enfants. Icônes Material, comme nudges_* : c'est un réglage, pas un acte de jeu.
+        hors_concours_on:
+          icon: "self_improvement"
+          desc: "@@@T:roster_menu_hors_concours_on_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_hors_concours_on@@@"
+          actions:
+            tap: worker.hors_concours_on
+        hors_concours_off:
+          icon: "sports_score"
+          desc: "@@@T:roster_menu_hors_concours_off_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_hors_concours_off@@@"
+          actions:
+            tap: worker.hors_concours_off
         revoke_player:
           image: "images/small/byebye_nobg.png"
           desc: "@@@T:roster_menu_revoke_desc@@@"
@@ -766,6 +866,29 @@ conf:
             label: "@@@T:roster_menu_revoke@@@"
           actions:
             tap: worker.revoke_player
+        # RETRAIT DU CONSENTEMENT PARENTAL (art. 7(3) RGPD). Proposée aux seuls chefs du CLAN
+        # D'ORIGINE d'un joueur mineur — même règle que promote_adult, et pour la même raison :
+        # c'est le seul clan dont le consentement est en cause. À ne pas confondre avec
+        # revoke_player, qui retire du clan sans rien effacer : ici on cesse de TRAITER.
+        # Le libellé est celui que publient les 84 politiques de confidentialité adultes (§ 9) —
+        # ⚠ ne pas le reformuler sans reprendre le corpus.
+        withdraw_consent:
+          image: "images/small/poubelle.png"
+          desc: "@@@T:roster_menu_withdraw_consent_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_withdraw_consent@@@"
+          actions:
+            tap: worker.withdraw_consent
+        # Retour arrière pendant le délai de rétractation. clan_selector n'expose QUE cette
+        # option sur une tuile en cours de retrait : le joueur est hors du jeu, il n'y a rien
+        # d'autre à lui faire.
+        restore_consent:
+          image: "images/small/adm_enable.png"
+          desc: "@@@T:roster_menu_restore_consent_desc@@@"
+          shape:
+            label: "@@@T:roster_menu_restore_consent@@@"
+          actions:
+            tap: worker.restore_consent
 
     #//------------------------------- Log Screen ------------------------------------
     # Écran narratif « journal d'un joueur » : ouvert depuis le menu roster (option
@@ -831,6 +954,16 @@ conf:
     # Icône « Partager » (bas centre, chevauche le bas du frame) → dvsocialshare (Android) :
     # logo + récit (share.log). Rendue dans une pastille circulaire (fond sombre + bordure or)
     # pour la visibilité : box carrée (~60px) + border_radius = moitié → cercle.
+    #
+    # RÉSERVÉE AUX ADULTES (`legal_state == "a"`), révélée par worker.on_log_appear. C'est le
+    # SEUL point d'export du journal vers l'extérieur — le conte du butin y aboutit aussi — et
+    # « le partage vers l'extérieur est réservé aux adultes : un enfant ne peut rien publier »
+    # est une phrase publiée (§ 5.3 du dossier « intérêt supérieur de l'enfant »).
+    # Adulte et non chef : le rôle de chef est une fonction de jeu, la phrase parle de majorité
+    # légale. Un second parent membre partage l'histoire de sa famille sans avoir été promu.
+    # `visible: false` par défaut — le repli d'une lecture en échec est de ne rien montrer.
+    # Le tap passe par worker.on_log_share et non par share.log : masquer une icône n'est pas
+    # une autorisation, l'action doit refuser d'elle-même si on l'appelle autrement.
     log_page/share:
       class: DvIcon
       layer: content
@@ -847,8 +980,222 @@ conf:
         border_color: "0xFFB07328"
         border_size: 1.5
         border_radius: 30.0
+        visible: false
         events:
           tap: true
         freezing_actions:
-          tap: share.log
+          tap: worker.on_log_share
 
+
+    #//------------------------- EMPRUNT DE COMPTE : LE CODE TEMPORAIRE --------------------
+    # Deux écrans pour un seul geste : prêter son compte à son enfant, et se donner le moyen de
+    # le reprendre. Ils encadrent take_place / restore_self (worker_members.dart).
+    #
+    # Ce qui est en jeu n'est pas de l'argent — la boutique est fermée aux non-adultes — mais
+    # les options d'administration, dont la validation par l'enfant de ses PROPRES tâches.
+    # Et ce n'est pas une serrure : l'enfant tient un téléphone déverrouillé, effacer les
+    # données de l'app depuis les réglages Android remet tout à zéro. C'est un cran contre le
+    # retour accidentel ou opportuniste, et rien de plus ne doit être promis.
+    #
+    # SAISIE MASQUÉE, en deux shapes. DvNumpad lit et écrit sa valeur DANS SA CIBLE d'affichage
+    # (`display:`), donc masquer directement cette cible casserait la saisie — le pavé relirait
+    # des points. `.../buffer` est donc invisible et porte les chiffres ; `.../mask` montre les
+    # points. Le code est choisi devant l'enfant, autant ne pas l'afficher en clair.
+    # `show_ok: false` fait auto-valider à CHAQUE chiffre : le worker ignore tout ce qui n'a pas
+    # la longueur attendue.
+
+    imp_pin_set:
+      masks:
+        - page
+      show_appbar: false          # pas de retour système : on sort par Annuler, qui a un sens métier
+      title: "@@@T:imp_pin_set_title@@@"
+      shape:
+        actions:
+          appear: worker.on_imp_pin_set_appear
+      registry:
+        - commons/icon_background
+        - imp_pin_set/intro
+        - imp_pin_set/mask
+        - imp_pin_set/buffer
+        - imp_pin_set/numpad
+        - imp_pin_set/cancel
+
+    imp_pin_set/intro:
+      masks:
+        - commons/intro_text
+      shape:
+        y: 6%
+        h: 20%
+        font_size: 13.0
+        label: "@@@T:imp_pin_set_intro@@@"
+
+    imp_pin_set/mask:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 29%
+        w: 80%
+        h: 8%
+        text_align: CENTER
+        font_size: 30.0
+        font_weight: bold
+        label: ""
+
+    # Cible RÉELLE du pavé : porte les chiffres, jamais affichée.
+    imp_pin_set/buffer:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 29%
+        w: 80%
+        h: 8%
+        label: ""
+        visible: false
+
+    imp_pin_set/numpad:
+      class: DvNumpad
+      layer: content
+      shape:
+        x: 10%
+        y: 39%
+        w: 80%
+        h: 44%
+        display: "imp_pin_set/buffer"
+        btn_border_radius: 8.0
+        gap: 6.0
+        show_ok: false
+        show_back: true
+        events:
+          submit: true
+        actions:
+          submit: worker.on_imp_pin_set
+
+    imp_pin_set/cancel:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 86%
+        h: 8%
+        text_align: CENTER
+        font_size: 13.0
+        label: "@@@T:imp_pin_set_cancel@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_imp_pin_set_cancel
+
+    # --- Reprise du compte : saisie du code -------------------------------------------------
+    # `message` porte les trois états successifs : invitation, essais restants, blocage. Le pavé
+    # et le masque disparaissent au 5e échec, remplacés soit par `unlock` (l'appareil sait
+    # vérifier son propriétaire), soit par rien du tout et une échéance — sur un appareil sans
+    # verrou il n'y a aucune sortie à proposer, et l'application rend la main toute seule.
+    imp_pin_ask:
+      masks:
+        - page
+      show_appbar: false          # sortir par la flèche système reviendrait à contourner la demande
+      title: "@@@T:imp_pin_ask_title@@@"
+      shape:
+        actions:
+          appear: worker.on_imp_pin_ask_appear
+      registry:
+        - commons/icon_background
+        - imp_pin_ask/message
+        - imp_pin_ask/mask
+        - imp_pin_ask/buffer
+        - imp_pin_ask/numpad
+        - imp_pin_ask/unlock
+        - imp_pin_ask/cancel
+
+    imp_pin_ask/message:
+      masks:
+        - commons/intro_text
+      shape:
+        y: 6%
+        h: 20%
+        font_size: 13.0
+        label: "@@@T:imp_pin_ask_intro@@@"
+
+    imp_pin_ask/mask:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 29%
+        w: 80%
+        h: 8%
+        text_align: CENTER
+        font_size: 30.0
+        font_weight: bold
+        label: ""
+
+    imp_pin_ask/buffer:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 29%
+        w: 80%
+        h: 8%
+        label: ""
+        visible: false
+
+    imp_pin_ask/numpad:
+      class: DvNumpad
+      layer: content
+      shape:
+        x: 10%
+        y: 39%
+        w: 80%
+        h: 44%
+        display: "imp_pin_ask/buffer"
+        btn_border_radius: 8.0
+        gap: 6.0
+        show_ok: false
+        show_back: true
+        events:
+          submit: true
+        actions:
+          submit: worker.on_imp_pin_ask
+
+    # Révélé au 5e échec, et SEULEMENT si l'appareil a un verrou. Il plafonne la garantie au
+    # verrou de l'appareil — assumé : un adulte qui a oublié son code doit pouvoir rentrer chez
+    # lui sans support ni réinitialisation.
+    imp_pin_ask/unlock:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 50%
+        h: 10%
+        text_align: CENTER
+        label: "@@@T:imp_pin_ask_unlock@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_imp_device_unlock
+
+    # Annuler = RESTER sur le compte de l'enfant. Refermer une demande de code ne vaut jamais
+    # réponse correcte, et c'est le seul repli sûr.
+    imp_pin_ask/cancel:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 86%
+        h: 8%
+        text_align: CENTER
+        font_size: 13.0
+        label: "@@@T:imp_pin_ask_cancel@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_imp_pin_cancel

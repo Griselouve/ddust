@@ -406,9 +406,13 @@ extension Worker_store on worker {
     // sur une TRANSITION. Une session qui s'ouvre sur un clan déjà en défaut depuis trois
     // semaines n'en verrait jamais passer un seul.
     //
-    // CHEFS DE CLAN UNIQUEMENT. « On n'inquiète surtout pas les enfants » (vision.md), et
-    // ce sont de toute façon les seuls destinataires des relances push comme les seuls
-    // capables de payer. Un adulte non-chef n'y peut rien non plus.
+    // CHEFS DE CLAN ADULTES UNIQUEMENT. « On n'inquiète surtout pas les enfants », et ce sont
+    // de toute façon les seuls destinataires des relances push comme les seuls capables de
+    // payer. Un adulte non-chef n'y peut rien non plus.
+    // La garde passe par _storeCanBuy et non par _ensureIsAdmin : ce bandeau est une relance
+    // de paiement, donc une surface commerciale, et il doit tomber sous le MÊME prédicat que
+    // la boutique. Le tester séparément est exactement ce qui avait laissé passer le cas du
+    // mineur promu chef.
     Future<void> _evaluateDunning() async {
 
                                 try {
@@ -418,18 +422,9 @@ extension Worker_store on worker {
                                         return;
                                     }
 
-                                    // Contexte de clan absent (onboarding, entre deux clans) : personne à
-                                    // prévenir, et _ensureIsAdmin n'a rien à lire.
-                                    final ctx = await _butinCtx();
-                                    if (ctx == null) {
-                                        await _applyDunning(false, "");
-                                        return;
-                                    }
-                                    final isAdmin = await _ensureIsAdmin(
-                                        ctx.get("clanId").toString(),
-                                        ctx.get("clanSecret").toString(),
-                                        ctx.get("region").toString());
-                                    if (!isAdmin) {
+                                    // Contexte de clan absent (onboarding, entre deux clans) → _storeCanBuy
+                                    // rend false : personne à prévenir, et rien à lire.
+                                    if (!await _storeCanBuy()) {
                                         await _applyDunning(false, "");
                                         return;
                                     }
@@ -1563,16 +1558,32 @@ extension Worker_store on worker {
     // --- Helpers
     // -----------------------------------------------------------------------
 
-    // Qui peut acheter : un administrateur du clan. Le contrôle parental s'ajoute
-    // au moment de l'achat lui-même (_storeBuyGated) — être adulte administrateur
-    // ne dispense pas de prouver qu'on l'est devant l'écran.
+    // Qui voit et qui peut acheter : un administrateur du clan QUI EST AUSSI légalement
+    // adulte. Les deux conditions, et pas une seule — « chef » est un rôle de jeu que le
+    // fondateur peut donner à n'importe quel membre, y compris un enfant. Ce prédicat garde
+    // TOUTES les surfaces commerciales, pas seulement l'achat : boutique, page des paliers,
+    // mur de première cotisation, bandeau d'impayé, bouton « Se réabonner » du clan gelé.
+    // C'est la première des deux gardes du § 5.3 du dossier « intérêt supérieur de l'enfant ».
+    // La seconde — le contrôle parental de _storeBuyGated — ne porte que sur l'acte d'achat :
+    // être adulte administrateur ne dispense pas de le prouver devant l'écran.
+    //
+    // L'ordre compte pour le coût, pas pour le résultat : _ensureIsAdmin est déjà chaud dans
+    // la quasi-totalité des cas (le tiroir et l'écran Clan l'appellent avant), et il écarte
+    // les non-chefs sans la lecture supplémentaire de _ensureIsAdult.
     Future<bool> _storeCanBuy() async {
 
                                 final ctx = await _butinCtx();
                                 if (ctx == null) return false;
-                                return _ensureIsAdmin(ctx.get("clanId").toString(),
-                                                      ctx.get("clanSecret").toString(),
-                                                      ctx.get("region").toString());
+                                final clanId     = ctx.get("clanId").toString();
+                                final clanSecret = ctx.get("clanSecret").toString();
+                                final region     = ctx.get("region").toString();
+                                if (!await _ensureIsAdmin(clanId, clanSecret, region)) return false;
+                                if (!await _ensureIsAdult(clanId, clanSecret, region)) {
+                                    deva_log("info", "[store] surfaces commerciales masquées : "
+                                        "$_userId est chef mais n'est pas légalement adulte");
+                                    return false;
+                                }
+                                return true;
     }
 
     // Achat sous double condition : administrateur du clan, puis porte parentale.

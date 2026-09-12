@@ -122,8 +122,15 @@ extension Worker_clan on worker {
                                 final region       = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final data         = event is Map ? event as Map : <String, dynamic>{};
                                 final internalName = data["internal_name"]?.toString() ?? "";
-                                final aiName       = data["ai_name"]?.toString()       ?? "";
                                 final description  = data["description"]?.toString()   ?? "";
+                                // Identité externe déjà résolue par l'appelant (on_confirm_create_clan).
+                                // Repli de sécurité si ce flux est appelé de plus loin : la banque, JAMAIS
+                                // le nom interne — c'était précisément le défaut d'origine.
+                                _AiDraft ext = _AiDraft()
+                                    ..extName = data["ext_name"]?.toString()   ?? ""
+                                    ..extDesc = data["ext_desc"]?.toString()   ?? ""
+                                    ..source  = data["ext_source"]?.toString() ?? "";
+                                if (ext.extName.isEmpty) ext = _bankSubstitute("clan");
 
                                 int count = 0;
                                 try {
@@ -132,8 +139,10 @@ extension Worker_clan on worker {
                                 } catch (_) {}
 
                                 final regionCode   = region.isNotEmpty ? region : "eu";
-                                final nameForExt   = aiName.isNotEmpty ? aiName : internalName;
-                                final externalName = "$nameForExt-$regionCode-$count";
+                                // Le nom externe reste suffixé « -region-compteur » : c'est lui qui porte
+                                // l'unicité inter-clans. Seule sa BASE change — un nom de substitution, et
+                                // plus jamais le nom que la famille s'est donné.
+                                final externalName = "${ext.extName}-$regionCode-$count";
 
                                 final userId      = _sessionDocId();
                                 final firebaseUid = _cloud?.currentUser()?.providerUid ?? "";
@@ -182,9 +191,16 @@ extension Worker_clan on worker {
                                         clanDoc.set("admins",          [userId]);
                                         // Fondateur = admin à vie (jamais rétrogradable). Repli legacy = admins[0].
                                         clanDoc.set("founder",         userId);
-                                        clanDoc.set("internal.name",   internalName);
-                                        clanDoc.set("external.name",   externalName);
-                                        clanDoc.set("description",     description);
+                                        clanDoc.set("internal.name",        internalName);
+                                        clanDoc.set("internal.description", description);
+                                        clanDoc.set("external.name",        externalName);
+                                        clanDoc.set("external.description", ext.extDesc);
+                                        clanDoc.set("external.source",      ext.source);
+                                        clanDoc.set("external.date",        now);
+                                        // MIROIR HISTORIQUE de internal.description. Les binaires déjà
+                                        // installés lisent ce champ plat (conteur du butin) : on l'écrit en
+                                        // double le temps d'une release, puis il pourra disparaître.
+                                        clanDoc.set("description",          description);
                                         clanDoc.set("avatar",          _defaultClanAvatar);
                                         clanDoc.set("butin_xp",        0);
                                         // Snapshot d'ouverture du coffre : le butin en jeu est butin_xp −
@@ -324,11 +340,7 @@ extension Worker_clan on worker {
 
     Future<void> on_create_clan_appear(DvShape? caller, dynamic event) async {
 
-                                _aiName       = "";
-                                _originalDesc = null;
-                                _originalName = null;
-                                _cachedAiName = null;
-                                _cachedAiDesc = null;
+                                _resetAiDraft();
                                 final nameEntry = await DvOrb.wait_for_shape("create_clan/name");
                                 final descEntry = DvOrb.get_shape_by_id("create_clan/desc");
                                 final replay    = DvOrb.get_shape_by_id("create_clan/replay");
@@ -464,10 +476,10 @@ extension Worker_clan on worker {
     }
 
     Future<void> on_inspire_clan(DvShape? caller, dynamic event) async =>
-        _runInspire("create_clan", "inspire_clan", "inspire_fallback_");
+        _runInspire("create_clan", "inspire_clan", "inspire_fallback_", kind: "clan");
 
     Future<void> on_replay_clan(DvShape? caller, dynamic event) async =>
-        _runReplay("create_clan", "inspire_clan", "inspire_fallback_");
+        _runReplay("create_clan", "inspire_clan", "inspire_fallback_", kind: "clan");
 
     Future<String> on_confirm_create_clan(DvShape? caller, dynamic event) async {
 
@@ -476,10 +488,17 @@ extension Worker_clan on worker {
                                 final name      = nameEntry?.get("shape.value")?.toString().trim() ?? "";
                                 if (name.isEmpty) return "cancel";
                                 final desc = descEntry?.get("shape.value")?.toString().trim() ?? "";
+                                // Identité externe résolue ICI, avant la moindre écriture : soit le
+                                // brouillon d'« Inspire moi » la portait déjà (aucun appel de plus), soit
+                                // un appel de substitution la produit, soit la banque locale la fournit.
+                                // Elle ne peut, dans aucun de ces cas, valoir le nom interne.
+                                final ext = await _resolveExternal("clan", name, desc);
                                 return await on_create_clan_complete(null, {
                                     "internal_name": name,
                                     "description":   desc,
-                                    "ai_name":       _aiName,
+                                    "ext_name":      ext.extName,
+                                    "ext_desc":      ext.extDesc,
+                                    "ext_source":    ext.source,
                                 });
     }
 
@@ -893,10 +912,14 @@ extension Worker_clan on worker {
     // créer un joueur ENFANT sans compte — cf. on_create_player_confirm — dont le nom et le
     // statut légal ("k") ne doivent PAS hériter de ceux du parent authentifié). noAccount marque
     // ce joueur comme dépourvu de doc `users`/`userindexes` (pilote la dérogation de révocation).
+    // internalDesc / ext : description de personnage et identité de substitution, transmises par
+    // les écrans qui les font naître (nom du joueur, création d'un enfant sans compte). Absentes,
+    // elles sont reprises du doc `users` du joueur — la source de vérité pour qui en a un.
     Future<void> _writeClanPlayer(
         String clanId, String clanSecret, String userId, String device, String region,
         {bool asAdmin = false, String firstClan = "",
-         String nameOverride = "", String legalStateOverride = "", bool noAccount = false}) async {
+         String nameOverride = "", String internalDesc = "", _AiDraft? ext,
+         String legalStateOverride = "", bool noAccount = false}) async {
 
             if (clanId.isEmpty || clanSecret.isEmpty || userId.isEmpty) return;
             try {
@@ -905,6 +928,16 @@ extension Worker_clan on worker {
                     ownerId: clanSecret, region: region,
                 );
                 final doc = existing ?? Dvidle({});
+                // RETRAIT DU CONSENTEMENT EN COURS : on ne touche plus à ce document. Rien de ce
+                // que cette fonction écrit n'a de sens pour un joueur qu'on a cessé de traiter —
+                // et `has_device` est reforcé à true à CHAQUE appel, donc à chaque login : une
+                // connexion de l'enfant le remettrait dans les agrégats du clan (butin, coup de
+                // pouce) alors qu'il n'y joue plus. Le document est en lecture seule jusqu'à ce
+                // qu'un chef rétablisse l'enfant ou que l'échéance tombe.
+                if ((doc.get("consent_due")?.toString() ?? "").isNotEmpty) {
+                    deva_log("info", "[consent] _writeClanPlayer ignoré : retrait en cours sur $userId");
+                    return;
+                }
                 final devices = List<dynamic>.from(doc.get("devices") as List? ?? []);
                 if (device.isNotEmpty && !devices.contains(device)) devices.add(device);
                 doc.set("id",      userId);
@@ -942,6 +975,41 @@ extension Worker_clan on worker {
                 } else if ((doc.get("name")?.toString() ?? "").isEmpty) {
                     final myName = (await Deva.instance.get("session.user.name"))?.toString() ?? "";
                     if (myName.isNotEmpty) doc.set("name", myName);
+                }
+                // Paire internal/external du MEMBRE. Le champ plat `name` ci-dessus en reste le
+                // MIROIR : une dizaine de lecteurs s'appuient dessus (roster, journal, butin,
+                // objets) et le désynchroniser de internal.name casserait l'affichage partout.
+                //
+                // internal.* suit l'autorité du renommage, comme `name`. external.* est
+                // INIT-SI-NULL : l'identité de substitution est figée à la naissance du joueur,
+                // et aucun renommage ultérieur ne la régénère.
+                //
+                // Source par défaut : le doc `users` du joueur — mais SEULEMENT s'il est bien le
+                // sien. Pendant une prise de place, _sessionDocId() désigne l'ADMIN : recopier son
+                // identité ici collerait le nom de l'adulte sur l'enfant qu'il incarne. Un enfant
+                // sans compte (no_account) n'a pas de doc `users` du tout : sa paire ne vit QUE
+                // sur ce document, d'où l'argument `ext` que lui passe on_create_player_confirm.
+                final identity = (!_impersonating && userId == _sessionDocId())
+                    ? await _readSession(region)
+                    : null;
+                // internal.name recopie ce que `name` vaut AU SORTIR du bloc ci-dessus, et hérite
+                // ainsi exactement de sa règle : autorité au renommage, init-si-null sinon. Le
+                // dériver de `users` à la place ferait diverger les deux au premier renommage posé
+                // par un admin en prise de place — la reconnexion du joueur l'effacerait.
+                final intName = doc.get("name")?.toString() ?? "";
+                if (intName.isNotEmpty) doc.set("internal.name", intName);
+                // Description : autorité au paramètre explicite (l'écran qui vient de la saisir),
+                // sinon init-si-null depuis le doc `users` du joueur. Même raison : ne pas défaire
+                // à chaque login ce qu'un autre écran a écrit.
+                if (internalDesc.isNotEmpty) {
+                    doc.set("internal.description", internalDesc);
+                } else if ((doc.get("internal.description")?.toString() ?? "").isEmpty) {
+                    final d = identity?.get("internal.description")?.toString() ?? "";
+                    if (d.isNotEmpty) doc.set("internal.description", d);
+                }
+                if ((doc.get("external.name")?.toString() ?? "").isEmpty) {
+                    final e = ext ?? _extFromDoc(identity);
+                    if (e != null && e.extName.isNotEmpty) _setExternal(doc, e);
                 }
                 // Avatar du membre : posé au défaut à la création, jamais écrasé ensuite
                 // (l'utilisateur peut le changer via l'explorateur → clans_players.avatar).
@@ -1044,6 +1112,158 @@ extension Worker_clan on worker {
             } catch (e) {
                 deva_log("error", "[worker] _writeClanPlayer: FAILED: $e");
             }
+    }
+
+    // BACKFILL de l'identité de substitution. Les documents créés AVANT ce correctif portent un
+    // `external` FAUX, pas absent : pour un joueur il valait mot pour mot le nom interne, pour un
+    // clan il en était préfixé (« Les Dupont-eu-142 »). Un init-si-null ne les rattraperait donc
+    // jamais — le champ est bien là, il ne protège simplement rien.
+    //
+    // Appelé en fire-and-forget depuis on_login : rien ne l'attend, et un échec ne coûte qu'une
+    // tentative de plus au démarrage suivant. La condition est auto-effaçante : dès qu'un
+    // substitut est écrit (IA ou banque), elle devient fausse et ne se rejoue plus jamais — ce
+    // qui est exactement la règle de gel appliquée aux documents anciens.
+    Future<void> _backfillExternalIdentity(Dvidle session, String region) async {
+
+                                if (region.isEmpty || _impersonating || _anon) return;
+                                try {
+                                    await _backfillPlayerExternal(session, region);
+                                } catch (e) {
+                                    deva_log("error", "[worker] backfill joueur FAILED: $e");
+                                }
+                                try {
+                                    await _backfillClanExternal(session, region);
+                                } catch (e) {
+                                    deva_log("error", "[worker] backfill clan FAILED: $e");
+                                }
+    }
+
+    Future<void> _backfillPlayerExternal(Dvidle session, String region) async {
+
+                                final intName = session.get("internal.name")?.toString()  ?? "";
+                                final extName = session.get("external.name")?.toString()  ?? "";
+                                if (intName.isEmpty) return;                       // nom pas encore saisi
+                                if (extName.isNotEmpty && extName != intName) return;   // déjà protégé
+                                final docId = _sessionDocId();
+                                if (docId.isEmpty) return;
+
+                                final intDesc = session.get("internal.description")?.toString() ?? "";
+                                // Banque locale, pas d'IA : ce rattrapage tourne au démarrage, sans que
+                                // personne ne l'ait demandé. Y appeler le modèle transmettrait le nom
+                                // interne d'un enfant en tâche de fond — exactement ce que ce champ
+                                // existe pour éviter.
+                                final ext     = _bankSubstitute("player");
+                                if (ext.extName.isEmpty) return;
+
+                                final patch = Dvidle({});
+                                patch.set("ownerId", _cloud?.currentUser()?.providerUid ?? "");
+                                patch.set("userId",  docId);
+                                _setExternal(patch, ext);
+                                await _cloud?.write("workers", "users", docId, patch, region: region);
+                                _invalidateSessionCache();
+                                deva_log("info", "[worker] backfill joueur → ${ext.extName} (${ext.source})");
+
+                                // Miroir sur le doc membre, qui porte la copie dénormalisée lue par tout
+                                // ce qui affiche un joueur. Écriture ciblée (deep-merge) : le doc membre
+                                // n'est pas relu, on n'écrase que ces champs-là.
+                                final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
+                                final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
+                                if (clanId.isEmpty || clanSecret.isEmpty || _userId.isEmpty) return;
+                                final mirror = Dvidle({});
+                                mirror.set("id",            _userId);
+                                mirror.set("internal.name", intName);
+                                if (intDesc.isNotEmpty) mirror.set("internal.description", intDesc);
+                                _setExternal(mirror, ext);
+                                await _cloud?.write("workers", "clans_players/$clanId/players", _userId,
+                                    mirror, region: region, ownerId: clanSecret);
+    }
+
+    // Volet clan, RÉSERVÉ AUX CHEFS : quatre membres d'une même famille qui ouvrent l'app le même
+    // matin généreraient sinon quatre substituts concurrents pour un seul clan.
+    Future<void> _backfillClanExternal(Dvidle session, String region) async {
+
+                                final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
+                                final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
+                                if (clanId.isEmpty || clanSecret.isEmpty) return;
+                                if (!await _ensureIsAdmin(clanId, clanSecret, region)) return;
+
+                                final clan = await _cloud?.read("workers", "clans", clanId,
+                                    ownerId: clanSecret, region: region);
+                                if (clan == null) return;
+                                final intName  = clan.get("internal.name")?.toString()        ?? "";
+                                final extName  = clan.get("external.name")?.toString()        ?? "";
+                                final descFlat = clan.get("description")?.toString()          ?? "";
+                                final intDesc  = clan.get("internal.description")?.toString() ?? "";
+                                final extDesc  = clan.get("external.description")?.toString() ?? "";
+                                if (intName.isEmpty) return;
+
+                                // Fuite du nom interne dans le nom externe : soit il est absent, soit il
+                                // vaut le nom interne, soit il en est préfixé (l'ancien « {interne}-eu-142 »).
+                                // ⚠ Limite connue : un clan renommé DEPUIS sa création n'est plus détecté —
+                                // le nom interne qui a fuité n'existe plus nulle part pour être comparé.
+                                final leaking  = extName.isEmpty || extName == intName ||
+                                                 extName.startsWith("$intName-");
+                                final needDesc = intDesc.isEmpty && descFlat.isNotEmpty;
+                                if (!leaking && extDesc.isNotEmpty && !needDesc) return;
+
+                                final patch = Dvidle({});
+                                patch.set("ownerId", clanSecret);
+                                // Migration du champ plat historique vers internal.description.
+                                if (needDesc) patch.set("internal.description", descFlat);
+
+                                if (leaking || extDesc.isEmpty) {
+                                    // Banque locale (cf. _backfillPlayerExternal) : aucun appel au
+                                    // modèle dans un rattrapage de démarrage.
+                                    final ext = _bankSubstitute("clan");
+                                    if (ext.extName.isNotEmpty && leaking) {
+                                        // On conserve le discriminant existant (« -eu-142 ») quand il y en a
+                                        // un : il identifie ce clan depuis sa naissance, seule la base — le
+                                        // nom qui fuitait — a besoin d'être remplacée.
+                                        String suffix = extName.startsWith("$intName-")
+                                            ? extName.substring(intName.length)
+                                            : "";
+                                        if (suffix.isEmpty) {
+                                            int count = 0;
+                                            try {
+                                                final r = await _cloud?.call("count_sessions", Dvidle({}));
+                                                count = int.tryParse(r?.get("count")?.toString() ?? "0") ?? 0;
+                                            } catch (_) {}
+                                            suffix = "-$region-$count";
+                                        }
+                                        patch.set("external.name",   "${ext.extName}$suffix");
+                                        patch.set("external.source", ext.source);
+                                        patch.set("external.date",   DateTime.now().toUtc().toIso8601String());
+                                    }
+                                    if (extDesc.isEmpty && ext.extDesc.isNotEmpty) {
+                                        patch.set("external.description", ext.extDesc);
+                                    }
+                                }
+                                await _cloud?.write("workers", "clans", clanId, patch,
+                                    region: region, ownerId: clanSecret);
+                                deva_log("info", "[worker] backfill clan $clanId OK");
+    }
+
+    // Relit une identité de substitution déjà persistée (doc `users` ou `clans_players`). Rend
+    // null si le document n'en porte pas — un appelant ne doit alors RIEN écrire plutôt que
+    // d'inventer une valeur : le gel n'a de sens que si l'on n'écrase jamais l'existant.
+    _AiDraft? _extFromDoc(Dvidle? d) {
+
+                                final n = d?.get("external.name")?.toString() ?? "";
+                                if (n.isEmpty) return null;
+                                return _AiDraft()
+                                    ..extName = n
+                                    ..extDesc = d?.get("external.description")?.toString() ?? ""
+                                    ..source  = d?.get("external.source")?.toString() ?? "";
+    }
+
+    // Pose les quatre champs `external.*` d'un document. Un seul endroit pour que la date de gel
+    // et la provenance ne soient jamais oubliées quelque part.
+    void _setExternal(Dvidle doc, _AiDraft e) {
+
+                                doc.set("external.name",        e.extName);
+                                doc.set("external.description", e.extDesc);
+                                doc.set("external.source",      e.source);
+                                doc.set("external.date",        DateTime.now().toUtc().toIso8601String());
     }
 
     // Portefeuille PERSONNEL du joueur (cf. _playerWalletId), créé EN MÊME TEMPS que lui : chaque

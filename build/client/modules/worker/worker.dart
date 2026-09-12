@@ -25,6 +25,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/widgets.dart';
+// Emprunt de compte : l'état est persisté ICI et non dans le dictionnaire deva — cf. les
+// clés _kImp* de worker_members.dart et la raison qui les y range.
+import 'package:shared_preferences/shared_preferences.dart';
 import '../dvcore/dvbeing.dart';
 import '../dvcore/deva.dart';
 import '../dvcore/dvidle.dart';
@@ -39,6 +42,7 @@ import '../dventries/dvmenu.dart';
 import '../dvlang/dvlang_button.dart';
 import '../dvlock/dvlock.dart';
 import '../dvcamera/dvcamera.dart';
+import '../dvdevicelock/dvdevicelock.dart';
 import '../dvmessaging/dvmessaging.dart';
 import '../dvtheme/dvtheme.dart';
 import '../dvstore/dvstore.dart';
@@ -79,16 +83,35 @@ String _generateUuid() {
     return '${hex.substring(0,8)}-${hex.substring(8,12)}-${hex.substring(12,16)}-${hex.substring(16,20)}-${hex.substring(20)}';
 }
 
+// Brouillon d'un appel « Inspire moi » — PARTAGÉ par create_clan, rename_task et les trois
+// écrans de nom du joueur. Il porte les QUATRE valeurs d'un même appel : ce que l'utilisateur
+// voit (name/desc) et ce qu'on ne lui montre JAMAIS (extName/extDesc, l'identité de
+// substitution visible hors du clan). Les tenir ensemble est précisément ce qui permet de
+// n'appeler l'IA qu'UNE fois : au moment de la confirmation, le substitut est déjà là.
+class _AiDraft {
+
+    String name    = "";
+    String desc    = "";
+    String extName = "";
+    String extDesc = "";
+    String source  = "";              // "ai" (modèle) | "bank" (repli local) | "" (rien)
+
+    bool get hasExt => extName.isNotEmpty;
+}
+
 // -----------------------------------------------------------------------------
 // --- worker class
 // -----------------------------------------------------------------------------
 class worker extends DvBeing {
 
-    String  _aiName       = "";
+    // Brouillon de l'écran d'inspiration COURANT. Le worker est un singleton : un seul écran
+    // à la fois en pose un, et chaque appear le remet à neuf (_resetAiDraft). Sans ce reset,
+    // l'alias d'un clan atterrirait sur un joueur. _cachedDraft = réponse IA arrivée APRÈS le
+    // timeout, que « Autre chose ! » rejoue au lieu de relancer un appel.
+    _AiDraft  _draft = _AiDraft();
+    _AiDraft? _cachedDraft;
     String? _originalDesc;
     String? _originalName;
-    String? _cachedAiName;
-    String? _cachedAiDesc;
     // Snapshots ORIGINAUX (non mutés pendant l'édition) de l'écran rename_task, pour n'écrire
     // en Firestore QUE les champs réellement modifiés. _originalName/_originalDesc, eux, suivent la
     // valeur COURANTE (mutés à chaque frappe) → inutilisables pour la détection de changement.
@@ -115,10 +138,38 @@ class worker extends DvBeing {
     // tandis que _authUserId reste l'admin — c'est lui que _sessionDocId() cible pour `users/`.
     String  _authUserId   = "";
     // Mode « prendre la place d'un joueur » (option roster admin) : le worker assume l'id de jeu d'un
-    // autre membre du clan SANS se déconnecter. Mémoire seule (jamais persisté) → un kill de l'app
-    // repart en tant que joueur d'origine. _realUserName garde le nom de l'admin pour le retour.
+    // autre membre du clan SANS se déconnecter. _realUserName garde le nom de l'admin pour le retour.
+    //
+    // PERSISTÉ depuis le 2026-09-09, et c'est un renversement assumé. Tant que l'emprunt vivait en
+    // mémoire seule, tuer l'app suffisait à repartir sur le compte de l'adulte : le mode « je te
+    // prête mon téléphone » s'évaporait à la première extinction, sans rien demander à personne.
+    // Les trois valeurs partent ensemble — sans _authUserId ni _realUserName, le retour n'aurait
+    // plus vers qui revenir. Rangées en SharedPreferences (local, privé à l'app) et non dans le
+    // dictionnaire deva : ddust relit un layer `runtime-<ownerId>` au login, et un code secret n'a
+    // rien à faire sur un chemin dont il faudrait démontrer qu'il ne monte jamais en ligne.
     bool    _impersonating = false;
     String  _realUserName  = "";
+    // Code temporaire choisi par l'adulte AU MOMENT de prêter son compte, et exigé pour le
+    // reprendre. Il meurt avec l'emprunt : rien à réinitialiser, aucun parcours « code oublié » —
+    // c'est ce qui le distingue d'un mot de passe et ce qui permet de ne rien promettre de plus.
+    String  _impPin        = "";
+    // Échecs de saisie. MÉMOIRE SEULE, remis à zéro à chaque ouverture de l'écran : le compteur ne
+    // sert pas à punir mais à RÉVÉLER la porte de sortie au bout de 5. Le remettre à zéro ne
+    // concède rien — la sortie reste le verrou de l'appareil, la même barrière dans tous les cas —
+    // et évite qu'un adulte paie les tentatives de son enfant.
+    int     _impPinTries   = 0;
+    // Appareil SANS verrou : il n'y a alors aucune sortie à proposer, donc l'emprunt se verrouille
+    // 10 minutes et rend la main tout seul à l'échéance. Persisté (sinon « Annuler » l'effacerait)
+    // et relu au démarrage. 0 = pas de verrouillage en cours.
+    int     _impLockUntil  = 0;
+    // Minuteur du verrouillage : arme la restitution automatique promise à l'adulte. Posé au
+    // moment du verrouillage et NON à l'ouverture de l'écran — la promesse ne doit pas dépendre
+    // de la page affichée, l'enfant peut très bien refermer et continuer à jouer.
+    Timer?  _impLockTimer;
+    // Cible retenue entre le tap du roster et la validation du code : la bascule d'identité
+    // n'a lieu qu'une fois le code posé, donc il faut bien garder quelque part QUI on emprunte.
+    String  _impPendingId   = "";
+    String  _impPendingName = "";
     // Admin du clan courant (cache par clanId) : un admin peut sélectionner une tâche "validating"
     // dans le tiroir (sinon le tiroir la verrouille comme pour tout le monde).
     bool    _isAdmin       = false;
@@ -131,6 +182,14 @@ class worker extends DvBeing {
     // Distingue l'admin SOLO (<=1) : auto-validation conservée + bouton « Résurrection » sur l'écran
     // de mort ; à plusieurs admins, l'admin passe par la validation croisée comme un joueur lambda.
     int     _adminCount    = 0;
+    // Statut légal de l'utilisateur courant dans le clan courant (cache indexé sur le même
+    // couple que _isAdmin, et pour la même raison : bascule de compte ou impersonation sur le
+    // même appareil doit forcer la relecture). Sert la SECONDE garde des surfaces commerciales
+    // — cf. _ensureIsAdult : « chef » est un rôle de jeu, pas une majorité légale.
+    // Défaut false : tant qu'on n'a pas lu, on ne montre rien de commercial.
+    bool    _isAdult       = false;
+    String  _isAdultClanId = "";
+    String  _isAdultUserId = "";
     // Menu roster (écran Clan) : cooldowns de l'utilisateur courant (lus sur son doc `users` à
     // l'appear clan) + plus petit XP du clan (calculé au montage du roster). Servent au
     // clan_selector pour griser « coup de pouce »/« guérir » et restreindre le boost.
@@ -343,6 +402,19 @@ class worker extends DvBeing {
         "delete_account_warn2",
         "delete_account_warn3",
     ];
+
+    // --- Retrait du consentement parental (option kebab du roster) ---------------------------------
+    // Cible de l'overlay de confirmation partagé entre les deux gestes (retrait / rétablissement).
+    // Mémoire seule : un overlay abandonné en cours de route ne laisse rien derrière lui.
+    String _consentTargetId   = "";
+    String _consentTargetName = "";
+    // "withdraw" | "restore" — décide des trois libellés du panneau et de ce que fait consent_yes.
+    String _consentMode       = "";
+
+    // Anti-rejeu du balayage des échéances : une seule tentative de suppression par cible et par
+    // session. Sans lui, chaque rafraîchissement du roster relancerait l'appel cloud sur la même
+    // cible tant que la pierre tombale n'est pas visible côté client.
+    final Set<String> _consentSwept = <String>{};
 
     // Une FEUILLE de domaine a un suffixe numérique (ex. salon_01, cuisine_03) → dt_t_*.
     // Un DOMAINE de premier niveau (ex. cuisine, chambre_enfant) → task_*. Générique : tout
@@ -822,6 +894,9 @@ class worker extends DvBeing {
     dvcloud?     get _cloud     => Deva.instance.module("dvcloud")     as dvcloud?;
     dvmessaging? get _messaging => Deva.instance.module("dvmessaging") as dvmessaging?;
     dvcamera?    get _camera    => Deva.instance.module("dvcamera")    as dvcamera?;
+    // Vérification par le verrou de l'APPAREIL. Null si le module n'est pas monté : l'appelant
+    // traite ce cas comme « pas de verrou », le même repli qu'un appareil sans code.
+    dvdevicelock? get _devicelock => Deva.instance.module("dvdevicelock") as dvdevicelock?;
     dvstore?     get _store     => Deva.instance.module("dvstore")     as dvstore?;
 
     worker([super.kwargs]);

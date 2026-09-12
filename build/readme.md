@@ -1,4 +1,4 @@
-<!-- revu: 20260823 -->
+<!-- revu: 20260910 -->
 # donjons & savons
 *transformez les corvées en une aventure épique familiale*
 
@@ -50,7 +50,7 @@ Application mobile B2C familiale, Android en cible principale (le client compile
 
 **Monétisation tranchée et livrée** : abonnement par clan, cinq paliers indexés sur le seul nombre de joueurs (1,99 € à 7,99 €/mois), essai gratuit de 14 jours, offre fondateurs pour les premiers clans. L'app se lance payante — la beta gratuite préalable a été supprimée (décision du 2026-08-11, motif repris dans `docs/vision.md` § Stratégie) : une beta gratuite produit de la rétention, jamais de la conversion, et faire commencer à payer des familles déjà installées coûte plus de churn qu'un prix affiché dès le premier écran.
 
-Développée en indépendant, éditeur personne physique (`build.yml` → `publisher`), sans publicité, sans traceur, sans achat surprise, et sans qu'aucune photo ne quitte l'appareil.
+Développée en indépendant, éditeur personne physique (`build.yml` → `publisher`), sans publicité, sans traceur, sans achat surprise, et sans qu'aucune photo ne soit sauvegardée en ligne.
 
 ---
 
@@ -79,6 +79,10 @@ La validation est croisée : dès que le clan compte deux admins, un admin ne pe
 
 Légalement mineurs ou majeurs — « enfant » désigne le rôle dans le clan, pas le statut légal. Un non-admin ne peut ni juger une tâche, ni guérir, ni booster, ni acheter quoi que ce soit : le menu contextuel du roster ne lui propose rien, et **aucun écran de paiement ne lui est jamais montré** — ni la page des paliers, ni le mur de première cotisation, ni le bouton « Se réabonner » de l'écran de clan gelé.
 
+**Le rôle ne suffit pas : les surfaces commerciales exigent DEUX conditions.** Être chef est un rôle de jeu que le fondateur peut donner à n'importe quel membre — rien dans `clans.admins` ne dit une majorité légale. Tant que la boutique ne regardait que cette liste, un mineur promu chef voyait la grille tarifaire, le mur de première cotisation et le bandeau d'impayé, ce que le § 5.3 du dossier « intérêt supérieur de l'enfant » et la politique Google Play Families interdisent l'un comme l'autre. `_storeCanBuy()` exige donc `_ensureIsAdmin` **et** `_ensureIsAdult` (`legal_state == "a"` lu sur `clans_players`, comme `_ensureIsAdmin`, pour rester juste sous impersonation) — et **toutes** les surfaces commerciales passent par ce prédicat, bandeau d'impayé compris : le tester séparément est exactement ce qui avait laissé passer le cas. En amont, `promote_chief` refuse un non-adulte avant toute écriture et le menu du roster masque l'option ; en aval, l'achat repasse par le contrôle parental. `"t"` — majorité déclarée par le tuteur mais CGU adulte pas encore acceptée — **n'est pas adulte**.
+
+Le sens du repli n'est pas négociable : `legal_state` illisible, absent (document antérieur au champ) ou inconnu ⇒ **non adulte**, surfaces masquées, warning journalisé. Se tromper vers `true` montre un écran de paiement à un enfant ; se tromper vers `false` prive un adulte d'un achat qu'il refera. Corollaire d'exploitation : le cache `_isAdult` est invalidé à l'acquisition de la majorité (`on_acceptance_complete`), sans quoi un nouvel adulte déjà chef resterait privé de la boutique jusqu'au redémarrage, et remis à `false` à chaque changement d'identité (`take_place`, `restore_self`, `on_logout`) — une lecture en échec ne doit jamais hériter du `true` du précédent utilisateur.
+
 ### joueur sans compte
 
 Un chef peut **créer un joueur** (option `create_player` du kebab Clan) : un enfant trop jeune pour avoir un téléphone, ou privé du sien. Le document `clans_players` est écrit directement, autorisé par le `clanSecret` du parent, **sans doc `users` ni `userindexes`** — ce personnage n'a pas de compte Google, pas de jeton FCM, `legal_state = "k"` et un marqueur `no_account`. Il consomme une place au sens du plafond d'abonnement, comme n'importe quel membre. C'est un chef qui joue pour lui, via la prise de place.
@@ -87,7 +91,15 @@ Un chef peut **créer un joueur** (option `create_player` du kebab Clan) : un en
 
 Un admin peut **prendre la place** d'un membre du clan (`take_place`) : le worker assume l'identité de **jeu** de la cible sans se déconnecter. `_userId` bascule sur la cible — toutes les lectures et écritures des collections de clan (roster, XP, PV, avatar, tâches, tiroir, journal, vigilance) la visent, autorisées par le `clanSecret` partagé — tandis que `_authUserId` reste l'admin : le document personnel `users/` n'est jamais touché.
 
-C'est de la **mémoire seule** : un kill de l'app repart en tant que joueur d'origine. Un bandeau overlay permanent (« Vous incarnez X — touchez pour revenir ») porte le retour (`restore_self`), et une leçon de tutoriel le pointe **à chaque prise de place**, jamais une seule fois. Pendant l'impersonation, l'option « supprimer mon compte » disparaît du kebab Personnage — elle supprimerait le compte de l'admin depuis la fiche d'un autre —, le device FCM n'est **pas** ré-enregistré (cela volerait le jeton, le nom et l'avatar de la cible), et les lignes de base de détection (xp, gold, last_task, is_admin) sont ré-amorcées dans les deux sens pour qu'aucune fausse célébration ne parte au moment de la bascule.
+**L'emprunt est PERSISTÉ** (`SharedPreferences`, clés `_kImp*`) : un kill de l'application le reprend là où il était. C'était l'inverse jusqu'au 2026-09-09, et c'était le trou — le mode « je te prête mon téléphone » s'évaporait à la première extinction, rendant le compte de l'adulte sans rien demander. Trois valeurs partent ensemble : `_impersonating`, `_authUserId` et `_realUserName`, faute de quoi le retour n'aurait plus vers qui revenir. La reprise au démarrage (`_impRestore`, appelée par `on_login` **avant** la vigilance, qui est keyée sur `_userId`) refuse dans trois cas et rend alors la main à l'adulte : échéance de verrouillage passée, autre compte authentifié sur l'appareil, ou joueur emprunté sorti du clan pendant que l'application était fermée.
+
+**Le retour est gardé par un code temporaire.** Le bandeau overlay (« Vous incarnez X — touchez pour revenir ») n'appelle plus `restore_self` : il ouvre `imp_pin_ask`. Le code à 4 chiffres est choisi par l'adulte **au moment de prêter** (`imp_pin_set`, avant la bascule — s'il renonce là, il ne s'est rien passé) et **meurt avec l'emprunt** : rien à réinitialiser, aucun parcours « code oublié », c'est ce qui le distingue d'un mot de passe. La saisie est masquée en deux shapes, `buffer` invisible pour le pavé et `mask` visible pour l'utilisateur — `DvNumpad` lit sa valeur dans sa cible d'affichage, masquer celle-ci casserait la saisie.
+
+Cinq échecs remplacent le pavé. Ce qui apparaît alors dépend de l'appareil, et c'est la seule fois où la distinction compte : **s'il a un verrou**, un bouton « Déverrouiller avec l'appareil » (`dvdevicelock`, empreinte / visage / code de l'appareil) rend la main — c'est la sortie de l'adulte qui a oublié son propre code ; **s'il n'en a pas**, il n'y a rien à proposer, l'emprunt se verrouille **10 minutes** et l'application rend la main toute seule à l'échéance (minuteur armé indépendamment de l'écran, échéance persistée — « Annuler » ne l'efface pas). Le compteur d'échecs, lui, est en mémoire et repart à zéro à chaque ouverture : il ne punit pas, il **révèle** la sortie — un adulte n'a pas à payer les tentatives de son enfant. « Annuler » laisse sur le compte de l'enfant : refermer une demande de code ne vaut jamais réponse correcte.
+
+⚠ **Ce n'est pas une serrure, et rien de tel ne doit être écrit.** L'enfant tient un téléphone déverrouillé : effacer les données de l'application depuis les réglages Android remet tout à zéro, et aucune vérification applicative ne franchit cette limite. Le bouton de déverrouillage plafonne par ailleurs la garantie au verrou de l'appareil, que beaucoup d'enfants connaissent. Ce qui est protégé, c'est le **retour accidentel ou opportuniste** — et ce qui est en jeu n'est pas de l'argent (la boutique est fermée aux non-adultes, cf. § rôle vs statut légal) mais les options d'administration, dont la validation par l'enfant de ses **propres** tâches.
+
+Une leçon de tutoriel pointe le bandeau **à chaque prise de place**, jamais une seule fois. Pendant l'impersonation, l'option « supprimer mon compte » disparaît du kebab Personnage — elle supprimerait le compte de l'admin depuis la fiche d'un autre —, le device FCM n'est **pas** ré-enregistré (cela volerait le jeton, le nom et l'avatar de la cible), et les lignes de base de détection (xp, gold, last_task, is_admin) sont ré-amorcées dans les deux sens pour qu'aucune fausse célébration ne parte au moment de la bascule.
 
 ### rôle vs statut légal
 
@@ -121,7 +133,7 @@ backend Pulumi (GCP — 2 régions : europe-west9, us-central1)
   │    {eu,us}-secrets · -virtuallobby · -store
   ├─ Cloud Storage (bucket assets par région : images, sons, vidéos, layers, prompts)
   ├─ Cloud Functions TypeScript (5 propres + 8 de modules)
-  ├─ Cloud Scheduler (balayage des impayés 5 h, purge 6 h, relances 17 h UTC)
+  ├─ Cloud Scheduler (balayage des impayés 17 h, purge 18 h, relances TOUTES LES HEURES)
   ├─ Firebase Hosting (site vitrine + page de suppression de compte)
   ├─ Vertex AI (Gemini 2.5 Flash Lite, localisation par région)
   └─ verrous distribués (dvlock / pulock)
@@ -149,10 +161,17 @@ Le joueur traverse **tout** l'onboarding en session Firebase **anonyme**, sans q
 
 1. L'écran `home` propose **deux portes** : « Je pars à l'aventure » (nouveau joueur) et « Retrouver mon héros » (compte existant). Aucune session anonyme n'est ouverte automatiquement — un `auto_start` créerait un compte anonyme à chaque lancement.
 2. **Je pars à l'aventure** ouvre la session anonyme et entre dans l'onboarding : royaume (région), date de naissance (jamais persistée, seul `legal_state` en est tiré), parental gate si adulte, vidéo d'introduction (FR/EN/ES, téléchargée depuis GCS, passable), puis les **CGU** correspondant à `(region, legal_state, lang)`.
+
+   **Une seconde case apparaît là où le backend sort du territoire du marché.** Plusieurs droits — art. 26 de la Ley 1581 en Colombie, art. 36 de la LFPDPPP au Mexique — exigent pour le transfert international une autorisation *préalable et distincte* de celle donnée à la collecte. Le marché la déclare (`transfer: true` au `regions_catalog` de dvdocuments), le module montre la case et éteint le bouton tant qu'elle n'est pas cochée, et la preuve porte `accepted_international_transfer`. **Aujourd'hui aucun marché ouvert n'est concerné** : `fr` vit dans le cloud `eu`, donc l'écran français est exactement celui d'avant — la case est déclarée, jamais affichée. Elle le sera le jour où un marché servi depuis un datacenter lointain s'ouvrira, sans autre changement qu'une clé de conf. C'est délibérément **indépendant** de l'arbitrage sur la région `us` (retirée le 2026-09-08, cf. `backend/config.yml`) : que `hispam` finisse servi depuis `us` ou depuis `eu`, la mécanique est en place et c'est le catalogue qui tranche.
 3. À l'acceptation, le routage diverge selon trois cas (`worker.legalstate`) :
    - **adulte encore anonyme** → écran de **liaison de compte** (`link_account_screen`), bloquant, sans « plus tard » ;
-   - **mineur** → directement l'écran de demande d'entrée dans un clan (`kid_wants_clan`). Il liera son compte **après** l'admission : avant, il n'a rien à protéger et l'écran de liaison le bloquerait pour rien ;
+   - **mineur** → l'**écran d'avis** (`kid_assent_screen`), puis l'écran de demande d'entrée dans un clan (`kid_wants_clan`). Il liera son compte **après** l'admission : avant, il n'a rien à protéger et l'écran de liaison le bloquerait pour rien ;
    - **adulte déjà authentifié** (compte supprimé qui refait son onboarding) → rien à lier, on enchaîne sur le nom.
+
+   **L'écran d'avis du mineur** mérite qu'on dise pourquoi il est là et pourquoi il est là **précisément là**. La condition n° 3 de l'article 2.2.2.25.2.9 du `Decreto 1074 de 2015` (qui compile l'art. 12 du `Decreto 1377 de 2013`) ne tient l'autorisation du représentant légal pour valable qu'« *previo ejercicio del menor de su derecho a ser escuchado* ». Les deux autres conditions sont couvertes par la CGU de l'écran précédent ; celle-ci ne l'était pas. L'écran **pose une question** — « Tes parents ont accepté que tu joues. Et toi, tu as envie de jouer ? » — et le bouton est la **réponse de l'enfant**, « Oui, je pars à l'aventure ! » : un « Continuer » ne rendrait compte de rien. Trois conséquences de conception :
+   - **il n'y a pas de bouton « Non »** — décliner n'a rien à écrire, et enregistrer un refus reviendrait à collecter une donnée sur un enfant qui vient justement de ne pas consentir. Ne pas valider *est* la réponse ; une flèche retour évite l'impasse ;
+   - **l'assentiment n'est persisté nulle part**, donc la question est reposée à chaque reprise à froid tant que l'enfant n'est pas admis (route `join` du pas `home`). Un tap de plus dans un état rare, contre un invariant inconditionnel ;
+   - **la place dans le funnel est le cœur de l'argument** : à ce stade la session est encore anonyme et rien n'a été écrit en base. C'est ce qui rend littéralement vraie la phrase publiée dans les documents français — « l'avis du mineur est recueilli avant toute collecte ». Déplacer ce pas d'un cran vers l'aval la rendrait fausse.
 4. **Le flush.** La liaison réussie déclenche la première écriture réelle, d'un seul tenant et dans cet ordre : `userindexes` **en premier** (le document que toutes les règles Firestore déréférencent, et celui qui rend le compte retrouvable), puis `users` avec les quatre steps en une seule écriture fusionnée, puis la **preuve de consentement** rejouée par dvdocuments avec l'horodatage réel, puis l'enregistrement du device FCM (non critique). Si une étape échoue, le flush rend `false` et le parcours ne continue pas : atteindre l'écran de clan sans `userindexes` ferait échouer la création de clan au niveau des règles, panne bien plus tardive et bien plus obscure qu'un message ré-essayable.
 5. **Le nom d'aventurier** est demandé après la liaison, pour tout le monde — quand le joueur a une identité durable.
 6. L'utilisateur crée un clan ou demande à en rejoindre un.
@@ -179,7 +198,7 @@ Réservée aux adultes. Le bouton est grisé pour `k` et `t`.
 
 1. Saisie d'un nom (obligatoire) et d'une description. « Inspire moi » envoie les deux à Vertex AI (section 6) ; « Rejouer » restaure les saisies originales avant de relancer.
 2. À la confirmation, deux UUID sont générés (`clanId`, `clanSecret`) et la Cloud Function `count_sessions` fournit un index.
-3. Le **nom externe** est construit `"{aiName}-{region}-{sessionCount}"`. C'est le seul nom visible hors du clan **sans action du joueur**. Cette règle protège la confidentialité inter-clans ; elle ne s'applique pas à un **partage volontaire** : le conte du butin (section 11) affiche et transmet le nom interne, celui que la famille a choisi.
+3. Le **nom externe** est construit `"{substitut}-{region}-{sessionCount}"`, où `{substitut}` est un nom de clan **inventé par l'IA** pour servir de pseudonyme public : même langue, même style, aucun mot en commun avec le nom interne (section 6, « la substitution »). C'est le seul nom visible hors du clan **sans action du joueur**. Cette règle protège la confidentialité inter-clans ; elle ne s'applique pas à un **partage volontaire** : le conte du butin (section 11) affiche et transmet le nom interne, celui que la famille a choisi.
 4. Deux documents sont écrits — `users/{uid}` (ajout du clan et de son secret) et `clans/{clanId}` (avec `ownerId = clanSecret`, section 5) — et un log `ClanCreated` est tracé.
 5. Navigation vers le decisiontree ; les réponses sont persistées dans `clans_tasks`, les tâches `multiple` activées mémorisées dans `clans.enabled_multiple`, et le créateur écrit ses propres clones.
 
@@ -224,6 +243,8 @@ Une tâche `validating` apparaît dans le tiroir avec un overlay **main** pour u
 - **partiel** — **moitié de l'XP** (répercutée sur le clan et le butin) et tâche à moitié régénérée : `dead = now − respawn_h/2`, `revive = now + respawn_h/2`, statut `alive` — même une mortelle reste sélectionnable, barre de respawn à ~50 % ;
 - **reject** — retour en `assigned` au même joueur, preuve purgée, aucun XP, fenêtre préexistante préservée.
 
+**Ce que le journal en écrit.** `accept` et `partiel` rendent la description de victoire (`dt_d_<base>`) suivie de l'XP — **la parenthèse étant omise si le total est nul**, ce qu'un accept peut parfaitement valoir : tâche revalidée dans sa fenêtre de régénération (dégradation à 0 %) ou partiel sur une tâche à 1 XP (division entière). `reject` rend la description d'**effort** (`dt_c_<base>`) et **aucun chiffre** — pas « 0 XP », rien. Les trois verdicts passaient auparavant par la même branche : le journal affichait « Tu as vaincu l'Hydre de Céramique (0 XP) », une ligne de victoire démentie par son propre chiffre, dans une table append-only que rien ne purge et que toute la fratrie lit. Les 138 `dt_c_*` ont été réécrits pour cet usage, du registre du **renoncement** (« a renoncé face à », « a battu en retraite devant ») vers celui de l'**effort** : une tête qui dit le combat mené, une circonstance **extérieure à l'enfant** qui dit pourquoi ça n'a pas suffi — un piège, un dragon qui passe, la nuit qui tombe. Le nom du monstre est préservé, il est déjà traduit tâche par tâche. Ces textes étaient jusque-là du contenu mort : le champ `cancel:` de chaque tâche les référence, et aucun code Dart ne le lit — il servira la retraite le jour où elle se journalisera.
+
 L'XP est calculée **avant** l'écriture du verdict (la proportionnalité utilise la fenêtre du cycle précédent, que la validation réécrit). Chaque verdict trace un log et notifie l'assignee dans sa langue. Chaque verdict accepté incrémente aussi `clans.validations`, le compteur qui déclenche la demande de première cotisation (section 12) — un compteur commercial qui ne doit jamais faire échouer une validation : en cas d'erreur, la famille est créditée et fêtée quand même, et la relance part une tâche plus tard.
 
 **Verdict depuis la notification** (clans abonnés) : trois boutons mappés sur des actions en mode `noorb` — app fermée, le tap relance l'app **sans UI** (seuls les idles `orb` et `lang` sont chargés), attend la résolution du contexte clan (borné ~10 s), exécute le verdict et s'arrête. **Garde d'idempotence** : le verdict n'est appliqué que si la tâche est encore `validating`, deux admins peuvent taper sans double crédit.
@@ -254,19 +275,58 @@ Deux collections sont en **lecture seule pour tout le monde** : `clans_store` (l
 
 ## 6. mécanique ia
 
-Deux usages seulement, tous deux ponctuels, jamais en streaming, jamais en arrière-plan. Le modèle est Gemini 2.5 Flash Lite via Vertex AI, avec une **localisation par région** (`aimodel.location`) : une liste par région, car le texte envoyé est saisi par l'utilisateur et doit être traité chez lui. L'Europe est volontairement découplée de `europe-west9` (petite région à faible capacité Gemini, d'où des 429 « Resource exhausted » dès deux joueurs simultanés) au profit de la multi-région `eu`, avec `europe-west4` en repli.
+Deux usages seulement — l'inspiration d'un nom et le conte du butin — tous deux **déclenchés par un bouton**, ponctuels, jamais en streaming, jamais en arrière-plan. Aucun autre chemin du code n'appelle le modèle : c'est une propriété qu'on tient, pas une conséquence. Le modèle est Gemini 2.5 Flash Lite via Vertex AI, avec une **localisation par région** (`aimodel.location`) : une liste par région, car le texte envoyé est saisi par l'utilisateur et doit être traité chez lui. L'Europe est volontairement découplée de `europe-west9` (petite région à faible capacité Gemini, d'où des 429 « Resource exhausted » dès deux joueurs simultanés) au profit de la multi-région `eu`, avec `europe-west4` en repli.
+
+### deux garde-fous, qui échouent différemment
+
+**Les filtres du modèle.** `dvvertexai` pose explicitement `BLOCK_LOW_AND_ABOVE` sur les quatre catégories de contenu texte (`aimodels.safety`) au lieu de s'en remettre aux défauts de Vertex, et la Cloud Function `ai_generate` **repose les siens sans lire ceux du client** : un appareil modifié ne peut pas les desserrer. Rien à écrire côté ddust, c'est le défaut du module.
+
+**Le registre imposé dans les prompts.** Chacun des trois corps se termine par un bloc qui borne le ton : les seuls monstres sont de saleté et de désordre, aucune violence envers une personne ou un animal, rien qui fasse peur, aucun thème d'adulte, aucun mot grossier, aucune donnée personnelle inventée, et « dans le doute, la formulation la plus douce ».
+
+Un filtre bloque ce qui a été **produit** ; un registre dit ce qu'on **demande**. Ils ne se remplacent pas.
+
+**Les trois corps vivent dans le layer cloud** `theme-donjon-global.yml`, et non plus dans `client/config/lang.yml`. C'est le point qui donne sa valeur au reste : compilés, ils auraient exigé un build **et une release au store** pour corriger une contrainte de ton qui se révélerait insuffisante en production. Dans le layer, un push suffit. `prompts_General_V1.yml` ne porte que les renvois `@@@T:…@@@` — il ne contient aucun texte de prompt et n'a jamais été le levier qu'on croyait. ⚠ Ne pas redéclarer ces clés dans la conf compilée : le layer est `above: conf`, une copie oubliée ne se verrait pas et servirait de repli silencieux.
 
 ### « inspire moi »
 
-À la création de clan et à la saisie du nom de joueur. Le prompt (`prompts_General_V1.yml`) est stocké dans GCS et téléchargé au lancement (asset critique, bloquant pour Vertex AI) ; `dvprompts` l'expose, avec injection de l'entrée et de la langue.
+À la création de clan, à l'édition d'une tâche, et sur les trois écrans de nom du joueur (`player_name_screen`, `player_rename_screen`, `create_player_screen`) — tous bâtis sur le même gabarit `commons/inspireform_*` : nom + description + « Inspire moi ». Le prompt (`prompts_General_V1.yml`) est stocké dans GCS et téléchargé au lancement (asset critique, bloquant pour Vertex AI) ; `dvprompts` l'expose, avec injection de l'entrée et de la langue.
 
 **Entrée** : `"nom: {saisie}, description: {saisie}"`. Seules des chaînes librement saisies transitent. **Timeout et repli** : l'appel est borné à 3 secondes, après quoi un jeu statique traduit est tiré — l'utilisateur n'attend jamais l'IA. Si la réponse arrive après coup, elle est mise en cache et servie au prochain « Rejouer ». **Rejouer sans dériver** : la saisie originale est capturée au premier appui et restaurée avant chaque relance.
+
+### la substitution : d'où vient `external`
+
+Chaque joueur et chaque clan portent **deux identités** : `internal` (nom + description, ce que la famille voit) et `external` (nom + description, tout ce qui est visible **hors** du clan). L'externe n'est pas un dérivé de l'interne — c'est un **autre nom**, produit par l'IA.
+
+**La règle du substitut de joueur** : même langue, même origine culturelle, longueur comparable, et **même genre** que le pseudonyme d'origine. Si le nom choisi ne permet pas de déterminer le genre, le substitut ne doit pas le permettre non plus — « Camille » → « Sasha ». La description suit la même logique : même ton, même longueur, aucun détail concret repris. Pour un clan, mêmes langue et style, aucun mot en commun, et pas de suffixe (c'est le worker qui accole `-{region}-{compteur}`).
+
+**Un seul appel.** Les prompts « inspire » rendent **quatre** valeurs d'un coup — nom, description, et leurs deux substituts — dans cet ordre :
+
+```
+ALIAS: …
+ALIAS_DESCRIPTION: …
+NOM: …
+DESCRIPTION: …
+```
+
+⚠ **L'ordre est le mécanisme de rétro-compatibilité, pas de la mise en forme.** Les binaires déjà installés n'ont qu'un parseur naïf qui avale tout ce qui suit `DESCRIPTION:` : le bloc `ALIAS` en tête leur reste inerte, le même bloc en queue leur ferait afficher le pseudonyme public dans la description. Les prompts étant hot-patchables et le Dart non, tout marqueur ajouté plus tard doit respecter cette règle. Les deux valeurs `ALIAS*` ne sont **jamais affichées** : les montrer annulerait ce qu'elles protègent.
+
+**Sans inspiration, aucun appel.** Qui saisit son nom sans toucher au bouton reçoit un substitut tiré d'une **banque locale traduite** du layer, suivi de cinq chiffres (`Benji12312`) ; le clan, lui, a déjà son suffixe `-{region}-{compteur}`. Même repli si l'IA échoue, dépasse les 3 secondes, ou recopie le nom d'origine.
+
+C'est un choix, et il coûte quelque chose : ce substitut-là ne respecte ni la langue ni le genre de l'original. Il a été préféré à un appel dédié, qui aurait transmis au modèle — sans que personne ne l'ait demandé — le nom même qu'il s'agit de protéger, et rendu fausse la phrase qui ouvre cette section. Personne ne lit jamais ce nom : il n'a pas à être joli, il a à ne rien trahir.
+
+Aucun chemin de code ne peut faire retomber `external` sur `internal` — c'était le défaut d'origine, où le pseudonyme public valait celui que la famille voit.
+
+**À quoi sert `external`.** À rien aujourd'hui, et c'est normal : aucun écran n'affiche quoi que ce soit d'un autre clan. Il existe pour qu'un tel écran puisse exister — tableaux de clans, comparaisons, compétitions : des pistes non arbitrées, dont aucune ne pourra jamais montrer un nom que la famille reconnaît. Une identité publique ne se fabrique pas après coup, quand les documents ont déjà été publiés ; elle se crée d'avance, ou elle manque. ⚠ Ce n'est **pas** un dispositif d'anonymisation vis-à-vis du modèle : le conte du butin reçoit les pseudonymes internes, et c'est délibéré (cf. « le conte du butin »).
+
+**Gel.** Le substitut naît une fois, à la création du personnage ou du clan, et **ne bouge plus** : un renommage ne le régénère pas. Un pseudonyme qui suivrait chaque humeur n'identifierait plus rien hors du clan. Les documents antérieurs à cette règle (où `external` valait `internal`) sont rattrapés au login par `_backfillExternalIdentity` — **banque locale uniquement**, sans réseau ni modèle : c'est un rattrapage que personne n'a demandé, il n'a rien à envoyer nulle part. Une seule fois, et seulement par un chef pour la partie clan. Limite connue : un clan créé avant le correctif **puis renommé** n'est plus détectable — le nom interne qui a fuité n'existe plus nulle part pour être comparé.
 
 ### le conte du butin
 
 Après une ouverture de coffre, **tout joueur ayant participé** (pas seulement les chefs) peut demander à l'IA de raconter l'aventure du clan. L'écran de journal bascule alors en **mode conte** : au lieu de la liste d'événements, il affiche le récit qu'un modèle en a tiré, suivi d'une phrase fixe. Le mode est **consommé** à l'affichage — revenir au journal par le kebab ne rejoue pas d'inférence, et le mode ne survit pas à la sortie de l'écran.
 
-La matière est le **journal du clan en texte brut**, borné, plus de quoi citer un seul chiffre (l'XP totale). Trois contraintes portées par le prompt lui-même : le conte **ne parle jamais d'argent** (la phrase qui en parle est fixe, hors IA), il ne raconte pas la fondation du clan (les premières lignes du journal l'ouvraient systématiquement dessus), et il travaille sur les **prénoms choisis par les joueurs** — jamais un identifiant, un âge, une région ou un email. Journal vide → rien à raconter, on retombe sur le message habituel sans déranger l'IA.
+La matière est le **journal du clan en texte brut**, borné, plus de quoi citer un seul chiffre (l'XP totale). Trois contraintes portées par le prompt lui-même : le conte **ne parle jamais d'argent** (la phrase qui en parle est fixe, hors IA), il ne raconte pas la fondation du clan (les premières lignes du journal l'ouvraient systématiquement dessus), et il travaille sur les **pseudonymes choisis par les joueurs** — jamais un identifiant, un âge, une région ou un email. Journal vide → rien à raconter, on retombe sur le message habituel sans déranger l'IA.
+
+**Oui, les pseudonymes internes partent au modèle, et c'est un choix.** Une revue a proposé de les remplacer par leurs substituts avant l'appel, puis de les restituer avant affichage. Écarté le 2026-09-10 : le conte est écrit **pour la famille**, un récit où les parents ne reconnaissent personne n'a aucun intérêt, et `external` existe pour une tout autre raison (cf. « la substitution »). Ce qui doit être vrai, en revanche, c'est ce qu'en disent les documents — d'où la ligne correspondante du tableau des formulations à ne jamais reprendre.
 
 ---
 
@@ -274,7 +334,7 @@ La matière est le **journal du clan en texte brut**, borné, plus de quoi citer
 
 ### bibliothèque de tâches
 
-Les tâches vivent dans `resources_cloud/general/layers/tasks-base-global.yml`, chargé en base de la conf. Le fichier déclare **20 domaines** (19 câblés à un tiroir) et **151 tâches** :
+Les tâches vivent dans `resources_cloud/general/layers/tasks-base-global.yml`, chargé en base de la conf. Le fichier déclare **19 domaines**, tous câblés à un tiroir, et **138 tâches** :
 
 ```yaml
 salon_01:
@@ -286,7 +346,6 @@ salon_01:
   effort:     3                          # difficulté
   type:       immortelle                 # immortelle = régénère ; mortelle = respawn sec
   respawn_h:  72                         # délai de réapparition/régénération, en heures
-  supervision: false
   multiple:   k                          # optionnel : clone par joueur (k|a|all)
   skip_if_blacklisted: []
   keep_if_whitelisted: []
@@ -367,7 +426,7 @@ Sur ce socle s'applique la **fenêtre de régénération** `dead → revive` : 0
 
 Le niveau n'est **jamais stocké** : il se dérive de l'XP cumulée. L'XP requise pour atteindre le niveau N suit `XP_N = 50 · (N(N+1)/2 − 1)` : 100 au niveau 2, 250 au 3, 450 au 4, 700 au 5. Le coût d'un palier croît linéairement — compromis entre le linéaire (les niveaux ne signifient plus rien) et l'exponentiel (mur infranchissable).
 
-Même courbe pour le clan avec un pas ×10 : niveau 2 à 1000 XP, niveau 3 à 2500. Le crédit d'XP au clan est **divisé par le nombre de membres** (`ceil(xp / count)`) : le palier de clan récompense l'effort collectif, pas la taille du foyer. L'XP partagée est celle **réellement gagnée par le joueur, bonus boss compris**. Le diviseur ne compte que les membres **actifs** : révoqués (`enabled = false`) et sans-téléphone (`has_device = false`) en sont exclus.
+Même courbe pour le clan avec un pas ×10 : niveau 2 à 1000 XP, niveau 3 à 2500. Le crédit d'XP au clan est **divisé par le nombre de membres** (`ceil(xp / count)`) : le palier de clan récompense l'effort collectif, pas la taille du foyer. L'XP partagée est celle **réellement gagnée par le joueur, bonus boss compris**. Le diviseur ne compte que les membres **actifs** : révoqués (`enabled = false`) et sans-téléphone (`has_device = false`) en sont exclus. Un **hors concours y reste**, et c'est délibéré : il joue et il produit, contrairement à un sans-téléphone. Il a renoncé aux récompenses, pas à la contribution.
 
 **Plafond d'XP par tâche, indexé sur le niveau.** L'XP gagnée sur UNE tâche est écrêtée à `clans_players.max_xp` (amorcé à 100, le champ du doc faisant foi ensuite et pouvant varier d'un joueur à l'autre) **+ 20 × niveau du joueur** (niveau avant le gain) : 120 au niveau 1, 300 au niveau 10. Sans ce bonus, un plafond fixe traite pareil le débutant et le vétéran — trop bas il écrase le bonus boss d'une grosse corvée au niveau 10, trop haut il laisse un niveau 1 rafler d'un coup ce que le barème destine à plusieurs semaines. Indexer le plafond sur le niveau fait du niveau lui-même une récompense. Le badge de combat applique la même formule pour ne jamais promettre plus que ce que le verdict versera. Un réalignement à usage unique (`player_max_xp_legacy`) réécrit l'ancienne valeur d'amorçage sur les personnages existants, sans jamais écraser un plafond personnalisé.
 
@@ -394,7 +453,7 @@ Six scènes `dvinterlude` ponctuent le jeu, toutes déclenchées par **détectio
 | **giftxp** | XP créditée sans tâche (cadeau de guilde, coup de pouce boss, cadeau de fée) | pluie d'XP dorée |
 | **giftgold** | hausse du champ `gold` du joueur | pluie de pièces dorées |
 | **heal** | transition mort → vivant | croix vertes + voile blanc |
-| **gameover** | passage à 0 PV | rideau noir + splash « GAME OVER » |
+| **gameover** | passage à 0 PV (hors sans-téléphone et hors concours) | rideau noir + splash « GAME OVER » |
 
 `giftgold` est câblé mais **dormant** : aucune mécanique ne crédite `gold` aujourd'hui, l'or arrivant avec le pack économie. La détection se déclenchera dès qu'une source existera.
 
@@ -402,7 +461,7 @@ Six scènes `dvinterlude` ponctuent le jeu, toutes déclenchées par **détectio
 
 Le butin se remplit via une jauge dédiée, distincte du niveau de clan. À chaque crédit d'XP au clan, le même montant (modulé par `clans.butin_xp_factor`) est ajouté à `clans.butin_xp`. **Deux plafonds distincts** : celui du **cycle** (1000 — au-delà, plus aucun gain jusqu'à l'ouverture) et, en amont, celui d'**un seul crédit** (`clans.max_xp_butin`, amorcé à 50, **+ 20 × niveau du clan**) : miroir exact du plafond joueur, il évite qu'une seule corvée recommandée, divisée par peu de membres, ne remplisse la jauge d'un coup dans un jeune clan. Les dons fixes des montées de niveau (10 × niveau) sont soumis au même plafond de crédit.
 
-Deux compteurs cohabitent sur le doc clan : `xp` (non borné) pilote le niveau et les titres ; `butin_xp` (0 → 1000) est la jauge d'ouverture. L'écran clan affiche la jauge avec un coffre qui avance sur la barre, et le roster la **contribution de chaque joueur au cycle courant** (`xp − last_butin_xp`, normalisée sur le meilleur contributeur). `last_butin_xp` est recalé à l'ouverture, sur le doc clan comme sur chaque doc membre.
+Deux compteurs cohabitent sur le doc clan : `xp` (non borné) pilote le niveau et les titres ; `butin_xp` (0 → 1000) est la jauge d'ouverture. L'écran clan affiche la jauge avec un coffre qui avance sur la barre, et le roster la **contribution de chaque joueur au cycle courant** (`xp − last_butin_xp`, normalisée sur le meilleur contributeur). Cette normalisation est la raison d'être du mode **hors concours** : un adulte actif devenait le meilleur contributeur et **aplatissait la barre de toute la fratrie**. Les hors concours sortent du calcul de ce maximum, ce qui rend leur amplitude aux barres des enfants — et leur propre barre n'est plus affichée. `last_butin_xp` est recalé à l'ouverture, sur le doc clan comme sur chaque doc membre.
 
 ### le coffre et son contenu
 
@@ -418,19 +477,26 @@ Au plafond de la jauge, un coffre doré paraît sur l'écran Clan **des seuls ch
 
 1. Le premier chef qui le touche prend un verrou **dvlock** (TTL **30 minutes**, généreux à dessein : il doit couvrir un rituel entier, discussions comprises). Il est le **meneur** ; les autres n'obtiennent rien. Si le meneur abandonne (app fermée, batterie morte), le verrou meurt seul et un autre chef reprend — c'est la seule porte de sortie.
 2. Lui seul voit l'écran de rituel, qui lui demande de réunir le clan, de faire raconter à chacun son aventure, et de sortir la tirelire.
-3. Son bouton « Prêt ! Ouvrons le coffre ! » pose `pending_opening` sur le doc membre de **chaque joueur en ligne** (`enabled != false` **et** `has_device != false`), sauf lui-même — prêt par construction.
+3. Son bouton « Prêt ! Ouvrons le coffre ! » pose `pending_opening` sur le doc membre de **chaque joueur en ligne** (`enabled != false` **et** `has_device != false`), sauf lui-même — prêt par construction. Un joueur **hors concours est convoqué comme les autres** : il ne reçoit rien du partage, mais être hors concours ne veut pas dire être exclu du rituel.
 4. La vigilance de chaque joueur voit le drapeau et ouvre le même écran chez lui, avec le récit de la bataille ; son bouton vide son `pending_opening`.
 5. Le meneur suit l'appel sur une `DvList` d'attente — une ligne par joueur, coche verte dès qu'il a répondu — alimentée par **une vigilance par joueur attendu** (le framework écoute des documents, pas des collections). Un tap sur la ligne d'un absent le **force prêt**, pour qu'un seul retardataire ne gèle pas l'ouverture.
 6. Quand plus personne ne manque, l'appareil du meneur relâche le verrou et déclenche la distribution : le partage, le recalage de `last_butin_xp` (clan **et** membres) et le drapeau `pending_butin` partent dans le même `batchWrite`. Les objets distribués passent par une sentinelle de transit (`owner = "opening"`) : ils ont quitté le coffre mais leur destinataire ne les a pas encore réclamés — sans quoi le coffre paraîtrait encore plein entre la distribution et la dernière réclamation.
-7. Chacun réclame sa part sur son propre appareil, puis l'animation de récompenses. **L'attaque de bisous** — le petit mot qui nomme celui qui a le moins rapporté d'XP — est figée au même moment, et **vide sur l'appareil du principal intéressé** : on ne dit pas à un enfant qu'il est dernier, on le dit aux autres pour qu'ils viennent l'embrasser.
+7. Chacun réclame sa part sur son propre appareil, puis l'animation de récompenses. **L'attaque de bisous** — le petit mot qui désigne le joueur à la plus faible contribution — est figée au même moment, et **vide sur l'appareil du principal intéressé** : le message parle de lui, pas à lui. Quatre protections l'encadrent : chefs et joueurs hors concours écartés du tirage (`_lowestContributor` filtre sur `!admin && !horsConcours`), ex æquo départagés par tirage aléatoire, et rien d'affiché à celui qu'il nomme. **Le critère de sélection reste la contribution la plus basse ; ce qui a disparu, c'est de l'écrire** — « était en difficulté », et non « a rapporté le moins d'XP », sans invitation à « mieux faire la prochaine fois ». Le rituel appelle de l'affection, il ne rend pas un classement (cf. § 19, « aucun classement »).
 8. Les **notes des chefs** sont révélées ensuite, avec un minuteur de lecture forcée de 10 s avant que le bouton de sortie n'apparaisse ; sans note, l'écran est sauté.
 9. Vient enfin la proposition de **raconter l'aventure** (le conte IA, section 6) : c'est là — et pas trois écrans plus loin — qu'on la fait.
+
+**Le partage lui-même** (`_computeButinShares`, fonction pure : elle ne lit ni n'écrit rien, et tout son hasard entre par un `Random` — deux appels avec la même graine donnent le même partage). Quatre règles :
+
+- **L'argent** va à tout le monde, chefs compris, **au prorata de la contribution du cycle** (`xp − last_butin_xp`). L'appoint — le compte ne tombe jamais juste — est attribué aux plus grosses fractions, ex æquo départagés par un tirage **explicite** : sans lui, le tri non stable de Dart donnerait toujours la pièce au même joueur. Si personne d'éligible n'a rien produit, le partage se fait en **parts égales**, sinon le coffre ne se viderait jamais ; ce repli se calcule sur les seuls éligibles, faute de quoi une semaine où seul un adulte hors concours a travaillé annulerait toute distribution.
+- **Les objets** ne vont qu'aux **non-chefs** — le chef organise la maisonnée, il ne se sert pas dans le coffre. Ils sont attribués du plus cher au moins cher, le gagnant de chaque tour étant **tiré au sort avec une chance proportionnelle à ce qui lui manque** pour atteindre sa part idéale : la proportionnalité est approchée sans jamais devenir prévisible. L'ordre décroissant n'est pas cosmétique — un gros objet placé en dernier creuserait un écart que plus rien ne pourrait rattraper.
+- **Les joueurs hors concours** ne reçoivent ni l'un ni l'autre et ne sont jamais désignés pour les bisous, mais ils **restent dans la liste** : leur `last_butin_xp` se recale comme celui des autres. C'est la seule dette qu'on solde sans l'avoir versée, et c'est volontaire — elle n'est pas impayée, elle est **déclinée**. Ne pas la solder ferait enfler leur contribution cycle après cycle, et le retrait du drapeau leur ferait rafler le butin suivant en entier.
+- **Le reliquat reste dans le coffre.** La bourse du coffre n'est pas remise à zéro, on y repose ce qui n'a pas été versé ; les objets sans destinataire ne sont pas touchés et y restent par construction. Un cycle sans éligible productif ne détruit donc rien : le premier enfant qui valide au cycle suivant récupérera le tout.
 
 Un log `ButinOpened` est écrit **après** le batch : on ne raconte que ce qui est acquis. C'est ce log, et non `clans_chest_history`, que le balayage serveur interroge pour savoir quand le coffre a été ouvert pour la dernière fois.
 
 ### indicateurs, avatar et nom
 
-Les écrans `personnage` et `clan_page` affichent la même jauge de niveau (barre, flamme, écusson, `XP courante / seuil suivant`) ; `personnage` y ajoute la jauge de PV (cœur qui devient crâne à 0), `clan_page` celle du butin. Tout est recalculé à l'affichage depuis les seules valeurs stockées. Les deux écrans naissent « remplis » (géométrie persistée dans le registry) pour éviter le flash au rebuild.
+Les écrans `personnage` et `clan_page` affichent la même jauge de niveau (barre, flamme, écusson, `XP courante / seuil suivant`) ; `personnage` y ajoute la jauge de PV (cœur qui devient crâne à 0), `clan_page` celle du butin. **Exception : la tuile d'un joueur hors concours ne porte plus ni écu, ni cœurs, ni barre, ni bourse** — son écran `personnage`, lui, reste complet. Ce qui disparaît, c'est ce que le CLAN lit de lui. Tout est recalculé à l'affichage depuis les seules valeurs stockées. Les deux écrans naissent « remplis » (géométrie persistée dans le registry) pour éviter le flash au rebuild.
 
 L'écran personnage a un **mode édition** exposant deux gestes : renommer, et choisir son avatar dans une grille `DvExplorer`. La sélection persiste l'icône via le layer runtime **et** écrit `clans_players.avatar` ; à chaque apparition, le worker **relit** ce champ et l'applique — l'avatar suit le joueur d'un appareil à l'autre. L'avatar de clan a son miroir, réservé aux admins.
 
@@ -452,23 +518,32 @@ Conséquence assumée : la mort n'est « constatée » que lorsqu'un écran calc
 
 ### mort : crâne et gage
 
-À 0 PV : le statut `dead` et un **gage tiré au hasard** (11 gages, humoristiques et non punitifs) sont persistés à la transition seulement ; un **overlay global** s'affiche sur tous les écrans à taskbar (scrim qui avale les taps, crâne, texte du gage suivi de la phrase de soin) ; un joueur mort **ne peut plus ni ouvrir un sous-tiroir ni prendre une tâche**. L'overlay est appliqué par mutation du template de conf (les pages futures naissent avec), plus un layer runtime persisté (réappliqué dès la première frame au redémarrage), plus un show/hide des pages déjà en pile. La musique bascule sur une playlist dédiée tant que le personnage est mort.
+À 0 PV : le statut `dead` et un **gage tiré au hasard** (15 gages, humoristiques et non punitifs) sont persistés à la transition seulement ; un **overlay global** s'affiche sur tous les écrans à taskbar (scrim qui avale les taps, crâne, texte du gage suivi de la phrase de soin) ; un joueur mort **ne peut plus ni ouvrir un sous-tiroir ni prendre une tâche**. Deux statuts en sont exemptés et ne meurent jamais, quelle que soit leur jauge : le **sans-téléphone** (`has_device: false`, il n'a pas d'appareil pour répondre) et le **hors concours** (il s'est retiré de la course, la mort est un mécanisme de pression d'assiduité). Leurs PV continuent de décroître et restent lisibles sur leur écran `personnage` ; simplement, tomber à zéro ne leur vaut ni crâne, ni gage, ni overlay. Pour un chef hors concours, c'est aussi ce qui lui permet de continuer à valider les tâches des enfants. L'overlay est appliqué par mutation du template de conf (les pages futures naissent avec), plus un layer runtime persisté (réappliqué dès la première frame au redémarrage), plus un show/hide des pages déjà en pile. La musique bascule sur une playlist dédiée tant que le personnage est mort.
 
 Le gage relève du contrat familial, comme le butin : rien ne vérifie techniquement son accomplissement — c'est l'admin qui guérit, donc c'est lui qui constate.
 
+**Quatre règles sur le contenu d'un gage**, parce qu'il s'applique à un enfant en conséquence d'une performance de jeu. Un gage **ne sort jamais du foyer** : rien qui implique un tiers, et surtout rien qui fasse parler de l'application à l'extérieur — une consigne de recrutement adressée à un enfant tombe sous la politique Google Play Families et sous le § 5.3 du dossier « intérêt supérieur de l'enfant », même en faisant passer le démarchage par le parent, même en se limitant à désigner un camarade. Il **ne fait rien ingérer que l'enfant n'ait vu préparer**, et n'emprunte rien au vocabulaire de l'alcool. Tout **contact physique est à l'initiative de l'enfant** : c'est lui qui désigne et qui arrête. Et il **se joue devant le clan**, jamais seul — c'est ce qui en fait un moment plutôt qu'une sanction.
+
+Remplacer un gage, c'est en réécrire **deux** : `gage_NN` et sa rédemption `gage_d_NN`, servie à la résurrection (`worker_log.dart`, `gage.replaceFirst("gage_", "gage_d_")`), en fr/en/es. Toujours **en place** : `clans_logs` stocke l'identifiant, et renuméroter ferait raconter à d'anciennes résurrections une histoire qui n'est pas la leur. En **ajouter** un demande d'incrémenter la borne du tirage, en dur dans `worker_celebrations.dart` (`nextInt(15)`) — sans quoi le nouveau n'est jamais tiré.
+
+Dernier écueil de contenu : un gage est tiré **à chaque mort**, donc il doit rester jouable la dixième fois. Tout ce qui repose sur une invention unique — le cri de guerre du clan, le nom de la maison — ne fonctionne qu'une fois et n'a rien à faire ici.
+
 ### menu du roster
 
-L'écran Clan affiche le **roster** : une tuile par membre (avatar, niveau, PV, nom, couronne pour les admins, badge d'activité, barre de contribution au butin, argent), triée admins d'abord puis alphabétiquement. Pour un **admin**, un tap ouvre un menu contextuel ; pour un non-admin, rien ne s'ouvre.
+L'écran Clan affiche le **roster** : une tuile par membre (avatar, niveau, PV, nom, couronne pour les admins, badge d'activité, barre de contribution au butin, argent), triée admins d'abord puis alphabétiquement. Quatre de ces éléments — écu de niveau, cœurs de PV, barre de butin et bourse — sont **masquables par membre** via le champ `hide` poussé au `DvRoster` ; c'est ce qui rend un joueur hors concours invisible à la comparaison sans le retirer de la liste. Un élément masqué **garde sa place**, sinon la rangée deviendrait irrégulière. Pour un **admin**, un tap ouvre un menu contextuel ; pour un non-admin, rien ne s'ouvre.
 
 - **Consulter le journal** — toujours proposé à un admin, sur tout joueur y compris lui-même.
 - **Promouvoir chef / Rétrograder** — bascule dans/hors de `clans.admins`, avec miroir `is_admin` qui réveille la vigilance du membre. Le fondateur n'est jamais rétrogradable. La promotion joue l'anim « burn » chez le promu et notifie le reste du clan ; la rétrogradation est silencieuse.
 - **Déclarer majeur** — admin du clan d'origine seulement, sur un mineur. Aucun contrôle de plafond : déclarer majeur ne **déplace** plus de place depuis que la grille n'a qu'un seul compteur (section 12).
 - **Prendre sa place** — l'impersonation (section 2).
 - **Déclarer hors ligne** — pose `has_device = false`. Le jeu l'ignore alors : exclu du partage d'XP et du butin, du décompte de la cérémonie, des notifications ; il ne peut plus mourir. Il repassera en ligne tout seul à sa prochaine connexion.
+- **Hors concours** (`hors_concours_on` / `hors_concours_off`) — bascule réversible, **réservée aux joueurs adultes** (masquée ailleurs, et l'action repose la garde à frais sur `legal_state`). C'est le seul pouvoir du chef dont le cas nominal s'exerce **sur lui-même** : le parent qui abat le plus de travail choisit de ne plus peser. À ne pas confondre avec « Déclarer hors ligne », son jumeau apparent : **le hors-device coupe l'alimentation du clan, le hors concours la conserve**. Le joueur continue de gagner son XP, donc de faire progresser le clan et de remplir le coffre ; ce qu'il perd, ce sont les **récompenses** (ni argent, ni objet, ni bisous, ni tribut, pas de `pending_butin` — donc pas d'écran de récompenses vide) et la **comparaison** (écu, PV, barre, bourse retirés de sa tuile). Comme le hors-device, il ne peut plus mourir. Son `last_butin_xp` se recale à chaque ouverture, sans quoi le retrait du drapeau lui ferait rafler le butin suivant.
 - **A quitté le clan** — tombstone `enabled = false`, jamais sur le fondateur. Le membre est **ignoré partout** et éjecté vers le decisiontree à sa prochaine frame (détecté par sa propre vigilance) ; s'il était chef, il est retiré de `clans.admins` pour que le décompte d'admins reste juste. Le même tombstone modélise un **départ volontaire** (la cible étant soi-même), qui éjecte immédiatement.
 - **Guérir** — sur un joueur **mort** seulement, jamais soi-même. Rend 3 PV (pas les PV pleins : les futures classes, potions et objets doivent garder de la valeur) en **reculant `last_task`** pour que la formule retombe exactement sur la cible — le champ `damage` n'est pas touché, donc si `damage` seul maintient le joueur à 0, il reste mort. **Cooldown 3 jours par admin**, porté par l'acteur et non par la cible : deux parents peuvent chacun guérir dans la même fenêtre, c'est voulu.
-- **Coup de pouce** — sur le(s) joueur(s) au plus petit XP du clan, jamais soi-même. **+50 XP au joueur seul** : ni le clan ni le butin ne sont crédités, ce serait détourner le coup de pouce en levier de progression collective. Cooldown 3 jours par admin.
-- **Payer son tribut** — proposé sur toutes les tuiles, celle de l'admin comprise, grisé sur une bourse vide. Réutilise l'écran de saisie, plafonné au solde, **partiel autorisé**. L'avertissement nomme le joueur : le jeu ne peut pas constater un versement de la main à la main, c'est le chef qui le déclare. L'écriture retire la somme de la bourse **et** de son miroir sur le doc membre dans un `batchWrite` unique, avec recalage du repère de « déjà vu » (sinon le prochain butin afficherait un gain négatif), trace un log et notifie le joueur payé.
+- **Coup de pouce** — sur le(s) joueur(s) au plus petit XP du clan, jamais soi-même, jamais un hors concours (il est hors de `_clanMinXp` **et** refusé comme cible : un coup de pouce aide dans la course, pas quelqu'un qui n'y est plus). **+50 XP au joueur seul** : ni le clan ni le butin ne sont crédités, ce serait détourner le coup de pouce en levier de progression collective. Cooldown 3 jours par admin.
+- **Payer son tribut** — proposé sur toutes les tuiles, celle de l'admin comprise, grisé sur une bourse vide ; **masqué** sur celle d'un joueur hors concours, qui est sorti de l'économie du clan et n'affiche même plus de bourse. Réutilise l'écran de saisie, plafonné au solde, **partiel autorisé**. L'avertissement nomme le joueur : le jeu ne peut pas constater un versement de la main à la main, c'est le chef qui le déclare. L'écriture retire la somme de la bourse **et** de son miroir sur le doc membre dans un `batchWrite` unique, avec recalage du repère de « déjà vu » (sinon le prochain butin afficherait un gain négatif), trace un log et notifie le joueur payé.
+- **Retirer mon consentement et effacer les données de cet enfant** — chefs du **clan d'origine** seulement, sur un joueur qui n'est pas `a` (`t` inclus : tant que la CGU adulte n'est pas acceptée, c'est encore le consentement du tuteur qui porte le traitement). ⚠ **À ne pas confondre avec « A quitté le clan »** : celui-là retire du clan sans rien supprimer, celui-ci **cesse de traiter**. Les deux restent proposés, `no_account` compris. Le libellé est celui que publient les 84 politiques de confidentialité adultes — le reformuler oblige à reprendre le corpus. Chronologie en section 19.
+- **Rétablir cet enfant** — la **seule** option que `clan_selector` expose sur une tuile en cours de retrait, et aux seuls chefs du clan d'origine : un joueur qu'on a cessé de traiter n'a plus ni coup de pouce, ni prise de place, ni promotion. Efface les trois champs ; le joueur reprend sa place intacte.
 - **Rappels** (`nudges_on`/`nudges_off`) — un chef peut couper les relances d'engagement pour un enfant (section 13).
 - **Résurrection** — bouton sous le gage de l'écran de mort, pas dans le roster : réservé à l'**admin solo mort**, que personne d'autre ne peut soigner. Soin complet, gage effacé, **sans cooldown** — c'est un déblocage de secours, pas une mécanique de jeu.
 
@@ -549,6 +624,12 @@ Les soumissions avant verdict n'apparaissent pas. Les traductions sont résolues
 ### partage
 
 Un bouton de partage publie les **15 événements les plus récents** en texte brut — le récit à l'écran reste intégral. Le **conte IA** (section 6) est le second mode de sortie ; c'est le même écran qui les sert, avec un regroupement commun mais trois bornes distinctes (l'écran borne des jours, le partage et le conte bornent des lignes).
+
+**Ce bouton est réservé aux ADULTES** (`legal_state == "a"`), révélé par `on_log_appear` sur une icône qui naît `visible: false`. C'est le **seul** point d'export du journal vers l'extérieur, et le conte du butin y aboutit aussi : le garder ici suffit, et c'est pourquoi l'icône de `butin_tale_page` reste ouverte à tous — elle ne partage rien, elle déclenche l'inférence et ouvre le journal en mode conte. **Un enfant fait donc raconter l'histoire de son clan et la lit ; il ne l'expédie pas.** La règle porte sur la publication, pas sur la lecture (§ 5.3 du dossier « intérêt supérieur de l'enfant » : « le partage vers l'extérieur est réservé aux adultes, un enfant ne peut rien publier »).
+
+**Adulte, et non chef.** Le rôle de chef est une fonction de jeu ; la phrase publiée parle de majorité légale. Un second parent membre partage l'histoire de sa famille sans avoir été promu — et un mineur promu chef ne publie rien. Le tap passe par `worker.on_log_share`, qui **refait** le contrôle avant de déléguer à `share.log` : masquer une icône n'est pas interdire une action, et celle-ci est nommée dans la conf donc appelable autrement. Sous impersonation, `_userId` est la cible : un chef qui a pris la place d'un enfant ne peut rien publier tant qu'il n'est pas revenu à lui-même.
+
+Les trois autres sorties `dvsocialshare` sont gardées en amont et n'ont pas bougé : `share.clan_invite` et `share.clan_invite_pin` ne sont atteignables que par les options admin du menu Clan, `share.gift_codes` par le kebab boutique (`canBuy`).
 
 ---
 
@@ -638,7 +719,7 @@ C'est un jeu familial destiné à aider les parents : on montre de la compréhen
 
 **Deux ans entre le gel et la suppression, et non 40 jours.** Le calendrier ne change pas avant : grâce 10 jours, relances jusqu'à J50, gel à J50 — c'est **après** que l'on desserre. Une famille qui arrête n'a pas toujours renoncé : elle déménage, l'enfant grandit, la rentrée passe. Ce qui coûte à reconstituer n'est pas le clan mais son **histoire** — les tâches réglées, les niveaux, le butin, le journal de chacun. La conserver ne coûte, elle, presque rien : un clan gelé ne fait plus aucune requête, les preuves photo n'ont jamais quitté les appareils, et il ne reste que quelques mégaoctets par clan. Supprimer coûterait même des écritures. La phase `farewell` existe parce que deux ans de silence s'achevant sur une suppression que personne n'a vue venir rendrait vaine l'opportunité qu'on veut leur laisser.
 
-**Le bandeau d'impayé.** Aucun écran bloquant : un bandeau overlay rouge doux, réservé aux **chefs de clan** (« on n'inquiète surtout pas les enfants », et ce sont de toute façon les seuls capables de payer). Il est piloté par la **phase publiée par le serveur** et non recalculée : le client ne connaît ni la date d'entrée en défaut ni les seuils, et deux calendriers qui divergent valent moins qu'un seul. Le déclencheur est la phase et non le hook de transition — un hook ne se déclenche que sur un changement, et une session qui s'ouvre sur un clan en défaut depuis trois semaines n'en verrait jamais passer un seul. **Mémoire seule, aucune persistance** : un bandeau rouge persisté sur disque survivrait à la régularisation et accuserait une famille à jour.
+**Le bandeau d'impayé.** Aucun écran bloquant : un bandeau overlay rouge doux, réservé aux **chefs de clan ADULTES** — il passe par `_storeCanBuy`, le même prédicat que la boutique, et non par le seul test d'administration (« on n'inquiète surtout pas les enfants », et ce sont de toute façon les seuls capables de payer). Il est piloté par la **phase publiée par le serveur** et non recalculée : le client ne connaît ni la date d'entrée en défaut ni les seuils, et deux calendriers qui divergent valent moins qu'un seul. Le déclencheur est la phase et non le hook de transition — un hook ne se déclenche que sur un changement, et une session qui s'ouvre sur un clan en défaut depuis trois semaines n'en verrait jamais passer un seul. **Mémoire seule, aucune persistance** : un bandeau rouge persisté sur disque survivrait à la régularisation et accuserait une famille à jour.
 
 ### codes cadeaux
 
@@ -684,7 +765,22 @@ Toutes sont traduites dans la langue **du destinataire**, lue sur son doc membre
 
 ### relances d'engagement (serveur, `pulse_sweeper`)
 
-Une passe par jour et par région, à **17 h UTC**. L'heure est le garde-fou : contrairement aux relances d'impayé qui s'adressent à un adulte et partent à 5 h, celle-ci peut atteindre un enfant — on vise le début de soirée locale, après l'école, avant le coucher.
+Une passe **par heure** et par région. Ce n'est pas la fréquence des relances : les délais se comptent toujours en jours. C'est ce qui permet de joindre chacun à SON heure locale.
+
+**Le garde-fou n'est pas l'heure de la passe, c'est la fenêtre du destinataire**, et elle se choisit sur le **statut légal** :
+
+| Qui | Quand, chez lui |
+|---|---|
+| **mineur** (`legal_state` ≠ `a`) | **samedi, 9 h → 10 h** |
+| **majeur** | **tous les jours, 17 h → 18 h** |
+
+Un enfant n'est joint que le week-end, et c'est un choix : en semaine, la fin d'après-midi est prise par les devoirs, le dîner et la douche — une notification de jeu n'y trouve pas de place, elle en déplace une. Un adulte est joint en fin d'après-midi, ni aux horaires de bureau ni tard le soir : un verdict rendu à 17 h récompense l'enfant avant le coucher, rendu à 22 h il ne récompense plus personne.
+
+⚠ **« Chef de clan » n'est pas « adulte », et le rôle ne décide pas de l'heure.** Un majeur peut être simple membre, et `clans.admins` est une liste de **rôle** : rien ne garantit qu'un binaire antérieur n'y ait pas inscrit un mineur. Le rôle décide **quel** motif part, le statut légal décide **quand**. `legal_state` absent, illisible ou `t` compte comme mineur — se tromper vers l'enfant décale un rappel au samedi, se tromper vers l'adulte le réveille.
+
+⚠ **Tourner vingt-quatre fois n'envoie pas vingt-quatre fois.** Le palier d'un motif n'avance que si un envoi a eu lieu, et c'est lui qui commande le motif suivant : une passe hors fenêtre ne consomme rien et se rejoue à l'heure d'après, jusqu'à la bonne heure. Le coût reste borné par les plafonds de la fonction, pas par la fréquence — et `clans_pulse` n'est plus réécrit quand rien n'a bougé.
+
+C'est enfin ce qui **sert** `clans_players.tz_offset`, collecté à chaque login depuis des mois et promis aux familles dans la politique de confidentialité : « ce décalage ne sert qu'à une chose, envoyer les rappels destinés à un enfant à une heure raisonnable ».
 
 **Deux principes portent tout le reste :**
 
@@ -695,7 +791,7 @@ Une passe par jour et par région, à **17 h UTC**. L'heure est le garde-fou : c
 
 **Deux pistes cloisonnées, une notification maximum par personne et par passe.**
 
-**Piste adulte** (les chefs), un motif par passe, aux jours **2, 5 et 12** de silence, puis plus rien — trois messages ignorés SONT une réponse. Deux pressions distinctes, et les confondre était une erreur : l'**onboarding** ne se mesure pas au silence mais à l'**âge du clan** (un fondateur bloqué n'est pas silencieux) ; les autres motifs supposent au contraire une famille qui ne vient plus. Un seul motif part, l'onboarding l'emportant quand il vaut — on ne parle pas du coffre à qui n'a pas encore de quête :
+**Piste chef** — et « chef » et non « adulte », parce que c'est le **rôle** qui décide du motif : un motif par passe, aux jours **2, 5 et 12** de silence, puis plus rien — trois messages ignorés SONT une réponse. Deux pressions distinctes, et les confondre était une erreur : l'**onboarding** ne se mesure pas au silence mais à l'**âge du clan** (un fondateur bloqué n'est pas silencieux) ; les autres motifs supposent au contraire une famille qui ne vient plus. Un seul motif part, l'onboarding l'emportant quand il vaut — on ne parle pas du coffre à qui n'a pas encore de tâche :
 
 - `onboarding_empty` — aucune quête configurée ;
 - `onboarding_idle` — les quêtes sont prêtes mais aucune n'a jamais été jouée ;
@@ -706,10 +802,13 @@ Une passe par jour et par région, à **17 h UTC**. L'heure est le garde-fou : c
 
 Le palier **n'avance que si quelque chose est parti**. Sinon un parent dont l'appareil n'est pas encore enregistré brûlerait ses trois relances sans jamais rien recevoir. Et le compteur **retombe sur la disparition du motif**, pas sur une simple connexion : un parent qui ouvre l'app sans trancher le verdict qui traîne n'a rien résolu, son clan ne doit pas repartir pour trois relances au premier jour de silence suivant.
 
-**Piste enfant** (les non-admins), jamais d'administration de clan, jamais rien de monétaire — c'est la règle de routage, et elle ne souffre pas d'exception :
+**Le boss est un rendez-vous de CLAN**, adressé à **tout le monde**, chefs compris : après **7 jours** de silence, le donjon convoque lui-même un monstre. Il **existe** — le serveur pose un vrai `recommended` sur une vraie tâche dormante **avant** d'annoncer quoi que ce soit, et journalise un `BossSummoned`. Annoncer un monstre qu'on ne crée pas, c'est mentir à un enfant qui va vérifier. Un par clan et par **quinzaine** au maximum : le bonus d'XP est réel, un boss automatique trop fréquent déréglerait la progression et viderait de son sens la recommandation d'un chef. Le tri s'appuie sur l'index déjà déclaré pour la validation (`last` vide trie en tête, ce sont les tâches jamais prises) et l'écriture est **ciblée** — un PATCH complet réinitialiserait la régénération de la tâche.
 
-- **le boss** : après **7 jours** de silence, le donjon convoque lui-même un monstre. Il **existe** — le serveur pose un vrai `recommended` sur une vraie tâche dormante **avant** d'annoncer quoi que ce soit, et journalise un `BossSummoned`. Annoncer un monstre qu'on ne crée pas, c'est mentir à un enfant qui va vérifier. Un par clan et par **quinzaine** au maximum : le bonus d'XP est réel, un boss automatique trop fréquent déréglerait la progression et viderait de son sens la recommandation d'un chef. Le tri s'appuie sur l'index déjà déclaré pour la validation (`last` vide trie en tête, ce sont les tâches jamais prises) et l'écriture est **ciblée** — un PATCH complet réinitialiserait la régénération de la tâche ;
-- **le retour du clan** : les autres ont repris, pas lui. Cadence 7 puis 21 jours, par membre. Le texte ne nomme ni ne compte **jamais** les autres membres, et parle de la place gardée plutôt que de l'absence remarquée — désigner un enfant comme le retardataire de la fratrie transformerait le jeu en instrument de comparaison entre frères et sœurs.
+C'est le **seul motif dont la fenêtre ne suit pas le statut légal du destinataire** : il est annoncé dans celle des mineurs, le samedi matin, pour tout le monde à la fois. Le fractionner — les enfants le samedi, les chefs à 17 h un mardi — le viderait de son sens, puisque ce qui en fait un événement, c'est que le clan l'apprenne ensemble. Et on **ne convoque pas** si personne n'est joignable à cette heure-là : un monstre qu'aucun message n'annonce bloquerait le suivant pendant quinze jours.
+
+**Le retour du clan** (aux membres non-chefs) : les autres ont repris, pas lui. Cadence 7 puis 21 jours, par membre, chacun dans **sa** fenêtre — « non-chef » ne veut pas dire « enfant », un second parent est ici et il est joint en fin d'après-midi. Le texte ne nomme ni ne compte **jamais** les autres membres, et parle de la place gardée plutôt que de l'absence remarquée — désigner un enfant comme le retardataire de la fratrie transformerait le jeu en instrument de comparaison entre frères et sœurs.
+
+**Une notification au maximum par personne et par passe.** C'était garanti par construction tant que les deux pistes visaient des populations disjointes ; le boss s'adressant désormais à tout le clan, la passe tient la liste de qui elle a déjà servi.
 
 **Les garde-fous** : silence total sur un clan en défaut de paiement (il reçoit déjà les relances de cotisation, et une famille en difficulté n'est pas une famille qui se désintéresse), sur un clan gelé ou purgé, sur un clan « muté », sur un joueur déclaré hors-ligne, et sur quiconque a coupé les rappels. **Plafonds durs** sur chaque requête (3000 joueurs, 500 clans, 500 notifications) : ce n'est pas une optimisation — le budget coupe Cloud Run à 8 €/mois avec `auto_disable`, et une requête emballée qui retente n'aurait pas seulement coûté cher, elle aurait **éteint le backend**.
 
@@ -719,7 +818,13 @@ Le palier **n'avance que si quelque chose est parti**. Sinon un parent dont l'ap
 
 Le helper d'envoi est un **portage** de celui du module de facturation (pas une bibliothèque partagée : chaque Cloud Function est déployée avec son propre `index.ts`), et il en corrige un défaut : une notification **à boutons doit être data-only**. Android n'affiche pas de boutons personnalisés pour un message portant un bloc `notification` quand l'app est fermée — le système le rend lui-même et court-circuite le handler de fond, ce qui est exactement le cas des trois boutons de validation, dont tout l'intérêt est de trancher sans ouvrir l'app.
 
-**`PULSE_DRY_RUN` est à `true`** : la fonction calcule tout, journalise tout, n'envoie rien et n'écrit aucun état. À laisser ainsi jusqu'à ce que le rapport de plusieurs passes soit jugé crédible — une relance partie ne se rattrape pas.
+**Il n'y a plus qu'un verrou, et il dit ce qu'il fait.** Il y en avait **deux** : la variable `PULSE_DRY_RUN` et le défaut du code qui la lit. Tant que ce défaut valait `'true'`, retirer la variable remettait la fonction en simulation **sans que rien ne le dise** — même rapport, même allure, et plus une seule relance. Le défaut est passé à `'false'` le 2026-09-10 ; la variable reste à `"true"` jusqu'à ce que la recette soit passée, et la mettre à `"false"` est le **dernier geste** du chantier. Pour couper les relances sans redéployer, c'est `PULSE_ENABLED` qu'il faut : lui arrête la passe et le **dit** dans sa réponse.
+
+⚠ **Ce verrou ne muselle que le PLANIFICATEUR, pas l'exploitant.** Cloud Scheduler POSTe un corps vide, sans paramètre d'URL, et retombe donc sur la variable ; le banc, lui, passe `dry` explicitement, et le paramètre d'URL **prime** (`const dry = q.dry !== undefined ? … : DRY_ENV`). `pulse_bench.py --send` envoie donc pour de vrai sur un balayeur encore en simulation. La recette n'attend rien — c'est exactement ce pour quoi le banc existe : éprouver avant d'ouvrir, sans qu'une passe automatique parte dans le dos.
+
+Deux façons d'envoyer pour de vrai, et elles ne prouvent pas la même chose. **`--send` seul** déroule la passe complète en appliquant tout — cadences, silence, fenêtres : à 15 h un mercredi elle ne joindra personne, et c'est le comportement qu'on vient vérifier. **`--force`** court-circuite les trois : le motif part immédiatement sur le clan nommé, par le chemin réel, ce qui permet d'éprouver les neuf textes et les trois boutons de verdict sans attendre douze jours de silence ni le samedi matin.
+
+Le banc d'essai s'appelle depuis le poste avec **`build/tools/pulse_bench.py`** — sans argument il déroule la passe complète en simulation et rend son rapport ; `--clan … --force … --send` force un motif pour de vrai. L'outil lit l'URL du service dans l'état provisionné (`deva_builds/ddust`, clefs préfixées par région) et fabrique un **jeton d'identité** dont l'audience est cette URL : un jeton d'accès ne passe pas.
 
 ---
 
@@ -727,14 +832,59 @@ Le helper d'envoi est un **portage** de celui du module de facturation (pas une 
 
 Le module `dvtuto` joue des **leçons interactives** : gel de l'écran, voile à ~70 %, spotlight sur un widget à la fois, délai inerte de 0,8 s avant de pouvoir avancer (anti-tap accidentel). Une leçon cible des widgets par leur identifiant, est jouée à la première arrivée sur son écran, puis marquée « vue » par utilisateur et par appareil. Tout est déclaratif dans `client/config/dvtuto.yml` ; les textes sont des tokens de traduction.
 
-Neuf leçons couvrent le parcours : `dashboard_intro` (les cinq onglets), `personnage_intro`, `clan_intro` (identité, jauges, roster décomposé — la liste puis l'avatar, le nom, le kebab de la première tuile), `combat_domains`, `combat_tasks`, `combat_active`, `items_intro`, `create_player_intro` et `impersonation_back`.
+Neuf leçons couvrent le parcours : `dashboard_intro` (les cinq onglets), `personnage_intro`, `clan_intro` (identité, jauges, roster décomposé — la liste puis l'avatar, le nom, le kebab de la première tuile), `combat_domains`, `combat_tasks`, `combat_active`, `items_intro`, `create_player_intro` et `impersonation_back`. Deux autres, `guide_parent` et `guide_enfant`, ne montrent aucun bouton : elles disent l'intention (sous-section dédiée plus bas).
 
 Quatre mécanismes méritent d'être connus :
 
 - **les overrides par condition** : une même étape porte un texte joueur et un texte chef, choisi sur l'état réel (`worker.player_last_is_admin`) ; une étape entière peut être conditionnée (`requires`), comme le switch Jeu|Admin ou les panneaux d'options d'administration ;
-- **les panneaux** : au lieu d'un spotlight, une étape peut afficher un tableau — la liste des options d'un menu réel (lu depuis le menu lui-même : le tutoriel ne redit pas ce que la conf déclare), ou une légende d'icônes (flamme, main, badge XP, crâne, pansement) ;
+- **les panneaux** : au lieu d'un spotlight, une étape peut afficher un tableau — la liste des options d'un menu réel (lu depuis le menu lui-même : le tutoriel ne redit pas ce que la conf déclare), ou une légende d'icônes (flamme, main, badge XP, crâne, pansement). Un panneau peut porter une **illustration** (`panel.image`) et une **mise en situation** (le `text` de l'étape, qui n'aurait aucun sens en bulle faute de cible) : c'est cette forme qui porte les deux guides ;
 - **les leçons manuelles** : `create_player_intro` n'est jamais jouée à l'arrivée sur un écran, elle est déclenchée à la main par l'action qui en a besoin, et rend la main à la fin ;
 - **le déclenchement du tutoriel du dashboard** n'est **pas** l'`appear` de l'écran mais la **fin de l'animation de bienvenue**. Son voile vit sur l'Overlay du Navigator, donc au-dessus de la vue de scène, et il avalerait le « burn » ; et `dvtuto.enter` renonce **en silence** s'il tombe pendant un interlude, sans seconde chance — le retour par la taskbar émettant `show` et non `appear`. Partout ailleurs, le tutoriel est appelé **en dernier**, après un drainage explicite des interludes en cours, et jamais depuis la liste `appear` de la conf (qui n'est pas awaitée : il partirait en parallèle du handler et poserait son voile par-dessus ce qui joue).
+
+### les deux guides
+
+`guide_parent` et `guide_enfant` sont d'une autre nature que le reste : elles n'expliquent
+pas **où sont les boutons**, mais **ce que le jeu attend de celui qui le tient**. Quatre
+panneaux illustrés chacune — un dessin, une mise en situation, deux ou trois conseils —
+joués une fois à la première arrivée sur le dashboard, dans la même file que
+`dashboard_intro` (ordres 12 et 13), puis rejouables depuis l'écran Tutoriels et depuis le
+kebab Personnage.
+
+Elles existent parce que l'intention du produit se lisait dans `docs/vision.md` et le
+dossier « intérêt supérieur de l'enfant », et **nulle part dans l'application une fois
+celle-ci en main**. Le cas décisif est l'écran de mort : un crâne et un gage se lisent
+comme une punition de jeu tant que personne n'a dit qu'ils sont une **alerte**. Un
+dispositif d'alerte que le destinataire ne sait pas lire n'alerte personne — et le § 5.2 du
+dossier repose entièrement sur le fait qu'un adulte, voyant ce crâne, aille voir pourquoi.
+
+Côté parent, dans cet ordre : l'**effort** (trois verdicts dont aucun n'est une sanction,
+aucun compteur d'échecs, dire d'abord ce qui est réussi) ; l'**alerte** (dix jours sans
+rien terminer, une seule tâche rend tous les PV, le gage est un contrat familial que rien
+ne vérifie et qui se refuse) ; le **butin** (du temps plutôt que des objets, ni gâter ni
+marchander, chacun reçoit sa part) ; sa **propre place** (hors concours, recommander plutôt
+que comparer, la preuve photo ne quitte pas l'appareil de l'enfant). L'ordre n'est pas
+indifférent : ouvrir sur « votre enfant est mort » installerait exactement le contresens que
+ces écrans défont.
+
+Côté enfant, la même mécanique dit des **droits** et jamais des devoirs : recommencer une
+tâche refusée sans rien perdre, refuser un gage, garder sa photo, recevoir sa part du butin
+même en ayant peu joué.
+
+Le partage entre les deux se fait sur `worker.player_is_adult` — le miroir de `legal_state`
+— et **non** sur `player_last_is_admin` : le sujet est la parentalité, pas les droits de
+chef. Un adulte non chef y a droit ; un aîné promu chef reste un enfant. Le repli strict de
+ce drapeau est `false`, donc un état illisible donne le guide de l'aventurier, qui ne peut
+jamais nuire à un adulte.
+
+Les huit illustrations sont volontairement à contre-courant des assets de jeu : croquis à
+l'encre, deux ou trois lavis, beaucoup de blanc. On quitte un instant la fiction du donjon
+pour parler en face, et la lisibilité prime sur l'immersion. Elles sont déclarées, prompt
+compris, dans `build_assets.yml` (au niveau de la suite), et générées par le builder au premier build qui
+les trouve absentes (voir `modules/builder/readme.md`). Le style y est écrit une seule fois
+pour les huit : c'est leur cohérence qui fait leur effet, pas chaque dessin pris isolément.
+Le prompt versionné est aussi la seule trace de la façon dont elles ont été fabriquées. Elles vivent dans la
+vague `critical` du manifeste d'assets, puisque le guide se joue au premier dashboard ; une
+illustration pas encore arrivée dégrade en panneau sans image, jamais en erreur.
 
 ### les rappels de recrutement
 
@@ -760,7 +910,7 @@ Le même souci a réordonné une paire d'étapes de `clan_intro` : « QR code du
 
 **« Faire venir la fée »** la fait apparaître tout de suite, et **écrit en clair dans le journal de mise au point** où elle se trouve (domaine, tâche remplacée, les deux cadeaux). Elle est placée au hasard parmi dix-neuf domaines : sans cette ligne, la retrouver veut dire ouvrir les tiroirs un par un. Elle est journalisée en `warning` et non en `info` — la seule ligne qu'on vient vraiment y chercher ne doit pas se noyer dans le flot des lectures de tâches qui la suivent.
 
-**Le balayage de relance** a son propre banc, côté serveur : la fonction étant en `trigger: http`, elle est **privée** (seules les identités portant `run.invoker` peuvent l'appeler). Un paramètre force un motif sur un clan donné, immédiatement, **par le chemin réel** — même code, même charge utile, mêmes mots. C'est mieux qu'un banc côté client, qui passerait par un autre chemin d'envoi et exigerait de recopier les textes dans le dictionnaire du client, où ils divergeraient. Ni cadence ni silence ne s'appliquent, et **aucun état n'est écrit** : le banc ne consomme pas un palier de relance et ne fausse donc pas la passe du soir. Seule exception assumée : le boss pose un vrai `recommended`, puisque c'est précisément ce qu'il s'agit de vérifier.
+**Le balayage de relance** a son propre banc, côté serveur : la fonction étant en `trigger: http`, elle est **privée** (seules les identités portant `run.invoker` peuvent l'appeler). Un paramètre force un motif sur un clan donné, immédiatement, **par le chemin réel** — même code, même charge utile, mêmes mots. C'est mieux qu'un banc côté client, qui passerait par un autre chemin d'envoi et exigerait de recopier les textes dans le dictionnaire du client, où ils divergeraient. Ni cadence ni silence ne s'appliquent, et **aucun état n'est écrit** : le banc ne consomme pas un palier de relance et ne fausse donc pas la passe du soir. Ni les **fenêtres d'envoi** non plus, et c'est le même raisonnement : un banc qui n'accepterait de parler que le samedi entre 9 h et 10 h ne serait pas un banc. Seule exception assumée : le boss pose un vrai `recommended`, puisque c'est précisément ce qu'il s'agit de vérifier. Il s'appelle par **`build/tools/pulse_bench.py`**.
 
 Deux autres interrupteurs, hors mode test : `PULSE_ENABLED` (une fonction qui va chercher des familles inactives doit pouvoir être coupée sans redéploiement) et `catalog.dry_run` du backend, qui affiche le plan complet de publication en Play Console — créations, modifications, désactivations — sans rien écrire. C'est le seul moment où une faute de frappe se rattrape encore : un identifiant Play créé ne se supprime **jamais**.
 
@@ -782,8 +932,12 @@ userId:  "uuid-métier"          # PAS l'uid Firebase : cf. userindexes
 enabled: true                   # false = suppression logique
 last_clan: "uuid-clan"
 first_clan: "uuid-clan"         # premier clan rejoint, gelé
-internal: { name: "Grog" }      # prénom saisi
-external: { name: "Grog" }
+internal: { name: "Grog", description: "..." }        # pseudonyme et description saisis
+external:                                             # identité publique, figée à la création
+  name: "Sacha"                                       #   substitut — jamais le pseudonyme saisi
+  description: "..."
+  source: "ai"                                        #   "ai" | "bank" (repli sans IA)
+  date: "..."                                         #   date du gel
 active_task:  "{clanId}_{taskId}"   # reprise après un kill
 active_proof: "uuid-photo"          # "noproof" si sans photo
 clans:
@@ -812,8 +966,13 @@ max_xp_butin: 50                 # plafond d'UN crédit (+20 × niveau du clan)
 enabled_multiple: ["chambre_enfant_01", ...]
 validations: 0                   # tâches validées — déclenche le mur de 1re cotisation
 first_invite_at: "..."           # une invitation a-t-elle déjà été ouverte ?
-internal: { name: "Les Chevaliers du Frigo" }
-external: { name: "Éclaireurs-du-Vide-eu-142" }
+internal: { name: "Les Chevaliers du Frigo", description: "..." }
+external:                                             # figée à la création, jamais renommée
+  name: "Éclaireurs-du-Vide-eu-142"                   #   "{substitut IA}-{region}-{compteur}"
+  description: "..."
+  source: "ai"                                        #   "ai" | "bank"
+  date: "..."
+description: "..."                                    # MIROIR legacy de internal.description
 enabled: true                    # false + dissolved_at = clan dissous
 ```
 
@@ -825,6 +984,8 @@ L'écriture dvcloud est un **deep-merge** (via `updateMask`) : les champs omis s
 
 ```yaml
 name / avatar / lang / devices        # identité et cibles FCM
+internal: { name, description }        # `name` ci-dessus en est le miroir plat
+external: { name, description, source, date }   # seule copie pour un joueur sans compte
 xp: 0                                 # niveau dérivé, jamais stocké
 pv: 10 / damage: 0 / decay: 1.0       # PV : tout se calcule depuis last_task
 last_task: "..." / status: alive|dead / gage: "gage_07"
@@ -838,13 +999,17 @@ enabled: true                         # false = tombstone (révoqué / parti / s
 has_device: true                      # false = hors-ligne ou joueur sans compte
 no_account: true                      # joueur créé par un chef
 nudges: true                          # false = « ne plus me faire signe »
+hors_concours: false                  # true = joue et alimente le clan, mais hors récompenses et hors comparaison
 original_clan: "uuid-clan"
+consent_at / consent_due / consent_by # retrait du consentement parental (section 19)
 last_boost / last_cure                # cooldowns 3 j, portés par l'ADMIN acteur
 last_connected / last_version / tz_offset
 pending_opening: "..."                # appel de la cérémonie ; "" = ce joueur a répondu
 opening_master: "userId"              # à qui répondre
 pending_butin: false                  # une part attend d'être réclamée
 ```
+
+`consent_due` non vide = un chef du clan d'origine a retiré son consentement, et le délai de rétractation court. `enabled` reste **délibérément à `true`** pendant ce délai : le passer à `false` déclencherait `_checkRevoked` → `_leaveClanLocal` sur l'appareil de l'enfant, qui efface son ancrage local au clan — le rétablissement exigerait alors une ré-invitation par QR ou par PIN, et ce ne serait plus « revenir sur sa décision ». La sortie du jeu est obtenue autrement, et complètement (section 19). Tant que le champ est posé, `_writeClanPlayer` **ne touche plus au document** : il reforce `has_device: true` à chaque login, ce qui remettrait dans les agrégats du clan un joueur qui n'y joue plus.
 
 L'XP est volontairement séparée de `users` : c'est une donnée de jeu propre à un clan, et ce document est la cible de la vigilance temps réel. `wallet` est une **dénormalisation assumée** — la source de vérité reste le document d'objet, mais le roster affiche l'argent de chaque membre et cette collection est déjà listée pour le construire. La contrepartie est une règle stricte : **toute écriture qui bouge une bourse pose les deux valeurs dans le même `batchWrite`**.
 
@@ -889,7 +1054,7 @@ La frontière est nette : **`config.yml` déclare que les six interludes existen
 | layer | racine | rôle |
 |---|---|---|
 | `assets-global` | general | vagues de priorité + catalogue des thèmes |
-| `tasks-base-global` | general | 20 domaines, 151 tâches (structure) |
+| `tasks-base-global` | general | 19 domaines, 138 tâches (structure) |
 | `items-base-global` | general | familles et types d'objets |
 | `store-base-global` | general | seuil de relance de conversion + scénarios du banc |
 | `store-catalog-global` | general | **généré** par le builder depuis `store.catalog` |
@@ -933,7 +1098,9 @@ Backend provisionné par Pulumi. L'ordre de build est `backend` puis `client` �
 
 **Cloud Functions propres à la suite** : `count_sessions` (index de nommage des clans, authentifié), `beta_signup` (**volontairement publique** — le visiteur du site n'est pas connecté ; d'où la validation stricte, le champ piège anti-robot et une réponse identique qu'il s'agisse d'une première inscription ou d'une relance, un formulaire public ne devant pas révéler qui est inscrit), `delete_user_data` (suppression logique en cascade, self-delete uniquement), `clan_purge` (dissolution au terme du calendrier de facturation) et `pulse_sweeper` (relances). S'y ajoutent les huit fonctions de modules : `messaging`, `store_verify`, `store_eligibility`, `store_grant`, `store_claim`, `store_mint`, `store_revoke`, `store_rtdn`, `store_sweeper`.
 
-**Planification** : balayage de facturation à 5 h (module), purge des clans à 6 h — une heure **après**, pour que le drapeau posé à 5 h soit honoré le matin même plutôt que le lendemain —, relances d'engagement à 17 h UTC. Le bloc de planification est en **deep-merge** avec ce que déclarent les modules : on n'écrase ni la tâche du module, ni son compte de service.
+**Planification** : balayage de facturation à **17 h** (fonction du module, dont la suite ne redéclare que l'heure), purge des clans à **18 h** — une heure **après**, pour que le drapeau posé par le balayage soit honoré le jour même plutôt que le lendemain —, relances d'engagement **toutes les heures**. Le bloc de planification est en **deep-merge** avec ce que déclarent les modules, et **la suite l'emporte** : on ne redéclare donc que la clef qu'on veut changer, et jamais le compte de service.
+
+⚠ **5 h était une erreur, et le commentaire du module la disait à l'envers** (« tôt le matin, pour qu'une relance ne réveille personne »). Ce balayage n'écrit pas un état que le client lira plus tard : il **envoie**, au moment où il tourne. 5 h UTC, c'est 6 h ou 7 h à Paris — exactement l'heure où l'on réveille une famille pour lui parler d'argent. Sans effet pratique aujourd'hui, puisqu'il n'y a aucun paiement : c'est précisément pourquoi c'était le bon moment pour le corriger.
 
 **Deux comptes de service, délibérément séparés.** `ddust-backend` (Firestore + logs) porte les fonctions qui **suppriment des données** ; `ddust-pulse` porte le seul balayage de relance et a besoin, lui, de FCM et de `run.invoker`. Accorder les deux à `backend` élargirait les droits de toutes les autres fonctions : un compte de plus coûte zéro, un compte trop puissant coûte le jour où il sert à autre chose que ce pour quoi on l'a élargi.
 
@@ -978,26 +1145,50 @@ Un calcul arithmétique avec compte à rebours de 3 secondes, renouvelé à chaq
 - UID Google (identifiant Firebase opaque) et userId métier ;
 - région (EU / US) ;
 - distinction mineur / majeur — **calculée, la date de naissance n'est jamais persistée** ;
-- données de jeu : XP, PV, gage, avatar, journal d'événements, prénoms **choisis librement** ;
+- données de jeu : XP, PV, gage, avatar, journal d'événements, pseudonymes **choisis librement** ;
 - traces techniques : jeton FCM, version d'app, date de dernière connexion, décalage horaire ;
 - adresse e-mail pour la liste d'attente beta, si l'utilisateur la saisit sur le site.
 
 Par décision de design, **les photos de validation ne quittent jamais le téléphone** — pas de Cloud Storage pour les contenus utilisateurs, et la preuve n'est **jamais** visible par l'admin qui juge : seul le joueur peut revoir sa propre photo.
 
+**Elles ne survivent pas non plus à leur utilité.** « Voir ma preuve » n'existe qu'en état `validating` : passé le verdict, le fichier serait inatteignable et pourtant présent, en pleine résolution. Deux mécanismes l'effacent, et le second est le principal — la photo vit sur l'appareil de celui qui l'a prise, alors que le verdict est écrit par l'appareil qui **tranche** : un effacement « au verdict » n'atteint rien quand l'admin décide à distance.
+
+1. **Immédiat** (`_forgetProof`), partout où la preuve est abandonnée sur l'appareil du joueur : les deux branches de `_resolveValidation`, la réconciliation de `on_combat_appear`, la retraite, l'auto-validation admin solo.
+2. **Au démarrage** (`_reconcileProofs`, appelé à la restauration de session) : tout fichier de `dvphotos/` qui n'est pas l'`active_proof` courant est un orphelin et part. Rattrape l'app tuée pendant le verdict, le verdict rendu app fermée, la révocation, le compte supprimé depuis le web puis l'app rouverte — et rend l'effacement immédiat tolérant à l'échec.
+
+La suppression de compte in-app purge le répertoire avant le logout. Il reste **un cas résiduel, assumé et décrit au § 6.3 du dossier** : compte supprimé depuis le site et application plus jamais ouverte → une photo subsiste jusqu'à la désinstallation. Les primitives sont `dvcamera.delete(uuid)` et `dvcamera.purge(keep)` ; le module ne purge jamais de lui-même, il ne sait pas ce que l'application référence encore.
+
 Firebase Auth ne détient ni email, ni nom, ni photo avant l'acceptation des CGU (session anonyme, section 4), et le scope OAuth demandé est **`email` seul** — `profile` (nom et photo Google) n'est demandé à personne, les joueurs étant souvent mineurs. Seule conséquence visible : l'écran de profil affiche l'icône de l'app à la place de la photo Google.
 
 ### ia et confidentialité
 
-Trois textes librement saisis — nom de joueur, nom de clan, description de clan — transitent vers Vertex AI pour l'inspiration de nom. Le **conte du butin** élargit ce périmètre à la demande explicite d'un joueur : il transmet aussi le journal du clan (prénoms, descriptions de tâches accomplies, XP totale). Ce sont les mêmes catégories de données, jamais d'identifiant, d'âge, de région ni d'e-mail — mais le volume est sans commune mesure, d'où cette mention séparée. Le traitement a lieu **dans la région du joueur**.
+Trois textes librement saisis — nom de joueur, nom de clan, description de clan — transitent vers Vertex AI pour l'inspiration de nom. Le **conte du butin** élargit ce périmètre à la demande explicite d'un joueur : il transmet aussi le journal du clan (pseudonymes, descriptions de tâches accomplies, XP totale). Ce sont les mêmes catégories de données, jamais d'identifiant, d'âge, de région ni d'e-mail — mais le volume est sans commune mesure, d'où cette mention séparée. Le traitement a lieu **dans la région du joueur**.
 
 ### suppression et conservation
 
-Deux chemins, une même sémantique : **suppression fonctionnelle** (tombstones, `enabled: false`, secrets conservés pour une éventuelle restauration), l'effacement matériel étant une étape distincte et commune aux deux, non encore livrée.
+Deux chemins, une même sémantique : **suppression fonctionnelle** (tombstones, `enabled: false`, secrets conservés pour une éventuelle restauration), l'effacement matériel étant une étape distincte et commune aux deux, **non livrée et assumée comme telle** (section 23). Le **retrait de consentement** ci-dessous est une troisième porte d'entrée, mais pas un troisième chemin : il emprunte la cascade de `delete_user_data`, sans en dupliquer une ligne.
 
-- **à la demande** (`delete_user_data`, option in-app + page web) : self-delete uniquement, en cascade. Le compte est désactivé, ses adhésions tombstonées ; s'il était **chef unique** d'un clan, le clan est dissous, tous ses membres tombstonés, et ceux qui n'ont plus de responsable légal (mineur dont le clan d'origine disparaît) ou plus aucun autre clan actif sont eux-mêmes supprimés — **récursivement**. Le consentement n'est pas effacé mais **clos et daté** : la preuve de ce qui a été accepté doit survivre au compte, c'est toute sa raison d'être, et la politique de confidentialité la conserve 5 ans à ce titre. Une acceptation déjà close par une version plus récente garde **sa** date de fin. Un garde-fou multi-région évite de créer des documents fantômes : la page web interroge chaque région, dont la plupart n'hébergent pas le compte, et sans sortie anticipée les écritures en merge y **créeraient** les documents absents ;
-- **au terme du calendrier de facturation** (`clan_purge`, J730) : même cascade, appliquée aux clans dont le balayage a posé le drapeau. Le document de facturation n'est **jamais** supprimé — c'est la piste d'audit qui justifie ce qui vient d'être fait. L'idempotence passe par un horodatage de purge et non par l'effacement du drapeau, dont l'absence relancerait une purge par jour, indéfiniment.
+- **à la demande** (`delete_user_data`, option in-app + page web) : self-delete uniquement, en cascade. Le compte est désactivé, ses adhésions tombstonées ; s'il était **chef unique** d'un clan, le clan est dissous (`enabled: false` + `dissolved_at`, exactement comme par l'autre chemin), tous ses membres tombstonés, et ceux qui n'ont plus de responsable légal (mineur dont le clan d'origine disparaît) ou plus aucun autre clan actif sont eux-mêmes supprimés — **récursivement**. Le consentement n'est pas effacé mais **clos et daté** : la preuve de ce qui a été accepté doit survivre au compte, c'est toute sa raison d'être, et la politique de confidentialité la conserve 5 ans à ce titre. Une acceptation déjà close par une version plus récente garde **sa** date de fin. Un garde-fou multi-région évite de créer des documents fantômes : la page web interroge chaque région, dont la plupart n'hébergent pas le compte, et sans sortie anticipée les écritures en merge y **créeraient** les documents absents ;
+- **retrait du consentement parental** (`delete_user_data`, paramètres `consentTarget` + `clanId`) : un chef du **clan d'origine** retire son consentement pour **un seul** enfant, depuis le kebab de sa tuile (section 9). Le geste ne coûte plus la suppression du compte du chef — c'est-à-dire la dissolution du clan et la destruction des données de toute la famille — ce que l'**article 7(3) du RGPD** ne pouvait pas admettre : donner le consentement est un geste, le retirer doit en coûter un.
+  - **immédiat** : trois champs sur le doc membre (`consent_at`, `consent_due`, `consent_by`), et rien d'autre. Le joueur sort du jeu **sans être éjecté** : tuile grisée et hors de tous les agrégats (butin, coup de pouce, décompte « clan seul »), plus aucune option hormis « Rétablir », porte close sur son appareil (`commons/closed_*`, seule surface du jeu qui recouvre la taskbar), et son propre client cesse d'écrire sur le document. Les **autres chefs** reçoivent une notification, sans quoi la fenêtre de rétractation ne vaudrait que pour celui qui ouvre l'écran Clan par hasard ;
+  - **3 jours** (`_kConsentGraceDays`) : n'importe quel chef du clan d'origine peut revenir sur la décision. Rien n'a été supprimé, seulement suspendu ;
+  - **à l'échéance** : le rafraîchissement du roster de **n'importe quel membre** — chef ou non, la suppression est due et la faire dépendre du passage d'un chef la retarderait sans rien protéger — appelle `delete_user_data`, qui **reconstruit l'autorisation côté serveur** à partir de quatre faits lus en base (appelant membre actif du clan, retrait réellement en cours et échu, clan d'origine, cible non majeure), puis déroule sa cascade ordinaire sur cette seule cible. Un mineur n'étant jamais chef, **aucune dissolution ne peut en découler**. Un enfant `no_account` est tombstoné à la main, sans passer par `tombstone()` : celui-ci écrit aussi dans `users`, et un `set(merge)` y **créerait** un compte à un enfant qui n'en a jamais eu. Le consentement est **clos et daté** par le même bloc que les deux autres chemins.
+
+  > ⚠ **Le client ne supprime rien lui-même, et ne le pourrait pas** : les règles Firestore réservent l'écriture de `users` à son propriétaire et celle de `userindexes` au titulaire de l'index. Il ne fait que **réclamer** l'exécution. C'est ce qui permet de ne pas écrire une troisième cascade.
+  >
+  > ⚠ **Contrepartie assumée du déclenchement client** : si plus personne n'ouvre l'application, la suppression attend. Le balayeur serveur de la tâche « purges 30 j / 5 ans » est l'endroit naturel où reprendre ce filet.
+  >
+  > **Trois jours, et non trente.** Les deux nombres cohabitent dans le corpus et ne mesurent pas la même chose (section 23, « les trois horloges ») : 3 jours de rétractation, puis la suppression, puis 30 jours de conservation restreinte **sans retour possible**. Changer `_kConsentGraceDays` oblige à reprendre les 84 politiques de confidentialité adultes.
+  >
+  > **Retirer le consentement ne bloque pas l'enfant**, et ce n'est pas un oubli : cesser de traiter n'est pas interdire d'utiliser. Bloquer supposerait de conserver indéfiniment l'identifiant d'un enfant dont on vient de demander l'effacement complet — la mesure censée le protéger constituerait le seul fichier d'enfants que ce produit n'a pas, et serait inopérante puisqu'aucune identité n'est vérifiée. La protection réelle est ailleurs : un mineur ne peut ni créer de clan ni en chercher un, il n'entre que sur invitation d'un adulte qui déclare en répondre.
+  >
+  > **Aucune ligne de récit** n'est produite : `ConsentWithdrawn` / `ConsentRestored` existent pour l'audit, pas pour la mémoire familiale. Le journal est lu par les enfants et sert de matière au conteur IA ;
+
+- **au terme du calendrier de facturation** (`clan_purge`, J780) : même cascade, appliquée aux clans dont le balayage a posé le drapeau. Le document de facturation n'est **jamais** supprimé — c'est la piste d'audit qui justifie ce qui vient d'être fait. L'idempotence passe par un horodatage de purge et non par l'effacement du drapeau, dont l'absence relancerait une purge par jour, indéfiniment. Le consentement y est **clos et daté comme par l'autre chemin** : ce chemin-ci ne le faisait pas, et l'oubli ne se voyait qu'au retour du joueur — `enabled: false` est ce que la reprise de session relit pour ne pas restaurer `accepted_versions`, sans quoi un compte supprimé avec son clan qui revient un jour **saute l'écran CGU**.
 
 > ⚠️ La cascade est **dupliquée** entre les deux fonctions. Ce n'est pas un choix : chaque Cloud Function est déployée avec son propre `index.ts`, sans bibliothèque partagée. Toute correction de l'une doit être portée dans l'autre — il s'agit d'une suppression irréversible, deux implémentations qui divergeraient seraient un vrai danger.
+>
+> Elles **avaient** divergé sur trois points, réalignés le 2026-09-09 : `delete_user_data` ne marquait pas le clan qu'il dissolvait, `clan_purge` ne clôturait aucun consentement, et les deux fabriquaient une `documents_sessions` fantôme pour un enfant sans compte (`set(merge)` **crée** le document absent). C'est la démonstration que l'avertissement ci-dessus n'est pas théorique : trois divergences en deux fonctions, dont une visible seulement au retour d'un joueur, deux ans plus tard.
 
 ### conformité Google Play
 
@@ -1010,6 +1201,70 @@ Les déclarations Play Console sont préparées dans `stores/google/playstore.md
 **Le statut de vendeur (DSA)** : se déclarer professionnel fait afficher nom, adresse complète et téléphone sur la fiche Play dans l'EEE — mais seulement à partir du moment où une fiche est publique. Tant que la diffusion reste en piste fermée, rien n'est exposé. C'est pourquoi le bloc `publisher` du `build.yml` **ne déclare aucun layer** : sans `layer.publish`, la section ne descend ni dans l'APK ni dans le bucket que l'app lit sans authentification. En ajouter un exposerait une donnée personnelle dans un APK décompressable.
 
 > ⚠️ restant avant production (non bloquant pour le test fermé) : validation juridique des CGU/privacy, AIPD (mineurs + IA générative = deux critères CNIL), mentions des plateformes d'affiliation si elles sont activées.
+
+### ce que la revue a fait changer (2026-09-08 → 2026-09-09)
+
+Douze correctifs livrés à la suite de la revue « intérêt supérieur de l'enfant ». Le détail vit dans les sections concernées ; cette table dit **ce qui est désormais vrai** et où le vérifier, parce que la plupart de ces phrases sont opposables.
+
+| ce qui a changé | où |
+|---|---|
+| **La vie de la cotisation disparaît du journal** pour un lecteur non-admin, et du partage comme du conte pour tout le monde. Le log reste écrit — c'est le rendu qui filtre | § journal, `_buildLogStory` |
+| **`android:allowBackup="false"`** posé par le builder pour les treize projets. ⚠ Depuis Android 12, il ne coupe que la sauvegarde Drive, pas le transfert appareil-à-appareil | `appsettings.py`, § legal |
+| **Les photos de preuve sont effacées** dès qu'elles ne sont plus atteignables : immédiat sur l'appareil du joueur, et réconciliation au démarrage qui rattrape le reste | § validation, `dvcamera.delete/purge` |
+| **Un refus ne dit plus « (0 XP) »** : il rend la description d'effort, sans chiffre. Et la parenthèse est omise dès que le total est nul, y compris sur un accept | § verdicts, `_logLine` |
+| **Les 138 `dt_c_*` réécrits** du registre du renoncement vers celui de l'effort, avec une circonstance extérieure à l'enfant | `decisiontree-donjon-global.yml` |
+| **Trois gages réécrits, quatre ajoutés** (15 au total) : plus de recrutement commercial, plus de boisson secrète, contact physique à l'initiative de l'enfant | § mort, `theme-donjon-global.yml` |
+| **L'attaque de bisous ne dit plus le rang** ni la performance. Le critère de sélection, lui, ne change pas | § cérémonie du butin |
+| **Un écran d'avis du mineur** entre les CGU et la jointure de clan, en session encore anonyme | § onboarding, `kid_assent_screen` |
+| **Les surfaces commerciales exigent chef ET adulte** ; promouvoir un non-adulte est refusé avant toute écriture | § rôle vs statut légal, `_storeCanBuy` |
+| **Le partage vers l'extérieur est réservé aux adultes**, à l'affichage et à l'action | § partage, `on_log_share` |
+| **Une case distincte d'autorisation de transfert international**, affichée seulement là où le backend sort du territoire du marché | § onboarding, `dvdocuments` |
+| **Un adulte peut jouer sans peser sur le jeu des enfants** (mode hors concours) : retiré des agrégats du clan, de l'affichage comparatif de sa tuile, du partage du butin et de la mort — sans cesser d'alimenter le clan. Jamais applicable à un mineur | § menu du roster, `hors_concours` ; dossier § 4.5 |
+| **Filtres de sécurité du modèle au plus strict**, imposés côté serveur, et registre imposé dans les trois prompts — déplacés dans un layer cloud pour être ajustables sans release | § ia |
+| **Le retour au compte adulte demande un code temporaire**, et l'emprunt survit désormais au redémarrage | § impersonation |
+
+**Le corpus légal français a suivi** (2026-09-09), sur les quatre documents `fr-*-fr-*` : la formulation forte sur les photos est remplacée par « ne sont jamais sauvegardées en ligne » avec la réserve du transfert d'un téléphone à l'autre, l'effacement des photos est daté au vrai moment (« au plus tard à l'ouverture suivante de l'application »), et les filtres de sécurité du modèle ainsi que le registre imposé sont décrits dans la politique **et** dans les CGU. Trois affirmations qui étaient fausses sont devenues vraies sans qu'on y touche : « le partage est réservé aux adultes », « la souscription comme les achats sont réservés aux adultes », « l'avis du mineur est recueilli avant toute collecte ».
+
+**Passe du 2026-09-10 — les 336 documents, encore.** Le personnage a gagné une description et un
+bouton « Inspire moi » : les documents ne déclaraient ni les descriptions, ni le nom externe du
+personnage, ni le quatrième usage du modèle, ni le partage du journal d'activité brut (ils ne
+parlaient que du conte). Corrigés en place dans `v1` — la politique informe et n'engage pas ; les
+CGU ont été reprises de la même façon, l'application n'étant pas publiée et personne n'ayant donc
+accepté la version fautive. Deux formulations trop fortes des documents ENFANTS sont tombées au
+passage : « l'histoire contient les pseudos des joueurs — jamais autre chose » (elle contient
+aussi les tâches accomplies) et « une seule chose sort du jeu ». Plus une phrase écrite deux fois
+de suite dans `fr-k-fr-privacy`. ⚠ Chaque langue porte **deux variantes lexicales** selon le
+marché : toute correction doit prévoir les deux, sinon cinq marchés restent en arrière.
+
+**Les 336 documents ont suivi**, dans les sept langues et sur les douze marchés — une correction qui n'aurait valu qu'en français aurait créé une divergence pire que l'erreur d'origine. Portées partout : la formulation tenable sur les photos, le moment réel de leur effacement, et les filtres de sécurité du modèle dans la politique **et** dans les CGU (84 + 84). Deux pièges rencontrés, notés pour la prochaine passe : les marchés portent **deux variantes lexicales par langue** (« Las fotos » / « Las fotografías », « Taakfoto's » / « De taakfoto's »), et le HTML source coupe ses lignes au milieu des phrases — toute recherche doit être tolérante aux espaces, sous peine de rater la moitié du corpus sans le dire.
+
+> ⚠️ **Un défaut de dérivation corrigé au passage** : 72 documents traduits portaient un `<li><li>` doublé et un `<li>` manquant devant la ligne de conservation des photos — deux erreurs qui se compensaient, d'où un HTML qui se validait par accident. Le corpus français, lui, était propre. Les 336 documents se valident maintenant réellement.
+
+**Une dette a été fermée par arbitrage, pas par livraison** (2026-09-10). La revue demandait de substituer les pseudonymes avant l'appel au modèle, puis de les restituer avant affichage. **Écarté**, pour deux raisons : le conte du butin est écrit pour la famille — un récit où les parents ne reconnaissent personne n'a aucun intérêt, et le partage qui peut en découler est une décision d'adulte, du même ordre que publier des photos de vacances ; et `external` sert une tout autre finalité, produit celle-là (des écrans inter-clans à venir), qui n'a rien à voir avec ce qu'on transmet au modèle. Ce qui a changé à la place, c'est le **dossier** : il affirmait des choses fausses, il ne les affirme plus. Ne pas rouvrir ce point sans rouvrir cet arbitrage.
+
+**La dette qui reste** : l'écart entre le § 5.3 du dossier « intérêt supérieur de l'enfant » et le code sur deux puces déjà corrigées ici mais pas encore dans le dossier lui-même — « la boutique est réservée aux adultes » y décrit encore une garde de rôle, et « un enfant ne peut rien publier » y était affirmé alors que la conf disait l'inverse.
+
+### formulations à ne jamais reprendre
+
+Onze phrases se sont révélées fausses, ou vraies seulement après un correctif non livré, pendant la revue « intérêt supérieur de l'enfant » du 2026-09-08. Elles se relisent **avant toute rédaction de document légal, de fiche de store ou de page publique**.
+
+| Ne pas écrire | Écrire |
+|---|---|
+| « L'application ne traite aucune donnée personnelle de mineur » | « Le traitement est limité au strict nécessaire au fonctionnement du jeu au sein de la famille » |
+| « La date de naissance est effacée après usage » | « La date de naissance n'est jamais conservée » — elle n'est jamais écrite |
+| « Aucune adresse e-mail n'est collectée » | « Aucune adresse électronique n'est stockée dans les données de jeu ; l'adresse du compte Google est détenue par Firebase, sous-traitant, aux seules fins d'authentification » |
+| « Seuls des noms générés sont transmis à l'IA » | **Faux, et durablement** : le conte du butin transmet les pseudonymes internes et le journal du clan, par choix (2026-09-10). Écrire ce qui est vrai — les textes saisis par la famille, et pour le conte le journal de ses tâches ; jamais un identifiant, une date de naissance ni une image |
+| « Aucune donnée d'un mineur n'est visible en dehors de son clan » | « L'**application** n'en rend aucune visible hors du clan ; un adulte peut décider de partager le récit de son clan avec ses proches » |
+| « prénom » pour désigner ce que le joueur saisit | « **pseudonyme** ». L'application ne demande jamais un prénom (« Comment te nommes-tu aventurier ? ») et n'en fait jamais produire au modèle. C'est ce qui rend défendable la ligne « nom, prénom : non collectés » |
+| « Les enfants ne sont jamais informés du gel ou de l'impayé » | Vrai **depuis** le filtrage de la vie de la cotisation dans le journal (`_buildLogStory`) : les huit `Store*` sont masqués au lecteur non-admin, et retirés du partage et du conte IA quel que soit le lecteur |
+| « Les photos ne quittent jamais l'appareil » | « Aucune photo n'est sauvegardée en ligne » — `android:allowBackup="false"` est posé par `enforce_families_compliance()`, mais **depuis Android 12 il ne coupe que la sauvegarde vers Google Drive**, pas le transfert appareil-à-appareil (scindé dans `android:dataExtractionRules`, non déclaré). La formulation forte reste indisponible |
+| « L'adulte qui juge ne voit jamais la photo » | « La photo n'est jamais transmise ; l'adulte ne la voit que si l'enfant vient la lui montrer, en personne, sur son écran » |
+| « Aucun classement » | « Ni classement, ni rang, ni score comparatif ; une barre de contribution sans chiffre ni position » |
+| « Le jeu ne comporte aucun mécanisme de rétention » | « Il fait revenir l'enfant — c'est le moyen de former une habitude — mais rien ne l'incite à rester » |
+| « L'échec n'est pas puni » (à propos des PV) | « L'inactivité n'est pas sanctionnée : elle déclenche une alerte destinée à l'adulte » |
+| « La validation croisée protège l'enfant » | Elle protège l'équité entre adultes. L'argument qui porte : « l'application n'ajoute aucun pouvoir de l'adulte sur l'enfant, elle en encadre un qui existait déjà » |
+
+⚠ **`docs/vision.md` n'est ni communicable ni opposable.** Document d'intention, périmé sur au moins huit règles — dégradation des PV, seuil d'ouverture du coffre, recherche de clan, calendrier de suppression, code de retour d'impersonation, consentement permanent, adulte « sans XP », section « PIIs » (« pas de souci PII, même concernant les mineurs »). La référence technique est ce readme.
 
 ---
 
@@ -1024,6 +1279,7 @@ Les déclarations Play Console sont préparées dans `stores/google/playstore.md
 - **Recherche de clan par son nom** : écartée. Elle casse la confidentialité inter-clans, le nom interne n'est pas unique, et un annuaire interrogeable serait un vecteur d'abus pour une app d'enfants. À distance, on rejoint par lien chiffré par PIN.
 - **Écran « Mes achats »** : supprimé. Il redisait l'état que la boutique porte déjà ; l'historique se lit au journal du clan, avec le reste de l'histoire de la famille.
 - **Gating par fonctionnalité** : le routeur existe mais n'est câblé nulle part — le jeu ne se ferme pour aucun état commercial, sauf les deux portes de la section 12.
+- **Mécaniques de captation** : aucune des quatre — série de connexions, récompense quotidienne, jauge d'énergie, passe de combat — et c'est une **contrainte permanente**, pas un état de fait constaté. Le § 5.4 du dossier « intérêt supérieur de l'enfant » s'appuie dessus. Règle pour les mises à jour : **du contenu qui s'ajoute, jamais une récompense qui expire.** Une saison thématique reste du contenu ; elle devient un passe de combat le jour où elle porte une piste de progression dont les récompenses se perdent. Corollaire : **ne jamais notifier l'expiration d'un bonus** (« ton boss expire dans 2 h ») — le bonus de tâche recommandée décroît vers 1×, jamais en dessous : rien ne se perd, et il ne faut pas créer l'impression du contraire.
 
 ---
 
@@ -1047,7 +1303,7 @@ Donjons & Savons est une suite `projects/` avec vision produit propre. Son assem
 
 **dvtuto et la pédagogie déclarative** : leçons, panneaux, conditions et overrides sont en conf. Le worker n'y touche que pour jouer une leçon manuelle. Le mécanisme de **reminder** (cadence au lieu de « vu ») a permis d'y loger un dispositif qui n'est pas pédagogique du tout — le rappel de recrutement — sans forcer le module.
 
-**Les widgets de collection et le pattern selector** : `DvTiroir`, `DvRoster`, `DvExplorer`, `DvList`, `DvMenu(Button)` descendent d'une classe mère commune ; le métier est injecté par des callbacks nommés — `selector` (quelles options, lesquelles grisées), `sort` (tri métier) — et les données sont poussées par actions. Le tiroir résout lui-même l'option seule quand le menu est désactivé : le même mécanisme sert le tap direct d'aujourd'hui et le menu contextuel de demain.
+**Les widgets de collection et le pattern selector** : `DvTiroir`, `DvRoster`, `DvExplorer`, `DvList`, `DvMenu(Button)` descendent d'une classe mère commune ; le métier est injecté par des callbacks nommés — `selector` (quelles options, lesquelles grisées), `sort` (tri métier) — et les données sont poussées par actions. Un troisième canal existe pour l'affichage lui-même : le champ `hide` d'un membre de roster, qui retire des éléments d'une tuile SEULE (écu, PV, barre, bourse) là où les images correspondantes sont des clés de shape, donc globales. Toujours le même principe : le worker dit, le widget applique. Le tiroir résout lui-même l'option seule quand le menu est désactivé : le même mécanisme sert le tap direct d'aujourd'hui et le menu contextuel de demain.
 
 **Jamais de popup modale.** Tout ce qui ressemblerait à une boîte de dialogue — consentement d'invitation, avertissements de suppression de compte, succès d'un code cadeau, conflit de compte, bandeau d'impayé, bandeau d'impersonation — est un **overlay de widgets déclarés invisibles puis révélés**, appliqué à deux niveaux : mutation du template de conf (pour les pages qui naîtront) et show/hide des pages déjà en pile. Deux règles en découlent : un état **éphémère** (impersonation, impayé, erreur) n'est **jamais** persisté sur disque — un bandeau rouge persisté survivrait à la régularisation et accuserait une famille à jour ; un état **durable** (crâne de mort, avatar) l'est au contraire, pour naître avec la première frame.
 
@@ -1057,11 +1313,9 @@ Donjons & Savons est une suite `projects/` avec vision produit propre. Son assem
 
 ## 22. chantiers actifs
 
-La boucle complète « tâche → preuve → verdict croisé → XP → niveau → titre → célébration » tourne de bout en bout, avec sa méta (PV, mort, gage, guérison, coup de pouce, boss, journal, titres-objets, coffre et cérémonie d'ouverture, fée), son administration (chefs, révocation, passage à l'âge adulte, joueur sans compte, prise de place, édition et création de tâches), son onboarding anonyme, son tutoriel, son socle commercial complet et son dispositif de relance. Les chantiers ouverts, par ordre de valeur (console `deva`, écran **Livrables** : `ddust/mvp`, `ddust/defis`, `ddust/loots`, `ddust/minijeux`, `ddust/classes`, `ddust/packs`, puis les trois thèmes) :
+La boucle complète « tâche → preuve → verdict croisé → XP → niveau → titre → célébration » tourne de bout en bout, avec sa méta (PV, mort, gage, guérison, coup de pouce, boss, journal, titres-objets, coffre et cérémonie d'ouverture, fée), son administration (chefs, révocation, passage à l'âge adulte, joueur sans compte, prise de place, hors concours, édition et création de tâches), son onboarding anonyme, son tutoriel, son socle commercial complet et son dispositif de relance. Les chantiers ouverts, par ordre de valeur (console `deva`, écran **Livrables** : `ddust/mvp`, `ddust/defis`, `ddust/loots`, `ddust/minijeux`, `ddust/classes`, `ddust/packs`, puis les trois thèmes) :
 
 - **Butin** — l'**écriture de `clans_chest_history`** reste à faire : la table existe, elle est déjà lue (comparaison à la moyenne des 20 derniers butins), et la cérémonie ne l'alimente pas. Elle prendra le docId à l'idiome de `clans_logs` et calculera son effectif avec le filtre standard des agrégats.
-- **Relances** — sortir `pulse_sweeper` du mode simulation après plusieurs passes jugées crédibles ; le découpage de la passe par heure locale réelle (le décalage horaire est déjà collecté, il n'y aura pas de reprise de données).
-- **Statuts de joueur** — le mode adulte sans XP (jouer sans peser sur le jeu des enfants) reste à faire ; hors-ligne, sans-téléphone et prise de place sont livrés.
 - **Préférences et IA** — toggle IA global, avec propositions toutes faites en remplacement quand l'IA est coupée.
 - **Économie de jeu** (`ddust/loots`) — le plus gros volume : or, boutique à reset hebdomadaire, loot, quêtes, potions, objets, classes, faveurs, succès, saisons, et les **packs de domaines**. C'est aussi ce qui réveillera la célébration `giftgold`, déjà câblée et dormante.
 - **Thèmes** (`ddust/themes`) — packs cosmétiques à 5,99 €, contenu YAML + assets, sur le socle de layers déjà éprouvé par `theme-pirate`.
@@ -1089,13 +1343,20 @@ site : elle recense précisément les points où l'intention et la réalité div
 ### Divergences avec `vision.md`
 
 `vision.md` reste la référence du **ton et des intentions produit**. Il n'a pas été repris
-sur trois points de règle, et c'est le code qui fait foi :
+sur quatre points de règle, et c'est le code qui fait foi :
 
 - **Dégradation des PV** — 1 jour par point, et non 3 comme l'annonce la vision.
 - **Ouverture du butin** — sur une **jauge à 1 000**, alimentée par une part d'XP plafonnée,
   et non « tous les 10 000 XP ».
 - **Recherche d'un clan par son nom** — **écartée**, au profit du lien chiffré par PIN. La
   vision le note déjà.
+- **L'adulte qui ne veut pas peser** — la vision décrit un adulte qui **ne gagne pas d'XP**,
+  dont les tâches ne sont visibles que des autres adultes, et qui sort du diviseur d'XP du
+  clan. Le mode **hors concours** livré fait l'inverse sur les trois points : il gagne son XP
+  et **alimente le clan et le coffre comme avant**, ses tâches restent au journal de tous, et
+  il reste au diviseur. Ce qui est retiré, ce sont les **récompenses** et la **comparaison**
+  (§ 9, tuile de roster), pas la contribution. Le « petit message bienveillant » que la vision
+  imaginait n'existe pas : le mode le remplace par un réglage.
 
 ### Divergences avec le plan
 
@@ -1108,10 +1369,18 @@ sur trois points de règle, et c'est le code qui fait foi :
 - **Le dashboard des achats n'existe pas, et c'est délibéré.** Il a été écrit puis
   **supprimé** : il redisait l'état que la boutique porte déjà. L'historique de facturation
   se lit au journal du clan.
-- **La suppression des données passe de J90 à J730.** Le calendrier d'impayé est inchangé
+- **La suppression des données passe de J90 à J780.** Le calendrier d'impayé est inchangé
   jusqu'au gel (grâce 10 j, relances jusqu'à J50, gel à J50), mais la purge intervient deux
-  ans plus tard et non quarante jours, avec une phase d'adieu un mois avant. `purge_day: 730`
+  ans plus tard et non quarante jours, avec une phase d'adieu un mois avant. `purge_day: 780`
   fait foi.
+
+  ⚠ **780 et non 730, parce que le compteur ne part pas du gel.** `store_sweeper` calcule
+  ses jours depuis `default_since`, donc depuis le **premier impayé**, alors que le gel
+  n'arrive qu'à J50 : la valeur 730 ne laissait que 680 jours entre le gel et l'effacement,
+  soit près de deux mois de moins que ce que la politique de confidentialité promet aux
+  familles (« deux ans à compter du blocage du clan »). Corrigé le 2026-09-09, avec la phase
+  `farewell` décalée de J700-730 à J750-780. **C'est `locked_day + 730` qui fait foi, pas
+  730** : toute reprise du jour de gel doit se répercuter sur le jour de purge.
 - **La paywall par fonctionnalité n'est câblée nulle part.** Le routeur de gating existe
   dans le module et le design le prévoyait ; le jeu ne se ferme pour aucun état commercial,
   sauf deux portes explicites — clan gelé, mur de première cotisation. C'est un choix
@@ -1125,3 +1394,89 @@ sur trois points de règle, et c'est le code qui fait foi :
   ⚠ **Écart ouvert au 2026-09-02, et il porte sur des CHIFFRES, pas sur du texte.** Ces
   quatre items comptent encore dans le backlog de `ddust/mvp` et dans ses 987 rsp : le lot
   est donc surévalué, et sa date de livraison trop tardive. À reprendre dans la console.
+
+### Promesses des documents que le code ne tient pas
+
+Le sens de lecture s'inverse ici : les sections précédentes disent où **le code** dépasse ce
+qu'un document annonce ; celle-ci dit où **un document publié** annonce ce que le code ne
+fait pas. Elle se relit avant toute production légale.
+
+⚠ **Deux natures d'écart, à ne pas confondre** (arbitrage du 2026-09-10). Les documents légaux
+décrivent le produit **fini**, pas son état d'avancement : qu'une fonctionnalité annoncée soit
+encore à écrire est une **tâche de développement planifiée**, pas un mensonge — c'est le cas de
+l'effacement matériel et du retrait de consentement par un chef. Ce qui doit être corrigé dans
+le document, c'est ce qui décrit **mal la cible elle-même**. Le tri se fait sur cette question,
+et sur aucune autre.
+
+- **L'effacement matériel n'existe pas, et c'est assumé.** Les deux chemins de suppression
+  marquent (tombstones, `enabled: false`, secrets conservés) ; **rien n'efface jamais rien**.
+  La politique de confidentialité promet pourtant au § 8 une suppression en trois temps —
+  fonctionnelle immédiate, conservation limitée, puis effacement définitif. Le troisième
+  temps est un développement à part, sous forme de **fonction cloud** : une TTL Firestore a
+  été écartée, elle efface un document isolé sans discernement alors que la base porte des
+  enregistrements imbriqués qui ne sont pas propres à un utilisateur. Reporté au moment où il
+  y aura quelque chose à effacer.
+
+  Trois horloges, à ne surtout pas confondre le jour où la fonction s'écrira : **30 jours**
+  après une suppression à la demande ; **rien** après `clan_purge`, dont les deux ans sont
+  déjà écoulés quand il s'exécute — lui ajouter 30 jours conserverait plus longtemps
+  qu'annoncé ; **5 ans** pour une preuve d'acceptation, à compter de son `date_end`. La
+  première est courte : elle court trente jours après le premier testeur qui supprimera son
+  compte, pas dans deux ans.
+
+  Ce que la fonction devra traiter, pour ne pas refaire l'inventaire : les arborescences d'un
+  clan dissous (`clans_tasks`, `clans_items`, `clans_logs`, `clans_chest_history`,
+  `clans_players`, `clans_pulse`, puis `clans` — **jamais `clans_store`**, piste d'audit) ;
+  pour un compte, ses lignes de journal dans les clans **survivants** (`userId` *et*
+  `adminId` — décision prise : effacer, pas anonymiser), ses objets (`owner == uid` :
+  `wallet_<uid>`, `title_p_*_<uid>`), ses jetons (`msgregistry`/`msgindex`/`msgdesktops`),
+  ses achats (`store_purchases`), **son compte Firebase Auth** — `delete_user_data` retourne
+  déjà `firebaseUids` sans que personne ne le consomme —, puis `userindexes` et `users`, à
+  lire **avant** de les effacer sous peine de perdre la carte. Le compte de service `backend`
+  ne doit pas être élargi pour cela (c'est lui qui porte les deux cascades) : un SA `purge`
+  dédié, sur le modèle de `pulse`. Enfin, **rien ne distingue aujourd'hui** un tombstone de
+  suppression d'un départ volontaire (`revoke_player` pose le même `enabled: false`, et son
+  tombstone porte la règle `original_clan` : il doit survivre) — il faudra poser ce
+  discriminant dans les deux cascades. Le retrait de consentement, lui, passe par
+  `delete_user_data` et pose donc déjà `status: 'deleted'` : l'écart ne subsiste que pour
+  `revoke_player`.
+
+- **Le § 9 de la politique de confidentialité décrivait mal la cible : corrigé le 2026-09-10.**
+  Il annonçait « un délai de réflexion de 30 jours pendant lequel un chef du clan d'origine peut
+  revenir sur sa décision » alors que la durée visée est de **3 jours**, les 30 jours étant la
+  conservation technique qui suit, sans retour possible. Les 168 documents portent désormais la
+  bonne chronologie. **Le bouton, lui, existe depuis le 2026-09-10** (section 19) : l'écart
+  qui vivait ici — « le retrait de consentement par un chef n'existe pas » — est comblé, et la
+  ligne a été retirée de cette section plutôt que réécrite. Ce qui reste dû sur ce chemin est
+  ce qui l'est pour les deux autres : les 30 jours de conservation restreinte et l'effacement
+  matériel, c'est-à-dire la fonction décrite plus haut.
+
+- **La documentation destinée aux parents n'existait pas : comblé le 2026-09-10.** Le § 5.2 du
+  dossier « intérêt supérieur de l'enfant » affirmait — au présent, dans un document destiné à
+  être opposé — que « la documentation destinée aux parents » explique le seuil des dix jours en
+  ces termes, et `vision.md` § 205 prévoyait une « aide aux parents ». Ni l'une ni l'autre
+  n'existait : l'application ne disait son intention nulle part, et un adulte voyant le crâne
+  n'avait aucun moyen d'y lire autre chose qu'une punition de jeu. Les leçons `guide_parent` et
+  `guide_enfant` (section 14) portent désormais ce texte, à l'intérieur de l'application et dans
+  les trois langues. L'écart était de nature légale, pas seulement fonctionnelle : un dispositif
+  d'alerte dont le destinataire ignore qu'il en est un n'alerte personne.
+
+- **Les TTL de `pumessaging` étaient inertes : corrigé le 2026-09-10.** Le diagnostic
+  d'origine — « personne n'écrit le champ `expiration` » — était juste sur l'effet et faux sur
+  la cause. Les cinq collections écrivaient bel et bien une date de péremption à 30 jours,
+  calculée aux deux bouts (`dvmessaging_motor.dart` et les Cloud Functions), mais sous le nom
+  `expire`. Or `pufirestore` pose la politique TTL sur `expiration`, en dur. Un caractère
+  d'écart entre l'intention et l'effet, et rien n'expirait.
+
+  Le renommage est sans effet de bord : **aucun code ne lit ce champ**, il n'existe que pour la
+  purge. Les 30 jours, eux, étaient le bon réglage et n'ont pas bougé — la dernière relance de
+  reconquête part à J+21 et le balayeur cesse de lire à J+30, si bien que purger le jeton à
+  J+30 ne coupe aucune notification qu'un joueur pouvait encore recevoir.
+
+  ⚠ Les documents déjà en base portent `expire` et ne seront jamais purgés. `msgregistry` et
+  `msgdesktops` se réparent seuls au prochain démarrage de chaque device ; les trois autres
+  collections sont des files éphémères. Sans utilisateurs en production, le reliquat est nul.
+
+  Le module était le seul fautif : `pustore`, `pubudget`, `dvcloud`, `dvlock` et
+  `dvvirtuallobby` écrivent tous `expiration`. Le rappel est désormais dans `pufirestore` même,
+  à l'endroit où la politique se pose.

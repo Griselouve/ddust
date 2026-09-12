@@ -225,6 +225,9 @@ conf:
 
     #//------------------------------- PLAYER NAME SCREEN ----------------------------------
 
+    # Formulaire complet (commons/inspireform_*, comme create_clan) : nom + description +
+    # « Inspire moi ». L'inspiration rend en UN appel le nom et la description du personnage ET
+    # leurs substituts, qui deviennent l'identité visible hors du clan — jamais affichés ici.
     player_name_screen:
       masks:
         - page
@@ -238,28 +241,59 @@ conf:
         - player_name_screen/icon_background
         - player_name_screen/name_label
         - player_name_screen/name
+        - player_name_screen/desc_label
+        - player_name_screen/desc
+        - player_name_screen/inspire
+        - player_name_screen/replay
         - player_name_screen/confirm
 
     player_name_screen/icon_background:
       masks:
-        - commons/nameform_bg
+        - commons/inspireform_bg
 
     player_name_screen/name_label:
       masks:
-        - commons/nameform_label
+        - commons/inspireform_name_label
       shape:
         label: "@@@T:player_name_label@@@"
 
     player_name_screen/name:
       masks:
-        - commons/nameform_entry
+        - commons/inspireform_name
       shape:
         actions:
           changed: worker.on_player_name_changed
 
+    player_name_screen/desc_label:
+      masks:
+        - commons/inspireform_desc_label
+      shape:
+        label: "@@@T:player_description_label@@@"
+
+    player_name_screen/desc:
+      masks:
+        - commons/inspireform_desc
+      shape:
+        actions:
+          changed: worker.on_player_name_desc_changed
+
+    player_name_screen/inspire:
+      masks:
+        - commons/inspireform_inspire
+      shape:
+        freezing_actions:
+          tap: worker.on_inspire_player_name
+
+    player_name_screen/replay:
+      masks:
+        - commons/inspireform_replay
+      shape:
+        freezing_actions:
+          tap: worker.on_replay_player_name
+
     player_name_screen/confirm:
       masks:
-        - commons/nameform_confirm
+        - commons/inspireform_confirm
       shape:
         label: "@@@T:player_name_confirm@@@"
         freezing_actions:
@@ -427,6 +461,13 @@ conf:
         - documents/acceptance_content
         - documents/acceptance_hint
         - documents/acceptance_checkbox
+        # Autorisation de transfert international. Déclarée pour TOUS les royaumes, affichée
+        # par dvdocuments seulement là où le marché porte `transfer: true` au catalogue de
+        # régions — aujourd'hui aucun, puisque `fr` vit dans le cloud `eu`. La France ne voit
+        # donc rien changer, et le jour où un marché servi depuis un datacenter lointain
+        # s'ouvre, la case est déjà là. Ne PAS la retirer sous prétexte qu'elle ne s'affiche
+        # nulle part : sans elle, le module journalise un warning et ne demande RIEN.
+        - documents/acceptance_transfer
         - documents/acceptance_accept
 
     documents/acceptance_title:
@@ -443,9 +484,81 @@ conf:
       shape:
         text_align: LEFT
 
+    documents/acceptance_transfer:
+      masks:
+        - commons/nobordershape
+      shape:
+        text_align: LEFT
+
     documents/acceptance_accept:
       masks:
         - commons/dark_button
+
+    #//------------------------------- KID ASSENT SCREEN --------------------------------------
+    # L'avis du mineur, recueilli AVANT toute écriture en base (session encore anonyme).
+    # Cf. le commentaire du pas `kid_assent_screen` dans steps.yml pour le fondement juridique.
+    #
+    # L'écran POSE UNE QUESTION. Un simple « Continuer » ne rendrait compte de rien : le texte
+    # doit interroger l'enfant et le bouton doit être sa réponse, pas un accusé de lecture.
+    # D'où le libellé « Oui, je pars à l'aventure ! » et non « Continuer ».
+    #
+    # Pas de bouton « Non » : décliner n'a rien à écrire, et un refus enregistré serait
+    # justement une donnée collectée sur un enfant qui n'a pas consenti. Ne pas valider EST
+    # la réponse négative. La flèche existe pour qu'il ne soit pas coincé — pas d'appbar ici,
+    # le pas précédent navigue en `reset` et il n'y aurait donc rien à dépiler.
+
+    kid_assent_screen:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:kid_assent_title@@@"
+      registry:
+        - commons/icon_background
+        - kid_assent/back
+        - kid_assent/question
+        - kid_assent/go
+
+    # Flèche retour explicite : renvoie aux documents (route `back` du pas). Discrète, en haut
+    # à gauche, hors du chemin du bouton principal.
+    kid_assent/back:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 4%
+        y: 2%
+        w: 30%
+        h: 5%
+        text_align: LEFT
+        font_size: 13.0
+        label: "@@@T:kid_assent_back@@@"
+        events:
+          tap: true
+        actions:
+          tap: steps.navigate.back
+
+    kid_assent/question:
+      masks:
+        - commons/intro_text
+      shape:
+        y: 22%
+        h: 34%
+        font_size: 17.0
+        label: "@@@T:kid_assent_question@@@"
+
+    kid_assent/go:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 70%
+        h: 12%
+        text_align: CENTER
+        label: "@@@T:kid_assent_go@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: steps.navigate.go
 
     #//------------------------------- LINK ACCOUNT SCREEN ------------------------------------
     # Dernière étape de l'onboarding et PREMIÈRE écriture en base : jusqu'ici tout s'est passé

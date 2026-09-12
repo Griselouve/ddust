@@ -161,9 +161,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the living room!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del salón!"
       dt_c_salon_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins du salon."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the living room."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del salón."
+        fr: "@@@session.user.name@@@ a chargé les moutons-gobelins du salon tête baissée, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ charged straight at the dust-bunny goblins of the living room, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ cargó de frente contra los duendes de pelusa del salón, pero se acabó el tiempo: la aventura continuará!"
       dt_t_salon_02:
         fr: "Faire les poussières"
         en: "Dust"
@@ -177,9 +177,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the dust wraiths of the living room!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del salón!"
       dt_c_salon_02:
-        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière du salon."
-        en: "@@@session.user.name@@@ gave up against the dust wraiths of the living room."
-        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del salón."
+        fr: "@@@session.user.name@@@ a tenu bon face aux spectres de poussière du salon, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ held the line against the dust wraiths of the living room, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a los espectros de polvo del salón, y el combate duró más de lo previsto!"
       dt_t_salon_03:
         fr: "Laver le sol"
         en: "Mop the floor"
@@ -193,9 +193,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the living room!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del salón!"
       dt_c_salon_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse du salon."
-        en: "@@@session.user.name@@@ slipped back in retreat from the grime slugs of the living room."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del salón."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les limaces de crasse du salon, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ crossed swords with the grime slugs of the living room, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con las babosas de mugre del salón, pero el hechizo salió mal en el último momento!"
       dt_t_salon_04:
         fr: "Nettoyer les vitres"
         en: "Clean the windows"
@@ -209,9 +209,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the smudge imps from the living room windows!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas del salón!"
       dt_c_salon_04:
-        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres du salon."
-        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the living room windows."
-        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas del salón."
+        fr: "@@@session.user.name@@@ a tenu tête aux lutins des vitres du salon, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ stood up to the smudge imps of the living room windows, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los duendes de las ventanas del salón, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_salon_05:
         fr: "Laver les murs"
         en: "Wash the walls"
@@ -225,9 +225,9 @@ data:
         en: "@@@session.user.name@@@ has just pushed back the creeping mould of the living room walls!"
         es: "¡@@@session.user.name@@@ acaba de repeler el moho reptante de las paredes del salón!"
       dt_c_salon_05:
-        fr: "@@@session.user.name@@@ a cédé du terrain au moisi rampant des murs du salon."
-        en: "@@@session.user.name@@@ lost ground to the creeping mould of the living room walls."
-        es: "@@@session.user.name@@@ cedió terreno ante el moho reptante de las paredes del salón."
+        fr: "@@@session.user.name@@@ a chargé le moisi rampant des murs du salon tête baissée, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ charged straight at the creeping mould of the living room walls, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ cargó de frente contra el moho reptante de las paredes del salón, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_salon_06:
         fr: "Nettoyer le miroir"
         en: "Clean the mirror"
@@ -241,9 +241,9 @@ data:
         en: "@@@session.user.name@@@ has just dispelled the dull reflections of the living room mirror!"
         es: "¡@@@session.user.name@@@ acaba de disipar los reflejos turbios del espejo del salón!"
       dt_c_salon_06:
-        fr: "@@@session.user.name@@@ a renoncé face aux reflets ternes du miroir du salon."
-        en: "@@@session.user.name@@@ gave up against the dull reflections of the living room mirror."
-        es: "@@@session.user.name@@@ renunció ante los reflejos turbios del espejo del salón."
+        fr: "@@@session.user.name@@@ a chargé les reflets ternes du miroir du salon tête baissée, mais un dragon est passé par là, et il a fallu se mettre à l'abri !"
+        en: "@@@session.user.name@@@ charged straight at the dull reflections of the living room mirror, but a dragon flew past, and cover had to be taken!"
+        es: "¡@@@session.user.name@@@ cargó de frente contra los reflejos turbios del espejo del salón, pero pasó un dragón cerca y hubo que ponerse a cubierto!"
       dt_t_salon_07:
         fr: "Ranger"
         en: "Tidy"
@@ -257,9 +257,9 @@ data:
         en: "@@@session.user.name@@@ has just subdued the clutter goblins of the living room!"
         es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden del salón!"
       dt_c_salon_07:
-        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre du salon."
-        en: "@@@session.user.name@@@ gave up before the clutter goblins of the living room."
-        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden del salón."
+        fr: "@@@session.user.name@@@ a tenu tête aux gobelins du désordre du salon, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ stood up to the clutter goblins of the living room, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los trasgos del desorden del salón, pero se acabó el tiempo: la aventura continuará!"
       dt_t_salon_08:
         fr: "Aspirer ou dépoussiérer le canapé"
         en: "Vacuum or dust the sofa"
@@ -273,9 +273,9 @@ data:
         en: "@@@session.user.name@@@ has just dislodged the crumb-crawlers from the sofa!"
         es: "¡@@@session.user.name@@@ acaba de expulsar las migas reptantes del sofá!"
       dt_c_salon_08:
-        fr: "@@@session.user.name@@@ a renoncé face aux miettes-rampantes du canapé."
-        en: "@@@session.user.name@@@ gave up against the crumb-crawlers of the sofa."
-        es: "@@@session.user.name@@@ renunció ante las migas reptantes del sofá."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les miettes-rampantes du canapé, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ led the assault on the crumb-crawlers of the sofa, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra las migas reptantes del sofá, y el combate duró más de lo previsto!"
       dt_t_salon_09:
         fr: "Shampouiner ou nettoyer le canapé"
         en: "Shampoo or clean the sofa"
@@ -289,9 +289,9 @@ data:
         en: "@@@session.user.name@@@ has just slain the stain-trolls of the sofa!"
         es: "¡@@@session.user.name@@@ acaba de derrotar a las manchas-troles del sofá!"
       dt_c_salon_09:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les taches-trolls du canapé."
-        en: "@@@session.user.name@@@ retreated before the stain-trolls of the sofa."
-        es: "@@@session.user.name@@@ se retiró ante las manchas-troles del sofá."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les taches-trolls du canapé, et le grimoire manquait justement la bonne page !"
+        en: "@@@session.user.name@@@ crossed swords with the stain-trolls of the sofa, and the spellbook was missing exactly the right page!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con las manchas-troles del sofá, y al grimorio le faltaba justo la página buena!"
 
       #------------- Tâches — chambre parentale ------------------------
 
@@ -308,9 +308,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the master bedroom!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del dormitorio principal!"
       dt_c_chambre_parentale_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de la chambre parentale."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the master bedroom."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del dormitorio principal."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les moutons-gobelins de la chambre parentale, mais la potion de courage était déjà vide !"
+        en: "@@@session.user.name@@@ fought bravely against the dust-bunny goblins of the master bedroom, but the courage potion was already empty!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los duendes de pelusa del dormitorio principal, pero la poción de valor ya estaba vacía!"
       dt_t_chambre_parentale_02:
         fr: "Faire les poussières"
         en: "Dust"
@@ -324,9 +324,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the dust wraiths of the master bedroom!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del dormitorio principal!"
       dt_c_chambre_parentale_02:
-        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière de la chambre parentale."
-        en: "@@@session.user.name@@@ gave up against the dust wraiths of the master bedroom."
-        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del dormitorio principal."
+        fr: "@@@session.user.name@@@ a chargé les spectres de poussière de la chambre parentale tête baissée, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ charged straight at the dust wraiths of the master bedroom, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ cargó de frente contra los espectros de polvo del dormitorio principal, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_chambre_parentale_03:
         fr: "Laver le sol"
         en: "Mop the floor"
@@ -340,9 +340,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the master bedroom!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del dormitorio principal!"
       dt_c_chambre_parentale_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de la chambre parentale."
-        en: "@@@session.user.name@@@ slipped back from the grime slugs of the master bedroom."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del dormitorio principal."
+        fr: "@@@session.user.name@@@ a chargé les limaces de crasse de la chambre parentale tête baissée, et la lanterne a rendu l'âme au plus mauvais moment !"
+        en: "@@@session.user.name@@@ charged straight at the grime slugs of the master bedroom, and the lantern burned out at the worst moment!"
+        es: "¡@@@session.user.name@@@ cargó de frente contra las babosas de mugre del dormitorio principal, y el farol se quedó sin aceite en el peor momento!"
       dt_t_chambre_parentale_04:
         fr: "Nettoyer les vitres"
         en: "Clean the windows"
@@ -356,9 +356,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the smudge imps from the master bedroom windows!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas del dormitorio principal!"
       dt_c_chambre_parentale_04:
-        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres de la chambre parentale."
-        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the master bedroom windows."
-        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas del dormitorio principal."
+        fr: "@@@session.user.name@@@ a bravé les lutins des vitres de la chambre parentale sans faiblir, et le grimoire manquait justement la bonne page !"
+        en: "@@@session.user.name@@@ braved the smudge imps of the master bedroom windows without flinching, and the spellbook was missing exactly the right page!"
+        es: "¡@@@session.user.name@@@ desafió a los duendes de las ventanas del dormitorio principal sin flaquear, y al grimorio le faltaba justo la página buena!"
       dt_t_chambre_parentale_05:
         fr: "Nettoyer le miroir"
         en: "Clean the mirror"
@@ -372,9 +372,9 @@ data:
         en: "@@@session.user.name@@@ has just dispelled the dull reflections of the master bedroom mirror!"
         es: "¡@@@session.user.name@@@ acaba de disipar los reflejos turbios del espejo del dormitorio principal!"
       dt_c_chambre_parentale_05:
-        fr: "@@@session.user.name@@@ a renoncé face aux reflets ternes du miroir de la chambre parentale."
-        en: "@@@session.user.name@@@ gave up against the dull reflections of the master bedroom mirror."
-        es: "@@@session.user.name@@@ renunció ante los reflejos turbios del espejo del dormitorio principal."
+        fr: "@@@session.user.name@@@ a tenu bon face aux reflets ternes du miroir de la chambre parentale, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ held the line against the dull reflections of the master bedroom mirror, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a los reflejos turbios del espejo del dormitorio principal, pero se acabó el tiempo: la aventura continuará!"
       dt_t_chambre_parentale_06:
         fr: "Ranger"
         en: "Tidy"
@@ -388,9 +388,9 @@ data:
         en: "@@@session.user.name@@@ has just subdued the clutter goblins of the master bedroom!"
         es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden del dormitorio principal!"
       dt_c_chambre_parentale_06:
-        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre de la chambre parentale."
-        en: "@@@session.user.name@@@ gave up before the clutter goblins of the master bedroom."
-        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden del dormitorio principal."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les gobelins du désordre de la chambre parentale, mais un dragon est passé par là, et il a fallu se mettre à l'abri !"
+        en: "@@@session.user.name@@@ fought bravely against the clutter goblins of the master bedroom, but a dragon flew past, and cover had to be taken!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los trasgos del desorden del dormitorio principal, pero pasó un dragón cerca y hubo que ponerse a cubierto!"
       dt_t_chambre_parentale_08:
         fr: "Changer les draps"
         en: "Change the sheets"
@@ -404,9 +404,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the mite-vampires from the master bedroom sheets!"
         es: "¡@@@session.user.name@@@ acaba de desterrar a los ácaros vampiro de las sábanas del dormitorio principal!"
       dt_c_chambre_parentale_08:
-        fr: "@@@session.user.name@@@ a renoncé face aux acariens-vampires de la chambre parentale."
-        en: "@@@session.user.name@@@ gave up against the mite-vampires of the master bedroom."
-        es: "@@@session.user.name@@@ renunció ante los ácaros vampiro del dormitorio principal."
+        fr: "@@@session.user.name@@@ a tenu bon face aux acariens-vampires de la chambre parentale, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ held the line against the mite-vampires of the master bedroom, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a los ácaros vampiro del dormitorio principal, y el combate duró más de lo previsto!"
       dt_t_chambre_parentale_09:
         fr: "Retourner ou aérer le matelas"
         en: "Flip or air the mattress"
@@ -420,9 +420,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the mattress miasmas of the master bedroom!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar los miasmas del colchón del dormitorio principal!"
       dt_c_chambre_parentale_09:
-        fr: "@@@session.user.name@@@ a renoncé face aux miasmes du matelas de la chambre parentale."
-        en: "@@@session.user.name@@@ gave up against the mattress miasmas of the master bedroom."
-        es: "@@@session.user.name@@@ renunció ante los miasmas del colchón del dormitorio principal."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les miasmes du matelas de la chambre parentale, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ led the assault on the mattress miasmas of the master bedroom, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra los miasmas del colchón del dormitorio principal, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_chambre_parentale_10:
         fr: "Laver les murs"
         en: "Wash the walls"
@@ -436,9 +436,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped the ghostly marks off the master bedroom walls!"
         es: "¡@@@session.user.name@@@ acaba de borrar las marcas fantasma de las paredes del dormitorio principal!"
       dt_c_chambre_parentale_10:
-        fr: "@@@session.user.name@@@ a renoncé à laver les murs de la chambre parentale."
-        en: "@@@session.user.name@@@ gave up washing the master bedroom walls."
-        es: "@@@session.user.name@@@ renunció a lavar las paredes del dormitorio principal."
+        fr: "@@@session.user.name@@@ a donné de sa peine pour laver les murs de la chambre parentale, et le donjon en redemande déjà !"
+        en: "@@@session.user.name@@@ worked hard at washing the master bedroom walls, and the dungeon is already asking for more!"
+        es: "¡@@@session.user.name@@@ se esforzó para lavar las paredes del dormitorio principal, y la mazmorra ya pide más!"
 
       #------------- Tâches — chambre enfant ---------------------------
 
@@ -455,9 +455,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the children's bedroom!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa de la habitación infantil!"
       dt_c_chambre_enfant_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de la chambre enfant."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the children's bedroom."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa de la habitación infantil."
+        fr: "@@@session.user.name@@@ a tenu tête aux moutons-gobelins de la chambre enfant, et la lanterne a rendu l'âme au plus mauvais moment !"
+        en: "@@@session.user.name@@@ stood up to the dust-bunny goblins of the children's bedroom, and the lantern burned out at the worst moment!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los duendes de pelusa de la habitación infantil, y el farol se quedó sin aceite en el peor momento!"
       dt_t_chambre_enfant_02:
         fr: "Faire les poussières"
         en: "Dust"
@@ -471,9 +471,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the dust wraiths of the children's bedroom!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo de la habitación infantil!"
       dt_c_chambre_enfant_02:
-        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière de la chambre enfant."
-        en: "@@@session.user.name@@@ gave up against the dust wraiths of the children's bedroom."
-        es: "@@@session.user.name@@@ renunció ante los espectros de polvo de la habitación infantil."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les spectres de poussière de la chambre enfant, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ fought bravely against the dust wraiths of the children's bedroom, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los espectros de polvo de la habitación infantil, y el combate duró más de lo previsto!"
       dt_t_chambre_enfant_03:
         fr: "Laver le sol"
         en: "Mop the floor"
@@ -487,9 +487,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the children's bedroom!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre de la habitación infantil!"
       dt_c_chambre_enfant_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de la chambre enfant."
-        en: "@@@session.user.name@@@ slipped back from the grime slugs of the children's bedroom."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre de la habitación infantil."
+        fr: "@@@session.user.name@@@ a tenu bon face aux limaces de crasse de la chambre enfant, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ held the line against the grime slugs of the children's bedroom, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a las babosas de mugre de la habitación infantil, pero el hechizo salió mal en el último momento!"
       dt_t_chambre_enfant_04:
         fr: "Nettoyer les vitres"
         en: "Clean the windows"
@@ -503,9 +503,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the smudge imps from the children's bedroom windows!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas de la habitación infantil!"
       dt_c_chambre_enfant_04:
-        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres de la chambre enfant."
-        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the children's bedroom windows."
-        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas de la habitación infantil."
+        fr: "@@@session.user.name@@@ a bravé les lutins des vitres de la chambre enfant sans faiblir, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ braved the smudge imps of the children's bedroom windows without flinching, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ desafió a los duendes de las ventanas de la habitación infantil sin flaquear, pero se acabó el tiempo: la aventura continuará!"
       dt_t_chambre_enfant_05:
         fr: "Nettoyer le miroir"
         en: "Clean the mirror"
@@ -519,9 +519,9 @@ data:
         en: "@@@session.user.name@@@ has just dispelled the dull reflections of the children's bedroom mirror!"
         es: "¡@@@session.user.name@@@ acaba de disipar los reflejos turbios del espejo de la habitación infantil!"
       dt_c_chambre_enfant_05:
-        fr: "@@@session.user.name@@@ a renoncé face aux reflets ternes du miroir de la chambre enfant."
-        en: "@@@session.user.name@@@ gave up against the dull reflections of the children's bedroom mirror."
-        es: "@@@session.user.name@@@ renunció ante los reflejos turbios del espejo de la habitación infantil."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les reflets ternes du miroir de la chambre enfant, mais un dragon est passé par là, et il a fallu se mettre à l'abri !"
+        en: "@@@session.user.name@@@ led the assault on the dull reflections of the children's bedroom mirror, but a dragon flew past, and cover had to be taken!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra los reflejos turbios del espejo de la habitación infantil, pero pasó un dragón cerca y hubo que ponerse a cubierto!"
       dt_t_chambre_enfant_06:
         fr: "Ranger"
         en: "Tidy"
@@ -535,9 +535,9 @@ data:
         en: "@@@session.user.name@@@ has just subdued the clutter goblins of the children's bedroom!"
         es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden de la habitación infantil!"
       dt_c_chambre_enfant_06:
-        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre de la chambre enfant."
-        en: "@@@session.user.name@@@ gave up before the clutter goblins of the children's bedroom."
-        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden de la habitación infantil."
+        fr: "@@@session.user.name@@@ a tenu bon face aux gobelins du désordre de la chambre enfant, mais l'ennemi avait tendu un piège !"
+        en: "@@@session.user.name@@@ held the line against the clutter goblins of the children's bedroom, but the enemy had set a trap!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a los trasgos del desorden de la habitación infantil, pero el enemigo había tendido una trampa!"
       dt_t_chambre_enfant_09:
         fr: "Changer les draps"
         en: "Change the sheets"
@@ -551,9 +551,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the mite-vampires from the children's bedroom sheets!"
         es: "¡@@@session.user.name@@@ acaba de desterrar a los ácaros vampiro de las sábanas de la habitación infantil!"
       dt_c_chambre_enfant_09:
-        fr: "@@@session.user.name@@@ a renoncé face aux acariens-vampires de la chambre enfant."
-        en: "@@@session.user.name@@@ gave up against the mite-vampires of the children's bedroom."
-        es: "@@@session.user.name@@@ renunció ante los ácaros vampiro de la habitación infantil."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre les acariens-vampires de la chambre enfant, mais ce n'était pas encore gagné !"
+        en: "@@@session.user.name@@@ put up a fine fight against the mite-vampires of the children's bedroom, but it was not quite won yet!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra los ácaros vampiro de la habitación infantil, pero aún no estaba ganado!"
       dt_t_chambre_enfant_10:
         fr: "Laver les murs"
         en: "Wash the walls"
@@ -567,9 +567,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped the ghostly marks off the children's bedroom walls!"
         es: "¡@@@session.user.name@@@ acaba de borrar las marcas fantasma de las paredes de la habitación infantil!"
       dt_c_chambre_enfant_10:
-        fr: "@@@session.user.name@@@ a renoncé à laver les murs de la chambre enfant."
-        en: "@@@session.user.name@@@ gave up washing the children's bedroom walls."
-        es: "@@@session.user.name@@@ renunció a lavar las paredes de la habitación infantil."
+        fr: "@@@session.user.name@@@ a donné de sa peine pour laver les murs de la chambre enfant, mais la tâche a tenu bon cette fois !"
+        en: "@@@session.user.name@@@ worked hard at washing the children's bedroom walls, but the task held out this time!"
+        es: "¡@@@session.user.name@@@ se esforzó para lavar las paredes de la habitación infantil, pero la tarea aguantó esta vez!"
       dt_t_chambre_enfant_11:
         fr: "Retourner ou aérer le matelas"
         en: "Flip or air the mattress"
@@ -583,9 +583,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the mattress miasmas of the children's bedroom!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar los miasmas del colchón de la habitación infantil!"
       dt_c_chambre_enfant_11:
-        fr: "@@@session.user.name@@@ a renoncé face aux miasmes du matelas de la chambre enfant."
-        en: "@@@session.user.name@@@ gave up against the mattress miasmas of the children's bedroom."
-        es: "@@@session.user.name@@@ renunció ante los miasmas del colchón de la habitación infantil."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les miasmes du matelas de la chambre enfant, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ led the assault on the mattress miasmas of the children's bedroom, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra los miasmas del colchón de la habitación infantil, y el combate duró más de lo previsto!"
 
       #------------- Tâches — cuisine ----------------------------------
 
@@ -602,9 +602,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the kitchen!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa de la cocina!"
       dt_c_cuisine_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de la cuisine."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the kitchen."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa de la cocina."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les moutons-gobelins de la cuisine, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ crossed swords with the dust-bunny goblins of the kitchen, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con los duendes de pelusa de la cocina, pero se acabó el tiempo: la aventura continuará!"
       dt_t_cuisine_03:
         fr: "Laver le sol"
         en: "Mop the floor"
@@ -618,9 +618,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the kitchen!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre de la cocina!"
       dt_c_cuisine_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de la cuisine."
-        en: "@@@session.user.name@@@ slipped back from the grime slugs of the kitchen."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre de la cocina."
+        fr: "@@@session.user.name@@@ a tenu bon face aux limaces de crasse de la cuisine, et des renforts sont arrivés du mauvais côté !"
+        en: "@@@session.user.name@@@ held the line against the grime slugs of the kitchen, and reinforcements turned up on the wrong side!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a las babosas de mugre de la cocina, y llegaron refuerzos del bando equivocado!"
       dt_t_cuisine_04:
         fr: "Nettoyer les vitres"
         en: "Clean the windows"
@@ -634,9 +634,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the smudge imps from the kitchen windows!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas de la cocina!"
       dt_c_cuisine_04:
-        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres de la cuisine."
-        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the kitchen windows."
-        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas de la cocina."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre les lutins des vitres de la cuisine, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ put up a fine fight against the smudge imps of the kitchen windows, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra los duendes de las ventanas de la cocina, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_cuisine_05:
         fr: "Nettoyer le plan de travail"
         en: "Clean the worktop"
@@ -650,9 +650,9 @@ data:
         en: "@@@session.user.name@@@ has just scoured the greasy crusts off the worktop!"
         es: "¡@@@session.user.name@@@ acaba de fregar las costras grasientas de la encimera!"
       dt_c_cuisine_05:
-        fr: "@@@session.user.name@@@ a renoncé face aux croûtes graisseuses du plan de travail."
-        en: "@@@session.user.name@@@ gave up against the greasy crusts of the worktop."
-        es: "@@@session.user.name@@@ renunció ante las costras grasientas de la encimera."
+        fr: "@@@session.user.name@@@ a tenu bon face aux croûtes graisseuses du plan de travail, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ held the line against the greasy crusts of the worktop, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a las costras grasientas de la encimera, pero el hechizo salió mal en el último momento!"
       dt_t_cuisine_06:
         fr: "Nettoyer l'évier"
         en: "Clean the sink"
@@ -666,9 +666,9 @@ data:
         en: "@@@session.user.name@@@ has just shattered the limescale golems of the sink!"
         es: "¡@@@session.user.name@@@ acaba de romper los gólems de cal del fregadero!"
       dt_c_cuisine_06:
-        fr: "@@@session.user.name@@@ a renoncé face aux golems de calcaire de l'évier."
-        en: "@@@session.user.name@@@ gave up against the limescale golems of the sink."
-        es: "@@@session.user.name@@@ renunció ante los gólems de cal del fregadero."
+        fr: "@@@session.user.name@@@ a tenu bon face aux golems de calcaire de l'évier, et la lanterne a rendu l'âme au plus mauvais moment !"
+        en: "@@@session.user.name@@@ held the line against the limescale golems of the sink, and the lantern burned out at the worst moment!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a los gólems de cal del fregadero, y el farol se quedó sin aceite en el peor momento!"
       dt_t_cuisine_07:
         fr: "Nettoyer les placards"
         en: "Clean the cupboards"
@@ -682,9 +682,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped away the greasy marks of the kitchen cupboards!"
         es: "¡@@@session.user.name@@@ acaba de borrar las marcas de grasa de los armarios de la cocina!"
       dt_c_cuisine_07:
-        fr: "@@@session.user.name@@@ a renoncé face aux traces grasses des placards de la cuisine."
-        en: "@@@session.user.name@@@ gave up against the greasy marks of the kitchen cupboards."
-        es: "@@@session.user.name@@@ renunció ante las marcas de grasa de los armarios de la cocina."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les traces grasses des placards de la cuisine, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ fought bravely against the greasy marks of the kitchen cupboards, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra las marcas de grasa de los armarios de la cocina, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_cuisine_09:
         fr: "Nettoyer le micro-ondes"
         en: "Clean the microwave"
@@ -698,9 +698,9 @@ data:
         en: "@@@session.user.name@@@ has just blasted the fossilised splatters of the microwave!"
         es: "¡@@@session.user.name@@@ acaba de pulverizar las salpicaduras fosilizadas del microondas!"
       dt_c_cuisine_09:
-        fr: "@@@session.user.name@@@ a renoncé face aux éclaboussures fossilisées du micro-ondes."
-        en: "@@@session.user.name@@@ gave up against the fossilised splatters of the microwave."
-        es: "@@@session.user.name@@@ renunció ante las salpicaduras fosilizadas del microondas."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les éclaboussures fossilisées du micro-ondes, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ crossed swords with the fossilised splatters of the microwave, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con las salpicaduras fosilizadas del microondas, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_cuisine_10:
         fr: "Nettoyer la hotte"
         en: "Clean the extractor hood"
@@ -714,9 +714,9 @@ data:
         en: "@@@session.user.name@@@ has just slain the grease-troll of the kitchen hood!"
         es: "¡@@@session.user.name@@@ acaba de derrotar al troll de grasa de la campana de la cocina!"
       dt_c_cuisine_10:
-        fr: "@@@session.user.name@@@ a battu en retraite devant le graisse-troll de la hotte de cuisine."
-        en: "@@@session.user.name@@@ retreated before the grease-troll of the kitchen hood."
-        es: "@@@session.user.name@@@ se retiró ante el troll de grasa de la campana de la cocina."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre le graisse-troll de la hotte de cuisine, mais l'ennemi avait tendu un piège !"
+        en: "@@@session.user.name@@@ put up a fine fight against the grease-troll of the kitchen hood, but the enemy had set a trap!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra el troll de grasa de la campana de la cocina, pero el enemigo había tendido una trampa!"
       dt_t_cuisine_11:
         fr: "Nettoyer l'intérieur du four"
         en: "Clean the inside of the oven"
@@ -730,9 +730,9 @@ data:
         en: "@@@session.user.name@@@ has just exorcised the grease demons of the oven!"
         es: "¡@@@session.user.name@@@ acaba de exorcizar a los demonios de grasa del horno!"
       dt_c_cuisine_11:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les démons de graisse du four."
-        en: "@@@session.user.name@@@ retreated before the grease demons of the oven."
-        es: "@@@session.user.name@@@ se retiró ante los demonios de grasa del horno."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les démons de graisse du four, mais ce n'était pas encore gagné !"
+        en: "@@@session.user.name@@@ crossed swords with the grease demons of the oven, but it was not quite won yet!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con los demonios de grasa del horno, pero aún no estaba ganado!"
       dt_t_cuisine_12:
         fr: "Nettoyer la plaque de cuisson"
         en: "Clean the hob"
@@ -746,9 +746,9 @@ data:
         en: "@@@session.user.name@@@ has just scraped off the charred crusts of the hob!"
         es: "¡@@@session.user.name@@@ acaba de arrancar las costras carbonizadas de la placa de cocción!"
       dt_c_cuisine_12:
-        fr: "@@@session.user.name@@@ a renoncé face aux croûtes carbonisées de la plaque de cuisson."
-        en: "@@@session.user.name@@@ gave up against the charred crusts of the hob."
-        es: "@@@session.user.name@@@ renunció ante las costras carbonizadas de la placa de cocción."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre les croûtes carbonisées de la plaque de cuisson, mais la potion de courage était déjà vide !"
+        en: "@@@session.user.name@@@ put up a fine fight against the charred crusts of the hob, but the courage potion was already empty!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra las costras carbonizadas de la placa de cocción, pero la poción de valor ya estaba vacía!"
       dt_t_cuisine_13:
         fr: "Nettoyer l'intérieur du réfrigérateur"
         en: "Clean the inside of the fridge"
@@ -762,9 +762,9 @@ data:
         en: "@@@session.user.name@@@ has just purged the forgotten creatures of the fridge!"
         es: "¡@@@session.user.name@@@ acaba de purgar las criaturas olvidadas del frigorífico!"
       dt_c_cuisine_13:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les créatures oubliées du réfrigérateur."
-        en: "@@@session.user.name@@@ retreated before the forgotten creatures of the fridge."
-        es: "@@@session.user.name@@@ se retiró ante las criaturas olvidadas del frigorífico."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les créatures oubliées du réfrigérateur, mais un dragon est passé par là, et il a fallu se mettre à l'abri !"
+        en: "@@@session.user.name@@@ crossed swords with the forgotten creatures of the fridge, but a dragon flew past, and cover had to be taken!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con las criaturas olvidadas del frigorífico, pero pasó un dragón cerca y hubo que ponerse a cubierto!"
       dt_t_cuisine_15:
         fr: "Détartrer la bouilloire ou la cafetière"
         en: "Descale the kettle or coffee maker"
@@ -778,9 +778,9 @@ data:
         en: "@@@session.user.name@@@ has just dissolved the limescale golems of the kettle!"
         es: "¡@@@session.user.name@@@ acaba de disolver los gólems de cal del hervidor!"
       dt_c_cuisine_15:
-        fr: "@@@session.user.name@@@ a renoncé face aux golems de tartre de la bouilloire."
-        en: "@@@session.user.name@@@ gave up against the limescale golems of the kettle."
-        es: "@@@session.user.name@@@ renunció ante los gólems de cal del hervidor."
+        fr: "@@@session.user.name@@@ a bravé les golems de tartre de la bouilloire sans faiblir, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ braved the limescale golems of the kettle without flinching, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ desafió a los gólems de cal del hervidor sin flaquear, y el combate duró más de lo previsto!"
       dt_t_cuisine_18:
         fr: "Détartrer la robinetterie"
         en: "Descale the taps"
@@ -794,9 +794,9 @@ data:
         en: "@@@session.user.name@@@ has just shattered the limescale deposits of the kitchen taps!"
         es: "¡@@@session.user.name@@@ acaba de romper los depósitos de cal de la grifería de la cocina!"
       dt_c_cuisine_18:
-        fr: "@@@session.user.name@@@ a renoncé face aux dépôts calcaires de la robinetterie de la cuisine."
-        en: "@@@session.user.name@@@ gave up against the limescale deposits of the kitchen taps."
-        es: "@@@session.user.name@@@ renunció ante los depósitos de cal de la grifería de la cocina."
+        fr: "@@@session.user.name@@@ a tenu tête aux dépôts calcaires de la robinetterie de la cuisine, mais un dragon est passé par là, et il a fallu se mettre à l'abri !"
+        en: "@@@session.user.name@@@ stood up to the limescale deposits of the kitchen taps, but a dragon flew past, and cover had to be taken!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los depósitos de cal de la grifería de la cocina, pero pasó un dragón cerca y hubo que ponerse a cubierto!"
       dt_t_cuisine_19:
         fr: "Nettoyer l'extérieur du réfrigérateur"
         en: "Clean the outside of the fridge"
@@ -810,9 +810,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped away the greasy marks of the outside of the fridge!"
         es: "¡@@@session.user.name@@@ acaba de borrar las marcas de grasa del exterior del frigorífico!"
       dt_c_cuisine_19:
-        fr: "@@@session.user.name@@@ a renoncé face aux traces grasses de l'extérieur du réfrigérateur."
-        en: "@@@session.user.name@@@ gave up against the greasy marks of the outside of the fridge."
-        es: "@@@session.user.name@@@ renunció ante las marcas de grasa del exterior del frigorífico."
+        fr: "@@@session.user.name@@@ a tenu bon face aux traces grasses de l'extérieur du réfrigérateur, et la lanterne a rendu l'âme au plus mauvais moment !"
+        en: "@@@session.user.name@@@ held the line against the greasy marks of the outside of the fridge, and the lantern burned out at the worst moment!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a las marcas de grasa del exterior del frigorífico, y el farol se quedó sin aceite en el peor momento!"
       dt_t_cuisine_08:
         fr: "Vider les restes du frigo"
         en: "Clear out the fridge leftovers"
@@ -826,9 +826,9 @@ data:
         en: "@@@session.user.name@@@ has just purged the forgotten leftovers from the fridge!"
         es: "¡@@@session.user.name@@@ acaba de purgar las sobras olvidadas del frigorífico!"
       dt_c_cuisine_08:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les restes oubliés du frigo."
-        en: "@@@session.user.name@@@ retreated before the forgotten leftovers of the fridge."
-        es: "@@@session.user.name@@@ se retiró ante las sobras olvidadas del frigorífico."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les restes oubliés du frigo, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ led the assault on the forgotten leftovers of the fridge, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra las sobras olvidadas del frigorífico, pero se acabó el tiempo: la aventura continuará!"
 
       #------------- Tâches — repas (plats) ----------------------------
 
@@ -845,9 +845,9 @@ data:
         en: "@@@session.user.name@@@ has just cooked a meal to feed the guild!"
         es: "¡@@@session.user.name@@@ acaba de cocinar un plato para saciar al gremio!"
       dt_c_repas_06:
-        fr: "@@@session.user.name@@@ a renoncé à cuisiner le plat de la guilde."
-        en: "@@@session.user.name@@@ gave up cooking the guild's meal."
-        es: "@@@session.user.name@@@ renunció a cocinar el plato del gremio."
+        fr: "@@@session.user.name@@@ a mis du cœur à cuisiner le plat de la guilde, et la lanterne a rendu l'âme avant la fin !"
+        en: "@@@session.user.name@@@ put real heart into cooking the guild's meal, and the lantern burned out before the end!"
+        es: "¡@@@session.user.name@@@ puso mucho empeño en cocinar el plato del gremio, y el farol se quedó sin aceite antes del final!"
       dt_t_repas_07:
         fr: "Réchauffer un plat"
         en: "Reheat a dish"
@@ -861,9 +861,9 @@ data:
         en: "@@@session.user.name@@@ has just reheated the dish with a spell of warmth!"
         es: "¡@@@session.user.name@@@ acaba de calentar el plato con un hechizo de calor!"
       dt_c_repas_07:
-        fr: "@@@session.user.name@@@ a renoncé à réchauffer le plat."
-        en: "@@@session.user.name@@@ gave up reheating the dish."
-        es: "@@@session.user.name@@@ renunció a calentar el plato."
+        fr: "@@@session.user.name@@@ a bataillé pour réchauffer le plat, et ce n'est pas encore tout à fait ça !"
+        en: "@@@session.user.name@@@ battled away at reheating the dish, and it is not quite there yet!"
+        es: "¡@@@session.user.name@@@ batalló para calentar el plato, y aún no está del todo!"
       dt_t_repas_10:
         fr: "Faire un plat du quotidien"
         en: "Cook an everyday meal"
@@ -877,9 +877,9 @@ data:
         en: "@@@session.user.name@@@ has just cooked up the everyday meal to feed the guild!"
         es: "¡@@@session.user.name@@@ acaba de preparar el plato de diario para saciar al gremio!"
       dt_c_repas_10:
-        fr: "@@@session.user.name@@@ a renoncé à préparer le plat du quotidien."
-        en: "@@@session.user.name@@@ gave up preparing the everyday meal."
-        es: "@@@session.user.name@@@ renunció a preparar el plato de diario."
+        fr: "@@@session.user.name@@@ a pris son courage à deux mains pour préparer le plat du quotidien, et la lanterne a rendu l'âme avant la fin !"
+        en: "@@@session.user.name@@@ took a deep breath and started preparing the everyday meal, and the lantern burned out before the end!"
+        es: "¡@@@session.user.name@@@ tomó aire y empezó a preparar el plato de diario, y el farol se quedó sin aceite antes del final!"
       dt_t_repas_11:
         fr: "Faire un repas gastronomique"
         en: "Prepare a gourmet meal"
@@ -893,9 +893,9 @@ data:
         en: "@@@session.user.name@@@ has just laid out a gourmet feast worthy of legend!"
         es: "¡@@@session.user.name@@@ acaba de servir un festín gastronómico digno de leyenda!"
       dt_c_repas_11:
-        fr: "@@@session.user.name@@@ a renoncé face au festin gastronomique."
-        en: "@@@session.user.name@@@ gave up on the gourmet feast."
-        es: "@@@session.user.name@@@ renunció ante el festín gastronómico."
+        fr: "@@@session.user.name@@@ a croisé le fer avec le festin gastronomique, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ crossed swords with the gourmet feast, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con el festín gastronómico, pero se acabó el tiempo: la aventura continuará!"
 
       #------------- Tâches — vaisselle --------------------------------
 
@@ -912,9 +912,9 @@ data:
         en: "@@@session.user.name@@@ has just slain the stack of plate-golems in the sink!"
         es: "¡@@@session.user.name@@@ acaba de derrotar la pila de platos-gólem del fregadero!"
       dt_c_vaisselle_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant la pile d'assiettes-golems de l'évier."
-        en: "@@@session.user.name@@@ retreated before the stack of plate-golems in the sink."
-        es: "@@@session.user.name@@@ se retiró ante la pila de platos-gólem del fregadero."
+        fr: "@@@session.user.name@@@ a croisé le fer avec la pile d'assiettes-golems de l'évier, mais l'ennemi avait tendu un piège !"
+        en: "@@@session.user.name@@@ crossed swords with the stack of plate-golems in the sink, but the enemy had set a trap!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con la pila de platos-gólem del fregadero, pero el enemigo había tendido una trampa!"
       dt_t_vaisselle_02:
         fr: "Faire une grosse vaisselle"
         en: "Do a big washing-up"
@@ -928,9 +928,9 @@ data:
         en: "@@@session.user.name@@@ has just slain the mountain of plate-golems in the sink!"
         es: "¡@@@session.user.name@@@ acaba de derrotar la montaña de platos-gólem del fregadero!"
       dt_c_vaisselle_02:
-        fr: "@@@session.user.name@@@ a battu en retraite devant la montagne d'assiettes-golems de l'évier."
-        en: "@@@session.user.name@@@ retreated before the mountain of plate-golems in the sink."
-        es: "@@@session.user.name@@@ se retiró ante la montaña de platos-gólem del fregadero."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre la montagne d'assiettes-golems de l'évier, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ fought bravely against the mountain of plate-golems in the sink, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra la montaña de platos-gólem del fregadero, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_vaisselle_03:
         fr: "Remplir le lave-vaisselle"
         en: "Load the dishwasher"
@@ -944,9 +944,9 @@ data:
         en: "@@@session.user.name@@@ has just locked the horde of dishes into the dishwasher!"
         es: "¡@@@session.user.name@@@ acaba de encerrar la horda de platos en el lavavajillas!"
       dt_c_vaisselle_03:
-        fr: "@@@session.user.name@@@ a renoncé devant la horde de vaisselle du lave-vaisselle."
-        en: "@@@session.user.name@@@ gave up before the horde of dishes by the dishwasher."
-        es: "@@@session.user.name@@@ renunció ante la horda de platos del lavavajillas."
+        fr: "@@@session.user.name@@@ a tenu tête à la horde de vaisselle du lave-vaisselle, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ stood up to the horde of dishes by the dishwasher, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ le plantó cara a la horda de platos del lavavajillas, y el combate duró más de lo previsto!"
       dt_t_vaisselle_04:
         fr: "Vider le lave-vaisselle"
         en: "Unload the dishwasher"
@@ -960,9 +960,9 @@ data:
         en: "@@@session.user.name@@@ has just freed the trapped dishes from the dishwasher!"
         es: "¡@@@session.user.name@@@ acaba de liberar la vajilla atrapada del lavavajillas!"
       dt_c_vaisselle_04:
-        fr: "@@@session.user.name@@@ a renoncé à vider le lave-vaisselle."
-        en: "@@@session.user.name@@@ gave up unloading the dishwasher."
-        es: "@@@session.user.name@@@ renunció a vaciar el lavavajillas."
+        fr: "@@@session.user.name@@@ a pris son courage à deux mains pour vider le lave-vaisselle, mais le temps a manqué avant la victoire !"
+        en: "@@@session.user.name@@@ took a deep breath and started unloading the dishwasher, but time ran out before victory!"
+        es: "¡@@@session.user.name@@@ tomó aire y empezó a vaciar el lavavajillas, pero se acabó el tiempo antes de la victoria!"
       dt_t_vaisselle_05:
         fr: "Sécher la vaisselle"
         en: "Dry the dishes"
@@ -976,9 +976,9 @@ data:
         en: "@@@session.user.name@@@ has just driven the swarm of droplets off the dishes!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar el enjambre de gotas de la vajilla!"
       dt_c_vaisselle_05:
-        fr: "@@@session.user.name@@@ a renoncé à sécher la vaisselle ruisselante."
-        en: "@@@session.user.name@@@ gave up drying the dripping dishes."
-        es: "@@@session.user.name@@@ renunció a secar la vajilla chorreante."
+        fr: "@@@session.user.name@@@ a retroussé ses manches pour sécher la vaisselle ruisselante, et le donjon en redemande déjà !"
+        en: "@@@session.user.name@@@ rolled up both sleeves for drying the dripping dishes, and the dungeon is already asking for more!"
+        es: "¡@@@session.user.name@@@ se remangó para secar la vajilla chorreante, y la mazmorra ya pide más!"
       dt_t_vaisselle_06:
         fr: "Ranger la vaisselle"
         en: "Put away the dishes"
@@ -992,9 +992,9 @@ data:
         en: "@@@session.user.name@@@ has just cleared the wobbling stack of dishes into the cupboards!"
         es: "¡@@@session.user.name@@@ acaba de guardar la tambaleante pila de vajilla en los armarios!"
       dt_c_vaisselle_06:
-        fr: "@@@session.user.name@@@ a renoncé à ranger la pile de vaisselle."
-        en: "@@@session.user.name@@@ gave up putting away the stack of dishes."
-        es: "@@@session.user.name@@@ renunció a guardar la pila de vajilla."
+        fr: "@@@session.user.name@@@ a bataillé pour ranger la pile de vaisselle, et le donjon en redemande déjà !"
+        en: "@@@session.user.name@@@ battled away at putting away the stack of dishes, and the dungeon is already asking for more!"
+        es: "¡@@@session.user.name@@@ batalló para guardar la pila de vajilla, y la mazmorra ya pide más!"
       dt_t_vaisselle_07:
         fr: "Mettre la table"
         en: "Set the table"
@@ -1008,9 +1008,9 @@ data:
         en: "@@@session.user.name@@@ has just set the table for the feast!"
         es: "¡@@@session.user.name@@@ acaba de poner la mesa para el festín!"
       dt_c_vaisselle_07:
-        fr: "@@@session.user.name@@@ a renoncé à dresser la table du festin."
-        en: "@@@session.user.name@@@ gave up setting the table for the feast."
-        es: "@@@session.user.name@@@ renunció a poner la mesa del festín."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour dresser la table du festin, mais un dragon est passé par là au mauvais moment !"
+        en: "@@@session.user.name@@@ threw every bit of energy into setting the table for the feast, but a dragon flew past at the worst moment!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en poner la mesa del festín, pero pasó un dragón en el peor momento!"
       dt_t_vaisselle_08:
         fr: "Débarrasser la table"
         en: "Clear the table"
@@ -1024,9 +1024,9 @@ data:
         en: "@@@session.user.name@@@ has just cleared the table after the feast!"
         es: "¡@@@session.user.name@@@ acaba de recoger la mesa del festín!"
       dt_c_vaisselle_08:
-        fr: "@@@session.user.name@@@ a renoncé à débarrasser la table du festin."
-        en: "@@@session.user.name@@@ gave up clearing the table after the feast."
-        es: "@@@session.user.name@@@ renunció a recoger la mesa del festín."
+        fr: "@@@session.user.name@@@ a mis du cœur à débarrasser la table du festin, et il en restait encore un peu à la fin !"
+        en: "@@@session.user.name@@@ put real heart into clearing the table after the feast, and a little was still left at the end!"
+        es: "¡@@@session.user.name@@@ puso mucho empeño en recoger la mesa del festín, y todavía quedaba un poco al final!"
       dt_t_vaisselle_09:
         fr: "Entretenir le lave-vaisselle"
         en: "Maintain the dishwasher"
@@ -1040,9 +1040,9 @@ data:
         en: "@@@session.user.name@@@ has just slain the filter golem of the dishwasher!"
         es: "¡@@@session.user.name@@@ acaba de derrotar al gólem de filtro del lavavajillas!"
       dt_c_vaisselle_09:
-        fr: "@@@session.user.name@@@ a renoncé face au golem de filtre du lave-vaisselle."
-        en: "@@@session.user.name@@@ gave up against the filter golem of the dishwasher."
-        es: "@@@session.user.name@@@ renunció ante el gólem de filtro del lavavajillas."
+        fr: "@@@session.user.name@@@ a tenu bon face au golem de filtre du lave-vaisselle, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ held the line against the filter golem of the dishwasher, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente al gólem de filtro del lavavajillas, pero se acabó el tiempo: la aventura continuará!"
 
       #------------- Tâches — salle de bain ----------------------------
 
@@ -1059,9 +1059,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the bathroom!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del cuarto de baño!"
       dt_c_salle_de_bain_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de la salle de bain."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the bathroom."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del cuarto de baño."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre les moutons-gobelins de la salle de bain, mais l'ennemi avait tendu un piège !"
+        en: "@@@session.user.name@@@ put up a fine fight against the dust-bunny goblins of the bathroom, but the enemy had set a trap!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra los duendes de pelusa del cuarto de baño, pero el enemigo había tendido una trampa!"
       dt_t_salle_de_bain_02:
         fr: "Faire les poussières"
         en: "Dust"
@@ -1075,9 +1075,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the dust wraiths of the bathroom!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del cuarto de baño!"
       dt_c_salle_de_bain_02:
-        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière de la salle de bain."
-        en: "@@@session.user.name@@@ gave up against the dust wraiths of the bathroom."
-        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del cuarto de baño."
+        fr: "@@@session.user.name@@@ a bravé les spectres de poussière de la salle de bain sans faiblir, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ braved the dust wraiths of the bathroom without flinching, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ desafió a los espectros de polvo del cuarto de baño sin flaquear, pero se acabó el tiempo: la aventura continuará!"
       dt_t_salle_de_bain_03:
         fr: "Laver le sol"
         en: "Mop the floor"
@@ -1091,9 +1091,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the bathroom!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del cuarto de baño!"
       dt_c_salle_de_bain_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de la salle de bain."
-        en: "@@@session.user.name@@@ slipped back from the grime slugs of the bathroom."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del cuarto de baño."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre les limaces de crasse de la salle de bain, mais ce n'était pas encore gagné !"
+        en: "@@@session.user.name@@@ put up a fine fight against the grime slugs of the bathroom, but it was not quite won yet!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra las babosas de mugre del cuarto de baño, pero aún no estaba ganado!"
       dt_t_salle_de_bain_04:
         fr: "Nettoyer les vitres"
         en: "Clean the windows"
@@ -1107,9 +1107,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the smudge imps from the bathroom windows!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas del cuarto de baño!"
       dt_c_salle_de_bain_04:
-        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres de la salle de bain."
-        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the bathroom windows."
-        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas del cuarto de baño."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les lutins des vitres de la salle de bain, et des renforts sont arrivés du mauvais côté !"
+        en: "@@@session.user.name@@@ fought bravely against the smudge imps of the bathroom windows, and reinforcements turned up on the wrong side!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los duendes de las ventanas del cuarto de baño, y llegaron refuerzos del bando equivocado!"
       dt_t_salle_de_bain_05:
         fr: "Nettoyer le lavabo"
         en: "Clean the washbasin"
@@ -1123,9 +1123,9 @@ data:
         en: "@@@session.user.name@@@ has just shattered the limescale golems of the washbasin!"
         es: "¡@@@session.user.name@@@ acaba de romper los gólems de cal del lavabo!"
       dt_c_salle_de_bain_05:
-        fr: "@@@session.user.name@@@ a renoncé face aux golems de calcaire du lavabo."
-        en: "@@@session.user.name@@@ gave up against the limescale golems of the washbasin."
-        es: "@@@session.user.name@@@ renunció ante los gólems de cal del lavabo."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les golems de calcaire du lavabo, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ led the assault on the limescale golems of the washbasin, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra los gólems de cal del lavabo, y el combate duró más de lo previsto!"
       dt_t_salle_de_bain_06:
         fr: "Nettoyer le miroir"
         en: "Clean the mirror"
@@ -1139,9 +1139,9 @@ data:
         en: "@@@session.user.name@@@ has just dispelled the steam-wraiths of the bathroom mirror!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de vaho del espejo del cuarto de baño!"
       dt_c_salle_de_bain_06:
-        fr: "@@@session.user.name@@@ a renoncé face aux buée-spectres du miroir de la salle de bain."
-        en: "@@@session.user.name@@@ gave up against the steam-wraiths of the bathroom mirror."
-        es: "@@@session.user.name@@@ renunció ante los espectros de vaho del espejo del cuarto de baño."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les buée-spectres du miroir de la salle de bain, et la lanterne a rendu l'âme au plus mauvais moment !"
+        en: "@@@session.user.name@@@ fought bravely against the steam-wraiths of the bathroom mirror, and the lantern burned out at the worst moment!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los espectros de vaho del espejo del cuarto de baño, y el farol se quedó sin aceite en el peor momento!"
       dt_t_salle_de_bain_07:
         fr: "Nettoyer la douche"
         en: "Clean the shower"
@@ -1155,9 +1155,9 @@ data:
         en: "@@@session.user.name@@@ has just beheaded the limescale hydra of the shower!"
         es: "¡@@@session.user.name@@@ acaba de decapitar a la hidra de cal de la ducha!"
       dt_c_salle_de_bain_07:
-        fr: "@@@session.user.name@@@ a battu en retraite devant l'hydre de calcaire de la douche."
-        en: "@@@session.user.name@@@ retreated before the limescale hydra of the shower."
-        es: "@@@session.user.name@@@ se retiró ante la hidra de cal de la ducha."
+        fr: "@@@session.user.name@@@ a tenu tête à l'hydre de calcaire de la douche, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ stood up to the limescale hydra of the shower, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ le plantó cara a la hidra de cal de la ducha, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_salle_de_bain_08:
         fr: "Nettoyer la baignoire"
         en: "Clean the bathtub"
@@ -1171,9 +1171,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the ring-trolls of the bathtub!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar a los troles de cerco de la bañera!"
       dt_c_salle_de_bain_08:
-        fr: "@@@session.user.name@@@ a renoncé face aux cernes-trolls de la baignoire."
-        en: "@@@session.user.name@@@ gave up against the ring-trolls of the bathtub."
-        es: "@@@session.user.name@@@ renunció ante los troles de cerco de la bañera."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les cernes-trolls de la baignoire, mais la potion de courage était déjà vide !"
+        en: "@@@session.user.name@@@ crossed swords with the ring-trolls of the bathtub, but the courage potion was already empty!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con los troles de cerco de la bañera, pero la poción de valor ya estaba vacía!"
       dt_t_salle_de_bain_10:
         fr: "Changer les serviettes"
         en: "Change the towels"
@@ -1187,9 +1187,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the towel-zombies of the bathroom!"
         es: "¡@@@session.user.name@@@ acaba de desterrar a las toallas-zombi del cuarto de baño!"
       dt_c_salle_de_bain_10:
-        fr: "@@@session.user.name@@@ a renoncé face aux serviettes-zombies de la salle de bain."
-        en: "@@@session.user.name@@@ gave up against the towel-zombies of the bathroom."
-        es: "@@@session.user.name@@@ renunció ante las toallas-zombi del cuarto de baño."
+        fr: "@@@session.user.name@@@ a tenu tête aux serviettes-zombies de la salle de bain, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ stood up to the towel-zombies of the bathroom, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ le plantó cara a las toallas-zombi del cuarto de baño, pero el hechizo salió mal en el último momento!"
       dt_t_salle_de_bain_11:
         fr: "Nettoyer les joints et le carrelage"
         en: "Clean the tiles and grout"
@@ -1203,9 +1203,9 @@ data:
         en: "@@@session.user.name@@@ has just eradicated the black mould of the bathroom grout!"
         es: "¡@@@session.user.name@@@ acaba de erradicar el moho negro de las juntas del cuarto de baño!"
       dt_c_salle_de_bain_11:
-        fr: "@@@session.user.name@@@ a battu en retraite devant la moisissure noire des joints de la salle de bain."
-        en: "@@@session.user.name@@@ retreated before the black mould of the bathroom grout."
-        es: "@@@session.user.name@@@ se retiró ante el moho negro de las juntas del cuarto de baño."
+        fr: "@@@session.user.name@@@ a tenu bon face à la moisissure noire des joints de la salle de bain, mais un dragon est passé par là, et il a fallu se mettre à l'abri !"
+        en: "@@@session.user.name@@@ held the line against the black mould of the bathroom grout, but a dragon flew past, and cover had to be taken!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente al moho negro de las juntas del cuarto de baño, pero pasó un dragón cerca y hubo que ponerse a cubierto!"
       dt_t_salle_de_bain_12:
         fr: "Détartrer la robinetterie"
         en: "Descale the taps"
@@ -1219,9 +1219,9 @@ data:
         en: "@@@session.user.name@@@ has just shattered the limescale golems of the bathroom taps!"
         es: "¡@@@session.user.name@@@ acaba de romper los gólems de cal de la grifería del cuarto de baño!"
       dt_c_salle_de_bain_12:
-        fr: "@@@session.user.name@@@ a renoncé face aux golems de calcaire de la robinetterie de la salle de bain."
-        en: "@@@session.user.name@@@ gave up against the limescale golems of the bathroom taps."
-        es: "@@@session.user.name@@@ renunció ante los gólems de cal de la grifería del cuarto de baño."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les golems de calcaire de la robinetterie de la salle de bain, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ fought bravely against the limescale golems of the bathroom taps, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los gólems de cal de la grifería del cuarto de baño, pero el hechizo salió mal en el último momento!"
 
       #------------- Tâches — toilettes --------------------------------
 
@@ -1238,9 +1238,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the toilet!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del baño!"
       dt_c_toilettes_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins des toilettes."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the toilet."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del baño."
+        fr: "@@@session.user.name@@@ a bravé les moutons-gobelins des toilettes sans faiblir, et des renforts sont arrivés du mauvais côté !"
+        en: "@@@session.user.name@@@ braved the dust-bunny goblins of the toilet without flinching, and reinforcements turned up on the wrong side!"
+        es: "¡@@@session.user.name@@@ desafió a los duendes de pelusa del baño sin flaquear, y llegaron refuerzos del bando equivocado!"
       dt_t_toilettes_02:
         fr: "Faire les poussières"
         en: "Dust"
@@ -1254,9 +1254,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the dust wraiths of the toilet!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del baño!"
       dt_c_toilettes_02:
-        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière des toilettes."
-        en: "@@@session.user.name@@@ gave up against the dust wraiths of the toilet."
-        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del baño."
+        fr: "@@@session.user.name@@@ a tenu tête aux spectres de poussière des toilettes, mais un dragon est passé par là, et il a fallu se mettre à l'abri !"
+        en: "@@@session.user.name@@@ stood up to the dust wraiths of the toilet, but a dragon flew past, and cover had to be taken!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los espectros de polvo del baño, pero pasó un dragón cerca y hubo que ponerse a cubierto!"
       dt_t_toilettes_03:
         fr: "Laver le sol"
         en: "Mop the floor"
@@ -1270,9 +1270,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the toilet!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del baño!"
       dt_c_toilettes_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse des toilettes."
-        en: "@@@session.user.name@@@ slipped back from the grime slugs of the toilet."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del baño."
+        fr: "@@@session.user.name@@@ a tenu tête aux limaces de crasse des toilettes, mais l'ennemi avait tendu un piège !"
+        en: "@@@session.user.name@@@ stood up to the grime slugs of the toilet, but the enemy had set a trap!"
+        es: "¡@@@session.user.name@@@ le plantó cara a las babosas de mugre del baño, pero el enemigo había tendido una trampa!"
       dt_t_toilettes_04:
         fr: "Nettoyer la cuvette"
         en: "Clean the bowl"
@@ -1286,9 +1286,9 @@ data:
         en: "@@@session.user.name@@@ has just slain the monster of the toilet bowl!"
         es: "¡@@@session.user.name@@@ acaba de derrotar al monstruo de la taza del inodoro!"
       dt_c_toilettes_04:
-        fr: "@@@session.user.name@@@ a battu en retraite devant le monstre de la cuvette des toilettes."
-        en: "@@@session.user.name@@@ retreated before the monster of the toilet bowl."
-        es: "@@@session.user.name@@@ se retiró ante el monstruo de la taza del inodoro."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre le monstre de la cuvette des toilettes, mais ce n'était pas encore gagné !"
+        en: "@@@session.user.name@@@ fought bravely against the monster of the toilet bowl, but it was not quite won yet!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra el monstruo de la taza del inodoro, pero aún no estaba ganado!"
       dt_t_toilettes_06:
         fr: "Nettoyer les murs"
         en: "Clean the walls"
@@ -1302,9 +1302,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped away the splashes of the toilet walls!"
         es: "¡@@@session.user.name@@@ acaba de borrar las salpicaduras de las paredes del baño!"
       dt_c_toilettes_06:
-        fr: "@@@session.user.name@@@ a renoncé face aux éclaboussures des murs des toilettes."
-        en: "@@@session.user.name@@@ gave up against the splashes of the toilet walls."
-        es: "@@@session.user.name@@@ renunció ante las salpicaduras de las paredes del baño."
+        fr: "@@@session.user.name@@@ a tenu bon face aux éclaboussures des murs des toilettes, mais ce n'était pas encore gagné !"
+        en: "@@@session.user.name@@@ held the line against the splashes of the toilet walls, but it was not quite won yet!"
+        es: "¡@@@session.user.name@@@ aguantó firme frente a las salpicaduras de las paredes del baño, pero aún no estaba ganado!"
 
       #------------- Tâches — couloir ----------------------------------
 
@@ -1321,9 +1321,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the hallway!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del pasillo!"
       dt_c_couloir_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins du couloir."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the hallway."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del pasillo."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les moutons-gobelins du couloir, et le grimoire manquait justement la bonne page !"
+        en: "@@@session.user.name@@@ fought bravely against the dust-bunny goblins of the hallway, and the spellbook was missing exactly the right page!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los duendes de pelusa del pasillo, y al grimorio le faltaba justo la página buena!"
       dt_t_couloir_02:
         fr: "Faire les poussières du couloir"
         en: "Dust the hallway"
@@ -1337,9 +1337,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the dust wraiths of the hallway!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del pasillo!"
       dt_c_couloir_02:
-        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière du couloir."
-        en: "@@@session.user.name@@@ gave up against the dust wraiths of the hallway."
-        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del pasillo."
+        fr: "@@@session.user.name@@@ a tenu tête aux spectres de poussière du couloir, et des renforts sont arrivés du mauvais côté !"
+        en: "@@@session.user.name@@@ stood up to the dust wraiths of the hallway, and reinforcements turned up on the wrong side!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los espectros de polvo del pasillo, y llegaron refuerzos del bando equivocado!"
       dt_t_couloir_03:
         fr: "Laver le sol du couloir"
         en: "Mop the hallway floor"
@@ -1353,9 +1353,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the hallway!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del pasillo!"
       dt_c_couloir_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse du couloir."
-        en: "@@@session.user.name@@@ slipped back from the grime slugs of the hallway."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del pasillo."
+        fr: "@@@session.user.name@@@ a bravé les limaces de crasse du couloir sans faiblir, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ braved the grime slugs of the hallway without flinching, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ desafió a las babosas de mugre del pasillo sin flaquear, pero el hechizo salió mal en el último momento!"
       dt_t_couloir_04:
         fr: "Laver les murs du couloir"
         en: "Wash the hallway walls"
@@ -1369,9 +1369,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped the ghostly marks off the hallway walls!"
         es: "¡@@@session.user.name@@@ acaba de borrar las marcas fantasma de las paredes del pasillo!"
       dt_c_couloir_04:
-        fr: "@@@session.user.name@@@ a renoncé à laver les murs du couloir."
-        en: "@@@session.user.name@@@ gave up washing the hallway walls."
-        es: "@@@session.user.name@@@ renunció a lavar las paredes del pasillo."
+        fr: "@@@session.user.name@@@ a mis du cœur à laver les murs du couloir, et il en restait encore un peu à la fin !"
+        en: "@@@session.user.name@@@ put real heart into washing the hallway walls, and a little was still left at the end!"
+        es: "¡@@@session.user.name@@@ puso mucho empeño en lavar las paredes del pasillo, y todavía quedaba un poco al final!"
 
       #------------- Tâches — entrée -----------------------------------
 
@@ -1388,9 +1388,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the entrance hall!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa de la entrada!"
       dt_c_entree_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins de l'entrée."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the entrance hall."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa de la entrada."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les moutons-gobelins de l'entrée, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ fought bravely against the dust-bunny goblins of the entrance hall, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los duendes de pelusa de la entrada, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_entree_02:
         fr: "Faire les poussières de l'entrée"
         en: "Dust the entrance"
@@ -1404,9 +1404,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the dust wraiths of the entrance hall!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo de la entrada!"
       dt_c_entree_02:
-        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière de l'entrée."
-        en: "@@@session.user.name@@@ gave up against the dust wraiths of the entrance hall."
-        es: "@@@session.user.name@@@ renunció ante los espectros de polvo de la entrada."
+        fr: "@@@session.user.name@@@ a bravé les spectres de poussière de l'entrée sans faiblir, et des renforts sont arrivés du mauvais côté !"
+        en: "@@@session.user.name@@@ braved the dust wraiths of the entrance hall without flinching, and reinforcements turned up on the wrong side!"
+        es: "¡@@@session.user.name@@@ desafió a los espectros de polvo de la entrada sin flaquear, y llegaron refuerzos del bando equivocado!"
       dt_t_entree_03:
         fr: "Laver le sol de l'entrée"
         en: "Mop the entrance floor"
@@ -1420,9 +1420,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the entrance hall!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre de la entrada!"
       dt_c_entree_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse de l'entrée."
-        en: "@@@session.user.name@@@ slipped back from the grime slugs of the entrance hall."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre de la entrada."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les limaces de crasse de l'entrée, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ led the assault on the grime slugs of the entrance hall, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra las babosas de mugre de la entrada, pero se acabó el tiempo: la aventura continuará!"
       dt_t_entree_04:
         fr: "Laver les murs de l'entrée"
         en: "Wash the entrance walls"
@@ -1436,9 +1436,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped the ghostly marks off the entrance walls!"
         es: "¡@@@session.user.name@@@ acaba de borrar las marcas fantasma de las paredes de la entrada!"
       dt_c_entree_04:
-        fr: "@@@session.user.name@@@ a renoncé à laver les murs de l'entrée."
-        en: "@@@session.user.name@@@ gave up washing the entrance walls."
-        es: "@@@session.user.name@@@ renunció a lavar las paredes de la entrada."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour laver les murs de l'entrée, mais la tâche a tenu bon cette fois !"
+        en: "@@@session.user.name@@@ threw every bit of energy into washing the entrance walls, but the task held out this time!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en lavar las paredes de la entrada, pero la tarea aguantó esta vez!"
 
       #------------- Tâches — bureau -----------------------------------
 
@@ -1455,9 +1455,9 @@ data:
         en: "@@@session.user.name@@@ has just crushed the dust-bunny goblins of the office!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los duendes de pelusa del despacho!"
       dt_c_bureau_01:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les moutons-gobelins du bureau."
-        en: "@@@session.user.name@@@ retreated before the dust-bunny goblins of the office."
-        es: "@@@session.user.name@@@ se retiró ante los duendes de pelusa del despacho."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les moutons-gobelins du bureau, et des renforts sont arrivés du mauvais côté !"
+        en: "@@@session.user.name@@@ fought bravely against the dust-bunny goblins of the office, and reinforcements turned up on the wrong side!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los duendes de pelusa del despacho, y llegaron refuerzos del bando equivocado!"
       dt_t_bureau_02:
         fr: "Faire les poussières"
         en: "Dust"
@@ -1471,9 +1471,9 @@ data:
         en: "@@@session.user.name@@@ has just banished the dust wraiths of the office!"
         es: "¡@@@session.user.name@@@ acaba de disipar los espectros de polvo del despacho!"
       dt_c_bureau_02:
-        fr: "@@@session.user.name@@@ a renoncé face aux spectres de poussière du bureau."
-        en: "@@@session.user.name@@@ gave up against the dust wraiths of the office."
-        es: "@@@session.user.name@@@ renunció ante los espectros de polvo del despacho."
+        fr: "@@@session.user.name@@@ a chargé les spectres de poussière du bureau tête baissée, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ charged straight at the dust wraiths of the office, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ cargó de frente contra los espectros de polvo del despacho, y el combate duró más de lo previsto!"
       dt_t_bureau_03:
         fr: "Laver le sol"
         en: "Mop the floor"
@@ -1487,9 +1487,9 @@ data:
         en: "@@@session.user.name@@@ has just squashed the grime slugs of the office!"
         es: "¡@@@session.user.name@@@ acaba de aplastar las babosas de mugre del despacho!"
       dt_c_bureau_03:
-        fr: "@@@session.user.name@@@ a glissé en retraite devant les limaces de crasse du bureau."
-        en: "@@@session.user.name@@@ slipped back from the grime slugs of the office."
-        es: "@@@session.user.name@@@ se retiró ante las babosas de mugre del despacho."
+        fr: "@@@session.user.name@@@ a tenu tête aux limaces de crasse du bureau, et des renforts sont arrivés du mauvais côté !"
+        en: "@@@session.user.name@@@ stood up to the grime slugs of the office, and reinforcements turned up on the wrong side!"
+        es: "¡@@@session.user.name@@@ le plantó cara a las babosas de mugre del despacho, y llegaron refuerzos del bando equivocado!"
       dt_t_bureau_04:
         fr: "Nettoyer les vitres"
         en: "Clean the windows"
@@ -1503,9 +1503,9 @@ data:
         en: "@@@session.user.name@@@ has just driven off the smudge imps from the office windows!"
         es: "¡@@@session.user.name@@@ acaba de ahuyentar a los duendes de las ventanas del despacho!"
       dt_c_bureau_04:
-        fr: "@@@session.user.name@@@ a abandonné le duel contre les lutins des vitres du bureau."
-        en: "@@@session.user.name@@@ abandoned the duel with the smudge imps of the office windows."
-        es: "@@@session.user.name@@@ abandonó el duelo contra los duendes de las ventanas del despacho."
+        fr: "@@@session.user.name@@@ a tenu tête aux lutins des vitres du bureau, et le grimoire manquait justement la bonne page !"
+        en: "@@@session.user.name@@@ stood up to the smudge imps of the office windows, and the spellbook was missing exactly the right page!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los duendes de las ventanas del despacho, y al grimorio le faltaba justo la página buena!"
       dt_t_bureau_05:
         fr: "Nettoyer le plan de travail"
         en: "Clean the worktop"
@@ -1519,9 +1519,9 @@ data:
         en: "@@@session.user.name@@@ has just scoured the crusts off the office worktop!"
         es: "¡@@@session.user.name@@@ acaba de fregar las costras de la superficie de trabajo del despacho!"
       dt_c_bureau_05:
-        fr: "@@@session.user.name@@@ a renoncé face aux croûtes du plan de travail du bureau."
-        en: "@@@session.user.name@@@ gave up against the crusts of the office worktop."
-        es: "@@@session.user.name@@@ renunció ante las costras de la superficie de trabajo del despacho."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les croûtes du plan de travail du bureau, et le combat a duré plus longtemps que prévu !"
+        en: "@@@session.user.name@@@ crossed swords with the crusts of the office worktop, and the fight lasted longer than expected!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con las costras de la superficie de trabajo del despacho, y el combate duró más de lo previsto!"
       dt_t_bureau_06:
         fr: "Ranger"
         en: "Tidy"
@@ -1535,9 +1535,9 @@ data:
         en: "@@@session.user.name@@@ has just subdued the clutter goblins of the office!"
         es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden del despacho!"
       dt_c_bureau_06:
-        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre du bureau."
-        en: "@@@session.user.name@@@ gave up before the clutter goblins of the office."
-        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden del despacho."
+        fr: "@@@session.user.name@@@ a tenu tête aux gobelins du désordre du bureau, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ stood up to the clutter goblins of the office, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los trasgos del desorden del despacho, pero se acabó el tiempo: la aventura continuará!"
 
       #------------- Tâches — terrasse ---------------------------------
 
@@ -1554,9 +1554,9 @@ data:
         en: "@@@session.user.name@@@ has just swept away the goblin-heaps of the terrace!"
         es: "¡@@@session.user.name@@@ acaba de barrer los montones-trasgo de la terraza!"
       dt_c_terrasse_01:
-        fr: "@@@session.user.name@@@ a renoncé face aux tas-gobelins de la terrasse."
-        en: "@@@session.user.name@@@ gave up against the goblin-heaps of the terrace."
-        es: "@@@session.user.name@@@ renunció ante los montones-trasgo de la terraza."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre les tas-gobelins de la terrasse, et la lanterne a rendu l'âme au plus mauvais moment !"
+        en: "@@@session.user.name@@@ fought bravely against the goblin-heaps of the terrace, and the lantern burned out at the worst moment!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra los montones-trasgo de la terraza, y el farol se quedó sin aceite en el peor momento!"
       dt_t_terrasse_02:
         fr: "Laver la terrasse"
         en: "Wash the terrace"
@@ -1570,9 +1570,9 @@ data:
         en: "@@@session.user.name@@@ has just stripped the grime crust off the terrace!"
         es: "¡@@@session.user.name@@@ acaba de decapar la costra de mugre de la terraza!"
       dt_c_terrasse_02:
-        fr: "@@@session.user.name@@@ a renoncé face à la croûte de crasse de la terrasse."
-        en: "@@@session.user.name@@@ gave up against the grime crust of the terrace."
-        es: "@@@session.user.name@@@ renunció ante la costra de mugre de la terraza."
+        fr: "@@@session.user.name@@@ a bravé la croûte de crasse de la terrasse sans faiblir, mais l'ennemi avait tendu un piège !"
+        en: "@@@session.user.name@@@ braved the grime crust of the terrace without flinching, but the enemy had set a trap!"
+        es: "¡@@@session.user.name@@@ desafió a la costra de mugre de la terraza sin flaquear, pero el enemigo había tendido una trampa!"
 
       #------------- Tâches — balcon -----------------------------------
 
@@ -1589,9 +1589,9 @@ data:
         en: "@@@session.user.name@@@ has just swept away the goblin-heaps of the balcony!"
         es: "¡@@@session.user.name@@@ acaba de barrer los montones-trasgo del balcón!"
       dt_c_balcon_01:
-        fr: "@@@session.user.name@@@ a renoncé face aux tas-gobelins du balcon."
-        en: "@@@session.user.name@@@ gave up against the goblin-heaps of the balcony."
-        es: "@@@session.user.name@@@ renunció ante los montones-trasgo del balcón."
+        fr: "@@@session.user.name@@@ a bravé les tas-gobelins du balcon sans faiblir, et le grimoire manquait justement la bonne page !"
+        en: "@@@session.user.name@@@ braved the goblin-heaps of the balcony without flinching, and the spellbook was missing exactly the right page!"
+        es: "¡@@@session.user.name@@@ desafió a los montones-trasgo del balcón sin flaquear, y al grimorio le faltaba justo la página buena!"
       dt_t_balcon_02:
         fr: "Laver le balcon"
         en: "Wash the balcony"
@@ -1605,9 +1605,9 @@ data:
         en: "@@@session.user.name@@@ has just stripped the grime crust off the balcony!"
         es: "¡@@@session.user.name@@@ acaba de decapar la costra de mugre del balcón!"
       dt_c_balcon_02:
-        fr: "@@@session.user.name@@@ a renoncé face à la croûte de crasse du balcon."
-        en: "@@@session.user.name@@@ gave up against the grime crust of the balcony."
-        es: "@@@session.user.name@@@ renunció ante la costra de mugre del balcón."
+        fr: "@@@session.user.name@@@ a tenu tête à la croûte de crasse du balcon, et le grimoire manquait justement la bonne page !"
+        en: "@@@session.user.name@@@ stood up to the grime crust of the balcony, and the spellbook was missing exactly the right page!"
+        es: "¡@@@session.user.name@@@ le plantó cara a la costra de mugre del balcón, y al grimorio le faltaba justo la página buena!"
       dt_t_terrasse_03:
         fr: "Arroser les plantes"
         en: "Water the plants"
@@ -1621,9 +1621,9 @@ data:
         en: "@@@session.user.name@@@ has just quenched the thirsty balcony and terrace plants!"
         es: "¡@@@session.user.name@@@ acaba de saciar a las plantas sedientas del balcón y la terraza!"
       dt_c_terrasse_03:
-        fr: "@@@session.user.name@@@ a renoncé à arroser les plantes du balcon et de la terrasse."
-        en: "@@@session.user.name@@@ gave up watering the balcony and terrace plants."
-        es: "@@@session.user.name@@@ renunció a regar las plantas del balcón y la terraza."
+        fr: "@@@session.user.name@@@ a bataillé pour arroser les plantes du balcon et de la terrasse, mais le temps a manqué avant la victoire !"
+        en: "@@@session.user.name@@@ battled away at watering the balcony and terrace plants, but time ran out before victory!"
+        es: "¡@@@session.user.name@@@ batalló para regar las plantas del balcón y la terraza, pero se acabó el tiempo antes de la victoria!"
 
       #------------- Tâches — jardin -----------------------------------
 
@@ -1640,9 +1640,9 @@ data:
         en: "@@@session.user.name@@@ has just raked up the goblin-heaps of leaves in the garden!"
         es: "¡@@@session.user.name@@@ acaba de recoger los montones-trasgo de hojas del jardín!"
       dt_c_jardin_01:
-        fr: "@@@session.user.name@@@ a renoncé face aux tas-gobelins de feuilles du jardin."
-        en: "@@@session.user.name@@@ gave up against the goblin-heaps of leaves in the garden."
-        es: "@@@session.user.name@@@ renunció ante los montones-trasgo de hojas del jardín."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les tas-gobelins de feuilles du jardin, mais la potion de courage était déjà vide !"
+        en: "@@@session.user.name@@@ led the assault on the goblin-heaps of leaves in the garden, but the courage potion was already empty!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra los montones-trasgo de hojas del jardín, pero la poción de valor ya estaba vacía!"
       dt_t_jardin_02:
         fr: "Tondre la pelouse"
         en: "Mow the lawn"
@@ -1656,9 +1656,9 @@ data:
         en: "@@@session.user.name@@@ has just tamed the grass-hydra of the lawn!"
         es: "¡@@@session.user.name@@@ acaba de domar la hierba-hidra del césped!"
       dt_c_jardin_02:
-        fr: "@@@session.user.name@@@ a renoncé face à l'herbe-hydre de la pelouse."
-        en: "@@@session.user.name@@@ gave up against the grass-hydra of the lawn."
-        es: "@@@session.user.name@@@ renunció ante la hierba-hidra del césped."
+        fr: "@@@session.user.name@@@ a bravé l'herbe-hydre de la pelouse sans faiblir, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ braved the grass-hydra of the lawn without flinching, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ desafió a la hierba-hidra del césped sin flaquear, pero el hechizo salió mal en el último momento!"
       dt_t_jardin_03:
         fr: "Arroser les plantes"
         en: "Water the plants"
@@ -1672,9 +1672,9 @@ data:
         en: "@@@session.user.name@@@ has just quenched the thirsty plants of the garden!"
         es: "¡@@@session.user.name@@@ acaba de saciar a las plantas sedientas del jardín!"
       dt_c_jardin_03:
-        fr: "@@@session.user.name@@@ a renoncé à arroser les plantes du jardin."
-        en: "@@@session.user.name@@@ gave up watering the garden plants."
-        es: "@@@session.user.name@@@ renunció a regar las plantas del jardín."
+        fr: "@@@session.user.name@@@ a retroussé ses manches pour arroser les plantes du jardin, et la lanterne a rendu l'âme avant la fin !"
+        en: "@@@session.user.name@@@ rolled up both sleeves for watering the garden plants, and the lantern burned out before the end!"
+        es: "¡@@@session.user.name@@@ se remangó para regar las plantas del jardín, y el farol se quedó sin aceite antes del final!"
       dt_t_jardin_04:
         fr: "Nettoyer les allées"
         en: "Clean the paths"
@@ -1688,9 +1688,9 @@ data:
         en: "@@@session.user.name@@@ has just cleared the garden paths!"
         es: "¡@@@session.user.name@@@ acaba de despejar los caminos del jardín!"
       dt_c_jardin_04:
-        fr: "@@@session.user.name@@@ a renoncé face à la mousse des allées du jardin."
-        en: "@@@session.user.name@@@ gave up against the moss of the garden paths."
-        es: "@@@session.user.name@@@ renunció ante el musgo de los caminos del jardín."
+        fr: "@@@session.user.name@@@ a chargé la mousse des allées du jardin tête baissée, et le grimoire manquait justement la bonne page !"
+        en: "@@@session.user.name@@@ charged straight at the moss of the garden paths, and the spellbook was missing exactly the right page!"
+        es: "¡@@@session.user.name@@@ cargó de frente contra el musgo de los caminos del jardín, y al grimorio le faltaba justo la página buena!"
       dt_t_jardin_05:
         fr: "Désherber"
         en: "Weed"
@@ -1704,9 +1704,9 @@ data:
         en: "@@@session.user.name@@@ has just torn out the weed-goblins of the garden!"
         es: "¡@@@session.user.name@@@ acaba de arrancar las hierbas-trasgo del jardín!"
       dt_c_jardin_05:
-        fr: "@@@session.user.name@@@ a renoncé face aux herbes-gobelines du jardin."
-        en: "@@@session.user.name@@@ gave up against the weed-goblins of the garden."
-        es: "@@@session.user.name@@@ renunció ante las hierbas-trasgo del jardín."
+        fr: "@@@session.user.name@@@ a donné l'assaut contre les herbes-gobelines du jardin, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ led the assault on the weed-goblins of the garden, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ dio el asalto contra las hierbas-trasgo del jardín, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_jardin_06:
         fr: "Tailler les haies ou les plantes"
         en: "Trim the hedges or plants"
@@ -1720,9 +1720,9 @@ data:
         en: "@@@session.user.name@@@ has just tamed the hedge-trolls of the garden!"
         es: "¡@@@session.user.name@@@ acaba de domar a los setos-trol del jardín!"
       dt_c_jardin_06:
-        fr: "@@@session.user.name@@@ a renoncé face aux haies-trolls du jardin."
-        en: "@@@session.user.name@@@ gave up against the hedge-trolls of the garden."
-        es: "@@@session.user.name@@@ renunció ante los setos-trol del jardín."
+        fr: "@@@session.user.name@@@ a tenu tête aux haies-trolls du jardin, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ stood up to the hedge-trolls of the garden, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ le plantó cara a los setos-trol del jardín, pero el hechizo salió mal en el último momento!"
 
       #------------- Tâches — linge ------------------------------------
 
@@ -1739,9 +1739,9 @@ data:
         en: "@@@session.user.name@@@ has just sorted the laundry-troll of dirty clothes!"
         es: "¡@@@session.user.name@@@ acaba de clasificar el troll de ropa sucia!"
       dt_c_linge_01:
-        fr: "@@@session.user.name@@@ a renoncé face au tas-troll de linge sale."
-        en: "@@@session.user.name@@@ gave up against the laundry-troll of dirty clothes."
-        es: "@@@session.user.name@@@ renunció ante el troll de ropa sucia."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre le tas-troll de linge sale, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ put up a fine fight against the laundry-troll of dirty clothes, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra el troll de ropa sucia, pero el hechizo salió mal en el último momento!"
       dt_t_linge_02:
         fr: "Lancer une machine à laver"
         en: "Run a washing machine cycle"
@@ -1755,9 +1755,9 @@ data:
         en: "@@@session.user.name@@@ has just cast the dirty laundry into the cleansing bath!"
         es: "¡@@@session.user.name@@@ acaba de arrojar la ropa sucia al baño purificador!"
       dt_c_linge_02:
-        fr: "@@@session.user.name@@@ a renoncé à lancer la machine à laver."
-        en: "@@@session.user.name@@@ gave up starting the washing machine."
-        es: "@@@session.user.name@@@ renunció a poner la lavadora."
+        fr: "@@@session.user.name@@@ a donné de sa peine pour lancer la machine à laver, mais le temps a manqué avant la victoire !"
+        en: "@@@session.user.name@@@ worked hard at starting the washing machine, but time ran out before victory!"
+        es: "¡@@@session.user.name@@@ se esforzó para poner la lavadora, pero se acabó el tiempo antes de la victoria!"
       dt_t_linge_02_alt:
         fr: "Emporter le linge à la laverie"
         en: "Take the laundry to the launderette"
@@ -1771,9 +1771,9 @@ data:
         en: "@@@session.user.name@@@ has just carried the dirty laundry to the launderette!"
         es: "¡@@@session.user.name@@@ acaba de llevar la ropa sucia a la lavandería!"
       dt_c_linge_02_alt:
-        fr: "@@@session.user.name@@@ a renoncé à porter le linge à la laverie."
-        en: "@@@session.user.name@@@ gave up taking the laundry to the launderette."
-        es: "@@@session.user.name@@@ renunció a llevar la ropa a la lavandería."
+        fr: "@@@session.user.name@@@ a pris son courage à deux mains pour porter le linge à la laverie, mais un dragon est passé par là au mauvais moment !"
+        en: "@@@session.user.name@@@ took a deep breath and started taking the laundry to the launderette, but a dragon flew past at the worst moment!"
+        es: "¡@@@session.user.name@@@ tomó aire y empezó a llevar la ropa a la lavandería, pero pasó un dragón en el peor momento!"
       dt_t_linge_03:
         fr: "Étendre le linge"
         en: "Hang out the laundry"
@@ -1787,9 +1787,9 @@ data:
         en: "@@@session.user.name@@@ has just hung out the wet laundry to dry!"
         es: "¡@@@session.user.name@@@ acaba de tender la ropa mojada para secar!"
       dt_c_linge_03:
-        fr: "@@@session.user.name@@@ a renoncé à étendre le linge mouillé."
-        en: "@@@session.user.name@@@ gave up hanging out the wet laundry."
-        es: "@@@session.user.name@@@ renunció a tender la ropa mojada."
+        fr: "@@@session.user.name@@@ a mis du cœur à étendre le linge mouillé, et le donjon en redemande déjà !"
+        en: "@@@session.user.name@@@ put real heart into hanging out the wet laundry, and the dungeon is already asking for more!"
+        es: "¡@@@session.user.name@@@ puso mucho empeño en tender la ropa mojada, y la mazmorra ya pide más!"
       dt_t_linge_04:
         fr: "Ramasser le linge sec"
         en: "Collect the dry laundry"
@@ -1803,9 +1803,9 @@ data:
         en: "@@@session.user.name@@@ has just collected the dry laundry from the line!"
         es: "¡@@@session.user.name@@@ acaba de recoger la ropa seca del tendedero!"
       dt_c_linge_04:
-        fr: "@@@session.user.name@@@ a renoncé à ramasser le linge sec."
-        en: "@@@session.user.name@@@ gave up collecting the dry laundry."
-        es: "@@@session.user.name@@@ renunció a recoger la ropa seca."
+        fr: "@@@session.user.name@@@ a bataillé pour ramasser le linge sec, et le donjon en redemande déjà !"
+        en: "@@@session.user.name@@@ battled away at collecting the dry laundry, and the dungeon is already asking for more!"
+        es: "¡@@@session.user.name@@@ batalló para recoger la ropa seca, y la mazmorra ya pide más!"
       dt_t_linge_05:
         fr: "Plier le linge"
         en: "Fold the laundry"
@@ -1819,9 +1819,9 @@ data:
         en: "@@@session.user.name@@@ has just folded the mound of dry laundry!"
         es: "¡@@@session.user.name@@@ acaba de doblar el montón de ropa seca!"
       dt_c_linge_05:
-        fr: "@@@session.user.name@@@ a renoncé à plier le linge sec."
-        en: "@@@session.user.name@@@ gave up folding the dry laundry."
-        es: "@@@session.user.name@@@ renunció a doblar la ropa seca."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour plier le linge sec, mais l'aventure demandera un second passage !"
+        en: "@@@session.user.name@@@ threw every bit of energy into folding the dry laundry, but the adventure will need a second run!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en doblar la ropa seca, pero la aventura pedirá una segunda vuelta!"
       dt_t_linge_06:
         fr: "Ranger le linge"
         en: "Put away the laundry"
@@ -1835,9 +1835,9 @@ data:
         en: "@@@session.user.name@@@ has just put away all the folded laundry!"
         es: "¡@@@session.user.name@@@ acaba de guardar toda la ropa doblada!"
       dt_c_linge_06:
-        fr: "@@@session.user.name@@@ a renoncé à ranger le linge plié."
-        en: "@@@session.user.name@@@ gave up putting away the folded laundry."
-        es: "@@@session.user.name@@@ renunció a guardar la ropa doblada."
+        fr: "@@@session.user.name@@@ a donné de sa peine pour ranger le linge plié, mais le temps a manqué avant la victoire !"
+        en: "@@@session.user.name@@@ worked hard at putting away the folded laundry, but time ran out before victory!"
+        es: "¡@@@session.user.name@@@ se esforzó para guardar la ropa doblada, pero se acabó el tiempo antes de la victoria!"
       dt_t_linge_08:
         fr: "Repasser le linge"
         en: "Iron the laundry"
@@ -1851,9 +1851,9 @@ data:
         en: "@@@session.user.name@@@ has just flattened the wrinkle-gremlins of the laundry!"
         es: "¡@@@session.user.name@@@ acaba de aplastar a los gremlins de arrugas de la ropa!"
       dt_c_linge_08:
-        fr: "@@@session.user.name@@@ a renoncé face aux plis-gremlins du linge."
-        en: "@@@session.user.name@@@ gave up against the wrinkle-gremlins of the laundry."
-        es: "@@@session.user.name@@@ renunció ante los gremlins de arrugas de la ropa."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre les plis-gremlins du linge, mais l'ennemi avait tendu un piège !"
+        en: "@@@session.user.name@@@ put up a fine fight against the wrinkle-gremlins of the laundry, but the enemy had set a trap!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra los gremlins de arrugas de la ropa, pero el enemigo había tendido una trampa!"
       dt_t_linge_09:
         fr: "Entretenir la machine à laver (joint, bac, cycle à vide)"
         en: "Maintain the washing machine (seal, tray, empty cycle)"
@@ -1867,9 +1867,9 @@ data:
         en: "@@@session.user.name@@@ has just purged the mould-golem of the washing machine!"
         es: "¡@@@session.user.name@@@ acaba de purgar al gólem de moho de la lavadora!"
       dt_c_linge_09:
-        fr: "@@@session.user.name@@@ a renoncé face au golem de moisi de la machine à laver."
-        en: "@@@session.user.name@@@ gave up against the mould-golem of the washing machine."
-        es: "@@@session.user.name@@@ renunció ante el gólem de moho de la lavadora."
+        fr: "@@@session.user.name@@@ a tenu tête au golem de moisi de la machine à laver, et la lanterne a rendu l'âme au plus mauvais moment !"
+        en: "@@@session.user.name@@@ stood up to the mould-golem of the washing machine, and the lantern burned out at the worst moment!"
+        es: "¡@@@session.user.name@@@ le plantó cara al gólem de moho de la lavadora, y el farol se quedó sin aceite en el peor momento!"
 
       #------------- Tâches — déchets ----------------------------------
 
@@ -1886,9 +1886,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped out the garbage blobs of the house!"
         es: "¡@@@session.user.name@@@ acaba de eliminar los blobs de basura de la casa!"
       dt_c_dechets_01:
-        fr: "@@@session.user.name@@@ a dû sonner la retraite devant la puanteur extrême des blob-ordures."
-        en: "@@@session.user.name@@@ had to sound the retreat before the foul stench of the garbage blobs."
-        es: "@@@session.user.name@@@ tuvo que tocar retirada ante el hedor extremo de los blobs de basura."
+        fr: "@@@session.user.name@@@ a lutté vaillamment contre la puanteur extrême des blob-ordures, mais la potion de courage était déjà vide !"
+        en: "@@@session.user.name@@@ fought bravely against the foul stench of the garbage blobs, but the courage potion was already empty!"
+        es: "¡@@@session.user.name@@@ luchó valientemente contra el hedor extremo de los blobs de basura, pero la poción de valor ya estaba vacía!"
       dt_t_dechets_02:
         fr: "Changer les sacs poubelle"
         en: "Change the bin bags"
@@ -1902,9 +1902,9 @@ data:
         en: "@@@session.user.name@@@ has just starved the garbage blobs by changing the bags!"
         es: "¡@@@session.user.name@@@ acaba de cortar el suministro a los blobs de basura cambiando las bolsas!"
       dt_c_dechets_02:
-        fr: "@@@session.user.name@@@ a renoncé à changer les sacs poubelle."
-        en: "@@@session.user.name@@@ gave up changing the bin bags."
-        es: "@@@session.user.name@@@ renunció a cambiar las bolsas de basura."
+        fr: "@@@session.user.name@@@ a bataillé pour changer les sacs poubelle, mais un dragon est passé par là au mauvais moment !"
+        en: "@@@session.user.name@@@ battled away at changing the bin bags, but a dragon flew past at the worst moment!"
+        es: "¡@@@session.user.name@@@ batalló para cambiar las bolsas de basura, pero pasó un dragón en el peor momento!"
       dt_t_dechets_03:
         fr: "Trier les déchets"
         en: "Sort the recycling"
@@ -1918,9 +1918,9 @@ data:
         en: "@@@session.user.name@@@ has just sorted the magma of waste!"
         es: "¡@@@session.user.name@@@ acaba de separar el magma de residuos!"
       dt_c_dechets_03:
-        fr: "@@@session.user.name@@@ a renoncé à trier le magma de déchets."
-        en: "@@@session.user.name@@@ gave up sorting the magma of waste."
-        es: "@@@session.user.name@@@ renunció a separar el magma de residuos."
+        fr: "@@@session.user.name@@@ a pris son courage à deux mains pour trier le magma de déchets, et la lanterne a rendu l'âme avant la fin !"
+        en: "@@@session.user.name@@@ took a deep breath and started sorting the magma of waste, and the lantern burned out before the end!"
+        es: "¡@@@session.user.name@@@ tomó aire y empezó a separar el magma de residuos, y el farol se quedó sin aceite antes del final!"
       dt_t_dechets_04:
         fr: "Descendre le verre ou le recyclage au point de collecte"
         en: "Take glass or recycling to the collection point"
@@ -1934,9 +1934,9 @@ data:
         en: "@@@session.user.name@@@ has just hauled the glass and recycling to the collection point!"
         es: "¡@@@session.user.name@@@ acaba de llevar el vidrio y el reciclaje al punto de recogida!"
       dt_c_dechets_04:
-        fr: "@@@session.user.name@@@ a renoncé à descendre le verre et le recyclage."
-        en: "@@@session.user.name@@@ gave up taking the glass and recycling down."
-        es: "@@@session.user.name@@@ renunció a bajar el vidrio y el reciclaje."
+        fr: "@@@session.user.name@@@ a donné de sa peine pour descendre le verre et le recyclage, et la lanterne a rendu l'âme avant la fin !"
+        en: "@@@session.user.name@@@ worked hard at taking the glass and recycling down, and the lantern burned out before the end!"
+        es: "¡@@@session.user.name@@@ se esforzó para bajar el vidrio y el reciclaje, y el farol se quedó sin aceite antes del final!"
       dt_t_dechets_05:
         fr: "Vider les bio-déchets dans le composteur"
         en: "Empty food waste into the compost bin"
@@ -1950,9 +1950,9 @@ data:
         en: "@@@session.user.name@@@ has just emptied the food waste into the compost bin!"
         es: "¡@@@session.user.name@@@ acaba de vaciar los residuos orgánicos en el compostador!"
       dt_c_dechets_05:
-        fr: "@@@session.user.name@@@ a renoncé à vider les bio-déchets dans le composteur."
-        en: "@@@session.user.name@@@ gave up emptying the food waste into the compost bin."
-        es: "@@@session.user.name@@@ renunció a vaciar los residuos orgánicos en el compostador."
+        fr: "@@@session.user.name@@@ a bataillé pour vider les bio-déchets dans le composteur, et ce n'est pas encore tout à fait ça !"
+        en: "@@@session.user.name@@@ battled away at emptying the food waste into the compost bin, and it is not quite there yet!"
+        es: "¡@@@session.user.name@@@ batalló para vaciar los residuos orgánicos en el compostador, y aún no está del todo!"
       dt_t_dechets_06:
         fr: "Vider les corbeilles et petites poubelles"
         en: "Empty the small bins and wastepaper baskets"
@@ -1966,9 +1966,9 @@ data:
         en: "@@@session.user.name@@@ has just emptied every wastepaper basket in the house!"
         es: "¡@@@session.user.name@@@ acaba de vaciar todas las papeleras de la casa!"
       dt_c_dechets_06:
-        fr: "@@@session.user.name@@@ a renoncé à vider les corbeilles et petites poubelles."
-        en: "@@@session.user.name@@@ gave up emptying the small bins and baskets."
-        es: "@@@session.user.name@@@ renunció a vaciar las papeleras y cubos pequeños."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour vider les corbeilles et petites poubelles, et il en restait encore un peu à la fin !"
+        en: "@@@session.user.name@@@ threw every bit of energy into emptying the small bins and baskets, and a little was still left at the end!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en vaciar las papeleras y cubos pequeños, y todavía quedaba un poco al final!"
       dt_t_dechets_07:
         fr: "Nettoyer la poubelle"
         en: "Clean the bin"
@@ -1982,9 +1982,9 @@ data:
         en: "@@@session.user.name@@@ has just dissolved the garbage blobs of the kitchen bin!"
         es: "¡@@@session.user.name@@@ acaba de disolver los blobs de basura del cubo de la cocina!"
       dt_c_dechets_07:
-        fr: "@@@session.user.name@@@ a battu en retraite devant les blob-ordures de la poubelle de cuisine."
-        en: "@@@session.user.name@@@ retreated before the garbage blobs of the kitchen bin."
-        es: "@@@session.user.name@@@ se retiró ante los blobs de basura del cubo de la cocina."
+        fr: "@@@session.user.name@@@ a chargé les blob-ordures de la poubelle de cuisine tête baissée, mais le sortilège a mal tourné au dernier moment !"
+        en: "@@@session.user.name@@@ charged straight at the garbage blobs of the kitchen bin, but the spell went wrong at the last moment!"
+        es: "¡@@@session.user.name@@@ cargó de frente contra los blobs de basura del cubo de la cocina, pero el hechizo salió mal en el último momento!"
 
       #------------- Tâches — animaux ----------------------------------
 
@@ -2001,9 +2001,9 @@ data:
         en: "@@@session.user.name@@@ has just fed the hungry familiar!"
         es: "¡@@@session.user.name@@@ acaba de alimentar al familiar hambriento!"
       dt_c_animaux_01:
-        fr: "@@@session.user.name@@@ a renoncé à nourrir le familier."
-        en: "@@@session.user.name@@@ gave up feeding the familiar."
-        es: "@@@session.user.name@@@ renunció a alimentar al familiar."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour nourrir le familier, mais la tâche a tenu bon cette fois !"
+        en: "@@@session.user.name@@@ threw every bit of energy into feeding the familiar, but the task held out this time!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en alimentar al familiar, pero la tarea aguantó esta vez!"
       dt_t_animaux_02:
         fr: "Changer l'eau de la bête"
         en: "Change the beast's water"
@@ -2017,9 +2017,9 @@ data:
         en: "@@@session.user.name@@@ has just refreshed the familiar's water!"
         es: "¡@@@session.user.name@@@ acaba de renovar el agua del familiar!"
       dt_c_animaux_02:
-        fr: "@@@session.user.name@@@ a renoncé à changer l'eau du familier."
-        en: "@@@session.user.name@@@ gave up changing the familiar's water."
-        es: "@@@session.user.name@@@ renunció a cambiar el agua del familiar."
+        fr: "@@@session.user.name@@@ a retroussé ses manches pour changer l'eau du familier, et ce n'est pas encore tout à fait ça !"
+        en: "@@@session.user.name@@@ rolled up both sleeves for changing the familiar's water, and it is not quite there yet!"
+        es: "¡@@@session.user.name@@@ se remangó para cambiar el agua del familiar, y aún no está del todo!"
       dt_t_animaux_03:
         fr: "Nettoyer l'antre de la bête"
         en: "Clean the beast's lair"
@@ -2033,9 +2033,9 @@ data:
         en: "@@@session.user.name@@@ has just cleansed the familiar's lair!"
         es: "¡@@@session.user.name@@@ acaba de sanear la guarida del familiar!"
       dt_c_animaux_03:
-        fr: "@@@session.user.name@@@ a battu en retraite devant le repaire nauséabond du familier."
-        en: "@@@session.user.name@@@ retreated before the foul lair of the familiar."
-        es: "@@@session.user.name@@@ se retiró ante la guarida apestosa del familiar."
+        fr: "@@@session.user.name@@@ a livré un beau combat contre le repaire nauséabond du familier, et le grimoire manquait justement la bonne page !"
+        en: "@@@session.user.name@@@ put up a fine fight against the foul lair of the familiar, and the spellbook was missing exactly the right page!"
+        es: "¡@@@session.user.name@@@ libró un buen combate contra la guarida apestosa del familiar, y al grimorio le faltaba justo la página buena!"
       dt_t_animaux_05:
         fr: "Nettoyer ou brosser les poils de la bête"
         en: "Clean or brush the beast's fur"
@@ -2049,9 +2049,9 @@ data:
         en: "@@@session.user.name@@@ has just untangled the knot-imps of the familiar!"
         es: "¡@@@session.user.name@@@ acaba de desenredar los duendes-nudo del familiar!"
       dt_c_animaux_05:
-        fr: "@@@session.user.name@@@ a renoncé à brosser le familier."
-        en: "@@@session.user.name@@@ gave up brushing the familiar."
-        es: "@@@session.user.name@@@ renunció a cepillar al familiar."
+        fr: "@@@session.user.name@@@ a pris son courage à deux mains pour brosser le familier, et la lanterne a rendu l'âme avant la fin !"
+        en: "@@@session.user.name@@@ took a deep breath and started brushing the familiar, and the lantern burned out before the end!"
+        es: "¡@@@session.user.name@@@ tomó aire y empezó a cepillar al familiar, y el farol se quedó sin aceite antes del final!"
 
       #------------- Tâches — voiture ----------------------------------
 
@@ -2068,9 +2068,9 @@ data:
         en: "@@@session.user.name@@@ has just cleaned the inside of the car!"
         es: "¡@@@session.user.name@@@ acaba de limpiar el interior del coche!"
       dt_c_voiture_01:
-        fr: "@@@session.user.name@@@ a renoncé à nettoyer l'intérieur de la voiture."
-        en: "@@@session.user.name@@@ gave up cleaning the inside of the car."
-        es: "@@@session.user.name@@@ renunció a limpiar el interior del coche."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour nettoyer l'intérieur de la voiture, et il en restait encore un peu à la fin !"
+        en: "@@@session.user.name@@@ threw every bit of energy into cleaning the inside of the car, and a little was still left at the end!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en limpiar el interior del coche, y todavía quedaba un poco al final!"
       dt_t_voiture_02:
         fr: "Nettoyer l'extérieur de la voiture"
         en: "Clean the outside of the car"
@@ -2084,9 +2084,9 @@ data:
         en: "@@@session.user.name@@@ has just stripped the grime crust off the car!"
         es: "¡@@@session.user.name@@@ acaba de decapar la costra de mugre del coche!"
       dt_c_voiture_02:
-        fr: "@@@session.user.name@@@ a renoncé à laver l'extérieur de la voiture."
-        en: "@@@session.user.name@@@ gave up washing the outside of the car."
-        es: "@@@session.user.name@@@ renunció a lavar el exterior del coche."
+        fr: "@@@session.user.name@@@ a retroussé ses manches pour laver l'extérieur de la voiture, mais le temps a manqué avant la victoire !"
+        en: "@@@session.user.name@@@ rolled up both sleeves for washing the outside of the car, but time ran out before victory!"
+        es: "¡@@@session.user.name@@@ se remangó para lavar el exterior del coche, pero se acabó el tiempo antes de la victoria!"
 
       #------------- Tâches — moto -------------------------------------
 
@@ -2103,9 +2103,9 @@ data:
         en: "@@@session.user.name@@@ has just stripped the mud crust off the motorbike!"
         es: "¡@@@session.user.name@@@ acaba de decapar la costra de barro de la moto!"
       dt_c_moto_01:
-        fr: "@@@session.user.name@@@ a renoncé à nettoyer la moto."
-        en: "@@@session.user.name@@@ gave up cleaning the motorbike."
-        es: "@@@session.user.name@@@ renunció a limpiar la moto."
+        fr: "@@@session.user.name@@@ a retroussé ses manches pour nettoyer la moto, mais la tâche a tenu bon cette fois !"
+        en: "@@@session.user.name@@@ rolled up both sleeves for cleaning the motorbike, but the task held out this time!"
+        es: "¡@@@session.user.name@@@ se remangó para limpiar la moto, pero la tarea aguantó esta vez!"
 
       #------------- Tâches — garage -----------------------------------
 
@@ -2122,9 +2122,9 @@ data:
         en: "@@@session.user.name@@@ has just swept away the goblin-heaps of the garage!"
         es: "¡@@@session.user.name@@@ acaba de barrer los montones-trasgo del garaje!"
       dt_c_garage_01:
-        fr: "@@@session.user.name@@@ a renoncé face aux tas-gobelins du garage."
-        en: "@@@session.user.name@@@ gave up against the goblin-heaps of the garage."
-        es: "@@@session.user.name@@@ renunció ante los montones-trasgo del garaje."
+        fr: "@@@session.user.name@@@ a croisé le fer avec les tas-gobelins du garage, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ crossed swords with the goblin-heaps of the garage, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ cruzó el acero con los montones-trasgo del garaje, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_garage_02:
         fr: "Nettoyer le sol"
         en: "Clean the floor"
@@ -2138,9 +2138,9 @@ data:
         en: "@@@session.user.name@@@ has just scoured the stains off the garage floor!"
         es: "¡@@@session.user.name@@@ acaba de fregar las manchas del suelo del garaje!"
       dt_c_garage_02:
-        fr: "@@@session.user.name@@@ a renoncé à nettoyer le sol du garage."
-        en: "@@@session.user.name@@@ gave up cleaning the garage floor."
-        es: "@@@session.user.name@@@ renunció a limpiar el suelo del garaje."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour nettoyer le sol du garage, mais l'aventure demandera un second passage !"
+        en: "@@@session.user.name@@@ threw every bit of energy into cleaning the garage floor, but the adventure will need a second run!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en limpiar el suelo del garaje, pero la aventura pedirá una segunda vuelta!"
       dt_t_garage_03:
         fr: "Ranger l'établi"
         en: "Tidy the workbench"
@@ -2154,9 +2154,9 @@ data:
         en: "@@@session.user.name@@@ has just subdued the clutter goblins of the workbench!"
         es: "¡@@@session.user.name@@@ acaba de someter a los trasgos del desorden del banco de trabajo!"
       dt_c_garage_03:
-        fr: "@@@session.user.name@@@ a renoncé devant les gobelins du désordre de l'établi."
-        en: "@@@session.user.name@@@ gave up before the clutter goblins of the workbench."
-        es: "@@@session.user.name@@@ renunció ante los trasgos del desorden del banco de trabajo."
+        fr: "@@@session.user.name@@@ a bravé les gobelins du désordre de l'établi sans faiblir, mais le temps a manqué : l'aventure continuera !"
+        en: "@@@session.user.name@@@ braved the clutter goblins of the workbench without flinching, but time ran out: the adventure will go on!"
+        es: "¡@@@session.user.name@@@ desafió a los trasgos del desorden del banco de trabajo sin flaquear, pero se acabó el tiempo: la aventura continuará!"
       dt_t_garage_04:
         fr: "Désencombrer"
         en: "Declutter"
@@ -2170,9 +2170,9 @@ data:
         en: "@@@session.user.name@@@ has just cut down the clutter-troll of the garage!"
         es: "¡@@@session.user.name@@@ acaba de reducir el troll de trastos del garaje!"
       dt_c_garage_04:
-        fr: "@@@session.user.name@@@ a renoncé face à l'amas-troll du garage."
-        en: "@@@session.user.name@@@ gave up against the clutter-troll of the garage."
-        es: "@@@session.user.name@@@ renunció ante el troll de trastos del garaje."
+        fr: "@@@session.user.name@@@ a bravé l'amas-troll du garage sans faiblir, mais la nuit est tombée sur le donjon avant la fin !"
+        en: "@@@session.user.name@@@ braved the clutter-troll of the garage without flinching, but night fell on the dungeon before the end!"
+        es: "¡@@@session.user.name@@@ desafió al troll de trastos del garaje sin flaquear, pero cayó la noche sobre la mazmorra antes del final!"
       dt_t_garage_05:
         fr: "Nettoyer les outils"
         en: "Clean the tools"
@@ -2186,9 +2186,9 @@ data:
         en: "@@@session.user.name@@@ has just cleaned the garage tools!"
         es: "¡@@@session.user.name@@@ acaba de limpiar las herramientas del garaje!"
       dt_c_garage_05:
-        fr: "@@@session.user.name@@@ a renoncé à nettoyer les outils du garage."
-        en: "@@@session.user.name@@@ gave up cleaning the garage tools."
-        es: "@@@session.user.name@@@ renunció a limpiar las herramientas del garaje."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour nettoyer les outils du garage, mais le temps a manqué avant la victoire !"
+        en: "@@@session.user.name@@@ threw every bit of energy into cleaning the garage tools, but time ran out before victory!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en limpiar las herramientas del garaje, pero se acabó el tiempo antes de la victoria!"
       dt_t_garage_06:
         fr: "Aider un parent à bricoler"
         en: "Help a parent with DIY"
@@ -2202,9 +2202,9 @@ data:
         en: "@@@session.user.name@@@ has just backed up a parent to the end of the DIY job!"
         es: "¡@@@session.user.name@@@ acaba de apoyar a un familiar hasta el final del trabajo!"
       dt_c_garage_06:
-        fr: "@@@session.user.name@@@ a renoncé à aider au bricolage."
-        en: "@@@session.user.name@@@ gave up helping with the DIY."
-        es: "@@@session.user.name@@@ renunció a ayudar con el bricolaje."
+        fr: "@@@session.user.name@@@ a retroussé ses manches pour aider au bricolage, et il en restait encore un peu à la fin !"
+        en: "@@@session.user.name@@@ rolled up both sleeves for helping with the DIY, and a little was still left at the end!"
+        es: "¡@@@session.user.name@@@ se remangó para ayudar con el bricolaje, y todavía quedaba un poco al final!"
 
       #------------- Tâches — courses ----------------------------------
 
@@ -2221,9 +2221,9 @@ data:
         en: "@@@session.user.name@@@ has just resupplied the guild by doing the shopping!"
         es: "¡@@@session.user.name@@@ acaba de abastecer al gremio haciendo la compra!"
       dt_c_courses_01:
-        fr: "@@@session.user.name@@@ a renoncé à faire les courses."
-        en: "@@@session.user.name@@@ gave up doing the shopping."
-        es: "@@@session.user.name@@@ renunció a hacer la compra."
+        fr: "@@@session.user.name@@@ a pris son courage à deux mains pour faire les courses, et la lanterne a rendu l'âme avant la fin !"
+        en: "@@@session.user.name@@@ took a deep breath and started doing the shopping, and the lantern burned out before the end!"
+        es: "¡@@@session.user.name@@@ tomó aire y empezó a hacer la compra, y el farol se quedó sin aceite antes del final!"
       dt_t_courses_02:
         fr: "Porter les courses"
         en: "Carry the shopping"
@@ -2237,9 +2237,9 @@ data:
         en: "@@@session.user.name@@@ has just carried the whole shopping haul up to the kitchen!"
         es: "¡@@@session.user.name@@@ acaba de llevar todo el botín de la compra hasta la cocina!"
       dt_c_courses_02:
-        fr: "@@@session.user.name@@@ a renoncé à porter les courses."
-        en: "@@@session.user.name@@@ gave up carrying the shopping."
-        es: "@@@session.user.name@@@ renunció a llevar la compra."
+        fr: "@@@session.user.name@@@ a mis du cœur à porter les courses, mais le temps a manqué avant la victoire !"
+        en: "@@@session.user.name@@@ put real heart into carrying the shopping, but time ran out before victory!"
+        es: "¡@@@session.user.name@@@ puso mucho empeño en llevar la compra, pero se acabó el tiempo antes de la victoria!"
       dt_t_courses_03:
         fr: "Ranger les courses"
         en: "Put away the shopping"
@@ -2253,9 +2253,9 @@ data:
         en: "@@@session.user.name@@@ has just put away the whole shopping haul!"
         es: "¡@@@session.user.name@@@ acaba de guardar todo el botín de la compra!"
       dt_c_courses_03:
-        fr: "@@@session.user.name@@@ a renoncé à ranger les courses."
-        en: "@@@session.user.name@@@ gave up putting away the shopping."
-        es: "@@@session.user.name@@@ renunció a guardar la compra."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour ranger les courses, et ce n'est pas encore tout à fait ça !"
+        en: "@@@session.user.name@@@ threw every bit of energy into putting away the shopping, and it is not quite there yet!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en guardar la compra, y aún no está del todo!"
       dt_t_courses_04:
         fr: "Faire la liste des courses"
         en: "Make the shopping list"
@@ -2269,9 +2269,9 @@ data:
         en: "@@@session.user.name@@@ has just drawn up the full shopping list!"
         es: "¡@@@session.user.name@@@ acaba de elaborar la lista de la compra completa!"
       dt_c_courses_04:
-        fr: "@@@session.user.name@@@ a renoncé à faire la liste des courses."
-        en: "@@@session.user.name@@@ gave up making the shopping list."
-        es: "@@@session.user.name@@@ renunció a hacer la lista de la compra."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour faire la liste des courses, mais l'aventure demandera un second passage !"
+        en: "@@@session.user.name@@@ threw every bit of energy into making the shopping list, but the adventure will need a second run!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en hacer la lista de la compra, pero la aventura pedirá una segunda vuelta!"
       dt_t_courses_05:
         fr: "Faire une petite course"
         en: "Run a quick errand"
@@ -2285,9 +2285,9 @@ data:
         en: "@@@session.user.name@@@ has just brought back the missing errand!"
         es: "¡@@@session.user.name@@@ acaba de traer el recado que faltaba!"
       dt_c_courses_05:
-        fr: "@@@session.user.name@@@ a renoncé à faire la petite course."
-        en: "@@@session.user.name@@@ gave up on the quick errand."
-        es: "@@@session.user.name@@@ renunció a hacer el pequeño recado."
+        fr: "@@@session.user.name@@@ y a mis toute son énergie pour faire la petite course, mais la tâche a tenu bon cette fois !"
+        en: "@@@session.user.name@@@ threw every bit of energy into the quick errand, but the task held out this time!"
+        es: "¡@@@session.user.name@@@ echó toda su energía en hacer el pequeño recado, pero la tarea aguantó esta vez!"
 
       #------------- Tâches — extras -----------------------------------
 
@@ -2304,9 +2304,9 @@ data:
         en: "@@@session.user.name@@@ has just quenched the thirsty houseplants!"
         es: "¡@@@session.user.name@@@ acaba de saciar a las plantas de interior sedientas!"
       dt_c_extras_01:
-        fr: "@@@session.user.name@@@ a renoncé à arroser les plantes d'intérieur."
-        en: "@@@session.user.name@@@ gave up watering the houseplants."
-        es: "@@@session.user.name@@@ renunció a regar las plantas de interior."
+        fr: "@@@session.user.name@@@ a retroussé ses manches pour arroser les plantes d'intérieur, mais la tâche a tenu bon cette fois !"
+        en: "@@@session.user.name@@@ rolled up both sleeves for watering the houseplants, but the task held out this time!"
+        es: "¡@@@session.user.name@@@ se remangó para regar las plantas de interior, pero la tarea aguantó esta vez!"
       dt_t_extras_02:
         fr: "Ramasser le courrier"
         en: "Collect the post"
@@ -2320,9 +2320,9 @@ data:
         en: "@@@session.user.name@@@ has just collected and sorted all the post!"
         es: "¡@@@session.user.name@@@ acaba de recoger y clasificar todo el correo!"
       dt_c_extras_02:
-        fr: "@@@session.user.name@@@ a renoncé à ramasser le courrier."
-        en: "@@@session.user.name@@@ gave up collecting the post."
-        es: "@@@session.user.name@@@ renunció a recoger el correo."
+        fr: "@@@session.user.name@@@ a mis du cœur à ramasser le courrier, et la lanterne a rendu l'âme avant la fin !"
+        en: "@@@session.user.name@@@ put real heart into collecting the post, and the lantern burned out before the end!"
+        es: "¡@@@session.user.name@@@ puso mucho empeño en recoger el correo, y el farol se quedó sin aceite antes del final!"
       dt_t_extras_03:
         fr: "Vider et nettoyer l'aspirateur"
         en: "Empty and clean the vacuum cleaner"
@@ -2336,9 +2336,9 @@ data:
         en: "@@@session.user.name@@@ has just revived the vacuum cleaner by emptying it!"
         es: "¡@@@session.user.name@@@ acaba de revitalizar el aspirador vaciándolo!"
       dt_c_extras_03:
-        fr: "@@@session.user.name@@@ a renoncé à vider et nettoyer l'aspirateur."
-        en: "@@@session.user.name@@@ gave up emptying and cleaning the vacuum cleaner."
-        es: "@@@session.user.name@@@ renunció a vaciar y limpiar el aspirador."
+        fr: "@@@session.user.name@@@ a pris son courage à deux mains pour vider et nettoyer l'aspirateur, et le donjon en redemande déjà !"
+        en: "@@@session.user.name@@@ took a deep breath and started emptying and cleaning the vacuum cleaner, and the dungeon is already asking for more!"
+        es: "¡@@@session.user.name@@@ tomó aire y empezó a vaciar y limpiar el aspirador, y la mazmorra ya pide más!"
       dt_t_extras_04:
         fr: "Changer une ampoule"
         en: "Change a light bulb"
@@ -2352,9 +2352,9 @@ data:
         en: "@@@session.user.name@@@ has just restored the light by changing the bulb!"
         es: "¡@@@session.user.name@@@ acaba de devolver la luz cambiando la bombilla!"
       dt_c_extras_04:
-        fr: "@@@session.user.name@@@ a renoncé à changer l'ampoule."
-        en: "@@@session.user.name@@@ gave up changing the light bulb."
-        es: "@@@session.user.name@@@ renunció a cambiar la bombilla."
+        fr: "@@@session.user.name@@@ a mis du cœur à changer l'ampoule, mais la tâche a tenu bon cette fois !"
+        en: "@@@session.user.name@@@ put real heart into changing the light bulb, but the task held out this time!"
+        es: "¡@@@session.user.name@@@ puso mucho empeño en cambiar la bombilla, pero la tarea aguantó esta vez!"
       dt_t_extras_05:
         fr: "Nettoyer les interrupteurs"
         en: "Clean light switches"
@@ -2368,9 +2368,9 @@ data:
         en: "@@@session.user.name@@@ has just eradicated the crawling germs of the switches!"
         es: "¡@@@session.user.name@@@ acaba de erradicar los gérmenes reptantes de interruptores!"
       dt_c_extras_05:
-        fr: "@@@session.user.name@@@ a renoncé à nettoyer les interrupteurs."
-        en: "@@@session.user.name@@@ gave up cleaning the switches."
-        es: "@@@session.user.name@@@ renunció a limpiar los interruptores."
+        fr: "@@@session.user.name@@@ a bataillé pour nettoyer les interrupteurs, mais un dragon est passé par là au mauvais moment !"
+        en: "@@@session.user.name@@@ battled away at cleaning the switches, but a dragon flew past at the worst moment!"
+        es: "¡@@@session.user.name@@@ batalló para limpiar los interruptores, pero pasó un dragón en el peor momento!"
       dt_t_extras_06:
         fr: "Nettoyer les portes"
         en: "Clean the doors"
@@ -2384,9 +2384,9 @@ data:
         en: "@@@session.user.name@@@ has just wiped the marks off the doors!"
         es: "¡@@@session.user.name@@@ acaba de borrar las marcas de las puertas!"
       dt_c_extras_06:
-        fr: "@@@session.user.name@@@ a renoncé à nettoyer les portes."
-        en: "@@@session.user.name@@@ gave up cleaning the doors."
-        es: "@@@session.user.name@@@ renunció a limpiar las puertas."
+        fr: "@@@session.user.name@@@ a bataillé pour nettoyer les portes, mais un dragon est passé par là au mauvais moment !"
+        en: "@@@session.user.name@@@ battled away at cleaning the doors, but a dragon flew past at the worst moment!"
+        es: "¡@@@session.user.name@@@ batalló para limpiar las puertas, pero pasó un dragón en el peor momento!"
       dt_t_extras_07:
         fr: "Aérer la maison"
         en: "Air out the house"
@@ -2400,9 +2400,9 @@ data:
         en: "@@@session.user.name@@@ has just driven the stale air from the rooms!"
         es: "¡@@@session.user.name@@@ acaba de expulsar el aire viciado de las habitaciones!"
       dt_c_extras_07:
-        fr: "@@@session.user.name@@@ a renoncé à aérer les pièces."
-        en: "@@@session.user.name@@@ gave up airing out the rooms."
-        es: "@@@session.user.name@@@ renunció a ventilar las habitaciones."
+        fr: "@@@session.user.name@@@ a retroussé ses manches pour aérer les pièces, mais la tâche a tenu bon cette fois !"
+        en: "@@@session.user.name@@@ rolled up both sleeves for airing out the rooms, but the task held out this time!"
+        es: "¡@@@session.user.name@@@ se remangó para ventilar las habitaciones, pero la tarea aguantó esta vez!"
       dt_t_extras_08:
         fr: "Rendre un service"
         en: "Do a favour"
@@ -2416,9 +2416,9 @@ data:
         en: "@@@session.user.name@@@ has just done the awaited favour!"
         es: "¡@@@session.user.name@@@ acaba de hacer el favor esperado!"
       dt_c_extras_08:
-        fr: "@@@session.user.name@@@ a renoncé à rendre le service."
-        en: "@@@session.user.name@@@ gave up on doing the favour."
-        es: "@@@session.user.name@@@ renunció a hacer el favor."
+        fr: "@@@session.user.name@@@ a bataillé pour rendre le service, mais l'aventure demandera un second passage !"
+        en: "@@@session.user.name@@@ battled away at doing the favour, but the adventure will need a second run!"
+        es: "¡@@@session.user.name@@@ batalló para hacer el favor, pero la aventura pedirá una segunda vuelta!"
 
       #------------- Domaines ------------------------------------------
 

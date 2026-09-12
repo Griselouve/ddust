@@ -83,6 +83,67 @@ extension Worker_admin on worker {
                                 return _isAdmin;
     }
 
+    // Détecte (et met en cache, comme _ensureIsAdmin) si l'utilisateur COURANT est légalement
+    // adulte dans ce clan : lit clans_players/{clanId}/players/{_userId} et teste legal_state.
+    //
+    // Pourquoi une seconde garde, à côté d'admin. « Chef » est un rôle de JEU : le fondateur
+    // peut promouvoir n'importe quel membre, y compris un enfant. Tant que la boutique ne
+    // regardait que `admins`, un mineur promu chef voyait la grille tarifaire, le mur de
+    // première cotisation et le bandeau d'impayé — ce que le § 5.3 du dossier « intérêt
+    // supérieur de l'enfant » et la politique Google Play Families interdisent tous les deux.
+    // La promotion est désormais refusée à un non-adulte (promote_chief), mais une liste
+    // `admins` héritée d'un binaire antérieur peut encore contenir un enfant : cette fonction
+    // est ce qui rend la garde vraie SANS dépendre de la propreté des données.
+    //
+    // Lu sur clans_players et NON sur documents.session.legalstate : sous impersonation
+    // (take_place), _userId est la CIBLE, et c'est son statut à elle qui doit décider — la
+    // session porterait celui de l'admin. Même clé que _ensureIsAdmin, donc même cohérence.
+    //
+    // "t" (transition déclarée par le tuteur, CGU adulte pas encore acceptée) n'est PAS adulte :
+    // le statut n'est acquis qu'à l'acceptation, qui écrit "a".
+    //
+    // SECOND RÔLE : miroite le résultat dans `worker.player_is_adult`, seule clé du store qui
+    // distingue un adulte d'un mineur. dvtuto s'en sert pour choisir entre les deux relances de
+    // prudence (safety_adult / safety_child) — d'où l'amorçage depuis _ensurePlayerVigilance.
+    //
+    // REPLI STRICT — lecture KO, document sans `legal_state` (antérieur au champ) ou valeur
+    // inconnue → false, donc surfaces commerciales masquées. Le sens du repli n'est pas
+    // négociable : se tromper vers `true` montre un écran de paiement à un enfant, se tromper
+    // vers `false` prive un adulte d'un achat qu'il refera. Un `legal_state` absent est journalisé
+    // en warning — c'est un défaut de donnée à corriger, pas un état de fonctionnement.
+    Future<bool> _ensureIsAdult(String clanId, String clanSecret, String region) async {
+
+                                if ((_isAdultClanId != clanId || _isAdultUserId != _userId)
+                                    && clanId.isNotEmpty && clanSecret.isNotEmpty && _userId.isNotEmpty) {
+                                    try {
+                                        final me = await _cloud?.read("workers", "clans_players/$clanId/players",
+                                            _userId, ownerId: clanSecret, region: region);
+                                        final legal = me?.get("legal_state")?.toString() ?? "";
+                                        if (legal.isEmpty) {
+                                            deva_log("warning",
+                                                "[store] legal_state absent sur clans_players/$clanId/$_userId "
+                                                "→ traité comme NON adulte (surfaces commerciales masquées)");
+                                        }
+                                        _isAdult       = legal == "a";
+                                        _isAdultClanId = clanId;
+                                        _isAdultUserId = _userId;
+                                        deva_log("info", "[store] isAdult=$_isAdult (legal_state='$legal', clan=$clanId)");
+                                    } catch (e) {
+                                        deva_log("warning", "[store] détection adulte échec: $e");
+                                    }
+                                    // Miroir au store, pour dvtuto : les relances de prudence n'ont
+                                    // aucun autre moyen de distinguer un adulte d'un mineur —
+                                    // `worker.player_last_is_admin` ne dit que « chef », et un adulte
+                                    // non chef ne doit jamais lire « préviens tes parents ». Écrit
+                                    // aussi sur échec de lecture : le repli vers "false" y montre le
+                                    // message de prudence, qui est le bon sens de l'erreur ici (à
+                                    // l'inverse des surfaces commerciales, où il masque).
+                                    await deva_set("worker.player_is_adult", _isAdult ? "true" : "false");
+                                    await Deva.instance.store();
+                                }
+                                return _isAdult;
+    }
+
     // Options du menu d'administration. Chacune persiste un drapeau (visible OU enabled) sur 3
     // surfaces via _admApply, puis rafraîchit l'UI. `event` = la charge passée par DvTiroir au
     // menu : {"id": <icône>, "tap": <action de jeu>}.

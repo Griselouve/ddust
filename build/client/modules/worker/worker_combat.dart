@@ -186,6 +186,7 @@ extension Worker_combat on worker {
                                             if (st == "assigned" && who == _userId && activeProof.isNotEmpty) {
                                                 deva_log("info", "[combat] verdict admin = refus → preuve abandonnée: $taskId");
                                                 _stopValidationPolling();     // combat ouvert → réconcilié ici (cond. d'arrêt #3)
+                                                await _forgetProof(activeProof);   // abandonnée = plus jamais atteignable → le fichier part
                                                 userDoc.rem("docId");
                                                 userDoc.set("active_proof", "");
                                                 await _cloud?.write("workers", "users", _sessionDocId(), userDoc, region: region);
@@ -201,6 +202,7 @@ extension Worker_combat on worker {
                                             if (accepted || takenAway || st.isEmpty) {
                                                 deva_log("info", "[combat] tâche n'est plus active (status=$st assignee=$who) → tiroir: $taskId");
                                                 _stopValidationPolling();     // combat ouvert → réconcilié ici (cond. d'arrêt #3)
+                                                await _forgetProof(activeProof);   // tâche résolue : la preuve a fini sa vie utile
                                                 userDoc.rem("docId");
                                                 userDoc.set("active_task",  "");
                                                 userDoc.set("active_proof", "");
@@ -380,6 +382,10 @@ extension Worker_combat on worker {
                                     await _storeCountValidation(clanId, clanSecret, region);
 
                                     // Libération de l'état actif (même nettoyage que _resolveValidation accepté).
+                                    // L'admin solo ne capture pas de photo (la capture est l'étape 3, non-admins
+                                    // seulement) : l'effacement est défensif, comme le vidage d'active_proof
+                                    // juste en dessous — il rattrape une preuve héritée d'un flux antérieur.
+                                    await _forgetProof((await Deva.instance.get("session.active_proof"))?.toString() ?? "");
                                     userDoc.rem("docId");
                                     userDoc.set("active_task",  "");
                                     userDoc.set("active_proof", "");
@@ -459,6 +465,42 @@ extension Worker_combat on worker {
                                 await _camera?.show(uuid);
     }
 
+    // --- Cycle de vie du FICHIER de preuve ------------------------------------------------
+    // La photo vit sur l'appareil de celui qui l'a prise ; le verdict est écrit par l'appareil
+    // qui TRANCHE. Un effacement « au verdict » n'atteint donc pas le fichier quand l'admin
+    // décide à distance. Les deux helpers ci-dessous sont un couple, pas un doublon :
+    //  - _forgetProof     : immédiat, sur l'appareil du joueur, partout où la preuve est
+    //                       abandonnée. Rend la photo inaccessible dans la seconde, quand on
+    //                       est là pour le faire.
+    //  - _reconcileProofs : au démarrage, autoritaire. Tout fichier qui n'est pas la preuve
+    //                       ENCORE référencée par la session est un orphelin, quelle qu'en
+    //                       soit la cause. C'est le mécanisme principal — c'est lui qui rend
+    //                       l'effacement immédiat tolérant à l'échec, et non l'inverse.
+
+    // Efface le fichier d'une preuve abandonnée. UUID vide ou sentinelle _kNoProof (preuve
+    // zappée, caméra indisponible) → rien à faire. Ne lève jamais : un effacement raté n'a pas
+    // à faire échouer le geste métier qui l'a déclenché, la réconciliation repassera.
+    Future<void> _forgetProof(String uuid) async {
+
+                                if (uuid.isEmpty || uuid == _kNoProof) return;
+                                await _camera?.delete(uuid);
+    }
+
+    // Démarrage (et sorties définitives) : ne garder que la preuve encore référencée. Rattrape
+    // tous les orphelinages hors de portée de l'effacement immédiat — app tuée pendant le
+    // verdict, verdict rendu à distance app fermée, joueur révoqué, compte supprimé depuis le
+    // web puis app rouverte.
+    // ⚠ Le répertoire appartient à l'APPLICATION, pas au joueur : sur un appareil partagé, la
+    // preuve en attente d'un AUTRE compte est effacée à la connexion suivante. Conséquence
+    // assumée et bénigne — le fichier ne sert qu'à SE re-montrer sa propre photo (l'adulte qui
+    // juge ne la voit jamais), et « Voir ma preuve » reste alors sans effet plutôt que de casser.
+    Future<void> _reconcileProofs(String keepUuid) async {
+
+                                final keep = <String>{};
+                                if (keepUuid.isNotEmpty && keepUuid != _kNoProof) keep.add(keepUuid);
+                                await _camera?.purge(keep);
+    }
+
     // Bouton "Retraite !" : abandon de la tâche → retour à l'état initial (tiroir).
     Future<void> on_combat_cancel(DvShape? caller, dynamic event) async {
 
@@ -481,7 +523,10 @@ extension Worker_combat on worker {
                                     deva_log("warning", "[combat] on_combat_cancel: clanId/clanSecret introuvable, clans_tasks non mis à jour");
                                 }
 
-                                // 2) Vider active_task / active_proof sur le doc user (PATCH = remplacement complet).
+                                // 2) Vider active_task / active_proof sur le doc user (PATCH = remplacement complet),
+                                //    et effacer le fichier de preuve : la retraite abandonne la tâche, la photo
+                                //    ne sera plus jamais montrée à personne.
+                                await _forgetProof((await Deva.instance.get("session.active_proof"))?.toString() ?? "");
                                 userDoc.rem("docId");
                                 userDoc.set("active_task",  "");
                                 userDoc.set("active_proof", "");

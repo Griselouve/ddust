@@ -53,18 +53,27 @@ conf:
       - categories: [LEGAL]
 
   # Chaque region declaree ici produit sa propre pile complete : 7 bases Firestore
-  # prefixees (eu-workers, us-workers...), un bucket d'assets, un bucket de documents
+  # prefixees (eu-workers, eu-store...), un bucket d'assets, un bucket de documents
   # et un jeu de Cloud Functions. Le choix du joueur est definitif (cf. CGU) et aucune
   # donnee ne circule d'une region a l'autre.
   # Ce bloc est DUPLIQUE dans build/client/config/screens_meta.yml : les deux doivent
   # rester synchrones, le client lit le sien pour balayer les regions au login.
+  #
+  # /!\ `US` (us-central1) A ETE RETIRE LE 2026-09-08, et c'est un retrait d'INFRA,
+  #     pas de discours. Une region declaree ici est PROVISIONNEE ; plus aucun marche
+  #     ne consommait celle-la. `documents.regions` du build.yml de la suite ne liste
+  #     que `fr`, qui vit dans le cloud `eu`. Les cinq marches rattaches au cloud `us`
+  #     — us, ca, oceanie, bresil, hispam — ont un corpus redige mais ne sont pas
+  #     ouverts : leurs documents restent des souches de derivation, servies a
+  #     personne. Payer six bases Firestore, un bucket et un jeu de Cloud Functions
+  #     pour zero utilisateur n'avait plus d'objet.
+  # /!\ LA ROUVRIR N'EST PAS GRATUIT : les bases sont detruites au `pulumi up` qui a
+  #     suivi ce retrait. Rajouter la cle ici les recree VIDES. C'est sans consequence
+  #     tant qu'aucun joueur n'y vit — et c'etait le cas au moment du retrait.
   regions:
     EU:
       label: "Europe"
       backend: "europe-west9"
-    US:
-      label: "United States"
-      backend: "us-central1"
   apis:
     list:
       - iap.googleapis.com
@@ -368,7 +377,7 @@ conf:
           #
           # Champs : last_seen (max des clans_players.last_connected, calculé au balayage —
           # aucune écriture client, aucune migration), adult_stage + adult_at (cadence de la
-          # piste adulte), boss_at + boss_task (dernier boss convoqué par le serveur),
+          # piste chef), boss_at + boss_task (dernier boss convoqué par le serveur),
           # members.<userId>.{comeback_stage, comeback_at}, muted, updated_at.
           clans_pulse:
             rule: |
@@ -473,6 +482,14 @@ conf:
     buckets:
       assets:
         public_read: false
+        # Intégralement reconstruit par la phase `upload` depuis general/ et donjon/ :
+        # sa destruction ne coûte qu'un re-téléversement. Sans ce drapeau, fermer une
+        # région cloud fait échouer le `pulumi up` sur un bucket plein — GCS refuse —
+        # et il faut aller le vider à la main avant de pouvoir relancer.
+        # ⚠ Ne prend effet qu'au déploiement SUIVANT : Pulumi lit l'option dans le
+        #   programme, donc un bucket déjà sorti de la conf ne la verra jamais.
+        force_destroy: true
+
 
   assets:
     enabled: true
@@ -523,6 +540,14 @@ conf:
     # US : us-central1 est la région de référence Gemini (catalogue complet, forte
     # capacité), « us » est la multi-région américaine et sert de repli. Aucune des
     # deux ne sort du territoire.
+    #
+    # /!\ LA CLE `US` DORT DEPUIS LE 2026-09-08 et c'est voulu. Cette table est
+    #     indexee par cle de REGION DEPLOYEE ; `regions` n'en declare plus qu'une, donc
+    #     `US` n'est jamais lue. On la garde parce qu'elle repond a une question qui
+    #     coute cher a re-instruire — quelle localisation Gemini pour l'Amerique, et
+    #     dans quel ordre de repli — et qu'une reponse deja trouvee ne se jette pas
+    #     avec l'infrastructure. Elle reprend du service le jour ou `US` revient dans
+    #     `regions`, sans rien a re-decider.
     location:
       EU:
         - eu
@@ -568,8 +593,18 @@ conf:
       #
       # Le scope est le CLAN : son document `clans/{clanId}` porte le secret (`ownerId`)
       # qui prouve l'appartenance, et la liste `admins` de ceux qui peuvent engager leur
-      # carte. Un enfant n'y figure jamais — il ne paiera donc rien, même avec un client
-      # modifié — mais il lit la projection comme tout le monde et profite de tout.
+      # carte. L'enfant, lui, lit la projection comme tout le monde et profite de tout.
+      #
+      # ⚠ `admins` est une liste de RÔLE, pas une liste d'adultes. Rien ici ne garantit
+      # qu'un mineur n'y figure pas : le fondateur promeut qui il veut, et une liste écrite
+      # par un binaire antérieur peut contenir un enfant. Ne PAS écrire « un enfant n'y
+      # figure jamais » — c'était l'assertion précédente, et elle était fausse.
+      # Ce qui est vrai, et qui est la garde réelle : le client exige `admins` ET
+      # `legal_state == "a"` pour afficher la moindre surface commerciale
+      # (`_storeCanBuy` → `_ensureIsAdmin` + `_ensureIsAdult`), refuse de promouvoir un
+      # non-adulte (`promote_chief`), et l'achat lui-même passe encore par le contrôle
+      # parental. Un client modifié contourne tout cela — la protection est ici du ressort
+      # du store (Play facture le compte Google porteur de l'appareil), pas de cette liste.
       # Les trois identifiants ci-dessous ne sont PAS écrits ici : ils sont lus dans
       # `store.play` (build.yml de la suite), qui est aussi ce que pucatalog crée chez
       # Google. Une référence @@@C:...@@@ non résolue fait échouer le build.
@@ -723,9 +758,17 @@ conf:
           # Les textes sont volontairement au serveur et non dans le thème : ils
           # doivent partir même quand l'app n'est jamais ouverte, donc sans le
           # dictionnaire de traductions du client.
-          # `purge_day: 730` — DEUX ANS entre le gel et la suppression, au lieu de 40
+          # `purge_day: 780` — DEUX ANS entre le gel et la suppression, au lieu de 40
           # jours. Le calendrier ne change pas avant : grâce 10 jours, relances jusqu'à
           # J50, gel du donjon à J50. C'est APRÈS que l'on desserre.
+          #
+          # ⚠ 780 ET NON 730, parce que le compteur ne part PAS du gel. `store_sweeper`
+          # calcule `days` depuis `default_since`, c'est-à-dire depuis le PREMIER IMPAYÉ,
+          # alors que le gel n'intervient qu'à J50. Écrire 730 laissait 680 jours entre le
+          # gel et l'effacement — presque deux mois de moins que ce que ce commentaire
+          # annonce, et que ce que la politique de confidentialité promet aux familles
+          # (« deux ans à compter du blocage du clan »). Toute reprise de `locked_day` doit
+          # se répercuter ici : c'est `locked_day + 730` qui fait foi, pas 730.
           #
           # Deux ans parce qu'une famille qui arrête n'a pas toujours renoncé : elle
           # déménage, l'enfant grandit, la rentrée passe. Ce qui coûte à reconstituer
@@ -735,7 +778,7 @@ conf:
           # photo n'ont jamais quitté les appareils, et il ne reste que quelques mégas
           # de Firestore par clan. Supprimer coûterait même des écritures.
           #
-          # Une phase `farewell` (J700-730) prévient les adultes un mois avant. Sans
+          # Une phase `farewell` (J750-780) prévient les adultes un mois avant. Sans
           # elle, deux ans de silence s'achèveraient sur une suppression qu'aucune
           # famille n'aurait vue venir — l'opportunité qu'on veut leur laisser ne vaut
           # que si on la leur rappelle. Aucun code pour cela : passé le gel, le
@@ -743,7 +786,7 @@ conf:
           STORE_LIFECYCLE: >-
             {"grace_days":10,
              "locked_day":50,
-             "purge_day":730,
+             "purge_day":780,
              "default_lang":"fr",
              "title":"Donjons & Savons",
              "notify":{"database":"messaging","collection":"msgregistry","match_field":"ownerId",
@@ -752,7 +795,7 @@ conf:
              "phases":[{"key":"soft","from":10,"to":20},
                        {"key":"firm","from":20,"to":40},
                        {"key":"last","from":40,"to":50},
-                       {"key":"farewell","from":700,"to":730}],
+                       {"key":"farewell","from":750,"to":780}],
              "texts":{
                "fr":{"soft":"Votre bourse semble un peu légère aujourd'hui. Pas d'inquiétude : l'aventure continue dans Donjons & Savons, et vous pourrez régulariser cela plus tard.",
                      "firm":"Ne laissez pas un petit souci de bourse arrêter l'aventure : le donjon vous attend toujours.",
@@ -781,8 +824,9 @@ conf:
             if (!request.auth) {
               throw new HttpsError('unauthenticated', 'Authentication required');
             }
-            // La substitution @@@region@@@ nomme la BASE (eu-sessions, us-sessions) ; la
-            // collection, elle, ne porte pas de prefixe de region — la base l'est deja.
+            // La substitution @@@region@@@ nomme la BASE (eu-sessions aujourd'hui, une
+            // par region deployee) ; la collection, elle, ne porte pas de prefixe de
+            // region — la base l'est deja.
             // NB : aucun code n'alimente aujourd'hui cette collection, le compteur vaut
             // donc toujours 0 (tous les clans se nomment "{nom}-{region}-0"). A traiter
             // separement : c'est le nommage des clans qui est en cause, pas la region.
@@ -835,7 +879,10 @@ conf:
             }
 
             const rawLang = String(data.lang ?? '');
-            const lang = ['fr', 'en', 'es'].indexOf(rawLang) >= 0 ? rawLang : 'en';
+            // Liste blanche des langues : elle DOIT suivre `langues` du build.yml de
+            // la suite. Une inscription italienne enregistree comme 'en' n'est pas un
+            // defaut d'affichage, c'est une donnee fausse dans la liste.
+            const lang = ['fr', 'en', 'es', 'it', 'de', 'pt', 'nl'].indexOf(rawLang) >= 0 ? rawLang : 'en';
             const source = String(data.source ?? '').slice(0, 32);
 
             const db = getFirestore(admin.app(), '@@@region@@@_workers');
@@ -887,16 +934,31 @@ conf:
           // Les clanSecret sont conservés (recovery futur) ; l'admin SDK ignore les règles Firestore.
           // NB : ownerId reçu = UID Firebase (auth) ; les docs users/ et clans_players sont keyés par
           // le userId MÉTIER, traduit via userindexes/{firebaseUid}.userId (cf. worker.dart _resolveUserId).
+          //
+          // DEUX PORTES D'ENTRÉE, UNE SEULE CASCADE.
+          //   1. `ownerId`       — suppression de son PROPRE compte (in-app ou page web). Self-delete.
+          //   2. `consentTarget` + `clanId` — RETRAIT DU CONSENTEMENT PARENTAL (art. 7(3) RGPD) : un
+          //      chef du clan d'origine a retiré son consentement pour un enfant, le délai de
+          //      rétractation de 3 jours est écoulé, et un membre quelconque du clan réclame
+          //      l'exécution depuis son appareil. L'appelant n'est PAS la cible : l'autorisation ne
+          //      peut donc pas venir de lui, elle est reconstruite ici à partir de faits vérifiables
+          //      en base (voir la branche plus bas).
+          // La cascade, les pierres tombales et la clôture du consentement sont RIGOUREUSEMENT les
+          // mêmes dans les deux cas — il n'y a qu'une implémentation de la suppression, et c'est le
+          // point : elle est déjà dupliquée dans `clan_purge`, une troisième copie serait un danger.
           export const deleteUserData = onCall(async (request) => {
             if (!request.auth) {
               throw new HttpsError('unauthenticated', 'Authentication required');
             }
-            const ownerId = String((request.data ?? {}).ownerId ?? '');
-            if (!ownerId) {
-              throw new HttpsError('invalid-argument', 'ownerId required');
+            const ownerId       = String((request.data ?? {}).ownerId ?? '');
+            const consentTarget = String((request.data ?? {}).consentTarget ?? '');
+            const consentClanId = String((request.data ?? {}).clanId ?? '');
+            if (!ownerId && !consentTarget) {
+              throw new HttpsError('invalid-argument', 'ownerId or consentTarget required');
             }
-            // MVP : self-delete uniquement (allowlist admin à venir avec le back-office).
-            if (request.auth.uid !== ownerId) {
+            // Porte 1 — self-delete, et self-delete seulement : personne ne supprime le compte
+            // d'un autre par cette voie (allowlist admin à venir avec le back-office).
+            if (ownerId && request.auth.uid !== ownerId) {
               throw new HttpsError('permission-denied', 'Can only delete own account');
             }
 
@@ -950,27 +1012,100 @@ conf:
               stage(usersCol.doc(uid), { clans: { [clanId]: { enabled: false } } });
             };
 
-            const rootUserId = await resolveUserId(ownerId);
-
-            // GARDE-FOU MULTI-REGION. Le site de suppression est unique alors que les
-            // donnees sont partitionnees par region, et rien cote web ne dit ou vit
-            // l'utilisateur : la page interroge donc CHAQUE region, dont la plupart
-            // n'hebergent pas ce compte. Sans cette sortie anticipee, les
-            // `batch.set(..., {merge: true})` plus bas CREERAIENT les documents absents
-            // (users/{uid} avec enabled:false, documents_sessions/{uid}...) dans des
-            // regions ou l'utilisateur n'a jamais mis les pieds.
-            const [rootUserSnap, rootIndexSnap] = await Promise.all([
-              usersCol.doc(rootUserId).get(),
-              indexesCol.doc(ownerId).get(),
-            ]);
-            if (!rootUserSnap.exists && !rootIndexSnap.exists) {
-              return { ok: true, deleted: [], firebaseUids: [], skipped: 'not-in-region' };
-            }
-
-            fbUids.add(ownerId);
-
             const visited = new Set<string>();
-            const queue: string[] = [rootUserId];
+            const queue: string[] = [];
+
+            if (consentTarget) {
+              // ==========================================================================
+              // PORTE 2 — RETRAIT DU CONSENTEMENT PARENTAL, SUR UNE CIBLE UNIQUE.
+              // ==========================================================================
+              // L'appelant n'est pas la cible : son UID ne prouve rien. L'autorisation est
+              // donc RECONSTRUITE ici, a partir de quatre faits lus en base, et aucun
+              // n'est fourni par le client :
+              //   1. l'appelant est bien membre actif de ce clan ;
+              //   2. un retrait est reellement en cours sur la cible, et son delai de
+              //      retractation est ECHU (le client ne fait que le signaler) ;
+              //   3. ce clan est bien le clan d'ORIGINE de la cible — le seul dont le
+              //      consentement soit en cause ;
+              //   4. la cible n'est pas majeure : un adulte donne son propre consentement.
+              // Aucun de ces faits n'est falsifiable depuis un appareil : l'etat de retrait
+              // ne peut etre pose que par un chef du clan d'origine, il est visible et
+              // reversible pendant trois jours, et l'echeance est relue ici.
+              if (!consentClanId) {
+                throw new HttpsError('invalid-argument', 'clanId required with consentTarget');
+              }
+              const callerIx = await indexesCol.doc(request.auth.uid).get();
+              const callerClans: any = (callerIx.data() || {}).clans || {};
+              const callerEntry: any = callerClans[consentClanId];
+              if (!callerIx.exists || !callerEntry || callerEntry.enabled === false) {
+                throw new HttpsError('permission-denied', 'Not a member of this clan');
+              }
+
+              const tSnap = await playerRef(consentClanId, consentTarget).get();
+              // Region etrangere (ou cible deja purgee) : meme sortie muette que le
+              // garde-fou multi-region ci-dessous, et pour la meme raison.
+              if (!tSnap.exists) {
+                return { ok: true, deleted: [], firebaseUids: [], skipped: 'not-in-region' };
+              }
+              const tdata: any = tSnap.data() || {};
+              const due = String(tdata.consent_due || '');
+              if (!due) {
+                throw new HttpsError('failed-precondition', 'No consent withdrawal pending');
+              }
+              const dueAt = Date.parse(due);
+              // Date illisible = on ne supprime PAS. Sur un effacement irreversible, le
+              // doute profite toujours a l'attente.
+              if (!Number.isFinite(dueAt) || dueAt > Date.now()) {
+                throw new HttpsError('failed-precondition', 'Reflection period not elapsed');
+              }
+              if (String(tdata.original_clan || '') !== consentClanId) {
+                throw new HttpsError('permission-denied', 'Not the clan of origin');
+              }
+              if (String(tdata.legal_state || '') === 'a') {
+                throw new HttpsError('permission-denied', 'Target is an adult');
+              }
+
+              // ENFANT AVEC COMPTE : cascade ordinaire depuis lui — tombstone dans TOUS ses
+              // clans (le retrait vaut partout, pas seulement dans celui d'origine),
+              // desactivation de son compte et de ses index. Aucun clan ne peut etre dissous
+              // au passage : un mineur n'est jamais chef (promote_chief exige legal_state
+              // 'a'), donc jamais seul admin.
+              //
+              // ENFANT SANS COMPTE (`no_account`) : ni doc `users`, ni `userindexes`, ni
+              // session de consentement. Ses donnees de jeu n'existent QU'au sein du clan. On
+              // pose donc la pierre tombale a la main, sans passer par `tombstone()` qui
+              // ecrirait aussi dans `users` — et `set(..., {merge:true})` CREERAIT le
+              // document absent, fabriquant un compte a un enfant qui n'en a jamais eu.
+              const tUserSnap = await usersCol.doc(consentTarget).get();
+              if (tUserSnap.exists) {
+                queue.push(consentTarget);
+              } else {
+                stage(playerRef(consentClanId, consentTarget),
+                      { id: consentTarget, enabled: false, status: 'deleted', last_connected: now });
+                visited.add(consentTarget);
+                await disableAccountIndexes(consentTarget);
+              }
+            } else {
+              const rootUserId = await resolveUserId(ownerId);
+
+              // GARDE-FOU MULTI-REGION. Le site de suppression est unique alors que les
+              // donnees sont partitionnees par region, et rien cote web ne dit ou vit
+              // l'utilisateur : la page interroge donc CHAQUE region, dont la plupart
+              // n'hebergent pas ce compte. Sans cette sortie anticipee, les
+              // `batch.set(..., {merge: true})` plus bas CREERAIENT les documents absents
+              // (users/{uid} avec enabled:false, documents_sessions/{uid}...) dans des
+              // regions ou l'utilisateur n'a jamais mis les pieds.
+              const [rootUserSnap, rootIndexSnap] = await Promise.all([
+                usersCol.doc(rootUserId).get(),
+                indexesCol.doc(ownerId).get(),
+              ]);
+              if (!rootUserSnap.exists && !rootIndexSnap.exists) {
+                return { ok: true, deleted: [], firebaseUids: [], skipped: 'not-in-region' };
+              }
+
+              fbUids.add(ownerId);
+              queue.push(rootUserId);
+            }
 
             while (queue.length) {
               const uid = queue.shift()!;
@@ -992,6 +1127,15 @@ conf:
                 const cdata: any = clanSnap.data() || {};
                 const admins: any[] = Array.isArray(cdata.admins) ? cdata.admins : [];
                 if (!(admins.includes(uid) && admins.length <= 1)) { continue; }
+
+                // Le clan lui-meme. `clan_purge` pose deja ces deux champs (cf. sa fonction
+                // `dissolve`) ; ce chemin-ci se contentait de LIRE le document pour tester
+                // `admins`, et laissait donc `enabled: true` sur un clan qu'il venait de
+                // vider. Le readme (section 16) dit pourtant `false` + `dissolved_at` = clan
+                // dissous, et `pulse_sweeper` ecarte les clans sur ce booleen : sans cette
+                // ecriture il reprend a chaque passe un clan dont plus personne n'est membre.
+                // Secret conserve, comme partout ailleurs : la suppression est fonctionnelle.
+                stage(db.collection('clans').doc(clanId), { enabled: false, dissolved_at: now });
 
                 // Dissolution : tombstone de TOUS les membres encore actifs, cascade si besoin.
                 const players = await db.collection('clans_players').doc(clanId).collection('players').get();
@@ -1051,10 +1195,14 @@ conf:
             const consentIds = new Set<string>([...Array.from(visited), ...Array.from(fbUids)]);
             const consentWrites = [];
             for (const cid of consentIds) {
-              consentWrites.push({
-                ref:  docsDb.collection('documents_sessions').doc(cid),
-                data: { enabled: false, date_end: now },
-              });
+              // JAMAIS en aveugle : `set(..., {merge:true})` CREE le document absent. Un
+              // enfant sans compte (`no_account`) traverse la cascade sans avoir jamais
+              // ouvert de session ni accepte quoi que ce soit — lui fabriquer une session
+              // close inventerait une trace de consentement la ou il n'y en a jamais eu.
+              const sref = docsDb.collection('documents_sessions').doc(cid);
+              if ((await sref.get()).exists) {
+                consentWrites.push({ ref: sref, data: { enabled: false, date_end: now } });
+              }
               const acc = await docsDb.collection('documents_acceptance').where('ownerId', '==', cid).get();
               acc.forEach((d) => {
                 // Ne jamais réécrire une date_end déjà posée : une acceptation close par une version
@@ -1148,9 +1296,15 @@ conf:
               stage(usersCol.doc(uid), { clans: { [clanId]: { enabled: false } } });
             };
 
+            // UID Firebase des comptes reellement supprimes. Le consentement peut etre
+            // keye par l'un ou l'autre espace d'identifiants, et c'est ici, en traduisant
+            // le userId metier, qu'on tient les deux a la fois — plus tard le document
+            // `userindexes` sera desactive et la correspondance introuvable.
+            const fbUids = new Set<string>();
+
             const disableAccountIndexes = async (uid: string) => {
               const snapIx = await indexesCol.where('userId', '==', uid).get();
-              snapIx.forEach((d) => { stage(d.ref, { enabled: false }); });
+              snapIx.forEach((d) => { fbUids.add(d.id); stage(d.ref, { enabled: false }); });
             };
 
             // Dissout un clan : tous ses membres actifs sont tombstonés, et ceux qui
@@ -1231,6 +1385,44 @@ conf:
               await batch.commit();
             }
 
+            // Retrait du consentement (base documents), MIROIR de delete_user_data : ce
+            // chemin-ci ne le faisait pas, et l'oubli ne se voyait qu'au retour du joueur.
+            // `enabled: false` est ce que la reprise de session relit pour ne PAS restaurer
+            // `accepted_versions` (cf. _restoreSessionFromFirestore) : sans lui, un compte
+            // supprimé avec son clan qui revient un jour saute l'écran CGU — il rejoue sans
+            // avoir réaccepté, et sans que le consentement parental soit à nouveau recueilli
+            // s'il est mineur. La preuve, elle, n'est pas effacée mais CLOSE et datée : elle
+            // doit survivre au compte, c'est sa raison d'être, et la politique de
+            // confidentialité la conserve 5 ans à ce titre.
+            const docsDb = getFirestore(admin.app(), '@@@region@@@_documents');
+            const consentIds = new Set<string>([...Array.from(deleted), ...Array.from(fbUids)]);
+            const consentWrites = [];
+            for (const cid of consentIds) {
+              // JAMAIS en aveugle : `set(..., {merge:true})` CREE le document absent. Un
+              // enfant sans compte (`no_account`) traverse la cascade sans avoir jamais
+              // ouvert de session ni accepte quoi que ce soit — lui fabriquer une session
+              // close inventerait une trace de consentement la ou il n'y en a jamais eu.
+              const sref = docsDb.collection('documents_sessions').doc(cid);
+              if ((await sref.get()).exists) {
+                consentWrites.push({ ref: sref, data: { enabled: false, date_end: now } });
+              }
+              const acc = await docsDb.collection('documents_acceptance').where('ownerId', '==', cid).get();
+              acc.forEach((d) => {
+                // Ne jamais réécrire une date_end déjà posée : une acceptation close par une
+                // version plus récente garde la date de SA fin, pas celle de la purge.
+                const already = String((d.data() || {}).date_end || '');
+                consentWrites.push({
+                  ref:  d.ref,
+                  data: already ? { enabled: false } : { enabled: false, date_end: now },
+                });
+              });
+            }
+            for (let i = 0; i < consentWrites.length; i += 450) {
+              const batchD = docsDb.batch();
+              for (const w of consentWrites.slice(i, i + 450)) { batchD.set(w.ref, w.data, { merge: true }); }
+              await batchD.commit();
+            }
+
             // Marquage et journal de facturation. Le document `clans_store` n'est
             // JAMAIS supprimé : c'est la piste d'audit sur laquelle les CGU s'appuient,
             // et c'est elle qui justifie ce qui vient d'être fait.
@@ -1243,7 +1435,8 @@ conf:
             }
 
             const report = { scanned: snap.size, purged: due.length,
-                             clans: dissolved.length, accounts: deleted.size };
+                             clans: dissolved.length, accounts: deleted.size,
+                             consents: consentWrites.length };
             console.log('[clan_purge]', JSON.stringify(report));
             res.status(200).json(report);
           });
@@ -1284,13 +1477,46 @@ conf:
         memory: 512
         service_account: pulse
         timeout: 540
+        # Le droit d'APPELER la fonction, nommé pour le compte d'exploitation — celui
+        # que porte `build/tools/pulse_bench.py`.
+        #
+        # ⚠ CE N'EST PAS UNE OUVERTURE. `pucloudfunction` ne pose `allUsers` que si ce
+        #   champ vaut littéralement "allUsers" ; ici il nomme une identité unique, et la
+        #   fonction reste privée pour tout le reste du monde.
+        #
+        # ⚠ CE N'EST PAS NON PLUS L'ACCÈS DU PLANIFICATEUR. Cloud Scheduler entre par le
+        #   rôle `run.invoker` du compte `pulse` (posé par `pusvcaccount`), pas par ici :
+        #   le champ n'accepte qu'un seul membre, et les deux chemins coexistent.
+        #
+        # ⚠ ET CE N'EST PAS UN DÉBLOCAGE : le compte maître appelait DÉJÀ la fonction,
+        #   par un octroi large au niveau du projet. C'est justement pourquoi la ligne a
+        #   sa place ici — elle nomme le seul accès dont le banc a besoin, à l'endroit
+        #   où on le cherchera. Le jour où l'octroi large sera resserré, ce qui doit
+        #   arriver, le banc continuera de fonctionner et personne n'aura à deviner
+        #   pourquoi il ne fonctionnait plus.
+        invoker: "serviceAccount:asura-service@asura-888.iam.gserviceaccount.com"
         environment:
           # Interrupteur général. Une fonction qui va chercher des familles inactives doit
           # pouvoir être coupée sans redéploiement de code.
           PULSE_ENABLED: "true"
-          # Calcule tout, journalise tout, N'ENVOIE RIEN et n'écrit aucun état. À laisser
-          # à "true" jusqu'à ce que le rapport de plusieurs passes soit jugé crédible :
-          # une relance partie ne se rattrape pas.
+          # Mode simulation : la passe calcule tout, journalise tout, N'ENVOIE RIEN et
+          # n'écrit aucun état.
+          #
+          # ⚠ C'EST LE DERNIER GESTE DU CHANTIER, ET IL SE FAIT APRÈS LA RECETTE. Passer
+          #   à "false" ici met les relances en service au prochain déploiement, pour de
+          #   bon. Rien ne presse : le banc d'essai n'a pas besoin qu'on y touche —
+          #   `?dry=0` prime sur cette valeur, requête par requête
+          #   (`build/tools/pulse_bench.py --send`). On éprouve d'abord, on ouvre ensuite.
+          #
+          # ⚠ IL Y AVAIT DEUX VERROUS ET NON UN, et c'est ce qui rendait celui-ci
+          #   trompeur. Le défaut du code qui lit cette variable (`DRY_ENV`, plus bas)
+          #   valait lui aussi 'true' : la retirer d'ici remettait la fonction en
+          #   simulation SANS QUE RIEN NE LE DISE — même rapport, même allure, et plus
+          #   une seule relance. Le défaut a été remis à 'false' le 2026-09-10 ; il ne
+          #   reste donc plus ici qu'un seul interrupteur, et il dit ce qu'il fait.
+          #
+          # Pour couper les relances sans redéployer, c'est `PULSE_ENABLED` qu'il faut —
+          # lui arrête la passe et le DIT dans sa réponse (`{skipped: 'disabled'}`).
           PULSE_DRY_RUN: "true"
           # Calendrier entièrement déclaratif, sur le modèle de STORE_LIFECYCLE.
           #   silent_after_hours — en-deçà, le clan est vivant : silence total
@@ -1302,18 +1528,48 @@ conf:
           #   adult_cadence      — jours de silence déclenchant la 1re, 2e, 3e relance
           #                        adulte. Après le dernier palier : silence définitif.
           #                        Trois messages ignorés SONT une réponse
-          #   comeback_cadence   — idem, piste enfant « retour du clan »
+          #   comeback_cadence   — idem, piste « retour du clan » (membres non-chefs)
           #   boss_after_days    — silence minimum avant de convoquer un boss
           #   boss_every_days    — plafond entre deux boss serveur. `recommended` accorde
           #                        un BONUS D'XP RÉEL : un boss automatique tous les trois
           #                        jours déréglerait la progression et viderait de son sens
           #                        l'option « Recommander » du chef
           #   chest_idle_days    — coffre non ouvert depuis ce délai
+          #   windows            — fenêtre d'envoi LOCALE, par statut légal :
+          #                        {minor|adult: {days, from, to}}. `days` en convention
+          #                        JS (0 = dimanche … 6 = samedi), `from`/`to` en heures
+          #                        locales, borne haute exclue
+          #   tz_default_minutes — décalage de repli quand `tz_offset` manque sur le
+          #                        document membre (compte antérieur au champ)
           #
-          # Les textes de la piste enfant obéissent à deux interdits, dans les trois
-          # langues : ne JAMAIS nommer ni compter les autres membres (cela fabriquerait
-          # une comparaison entre frères et sœurs à chaque relance), et parler de la place
-          # gardée, jamais de l'absence remarquée.
+          # Les textes qui peuvent atteindre un enfant — le boss et le retour du clan —
+          # obéissent à deux interdits, dans les trois langues : ne JAMAIS nommer ni
+          # compter les autres membres (cela fabriquerait une comparaison entre frères et
+          # sœurs à chaque relance), et parler de la place gardée, jamais de l'absence
+          # remarquée.
+          #
+          # L'HEURE D'ENVOI SE CHOISIT SUR LE STATUT LÉGAL, JAMAIS SUR LE RÔLE.
+          #
+          #  - Un MINEUR n'est joint que le SAMEDI MATIN. En semaine, la fin d'après-midi
+          #    est prise par les devoirs, le dîner et la douche : une notification de jeu
+          #    n'y trouve pas de place, elle en déplace une. On attend le week-end plutôt
+          #    que de s'inviter dans la routine d'un enfant.
+          #  - Un MAJEUR est joint en fin d'après-midi, tous les jours : ni aux horaires
+          #    de bureau, ni tard le soir — un verdict rendu à 17 h récompense l'enfant
+          #    avant le coucher, rendu à 22 h il ne récompense plus personne.
+          #
+          # ⚠ « CHEF DE CLAN » N'EST PAS « ADULTE ». Un majeur peut être simple membre
+          #   (second parent, adulte invité), et `clans.admins` est une liste de RÔLE :
+          #   rien ne garantit qu'un binaire antérieur n'y ait pas inscrit un mineur —
+          #   c'est écrit noir sur blanc dans l'avertissement de `clan_purge`. Le rôle
+          #   décide QUEL motif part, le statut légal décide QUAND. Les confondre ferait
+          #   tomber une notification chez un enfant à l'heure des adultes.
+          #
+          # ⚠ ET C'EST CE QUI SERT `tz_offset`. Le champ est collecté à chaque login
+          #   depuis des mois, et les politiques de confidentialité publiées annoncent
+          #   qu'il « ne sert qu'à une chose : envoyer les rappels destinés à un enfant à
+          #   une heure raisonnable ». Sans ces fenêtres, la donnée était collectée pour
+          #   une finalité qui n'était pas servie.
           PULSE_LIFECYCLE: >-
             {"silent_after_hours":48,
              "forget_days":30,
@@ -1323,36 +1579,39 @@ conf:
              "boss_after_days":7,
              "boss_every_days":14,
              "chest_idle_days":21,
+             "windows":{"minor":{"days":[6],"from":9,"to":10},
+                        "adult":{"days":[0,1,2,3,4,5,6],"from":17,"to":18}},
+             "tz_default_minutes":60,
              "default_lang":"fr",
              "title":"Donjons & Savons",
              "notify":{"database":"messaging","collection":"msgregistry","match_field":"ownerId",
                        "identity_collection":"userindexes","identity_field":"userId"},
              "texts":{
-               "fr":{"onboarding_empty":"Votre donjon vous attend, mais il est encore vide. Ajoutez votre première quête en trente secondes.",
-                     "onboarding_idle":"Les quêtes sont prêtes, le donjon aussi. Il ne manque plus qu'un premier aventurier pour s'y lancer.",
+               "fr":{"onboarding_empty":"Votre donjon vous attend, mais il est encore vide. Ajoutez votre première tâche en trente secondes.",
+                     "onboarding_idle":"Les tâches sont prêtes, le donjon aussi. Il ne manque plus qu'un premier aventurier pour s'y lancer.",
                      "onboarding_alone":"Votre donjon tourne, mais vous y êtes seul. Le QR code qui fait entrer votre famille vous attend dans l'onglet Clan.",
-                     "validation":"Une quête a été menée à son terme et attend votre verdict pour être récompensée.",
-                     "validation_open":"Une quête a été menée à son terme et attend votre verdict. Touchez pour l'ouvrir.",
+                     "validation":"Une tâche a été menée à son terme et attend votre verdict pour être récompensée.",
+                     "validation_open":"Une tâche a été menée à son terme et attend votre verdict. Touchez pour l'ouvrir.",
                      "chest_full":"Le coffre du clan déborde. Une cérémonie d'ouverture ferait des heureux.",
-                     "chest_empty":"Le coffre du clan est vide. Un butin à y déposer donnerait un but aux prochaines quêtes.",
+                     "chest_empty":"Le coffre du clan est vide. Un butin à y déposer donnerait un but aux prochaines tâches.",
                      "boss":"Un monstre de poussière vient d'apparaître dans votre donjon. Votre aide est nécessaire !",
                      "comeback":"Le donjon a rouvert ses portes. Votre place y est gardée au chaud."},
-               "en":{"onboarding_empty":"Your dungeon awaits, but it is still empty. Add your first quest in thirty seconds.",
-                     "onboarding_idle":"The quests are ready and so is the dungeon. All it needs is a first adventurer to set off.",
+               "en":{"onboarding_empty":"Your dungeon awaits, but it is still empty. Add your first task in thirty seconds.",
+                     "onboarding_idle":"The tasks are ready and so is the dungeon. All it needs is a first adventurer to set off.",
                      "onboarding_alone":"Your dungeon is running, but you are alone in it. The QR code that brings your family in is waiting in the Clan tab.",
-                     "validation":"A quest has been completed and is waiting for your verdict to be rewarded.",
-                     "validation_open":"A quest has been completed and is waiting for your verdict. Tap to open it.",
+                     "validation":"A task has been completed and is waiting for your verdict to be rewarded.",
+                     "validation_open":"A task has been completed and is waiting for your verdict. Tap to open it.",
                      "chest_full":"The clan chest is overflowing. An opening ceremony would make someone very happy.",
-                     "chest_empty":"The clan chest is empty. Some loot in it would give the next quests a purpose.",
+                     "chest_empty":"The clan chest is empty. Some loot in it would give the next tasks a purpose.",
                      "boss":"A dust monster has just appeared in your dungeon. Your help is needed!",
                      "comeback":"The dungeon has opened its doors again. Your place is being kept warm."},
-               "es":{"onboarding_empty":"Tu mazmorra te espera, pero todavía está vacía. Añade tu primera misión en treinta segundos.",
-                     "onboarding_idle":"Las misiones están listas y la mazmorra también. Solo falta un primer aventurero que se lance.",
+               "es":{"onboarding_empty":"Tu mazmorra te espera, pero todavía está vacía. Añade tu primera tarea en treinta segundos.",
+                     "onboarding_idle":"Las tareas están listas y la mazmorra también. Solo falta un primer aventurero que se lance.",
                      "onboarding_alone":"Tu mazmorra funciona, pero estás solo en ella. El código QR que hace entrar a tu familia te espera en la pestaña Clan.",
-                     "validation":"Una misión ha llegado a su fin y espera tu veredicto para ser recompensada.",
-                     "validation_open":"Una misión ha llegado a su fin y espera tu veredicto. Toca para abrirla.",
+                     "validation":"Una tarea ha llegado a su fin y espera tu veredicto para ser recompensada.",
+                     "validation_open":"Una tarea ha llegado a su fin y espera tu veredicto. Toca para abrirla.",
                      "chest_full":"El cofre del clan está rebosando. Una ceremonia de apertura haría feliz a alguien.",
-                     "chest_empty":"El cofre del clan está vacío. Un botín dentro daría sentido a las próximas misiones.",
+                     "chest_empty":"El cofre del clan está vacío. Un botín dentro daría sentido a las próximas tareas.",
                      "boss":"¡Un monstruo de polvo acaba de aparecer en tu mazmorra. Se necesita tu ayuda!",
                      "comeback":"La mazmorra ha vuelto a abrir sus puertas. Tu sitio te espera calentito."}},
              "buttons":{"fr":{"ok":"Valider","partial":"À moitié","ko":"Refuser"},
@@ -1369,7 +1628,12 @@ conf:
           const RP      = '@@@region@@@-';
           const LIFE: any = JSON.parse(process.env.PULSE_LIFECYCLE || '{}');
           const ENABLED = String(process.env.PULSE_ENABLED  || 'true') === 'true';
-          const DRY_ENV = String(process.env.PULSE_DRY_RUN  || 'true') === 'true';
+          // ⚠ LE DÉFAUT EST 'false', ET IL DOIT LE RESTER. Il valait 'true' au temps de
+          //   la simulation, et formait avec la variable d'environnement un second verrou
+          //   invisible : retirer la variable remettait la fonction en simulation en
+          //   silence. Le banc d'essai garde son échappatoire par `?dry=1`, qui est
+          //   explicite et par requête.
+          const DRY_ENV = String(process.env.PULSE_DRY_RUN  || 'false') === 'true';
 
           const db  = (name: string) => getFirestore(admin.app(), name);
           const DAY = 24 * 3600 * 1000;
@@ -1393,6 +1657,36 @@ conf:
               const l   = all[lang] || all[String(LIFE.default_lang || 'fr')] || {};
               return String(l[key] || '');
           }
+
+          // Jour et heure LOCAUX d'un destinataire, depuis le décalage collecté à son
+          // login. On décale l'instant puis on le lit en UTC : le serveur n'a pas de base
+          // de fuseaux nommés, et il n'en a pas besoin — `tz_offset` est mesuré sur
+          // l'appareil, il porte donc déjà l'heure d'été.
+          function localAt(now: number, tzMin: number) {
+              const d = new Date(now + tzMin * 60000);
+              return { day: d.getUTCDay(), hour: d.getUTCHours() };
+          }
+
+          // La fenêtre d'envoi d'un destinataire, par STATUT LÉGAL et jamais par rôle.
+          //
+          // ⚠ AUCUNE FENÊTRE DÉCLARÉE = TOUT PASSE. Une conf incomplète doit se voir
+          //   dans les rapports, pas éteindre les relances en silence — c'est le défaut
+          //   inverse de celui qu'on vient de corriger sur le mode simulation.
+          function inWindow(now: number, tzMin: number, kind: string): boolean {
+              const w = (LIFE.windows || {})[kind];
+              if (!w) return true;
+              const { day, hour } = localAt(now, tzMin);
+              const days = Array.isArray(w.days) ? w.days.map(num) : null;
+              if (days && days.indexOf(day) < 0) return false;
+              return hour >= num(w.from) && hour < num(w.to);
+          }
+
+          // ⚠ `t` (majorité déclarée mais pas encore acquise), absent ou illisible →
+          //   MINEUR. C'est la convention du dépôt, celle que suivent déjà la cascade de
+          //   suppression et le contrôle de la boutique, et c'est le repli prudent : se
+          //   tromper vers l'enfant décale un rappel au samedi, se tromper vers l'adulte
+          //   le réveille un soir de semaine.
+          const kindOf = (p: any) => (p.minor ? 'minor' : 'adult');
 
           // Identifiants MÉTIER (ceux que portent `clans.admins` et `clans_players.id`)
           // → UID d'AUTHENTIFICATION (la clef du registre d'appareils). Sans cette
@@ -1580,6 +1874,13 @@ conf:
                       || store.purge_due || store.purged_at) { bump('skipped', 'store'); continue; }
 
                   const pulse = pulseSnap.data() || {};
+                  // ⚠ `muted` EST UN INTERRUPTEUR D'EXPLOITATION, PAS UN RÉGLAGE DE
+                  //   JOUEUR, et aucun code ne l'écrit — ni ici, ni côté client, où les
+                  //   règles de `clans_pulse` interdisent toute écriture. Il se pose à la
+                  //   main en console, pour faire taire un clan précis sans toucher à la
+                  //   conf ni redéployer. Le refus d'un utilisateur, lui, passe par
+                  //   `nudges` sur son document membre — un tap dans le kebab Personnage.
+                  //   Ne pas confondre les deux : celui-ci ne doit JAMAIS être exposé.
                   if (pulse.muted === true) { bump('skipped', 'muted'); continue; }
 
                   const ownerId = String(clan.ownerId || '');
@@ -1604,9 +1905,23 @@ conf:
                       const at = Date.parse(String(d.last_connected || '')) || 0;
                       if (at > lastSeen) lastSeen = at;
                       if (d.has_device === false || d.nudges === false) continue;
+                      // `tz` et `minor` sont GRATUITS : le document est déjà lu en
+                      // entier ici, aucune requête supplémentaire. `tz_offset` doit être
+                      // un nombre POSÉ — un `null` vaudrait 0 par coercition, c'est-à-dire
+                      // UTC, et enverrait à 17 h Greenwich une famille de Varsovie.
                       live.push({ id: m.id, lang: String(d.lang || LIFE.default_lang || 'fr'),
-                                  at, admin: admins.indexOf(m.id) >= 0 });
+                                  at, admin: admins.indexOf(m.id) >= 0,
+                                  tz: (typeof d.tz_offset === 'number' && Number.isFinite(d.tz_offset))
+                                          ? d.tz_offset : num(LIFE.tz_default_minutes),
+                                  minor: String(d.legal_state ?? '') !== 'a' });
                   }
+
+                  // ⚠ UNE NOTIFICATION AU MAXIMUM PAR PERSONNE ET PAR PASSE. C'était
+                  //   garanti par construction tant que les deux pistes visaient des
+                  //   populations disjointes — les chefs d'un côté, les autres de l'autre.
+                  //   Le boss s'adressant désormais à TOUT le clan, il faut le tenir
+                  //   explicitement, sans quoi un chef recevrait deux messages d'affilée.
+                  const served = new Set<string>();
 
                   const patch: any = { ownerId, updated_at: iso(now) };
                   if (lastSeen) patch.last_seen = iso(lastSeen);
@@ -1620,7 +1935,7 @@ conf:
                   // DEUX pressions distinctes, et les confondre était une erreur :
                   //
                   //  - L'ONBOARDING ne se mesure pas au silence. Un fondateur qui ouvre
-                  //    l'app tous les jours sans avoir configuré une seule quête n'est
+                  //    l'app tous les jours sans avoir configuré une seule tâche n'est
                   //    pas silencieux, il est BLOQUÉ — et c'est le décrochage le plus
                   //    coûteux du parcours. Sa pression est l'ÂGE DU CLAN.
                   //  - Les autres motifs (validation, coffre) supposent au contraire une
@@ -1629,7 +1944,7 @@ conf:
                   //    serait du harcèlement, pas de la relance.
                   //
                   // Un seul motif part par passe : l'onboarding l'emporte quand il vaut,
-                  // parce qu'on ne parle pas du coffre à qui n'a pas encore de quête.
+                  // parce qu'on ne parle pas du coffre à qui n'a pas encore de tâche.
                   const onboard = await pickOnboardingMotive(W, clanId, ageDays, youngD, enrolled, clan);
                   const motive  = onboard
                       || (clanSilent ? await pickLiveMotive(W, clanId, now, silentH, chestIdle) : null);
@@ -1638,18 +1953,33 @@ conf:
                       const pressure = onboard ? ageDays : silentDays;
                       const stage    = num(pulse.adult_stage);
                       if (stage < adultCad.length && pressure >= adultCad[stage]) {
-                          const targets = live.filter((p) => p.admin);
-                          const sent    = await pushByLang(targets, motive.key, motive.extra);
+                          // ⚠ CHACUN DANS SA FENÊTRE, et la fenêtre suit le STATUT
+                          //   LÉGAL. Un chef mineur — la liste `admins` est une liste de
+                          //   rôle, elle peut en contenir — est joint le samedi matin
+                          //   comme n'importe quel enfant, pas à 17 h un mardi.
+                          const chiefs  = live.filter((p) => p.admin);
+                          const targets = chiefs.filter((p) => !served.has(p.id)
+                                              && inWindow(now, p.tz, kindOf(p)));
+                          const sent    = targets.length
+                              ? await pushByLang(targets, motive.key, motive.extra) : 0;
+                          for (const p of targets) served.add(p.id);
                           // Le palier n'avance que si quelque chose est PARTI. Sinon un
                           // parent dont l'appareil n'est pas (encore) enregistré brûlerait
                           // ses trois relances sans jamais rien recevoir, et le clan
                           // sortirait du dispositif sans avoir été prévenu une seule fois.
                           // Le rattrapage reste borné par `forget_days`.
+                          //
+                          // ⚠ C'EST AUSSI CE QUI REND LE DÉCOUPAGE HORAIRE INOFFENSIF.
+                          //   Hors fenêtre, rien ne part et rien n'avance : la passe de
+                          //   l'heure suivante réessaiera, jusqu'à la bonne heure. Aucun
+                          //   palier ne se consume à attendre.
                           if (sent > 0) {
                               patch.adult_stage = stage + 1;
                               patch.adult_at    = iso(now);
                               report.notified  += 1;
                               bump('motives', motive.key);
+                          } else if (chiefs.length && !targets.length) {
+                              bump('skipped', 'out_of_window');
                           } else { bump('skipped', 'no_device_admin'); }
                       }
                   } else {
@@ -1663,21 +1993,49 @@ conf:
                   }
 
                   if (clanSilent) {
-                      // ---- Piste ENFANT : le boss -----------------------------------
-                      // Destinataires NON-ADMINS seulement : c'est la règle de routage de
-                      // la piste enfant, et c'est aussi ce qui garantit qu'aucune personne
-                      // ne reçoit deux notifications dans la même passe.
-                      const kids    = live.filter((p) => !p.admin);
+                      // ---- Le boss : un rendez-vous de CLAN --------------------------
+                      // Destinataires : TOUT LE MONDE, chefs compris. Le monstre n'est pas
+                      // un message adressé aux enfants, c'est un événement de famille — et
+                      // la tâche qu'il bonifie est une tâche de la maison, que le clan
+                      // mènera ensemble.
+                      //
+                      // ⚠ ANNONCÉ DANS LA FENÊTRE DES MINEURS, POUR TOUT LE MONDE. Le
+                      //   fractionner — les enfants le samedi matin, les chefs à 17 h un
+                      //   mardi — le viderait de son sens : ce qui en fait un événement,
+                      //   c'est que le clan l'apprenne ensemble. C'est le seul motif dont
+                      //   la fenêtre ne suit pas le statut légal du destinataire, et c'est
+                      //   la fenêtre la plus stricte des deux qui l'emporte.
                       const bossAge = pulse.boss_at ? (now - (Date.parse(String(pulse.boss_at)) || 0)) / DAY : 1e9;
-                      if (kids.length && silentDays >= bossAfter && bossAge >= bossEvery) {
-                          const taskId = await summonBoss(W, clanId, ownerId, now, dry);
-                          if (taskId) {
-                              await pushByLang(kids, 'boss', null);
-                              patch.boss_at   = iso(now);
-                              patch.boss_task = taskId;
-                              report.notified += 1;
-                              bump('motives', 'boss');
-                          } else { bump('skipped', 'no_boss_task'); }
+                      const reach   = live.filter((p) => !served.has(p.id)
+                                          && inWindow(now, p.tz, 'minor'));
+                      if (live.length && silentDays >= bossAfter && bossAge >= bossEvery) {
+                          if (!reach.length) {
+                              // ⚠ ON NE CONVOQUE PAS. Poser `recommended` avant de savoir
+                              //   si quelqu'un l'apprendra, c'est fabriquer un monstre que
+                              //   personne ne vient chercher — et `boss_every_days` en
+                              //   bloquerait un autre pendant quinze jours.
+                              bump('skipped', 'out_of_window');
+                          } else {
+                              const taskId = await summonBoss(W, clanId, ownerId, now, dry);
+                              if (!taskId) { bump('skipped', 'no_boss_task'); }
+                              else {
+                                  const sent = await pushByLang(reach, 'boss', null);
+                                  for (const p of reach) served.add(p.id);
+                                  // ⚠ LE MONSTRE EXISTE DÉJÀ : `summonBoss` vient d'écrire
+                                  //   `recommended` sur une vraie tâche. On enregistre donc
+                                  //   `boss_at` MÊME SI la notification n'est pas partie —
+                                  //   sinon la passe suivante en convoquerait un second,
+                                  //   puis un troisième, et le clan se réveillerait couvert
+                                  //   de tâches bonifiées. Le rapport, lui, ne compte que
+                                  //   ce qui a réellement quitté le serveur.
+                                  patch.boss_at   = iso(now);
+                                  patch.boss_task = taskId;
+                                  if (sent > 0) {
+                                      report.notified += 1;
+                                      bump('motives', 'boss');
+                                  } else { bump('skipped', 'no_device_boss'); }
+                              }
+                          }
                       }
                   } else {
                       // ---- Piste ENFANT : le retour du clan --------------------------
@@ -1694,7 +2052,17 @@ conf:
                               const st = num(mk.comeback_stage);
                               if (st < backCad.length && mDays >= backCad[st]
                                   && report.notified < MAX_NOTIFY) {
+                                  // ⚠ CHACUN DANS SA FENÊTRE, et « non-chef » ne veut pas
+                                  //   dire « enfant » : un second parent, un adulte invité
+                                  //   sont ici, et ils sont joints en fin d'après-midi et
+                                  //   non le samedi matin. Hors fenêtre on ne consomme pas
+                                  //   le palier — la passe suivante réessaiera.
+                                  if (!inWindow(now, p.tz, kindOf(p))) {
+                                      bump('skipped', 'out_of_window');
+                                      continue;
+                                  }
                                   const sent = await pushByLang([p], 'comeback', null);
+                                  served.add(p.id);
                                   if (sent > 0) {
                                       memberPatch[p.id] = { comeback_stage: st + 1, comeback_at: iso(now) };
                                       report.notified += 1;
@@ -1710,7 +2078,24 @@ conf:
                       if (Object.keys(memberPatch).length) patch.members = memberPatch;
                   }
 
-                  if (!dry) await W.collection('clans_pulse').doc(clanId).set(patch, { merge: true });
+                  // ⚠ N'ÉCRIRE QUE SI QUELQUE CHOSE A CHANGÉ. La passe tourne
+                  //   désormais TOUTES LES HEURES : réécrire `updated_at` à chaque
+                  //   passage ferait vingt-quatre écritures par clan et par jour pour ne
+                  //   rien dire. `ownerId` et `updated_at` ne comptent donc pas comme un
+                  //   changement à eux seuls — ils accompagnent, ils ne déclenchent pas.
+                  //
+                  // ⚠ LES SENTINELLES DE SUPPRESSION COMPTENT, ELLES. Elles ne sont posées
+                  //   que lorsqu'il y a réellement une clef à effacer (le code teste
+                  //   `!== undefined` avant), et elles disparaissent d'elles-mêmes au
+                  //   passage suivant puisque la clef n'existe plus.
+                  const bouge = !pulseSnap.exists || Object.keys(patch).some((k) => {
+                      if (k === 'ownerId' || k === 'updated_at') return false;
+                      if (k === 'members') return true;
+                      return JSON.stringify(pulse[k]) !== JSON.stringify(patch[k]);
+                  });
+                  if (!dry && bouge) {
+                      await W.collection('clans_pulse').doc(clanId).set(patch, { merge: true });
+                  } else if (!dry) { bump('skipped', 'unchanged'); }
               }
 
               console.log('[pulse_sweeper]', JSON.stringify(report));
@@ -1830,10 +2215,20 @@ conf:
               }
 
               // Même routage qu'en passe réelle : les motifs d'administration et de coffre
-              // ne partent qu'aux chefs, le boss et le retour du clan qu'aux autres. Un
-              // banc qui enverrait à tout le monde ne prouverait rien du cloisonnement.
-              const kid     = motive === 'boss' || motive === 'comeback';
-              const targets = live.filter((p) => (kid ? !p.admin : p.admin));
+              // ne partent qu'aux chefs, le retour du clan qu'aux autres, et le boss à
+              // TOUT LE MONDE. Un banc qui enverrait à tout le monde quel que soit le
+              // motif ne prouverait rien du cloisonnement — c'est justement la chose la
+              // plus facile à casser et la plus difficile à voir.
+              const targets = motive === 'boss'   ? live
+                            : motive === 'comeback' ? live.filter((p) => !p.admin)
+                            :                         live.filter((p) => p.admin);
+
+              // ⚠ LE BANC N'APPLIQUE PAS LES FENÊTRES D'ENVOI, ET C'EST VOULU. Il
+              //   n'applique déjà ni la cadence ni la condition de silence : un banc qui
+              //   n'accepterait de parler que le samedi entre 9 h et 10 h ne serait pas un
+              //   banc. C'est aussi pour ça que `live` n'y porte ni `tz` ni `minor` —
+              //   personne ne les lirait. Éprouver les fenêtres elles-mêmes se fait par la
+              //   passe complète, en déplaçant `windows` en conf.
 
               let extra: any = null;
               let task = '';
@@ -1893,12 +2288,12 @@ conf:
 
           // Motif d'ONBOARDING : le clan n'a jamais démarré. Mesuré sur l'ÂGE du clan et
           // jamais sur le silence — un fondateur peut ouvrir l'app tous les jours sans
-          // avoir configuré la moindre quête, et c'est justement le cas qu'on cherche.
+          // avoir configuré la moindre tâche, et c'est justement le cas qu'on cherche.
           //
           // TROIS échecs distincts, et ils n'appellent pas le même message : un donjon vide
           // (rien n'a été configuré), un donjon prêt mais jamais visité (`last` reste vide
           // sur toutes les tâches), et un donjon qui tourne mais SANS ÉQUIPE. Passé
-          // `young_days`, on se tait : un clan qui vit sans quête depuis un mois a choisi
+          // `young_days`, on se tait : un clan qui vit sans tâche depuis un mois a choisi
           // de le faire.
           //
           // Le troisième motif est le plus délicat, et il ne se déclenche PAS sur « un seul
@@ -1989,7 +2384,7 @@ conf:
 
           // Convoque un vrai boss : pose `recommended` sur une VRAIE tâche dormante, puis
           // journalise. C'est ce qui rend le message honnête — l'enfant qui ouvre l'app
-          // trouve la quête bonifiée qu'on lui a annoncée.
+          // trouve la tâche bonifiée qu'on lui a annoncée.
           //
           // Le tri s'appuie sur l'index (status, last) déjà déclaré pour la validation :
           // `last` vide trie en tête, ce sont les tâches jamais prises — exactement les
@@ -2031,44 +2426,71 @@ conf:
           }
 
   # --- Planificateur -------------------------------------------------------------
-  # DEEP MERGE avec les tâches déclarées par les modules : `pustore` y a déjà posé son
-  # balayage quotidien (`store_sweeper`, 5 h) et son `service_account: store`. On
-  # n'écrase donc NI l'un NI l'autre — c'est aussi pourquoi `service_account` n'est pas
-  # redéclaré ici : le SA `backend` de ddust n'a pas `run.invoker`, le poser romprait
-  # l'invocation du balayage.
+  # DEEP MERGE avec les tâches déclarées par les modules, et la SUITE L'EMPORTE
+  # (`builder.py`, `_deep_setdefault` : ce qui est écrit ici n'est jamais recouvert, ce
+  # qui manque est complété par le module). C'est ce qui permet de ne redéclarer d'un
+  # job de module que la clef qu'on veut changer — voir `store_sweeper` plus bas.
+  #
+  # `service_account` n'est pas redéclaré : le SA `backend` de ddust n'a pas
+  # `run.invoker`, le poser romprait l'invocation de tous les balayages.
+  #
+  # ⚠ TROIS JOBS, ET LEUR ORDRE COMPTE. Le balayage d'impayé de `pustore` pose
+  #   `purge_due` ; `clan_purge` le consomme une heure plus tard. Déplacer l'un sans
+  #   l'autre ferait attendre le drapeau vingt-trois heures.
   scheduler:
     jobs:
-      # Purge des clans à J730. Une heure APRÈS le balayage : c'est lui qui pose
-      # `purge_due`, et l'ordre fait que le drapeau posé à 5 h est honoré le matin même
-      # plutôt que le lendemain.
+      # Balayage des impayés (fonction du module `pustore`). SEULE LA HEURE EST
+      # REDÉCLARÉE : `minute`, `function`, `enabled` et le compte de service restent
+      # ceux du module.
+      #
+      # ⚠ 5 H ÉTAIT UNE ERREUR, ET SON COMMENTAIRE D'ORIGINE LA DIT À L'ENVERS : « tôt
+      #   le matin, pour qu'une relance ne réveille personne ». Ce balayage n'écrit pas
+      #   un état que le client lira plus tard — il ENVOIE, au moment où il tourne. 5 h
+      #   UTC, c'est 6 h ou 7 h à Paris : exactement l'heure où l'on réveille une
+      #   famille pour lui parler d'argent. Fin d'après-midi, comme les relances de jeu.
+      #
+      # Sans effet aujourd'hui — il n'y a aucun paiement, donc aucune relance à envoyer.
+      # C'est précisément pour cela que c'est le bon moment pour le corriger.
+      store_sweeper:
+        schedule:
+          hour: "17"
+      # Purge des clans à J730. Une heure APRÈS le balayage d'impayé : c'est lui qui
+      # pose `purge_due`, et l'ordre fait que le drapeau est honoré le jour même plutôt
+      # que le lendemain. Suit donc `store_sweeper` quand celui-ci se déplace.
       clan_purge:
         enabled: true
         function: clan_purge
         schedule:
           minute: "0"
-          hour: "6"
+          hour: "18"
           day: "*"
           month: "*"
           weekday: "*"
-      # Relance d'engagement. Une seule passe par jour et par région : les délais se
-      # comptent en jours.
+      # Relance d'engagement. UNE PASSE PAR HEURE.
       #
-      # L'HEURE EST LE GARDE-FOU. Contrairement aux relances d'impayé, qui s'adressent à
-      # un adulte et partent donc à 5 h sans réveiller personne, celle-ci peut atteindre
-      # un enfant. On vise le début de soirée LOCAL — après l'école, avant le coucher —
-      # et non le petit matin. Le module crée une tâche par région : l'heure est donc
-      # forcément un compromis à l'intérieur de chaque fuseau régional. 17 h UTC place
-      # l'Europe entre 18 h et 19 h.
+      # ⚠ CE N'EST PLUS L'HEURE DE LA PASSE QUI EST LE GARDE-FOU, C'EST LA FENÊTRE DU
+      #   DESTINATAIRE. Une passe unique à 17 h UTC était forcément un compromis à
+      #   l'intérieur de chaque fuseau régional, et elle ne pouvait pas distinguer un
+      #   enfant d'un adulte. La passe tourne maintenant toutes les heures et n'envoie
+      #   qu'à ceux dont l'heure LOCALE tombe dans leur fenêtre (`windows` dans
+      #   `PULSE_LIFECYCLE`) : un mineur le samedi matin, un majeur en fin d'après-midi.
+      #   C'est ce qui sert enfin `clans_players.tz_offset`, collecté depuis des mois et
+      #   promis aux familles dans la politique de confidentialité.
       #
-      # `clans_players.tz_offset` est désormais collecté au login. Le jour où le volume
-      # le justifiera, c'est lui qui permettra de découper la passe par heure locale
-      # réelle — sans reprise de données, puisque le champ existera déjà.
+      # ⚠ TOURNER VINGT-QUATRE FOIS N'ENVOIE PAS VINGT-QUATRE FOIS. Le palier d'un
+      #   motif n'avance que si un envoi a eu lieu, et c'est lui qui commande le motif
+      #   suivant : une passe hors fenêtre ne consomme rien et se rejoue à l'heure
+      #   d'après. Les délais, eux, se comptent toujours en jours.
+      #
+      # ⚠ LE COÛT EST BORNÉ PAR LES PLAFONDS DE LA FONCTION, pas par la fréquence : les
+      #   deux requêtes d'énumération portent `MAX_PLAYERS` et `MAX_CLANS`, et
+      #   `clans_pulse` n'est plus réécrit quand rien n'a bougé.
       pulse_sweeper:
         enabled: true
         function: pulse_sweeper
         schedule:
           minute: "0"
-          hour: "17"
+          hour: "*"
           day: "*"
           month: "*"
           weekday: "*"

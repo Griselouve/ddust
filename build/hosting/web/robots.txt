@@ -1,0 +1,8 @@
+# Rien n'est interdit : tout ce site est public, delete-account/ compris —
+# le Play Store exige que cette page soit atteignable sans installer l'app.
+# La derniere ligne est la seule raison d'etre de ce fichier : c'est la que
+# les robots vont chercher le plan du site.
+User-agent: *
+Allow: /
+
+Sitemap: https://donjons.grisloup.com/sitemap.xml

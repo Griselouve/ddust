@@ -7,5 +7,9 @@ prompts:
   agents:
     inspire_clan: "@@@T:prompt_inspire_clan@@@"
     inspire_task: "@@@T:prompt_inspire_task@@@"
+    # Inspiration d'un PERSONNAGE : mêmes quatre valeurs que inspire_clan (nom, description, et
+    # leurs substituts publics), en un seul appel. Qui ne demande pas d'inspiration ne déclenche
+    # AUCUN appel : son nom public est alors tiré d'une banque locale, dans le worker.
+    inspire_player: "@@@T:prompt_inspire_player@@@"
     # Conte du butin (worker._narrateClanStory) : récit narratif du clan, tiré du journal.
     narrate_clan: "@@@T:prompt_narrate_clan@@@"

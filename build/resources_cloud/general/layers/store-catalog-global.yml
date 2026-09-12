@@ -61,6 +61,8 @@ data:
                 cop: '5900'
             essentiel-yearly:
               period: P1Y
+              pays_exclus:
+              - NL
               part_base: 0.1
               prices:
                 eur: '19.99'
@@ -127,6 +129,8 @@ data:
                 cop: '7900'
             clan-yearly:
               period: P1Y
+              pays_exclus:
+              - NL
               part_base: 0.075
               prices:
                 eur: '24.99'
@@ -192,6 +196,8 @@ data:
                 cop: '13900'
             tribu-yearly:
               period: P1Y
+              pays_exclus:
+              - NL
               part_base: 0.0625
               prices:
                 eur: '39.99'
@@ -256,6 +262,8 @@ data:
                 cop: '16900'
             guilde-yearly:
               period: P1Y
+              pays_exclus:
+              - NL
               part_base: 0.01
               prices:
                 eur: '49.99'
@@ -321,6 +329,8 @@ data:
                 cop: '21900'
             royaume-yearly:
               period: P1Y
+              pays_exclus:
+              - NL
               part_base: 0.0025
               prices:
                 eur: '64.99'
@@ -339,300 +349,521 @@ data:
       ddust_validations:
         libelle: Validations automatiques
         type: product
-        enabled: true
-        lot: loots
+        enabled: false
+        lot: 3df87efd34d2
         attachement_mensuel: 0.0067
+        play:
+          listings:
+            fr-FR:
+              title: Validations automatiques
+              description: 'Certaines tâches se valident seules : plus personne ne
+                repasse derrière. Réglable enfant par enfant, et acquis pour de bon.'
+            en-US:
+              title: Automatic approvals
+              description: Some tasks approve themselves — nobody has to check behind.
+                Set it child by child, and it stays set.
+            es-ES:
+              title: Validaciones automáticas
+              description: 'Algunas tareas se validan solas: nadie tiene que repasarlas.
+                Se ajusta niño por niño, y queda para siempre.'
         prix:
-          eur: 1.99
-          sek: 29
-          dkk: 19
-          nok: 29
-          gbp: 1.99
-          chf: 2.9
-          usd: 2.99
-          cad: 2.99
-          aud: 3.49
-          nzd: 3.49
-          brl: 7.9
-          mxn: 25.49
-          cop: 5900
+          eur: '1.99'
+          sek: '29'
+          dkk: '19'
+          nok: '29'
+          gbp: '1.99'
+          chf: '2.90'
+          usd: '2.99'
+          cad: '2.99'
+          aud: '3.49'
+          nzd: '3.49'
+          brl: '7.90'
+          mxn: '25.49'
+          cop: '5900'
       ddust_quetes_1:
         libelle: Pack « Quêtes » I
         type: product
-        enabled: true
-        lot: loots
+        enabled: false
+        lot: 71b889d2505e
         attachement_mensuel: 0.0034
+        play:
+          listings:
+            fr-FR:
+              title: Pack « Quêtes » I
+              description: 'Un premier recueil de quêtes à mener en clan : des objectifs
+                qui durent plus qu''une journée, et une récompense au bout.'
+            en-US:
+              title: Quest Pack I
+              description: 'A first book of quests for the clan: goals that last longer
+                than a day, and a reward at the end.'
+            es-ES:
+              title: Pack « Misiones » I
+              description: 'Un primer libro de misiones para el clan: objetivos que
+                duran más de un día, y una recompensa al final.'
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_potions_1:
         libelle: Pack « Potions » I
         type: product
-        enabled: true
-        lot: loots
+        enabled: false
+        lot: ecb38169ab68
         attachement_mensuel: 0.0034
+        play:
+          listings:
+            fr-FR:
+              title: Pack « Potions » I
+              description: 'Un premier assortiment de potions : des effets temporaires
+                qui changent une semaine d''aventure — bonus d''XP, coups de pouce,
+                sursis.'
+            en-US:
+              title: Potion Pack I
+              description: 'A first assortment of potions: temporary effects that
+                change a week of adventure — XP bonuses, helping hands, reprieves.'
+            es-ES:
+              title: Pack « Pociones » I
+              description: 'Un primer surtido de pociones: efectos temporales que
+                cambian una semana de aventura — bonus de XP, empujones, prórrogas.'
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_bricolage:
         libelle: Pack de tâches « Bricolage »
         type: product
-        enabled: true
-        lot: loots
+        enabled: false
+        lot: 258ff7d2b854
         attachement_mensuel: 0.0034
+        play:
+          listings:
+            fr-FR:
+              title: Pack de tâches « Bricolage »
+              description: 'Une réserve de tâches prêtes à poser, du côté des outils
+                : réparer, monter, ranger l''atelier. À piocher dedans plutôt qu''à
+                les écrire.'
+            en-US:
+              title: 'Task Pack: Handiwork'
+              description: 'A ready-made stack of tasks from the toolbox side: fix
+                it, build it, tidy the workshop. Pick from them instead of writing
+                them.'
+            es-ES:
+              title: Pack de tareas « Bricolaje »
+              description: 'Una reserva de tareas listas para usar, del lado de las
+                herramientas: reparar, montar, ordenar el taller. Elegir en vez de
+                escribir.'
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_routine:
         libelle: Pack de tâches « Routine »
         type: product
-        enabled: true
-        lot: loots
+        enabled: false
+        lot: cbe53f2e0c9b
         attachement_mensuel: 0.0034
+        play:
+          listings:
+            fr-FR:
+              title: Pack de tâches « Routine »
+              description: Se brosser les dents, préparer son cartable la veille,
+                ranger sa chambre. Les tâches de tous les jours, déjà écrites.
+            en-US:
+              title: 'Task Pack: Routine'
+              description: Brushing teeth, packing the schoolbag the night before,
+                tidying the room. The everyday tasks, already written.
+            es-ES:
+              title: Pack de tareas « Rutina »
+              description: Lavarse los dientes, preparar la mochila la víspera, ordenar
+                el cuarto. Las tareas de cada día, ya escritas.
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_butin:
         libelle: Extension « Butin »
         type: product
-        enabled: true
-        lot: loots
+        enabled: false
+        lot: 0877dd1dcfb0
         attachement_mensuel: 0.0017
+        play:
+          listings:
+            fr-FR:
+              title: Extension « Butin »
+              description: 'Le plus gros morceau du jeu : l''or, la boutique des héros,
+                le butin aléatoire, l''équipement, les faveurs et les saisons. Les
+                tâches deviennent une économie.'
+            en-US:
+              title: Loot Expansion
+              description: 'The biggest piece of the game: gold, the heroes'' shop,
+                random loot, equipment, favours and seasons. Chores become an economy.'
+            es-ES:
+              title: Expansión « Botín »
+              description: 'La pieza más grande del juego: el oro, la tienda de los
+                héroes, el botín aleatorio, el equipo, los favores y las temporadas.'
         prix:
-          eur: 7.99
-          sek: 109
-          dkk: 75
-          nok: 125
-          gbp: 7.49
-          chf: 11.5
-          usd: 11.49
-          cad: 12.49
-          aud: 14.99
-          nzd: 14.99
-          brl: 31.9
-          mxn: 101.99
-          cop: 21900
+          eur: '7.99'
+          sek: '109'
+          dkk: '75'
+          nok: '125'
+          gbp: '7.49'
+          chf: '11.50'
+          usd: '11.49'
+          cad: '12.49'
+          aud: '14.99'
+          nzd: '14.99'
+          brl: '31.90'
+          mxn: '101.99'
+          cop: '21900'
       ddust_quetes_2:
         libelle: Pack « Quêtes » II
         type: product
-        enabled: true
-        lot: packs
+        enabled: false
+        lot: 81291102e209
         attachement_mensuel: 0.0008
+        play:
+          listings:
+            fr-FR:
+              title: Pack « Quêtes » II
+              description: Un deuxième recueil de quêtes, pour les clans qui ont fait
+                le tour du premier.
+            en-US:
+              title: Quest Pack II
+              description: A second book of quests, for clans that have been all the
+                way through the first.
+            es-ES:
+              title: Pack « Misiones » II
+              description: Un segundo libro de misiones, para los clanes que ya han
+                terminado el primero.
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_quetes_3:
         libelle: Pack « Quêtes » III
         type: product
-        enabled: true
-        lot: packs
+        enabled: false
+        lot: 0ab7912989d0
         attachement_mensuel: 0.0008
+        play:
+          listings:
+            fr-FR:
+              title: Pack « Quêtes » III
+              description: Le troisième et dernier recueil de quêtes. De quoi tenir
+                une saison de plus.
+            en-US:
+              title: Quest Pack III
+              description: The third and last book of quests. Enough to carry one
+                more season.
+            es-ES:
+              title: Pack « Misiones » III
+              description: El tercer y último libro de misiones. Suficiente para aguantar
+                otra temporada.
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_potions_2:
         libelle: Pack « Potions » II
         type: product
-        enabled: true
-        lot: packs
+        enabled: false
+        lot: 09a10ee9b42d
         attachement_mensuel: 0.0008
+        play:
+          listings:
+            fr-FR:
+              title: Pack « Potions » II
+              description: Un deuxième assortiment de potions, avec des effets que
+                le premier n'avait pas.
+            en-US:
+              title: Potion Pack II
+              description: A second assortment of potions, with effects the first
+                one did not have.
+            es-ES:
+              title: Pack « Pociones » II
+              description: Un segundo surtido de pociones, con efectos que el primero
+                no tenía.
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_potions_3:
         libelle: Pack « Potions » III
         type: product
-        enabled: true
-        lot: packs
+        enabled: false
+        lot: 4333deadd8b3
         attachement_mensuel: 0.0008
+        play:
+          listings:
+            fr-FR:
+              title: Pack « Potions » III
+              description: Le troisième et dernier assortiment de potions, le plus
+                corsé des trois.
+            en-US:
+              title: Potion Pack III
+              description: The third and last assortment of potions, the strongest
+                of the three.
+            es-ES:
+              title: Pack « Pociones » III
+              description: El tercer y último surtido de pociones, el más fuerte de
+                los tres.
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_devoirs:
         libelle: Pack « Devoirs faits »
         type: product
-        enabled: true
-        lot: packs
+        enabled: false
+        lot: 13a9e8d0a1b9
         attachement_mensuel: 0.0008
+        play:
+          listings:
+            fr-FR:
+              title: Pack « Devoirs faits »
+              description: 'Le seul pack qui traverse les trois mécaniques : la quête
+                « 13 de moyenne », la tâche « apprendre le cours », la potion « +15
+                % d''XP en SVT ».'
+            en-US:
+              title: Homework Done Pack
+              description: 'The one pack that crosses all three mechanics: a quest
+                for the term average, a task for learning the lesson, a potion for
+                +15% XP.'
+            es-ES:
+              title: Pack « Deberes hechos »
+              description: 'El único pack que atraviesa las tres mecánicas: la misión
+                de la nota media, la tarea de estudiar la lección, la poción de +15
+                % de XP.'
         prix:
-          eur: 3.99
-          sek: 55
-          dkk: 39
-          nok: 65
-          gbp: 3.49
-          chf: 5.5
-          usd: 5.99
-          cad: 5.99
-          aud: 7.49
-          nzd: 7.49
-          brl: 15.9
-          mxn: 50.99
-          cop: 10900
+          eur: '3.99'
+          sek: '55'
+          dkk: '39'
+          nok: '65'
+          gbp: '3.49'
+          chf: '5.50'
+          usd: '5.99'
+          cad: '5.99'
+          aud: '7.49'
+          nzd: '7.49'
+          brl: '15.90'
+          mxn: '50.99'
+          cop: '10900'
       ddust_theme_starsweep:
         libelle: Thème « Star Sweep »
         type: product
-        enabled: true
-        lot: themes
+        enabled: false
+        lot: 1521505a498c
         attachement_mensuel: 0.0014
+        play:
+          listings:
+            fr-FR:
+              title: Thème « Star Sweep »
+              description: 'Tout le jeu rhabillé en space opera : décors, monstres,
+                objets et ton. La même aventure, jouée ailleurs.'
+            en-US:
+              title: Star Sweep Theme
+              description: 'The whole game re-skinned as space opera: art, monsters,
+                items and tone. The same adventure, played somewhere else.'
+            es-ES:
+              title: Tema « Star Sweep »
+              description: 'Todo el juego revestido de ópera espacial: escenarios,
+                monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
         prix:
-          eur: 5.99
-          sek: 79
-          dkk: 55
-          nok: 95
-          gbp: 5.49
-          chf: 8.5
-          usd: 8.49
-          cad: 9.49
-          aud: 10.99
-          nzd: 10.99
-          brl: 23.9
-          mxn: 76.49
-          cop: 16900
+          eur: '5.99'
+          sek: '79'
+          dkk: '55'
+          nok: '95'
+          gbp: '5.49'
+          chf: '8.50'
+          usd: '8.49'
+          cad: '9.49'
+          aud: '10.99'
+          nzd: '10.99'
+          brl: '23.90'
+          mxn: '76.49'
+          cop: '16900'
       ddust_theme_casanostra:
         libelle: Thème « La Casa Nostra »
         type: product
-        enabled: true
-        lot: themes
+        enabled: false
+        lot: b4483c2704e7
         attachement_mensuel: 0.0014
+        play:
+          listings:
+            fr-FR:
+              title: Thème « La Casa Nostra »
+              description: 'Tout le jeu rhabillé en univers mafieux : décors, monstres,
+                objets et ton. La même aventure, jouée ailleurs.'
+            en-US:
+              title: La Casa Nostra Theme
+              description: 'The whole game re-skinned as a mob story: art, monsters,
+                items and tone. The same adventure, played somewhere else.'
+            es-ES:
+              title: Tema « La Casa Nostra »
+              description: 'Todo el juego revestido de universo mafioso: escenarios,
+                monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
         prix:
-          eur: 5.99
-          sek: 79
-          dkk: 55
-          nok: 95
-          gbp: 5.49
-          chf: 8.5
-          usd: 8.49
-          cad: 9.49
-          aud: 10.99
-          nzd: 10.99
-          brl: 23.9
-          mxn: 76.49
-          cop: 16900
+          eur: '5.99'
+          sek: '79'
+          dkk: '55'
+          nok: '95'
+          gbp: '5.49'
+          chf: '8.50'
+          usd: '8.49'
+          cad: '9.49'
+          aud: '10.99'
+          nzd: '10.99'
+          brl: '23.90'
+          mxn: '76.49'
+          cop: '16900'
       ddust_theme_pirates:
         libelle: Thème « Pirates of the accariens »
         type: product
-        enabled: true
-        lot: themes
+        enabled: false
+        lot: 0b7c8f278959
         attachement_mensuel: 0.0014
+        play:
+          listings:
+            fr-FR:
+              title: Thème « Pirates of the accariens »
+              description: 'Tout le jeu rhabillé en univers pirate : décors, monstres,
+                objets et ton. La même aventure, jouée ailleurs.'
+            en-US:
+              title: Pirates of the Accarians Theme
+              description: 'The whole game re-skinned as a pirate tale: art, monsters,
+                items and tone. The same adventure, played somewhere else.'
+            es-ES:
+              title: Tema « Pirates of the accariens »
+              description: 'Todo el juego revestido de universo pirata: escenarios,
+                monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
         prix:
-          eur: 5.99
-          sek: 79
-          dkk: 55
-          nok: 95
-          gbp: 5.49
-          chf: 8.5
-          usd: 8.49
-          cad: 9.49
-          aud: 10.99
-          nzd: 10.99
-          brl: 23.9
-          mxn: 76.49
-          cop: 16900
+          eur: '5.99'
+          sek: '79'
+          dkk: '55'
+          nok: '95'
+          gbp: '5.49'
+          chf: '8.50'
+          usd: '8.49'
+          cad: '9.49'
+          aud: '10.99'
+          nzd: '10.99'
+          brl: '23.90'
+          mxn: '76.49'
+          cop: '16900'
       ddust_classes:
         libelle: Classes de personnage
         type: product
-        enabled: true
-        lot: classes
+        enabled: false
+        lot: 5b617e0e5480
         attachement_mensuel: 0.0022
+        play:
+          listings:
+            fr-FR:
+              title: Classes de personnage
+              description: Chaque héros choisit une voie, avec ses avantages, ses
+                inconvénients et ses synergies de clan. Un thème rhabille l'aventure
+                ; une classe la rejoue autrement.
+            en-US:
+              title: Character Classes
+              description: Each hero picks a path, with its strengths, its weaknesses
+                and its clan synergies. A theme re-skins the adventure; a class replays
+                it.
+            es-ES:
+              title: Clases de personaje
+              description: Cada héroe elige una vía, con sus ventajas, sus inconvenientes
+                y sus sinergias de clan. Un tema reviste la aventura; una clase la
+                rejuega.
         prix:
-          eur: 6.99
-          sek: 95
-          dkk: 65
-          nok: 109
-          gbp: 6.49
-          chf: 9.9
-          usd: 9.99
-          cad: 10.99
-          aud: 12.99
-          nzd: 12.99
-          brl: 27.9
-          mxn: 88.99
-          cop: 19900
+          eur: '6.99'
+          sek: '95'
+          dkk: '65'
+          nok: '109'
+          gbp: '6.49'
+          chf: '9.90'
+          usd: '9.99'
+          cad: '10.99'
+          aud: '12.99'
+          nzd: '12.99'
+          brl: '27.90'
+          mxn: '88.99'
+          cop: '19900'

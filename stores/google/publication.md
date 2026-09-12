@@ -222,16 +222,23 @@ cette section raisonnait sur l'**âge du compte** — « les comptes personnels 
 13 novembre 2023 » — et en déduisait qu'une conversion en compte organisation lèverait l'exigence.
 Elle ne la lève pas.
 
-> ## ➜ L'exigence est attachée à **l'entrée d'app**, pas au compte
+> ## ➜ HYPOTHÈSE, pas fait établi — requalifié le 2026-09-07
 >
-> Une app **créée sous un compte personnel** conserve l'exigence **après** la conversion du compte
-> en organisation. Une app **créée après** la conversion, sous un compte déjà organisation, en est
-> exemptée.
+> La documentation Google dit que l'exigence s'applique **« par application »**, et **ne traite pas**
+> le cas d'un compte personnel converti en organisation. Les sources tierces se contredisent :
+> certaines affirment que l'exemption ne rattrape pas les apps déjà créées, d'autres l'inverse.
+>
+> L'hypothèse prudente reste qu'une app **créée sous un compte personnel conserve l'exigence après
+> conversion**, et qu'une app **créée après** la conversion en est exemptée. Mais elle n'est pas
+> vérifiée, et elle commande une cascade coûteuse.
 
-**Conséquence directe : il faut une entrée d'app NEUVE**, donc un nouveau nom de package, créée
-**après** la conversion. `com.grisloup.ddust_client` a déjà reçu un AAB et un examen de première
-release : quoi qu'il advienne du compte, cette entrée-là garde les 12 × 14. Le geste et ses deux
-obstacles techniques sont en §2.2 ; l'arbitrage, dans
+⚠️ **Ne rien renommer avant de l'avoir constaté.** Le renommage entraîne nouveau package,
+`unprotect` de l'AndroidApp Firebase, `PACKAGE_NAME` des trois Cloud Functions, nouvelle danse SHA-1
+et recréation des cinq abonnements. **Le tableau de bord de la Play Console affiche l'exigence
+app par app** : après la conversion, il suffit d'ouvrir `com.grisloup.ddust_client` et de regarder
+si elle y figure encore. Gratuit, définitif, et disponible **avant** le premier geste irréversible.
+
+Le détail du renommage, s'il s'avère nécessaire, est en §2.2 ; l'arbitrage, dans
 `grisloup/docs/plan-creation-micro-entreprise.md` §0.3.
 
 En une phrase : **on garde le compte, on repart de zéro sur l'app.**
@@ -910,17 +917,22 @@ détail : qui a testé, ce qui a été remonté, ce qui a été corrigé.
 Une relecture critique de la monétisation (2026-08-19) a produit un inventaire de défauts. Deux ont
 été corrigés le jour même ; le reste est ci-dessous, **par ordre de dépendance**.
 
-> **État vérifié dans le code le 2026-08-20 : 2 points clos (9 livré, 10 sans objet), 2 partiels (6 et 12), 9 ouverts.**
-> Le travail de la nuit a porté ailleurs — banc d'essai et bandeau de relance (§ plus bas), tous deux
-> utiles — mais **les prérequis de la phase 5 ne sont pas remplis**.
+> **RELU DANS LE CODE LE 2026-09-10 : les points 1 à 5 ne sont plus le mur qu'ils étaient.**
+> Trois sont refermés (2, 3, 4), deux le sont à moitié (1, 5), et surtout le plus lourd — « les
+> plafonds de joueurs ne s'appliquent pas » — **ne tient plus** : la page des paliers peut désormais
+> se déclencher en conditions réelles. Le tableau ci-dessous porte la relecture ; les points 6 à 13
+> n'ont **pas** été revérifiés à cette date et restent au 2026-08-20.
+>
+> ⚠ Ce document est celui qui vieillit le plus vite du dépôt, et il l'a déjà fait deux fois : ce qui
+> y est écrit se **relit dans le code** avant de servir de base à une décision.
 >
 > | # | Point | État |
 > |---|---|---|
-> | 1 | Publication inconditionnelle de l'entitlement | ❌ (portée revue à la baisse, voir ci-dessous) |
-> | 2 | `store.refresh` à la création du clan | ❌ |
-> | 3 | `basePlanFor` égalité stricte | ❌ |
-> | 4 | `_selectDetails` échoue au lieu de substituer | ❌ |
-> | 5 | Libellés d'échec affichés | ❌ |
+> | 1 | Publication inconditionnelle de l'entitlement | ⚠ 1/2 au 2026-09-10 — les plafonds, eux, s'appliquent |
+> | 2 | `store.refresh` à la création du clan | ✅ 2026-09-10 (`worker_clan.dart:266`) |
+> | 3 | `basePlanFor` égalité stricte | ✅ 2026-09-10 (`dvstore_motor.dart:1443`) |
+> | 4 | `_selectDetails` échoue au lieu de substituer | ✅ 2026-09-10 (`:505`, `:824`) |
+> | 5 | Libellés d'échec affichés | ⚠ 1/2 au 2026-09-10 — `store_pending` reste muet |
 > | 6 | Sécuriser `clan_purge` | ⚠️ 1/3 |
 > | 7 | Cascade alignée sur `delete_user_data` | ❌ |
 > | 8 | Callbacks limités à l'appareil acheteur | ❌ |
@@ -939,7 +951,15 @@ Une relecture critique de la monétisation (2026-08-19) a produit un inventaire 
 
 ### à faire avant la recette (phase 5)
 
-1. **Publier l'entitlement inconditionnellement.** `_applyEntitlement(null)` sort sans rien publier
+> **État au 2026-09-10, vérifié ligne à ligne.** Ce qui suit décrit les défauts tels qu'ils étaient
+> le 2026-08-20 ; chaque point porte désormais son verdict en tête. Ce qui reste tient en trois
+> phrases : un clan neuf ne publie toujours pas son état d'abonnement, un paiement en attente de
+> validation ne dit rien à l'écran, et le raccourci « une seule entrée » de `_selectDetails`
+> (`dvstore_motor.dart:493`) ne vérifie pas la périodicité demandée. Aucun des trois ne bloque le
+> déroulé de la recette.
+
+1. ⚠ **1/2 — le fond est réglé, la publication ne l'est pas.** **Publier l'entitlement
+   inconditionnellement.** `_applyEntitlement(null)` sort sans rien publier
    (`dvstore_motor.dart:576`), et `_startReal` ne publie pas non plus en fin de parcours : un clan
    neuf, ou une lecture d'entitlement en échec, laisse le dictionnaire vide.
    ⚠️ **Portée revue à la baisse depuis la suppression du gate** : le « jeu gratuit illimité » n'est
@@ -949,9 +969,11 @@ Une relecture critique de la monétisation (2026-08-19) a produit un inventaire 
      plafonds de joueurs ne s'appliquent donc pas**, y compris à un clan abonné, tant que rien n'a
      été publié. La refonte de la grille (2026-08-20) n'y change rien : elle porte le défaut à
      l'identique.
-     ⚠️ **Conséquence directe sur la recette** : tant que ce point n'est pas corrigé, la page des
-     paliers **ne se déclenchera jamais en conditions réelles**. Elle ne s'éprouve qu'au banc
-     d'essai, dont les scénarios posent des grants explicites.
+     ✅ **CORRIGÉ AU 2026-09-10, et c'était le point le plus lourd de la liste.**
+     `_storeMaxPlayers` ne rend plus « illimité » : il replie sur le palier d'entrée du catalogue
+     (`worker_store.dart:665-672` → `_storeEntryCap()` → `store-catalog-global.yml`), une valeur qui
+     ne vient pas de la publication. **Les plafonds s'appliquent donc à un clan dont rien n'a jamais
+     été publié**, et la page des paliers peut se déclencher en conditions réelles.
    - Le bandeau de relance ne s'affiche pas au démarrage hors-ligne, alors que la phase persistée
      dit `last` (cf. § bandeau de relance).
    Correctif : `_applyEntitlement(null)` doit poser `state = "none"`, `source = "server"` et publier ;
@@ -959,21 +981,29 @@ Une relecture critique de la monétisation (2026-08-19) a produit un inventaire 
    → Vérifier au passage le **message de paywall d'un clan neuf** : il annonce aujourd'hui que « la
    guilde a mis les aventures en pause », ce qui est faux pour une famille qui n'a pas encore joué,
    et ne dit pas un mot de l'essai gratuit.
-2. **Rafraîchir le scope à la création du clan.** Le scope n'existe pas encore quand la session
+2. ✅ **LIVRÉ** (`worker_clan.dart:266`, juste après `worker.session.clan_done`).
+   **Rafraîchir le scope à la création du clan.** Le scope n'existe pas encore quand la session
    démarre ; sans un `store.refresh` une fois `steps.clan.*` posé, le **premier achat de chaque
    nouveau client** échoue en `no_scope`.
-3. **Corriger `basePlanFor`** : il ne matche que par suffixe (`endsWith("-$wanted")`), alors que les
+3. ✅ **LIVRÉ** (`dvstore_motor.dart:1443-1455` : suffixe, puis égalité stricte, puis échec
+   propre ; les exemples du readme et de `config.yml` sont alignés). **Corriger `basePlanFor`** : il ne matche que par suffixe (`endsWith("-$wanted")`), alors que les
    exemples du readme et de `config.yml` déclarent `base_plans: [monthly, yearly]` — avec ces
    valeurs, demander l'annuel souscrit le **mensuel**, sans un mot. Accepter l'égalité stricte et
    aligner les exemples.
-4. **Échouer au lieu de substituer** un base plan dans `_selectDetails`. Deux replis achètent
+4. ✅ **LIVRÉ** (`dvstore_motor.dart:505-520` exigent `p.basePlan == basePlan`, et l'appelant tire
+   un `on_purchase_failed` avec `reason: plan_unavailable` en `:824-832`). Reste une porte : le
+   raccourci « une seule entrée » de `:493`, prévu pour les produits à l'unité, ne vérifie pas le
+   base plan. **Échouer au lieu de substituer** un base plan dans `_selectDetails`. Deux replis achètent
    aujourd'hui un plan différent de celui demandé, dont un totalement muet. Substituer un plan à un
    autre n'est pas un repli acceptable quand il y a de l'argent en jeu : il faut un
    `on_purchase_failed` avec `reason: plan_unavailable`. (Le repli sur les **offres**, lui, est
    légitime : Play ne sert que celles auxquelles le compte est éligible.)
-5. **Notifier les échecs d'achat à l'écran.** Les libellés `store_unavailable`, `store_error`,
-   `store_pending` existent dans `dvstore/config.yml` et ne sont utilisés nulle part : un achat qui
-   échoue est aujourd'hui indiscernable d'un bouton cassé.
+5. ⚠ **1/2 au 2026-09-10.** `store_unavailable` et `store_error` sont désormais affichés :
+   `on_store_purchase_failed` est câblé (`client/config.yml:280`), ignore l'annulation, et pose le
+   bandeau de `registry_store_tiers.yml:50`. **`store_pending` reste orphelin** : dvstore écrit bien
+   `store.pending.<produit>` (`dvstore_motor.dart:660`) et personne ne le lit, si bien qu'un paiement
+   en attente de validation — virement, carte cadeau — ressemble encore à un échec.
+   **Notifier les échecs d'achat à l'écran.**
 
 ### à faire avant la production
 
@@ -1174,9 +1204,10 @@ se paie en remboursements, en avis à une étoile et en confiance perdue.
 
 ### 5.1 — prérequis
 
-- [ ] Phase 3 bis, points 1 à 5 livrés — **aucun ne l'est au 2026-08-20**. Sans eux : l'annuel n'est
-      pas achetable (3-4), les plafonds ne s'appliquent pas (1), le premier achat d'un clan neuf
-      échoue en `no_scope` (2), et un échec d'achat est indiscernable d'un bouton cassé (5).
+- [x] Phase 3 bis, points 1 à 5 — **relus le 2026-09-10 : le mur est tombé.** L'annuel est
+      achetable (3-4), les plafonds s'appliquent (1), le premier achat d'un clan neuf aboutit (2), et
+      un échec d'achat s'affiche (5). Deux résidus, aucun bloquant : un paiement **en attente** reste
+      muet, et un clan neuf ne publie pas son état d'abonnement. À dérouler en le sachant.
 - [ ] Profil de paiement **vérifié** (0.2) et produits créés (phase 4).
 - [ ] Build contenant `dvstore` **publié sur une piste** (interne suffit). Compter quelques heures
       avant qu'il ne devienne installable.

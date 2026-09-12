@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Plan du site de Donjons & Savons.
+
+  ⚠ ECRIT A LA MAIN, comme le reste de ce site : une page ajoutee dans fr/, en/
+    ou es/ doit etre ajoutee ICI AUSSI, dans les trois langues. Un plan qui
+    oublie une page ne la cache pas — elle reste atteignable par les liens —
+    mais elle attend beaucoup plus longtemps sa premiere visite.
+
+  ⚠ delete-account/ N'Y FIGURE PAS, et c'est voulu. C'est un outil, pas un
+    contenu : on veut qu'il soit ATTEIGNABLE (le Play Store l'exige, et rien ne
+    l'interdit dans robots.txt), pas qu'il soit REFERENCE. Il est de toute facon
+    lie depuis le pied de page de chaque page.
+
+  Les <xhtml:link> declarent, pour chaque adresse, ses soeurs dans les autres
+  langues. Sans eux, Google voit trois pages qui se ressemblent, conclut au
+  contenu duplique et n'en retient qu'une — souvent pas celle du visiteur.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://donjons.grisloup.com/</loc>
+    <lastmod>2026-08-20</lastmod>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/fr/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/en/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/es/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/fr/concept/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/concept/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/concept/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/concept/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/concept/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/en/concept/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/concept/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/concept/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/concept/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/concept/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/es/concept/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/concept/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/concept/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/concept/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/concept/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/fr/experience/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/experience/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/experience/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/experience/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/experience/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/en/experience/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/experience/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/experience/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/experience/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/experience/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/es/experience/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/experience/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/experience/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/experience/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/experience/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/fr/roadmap/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/roadmap/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/en/roadmap/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/roadmap/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/es/roadmap/</loc>
+    <lastmod>2026-08-20</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/roadmap/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/fr/betas/</loc>
+    <lastmod>2026-08-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/betas/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/betas/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/betas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/betas/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/en/betas/</loc>
+    <lastmod>2026-08-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/betas/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/betas/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/betas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/betas/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/es/betas/</loc>
+    <lastmod>2026-08-21</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/betas/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/betas/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/betas/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/betas/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/fr/press/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/press/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/press/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/press/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/press/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/en/press/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/press/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/press/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/press/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/press/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/es/press/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/press/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/press/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/press/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/press/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/fr/legal/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/legal/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/legal/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/legal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/legal/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/en/legal/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/legal/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/legal/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/legal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/legal/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/es/legal/</loc>
+    <lastmod>2026-09-03</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/legal/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/legal/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/legal/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/legal/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/fr/legal/data/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/legal/data/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/en/legal/data/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/legal/data/"/>
+  </url>
+  <url>
+    <loc>https://donjons.grisloup.com/es/legal/data/</loc>
+    <lastmod>2026-08-24</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/legal/data/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/legal/data/"/>
+  </url>
+</urlset>

@@ -31,6 +31,7 @@ Ouvrir Play Console sur le **bon compte** : `https://play.google.com/console/u/1
 | Adresse e-mail | `donjons@grisloup.com` |
 | Site web | `https://donjons.grisloup.com` |
 | Numéro d'immatriculation | `109354092` — le **SIREN**, immatriculé le 2026-09-02 |
+| Numéro D-U-N-S | `28-814-9658` — attribué par Altares/D&B ; c'est lui qui ouvre le profil de paiement **organisation** |
 | Numéro de TVA | *laisser vide* — franchise en base, et le n° intracommunautaire n'est pas encore attribué |
 | Consentement à l'affichage public | **cocher** |
 

@@ -211,8 +211,15 @@ extension Worker_avatars on worker {
                                 await _exitClanEdit();
     }
 
-    // Persiste le nom du clan : lecture/écriture du doc workers/clans (ownerId: clanSecret)
-    // + session.clan.name. Rechargé au boot via dvsession (session.clanname ↔ clans.internal.name).
+    // Persiste le nom du clan : écriture PARTIELLE du doc workers/clans (ownerId: clanSecret,
+    // deep-merge par updateMask) + session.clan.name. Rechargé au boot via dvsession
+    // (session.clanname ↔ clans.internal.name).
+    //
+    // Ne touche JAMAIS `external.*` : le nom public du clan est figé à sa création. Le renommer
+    // en même temps que le nom interne ferait suivre le pseudonyme au fil des humeurs, alors que
+    // sa raison d'être est justement de rester un point fixe hors du clan.
+    // Écriture partielle et non plus read-modify-write complet : une lecture ratée renvoyait un
+    // Dvidle vide, et le write qui suivait pouvait effacer tout le reste du document.
     Future<void> _persistClanName(String name) async {
 
                                 final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
@@ -222,9 +229,8 @@ extension Worker_avatars on worker {
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
                                     if (clanId.isNotEmpty && clanSecret.isNotEmpty) {
                                         try {
-                                            final clan = await _cloud?.read("workers", "clans", clanId,
-                                                ownerId: clanSecret, region: region) ?? Dvidle({});
-                                            clan.rem("docId");
+                                            final clan = Dvidle({});
+                                            clan.set("ownerId",       clanSecret);
                                             clan.set("internal.name", name);
                                             await _cloud?.write("workers", "clans", clanId, clan,
                                                 region: region, ownerId: clanSecret);

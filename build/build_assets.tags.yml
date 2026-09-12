@@ -1,0 +1,834 @@
+# ---------------------------------------------------------------------------
+# --- Filiation des assets, marquee a la main par `bundles tag`
+# ---------------------------------------------------------------------------
+# Un TAG dit une PROVENANCE, jamais un procede : « anneau dore » decrit
+# ce qu'on a fait a une image, pas ce dont elle descend.
+#
+# ⚠ UNE REFERENCE EST LA TETE D'UNE FAMILLE, pas de toutes celles
+#   qu'elle porte. `intro_little_elfe.png` marquee `reference` et
+#   taguee `elfe1` donne son parent a tout ce qui porte `elfe1`.
+#   Une reference qui porte PLUSIEURS tags doit dire lesquels elle
+#   mene, par `heads` — PLUSIEURS sont possibles, et « aucune »
+#   aussi. `icon.png` porte un bouclier repris ailleurs ET un
+#   nounours repris ailleurs : elle mene les deux familles. Les
+#   tags non listes sont ceux dont elle DESCEND.
+#   Sans quoi deux references qui se citent forment une boucle.
+#
+# Trois tags ne designent aucun parent : alone, capture, nepasclasser.
+#
+# ⚠ COPIE ≠ DERIVE. Une derivation a demande un travail ; une copie
+#   n'a demande que de deposer le meme dessin ailleurs. La RACINE
+#   d'un groupe de copies est l'exemplaire de MEILLEURE RESOLUTION,
+#   les autres s'en recopient et ne se regenerent jamais.
+#
+# Editable a la main, mais `bundles tag` le reecrit : garder la forme.
+tags:
+  - "elfe1"
+  - "guerrier1"
+  - "bébé1"
+  - "alone"
+  - "capture"
+  - "bouclier"
+  - "coffre"
+  - "nepasclasser"
+  - "nounours"
+  - "bandeau"
+  - "clan1"
+  - "clan1papa"
+  - "clan1maman"
+  - "clan1grand"
+  - "clan1grande"
+  - "clan1petit"
+  - "couronne"
+  - "splash"
+# Les tags qui disent un TRAITEMENT et non une provenance : ils ne donnent
+# aucun parent. `clan1` marque le passage par le cercle dore de
+# `tools/iconify.py`, ce qui n'est pas un ancetre.
+#
+# ⚠ CE N'EST PLUS QUE LA MOITIE DE L'HISTOIRE, DEPUIS LE 2026-09-12. Ce tag etait un
+#   CONTOURNEMENT : le modele d'assets ne savait pas dire qu'une image doit son aspect a
+#   un outil, alors on l'a dit ici pour que le convertisseur de filiations cesse de
+#   chercher une origine qui n'existe pas.
+#
+#   Le vrai endroit existe maintenant : `traitements:` dans `build_assets.yml`, ou les
+#   items `avatars` et `clans` declarent `iconify`. C'est CELUI-LA qui est rejoue a la
+#   regeneration ; celui-ci ne fait plus que taire le convertisseur.
+#
+#   On le garde tel quel : les deux ne disent pas la meme chose au meme public, et le
+#   retirer ferait reapparaitre 46 parents fantomes dans le graphe.
+traitements:
+  - "clan1"
+assets:
+  "hosting/web/assets/img/02-crest.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/04-welcome.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/05-call-of-adventure.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/07-who-are-you.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/09-tavern-challenge.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/19-choose-destiny.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/20-choose-destiny-2.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/21-birth-of-clan.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/23-prepare-adventure.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/26-journey-begins.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/32-choose-avatar.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/33-me.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/34-items.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/40-time-to-clean.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/44-trash.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/46-time-to-clean-2.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/50-carrier-pigeon.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/54-pocket-money.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/55-pocket-money-2.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/57-note-in-chest.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/59-loot-chest.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/67-clan.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/69-open-loot.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/70-open-loot-2.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/72-loot-share.webp":
+    tags: ["capture"]
+  "hosting/web/assets/img/73-chiefs-word.webp":
+    tags: ["capture"]
+  "hosting/web/assets/video/beta-download-en.mp4":
+    tags: ["alone"]
+  "hosting/web/assets/video/beta-download-es.mp4":
+    tags: ["alone"]
+  "hosting/web/assets/video/beta-download-fr.mp4":
+    tags: ["alone"]
+  "hosting/web/assets/video/beta-download-poster-en.png":
+    tags: ["alone"]
+  "hosting/web/assets/video/beta-download-poster-en.webp":
+    tags: ["alone"]
+  "hosting/web/assets/video/beta-download-poster-es.png":
+    tags: ["alone"]
+  "hosting/web/assets/video/beta-download-poster-es.webp":
+    tags: ["alone"]
+  "hosting/web/assets/video/beta-download-poster-fr.png":
+    tags: ["alone"]
+  "hosting/web/assets/video/beta-download-poster-fr.webp":
+    tags: ["alone"]
+  "hosting/web/assets/video/chest-opening-poster.png":
+    tags: ["capture"]
+  "hosting/web/assets/video/chest-opening-poster.webp":
+    tags: ["capture"]
+  "hosting/web/assets/video/chest-opening.mp4":
+    tags: ["capture", "alone"]
+  "hosting/web/assets/video/onboarding-kid-poster.png":
+    tags: ["capture"]
+  "hosting/web/assets/video/onboarding-kid-poster.webp":
+    tags: ["capture"]
+  "hosting/web/assets/video/onboarding-kid.mp4":
+    tags: ["alone"]
+  "hosting/web/assets/video/task-defeating-poster.png":
+    tags: ["capture"]
+  "hosting/web/assets/video/task-defeating-poster.webp":
+    tags: ["capture"]
+  "hosting/web/assets/video/task-defeating.mp4":
+    tags: ["alone"]
+  "hosting/web/assets/video/trailer-en.mp4":
+    tags: ["alone"]
+  "hosting/web/assets/video/trailer-es.mp4":
+    tags: ["alone"]
+  "hosting/web/assets/video/trailer-fr.mp4":
+    tags: ["alone"]
+  "hosting/web/assets/video/trailer-poster.png":
+    tags: ["alone"]
+  "hosting/web/assets/video/trailer-poster.webp":
+    tags: ["alone"]
+  "resources/icon/eu.png":
+    tags: ["alone"]
+  "resources/icon/google.png":
+    tags: ["alone"]
+  "resources/icon/icon.png":
+    reference: true
+    heads: ["bouclier", "nounours"]
+    tags: ["bouclier", "nounours"]
+  "resources/icon/shield.png":
+    tags: ["alone"]
+  "resources/icon/us.png":
+    tags: ["alone"]
+  "resources/images/splashs/splash.png":
+    reference: true
+    heads: ["splash"]
+    derived: true
+    tags: ["guerrier1", "splash"]
+  "resources_cloud/donjon/images/big/CoffreRitual.png":
+    derived: true
+    tags: ["elfe1", "guerrier1", "bébé1", "coffre"]
+  "resources_cloud/donjon/images/big/argent_poche_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/big/chest.png":
+    reference: true
+    tags: ["coffre"]
+  "resources_cloud/donjon/images/big/chest_item_nobg.png":
+    tags: ["coffre"]
+  "resources_cloud/donjon/images/big/fairy_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/big/frost_frame_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/big/gameover.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/big/guide_k1.png":
+    tags: ["nepasclasser"]
+  "resources_cloud/donjon/images/big/guide_k2.png":
+    tags: ["nepasclasser"]
+  "resources_cloud/donjon/images/big/guide_k3.png":
+    tags: ["nepasclasser"]
+  "resources_cloud/donjon/images/big/guide_k4.png":
+    tags: ["nepasclasser"]
+  "resources_cloud/donjon/images/big/guide_p1.png":
+    tags: ["nepasclasser"]
+  "resources_cloud/donjon/images/big/guide_p2.png":
+    tags: ["nepasclasser"]
+  "resources_cloud/donjon/images/big/guide_p3.png":
+    tags: ["nepasclasser"]
+  "resources_cloud/donjon/images/big/guide_p4.png":
+    tags: ["nepasclasser"]
+  "resources_cloud/donjon/images/big/logo.png":
+    reference: true
+    heads: ["bandeau"]
+    derived: true
+    tags: ["nounours", "bandeau"]
+  "resources_cloud/donjon/images/big/no_paiement_nobg.png":
+    derived: true
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/big/playstore.png":
+    derived: true
+    tags: ["bandeau", "nounours"]
+  "resources_cloud/donjon/images/big/skull_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/big/titre_clan.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/big/titre_perso.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/big/victory_nobg.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/bourse.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/medium/chestok.png":
+    derived: true
+    tags: ["coffre"]
+  "resources_cloud/donjon/images/medium/dt_t_animaux_01.png":
+    derived: true
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_animaux_02.png":
+    derived: true
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_animaux_03.png":
+    derived: true
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_animaux_05.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_balcon_01.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_balcon_02.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_bureau_01.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_bureau_02.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_bureau_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_bureau_04.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_bureau_05.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_bureau_06.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_01.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_02.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_03.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_04.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_05.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_06.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_09.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_10.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_11.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_01.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_02.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_04.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_05.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_06.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_08.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_09.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_10.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_couloir_01.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_couloir_02.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_couloir_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_couloir_04.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_courses_01.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_courses_02.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_courses_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_courses_04.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_courses_05.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_01.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_04.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_05.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_06.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_07.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_08.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_09.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_10.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_11.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_12.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_13.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_15.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_18.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_19.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_dechets_01.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_dechets_02.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_dechets_03.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_dechets_04.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_dechets_05.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_dechets_06.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_dechets_07.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_entree_01.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_entree_02.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_entree_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_entree_04.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_extras_01.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_extras_02.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_extras_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_extras_04.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_extras_05.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_extras_06.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_extras_07.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_extras_08.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_garage_01.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_garage_02.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_garage_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_garage_04.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_garage_05.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_garage_06.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_jardin_01.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_jardin_02.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_jardin_03.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_jardin_04.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_jardin_05.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_jardin_06.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_01.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_02.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_02_alt.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_03.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_04.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_05.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_06.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_08.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_linge_09.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_moto_01.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_repas_06.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_repas_07.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_repas_10.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_repas_11.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_01.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_02.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_03.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_04.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_05.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_06.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_07.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_08.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_10.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_11.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_12.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_01.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_02.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_03.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_04.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_05.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_06.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_07.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_08.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_salon_09.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_terrasse_01.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_terrasse_02.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_terrasse_03.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_01.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_02.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_03.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_04.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_06.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_01.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_02.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_03.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_04.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_05.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_06.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_07.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_08.png":
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_09.png":
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/dt_t_voiture_01.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/dt_t_voiture_02.png":
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/ecu_combat.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/medium/fairy_tile.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/medium/icon_01_C_01.png":
+    derived: true
+    tags: ["clan1", "guerrier1", "elfe1", "bébé1"]
+  "resources_cloud/donjon/images/medium/icon_01_C_02.png":
+    derived: true
+    tags: ["clan1", "clan1papa", "clan1maman"]
+  "resources_cloud/donjon/images/medium/icon_01_C_03.png":
+    derived: true
+    tags: ["clan1", "clan1grand", "clan1grande"]
+  "resources_cloud/donjon/images/medium/icon_01_C_04.png":
+    tags: ["clan1", "clan1grande", "clan1papa", "clan1maman", "clan1grand"]
+  "resources_cloud/donjon/images/medium/icon_01_P_01.png":
+    tags: ["clan1", "guerrier1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_02.png":
+    tags: ["guerrier1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_03.png":
+    tags: ["guerrier1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_04.png":
+    tags: ["guerrier1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_05.png":
+    tags: ["guerrier1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_06.png":
+    tags: ["guerrier1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_07.png":
+    tags: ["elfe1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_08.png":
+    tags: ["elfe1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_09.png":
+    tags: ["elfe1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_10.png":
+    tags: ["elfe1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_11.png":
+    tags: ["elfe1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_12.png":
+    tags: ["elfe1", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_13.png":
+    tags: ["clan1grand", "clan1"]
+  "resources_cloud/donjon/images/medium/icon_01_P_14.png":
+    tags: ["clan1", "clan1grand"]
+  "resources_cloud/donjon/images/medium/icon_01_P_15.png":
+    tags: ["clan1", "clan1grand"]
+  "resources_cloud/donjon/images/medium/icon_01_P_16.png":
+    tags: ["clan1", "clan1grand"]
+  "resources_cloud/donjon/images/medium/icon_01_P_17.png":
+    tags: ["clan1", "clan1grand"]
+  "resources_cloud/donjon/images/medium/icon_01_P_18.png":
+    tags: ["clan1", "clan1grand"]
+  "resources_cloud/donjon/images/medium/icon_01_P_19.png":
+    tags: ["clan1", "clan1grande"]
+  "resources_cloud/donjon/images/medium/icon_01_P_20.png":
+    tags: ["clan1", "clan1grande"]
+  "resources_cloud/donjon/images/medium/icon_01_P_21.png":
+    tags: ["clan1", "clan1grande"]
+  "resources_cloud/donjon/images/medium/icon_01_P_22.png":
+    tags: ["clan1", "clan1grande"]
+  "resources_cloud/donjon/images/medium/icon_01_P_23.png":
+    tags: ["clan1", "clan1grande"]
+  "resources_cloud/donjon/images/medium/icon_01_P_24.png":
+    tags: ["clan1", "clan1grande"]
+  "resources_cloud/donjon/images/medium/icon_01_P_25.png":
+    tags: ["clan1", "clan1petit"]
+  "resources_cloud/donjon/images/medium/icon_01_P_26.png":
+    tags: ["clan1", "clan1petit"]
+  "resources_cloud/donjon/images/medium/icon_01_P_27.png":
+    tags: ["clan1", "clan1petit"]
+  "resources_cloud/donjon/images/medium/icon_01_P_28.png":
+    tags: ["clan1", "clan1petit"]
+  "resources_cloud/donjon/images/medium/icon_01_P_29.png":
+    tags: ["clan1", "clan1petit"]
+  "resources_cloud/donjon/images/medium/icon_01_P_30.png":
+    tags: ["clan1", "clan1petit"]
+  "resources_cloud/donjon/images/medium/icon_01_P_31.png":
+    tags: ["clan1", "clan1maman"]
+  "resources_cloud/donjon/images/medium/icon_01_P_32.png":
+    tags: ["clan1", "clan1maman"]
+  "resources_cloud/donjon/images/medium/icon_01_P_33.png":
+    tags: ["clan1", "clan1maman"]
+  "resources_cloud/donjon/images/medium/icon_01_P_34.png":
+    tags: ["clan1", "clan1maman"]
+  "resources_cloud/donjon/images/medium/icon_01_P_35.png":
+    tags: ["clan1", "clan1maman"]
+  "resources_cloud/donjon/images/medium/icon_01_P_36.png":
+    tags: ["clan1", "clan1maman"]
+  "resources_cloud/donjon/images/medium/icon_01_P_37.png":
+    tags: ["clan1", "clan1papa"]
+  "resources_cloud/donjon/images/medium/icon_01_P_38.png":
+    tags: ["clan1", "clan1papa"]
+  "resources_cloud/donjon/images/medium/icon_01_P_39.png":
+    tags: ["clan1", "clan1papa"]
+  "resources_cloud/donjon/images/medium/icon_01_P_40.png":
+    tags: ["clan1", "clan1papa"]
+  "resources_cloud/donjon/images/medium/icon_01_P_41.png":
+    tags: ["clan1", "clan1papa"]
+  "resources_cloud/donjon/images/medium/icon_01_P_42.png":
+    tags: ["clan1", "clan1papa"]
+  "resources_cloud/donjon/images/medium/icon_Marchand.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/medium/icon_edit.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/medium/intro_little_elfe.png":
+    reference: true
+    tags: ["elfe1"]
+  "resources_cloud/donjon/images/medium/intro_little_hobbit.png":
+    reference: true
+    tags: ["bébé1"]
+  "resources_cloud/donjon/images/medium/intro_little_knight.png":
+    reference: true
+    tags: ["guerrier1"]
+  "resources_cloud/donjon/images/medium/nope.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/medium/nounours.png":
+    reference: true
+    heads: ["nounours", "bouclier"]
+    tags: ["nounours", "bouclier"]
+  "resources_cloud/donjon/images/medium/ring.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/medium/shield.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/medium/task_animaux_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_balcon_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_bureau_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png":
+    reference: true
+    heads: ["nounours", "bouclier"]
+    tags: ["nounours", "bouclier"]
+  "resources_cloud/donjon/images/medium/task_chambre_parentale_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_couloir_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_courses_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_cuisine_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_dechets_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_entree_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_extras_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_garage_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_jardin_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_linge_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_repas_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_salle_de_bain_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_salon_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_terrasse_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_toilettes_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_vaisselle_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/medium/task_vehicules_nobg.png":
+    derived: true
+    tags: ["bouclier"]
+  "resources_cloud/donjon/images/small/adm_add.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/adm_cross.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/adm_disable.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/adm_enable.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/adm_hide.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/adm_show.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/adult.png":
+    tags: ["nounours"]
+  "resources_cloud/donjon/images/small/byebye_nobg.png":
+    tags: ["nounours"]
+  "resources_cloud/donjon/images/small/cadeau.png":
+    tags: ["nounours"]
+  "resources_cloud/donjon/images/small/chef_nobg.png":
+    tags: ["nounours", "couronne"]
+  "resources_cloud/donjon/images/small/chestip.png":
+    tags: ["coffre"]
+  "resources_cloud/donjon/images/small/crown.png":
+    reference: true
+    tags: ["couronne"]
+  "resources_cloud/donjon/images/small/cure_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/exclam.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/flamme_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/flee_nobg.png":
+    tags: ["nounours"]
+  "resources_cloud/donjon/images/small/hand_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/heart_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/log-out.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/nomore_chef.png":
+    tags: ["nounours", "couronne"]
+  "resources_cloud/donjon/images/small/notconnected_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/pharma.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/poubelle.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/qr-code.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/scroll_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/switch_nobg.png":
+    tags: ["nounours"]
+  "resources_cloud/donjon/images/small/tagXP_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/tb_boutique.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/tb_clan.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/tb_combat.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/tb_inventaire.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/tb_perso.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/small/xp_nobg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/splashs/annonce.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/splashs/parchment_bg.png":
+    tags: ["alone"]
+  "resources_cloud/donjon/images/splashs/pirates/splash.png":
+    derived: true
+    tags: ["splash"]
+  "resources_cloud/donjon/images/splashs/splash-pirate_pirate_v2.png":
+    tags: ["splash"]
+  "resources_cloud/donjon/videos/Donjons&Savons-EN_General_V1.mp4":
+    tags: ["alone"]
+  "resources_cloud/donjon/videos/Donjons&Savons-ES_General_V1.mp4":
+    tags: ["alone"]
+  "resources_cloud/donjon/videos/Donjons&Savons-FR_General_V1.mp4":
+    tags: ["alone"]
+  "resources_others/screenshots/en/02-crest.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/04-welcome.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/05-call-of-adventure.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/07-who-are-you.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/09-tavern-challenge.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/19-choose-destiny.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/20-choose-destiny-2.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/21-birth-of-clan.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/23-prepare-adventure.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/26-journey-begins.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/32-choose-avatar.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/33-me.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/34-items.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/40-time-to-clean.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/44-trash.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/46-time-to-clean-2.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/50-carrier-pigeon.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/54-pocket-money.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/55-pocket-money-2.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/57-note-in-chest.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/59-loot-chest.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/67-clan.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/69-open-loot.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/70-open-loot-2.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/72-loot-share.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/73-chiefs-word.png":
+    tags: ["capture"]
+  "resources_others/screenshots/en/playstore.png":
+    derived: true
+    tags: ["bandeau", "nounours"]

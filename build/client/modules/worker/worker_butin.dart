@@ -1097,6 +1097,7 @@ extension Worker_butin on worker {
                                             admin:        admins.contains(pid),
                                             contribution: (pxp - plastB) > 0 ? pxp - plastB : 0,
                                             pending:      p.get("pending_butin") == true,
+                                            horsConcours: p.get("hors_concours") == true,
                                         ));
                                     }
                                     if (members.isEmpty) {
@@ -1159,7 +1160,11 @@ extension Worker_butin on worker {
                                         // gagné voit l'animation et un écran qui le lui dit.
                                         final flag = Dvidle({});
                                         flag.set("ownerId",       clanSecret);
-                                        flag.set("pending_butin", true);
+                                        // Part à réclamer — SAUF pour un hors concours, qui n'a rien reçu :
+                                        // le drapeau le conduirait à un écran de récompenses vide à chaque
+                                        // cycle. Posé à `false` explicitement et non omis : le deep-merge
+                                        // dvcloud préserverait un champ absent, donc un reliquat d'avant.
+                                        flag.set("pending_butin", !s.horsConcours);
                                         // Le rituel est consommé : on éteint son drapeau ici, pour TOUT le
                                         // monde. Sans ça, l'absent qu'on a forcé prêt le garde et se ferait
                                         // téléporter dans une cérémonie fantôme au prochain lancement — sur
@@ -1174,6 +1179,14 @@ extension Worker_butin on worker {
                                         // RECALAGE de la contribution : ce que ce joueur a produit vient
                                         // d'être payé, son compteur repart d'ici. Dans le même lot que sa
                                         // part — on ne solde pas une dette qu'on n'aurait pas versée.
+                                        //
+                                        // INCONDITIONNEL, y compris pour un hors concours : c'est la seule
+                                        // exception à la phrase ci-dessus, et elle est volontaire. Sa dette
+                                        // n'est pas impayée, elle est DÉCLINÉE — il a choisi de ne pas être
+                                        // payé. Ne pas la solder ferait enfler sa contribution cycle après
+                                        // cycle, et le jour où un chef lui retirerait le drapeau, il raflerait
+                                        // le butin suivant en entier : le mode se retournerait contre les
+                                        // enfants à l'instant précis où on le désactive.
                                         flag.set("last_butin_xp", xpOf[s.id] ?? 0);
                                         // Le dernier contributeur, transporté à tout le monde (lui compris :
                                         // c'est son app qui décidera de ne rien lui montrer). Chaînes VIDES et
@@ -1184,12 +1197,23 @@ extension Worker_butin on worker {
                                         writes.add(DvCloudWrite.set(pcoll, s.id, flag));
                                     }
 
-                                    // Le coffre rend tout son argent d'un coup : il repart de zéro.
+                                    // Le coffre rend l'argent qu'il a effectivement versé, et GARDE le reste.
+                                    // Il peut en rester : un cycle où seuls des joueurs hors concours ont
+                                    // produit ne trouve aucun éligible à qui verser (poids tous nuls), et le
+                                    // vider quand même détruirait la somme. Elle attend donc le cycle suivant,
+                                    // où le premier enfant qui valide la récupérera. Les objets non distribués
+                                    // n'ont besoin de rien : la boucle ci-dessus n'écrit que ceux qui ont
+                                    // trouvé un `to_owner`, les autres restent dans le coffre par construction.
                                     if (money > 0) {
+                                        final given = shares.fold<int>(0, (t, s) => t + s.money);
                                         final doc = Dvidle({});
                                         doc.set("ownerId",  clanSecret);
-                                        doc.set("quantity", 0);
+                                        doc.set("quantity", money - given);
                                         writes.add(DvCloudWrite.set(coll, _walletDocId, doc));
+                                        if (given < money) {
+                                            deva_log("info", "[butin] reliquat conservé dans le coffre : "
+                                                "${money - given} (versé $given / $money)");
+                                        }
                                     }
 
                                     // Les notes des chefs sont révélées à l'instant où le coffre s'ouvre,
@@ -1270,13 +1294,15 @@ extension Worker_butin on worker {
 
     // Le membre NON ADMIN qui a le moins contribué au cycle — celui à qui le clan doit une attaque
     // de bisous. Les chefs sont hors concours : ils organisent la maisonnée, on ne leur compte pas
-    // leurs points. Null si le clan n'a que des chefs — il n'y a alors personne à encourager.
+    // leurs points. Les joueurs mis « hors concours » non plus, pour la même raison en plus net :
+    // ils ont demandé à sortir du classement, ils n'en héritent pas la dernière place. Null si le
+    // clan n'a que ceux-là — il n'y a alors personne à encourager.
     // Ex æquo départagés par un TIRAGE explicite, comme le reste du partage : le tri de Dart n'est
     // pas stable, et sans tirage ce serait toujours le même enfant qui hériterait de la dernière
     // place (le plus souvent celui dont le document se lit en premier).
     _ButinShare? _lowestContributor(List<_ButinShare> members, Random rng) {
 
-                                final field = members.where((m) => !m.admin).toList();
+                                final field = members.where((m) => !m.admin && !m.horsConcours).toList();
                                 if (field.isEmpty) return null;
                                 final luck = <_ButinShare, double>{
                                     for (final m in field) m: rng.nextDouble()
@@ -1293,6 +1319,9 @@ extension Worker_butin on worker {
     //
     //  - l'argent va à TOUT LE MONDE (chefs compris), proportionnellement aux XP contribués ;
     //  - les objets ne vont qu'aux joueurs NON ADMIN (le chef organise, il ne se sert pas) ;
+    //  - un joueur HORS CONCOURS ne reçoit ni l'un ni l'autre : poids nul, et hors des `takers`.
+    //    Il reste toutefois dans `members` — sa jauge de contribution doit se refermer avec celle
+    //    des autres (cf. le recalage de last_butin_xp chez l'appelant) ;
     //  - un objet ne se coupe pas en deux : la proportionnalité est APPROCHÉE par tirage au sort.
     //    C'est le cœur de l'affaire — un partage déterministe donnerait toujours au même joueur.
     List<_ButinShare> _computeButinShares({
@@ -1308,15 +1337,29 @@ extension Worker_butin on worker {
                                 // Poids = contribution au cycle courant. Un clan qui n'a rien produit
                                 // (tout le monde à 0) partage en parts ÉGALES : sans ça personne ne serait
                                 // éligible et le coffre ne se viderait jamais.
-                                final flat = members.every((m) => m.contribution <= 0);
-                                double weightOf(_ButinShare m) => flat ? 1.0 : m.contribution.toDouble();
+                                //
+                                // `flat` se calcule sur les seuls ÉLIGIBLES, pas sur `members` : la semaine
+                                // où seul un parent hors concours a travaillé, sa contribution rendrait le
+                                // clan « non plat » alors que tous les éligibles valent zéro — le total des
+                                // poids serait nul, _shareMoney sortirait sans rien verser, et le coffre
+                                // serait remis à zéro par-dessus. Ce n'est pas un cas tordu, c'est une
+                                // semaine ordinaire.
+                                final eligible = members.where((m) => !m.horsConcours);
+                                final flat = eligible.every((m) => m.contribution <= 0);
+                                // Poids NUL pour un hors concours, y compris à plat : il ne ramasse rien.
+                                double weightOf(_ButinShare m) =>
+                                    m.horsConcours ? 0.0 : (flat ? 1.0 : m.contribution.toDouble());
 
                                 if (money > 0) _shareMoney(members, money, weightOf, rng);
 
                                 // Repli sur tout le monde si le clan n'a que des chefs (clan de test à un
-                                // membre) : mieux vaut un chef servi qu'un coffre qui ne se vide pas.
-                                var takers = members.where((m) => !m.admin).toList();
-                                if (takers.isEmpty) takers = List<_ButinShare>.from(members);
+                                // membre) : mieux vaut un chef servi qu'un coffre qui ne se vide pas. Le repli
+                                // n'ouvre PAS la porte aux hors concours : eux n'ont pas été écartés faute de
+                                // mieux, ils l'ont demandé.
+                                var takers = members.where((m) => !m.admin && !m.horsConcours).toList();
+                                if (takers.isEmpty) {
+                                    takers = members.where((m) => !m.horsConcours).toList();
+                                }
 
                                 final valued = items.where((d) => _itemCostOf(d) > 0).toList()
                                     ..sort((a, b) => _itemCostOf(b).compareTo(_itemCostOf(a)));
@@ -1553,7 +1596,7 @@ extension Worker_butin on worker {
     }
 
     // Texte Markdown des notes révélées par CETTE ouverture (`notes_shown`, posé par
-    // _distributeButin) : un bloc par note, en-tête centré (le prénom de son auteur) puis le
+    // _distributeButin) : un bloc par note, en-tête centré (le pseudonyme de son auteur) puis le
     // texte — même idiome que les en-têtes de date du journal (cf. worker._StoryBuffer). VIDE si
     // personne n'en a écrit, ce qui fait sauter butin_notes_page (worker.on_butin_rewards_ok).
     String _buildButinNotesText(Dvidle? doc) {
@@ -1760,6 +1803,10 @@ class _ButinShare {
     // Drapeau pending_butin AVANT distribution : une part encore non réclamée interdit de
     // rafraîchir le repère `last_quantity` du portefeuille, sous peine d'effacer un gain jamais vu.
     final bool   pending;
+    // Joueur mis « hors concours » par un chef : il reste dans la liste — il a contribué au coffre
+    // et sa jauge doit se refermer comme celle des autres — mais son poids est nul, il ne peut
+    // recevoir ni argent ni objet, et il n'est jamais désigné pour l'attaque de bisous.
+    final bool   horsConcours;
 
     int money = 0;
     final List<Dvidle> items = [];
@@ -1773,6 +1820,7 @@ class _ButinShare {
             required this.admin,
             required this.contribution,
             required this.pending,
+            required this.horsConcours,
     });
 }
 

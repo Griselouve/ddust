@@ -136,11 +136,27 @@ extension Worker_celebrations on worker {
                                     // admin le déclare hors ligne alors qu'il est encore connecté, sa vigilance ne doit
                                     // NI jouer le burn NI basculer en mode mort (et à sa reconnexion, _writeClanPlayer
                                     // recale déjà last_task=now → PV pleins).
-                                    final dead    = pvShown <= 0 && doc.get("has_device") != false;
+                                    // MÊME EXCEPTION pour un HORS CONCOURS : la mort est le mécanisme de pression
+                                    // d'assiduité, et celui qui s'est mis en retrait n'est plus dans cette boucle — il
+                                    // a le droit de se reposer et de perdre des PV. Il continue de les voir sur son
+                                    // écran Personnage ; simplement, tomber à zéro ne lui vaut ni crâne ni gage. Un
+                                    // chef qui se met hors concours doit d'ailleurs rester capable de valider les
+                                    // tâches des enfants, ce qu'un écran de mort bloquant lui interdirait — et le clan
+                                    // ne verrait même pas pourquoi, sa tuile ne portant plus ni cœurs ni crâne.
+                                    // Miroir côté clan : le champ "dead" poussé par _refreshRoster.
+                                    final dead    = pvShown <= 0
+                                                 && doc.get("has_device")    != false
+                                                 && doc.get("hors_concours") != true;
 
                                     var gage = storedGage;
                                     if (dead && gage.isEmpty) {
-                                        gage = "gage_${(Random().nextInt(11) + 1).toString().padLeft(2, '0')}";
+                                        // Borne = NOMBRE DE gage_NN déclarés dans theme-donjon-global.yml.
+                                        // À incrémenter en même temps qu'un gage est ajouté, sinon le nouveau
+                                        // n'est jamais tiré. Ne JAMAIS renuméroter les gages existants pour
+                                        // combler un trou : clans_logs stocke l'identifiant, et la rédemption
+                                        // servie à la résurrection (gage_d_NN) raconterait à d'anciennes morts
+                                        // une histoire qui n'est pas la leur. Un gage retiré se remplace SUR PLACE.
+                                        gage = "gage_${(Random().nextInt(15) + 1).toString().padLeft(2, '0')}";
                                     }
 
                                     // Admin SOLO mort → bouton « Résurrection » (personne d'autre ne peut le soigner).

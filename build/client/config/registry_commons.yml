@@ -19,6 +19,7 @@ conf:
         - parentalgate_screen
         - ddvideo
         - documents_acceptance_screen
+        - kid_assent_screen
         - link_account_screen
         - new_or_pick_clan
         - create_clan
@@ -136,6 +137,11 @@ conf:
         # Injecté ici et pas dans "page" : l'onboarding n'a pas à le porter — on n'y a pas encore de
         # clan, et un bandeau rouge sur l'écran d'accueil accueillerait mal.
         - commons/store_dunning
+        # Porte close : le consentement parental de CE joueur vient d'être retiré. Listé en DERNIER
+        # et borné à h:100% (et non 88% comme l'overlay de mort) — c'est la seule surface du jeu qui
+        # recouvre la taskbar, parce qu'elle est la seule à devoir tout fermer, navigation comprise.
+        - commons/closed_scrim
+        - commons/closed_msg
 
     # Écran À TIROIR (combat + les 19 <domaine>_tasks) : hérite de page_taskbar et injecte le
     # dispositif d'ADMINISTRATION du chef de clan — le switch « Jeu | Admin » en bas du tiroir et
@@ -234,46 +240,10 @@ conf:
       masks:
         - commons/shape
 
-    #//------------------------------- NAME FORM (modèle partagé) --------------------------
-    # Structure/positions d'un formulaire de saisie de nom (fond + label + champ + bouton),
-    # source unique masquée par player_name_screen (onboarding) et player_rename_screen.
-    # Nodes non rendus directement : chaque écran maske ces templates et ne surcharge que
-    # son libellé + son handler.
-    commons/nameform_bg:
-      masks:
-        - commons/icon_background
-      shape:
-        y: 0
-
-    commons/nameform_label:
-      masks:
-        - commons/label_label
-      shape:
-        y: 59%
-
-    commons/nameform_entry:
-      masks:
-        - commons/entry
-      shape:
-        x: 5%
-        y: 65%
-        w: 90%
-        h: 8%
-        events:
-          changed: true
-
-    commons/nameform_confirm:
-      masks:
-        - commons/dark_button
-      class: DvLabel
-      layer: content
-      shape:
-        x: 5%
-        y: 85%
-        w: 90%
-        h: 8%
-        events:
-          tap: true
+    # NAME FORM (fond + label + champ + bouton) : SUPPRIMÉ. Ses trois masqueurs —
+    # player_name_screen, player_rename_screen, create_player_screen — sont passés au gabarit
+    # commons/inspireform_* ci-dessous le jour où le personnage a gagné une description et un
+    # bouton « Inspire moi ». Aucun écran ne le masquait plus.
 
     #//------------------------------- CONSENTEMENT PARENTAL (modèle partagé) -------------
     # Mise en page commune des mentions de consentement affichées à l'adulte au moment où il
@@ -302,9 +272,12 @@ conf:
 
     #//------------------------------- INSPIRE FORM (modèle partagé) ----------------------
     # Formulaire « nom + description + Inspire moi (IA) », source unique masquée par create_clan
-    # (naissance d'un clan) et rename_task (édition d'une tâche par le chef). Chaque écran ne
-    # surcharge que ses libellés et ses handlers (changed / inspire / replay / confirm). Le fond
+    # (naissance d'un clan), rename_task (édition d'une tâche par le chef) et les trois écrans de
+    # nom du joueur : player_name_screen, player_rename_screen, create_player_screen. Chaque écran
+    # ne surcharge que ses libellés et ses handlers (changed / inspire / replay / confirm). Le fond
     # est une image (bouclier pour le clan, image de la tâche pour l'édition).
+    # create_player_screen surcharge en plus la géométrie : il doit loger la mention de
+    # consentement parental entre le formulaire et le bouton.
     commons/inspireform_bg:
       masks:
         - commons/icon_background
@@ -822,6 +795,49 @@ conf:
         actions:
           tap: worker.resurrect_self
 
+    #//------------------------- PORTE CLOSE (retrait du consentement) ---------------------
+    # Le tuteur d'un joueur mineur a retiré son consentement : pendant le délai de rétractation,
+    # ce joueur « ne joue plus » — ce qui est le sens exact d'un retrait au titre de l'article
+    # 7(3) du RGPD : cesser de traiter, pas punir. Basculé par worker._applyConsentClosed.
+    #
+    # Il n'est PAS éjecté de son clan (pas de _leaveClanLocal) : son ancrage local doit survivre
+    # intact, sans quoi le retour arrière d'un chef exigerait une ré-invitation par QR ou par PIN
+    # — et ce ne serait plus « revenir sur sa décision ».
+    #
+    # ⚠ Le texte est lu par un enfant. Il ne parle ni d'effacement, ni de parent fautif, et ne
+    # nomme personne : il dit que la porte est close et renvoie vers un adulte de la maison.
+    commons/closed_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.92
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop # avale TOUT : ni tâche, ni taskbar, ni menu
+
+    commons/closed_msg:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        x: 8%
+        y: 38%
+        w: 84%
+        h: 24%
+        font_size: 15.0
+        text_align: CENTER
+        label: "@@@T:consent_closed_msg@@@"
+        opacity: 0.7
+        visible: false
+
     #//------------------------- IMPERSONATION BANNER (prendre la place) -------------------
     # Bandeau UNIQUE et compact affiché quand un admin « prend la place » d'un joueur (option roster
     # take_place) : « Vous incarnez X — touchez pour revenir ». Touche = retour (worker.restore_self),
@@ -854,10 +870,14 @@ conf:
         visible: false
         draggable: true          # glisser pour déplacer (panupdate → shape.move, positions en %)
         events:
-          tap: true              # touche = retour au compte
+          tap: true              # touche = DEMANDE de retour au compte
           panupdate: true        # requis pour que le GestureDetector câble le drag (cf. DvImageView)
         actions:
-          tap: worker.restore_self
+          # Ouvre la saisie du code temporaire, et NON restore_self directement. Le bandeau est
+          # sous les doigts d'un enfant à qui l'on vient de prêter le téléphone : un toucher ne
+          # doit pas rendre le compte de l'adulte, avec ses options d'administration et la
+          # validation de ses propres tâches. Le code est choisi au moment du prêt (imp_pin_set).
+          tap: worker.open_imp_pin_ask
 
     #//------------------------- RAPPEL DE COTISATION (impayé) -----------------------------
     # Bandeau doux affiché aux CHEFS DE CLAN seulement, quand le serveur signale que le cycle de

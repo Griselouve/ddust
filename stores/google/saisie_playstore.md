@@ -133,8 +133,8 @@ Le compte fourni a déjà un clan pour accéder immédiatement au jeu, et une co
 | Site web | `https://donjons.grisloup.com` |
 | URL de politique de confidentialité | `https://donjons.grisloup.com/fr/legal/` |
 | Langues de la fiche | fr-FR (par défaut), en-US, es-ES |
-| Pays — test fermé | France, Belgique |
-| Pays — production | zone EU au lancement, les US ensuite |
+| Pays — test fermé | France |
+| Pays — production | France au lancement, le reste de l'UE ensuite |
 | Publicités | **Non**, aucune |
 | Achats dans l'application | **Oui** — Play calcule lui-même la fourchette affichée |
 

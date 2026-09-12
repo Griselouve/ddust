@@ -38,19 +38,23 @@ estrictamente necesario para su funcionamiento.</p>
   <tr><td>Estado legal</td><td>Únicamente la distinción menor / adulto. <strong>Su fecha de nacimiento nunca se
   conserva</strong>: solo sirve, en la primera conexión, para calcular este estado, y después se
   olvida.</td></tr>
-  <tr><td>Apodos</td><td>El apodo de su personaje y el nombre de su clan, elegidos por usted. Solo
-  son visibles para los miembros de su clan. El nombre del clan posee además una versión externa generada por
-  la aplicación.</td></tr>
+  <tr><td>Apodos</td><td>El apodo de su personaje y el nombre de su clan, elegidos por usted, así como las descripciones que les dé. Solo son visibles para los miembros de su clan.
+  Tanto el apodo del personaje como el nombre del clan poseen además una versión externa generada por la
+  aplicación, sin relación con la que usted eligió: es la única que la aplicación emplearía para designarle
+  fuera de su clan.</td></tr>
   <tr><td>Datos de juego</td><td>Avatar, experiencia, niveles, puntos de vida, oro, objetos, tareas realizadas, registro
   de actividad del clan, fecha de última conexión, idioma de la interfaz, registros de aceptación de las
   condiciones de uso.</td></tr>
   <tr><td>Notificaciones</td><td>Un testigo técnico de envío de notificaciones, asociado a su dispositivo.</td></tr>
+  <tr><td>Ajustes técnicos</td><td>La versión de la aplicación instalada y el desfase horario del
+  dispositivo. Este último sirve para una sola cosa: enviar los recordatorios destinados a un niño a una hora
+  razonable donde vive, y no en mitad de su noche. <strong>No es un dato de localización</strong>: la aplicación
+  nunca mide ni solicita su posición.</td></tr>
 </table>
 <p>Y, sobre todo, lo que la aplicación <strong>no recoge</strong>:</p>
 <ul>
-  <li><strong>Las fotografías de las tareas nunca salen del teléfono</strong>: se guardan en el
-  espacio privado de la aplicación en su dispositivo. Solo se transmite a nuestros servidores un identificador técnico
-  para señalar que existe una prueba; la imagen, en cambio, nunca se envía ni se muestra a nadie.</li>
+  <li><strong>Las fotografías de las tareas nunca se guardan en línea</strong>: se guardan en el espacio privado de la aplicación en su dispositivo, y la copia de seguridad automática de Android está desactivada para la aplicación: ninguna copia sale hacia un almacenamiento en línea. En cambio, pueden conservarse mediante la transferencia directa de un teléfono antiguo a uno nuevo, si utiliza esa función de Android al cambiar de dispositivo. Solo se transmite a nuestros servidores un identificador técnico
+  para señalar que existe una prueba; la imagen, en cambio, nunca se transmite: permanece en el dispositivo del jugador, que es el único que puede volver a verla y el único que decide mostrarla, en persona, al adulto que valora su trabajo.</li>
   <li><strong>Ninguna medición de audiencia (analytics)</strong>: la recogida de Google Analytics está desactivada.</li>
   <li><strong>Ningún identificador publicitario (AD_ID)</strong> y ninguna publicidad, conforme a la política
   Familias de Google Play.</li>
@@ -111,8 +115,8 @@ política redactada en lenguaje accesible</a>.</p>
   autenticación y notificaciones. El tratamiento se rige por el anexo de tratamiento de datos de Google
   (Google Cloud Data Processing Addendum), que hemos aceptado.</li>
   <li><strong>Google Play</strong>: distribución de la aplicación.</li>
-  <li><strong>API Google Gemini (Vertex AI)</strong>: generación de contenidos narrativos. Tres usos, cada uno
-  activado por una acción explícita de un usuario: sugerir un nombre y una descripción de clan, sugerir un
+  <li><strong>API Google Gemini (Vertex AI)</strong>: generación de contenidos narrativos. Los contenidos producidos están destinados a ser leídos por niños: los filtros de seguridad del modelo están ajustados al nivel más estricto que ofrece la interfaz, para las cuatro categorías de contenidos dañinos (acoso, discurso de odio, contenidos sexuales, contenidos peligrosos), y ese ajuste lo imponen nuestros servidores y no el dispositivo. Las instrucciones dadas al modelo acotan además el registro: ninguna violencia hacia una persona o un animal, nada que dé miedo, ningún tema de adultos, ninguna palabra grosera. Cuatro usos, cada uno
+  activado por una acción explícita de un usuario: sugerir un nombre y una descripción de personaje, sugerir un nombre y una descripción de clan, sugerir un
   nombre y una descripción de tarea, y redactar el relato de aventuras del clan propuesto para compartir tras la apertura
   de un botín. Para este último uso, <strong>el nombre del clan, su descripción y el registro de acontecimientos del clan —
   el cual contiene los apodos elegidos por los jugadores— se transmiten al modelo</strong>. Ningún otro dato
@@ -122,12 +126,14 @@ política redactada en lenguaje accesible</a>.</p>
 </ul>
 
 <h2>6. Contenidos compartidos por el usuario</h2>
-<p>La aplicación propone dos formas de compartir, siempre por iniciativa de un adulto del clan y mediante las aplicaciones para
+<p>La aplicación propone tres formas de compartir, siempre por iniciativa de un adulto del clan y mediante las aplicaciones para
 compartir de su dispositivo:</p>
 <ul>
   <li>una <strong>invitación a unirse al clan</strong> (enlace o código QR);</li>
-  <li>el <strong>relato de aventuras del clan</strong>, propuesto tras la apertura de un botín. Este texto contiene el nombre
-  del clan y los apodos de sus miembros.</li>
+  <li>el <strong>registro de actividad del clan</strong>, o el <strong>relato de aventuras</strong> extraído de él
+  tras la apertura de un botín. Este texto contiene el nombre del clan, los apodos de sus miembros y las tareas
+  que han realizado.</li>
+  <li>un <strong>código de regalo</strong> de la tienda, que no contiene ningún dato personal.</li>
 </ul>
 <p>Una vez compartidos, estos contenidos escapan a nuestro control y quedan sujetos a las condiciones del servicio de
 destino (mensajería, red social…). Le invitamos a tenerlo en cuenta antes de compartir, en particular
@@ -158,7 +164,8 @@ conservación limitado</strong> fuera del servicio, y por último el <strong>bor
   retirada del consentimiento o la supresión de la cuenta. Este plazo es inferior al de prescripción del derecho inglés (Limitation Act 1980, sección 5: seis años) y se funda en la obligación legal de demostrar que se recabó un
   consentimiento válido —en particular el consentimiento parental del artículo 8 del UK GDPR—. Estas pruebas se
   conservan cerradas y desactivadas: ya no se utilizan para el funcionamiento del servicio.</li>
-  <li><strong>Fotografías de las tareas</strong>: permanecen en su dispositivo y se suprimen junto con la aplicación.</li>
+  <li><strong>Datos de un clan cuya suscripción se ha interrumpido</strong>: conservados <strong>dos años</strong> desde el bloqueo del clan, y después suprimidos definitivamente. Este plazo es deliberadamente largo: lo que cuesta reconstruir no es el clan sino su historia —las tareas resueltas, los niveles alcanzados, el diario de cada uno— y una familia que se detiene no siempre ha renunciado. Un mes antes del vencimiento avisamos a los adultos del clan.</li>
+  <li><strong>Fotografías de las tareas</strong>: permanecen en el dispositivo del jugador y se borran en cuanto la tarea es evaluada: a más tardar la próxima vez que se abra la aplicación, cuando el veredicto se emitió mientras estaba cerrada. Eliminar la cuenta desde la aplicación borra también las que quedaran.</li>
 </ul>
 
 <p><strong>Lista de espera de las betas</strong>: se elimina íntegramente al final de la fase de beta,
@@ -178,10 +185,18 @@ legal. Para ejercerlos:</p>
 <h3>Retirada del consentimiento</h3>
 <p>Puede <strong>retirar su consentimiento en cualquier momento</strong>, tanto el suyo propio como el que haya
 dado en calidad de responsable legal de un menor al que hace jugar.</p>
-<p><strong>La retirada se ejerce mediante la supresión de su cuenta</strong>, desde la aplicación o a través de la
-página <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>. No existe otra forma
-de retirada: los datos de juego que tratamos sobre la base de su consentimiento no tienen existencia separada de
-la cuenta a la que se vinculan.</p>
+<p><strong>Para un niño al que usted hace jugar, la retirada se ejerce desde la aplicación</strong>, en el menú de
+gestión de su personaje: la opción «Retirar mi consentimiento y borrar los datos de este niño» se ofrece a los jefes
+de su clan de origen. Surte efecto de inmediato —el niño deja de jugar y sus datos ya no se muestran en el juego— y después, transcurrido un plazo de reflexión de 3 días durante el cual un jefe del clan de origen puede
+  cambiar de opinión, sus datos de juego se suprimen y se conservan 30 días en las condiciones del artículo 8
+  antes de su borrado definitivo.</p>
+<p><strong>Para su propio consentimiento, la retirada se ejerce mediante la supresión de su cuenta</strong>, desde
+la aplicación o a través de <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>.</p>
+<p>Retirar su consentimiento pone fin al tratamiento de los datos del niño. Ello no impide que otro adulto
+responsable lo invite algún día a otro clan, bajo su propia responsabilidad: <strong>no mantenemos ninguna lista de
+niños apartados</strong>, pues supondría conservar indefinidamente información sobre un niño cuyo borrado completo
+se nos acaba de pedir. En cambio, un niño nunca puede entrar solo: siempre hace falta la invitación de un adulto que
+declare responder por él.</p>
 <p>En el caso de un menor, la supresión de la cuenta del jefe de clan conlleva la disolución de ese clan y, en
 cascada, la de los perfiles de los menores cuyo clan de origen era ese, así como la de todo perfil que ya no
 pertenece a ningún clan activo —incluidos los

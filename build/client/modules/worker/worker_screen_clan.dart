@@ -265,6 +265,11 @@ extension Worker_screen_clan on worker {
                                 }
 
                                 final members = <Map<String, dynamic>>[];
+                                // Retraits de consentement dont le délai de rétractation est ÉCHU. Collectés au
+                                // passage de cette boucle — la seule du client qui lise tous les membres — et
+                                // traités après le push du roster, pour que l'écran s'affiche sans attendre un
+                                // aller-retour cloud.
+                                final consentExpired = <String>[];
                                 int? minXp;
                                 // Contribution de chaque joueur au butin courant (XP - last_butin_xp) : sert à
                                 // RÉPARTIR la barre de progrès entre les tuiles (cf. normalisation plus bas).
@@ -294,13 +299,44 @@ extension Worker_screen_clan on worker {
                                     // barre butin vide, et exclu des agrégats (partage XP, coup de pouce). Absent/true
                                     // = actif (rétrocompat, comme enabled). La tuile reste VISIBLE (pas de continue).
                                     final phasDevice = p.get("has_device") != false;
+                                    // consent_due : retrait du consentement parental en cours (art. 7(3) RGPD).
+                                    // Non vide = un chef du clan d'origine a retiré son consentement, et l'échéance
+                                    // de rétractation court. Le joueur est HORS DU JEU dès cet instant — tuile
+                                    // visible mais grisée (pour que le retour arrière reste à portée d'un chef) et
+                                    // exclu de TOUS les agrégats, exactement comme un has_device:false, mais sans
+                                    // mort possible : un enfant qu'on cesse de traiter n'a pas à mourir en plus.
+                                    // hors_concours : l'adulte que le clan a mis « hors concours ». Il joue et
+                                    // alimente le clan comme avant, mais il est retiré des AGRÉGATS et de
+                                    // l'AFFICHAGE du clan, et de l'économie du butin. Rien ne change pour lui :
+                                    // son écran Personnage reste complet. Absent = false (== true, pas != false) :
+                                    // ici l'absence signifie « concourt », contrairement à enabled/has_device.
+                                    final phorsConcours = p.get("hors_concours") == true;
+                                    final pconsentDue = p.get("consent_due")?.toString() ?? "";
+                                    final pconsentPending = pconsentDue.isNotEmpty;
+                                    // Échéance dépassée : la suppression est due. Comparaison en UTC des deux
+                                    // côtés (la date est écrite en UTC par _doWithdrawConsent) ; une date
+                                    // illisible ne déclenche RIEN — sur une suppression irréversible, le doute
+                                    // profite toujours à l'attente.
+                                    if (pconsentPending) {
+                                        final dueAt = DateTime.tryParse(pconsentDue);
+                                        if (dueAt != null && dueAt.isBefore(DateTime.now().toUtc())) {
+                                            consentExpired.add(pid);
+                                        }
+                                    }
                                     final pisAdmin = admins.contains(pid);
                                     final pniv     = getNiveauProgres(pxp).niveau;
                                     final pvShownM = _computeDisplayedPv(ppv, pdamage, plast, pdecay);
-                                    final pcur     = phasDevice && (pxp - plastB) > 0 ? (pxp - plastB) : 0;
+                                    final pcur     = phasDevice && !pconsentPending && (pxp - plastB) > 0 ? (pxp - plastB) : 0;
                                     // Hors-device : n'entre dans aucun agrégat (butin maxCur, _clanMinXp du
                                     // « coup de pouce ») pour ne pas fausser l'équilibrage du clan.
-                                    if (phasDevice) {
+                                    //
+                                    // Hors-concours : même exclusion, et c'est l'essentiel du mode. La barre de
+                                    // butin de chaque enfant est calculée EN RELATIF du meilleur contributeur
+                                    // (cf. `progress` plus bas) : un adulte actif devenait maxCur et aplatissait
+                                    // visuellement la progression de toute la fratrie. L'écarter d'ici rend leur
+                                    // amplitude aux barres des enfants. Idem pour minXp, sinon un adulte non chef
+                                    // confisquerait le coup de pouce destiné au plus petit XP du clan.
+                                    if (phasDevice && !pconsentPending && !phorsConcours) {
                                         if (pcur > maxCur) maxCur = pcur;
                                         // Le « coup de pouce » ne vise QUE les joueurs non admin : les chefs
                                         // sont donc hors du minimum d'XP du clan — sinon un chef au plus petit
@@ -315,10 +351,26 @@ extension Worker_screen_clan on worker {
                                         "level": pniv,
                                         "pv":    pvShownM,
                                         // Mort UNIQUEMENT si le joueur a un appareil : un hors-device ne meurt pas.
-                                        "dead":  phasDevice && pvShownM <= 0,
+                                        // Ni un joueur dont le consentement vient d'être retiré : il a quitté le jeu,
+                                        // il n'y meurt pas — et le crâne appellerait une résurrection qui n'a pas lieu d'être.
+                                        // Ni un hors-concours : la mort est le mécanisme de pression d'assiduité, et
+                                        // celui qui ne concourt pas n'est plus dans cette boucle — il a le droit de se
+                                        // reposer et de perdre des PV. Miroir côté joueur lui-même : _evaluateDeath.
+                                        "dead":  !pconsentPending && phasDevice && !phorsConcours && pvShownM <= 0,
                                         // Assombrissement de la tuile (décision métier) : mort (PV affichés <= 0)
-                                        // OU hors-device (grisé même vivant, pour signaler qu'il est ignoré).
-                                        "dimmed": phasDevice ? pvShownM <= 0 : true,
+                                        // OU hors-device (grisé même vivant, pour signaler qu'il est ignoré)
+                                        // OU retrait de consentement en cours (grisé : il ne joue plus).
+                                        // Un hors-concours n'est PAS grisé : il joue, il alimente le clan, il n'est
+                                        // simplement pas en lice — sa tuile reste vive.
+                                        "dimmed": pconsentPending ? true
+                                                : phorsConcours   ? false
+                                                : (phasDevice ? pvShownM <= 0 : true),
+                                        // Éléments de tuile masqués pour ce membre (cf. RosterMember.hide) : un
+                                        // hors-concours sort de TOUTE comparaison visible du clan — plus d'écu de
+                                        // niveau, plus de cœurs, plus de barre de butin, plus de bourse. Ce sont
+                                        // les quatre chiffres que les enfants lisent les uns sur les autres.
+                                        "hide": phorsConcours ? "level,pv,progress,wallet" : "",
+                                        "hors_concours": phorsConcours,   // pour clan_selector (la paire d'options + masque « payer un tribut »)
                                         "has_device": phasDevice,   // pour clan_selector (masque « déclarer hors ligne »)
                                         "xp":    pxp,   // pour clan_selector (restriction « moins d'XP »)
                                         "admin": pisAdmin,               // tri roster (admins d'abord), « déjà chef », « coup de pouce » interdit
@@ -327,7 +379,11 @@ extension Worker_screen_clan on worker {
                                         "original_clan": p.get("original_clan")?.toString() ?? "",  // clan_selector : protection mineur / clan d'origine
                                         "no_account": p.get("no_account") == true,   // enfant sans compte : dérogation à la protection mineur (révocable)
                                         // Badge d'activité de la tuile : "assigned"/"validating"/"" (cf. DvRoster).
-                                        "task_status": taskStatusByPlayer[pid] ?? "",
+                                        // Muet pendant un retrait : une tâche en cours n'est plus une tâche en cours.
+                                        "task_status": pconsentPending ? "" : (taskStatusByPlayer[pid] ?? ""),
+                                        // Retrait du consentement parental en cours → clan_selector ne propose
+                                        // plus QUE « Rétablir », et aux seuls chefs du clan d'origine.
+                                        "consent_pending": pconsentPending,
                                         // Avatar du membre (clans_players.avatar) → tuile du roster (repli nope).
                                         "avatar": pavatar,
                                         // Solde de la bourse : badge de la tuile (visible de TOUS) et plafond
@@ -364,7 +420,11 @@ extension Worker_screen_clan on worker {
                                 // `members` est le bon compte : les révoqués en sont sortis (enabled=false), mais
                                 // les joueurs sans appareil (has_device=false) y sont — un enfant créé par le chef
                                 // EST un recrutement, le clan n'est plus seul.
-                                final bool alone = members.length <= 1;
+                                // Un joueur dont le consentement est en cours de retrait ne compte pas : il ne
+                                // joue plus. Un chef resté seul avec un enfant qu'il vient de retirer EST seul,
+                                // et doit revoir l'appel au recrutement.
+                                final bool alone =
+                                    members.where((m) => m["consent_pending"] != true).length <= 1;
                                 await _setClanAlone(alone);
 
                                 // Appel au recrutement en bas du roster : seul un CHEF peut inviter, et seul un
@@ -372,6 +432,12 @@ extension Worker_screen_clan on worker {
                                 // qu'un non-chef ne voie pas un bouton qui refuserait de s'ouvrir.
                                 await _syncVisible(await DvOrb.wait_for_shape("clan_page/invite_cta"),
                                     "clan_page/invite_cta", alone && admins.contains(_userId));
+
+                                // Échéances de retrait de consentement. EN DERNIER, et par n'importe quel membre
+                                // du clan — pas seulement un chef : la suppression est due, et la faire dépendre
+                                // du passage d'un chef la retarderait sans rien protéger. Le roster est déjà
+                                // affiché à cet instant ; l'appel cloud ne fait attendre personne.
+                                await _sweepExpiredConsent(clanId, clanSecret, region, consentExpired);
     }
 
     // Drapeau `worker.clan_alone` ("true"/"false", convention des autres drapeaux du worker) : condition
@@ -418,6 +484,18 @@ extension Worker_screen_clan on worker {
                                     final m = (data is Map) ? data : <String, dynamic>{};
                                     final isSelf = (m["id"]?.toString() ?? "") == _userId;
 
+                                    // RETRAIT DE CONSENTEMENT EN COURS : court-circuit avant toute autre option. Le
+                                    // joueur est hors du jeu pour la durée de la rétractation ; lui proposer un « coup
+                                    // de pouce », une prise de place ou une promotion n'aurait aucun sens sur un enfant
+                                    // dont on vient de demander l'effacement. La seule chose qui reste possible est de le
+                                    // RÉTABLIR, et elle est réservée — comme le retrait lui-même — aux chefs de son CLAN
+                                    // D'ORIGINE : c'est le seul clan dont le consentement est en cause.
+                                    if (m["consent_pending"] == true) {
+                                        final pendingOrigin = m["original_clan"]?.toString() ?? "";
+                                        if (isSelf || pendingOrigin != clanId) return empty;
+                                        return {"selectable": ["restore_consent"], "disabled": [], "single": ""};
+                                    }
+
                                     final selectable = <String>[];
                                     final disabled   = <String>[];
 
@@ -435,8 +513,11 @@ extension Worker_screen_clan on worker {
                                         // Coup de pouce : seulement pour le(s) JOUEUR(S) NON ADMIN au plus petit
                                         // XP du clan (un chef ne se fait pas booster ; _clanMinXp est calculé
                                         // hors admins, cf. _refreshRoster). Grisé si l'admin est en cooldown.
+                                        // Jamais sur un hors-concours : il est déjà exclu du calcul de _clanMinXp,
+                                        // mais un adulte au petit XP passerait quand même le test `<=` — et un
+                                        // coup de pouce est une aide DANS la course, pour quelqu'un qui n'y est plus.
                                         final targetXp = int.tryParse(m["xp"]?.toString() ?? "") ?? 0;
-                                        if (m["admin"] != true && targetXp <= _clanMinXp) {
+                                        if (m["admin"] != true && m["hors_concours"] != true && targetXp <= _clanMinXp) {
                                             (_withinDays(_myLastBoost, 3) ? disabled : selectable).add("support_player");
                                         }
 
@@ -445,21 +526,50 @@ extension Worker_screen_clan on worker {
                                         if (m["has_device"] != false) selectable.add("declare_offline");
                                         selectable.add("take_place");
 
+                                        final plegal        = m["legal_state"]?.toString()   ?? "";
+
                                         // Chef : promouvoir si simple joueur, sinon « plus chef » (rétrograder) —
                                         // sauf le fondateur, admin à vie. (Soi-même est déjà exclu : pas d'auto-
                                         // rétrogradation possible.)
+                                        // PROMOUVOIR EST RÉSERVÉ AUX ADULTES ("a"). Le rôle de chef ouvre les
+                                        // surfaces commerciales (_storeCanBuy) : le donner à un mineur "k" ou à un
+                                        // adolescent "t" — statut déclaré par le tuteur mais pas encore acquis —
+                                        // lui montrerait la grille tarifaire et le bandeau d'impayé. L'option est
+                                        // masquée plutôt que grisée : un chef n'a pas à se demander pourquoi elle
+                                        // refuse, et rien ne lui manque puisque c'est « déclarer majeur » qui
+                                        // ouvre la voie, juste en dessous. promote_chief redouble le contrôle —
+                                        // ce menu est du confort, la garde est dans le handler.
+                                        // legal_state absent (doc antérieur au champ) → pas d'option : même sens
+                                        // de repli que _ensureIsAdult, se tromper vers « adulte » est le seul
+                                        // risque qui compte.
                                         if (m["admin"] != true) {
-                                            selectable.add("promote_chief");
+                                            if (plegal == "a") selectable.add("promote_chief");
                                         } else if (m["founder"] != true) {
                                             selectable.add("nomore_chief");
                                         }
 
                                         // Déclarer majeur : réservé aux TUTEURS = admins du clan d'origine du joueur
                                         // (clanId == original_clan). Caché si déjà adulte ("a") ou déjà en transition ("t").
-                                        final plegal        = m["legal_state"]?.toString()   ?? "";
                                         final poriginalClan = m["original_clan"]?.toString() ?? "";
                                         if (poriginalClan == clanId && plegal != "a" && plegal != "t") {
                                             selectable.add("promote_adult");
+                                        }
+
+                                        // RETIRER SON CONSENTEMENT (art. 7(3) RGPD) — MÊME RÈGLE que « déclarer majeur » :
+                                        // les chefs du CLAN D'ORIGINE, seul clan dont le consentement est en cause. Donner
+                                        // le consentement était un geste ; le retirer en coûte désormais un seul, là où la
+                                        // seule voie documentée était de supprimer son propre compte — ce qui dissolvait le
+                                        // clan et détruisait les données de toute la famille pour écarter un seul enfant.
+                                        //
+                                        // "t" est INCLUS ici alors que promote_adult l'exclut : tant que la CGU adulte n'est
+                                        // pas acceptée, c'est encore le consentement du tuteur qui porte le traitement.
+                                        //
+                                        // Ne remplace PAS `revoke_player`, pas même pour un enfant sans compte : retirer du
+                                        // clan et cesser de traiter les données sont deux gestes distincts, et les deux
+                                        // restent offerts. Rien à faire pour la tenir hors de la tuile — le roster porte
+                                        // `buttons_collapsed: true`, tout est déjà derrière le « … ».
+                                        if (poriginalClan == clanId && plegal != "a") {
+                                            selectable.add("withdraw_consent");
                                         }
                                     }
 
@@ -473,13 +583,35 @@ extension Worker_screen_clan on worker {
                                         ? selectable.add("nudges_off")
                                         : selectable.add("nudges_on");
 
+                                    // Hors concours : deux options EXCLUSIVES, comme les rappels juste au-dessus,
+                                    // et hors du bloc !isSelf — c'est le parent qui fait le plus de travail qui se
+                                    // met en retrait, donc le cas nominal est un chef qui se flague LUI-MÊME.
+                                    //
+                                    // Réservée aux ADULTES, et masquée plutôt que grisée (comme « déclarer
+                                    // majeur ») : le drapeau retire quelqu'un du partage du butin, il n'a rien
+                                    // à faire sur la tuile d'un enfant, même inerte. "t" (transition déclarée,
+                                    // CGU adulte pas encore acceptée) n'est pas adulte. L'action repose la même
+                                    // garde à frais — ce test-ci est du confort, pas une autorisation.
+                                    if ((m["legal_state"]?.toString() ?? "") == "a") {
+                                        (m["hors_concours"] == true)
+                                            ? selectable.add("hors_concours_off")
+                                            : selectable.add("hors_concours_on");
+                                    }
+
                                     // Payer son tribut : HORS du bloc !isSelf — un chef gagne de l'argent en
                                     // jeu comme les autres et se verse le sien. Grisée sur une bourse vide :
                                     // dire que l'option existe a du sens (contrairement à la cacher), c'est
                                     // ainsi que le chef apprend qu'il y a quelque chose à payer un jour.
-                                    (int.tryParse(m["wallet"]?.toString() ?? "0") ?? 0) > 0
-                                        ? selectable.add("pay_tribute")
-                                        : disabled.add("pay_tribute");
+                                    //
+                                    // MASQUÉE pour un hors-concours, en revanche : il est sorti de l'économie
+                                    // du clan, pas seulement de son affichage. Lui verser un tribut rouvrirait
+                                    // par la fenêtre ce que le mode ferme — et sa bourse n'est même plus
+                                    // affichée sur sa tuile, l'option n'aurait plus de repère lisible.
+                                    if (m["hors_concours"] != true) {
+                                        (int.tryParse(m["wallet"]?.toString() ?? "0") ?? 0) > 0
+                                            ? selectable.add("pay_tribute")
+                                            : disabled.add("pay_tribute");
+                                    }
 
                                     // A quitté le clan : révocation (sur autrui) OU départ volontaire (sur soi-même) —
                                     // d'où le placement HORS du bloc !isSelf. Jamais sur le fondateur (admin à vie).

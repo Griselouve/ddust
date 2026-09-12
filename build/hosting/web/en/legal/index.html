@@ -8,6 +8,10 @@
   <link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/legal/">
   <link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/legal/">
   <link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/legal/">
+  <link rel="alternate" hreflang="it" href="https://donjons.grisloup.com/it/legal/">
+  <link rel="alternate" hreflang="de" href="https://donjons.grisloup.com/de/legal/">
+  <link rel="alternate" hreflang="pt" href="https://donjons.grisloup.com/pt/legal/">
+  <link rel="alternate" hreflang="nl" href="https://donjons.grisloup.com/nl/legal/">
   <link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/legal/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,84 +51,80 @@
       ones that bind you — they are also available at any time from within the app.</p>
     </div>
 
-    <!-- One card per open region. The links are versioned (…-v3 / …-v2): remember to update them
-         each time a new version is published in that region's documents bucket. Each region has
-         its own bucket: dvddust-<region>-documents-storage. -->
+    <!-- UNE CARTE PAR RÉGION OUVERTE, et il n'y en a qu'une : `documents.regions` du
+         build.yml ne liste que `fr`. Ne jamais ajouter une carte ici avant que la région
+         y figure — une région annoncée sans corpus servirait au lecteur des conditions
+         qui ne sont pas les siennes.
+         Les versions ne sont PAS écrites à la main : le jeton
+         @@@legal_version:<region>-<etat>-<langue>-<doc>@@@ est résolu au déploiement par
+         puhosting, qui lit le répertoire des documents et retient le plus grand -vN — la
+         même règle que pudocuments applique pour publier au bucket. ⚠ Un jeton qui ne
+         résout pas reste LITTÉRAL dans la page publiée (avertissement jaune, pas d'échec) :
+         le lien est alors mort en silence.
+         Le bucket suit le DATACENTER, pas le marché : `fr` vit dans le cloud `eu`, d'où
+         dvddust-eu-documents-storage.
+         ⚠ CETTE PAGE EST GÉNÉRÉE (tools/… lot D2) : elle porte 28 liens qui ne diffèrent
+         que par trois lettres, et les écrire à la main les faisait dériver d'une langue
+         à l'autre. -->
 
     <div class="grid cols-2">
       <div class="card">
-        <h3>European Union</h3>
+        <h3>France</h3>
         <p><span class="badge">Available</span></p>
         <p class="muted">Data hosted in the European Union (Google Cloud / Firebase, Google Ireland Ltd).
         French law, GDPR, majority at 18.</p>
         <p><strong>Terms of Service</strong> — the rules of the game: accounts, clans, parental
-        responsibility and protection of minors. They are accepted in the app before playing.</p>
+        responsibility and protection of minors. They are accepted inside the app before playing.</p>
         <ul class="doc-links">
           <li>Adult version:
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-a-fr-cgu-@@@legal_version:eu-a-fr-cgu@@@.html">FR</a> ·
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-a-en-cgu-@@@legal_version:eu-a-en-cgu@@@.html">EN</a> ·
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-a-es-cgu-@@@legal_version:eu-a-es-cgu@@@.html">ES</a></li>
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-fr-cgu-@@@legal_version:fr-a-fr-cgu@@@.html">FR</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-en-cgu-@@@legal_version:fr-a-en-cgu@@@.html">EN</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-es-cgu-@@@legal_version:fr-a-es-cgu@@@.html">ES</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-it-cgu-@@@legal_version:fr-a-it-cgu@@@.html">IT</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-de-cgu-@@@legal_version:fr-a-de-cgu@@@.html">DE</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-pt-cgu-@@@legal_version:fr-a-pt-cgu@@@.html">PT</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-nl-cgu-@@@legal_version:fr-a-nl-cgu@@@.html">NL</a></li>
           <li>Child version:
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-k-fr-cgu-@@@legal_version:eu-k-fr-cgu@@@.html">FR</a> ·
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-k-en-cgu-@@@legal_version:eu-k-en-cgu@@@.html">EN</a> ·
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-k-es-cgu-@@@legal_version:eu-k-es-cgu@@@.html">ES</a></li>
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-fr-cgu-@@@legal_version:fr-k-fr-cgu@@@.html">FR</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-en-cgu-@@@legal_version:fr-k-en-cgu@@@.html">EN</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-es-cgu-@@@legal_version:fr-k-es-cgu@@@.html">ES</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-it-cgu-@@@legal_version:fr-k-it-cgu@@@.html">IT</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-de-cgu-@@@legal_version:fr-k-de-cgu@@@.html">DE</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-pt-cgu-@@@legal_version:fr-k-pt-cgu@@@.html">PT</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-nl-cgu-@@@legal_version:fr-k-nl-cgu@@@.html">NL</a></li>
         </ul>
         <p style="margin-top:18px"><strong>Privacy Policy</strong> — what data the game collects (very
         little), why, for how long — and above all everything it does not collect.</p>
         <ul class="doc-links">
           <li>Adult version:
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-a-fr-privacy-@@@legal_version:eu-a-fr-privacy@@@.html">FR</a> ·
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-a-en-privacy-@@@legal_version:eu-a-en-privacy@@@.html">EN</a> ·
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-a-es-privacy-@@@legal_version:eu-a-es-privacy@@@.html">ES</a></li>
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-fr-privacy-@@@legal_version:fr-a-fr-privacy@@@.html">FR</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-en-privacy-@@@legal_version:fr-a-en-privacy@@@.html">EN</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-es-privacy-@@@legal_version:fr-a-es-privacy@@@.html">ES</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-it-privacy-@@@legal_version:fr-a-it-privacy@@@.html">IT</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-de-privacy-@@@legal_version:fr-a-de-privacy@@@.html">DE</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-pt-privacy-@@@legal_version:fr-a-pt-privacy@@@.html">PT</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-a-nl-privacy-@@@legal_version:fr-a-nl-privacy@@@.html">NL</a></li>
           <li>Child version:
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-k-fr-privacy-@@@legal_version:eu-k-fr-privacy@@@.html">FR</a> ·
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-k-en-privacy-@@@legal_version:eu-k-en-privacy@@@.html">EN</a> ·
-            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/eu-k-es-privacy-@@@legal_version:eu-k-es-privacy@@@.html">ES</a></li>
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-fr-privacy-@@@legal_version:fr-k-fr-privacy@@@.html">FR</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-en-privacy-@@@legal_version:fr-k-en-privacy@@@.html">EN</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-es-privacy-@@@legal_version:fr-k-es-privacy@@@.html">ES</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-it-privacy-@@@legal_version:fr-k-it-privacy@@@.html">IT</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-de-privacy-@@@legal_version:fr-k-de-privacy@@@.html">DE</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-pt-privacy-@@@legal_version:fr-k-pt-privacy@@@.html">PT</a> &middot;
+            <a href="https://storage.googleapis.com/dvddust-eu-documents-storage/fr-k-nl-privacy-@@@legal_version:fr-k-nl-privacy@@@.html">NL</a></li>
         </ul>
       </div>
-      <div class="card">
-        <h3>United States</h3>
-        <p><span class="badge">Available</span></p>
-        <p class="muted">Data hosted in the United States (Google Cloud / Firebase, Google LLC).
-        Age thresholds 13 and 18, COPPA and state privacy laws.</p>
-        <p><strong>Terms of Service</strong> — the rules of the game: accounts, clans, parental
-        responsibility and protection of minors. They are accepted in the app before playing.</p>
-        <ul class="doc-links">
-          <li>Adult version:
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-a-fr-cgu-@@@legal_version:us-a-fr-cgu@@@.html">FR</a> ·
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-a-en-cgu-@@@legal_version:us-a-en-cgu@@@.html">EN</a> ·
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-a-es-cgu-@@@legal_version:us-a-es-cgu@@@.html">ES</a></li>
-          <li>Child version:
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-k-fr-cgu-@@@legal_version:us-k-fr-cgu@@@.html">FR</a> ·
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-k-en-cgu-@@@legal_version:us-k-en-cgu@@@.html">EN</a> ·
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-k-es-cgu-@@@legal_version:us-k-es-cgu@@@.html">ES</a></li>
-        </ul>
-        <p style="margin-top:18px"><strong>Privacy Policy</strong> — what data the game collects (very
-        little), why, for how long — and above all everything it does not collect.</p>
-        <ul class="doc-links">
-          <li>Adult version:
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-a-fr-privacy-@@@legal_version:us-a-fr-privacy@@@.html">FR</a> ·
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-a-en-privacy-@@@legal_version:us-a-en-privacy@@@.html">EN</a> ·
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-a-es-privacy-@@@legal_version:us-a-es-privacy@@@.html">ES</a></li>
-          <li>Child version:
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-k-fr-privacy-@@@legal_version:us-k-fr-privacy@@@.html">FR</a> ·
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-k-en-privacy-@@@legal_version:us-k-en-privacy@@@.html">EN</a> ·
-            <a href="https://storage.googleapis.com/dvddust-us-documents-storage/us-k-es-privacy-@@@legal_version:us-k-es-privacy@@@.html">ES</a></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="grid cols-2">
       <div class="card">
         <h3>Other regions</h3>
         <p><span class="badge">Coming</span></p>
         <p>Further storage regions will open progressively, to host data closer to the players and under
         the law applicable to them.</p>
-        <p>Each new region will come with <strong>its own set of legal documents</strong>: terms of service
-        and privacy policy, in an adult version and a child version. They will be published on this page as
-        soon as the region opens.</p>
-        <p class="muted" style="margin-bottom:0">No date is announced at this stage. A question about a
-        specific region? Write to <a href="mailto:donjons@grisloup.com">donjons@grisloup.com</a>.</p>
+        <p>Every new region will arrive with <strong>its own set of legal documents</strong>: terms of
+        service and privacy policy, in an adult version and a child version. They will be published on this
+        page as soon as the region opens.</p>
+        <p class="muted" style="margin-bottom:0">No date is announced so far. A question about a particular
+        region? Write to us at
+        <a href="mailto:donjons@grisloup.com">donjons@grisloup.com</a>.</p>
       </div>
     </div>
 
@@ -133,18 +133,18 @@
     <div class="grid cols-2">
       <div class="card">
         <h3>Data, minors and compliance</h3>
-        <p>The full sheet: data safety (Data Safety), protection of minors,
-        parental consent, content rating and target audience.</p>
-        <p><a href="/en/legal/data/">See the data &amp; minors sheet →</a></p>
+        <p>The full sheet: data safety, protection of minors, parental consent, content rating and
+        target audience.</p>
+        <p><a href="/en/legal/data/">Read the data &amp; minors sheet →</a></p>
       </div>
       <div class="card">
         <h3>Delete my account</h3>
         <p>Deletion is final: you will not be able to recover your data. It takes effect immediately
-        (account unusable, profile removed from the clan), then the data is kept for 30&nbsp;days
-        outside the service before permanent erasure. If the account is the clan's owner account, then
-        its clan is deleted and the profiles of the minors who no longer have a legal guardian follow.</p>
-        <p>An adult who wishes to withdraw their consent for a child they let play goes through this
-        same deletion, on this page: the child's account is deleted.</p>
+        (account unusable, profile removed from the clan), then the data is kept for 30&nbsp;days outside
+        the service before permanent erasure. If the account owns the clan, the clan is deleted and the
+        profiles of the minors who no longer have a legal guardian follow.</p>
+        <p>An adult who wishes to withdraw their consent for a child they let play uses this same
+        deletion on this page: the child's account is deleted.</p>
         <p><strong>Cancel your subscription before</strong> deleting your account, from the Google Play
         Store: deletion does not cancel it and it would keep being billed. Content bought in the shop is
         lost along with the account.</p>
@@ -152,11 +152,11 @@
       </div>
       <div class="card" id="cookies">
         <h3>Cookies</h3>
-        <p>This site is <strong>cookie-free</strong>! No analytics, advertising or tracking
-        cookie is ever set, on any page.</p>
-        <p>The only exception: the account-deletion page uses Google Sign-in (Google Identity
-        Services), which may set its own technical cookies, strictly necessary for authentication
-        and managed directly by Google.</p>
+        <p>This site is <strong>cookie-free</strong>! No analytics, advertising or tracking cookie is
+        set, on any page.</p>
+        <p>One exception: the account deletion page uses Google sign-in (Google Identity Services),
+        which may set its own technical cookies, strictly necessary for authentication and managed
+        directly by Google.</p>
       </div>
     </div>
 
@@ -164,8 +164,16 @@
     <p>Donjons &amp; Savons is published by <strong>Grisloup</strong>, the trading name of MARCHAL DE GREEF Guillaume, sole trader — 20 rue Lavoisier, 95300 Pontoise, France, SIREN 109354092, RCS Pontoise. Telephone: +33 7 44 47 09 44.<br>
     Contact: <a href="mailto:donjons@grisloup.com">donjons@grisloup.com</a><br>
     Publication director: MARCHAL DE GREEF Guillaume<br>
-    Hosting: Google Cloud / Firebase — data stored in the region chosen by the player: the European Union
-    (Google Ireland Ltd) or the United States (Google LLC).</p>
+    Hosting: Google Cloud / Firebase — data stored in the European Union (Google Ireland Ltd), the only region open so far.</p>
+
+    <h2>Consumer mediation</h2>
+    <p>In accordance with the provisions of the French Consumer Code on the mediation of consumer disputes, after contacting us and failing a reply that satisfies you, you may refer the matter free of charge to a consumer mediation procedure with:<br>
+    CM2C<br>
+    49 rue de Ponthieu<br>
+    75 008 PARIS<br>
+    Tel: +33 1 89 47 00 14<br>
+    Website: <a href="https://www.cm2c.net/declarer-un-litige.php">www.cm2c.net/declarer-un-litige.php</a><br>
+    Email: <a href="mailto:litiges@cm2c.net">litiges@cm2c.net</a></p>
   </main>
 
   <footer id="site-footer"></footer>

@@ -62,6 +62,22 @@ data:
       - "images/small/tb_perso.png"
       - "images/small/tb_inventaire.png"
       - "images/small/flamme_nobg.png"        # flamme de statut (dashboard/tiroir)
+      # LES HUIT ILLUSTRATIONS DES GUIDES (leçons dvtuto guide_parent / guide_enfant).
+      # En `critical` et non plus bas parce que le guide se joue au PREMIER dashboard, juste
+      # après la leçon « Écran principal » : arrivées trop tard, elles laisseraient des panneaux
+      # sans dessin au seul moment où ils sont montrés d'office. Quatre des huit seulement sont
+      # vues par un appareil donné (adulte OU mineur), mais on ignore laquelle des deux séries
+      # avant d'avoir lu `legal_state`, et un guide muet coûte plus cher que quelques centaines
+      # de kilo-octets. Croquis au trait, très aérés : à 768 px comme tout le reste de `big/`,
+      # ils pèsent nettement moins que les illustrations de jeu, qui sont pleines et saturées.
+      - "images/big/guide_p1.png"
+      - "images/big/guide_p2.png"
+      - "images/big/guide_p3.png"
+      - "images/big/guide_p4.png"
+      - "images/big/guide_k1.png"
+      - "images/big/guide_k2.png"
+      - "images/big/guide_k3.png"
+      - "images/big/guide_k4.png"
 
     # high : 2e vague — chrome de jeu du tiroir/combat (à 1 tap du dashboard).
     high:

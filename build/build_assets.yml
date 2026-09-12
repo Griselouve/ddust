@@ -1,0 +1,3198 @@
+# -----------------------------------------------------------------------------
+# --- Assets generes — declaration lue par le builder (modules/builder/assetgen.py)
+# -----------------------------------------------------------------------------
+# Pose a cote du build.yml DE LA SUITE, et separe de lui a dessein : build.yml est
+# deja tres charge, et ceci n'est pas de la construction — c'est de la MATIERE.
+#
+# Au niveau suite et non au niveau d'une app : ces fichiers n'appartiennent au client
+# pas plus qu'a la montre, resources_cloud est mutualise, et c'est deja contre cette
+# racine que build.resources resout ses chemins.
+#
+# TROIS REGLES, rappelees ici parce qu'elles decident de la facon de travailler :
+#   1. un fichier declare qui manque et qu'on ne sait pas produire ARRETE le build ;
+#   2. rien n'est jamais ecrase — une retouche a la main survit indefiniment et ne
+#      declenche aucune cascade sur ce qui en derive ;
+#   3. refaire un asset consiste a l'EFFACER et a relancer un build.
+#
+# `dir` est relatif au repertoire de CE fichier. On depose l'ORIGINAL en pleine
+# resolution : c'est imgshaking qui ramene a 768 px la COPIE embarquee, et lui seul.
+# -----------------------------------------------------------------------------
+assets:
+
+  # --- LES BUNDLES : la bibliotheque d'assets, telle que la console la montre ------
+  #
+  # Un bundle = un repertoire, un rang d'affichage, et une place dans le modele de
+  # nommage. Un fichier HORS de tout bundle n'existe pas pour la bibliotheque — d'ou
+  # l'avertissement que l'inventaire emet quand une sortie declaree tombe dehors.
+  #
+  # `root`    = la racine de manifeste cloud, celle que `dvcloudassets` retire pour
+  #             obtenir le nom NU que l'application demande. Absente = pas de cascade.
+  # `bundled` = embarque dans l'APK : l'application le nomme avec le prefixe `assets/`,
+  #             et ce prefixe est ce qui distingue les deux mondes dans la conf.
+  #
+  # ⚠ PAS DE BUNDLE `media` (arbitre le 2026-09-11) : il n'existe aujourd'hui ni master
+  #   YouTube ni video TikTok, et un bundle vide n'est que du bruit dans l'ecran
+  #   Modules. Le format portrait de la video de demonstration ecrit pour l'instant
+  #   dans `resources_others/video/out/`, donc hors bundle — l'inventaire le signale a
+  #   chaque passe, et c'est ce qui rouvrira la question le jour ou il sortira.
+  bundles:
+    core:
+      dir: "resources"
+      order: 10
+      bundled: true
+    general:
+      dir: "resources_cloud/general"
+      order: 20
+      root: "general"
+    donjon:
+      dir: "resources_cloud/donjon"
+      order: 30
+      root: "donjon"
+    # ⚠ CES DEUX BUNDLES NE SE REGENERENT PAS, ET C'EST UNE PROPRIETE, PAS UN OUBLI.
+    #   Ils portent des CAPTURES d'ecran de l'application et ce qui en derive. Les
+    #   reproduire demanderait de rejouer l'application, pas de decrire une image : un
+    #   prompt y promettrait une regeneration qui rendrait une ILLUSTRATION a la place
+    #   d'une capture. Plausible, et fausse.
+    #
+    #   Le drapeau vit sur le BUNDLE et non sur chaque fichier : c'est une propriete de
+    #   la matiere, la meme pour les 76 fichiers, et la poser une fois evite de la
+    #   reposer a chaque capture ajoutee.
+    screenshots:
+      dir: "resources_others/screenshots"
+      order: 40
+      generable: false
+    web:
+      dir: "hosting/web/assets"
+      order: 50
+      generable: false
+
+  # Les sept langues officielles. Tout `out` contenant @@@lang@@@ produit sept fichiers,
+  # et tout bloc `text:` doit porter ces sept clefs — une langue oubliee est une erreur,
+  # pas un repli silencieux : une video muette sur un marche passerait inapercue.
+  langs: [fr, en, es, de, it, pt, nl]
+
+  defaults:
+    # MESURE, pas suppose (sondes des 2026-09-10 et 2026-09-11 sur asura-888) :
+    #   - aucun modele Imagen n'est ouvert (404 « does not have access to it ») ;
+    #   - gemini-2.5-flash-image repond partout et honore imageConfig.aspectRatio ;
+    #   - Veo 3.1 / 3.0 / 2.0 ET Lyria repondent, us-central1 et europe-west4 ;
+    #   - gemini-2.5-flash-tts repond en europe-west4 ; les variantes `-preview-tts`
+    #     ne repondent QUE sur us-central1, donc n'en faites pas un defaut.
+    image:
+      model: "gemini-2.5-flash-image"
+      aspect: "3:2"
+      locations: ["europe-west4", "us-central1"]
+    clip:
+      model: "veo-3.1-generate-preview"
+      duration: 8
+      aspect: "16:9"
+      audio: false                 # la bande-son vient de Lyria + de la voix : un plan
+                                   # muet se remonte, un plan sonore s'impose.
+      locations: ["us-central1", "europe-west4"]
+    music:
+      model: "lyria-002"
+      locations: ["us-central1", "europe-west4"]
+    voice:
+      model: "gemini-2.5-flash-tts"
+      # UNE seule voix pour les sept langues : la langue se deduit du texte, pas d'un
+      # parametre. C'est ce qui donne l'unite de timbre qu'un catalogue par langue ne
+      # donne pas — sept voix differentes feraient sept marques differentes.
+      voice: "Kore"
+      style: "Lis ce texte d'une voix chaleureuse et posee de conteur, sans emphase :"
+      locations: ["europe-west4", "us-central1"]
+    video:
+      fps: 30
+      fill: "blur"
+      subtitles: "burned"
+
+  steps:
+
+    # =========================================================================
+    # LES ASSETS HISTORIQUES, TOUS DECLARES. Un fichier pose dans un bundle et
+    # declare nulle part est un RATE DE DECLARATION, pas une categorie a part :
+    # il n'a ni etape, ni style, ni endroit ou ecrire un prompt, et la console ne
+    # peut rien en faire. Ces trois etapes ferment ce trou — 120 fichiers sur 378
+    # au 2026-09-11 : les icones d'interface, les musiques, les sons, les videos,
+    # les images du site.
+    #
+    # ⚠ `source` VEUT DIRE « rien ne sait le refaire », et c'est la verite pour
+    #   ceux-la : ils n'ont pas de prompt. Ce n'est pas un manque a combler d'un
+    #   coup — c'est un etat CONNU. Demander la regeneration de l'un d'eux ne
+    #   produit pas n'importe quoi : la console l'ecarte vers « a revoir », et la
+    #   revue propose de le garder, d'en televerser une reprise, ou d'en ecrire un
+    #   prompt. Ecrire ce prompt le fera passer de `source` a `image`, ici meme.
+    #
+    # ⚠ EN PREMIER, ET C'EST L'ORDRE QUI COMPTE. Les jokers ci-dessous ratissent
+    #   large et recouvrent des fichiers que les etapes SUIVANTES declarent plus
+    #   precisement — les huit guides, les 205 familles, les captures du site. La
+    #   derniere declaration l'emporte : les precises doivent donc passer apres.
+    - name: historique_core
+      enabled: true
+      dir: "resources"
+      items:
+        icones:   { kind: source, out: "icon/*.png" }
+        splash:   { kind: source, out: "images/splashs/*.png" }
+
+    # =========================================================================
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_core_splash:
+          kind: image
+          out: "images/splashs/splash.png"
+          prompt: >-
+            Le personnage de la référence, un nain barbu, un elfe et un magicien, nettoient un grand dragon marron au milieu d'une montagne d'or et de trésors dans une grande salle de château sombre et poussiéreuse.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_core_eu:
+          kind: image
+          out: "icon/eu.png"
+          prompt: >-
+            Le drapeau de l'Union européenne, avec un fond bleu uni et douze étoiles dorées à cinq branches disposées en cercle au centre. Les étoiles sont uniformément espacées et pointent vers le haut. Le style est graphique et minimaliste, avec des couleurs vives et un éclairage uniforme.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_core_google:
+          kind: image
+          out: "icon/google.png"
+          prompt: >-
+            Le logo Google, un "G" majuscule stylisé, est composé de plusieurs couleurs vives : le haut est rouge, le côté gauche est un dégradé de jaune, vert et bleu, et la barre horizontale est bleue. Le logo est net et détouré sur un fond transparent, avec un éclairage uniforme qui met en valeur les couleurs vives.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_core_icon:
+          kind: image
+          out: "icon/icon.png"
+          prompt: >-
+            Un ours en peluche marron, avec des cornes de démon et des yeux rouges lumineux, est assis de face, tenant une épée en bois dans sa main droite, devant un bouclier médiéval gris et usé. Le style est un dessin numérique aux contours épais et expressifs, avec des textures de tissu et de métal détaillées, une palette de couleurs terreuses et sombres rehaussée par le rouge vif des yeux, et un éclairage qui met en valeur les reliefs et les ombres, le tout détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_core_shield:
+          kind: image
+          out: "icon/shield.png"
+          prompt: >-
+            Un blason médiéval détaillé, divisé en quartiers or et violet, avec un plumeau et un balai croisés en son centre, entourés de volutes de poussière et de quelques pièces d'or et de pierres précieuses éparses en bas ; le tout est encadré d'une bordure métallique ornée et surmonté d'un bandeau portant l'inscription "DONJON ET SAVON". Style d'illustration de jeu vidéo fantastique, avec des couleurs riches et saturées, des textures réalistes et un éclairage doux et diffus qui met en valeur les détails.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_core_us:
+          kind: image
+          out: "icon/us.png"
+          prompt: >-
+            Le drapeau des États-Unis d'Amérique, avec cinquante étoiles blanches sur un canton bleu et treize bandes horizontales alternées rouges et blanches. Le drapeau est représenté de manière simple et graphique, avec des couleurs vives et un design plat.
+    - name: historique_donjon
+      enabled: true
+      dir: "resources_cloud/donjon"
+      items:
+        big:      { kind: source, out: "images/big/*.png" }
+        medium:   { kind: source, out: "images/medium/*.png" }
+        # 33 icones d'interface : le kebab, les fleches, les pastilles d'admin.
+        small:    { kind: source, out: "images/small/*.png" }
+        splashs:  { kind: source, out: "images/splashs/*.png" }
+        pirates:  { kind: source, out: "images/splashs/pirates/*.png" }
+        musiques: { kind: source, out: "music/*.mp3" }
+        sons:     { kind: source, out: "sounds/*.mp3" }
+        videos:   { kind: source, out: "videos/*.mp4" }
+
+    # =========================================================================
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_coffreritual:
+          kind: image
+          out: "images/big/CoffreRitual.png"
+          prompt: >-
+            Le personnage de la référence 2, un chevalier, tient une serpillière et lève un poing en l'air, le personnage de la référence 1, une elfe, tient un plumeau et lève une jambe en l'air, et le personnage de la référence 3, un bébé, est assis par terre et applaudit, tous les trois devant un coffre au trésor ouvert rempli de pièces d'or et de bijoux, dans une grotte.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_logo:
+          kind: image
+          out: "images/big/logo.png"
+          prompt: >-
+            Le personnage de la référence est assis sur le côté gauche d'un logo doré et orné qui dit "Donjons & Savons" avec un dragon entrelacé dans le texte, le tout sur un fond texturé de bois sombre.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_playstore:
+          kind: image
+          out: "images/big/playstore.png"
+          prompt: >-
+            Le personnage de la référence est assis à gauche du texte "Donjons & Savons" qui est écrit en lettres dorées avec un dragon en arrière-plan, et à droite du texte se trouve un seau doré avec un balai à franges et des bulles de savon.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_chestok:
+          kind: image
+          out: "images/medium/chestok.png"
+          prompt: >-
+            Le personnage de la référence est un coffre au trésor en bois avec des ferrures métalliques, ouvert, rempli de pièces d'or, de bijoux, de couronnes et d'autres trésors scintillants, avec quelques pièces d'or éparpillées sur le sol devant lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_adult:
+          kind: image
+          out: "images/small/adult.png"
+          prompt: >-
+            Le personnage de la référence, mais en version adulte et debout, tenant une hache, avec un petit ours en peluche assis sur une couverture à carreaux avec un hochet et une petite voiture à ses pieds, et une flèche bleue incurvée pointant du petit ours vers le grand ours, avec un coffre au trésor à côté du grand ours.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_cadeau:
+          kind: image
+          out: "images/small/cadeau.png"
+          prompt: >-
+            Le personnage de la référence est assis, souriant, et tient un cadeau coloré emballé avec un ruban doré dans sa patte droite.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_chestip:
+          kind: image
+          out: "images/small/chestip.png"
+          prompt: >-
+            Le personnage de la référence est un coffre en bois avec des renforts métalliques, un visage souriant, posé sur un sol blanc avec quelques pièces d'or et des petits cailloux.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_nomore_chef:
+          kind: image
+          out: "images/small/nomore_chef.png"
+          prompt: >-
+            Le personnage de la référence est assis, tenant une épée en bois dans sa main droite, et porte une couronne dorée ornée de pierres précieuses sur sa tête, avec une croix rouge barrant la couronne.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_splash:
+          kind: image
+          out: "images/splashs/pirates/splash.png"
+          prompt: >-
+            Un groupe de quatre aventuriers, dont un nain barbu, un jeune homme en armure, une femme en tenue de pirate et un magicien, nettoient un kraken géant sur le pont d'un navire en pleine mer, entourés de pièces d'or et de trésors.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_splash_pirate_pirate_v2:
+          kind: image
+          out: "images/splashs/splash-pirate_pirate_v2.png"
+          prompt: >-
+            Un groupe d'aventuriers nettoie un kraken géant sur le pont d'un navire pirate en pleine mer, avec le personnage de la référence en haut de l'échelle nettoyant le dos du kraken, le nain de la référence sur une échelle nettoyant le flanc du kraken, le jeune chevalier de la référence sur un tabouret nettoyant la bouche du kraken, et le magicien de la référence à droite, tenant une baguette magique et un seau, tandis que des pièces d'or et des trésors sont éparpillés sur le pont.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_chest:
+          kind: image
+          out: "images/big/chest.png"
+          prompt: >-
+            Un coffre au trésor en bois ancien et robuste, avec des renforts métalliques rouillés et des rivets, présente un visage souriant et malicieux sculpté sur sa façade, avec des yeux plissés et une large bouche. Quelques pièces d'or et d'argent sont éparpillées à sa base, le tout est rendu dans un style de dessin animé détaillé avec des textures riches, des ombres douces et un éclairage diffus, détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_gameover:
+          kind: image
+          out: "images/big/gameover.png"
+          prompt: >-
+            Un squelette en robe de faucheur noire, l'air perplexe et se grattant la tête, tient une faux et se tient au milieu d'un tas de terre et de débris, incluant des crânes, des bottes, un bouclier, un seau, une serpillière et des vaporisateurs de nettoyage. Le style est une illustration de dessin animé avec des contours nets, des couleurs vives et un ombrage doux, sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_titre_clan:
+          kind: image
+          out: "images/big/titre_clan.png"
+          prompt: >-
+            Un médaillon de forme bouclier en or et argent, orné d'une tête d'ours et de feuilles de laurier en haut, d'une étoile à huit branches avec un serpent enroulé autour en son centre, d'un ruban avec l'inscription "FORTITER ET FIDELITER" et d'une pile de pièces en bas, est suspendu à un ruban rouge et doré. Le style est une illustration numérique détaillée avec des textures métalliques réalistes, des reflets brillants et des ombres profondes, le tout détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_titre_perso:
+          kind: image
+          out: "images/big/titre_perso.png"
+          prompt: >-
+            Une médaille militaire dorée et argentée, en forme de bouclier, est suspendue à un ruban vert olive plissé avec une épingle de fixation. Le bouclier est surmonté d'une couronne et orné d'une tête d'ours aux yeux rouges, encadrée de feuilles de chêne, avec un ruban portant l'inscription "HONORIS CAUSA" en dessous. L'illustration est détaillée et réaliste, avec des textures métalliques et un éclairage qui met en valeur les reliefs, le tout détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_bourse:
+          kind: image
+          out: "images/medium/bourse.png"
+          prompt: >-
+            Un sac de toile marron clair rempli à ras bord de pièces d'or rondes et épaisses, certaines tombées autour de la base du sac, le tout détouré sur fond transparent. Les pièces sont dorées avec un bord argenté et un motif d'étoile gravé, le sac est fermé par un cordon noué. Style de peinture numérique détaillé, avec des textures riches, des ombres douces et des reflets réalistes sur les pièces, éclairage diffus.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_fairy_tile:
+          kind: image
+          out: "images/medium/fairy_tile.png"
+          prompt: >-
+            Une fée souriante aux longs cheveux argentés, vêtue d'une robe de femme de chambre avec un tablier et une bouteille de spray, tient une boîte cadeau scintillante dans chaque main, ses ailes translucides parsemées de bulles et d'étoiles. Le personnage est en pleine longueur, dans un style anime détaillé et lumineux, avec des couleurs pastel douces et un éclairage féerique, détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_nope:
+          kind: image
+          out: "images/medium/nope.png"
+          prompt: >-
+            Un grand point d'interrogation de couleur vert olive est centré dans un cercle épais de la même couleur, bordé d'un fin contour marron. Le sujet est détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_nounours:
+          kind: image
+          out: "images/medium/nounours.png"
+          prompt: >-
+            Un ours en peluche marron, usé et rapiécé, avec des cornes de démon grises et des yeux rouges lumineux, est assis de face, tenant une épée en bois dans sa main droite, devant un bouclier médiéval gris et rouillé ; le tout est dessiné dans un style cartoon détaillé avec des contours épais, des ombres marquées et une palette de couleurs terreuses, sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_ring:
+          kind: image
+          out: "images/medium/ring.png"
+          prompt: >-
+            Un anneau épais de couleur vert olive avec un contour fin de couleur rouille, détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_shield:
+          kind: image
+          out: "images/medium/shield.png"
+          prompt: >-
+            Un bouclier de chevalier en métal, usé et rouillé, avec une étoile à sept branches fissurée en son centre, est représenté de face. Le style est celui d'une illustration de jeu vidéo, avec des contours nets, des textures détaillées et un éclairage uniforme, le tout sur un fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_adm_add:
+          kind: image
+          out: "images/small/adm_add.png"
+          prompt: >-
+            Un symbole plus (+) parfaitement symétrique, de couleur or mat, avec des bras de largeur égale et des extrémités carrées, est détouré sur fond transparent. Le style est minimaliste et graphique, avec des lignes nettes et une texture lisse, sous un éclairage uniforme et doux qui met en valeur la couleur sans ombres prononcées.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_adm_cross:
+          kind: image
+          out: "images/small/adm_cross.png"
+          prompt: >-
+            Une croix rouge épaisse, formée de deux bandes rectangulaires qui se croisent en leur centre, avec un contour noir fin. Le sujet est détouré sur fond transparent, dans un style graphique simple et plat, sans ombres ni dégradés.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_adm_disable:
+          kind: image
+          out: "images/small/adm_disable.png"
+          prompt: >-
+            Un panneau d'interdiction universel, un cercle orange épais avec une barre diagonale du haut gauche au bas droit, le tout sur fond transparent. Le style est une icône vectorielle simple et plate, avec des lignes nettes et une couleur unie, sans ombres ni dégradés.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_adm_enable:
+          kind: image
+          out: "images/small/adm_enable.png"
+          prompt: >-
+            Un grand symbole de coche vert vif, épais et anguleux, est orienté vers le haut et la droite. Le symbole est détouré sur fond transparent, avec un style graphique simple et net.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_adm_hide:
+          kind: image
+          out: "images/small/adm_hide.png"
+          prompt: >-
+            Un œil stylisé, de couleur rouge foncé, est barré par une ligne diagonale de la même couleur, indiquant une fonction de masquage ou d'invisibilité. Le dessin est simple, avec des lignes épaisses et un aspect légèrement texturé, détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_adm_show:
+          kind: image
+          out: "images/small/adm_show.png"
+          prompt: >-
+            Un œil stylisé, vert vif, avec un iris et une pupille concentriques, le tout détouré sur fond transparent. Le style est minimaliste, avec des lignes épaisses et uniformes, évoquant un pictogramme ou une icône.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_crown:
+          kind: image
+          out: "images/small/crown.png"
+          prompt: >-
+            Une couronne royale dorée, ornée de pierres précieuses rouges et vertes, avec un emblème de tête d'ours aux yeux rouges au centre, est inclinée vers la droite. Le style est celui d'une illustration de jeu vidéo, avec des reflets lumineux et des ombres douces, sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_exclam:
+          kind: image
+          out: "images/small/exclam.png"
+          prompt: >-
+            Un point d'exclamation rouge vif, légèrement incliné vers la droite, avec une texture subtilement granuleuse. Le sujet est détouré sur fond transparent, avec un éclairage uniforme et doux qui met en valeur la couleur sans ombres dures.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_log_out:
+          kind: image
+          out: "images/small/log-out.png"
+          prompt: >-
+            Une icône minimaliste représente une porte ouverte stylisée avec un cadre en forme de U sur la gauche, et une flèche pointant vers la droite sortant de l'ouverture de la porte. Le dessin est un tracé uniforme et épais, de couleur or mat, sur un fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_pharma:
+          kind: image
+          out: "images/small/pharma.png"
+          prompt: >-
+            Un serpent vert écaillé s'enroule autour d'une croix métallique argentée et brillante, avec des reflets lumineux et des détails de rivets. Le serpent a des yeux jaunes perçants et sa tête est positionnée au-dessus de la barre horizontale de la croix. Le tout est détouré sur fond transparent, dans un style d'illustration numérique détaillé et net, avec un éclairage vif et des ombres marquées.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_poubelle:
+          kind: image
+          out: "images/small/poubelle.png"
+          prompt: >-
+            Une poubelle en métal rouillée et cabossée, le couvercle entrouvert, débordant d'objets : un crâne humain, des pièces d'or, des morceaux d'armure et des parchemins enroulés, dont certains dépassent de la poubelle. Quelques pièces d'or et des débris métalliques sont éparpillés au pied de la poubelle. Illustration de jeu vidéo, style peinture numérique, avec des couleurs terreuses et métalliques, des textures détaillées et un éclairage diffus, détourée sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_qr_code:
+          kind: image
+          out: "images/small/qr-code.png"
+          prompt: >-
+            Un pictogramme stylisé de code QR, composé de carrés et de lignes courbes et droites, le tout en couleur or. Le tracé est fin et uniforme, avec un style minimaliste et épuré, détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_tb_boutique:
+          kind: image
+          out: "images/small/tb_boutique.png"
+          prompt: >-
+            Une icône de magasin ou d'échoppe, représentée par une silhouette simple avec un toit en forme de chapiteau ondulé et une petite porte au centre, le tout dans un style de dessin au trait épais et texturé. La couleur est un ocre doré, et l'image est détourée sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_tb_clan:
+          kind: image
+          out: "images/small/tb_clan.png"
+          prompt: >-
+            Un bouclier simple, de forme classique avec un sommet incurvé et une base pointue, est représenté en vue de face. Le contour du bouclier est tracé avec une ligne épaisse et uniforme de couleur or mat, sans aucun remplissage ni détail à l'intérieur, détouré sur fond transparent. Le style est minimaliste et épuré, avec un trait net et une palette de couleurs limitée à une seule teinte dorée, sous un éclairage uniforme et doux.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_tb_combat:
+          kind: image
+          out: "images/small/tb_combat.png"
+          prompt: >-
+            Deux épées stylisées, l'une croisée derrière l'autre, avec des gardes simples et des lames droites, le tout dans un cercle noir. Le dessin est un contour fin et uniforme de couleur or vieilli, sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_tb_inventaire:
+          kind: image
+          out: "images/small/tb_inventaire.png"
+          prompt: >-
+            Une icône simple et stylisée d'une étoile à quatre branches arrondies, accompagnée d'un petit cercle et d'un signe plus, le tout dessiné avec un trait épais et texturé de couleur or sur fond transparent. Le style est minimaliste et épuré, avec un éclairage uniforme qui met en valeur la texture du trait.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_tb_perso:
+          kind: image
+          out: "images/small/tb_perso.png"
+          prompt: >-
+            Une icône de personne stylisée, composée d'un cercle pour la tête et d'une forme de U inversé pour les épaules, le tout tracé avec une ligne épaisse et uniforme. L'icône est d'une couleur or mat, détourée sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_annonce:
+          kind: image
+          out: "images/splashs/annonce.png"
+          prompt: >-
+            Deux chérubins joufflus aux petites ailes, vêtus de couches blanches, soufflent dans des trompettes dorées, soutenant une bannière blanche vierge avec une barre en bois décorée de lierre et de petites fleurs blanches ; au pied de la bannière, une boîte de "SUPER-SAVON DONJON" et des piles de linge blanc plié. Illustration de style dessin animé, aux contours nets et aux couleurs vives et douces, avec un éclairage uniforme et des ombres subtiles, sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        historique_donjon_parchment_bg:
+          kind: image
+          out: "images/splashs/parchment_bg.png"
+          prompt: >-
+            Une feuille de papier vieilli et froissé, de couleur beige clair avec des bords irréguliers et déchirés, présentant des taches et des décolorations brunâtres sur les bords et par endroits sur la surface. La texture du papier est visible, avec de légères rides et des fibres apparentes, le tout dans un style réaliste avec un éclairage doux et diffus qui accentue les imperfections et le caractère ancien du papier.
+    - name: historique_web
+      enabled: true
+      dir: "hosting/web/assets"
+      items:
+        images:   { kind: source, out: "img/*.webp" }
+        # Les clips du site, leurs affiches et les versions webp de celles-ci.
+        # NOM UNIQUE DANS TOUT LE FICHIER, et pas seulement dans son etape. assetgen
+        # indexe ses items PAR NOM : un second `videos` etait refuse et le build
+        # s'arretait. L'inventaire, lui, indexe par CHEMIN et ne voyait rien.
+        clips:    { kind: source, out: "video/*.mp4" }
+        affiches: { kind: source, out: "video/*.png" }
+        affichesw: { kind: source, out: "video/*.webp" }
+
+    # =========================================================================
+    - name: guides
+      enabled: true
+      # Les huit illustrations des lecons dvtuto guide_parent / guide_enfant.
+      # DEJA PRODUITES le 2026-09-10 : cette etape ne regenere rien. Elle reste
+      # declaree pour deux raisons — le prompt est la seule trace de leur fabrication,
+      # et la declaration vaut liste de controle si l'une venait a disparaitre.
+      dir: "resources_cloud/donjon/images/big"
+      style: >
+        Loose hand-drawn ink sketch, thin confident black line work, visible pencil
+        under-drawing, deliberately unfinished. Only two or three flat watercolour
+        washes: warm amber, muted blue-grey, soft terracotta. Off-white paper
+        background with plenty of empty space. Light, airy and readable at small size,
+        NOT a rich detailed game illustration. Warm, gentle, everyday family mood.
+        A modern home, with a faint medieval wink in the props only. Simple rounded
+        faces, friendly expressions, no realistic portraits. Wide landscape
+        composition, subjects centred, generous margins. Absolutely no text, no
+        letters, no numbers, no speech bubbles, no logo, no watermark, no frame.
+      items:
+
+        # -- Guide du parent. L'ordre compte : l'effort ouvre, la mort suit. Ouvrir sur
+        #    « votre enfant est mort » installerait le contresens que ces ecrans defont.
+        guide_p1:
+          kind: image
+          out: "guide_p1.png"
+          prompt: >
+            A young person stands proudly beside a bed that is only half made, holding up
+            a phone to show a photo of it. A parent crouches down to their height, smiling,
+            one hand pointing warmly at the part that IS done. Encouragement, never
+            scolding.
+        guide_p2:
+          kind: image
+          out: "guide_p2.png"
+          prompt: >
+            A young person sits on the floor hugging their knees, their phone set face-down
+            beside them, looking away and a little flat. A parent sits down on the floor at
+            the same height, leaning in gently to ask what is going on. Concern and
+            closeness, no anger, no pointing finger. A tiny cartoon skull floats faintly
+            above the phone, drawn as a small icon.
+        guide_p3:
+          kind: image
+          out: "guide_p3.png"
+          prompt: >
+            A family sitting on a living-room rug around an open wooden treasure chest.
+            Instead of gold, what rises out of the chest are small symbols of shared time:
+            a picnic basket, a board game, a pair of cinema tickets, a football. Everyone
+            leans in, delighted.
+        guide_p4:
+          kind: image
+          out: "guide_p4.png"
+          prompt: >
+            A tall parent carrying an absurdly high tower of folded laundry, while two much
+            smaller family members stand below holding a single sock each, looking up. The
+            parent smiles and takes a step back to make room for them. Gentle humour about
+            the imbalance.
+
+        # -- Guide de l'aventurier. Meme mecanique, mais chaque ecran dit un DROIT et
+        #    jamais un devoir : recommencer, refuser, garder sa photo, recevoir sa part.
+        guide_k1:
+          kind: image
+          out: "guide_k1.png"
+          prompt: >
+            Four family members standing shoulder to shoulder like a small adventuring
+            party, holding a broom, a feather duster and a watering can the way one holds a
+            sword or a staff. Grinning, ready, united. A rolled-up rug carried as their
+            banner.
+        guide_k2:
+          kind: image
+          out: "guide_k2.png"
+          prompt: >
+            A young person looks at their phone, where a small row of hearts has gone faint.
+            With their other hand they pick up a broom, and one heart lights up bright and
+            full again. Reassuring and hopeful, not dramatic.
+        guide_k3:
+          kind: image
+          out: "guide_k3.png"
+          prompt: >
+            A young person cheerfully starting a household task over again from the
+            beginning, sleeves rolled up. A parent stands a little behind, giving a warm
+            thumbs up. A soft circular arrow drawn around them suggests going round once
+            more. Nothing sad, nothing shameful.
+        guide_k4:
+          kind: image
+          out: "guide_k4.png"
+          prompt: >
+            In the foreground, a young person holds a phone close to their chest, screen
+            turned away from everyone, smiling with a small proud secret. Behind them,
+            slightly out of focus, the rest of the family celebrates around an open wooden
+            chest.
+
+    # =========================================================================
+    - name: personnages
+      enabled: true
+      # LES TROIS PLANCHES DE REFERENCE du theme donjon. Elles ont servi, a la main,
+      # a fabriquer presque tout le reste — les monstres de taches, les avatars, les
+      # icones de domaine. Ce lien n'existait nulle part : ni dans les dates de
+      # fichiers, ni dans les noms. Le declarer ici, c'est ce qui permettra plus tard
+      # a une cascade de savoir ce qu'une retouche de l'elfe entraine.
+      dir: "resources_cloud/donjon/images/medium"
+      items:
+        ref_elfe:
+          kind: source
+          out: "intro_little_elfe.png"
+          prompt: >-
+            Une jeune elfe souriante aux cheveux blonds tressés, portant des lunettes rondes et vêtue d'une robe et d'une cape rapiécées marron, lève une jambe et tient une petite brosse à poussière d'où s'échappent des étincelles dorées, à côté d'un seau métallique rouillé. Le personnage est dessiné dans un style d'illustration de jeu vidéo, avec des contours marqués et une palette de couleurs terreuses, le tout détouré sur fond transparent.
+        ref_hobbit:
+          kind: source
+          out: "intro_little_hobbit.png"
+          prompt: >-
+            Un jeune garçon aux cheveux bruns ébouriffés, vêtu d'une chemise déchirée et d'une couche, est assis les jambes écartées, couvert de mousse et de bulles, tenant un chiffon sale. Un seau renversé avec de l'eau savonneuse et des nuages de mousse sont au sol, tandis que des bulles flottent autour de lui. Style dessin animé, couleurs vives et saturées, éclairage doux et diffus, détouré sur fond transparent.
+        ref_knight:
+          kind: source
+          out: "intro_little_knight.png"
+          prompt: >-
+            Un jeune chevalier en armure complète, avec un bouclier sur le dos, nettoie le sol avec une serpillière et un seau, dans une pose dynamique, la langue tirée, entouré d'éclaboussures d'eau et de bulles. Illustration de style manga, avec un trait fin et des couleurs vives, des reflets brillants sur l'armure et l'eau, détourée sur fond transparent.
+
+    # =========================================================================
+    - name: familles
+      enabled: true
+      # LE GROS DU TRAVAIL, EN QUATRE LIGNES. Chaque `out` porte un JOKER et se deplie
+      # sur les fichiers existants. 205 des 218 fichiers de `images/medium` sont couverts
+      # ici ; les tracer a la souris dans draw.io aurait demande plus de six cents
+      # fleches identiques.
+      #
+      # ⚠ PLUS DE `refs:` AU NIVEAU DE L'ETAPE, ET C'EST UN RETRAIT DELIBERE DU
+      #   2026-09-12. Elles posaient les trois personnages d'introduction comme parents
+      #   de CHACUN des 205 fichiers — 615 liens approximatifs. C'etait juste tant que
+      #   rien de plus fin n'existait ; le marquage a la main a depuis donne a chaque
+      #   monstre son parent UNIQUE ET REEL.
+      #
+      # ⚠ ET CE N'ETAIT PLUS UNE SIMPLE IMPRECISION : LA CASCADE SE CALCULE SUR CE
+      #   GRAPHE. Le sous-graphe de l'elfe comptait 218 assets, c'est-a-dire presque tout
+      #   `images/medium` ; regenerer l'elfe proposait donc de regenerer 138 monstres qui
+      #   n'en descendent pas — et l'ecran de cout chiffrait cette erreur en euros.
+      #
+      # ⚠ L'ETAPE, ELLE, RESTE. C'est elle qui porte l'`item` de chaque fichier, donc le
+      #   regroupement de style de `bundles prompts` : monstres 138, avatars 42,
+      #   domaines 21, clans 4. La retirer ferait retomber les quatre series sur un
+      #   regroupement par repertoire et leur ferait perdre leur style commun.
+      dir: "resources_cloud/donjon/images/medium"
+      items:
+        # 138 monstres de taches, un par feuille de tache.
+        monstres:   { kind: source, out: "dt_t_*.png" }
+        # ⚠ CES TROIS ITEMS NE DOIVENT PAS LEUR ASPECT A UNE IMAGE SOURCE, MAIS A UN
+        #   OUTIL. Le cercle dore vient de `tools/iconify.py`, le detourage de
+        #   `tools/remove_bg.py` — passes a la main, systematiquement, et le prefixe du
+        #   fichier le dit encore. Sans `traitements:`, une regeneration rendrait le
+        #   dessin NU : pas de cercle, pas de detourage. Le fichier serait valide, du bon
+        #   format, et la difference ne se verrait qu'a l'oeil, une fois publiee.
+        #
+        #   Aujourd'hui ils sont `kind: source` sans prompt, donc personne ne peut les
+        #   regenerer. La declaration est INERTE et c'est voulu : elle protege le jour ou
+        #   on leur donnera un prompt.
+
+        # 42 avatars de joueur et 4 icones de clan, passes par l'anneau dore.
+        avatars:    { kind: source, out: "icon_01_P_*.png", traitements: [iconify] }
+        clans:      { kind: source, out: "icon_01_C_*.png", traitements: [iconify] }
+        # 21 icones de domaine, detourees.
+        domaines:
+          kind: source
+          out: "task_*_nobg.png"
+          # `fonction:` parce que le module s'appelle `remove_bg` et la fonction
+          # `remove_background` : sans elle, le chargeur chercherait `remove_bg`.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+
+    # =========================================================================
+    # ⚠ CETTE ETAPE VIENT APRES LES JOKERS GENERIQUES, ET C'EST CE QUI LA FAIT MARCHER.
+    #   Ces 22 fichiers sont deja couverts par `images/big/*.png`, `images/small/*.png`
+    #   et `images/medium/*.png` de l'etape `historique_donjon` — des jokers qui melangent
+    #   du traite et du non traite, et auxquels on ne peut donc pas attacher de chaine.
+    #
+    #   Un fichier revendique par deux items prend la declaration du DERNIER. C'est deja
+    #   ainsi que les huit images de guide et les trois references d'intro l'emportent sur
+    #   `big` et `medium` ; l'inventaire le SIGNALE desormais au lieu de le subir en
+    #   silence. Deplacer cette etape plus haut la rendrait sans effet.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_animaux_01:
+          kind: image
+          out: "dt_t_animaux_01.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, sourit en versant du "BEAST KIBBLE" d'un sac en toile dans une gamelle où se trouve une créature monstrueuse rose avec une grande bouche ouverte et des dents pointues.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_animaux_02:
+          kind: image
+          out: "dt_t_animaux_02.png"
+          prompt: >-
+            Le personnage de la référence 1, une elfe blonde avec des lunettes, est en train de lancer un sort avec ses mains, faisant apparaître un fantôme vert qui sort d'un bol d'eau.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_animaux_03:
+          kind: image
+          out: "dt_t_animaux_03.png"
+          prompt: >-
+            Le personnage de la référence, en armure, nettoie un aquarium avec une serpillière, face à un monstre marin vert et tentaculaire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_animaux_05:
+          kind: image
+          out: "dt_t_animaux_05.png"
+          prompt: >-
+            Le personnage de la référence 1, une elfe, est assise sur le dos d'une créature velue, ressemblant à un yéti, et la brosse.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_balcon_01:
+          kind: image
+          out: "dt_t_balcon_01.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, tient une serpillière et un seau, et se bat contre un dragon de poussière.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_balcon_02:
+          kind: image
+          out: "dt_t_balcon_02.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, accroupi, nettoie une créature verte et visqueuse avec de nombreux yeux à l'aide d'une éponge, tenant un seau d'eau à côté de lui sur un sol pavé.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_bureau_01:
+          kind: image
+          out: "dt_t_bureau_01.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, vêtu d'une tunique et d'une cape vertes, tient un balai et fait face à un monstre de poussière en forme de tornade avec des bras, des yeux et une bouche ouverte.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_bureau_02:
+          kind: image
+          out: "dt_t_bureau_02.png"
+          prompt: >-
+            Le personnage de la référence, une elfe souriante aux cheveux blonds tressés, vêtue d'une robe rapiécée et d'une cape à capuche, tient une petite brosse à poussière étincelante dans sa main droite, tandis que sa main gauche est levée, face à un monstre fait de papiers froissés et déchirés, avec des yeux jaunes menaçants, sur un fond sombre et étoilé.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_bureau_03:
+          kind: image
+          out: "dt_t_bureau_03.png"
+          prompt: >-
+            Le personnage de la référence, un jeune homme en armure de chevalier, nettoie le sol avec une serpillière et un seau.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_bureau_04:
+          kind: image
+          out: "dt_t_bureau_04.png"
+          prompt: >-
+            Le personnage de la référence nettoie une vitre avec une éponge et une raclette, tandis que trois fantômes flottent autour de la vitre.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_bureau_05:
+          kind: image
+          out: "dt_t_bureau_05.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, tient un bouclier dans une main et une brosse dans l'autre, se préparant à nettoyer un écran d'ordinateur d'où sortent deux créatures sombres et souriantes.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_bureau_06:
+          kind: image
+          out: "dt_t_bureau_06.png"
+          prompt: >-
+            Le personnage de la référence, un jeune chevalier en armure, est en train de balayer avec une serpillière un tas de livres, de papiers, de câbles et de trombones.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_01:
+          kind: image
+          out: "dt_t_chambre_enfant_01.png"
+          prompt: >-
+            Le personnage de la référence, vêtu d'une armure, utilise un aspirateur pour nettoyer la poussière d'une tornade monstrueuse avec un œil et une bouche.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_02:
+          kind: image
+          out: "dt_t_chambre_enfant_02.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde en haillons, brandit un plumeau pour chasser des monstres violets et hérissés qui s'échappent d'un lit où dort un homme, et d'une table de chevet.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_03:
+          kind: image
+          out: "dt_t_chambre_enfant_03.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est assis par terre, souriant, et nettoie avec une éponge jaune une créature gluante et colorée qui semble effrayée, le tout sur un sol mouillé.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_04:
+          kind: image
+          out: "dt_t_chambre_enfant_04.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient un racloir à vitre et s'apprête à nettoyer un miroir dans lequel apparaît un monstre ailé et gris.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_05:
+          kind: image
+          out: "dt_t_chambre_enfant_05.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient une serpillière et fait face à son reflet dans un miroir ancien, où il apparaît comme un monstre cornu et poilu.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_06:
+          kind: image
+          out: "dt_t_chambre_enfant_06.png"
+          prompt: >-
+            Le personnage de la référence 1, une elfe aux cheveux blonds tressés, porte une robe et une cape rapiécées, des bottes marron, et des lunettes rondes, brandit une épée en argent, face à un monstre vert géant avec une bouche ouverte pleine de dents pointues, des yeux jaunes, et des objets divers incrustés sur son corps, le monstre est entouré d'une pile de livres et d'autres objets.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_09:
+          kind: image
+          out: "dt_t_chambre_enfant_09.png"
+          prompt: >-
+            Le personnage de la référence, vêtu d'une armure, tient un drap blanc tendu devant un monstre de fumée sombre et menaçant, avec un panier à linge et un matelas à côté de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_10:
+          kind: image
+          out: "dt_t_chambre_enfant_10.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est accroupi et frotte une créature verte et visqueuse avec deux éponges savonneuses.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_enfant_11:
+          kind: image
+          out: "dt_t_chambre_enfant_11.png"
+          prompt: >-
+            Le personnage de la référence, en armure, se penche vers un paresseux assis sur un matelas, le paresseux a l'air fatigué et le personnage de la référence lui touche la tête.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_01:
+          kind: image
+          out: "dt_t_chambre_parentale_01.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure de chevalier, utilise un balai-brosse pour aspirer un tourbillon de monstres de poussière gris et en colère.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_02:
+          kind: image
+          out: "dt_t_chambre_parentale_02.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, tient une petite brosse à poussière et sourit en faisant face à un grand nuage de poussière en forme de monstre menaçant, accompagné de deux acariens géants aux yeux rouges.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_03:
+          kind: image
+          out: "dt_t_chambre_parentale_03.png"
+          prompt: >-
+            Le personnage de la référence, en armure, est accroupi et tient une serpillière, faisant face à une créature violette et visqueuse avec des yeux rouges et une bouche ouverte pleine de dents pointues.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_04:
+          kind: image
+          out: "dt_t_chambre_parentale_04.png"
+          prompt: >-
+            Le personnage de la référence, une elfe souriante avec des lunettes et des tresses, nettoie une fenêtre ronde et ornée avec une raclette, révélant un monstre effrayant et sale derrière la vitre.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_05:
+          kind: image
+          out: "dt_t_chambre_parentale_05.png"
+          prompt: >-
+            Le personnage de la référence, une elfe, nettoie un miroir ancien avec un chiffon, et un monstre noir et effrayant apparaît dans le reflet.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_06:
+          kind: image
+          out: "dt_t_chambre_parentale_06.png"
+          prompt: >-
+            Le personnage de la référence, tenant un balai, se tient à côté d'une créature humanoïde faite de vêtements, avec des chaussettes volantes autour d'elle, et un tas de vêtements au sol.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_08:
+          kind: image
+          out: "dt_t_chambre_parentale_08.png"
+          prompt: >-
+            Le personnage de la référence, une elfe souriante avec des lunettes et des tresses, est debout derrière un lit en bois et tient un drap blanc qu'elle est en train de mettre sur une créature monstrueuse et informe, de couleur beige, avec une grande bouche pleine de dents pointues et des yeux noirs.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_09:
+          kind: image
+          out: "dt_t_chambre_parentale_09.png"
+          prompt: >-
+            Le personnage de la référence, en armure, pousse un matelas sur lequel se trouve une créature tentaculaire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_chambre_parentale_10:
+          kind: image
+          out: "dt_t_chambre_parentale_10.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, nettoie le sol avec une serpillière, faisant face à un mur d'où émergent des visages de zombies.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_couloir_01:
+          kind: image
+          out: "dt_t_couloir_01.png"
+          prompt: >-
+            Le personnage de la référence, une elfe aux cheveux blonds tressés et aux lunettes rondes, vêtue d'une robe rapiécée et d'une cape à capuche, tient un balai et est accompagnée de deux esprits sombres et menaçants.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_couloir_02:
+          kind: image
+          out: "dt_t_couloir_02.png"
+          prompt: >-
+            Le personnage de la référence, en armure, brandit un balai-brosse comme une arme, combattant un nuage de poussière d'où émergent des monstres gris aux yeux rouges et aux crocs acérés, tandis que d'autres petits monstres araignées l'entourent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_couloir_03:
+          kind: image
+          out: "dt_t_couloir_03.png"
+          prompt: >-
+            Le personnage de la référence, en armure, est en train de nettoyer le sol avec une serpillière, repoussant une créature verte et gluante.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_couloir_04:
+          kind: image
+          out: "dt_t_couloir_04.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des lunettes, tient un nettoyeur haute pression et nettoie une grande spirale de boue.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_courses_01:
+          kind: image
+          out: "dt_t_courses_01.png"
+          prompt: >-
+            Le personnage de la référence, une elfe aux cheveux blonds et aux lunettes, pousse un chariot en bois rempli de fruits et légumes, dont certains ont des visages menaçants, et tient un sac de courses rempli de tomates.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_courses_02:
+          kind: image
+          out: "dt_t_courses_02.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est debout, les jambes légèrement écartées, le visage grimaçant d'effort et les yeux écarquillés, tenant dans chaque main deux sacs de courses en papier qui ont des visages en colère, tandis que d'autres sacs similaires sont posés autour de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_courses_03:
+          kind: image
+          out: "dt_t_courses_03.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, est en train de repousser une créature tentaculaire verte qui sort d'un placard rempli de boîtes et de sacs de courses.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_courses_04:
+          kind: image
+          out: "dt_t_courses_04.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient un long parchemin déroulé, tandis qu'un grand serpent blanc à taches noires, dont la bouche est ouverte et remplie de parchemins, se dresse à côté de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_courses_05:
+          kind: image
+          out: "dt_t_courses_05.png"
+          prompt: >-
+            Le personnage de la référence est allongé sur le dos, riant, tandis qu'un petit diable rouge avec des cornes et des ailes, portant un tablier vert, est assis sur son ventre et le frappe avec une baguette de pain.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_01:
+          kind: image
+          out: "dt_t_cuisine_01.png"
+          prompt: >-
+            Le personnage de la référence, une jeune elfe blonde avec des lunettes, est en train de passer l'aspirateur dans un nuage de poussière, avec un monstre de poussière en arrière-plan.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_03:
+          kind: image
+          out: "dt_t_cuisine_03.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, est en train de passer la serpillière sur un sol sale et gluant, avec une grosse limace visqueuse à côté de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_04:
+          kind: image
+          out: "dt_t_cuisine_04.png"
+          prompt: >-
+            Le personnage de la référence, tenant un balai et une raclette, nettoie une vitre derrière laquelle un petit gobelin vert est visible.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_05:
+          kind: image
+          out: "dt_t_cuisine_05.png"
+          prompt: >-
+            Le personnage de la référence est en train de nettoyer une table avec une éponge et du savon, tandis qu'un monstre marron et orange se tient derrière lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_06:
+          kind: image
+          out: "dt_t_cuisine_06.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des lunettes et une robe à capuche, verse un liquide d'une bouteille bleue dans la bouche ouverte d'un monstre vert et baveux qui se trouve dans un évier.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_07:
+          kind: image
+          out: "dt_t_cuisine_07.png"
+          prompt: >-
+            Le personnage de la référence, tenant une éponge jaune dégoulinante dans une main et un chiffon blanc dans l'autre, s'apprête à nettoyer un placard en bois ouvert d'où sortent quatre fantômes gris aux yeux blancs et à la bouche ouverte.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_08:
+          kind: image
+          out: "dt_t_cuisine_08.png"
+          prompt: >-
+            Le personnage de la référence, portant un masque à gaz, un tablier et des gants de protection, tient une fourchette géante et fait face à un monstre de déchets alimentaires moisis et puants, composé de boîtes de plats à emporter.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_09:
+          kind: image
+          out: "dt_t_cuisine_09.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient une épée et fait face à un monstre vert et violet qui sort d'un four à micro-ondes.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_10:
+          kind: image
+          out: "dt_t_cuisine_10.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des lunettes, vêtue d'une robe rapiécée et d'une cape à capuche, est juchée sur une échelle en bois, tenant une brosse à récurer dans sa main droite, sa jambe gauche levée, et fait face à une gargouille noire aux yeux jaunes et aux ailes déployées, assise sur une hotte de cuisine crasseuse d'où s'écoule une substance noire et visqueuse, le tout sur un fond de carreaux blancs.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_11:
+          kind: image
+          out: "dt_t_cuisine_11.png"
+          prompt: >-
+            Le personnage de la référence, en armure, est agenouillé et pointe une épée vers un petit démon noir aux yeux rouges et aux cornes qui se trouve dans un four ouvert.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_12:
+          kind: image
+          out: "dt_t_cuisine_12.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon, est à gauche, souriant et brossant une cuisinière avec une brosse, tandis qu'à droite se trouve un monstre orange et noir avec des tentacules et des crocs, qui semble sortir de la cuisinière.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_13:
+          kind: image
+          out: "dt_t_cuisine_13.png"
+          prompt: >-
+            Le personnage de la référence, tenant une brosse à poussière, fait face à une hydre à cinq têtes qui sort d'un casier.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_15:
+          kind: image
+          out: "dt_t_cuisine_15.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des lunettes, les bras tendus vers l'avant, lance un sort de glace qui sort d'une théière rouillée et prend la forme d'un monstre de glace.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_18:
+          kind: image
+          out: "dt_t_cuisine_18.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, se tient devant un robinet d'où sort un serpent, et il s'apprête à le brosser avec une brosse au bout d'un bâton.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_cuisine_19:
+          kind: image
+          out: "dt_t_cuisine_19.png"
+          prompt: >-
+            Le personnage de la référence, pieds nus et vêtu d'une tunique et d'un short marron, nettoie un réfrigérateur sale avec un chiffon bleu, tandis qu'une brosse à récurer sort d'un portail noir derrière lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_dechets_01:
+          kind: image
+          out: "dt_t_dechets_01.png"
+          prompt: >-
+            Le personnage de la référence tire une corde attachée à un monstre de sacs poubelles noirs, avec des yeux rouges et des dents acérées, entouré de déchets.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_dechets_02:
+          kind: image
+          out: "dt_t_dechets_02.png"
+          prompt: >-
+            Le personnage de la référence, agenouillé, ramasse des objets dans un sac en toile, à côté d'un monstre vert et visqueux avec des os.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_dechets_03:
+          kind: image
+          out: "dt_t_dechets_03.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est debout, souriant, tenant une fourche et poussant des ordures dans des poubelles de recyclage, tandis que derrière lui se trouvent trois monstres faits de déchets.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_dechets_04:
+          kind: image
+          out: "dt_t_dechets_04.png"
+          prompt: >-
+            Le personnage de la référence, une jeune elfe, brandit une épée devant un dragon à cinq têtes de couleurs différentes, dont le corps est orné d'un symbole de recyclage.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_dechets_05:
+          kind: image
+          out: "dt_t_dechets_05.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient une pelle dans une main et un bouclier dans l'autre, se préparant à affronter un monstre vert et visqueux avec des morceaux de nourriture et un seau renversé à ses côtés.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_dechets_06:
+          kind: image
+          out: "dt_t_dechets_06.png"
+          prompt: >-
+            Le personnage de la référence est accroupi, tenant une pelle à poussière dans sa main gauche et une brosse dans sa main droite, qu'il utilise pour balayer des papiers dans une poubelle en métal rouillée, d'où s'échappe de la fumée.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_dechets_07:
+          kind: image
+          out: "dt_t_dechets_07.png"
+          prompt: >-
+            Le personnage de la référence, un bébé, tient une éponge jaune dans ses mains et fait face à une poubelle débordante d'une créature verte et visqueuse avec une grande bouche ouverte et des dents pointues.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_entree_01:
+          kind: image
+          out: "dt_t_entree_01.png"
+          prompt: >-
+            Le personnage de la référence, vêtu d'une armure, tient un extincteur et le dirige vers une hydre à cinq têtes.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_entree_02:
+          kind: image
+          out: "dt_t_entree_02.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des lunettes, vêtue d'une robe rapiécée et d'une cape à capuche, tient une petite brosse à poussière et se tient devant un nuage de poussière gris avec un visage en colère.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_entree_03:
+          kind: image
+          out: "dt_t_entree_03.png"
+          prompt: >-
+            Le personnage de la référence, en armure, est en train de nettoyer le sol avec une serpillière, à côté d'une créature visqueuse et orange.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_entree_04:
+          kind: image
+          out: "dt_t_entree_04.png"
+          prompt: >-
+            Le personnage de la référence, en armure, brosse un mur recouvert d'une substance visqueuse et grise d'où sortent des mains et des yeux.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_extras_01:
+          kind: image
+          out: "dt_t_extras_01.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde, arrose une plante monstrueuse et verte dans un pot.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_extras_02:
+          kind: image
+          out: "dt_t_extras_02.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des tresses, des lunettes et une robe rapiécée, est en train de vider une boîte aux lettres pleine de lettres et de créatures volantes, tenant une petite brosse dans sa main droite.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_extras_03:
+          kind: image
+          out: "dt_t_extras_03.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, est penché en avant, brossant avec une petite brosse une sorte d'aspirateur à l'ancienne qui aspire de la poussière.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_extras_04:
+          kind: image
+          out: "dt_t_extras_04.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon, est debout sur un seau renversé sur un tabouret, tendant la main vers une ampoule lumineuse qui a pris la forme d'un monstre sombre et épineux, sous une lampe suspendue, le tout dans un cercle sombre.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_extras_05:
+          kind: image
+          out: "dt_t_extras_05.png"
+          prompt: >-
+            Le personnage de la référence est accroupi et pousse un interrupteur géant avec sa main droite, tandis que sa main gauche tient un petit couteau, et des tentacules sortent de derrière l'interrupteur.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_extras_06:
+          kind: image
+          out: "dt_t_extras_06.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient un bouclier dans sa main gauche et une brosse à récurer au bout d'un manche dans sa main droite, se préparant à affronter une porte en bois couverte d'yeux et de mains, avec d'autres mains et un œil qui dépassent de l'ouverture de la porte.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_extras_07:
+          kind: image
+          out: "dt_t_extras_07.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde portant des lunettes, est en train de se battre contre un monstre de poussière.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_extras_08:
+          kind: image
+          out: "dt_t_extras_08.png"
+          prompt: >-
+            Le personnage de la référence est agenouillé, les mains jointes en prière, avec un bouclier rond dans le dos.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_garage_01:
+          kind: image
+          out: "dt_t_garage_01.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient une serpillière et s'apprête à affronter un monstre de terre et de poussière.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_garage_02:
+          kind: image
+          out: "dt_t_garage_02.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient une serpillière comme une lance, prêt à combattre un grand serpent vert qui crache du venin, le tout dans un nuage de mousse.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_garage_03:
+          kind: image
+          out: "dt_t_garage_03.png"
+          prompt: >-
+            Le personnage de la référence, en armure, porte un masque chirurgical et brandit une épée, prêt à frapper un monstre de boue sur un établi en bois avec des outils accrochés au mur.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_garage_04:
+          kind: image
+          out: "dt_t_garage_04.png"
+          prompt: >-
+            Le personnage de la référence, en armure, est en train de pousser un pneu avec un bâton, entouré de cartons et de débris.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_garage_05:
+          kind: image
+          out: "dt_t_garage_05.png"
+          prompt: >-
+            Le personnage de la référence est en train de danser joyeusement, tenant un marteau dans chaque main, avec un petit monstre marron aux yeux rouges et à la grande bouche dentée à ses pieds, et des flammes orange et jaunes derrière lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_garage_06:
+          kind: image
+          out: "dt_t_garage_06.png"
+          prompt: >-
+            Le personnage de la référence, vêtu d'une chemise verte et d'un pantalon marron, pousse une pile de planches de bois, tandis que deux seaux de peinture avec des visages en colère et des mains tendues l'entourent, avec des outils de construction comme un marteau et des clous.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_jardin_01:
+          kind: image
+          out: "dt_t_jardin_01.png"
+          prompt: >-
+            Le personnage de la référence, tenant un plumeau dans sa main droite, projette de sa main gauche un monstre de vent et de feuilles.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_jardin_02:
+          kind: image
+          out: "dt_t_jardin_02.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, pousse une tondeuse à gazon devant un dragon vert menaçant.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_jardin_03:
+          kind: image
+          out: "dt_t_jardin_03.png"
+          prompt: >-
+            Le personnage de la référence, une jeune elfe blonde avec des lunettes, arrose une créature végétale monstrueuse avec un arrosoir.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_jardin_04:
+          kind: image
+          out: "dt_t_jardin_04.png"
+          prompt: >-
+            Le personnage de la référence est accroupi et creuse le sol avec une petite pelle, à côté d'un énorme ver de terre souriant qui sort de la terre.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_jardin_05:
+          kind: image
+          out: "dt_t_jardin_05.png"
+          prompt: >-
+            Le personnage de la référence, une elfe, est debout, les bras levés, tenant un plumeau dans chaque main, à côté d'un jeune garçon accroupi qui creuse le sol avec une petite pelle, tandis qu'une plante monstrueuse avec des épines et une bouche ouverte se dresse derrière eux.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_jardin_06:
+          kind: image
+          out: "dt_t_jardin_06.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient une paire de cisailles géantes et se prépare à couper les têtes d'une hydre à trois têtes, avec un bouclier sur le bras gauche et un arbre en arrière-plan.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_01:
+          kind: image
+          out: "dt_t_linge_01.png"
+          prompt: >-
+            Le personnage de la référence est assis au milieu d'un tas de linge sale, tenant une chaussette jaune et un tissu blanc, avec un monstre gris menaçant derrière lui et des chaussettes volantes autour de lui, ainsi que deux paniers de linge.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_02:
+          kind: image
+          out: "dt_t_linge_02.png"
+          prompt: >-
+            Le personnage de la référence, en armure, brandit une lance devant une machine à laver d'où sort un tourbillon d'eau avec un œil.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_02_alt:
+          kind: image
+          out: "dt_t_linge_02_alt.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des lunettes, porte sur son dos une énorme pile de vêtements colorés et usés, elle est penchée en avant et semble faire un effort intense.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_03:
+          kind: image
+          out: "dt_t_linge_03.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, tient un seau glacé dans sa main gauche et s'apprête à frapper un costume bleu clair, gelé et sans tête, suspendu par des pinces à linge, qui semble danser.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_04:
+          kind: image
+          out: "dt_t_linge_04.png"
+          prompt: >-
+            Le personnage de la référence, une elfe souriante, brandit un plumeau et une baguette, vêtue d'une robe blanche vaporeuse, face à un monstre de vêtements en tourbillon, avec des yeux effrayés et une bouche ouverte.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_05:
+          kind: image
+          out: "dt_t_linge_05.png"
+          prompt: >-
+            Le personnage de la référence, une jeune elfe aux cheveux blonds tressés, portant des lunettes, une cape et une robe rapiécées, tend un bateau en papier bleu vers un monstre gris à tentacules, aux yeux rouges et à la bouche ouverte, qui émerge d'un tas de vêtements.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_06:
+          kind: image
+          out: "dt_t_linge_06.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, souriant, tenant une petite boîte en bois, se tient devant une armoire en bois ouverte qui a une bouche monstrueuse avec des dents pointues et des yeux rouges, remplie de vêtements.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_08:
+          kind: image
+          out: "dt_t_linge_08.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, est en train de combattre un monstre ressemblant à une chenille géante et ridée, avec des yeux rouges et une gueule pleine de dents pointues, sur la tête duquel est posé un fer à repasser en feu, le personnage tenant une épée dans chaque main et ayant l'air déterminé.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_linge_09:
+          kind: image
+          out: "dt_t_linge_09.png"
+          prompt: >-
+            Le personnage de la référence, en armure, nettoie le sol avec une serpillière devant une machine à laver ouverte d'où sort un monstre vert à trois yeux.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_moto_01:
+          kind: image
+          out: "dt_t_moto_01.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde à lunettes, est debout à côté d'une moto marron qu'elle nettoie avec un chiffon, tandis qu'un petit monstre marron avec des yeux rouges et une bouche ouverte apparaît derrière la moto.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_repas_06:
+          kind: image
+          out: "dt_t_repas_06.png"
+          prompt: >-
+            Le personnage de la référence, tenant une brosse à poussière, affronte un four à micro-ondes transformé en monstre qui crache de la nourriture.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_repas_07:
+          kind: image
+          out: "dt_t_repas_07.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient un bouclier rond dans une main et une petite épée dans l'autre, se préparant à affronter un monstre de fumée grise et de flammes oranges qui émane d'une poêle posée sur un feu de camp.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_repas_10:
+          kind: image
+          out: "dt_t_repas_10.png"
+          prompt: >-
+            Le personnage de la référence, tenant un plumeau dans une main et un fouet dans l'autre, se tient devant une cuisinière en feu d'où s'échappe une fumée noire en forme de monstre, avec des légumes et des ustensiles de cuisine éparpillés autour.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_repas_11:
+          kind: image
+          out: "dt_t_repas_11.png"
+          prompt: >-
+            Le personnage de la référence, portant une toque de chef et une armure, brandit une épée vers une créature monstrueuse à tentacules et pinces de crabe, composée de divers aliments comme des boulettes de viande, des fruits et des légumes.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_01:
+          kind: image
+          out: "dt_t_salle_de_bain_01.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, tient un aspirateur avec un embout de ventouse et fait face à une créature à plusieurs têtes, avec un corps tentaculaire et des petites créatures poilues à sa base, sur un fond noir.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_02:
+          kind: image
+          out: "dt_t_salle_de_bain_02.png"
+          prompt: >-
+            Le personnage de la référence, tenant un seau dans une main et un chiffon sale dans l'autre, se tient à côté d'une créature grise et monstrueuse qui émerge d'un tas de poussière.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_03:
+          kind: image
+          out: "dt_t_salle_de_bain_03.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est représenté de face, les jambes écartées et les pieds nus, assis dans une flaque d'eau savonneuse, tenant un chiffon mouillé dans une main et un seau renversé à côté de lui, avec des bulles de savon flottant autour de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_04:
+          kind: image
+          out: "dt_t_salle_de_bain_04.png"
+          prompt: >-
+            Le personnage de la référence, une jeune elfe aux cheveux blonds tressés, portant des lunettes rondes et vêtue d'une robe et d'une cape rapiécées, se tient debout et nettoie avec un chiffon une surface vitrée où apparaît un monstre bleu et vert avec de grandes dents, des yeux globuleux et une expression féroce.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_05:
+          kind: image
+          out: "dt_t_salle_de_bain_05.png"
+          prompt: >-
+            Le personnage de la référence, une elfe aux cheveux blonds tressés et aux lunettes rondes, vêtue d'une robe et d'une cape en lambeaux, tient une éponge dans chaque main et s'apprête à nettoyer un serpent d'eau qui sort d'un évier.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_06:
+          kind: image
+          out: "dt_t_salle_de_bain_06.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, sourit en tenant un vaporisateur dans sa main gauche et un chiffon dans sa main droite, nettoyant un miroir rond en bois dans lequel se reflète un monstre gris à plusieurs yeux et une grande bouche ouverte.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_07:
+          kind: image
+          out: "dt_t_salle_de_bain_07.png"
+          prompt: >-
+            Le personnage de la référence, une elfe aux cheveux blonds et aux lunettes, tient une douchette et arrose un monstre vert à plusieurs bras et aux yeux jaunes, qui se trouve dans une cabine de douche.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_08:
+          kind: image
+          out: "dt_t_salle_de_bain_08.png"
+          prompt: >-
+            Le personnage de la référence est dans une baignoire remplie de mousse et de bulles, il tient une éponge jaune et frotte une créature verte et visqueuse avec de nombreux yeux qui se trouve à côté de lui dans la baignoire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_10:
+          kind: image
+          out: "dt_t_salle_de_bain_10.png"
+          prompt: >-
+            Le personnage de la référence, un seau à ses pieds, tient un chiffon et regarde un grand serpent vert enroulé sur une pile de linges.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_11:
+          kind: image
+          out: "dt_t_salle_de_bain_11.png"
+          prompt: >-
+            Le personnage de la référence nettoie le sol avec une serpillière, à côté d'un gnome barbu aux yeux rouges.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salle_de_bain_12:
+          kind: image
+          out: "dt_t_salle_de_bain_12.png"
+          prompt: >-
+            Le personnage de la référence, torse nu et en pagne, tient une brosse à dents dans une main et un vaporisateur dans l'autre, souriant à un grand serpent en pierre qui a un robinet d'eau sur son corps.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_01:
+          kind: image
+          out: "dt_t_salon_01.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient un balai et balaie un tourbillon de poussière et de monstres, devant un bouclier.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_02:
+          kind: image
+          out: "dt_t_salon_02.png"
+          prompt: >-
+            Le personnage de la référence, une elfe souriante avec des lunettes et des tresses, vêtue d'une robe rapiécée et d'une cape à capuche, tient une plume à épousseter et donne un coup de pied en l'air, entourée d'une nuée d'araignées de différentes tailles, certaines avec des crocs et plusieurs yeux, sur un fond sombre avec un halo lumineux.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_03:
+          kind: image
+          out: "dt_t_salon_03.png"
+          prompt: >-
+            Le personnage de la référence, vêtu d'une chemise et d'un pantalon déchirés, nettoie une flaque de boue avec une serpillière, devant une créature visqueuse et un bouclier en arrière-plan.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_04:
+          kind: image
+          out: "dt_t_salon_04.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde à lunettes, nettoie une vitre ronde avec une raclette, faisant disparaître un fantôme effrayant fait d'empreintes digitales.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_05:
+          kind: image
+          out: "dt_t_salon_05.png"
+          prompt: >-
+            Le personnage de la référence, vêtu d'une armure, tient une brosse à récurer et nettoie un mur en briques délabré d'où sortent des créatures noires ressemblant à des araignées.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_06:
+          kind: image
+          out: "dt_t_salon_06.png"
+          prompt: >-
+            Le personnage de la référence, vu de dos, nettoie un miroir ovale orné d'un cadre en bois, dans lequel se reflète un monstre à trois têtes.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_07:
+          kind: image
+          out: "dt_t_salon_07.png"
+          prompt: >-
+            Le personnage de la référence, une jeune elfe aux cheveux blonds attachés en queue de cheval, est représenté de profil, souriant et tenant une pince à long manche pour attraper un livre sur une étagère, tandis qu'un panier en osier rempli de jouets et d'un monstre vert se trouve à ses pieds.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_08:
+          kind: image
+          out: "dt_t_salon_08.png"
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des lunettes, est en train de passer l'aspirateur sur un canapé monstrueux et poilu, avec un aspirateur vintage à ses côtés.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_salon_09:
+          kind: image
+          out: "dt_t_salon_09.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, nettoie un canapé très sale avec un nettoyeur à vapeur qu'il porte sur son dos.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_terrasse_01:
+          kind: image
+          out: "dt_t_terrasse_01.png"
+          prompt: >-
+            Le personnage de la référence, une jeune elfe blonde avec des lunettes, vêtue d'une cape et d'une robe rapiécées, marche en tenant un balai par-dessus son épaule, accompagnée de deux petits gnomes barbus, l'un à sa gauche et l'autre à sa droite.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_terrasse_02:
+          kind: image
+          out: "dt_t_terrasse_02.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, nettoie une créature de boue avec un balai-brosse qui projette de l'eau, un seau à ses pieds.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_terrasse_03:
+          kind: image
+          out: "dt_t_terrasse_03.png"
+          prompt: >-
+            Le personnage de la référence, une elfe aux cheveux blonds tressés, porte une robe marron et un capuchon, des lunettes rondes et des bottes, et arrose avec un arrosoir un cactus vert en pot, qui a des yeux rouges, une bouche ouverte avec des dents pointues et des tentacules.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_toilettes_01:
+          kind: image
+          out: "dt_t_toilettes_01.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est accroupi, tenant un bouclier rond dans sa main gauche et un balai à manche court dans sa main droite, faisant face à une toilette sale d'où sortent des monstres verts et des mouches volent autour.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_toilettes_02:
+          kind: image
+          out: "dt_t_toilettes_02.png"
+          prompt: >-
+            Le personnage de la référence, debout, les bras écartés et tenant un plumeau, regarde avec un sourire un groupe de quatre petites créatures grises et poilues aux yeux rouges et à la bouche ouverte, qui sont assises sur un WC.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_toilettes_03:
+          kind: image
+          out: "dt_t_toilettes_03.png"
+          prompt: >-
+            Le personnage de la référence, en armure, est en train de nettoyer le sol avec une serpillière et un seau, et il est en train de combattre une créature verte et visqueuse avec de nombreux yeux et des dents pointues qui sort de la flaque d'eau.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_toilettes_04:
+          kind: image
+          out: "dt_t_toilettes_04.png"
+          prompt: >-
+            Le personnage de la référence, en armure, tient une serpillière comme une lance, prêt à combattre un monstre bleu et gluant qui sort des toilettes.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_toilettes_06:
+          kind: image
+          out: "dt_t_toilettes_06.png"
+          prompt: >-
+            Le personnage de la référence, vêtu d'un pagne et d'une tunique déchirée, tient une brosse dans chaque main et frotte une créature verte à plusieurs têtes qui sort d'un mur.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_01:
+          kind: image
+          out: "dt_t_vaisselle_01.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, se tient debout, les pieds nus, et tient une plaque de cuisson rectangulaire devant lui comme un bouclier, faisant face à une pile de vaisselle sale et un torchon froissé, tous deux avec des expressions de colère.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_02:
+          kind: image
+          out: "dt_t_vaisselle_02.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, tient une serpillière comme une lance et un bouclier, faisant face à une montagne de vaisselle sale et animée, avec des assiettes, des bols et des couverts empilés et affichant des expressions de colère ou de dégoût.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_03:
+          kind: image
+          out: "dt_t_vaisselle_03.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, pousse avec force un lave-vaisselle ouvert d'où sort une créature monstrueuse et grise avec des dents pointues et des yeux rouges, entourée de vaisselle sale.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_04:
+          kind: image
+          out: "dt_t_vaisselle_04.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est en train de nourrir un lave-vaisselle monstrueux avec une assiette blanche, qu'il tient avec des pinces.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_05:
+          kind: image
+          out: "dt_t_vaisselle_05.png"
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est debout, souriant, et essuie une assiette avec un torchon, tandis que d'autres assiettes tombent d'une étagère derrière lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_06:
+          kind: image
+          out: "dt_t_vaisselle_06.png"
+          prompt: >-
+            Le personnage de la référence, en tenue de paysan, tient une plaque de cuisson et s'apprête à frapper une pile de trois étagères en bois contenant des boules de riz effrayées et pleurant, avec des couverts qui volent autour.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_07:
+          kind: image
+          out: "dt_t_vaisselle_07.png"
+          prompt: >-
+            Le personnage de la référence, une elfe, est debout, les bras écartés, tenant une petite brosse à poussière dans sa main droite, et des assiettes, des verres et des couverts volent autour d'elle.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_08:
+          kind: image
+          out: "dt_t_vaisselle_08.png"
+          prompt: >-
+            Le personnage de la référence, une elfe, affronte un fantôme gris et menaçant qui émerge d'une pile de vaisselle sale et de tasses renversées.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_vaisselle_09:
+          kind: image
+          out: "dt_t_vaisselle_09.png"
+          prompt: >-
+            Le personnage de la référence, armé d'une brosse, se prépare à affronter une pieuvre verte et menaçante qui sort d'un lave-vaisselle.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_voiture_01:
+          kind: image
+          out: "dt_t_voiture_01.png"
+          prompt: >-
+            Le personnage de la référence, en armure, est à quatre pattes sur le siège d'une voiture sale, nettoyant une tache avec un chiffon, tandis qu'un monstre lapin géant et effrayant sort de l'arrière du siège, des toiles d'araignée derrière lui et des clés de voiture pendantes à côté.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_dt_t_voiture_02:
+          kind: image
+          out: "dt_t_voiture_02.png"
+          prompt: >-
+            Le personnage de la référence, vêtu de son armure, nettoie une voiture couverte de boue avec une serpillière et un seau, tandis qu'un monstre de boue émerge de l'arrière du véhicule.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_c_01:
+          kind: image
+          out: "icon_01_C_01.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Trois personnages, l'elfe de la référence à gauche tenant un balai, le chevalier de la référence au centre tenant une lance, et le jeune garçon de la référence à droite, sont représentés dans un cercle avec un cadre doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_c_02:
+          kind: image
+          out: "icon_01_C_02.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Un homme barbu aux cheveux gris, vêtu d'une tenue de chasseur avec un carquois et un arc, et une jeune femme aux cheveux noirs, vêtue d'une robe et d'un chapeau de sorcière, tenant un livre ouvert, sont représentés dans un médaillon circulaire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_c_03:
+          kind: image
+          out: "icon_01_C_03.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage masculin de la référence, avec une fille aux cheveux bruns tressés, souriants, le garçon tenant une épée en bois et la fille un bouclier, tous deux dans un cercle marron et doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_c_04:
+          kind: image
+          out: "icon_01_C_04.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Un homme barbu avec un arc et des flèches sur le dos, une femme avec un chapeau de sorcière tenant un livre, un jeune garçon tenant une épée en bois et une jeune fille tenant un bouclier, tous souriants et posant ensemble, sont représentés dans un cercle.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_01:
+          kind: image
+          out: "icon_01_P_01.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune homme aux cheveux bruns et aux yeux marron, souriant et vêtu d'une armure de chevalier, est représenté en buste dans un cercle doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_02:
+          kind: image
+          out: "icon_01_P_02.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, en armure de chevalier, est représenté en buste, les mains jointes devant lui, dans un cadre circulaire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_03:
+          kind: image
+          out: "icon_01_P_03.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, en armure, tient un bouclier dans sa main gauche et un parchemin dans sa main droite, le tout dans un cercle doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_04:
+          kind: image
+          out: "icon_01_P_04.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune homme aux cheveux bruns, est représenté de la taille aux hanches, vêtu d'une cotte de mailles et d'une ceinture en cuir, tenant un livre ouvert dans sa main gauche et sa main droite posée sur son menton, l'air pensif, le tout dans un cadre circulaire avec une bordure dorée et marron.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_05:
+          kind: image
+          out: "icon_01_P_05.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est représenté en armure de chevalier, tenant un bouclier en bois dans sa main gauche et une épée à sa ceinture, avec une cape foncée flottant derrière lui, le tout inscrit dans un cercle doré sur un fond blanc.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_06:
+          kind: image
+          out: "icon_01_P_06.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est représenté en buste, portant une armure de chevalier détaillée avec des motifs dorés, une cape grise, et des gants marron, tenant une lance ornée avec une houppe blanche à son extrémité dans sa main droite, et appuyant sa main gauche sur une canne simple, le tout inscrit dans un cercle avec une bordure dorée et marron.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_07:
+          kind: image
+          out: "icon_01_P_07.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, une elfe blonde avec des lunettes et une capuche, est représentée en gros plan, les yeux fermés, en train de bander un arc avec une flèche lumineuse.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_08:
+          kind: image
+          out: "icon_01_P_08.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté en buste, les yeux fermés, les mains devant lui comme s'il lançait un sort, avec un bâton de magicien sur son épaule droite.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_09:
+          kind: image
+          out: "icon_01_P_09.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté en buste, les mains sur les hanches, tenant une épée, dans un cadre circulaire doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_10:
+          kind: image
+          out: "icon_01_P_10.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté en buste, les yeux fermés, les mains levées et ouvertes, concentré sur un symbole lumineux et runique qui flotte entre ses paumes, le tout dans un cadre circulaire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_11:
+          kind: image
+          out: "icon_01_P_11.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, une elfe blonde à lunettes, tient une plume à poussière dans sa main droite et lève sa main gauche, regardant vers le haut, dans un cadre circulaire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_12:
+          kind: image
+          out: "icon_01_P_12.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, une jeune fille aux cheveux blonds tressés, est représenté en gros plan, son visage exprimant de la colère, alors qu'elle tient un arc et une flèche, prête à tirer.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_13:
+          kind: image
+          out: "icon_01_P_13.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté de face, le buste légèrement tourné vers la droite, tenant une épée à deux mains, la pointe vers le haut, dans un cercle doré et marron.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_14:
+          kind: image
+          out: "icon_01_P_14.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns et aux taches de rousseur, est représenté de face, le regard déterminé, vêtu d'une cotte de mailles et d'une tunique en cuir, tenant un bouclier en bois et métal dans sa main gauche, le poing droit serré, le tout dans un cadre circulaire marron et doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_15:
+          kind: image
+          out: "icon_01_P_15.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns et aux taches de rousseur, souriant et tenant une épée à deux mains, est représenté dans un cercle avec un cadre doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_16:
+          kind: image
+          out: "icon_01_P_16.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns et aux taches de rousseur, sourit en regardant le spectateur, tenant deux épées croisées sur son épaule droite, dans un cercle marron et doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_17:
+          kind: image
+          out: "icon_01_P_17.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté en buste, souriant, les yeux fermés, avec un pouce levé de la main gauche et tenant une épée en bois de la main droite, le tout dans un cercle marron.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_18:
+          kind: image
+          out: "icon_01_P_18.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté en buste, de face, le regard tourné vers la droite, tenant une épée en bois dans sa main droite, le tout dans un cercle marron.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_19:
+          kind: image
+          out: "icon_01_P_19.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence 4, une jeune fille aux cheveux bruns tressés et aux oreilles pointues, est représentée en buste, tenant un bâton de magicien lumineux dans sa main droite, avec un collier de feuilles dans ses cheveux.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_20:
+          kind: image
+          out: "icon_01_P_20.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, une jeune femme aux cheveux bruns tressés et aux taches de rousseur, est représenté en buste, portant une cape verte et une armure, regardant légèrement vers la droite, avec un petit nuage blanc flottant derrière son épaule droite, le tout encadré par un cercle doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_21:
+          kind: image
+          out: "icon_01_P_21.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, une jeune fille aux cheveux bruns tressés, est représenté en gros plan, le regard déterminé, tenant un bouclier en bois et métal.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_22:
+          kind: image
+          out: "icon_01_P_22.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté en buste, souriant, les mains sur les hanches, tenant un bouclier en bois et métal sur son épaule droite, le tout dans un cercle avec un cadre marron.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_23:
+          kind: image
+          out: "icon_01_P_23.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, une jeune fille aux tresses brunes et aux taches de rousseur, est représentée en buste, souriante et regardant vers le haut, avec un bouclier visible derrière son épaule droite, le tout dans un cadre circulaire avec une bordure marron et dorée.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_24:
+          kind: image
+          out: "icon_01_P_24.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté de la taille à la tête, avec des tresses, les mains posées sur ses tresses, et est encadré par un cercle.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_25:
+          kind: image
+          out: "icon_01_P_25.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est représenté en gros plan, avec un bouclier rond en bois sur le dos et une lance dans la main droite, le poing serré et le visage grimaçant de colère, dans un cadre circulaire marron et doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_26:
+          kind: image
+          out: "icon_01_P_26.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est représenté de face, souriant, tenant un livre ouvert dans sa main gauche et serrant le poing droit, avec une sacoche en bandoulière, le tout dans un cadre circulaire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_27:
+          kind: image
+          out: "icon_01_P_27.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns et aux yeux clairs, tient un bouclier en bois avec une étoile gravée, et est encadré par un cercle doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_28:
+          kind: image
+          out: "icon_01_P_28.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, est représenté en buste, les mains jointes devant lui, le regard froncé, à l'intérieur d'un cercle marron et doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_29:
+          kind: image
+          out: "icon_01_P_29.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns et aux taches de rousseur, tient un livre ouvert qui émet une lumière magique et essuie une page avec un chiffon blanc, le tout dans un cercle marron et doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_30:
+          kind: image
+          out: "icon_01_P_30.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un jeune garçon aux cheveux bruns, souriant et faisant un pouce levé, est représenté dans un cercle marron.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_31:
+          kind: image
+          out: "icon_01_P_31.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence 1, une jeune elfe aux cheveux blonds tressés, porte des lunettes et un costume de chiffon, elle tient une plume à épousseter et un seau à ses pieds, elle lève une jambe et a les bras écartés, le tout sur un fond blanc.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_32:
+          kind: image
+          out: "icon_01_P_32.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Une femme elfe aux cheveux noirs tressés, vêtue d'une cape et d'une robe, tient une fiole de potion violette dans une main et un mortier avec un pilon dans l'autre, le tout dans un cadre circulaire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_33:
+          kind: image
+          out: "icon_01_P_33.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, une jeune femme aux cheveux noirs et aux oreilles pointues, porte un chapeau de sorcière et une cape ornée d'étoiles, elle lève un doigt vers le haut et tient son chapeau de l'autre main, le tout dans un cercle doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_34:
+          kind: image
+          out: "icon_01_P_34.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, une jeune femme aux cheveux noirs et au chapeau pointu, tient une boule de feu magique dans sa main gauche ouverte, tandis que sa main droite est légèrement levée en signe de concentration.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_35:
+          kind: image
+          out: "icon_01_P_35.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence 1, une elfe aux cheveux noirs et aux oreilles pointues, tient un bâton de cristal dans sa main droite, son regard est tourné vers l'avant, le tout est encadré par un cercle doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_36:
+          kind: image
+          out: "icon_01_P_36.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Une femme aux cheveux foncés et aux oreilles pointues, vêtue d'une cape et d'un chapeau de sorcière orné d'une couronne, est assise les yeux fermés, les mains jointes devant elle, entourée d'un cercle doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_37:
+          kind: image
+          out: "icon_01_P_37.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Un homme barbu d'âge moyen, vêtu d'un gilet en cuir et d'une chemise, tenant une flèche et un arc dans son carquois, est représenté dans un cercle.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_38:
+          kind: image
+          out: "icon_01_P_38.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Un homme d'âge moyen avec une barbe et des cheveux gris, vêtu d'une chemise et d'un gilet en cuir avec un carquois d'arches sur le dos, se tient les bras croisés et regarde le spectateur.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_39:
+          kind: image
+          out: "icon_01_P_39.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Un homme âgé avec une barbe et des cheveux gris, vêtu d'un gilet en cuir et d'une chemise, tenant une dague dans ses mains et un carquois avec des flèches sur son dos, est représenté dans un cercle marron et doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_40:
+          kind: image
+          out: "icon_01_P_40.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Un homme barbu d'âge moyen, vêtu d'une chemise et d'un gilet en cuir, tenant un arc et une loupe, examinant l'arc, avec un carquois de flèches sur le dos.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_41:
+          kind: image
+          out: "icon_01_P_41.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence, un homme barbu aux cheveux gris, est représenté en buste dans un cercle, tenant une torche enflammée dans sa main droite et un carquois avec des flèches sur son dos.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_icon_01_p_42:
+          kind: image
+          out: "icon_01_P_42.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - iconify
+          prompt: >-
+            Le personnage de la référence est un homme barbu aux cheveux gris, vêtu d'une veste en cuir marron et d'une chemise claire, tenant une carte dépliée dans ses mains gantées, le tout dans un cadre circulaire marron et doré.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_animaux_nobg:
+          kind: image
+          out: "task_animaux_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un Cerbère, un chien à trois têtes, avec un pelage noir et rouge, les yeux rouges et la gueule ouverte, est représenté devant un bouclier gris.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_balcon_nobg:
+          kind: image
+          out: "task_balcon_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, en armure de chevalier, est accroupi et nettoie le sol avec une serpillière et un seau d'eau savonneuse, la langue tirée.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_bureau_nobg:
+          kind: image
+          out: "task_bureau_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Une pile de papiers avec des visages effrayés et des bras qui sortent du dessus, tenant un stylo, est posée sur un bureau en bois avec des tiroirs, flanqué de deux chaises en bois sculpté, le tout devant un bouclier métallique.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_chambre_enfant_nobg:
+          kind: image
+          out: "task_chambre_enfant_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence 3, en armure, est à genoux, tenant une serpillière et un seau, en train de nettoyer le sol avec de l'eau savonneuse.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_chambre_parentale_nobg:
+          kind: image
+          out: "task_chambre_parentale_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, en armure, est en train de passer la serpillière avec un seau à côté de lui, avec des éclaboussures d'eau et des étoiles scintillantes autour de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_couloir_nobg:
+          kind: image
+          out: "task_couloir_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, un jeune homme aux cheveux bruns, est représenté en armure de chevalier, tenant une serpillière et un seau, en train de nettoyer le sol avec une expression concentrée et la langue tirée.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_courses_nobg:
+          kind: image
+          out: "task_courses_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un bouclier en arrière-plan, un caddie rempli de légumes et de tentacules, un zombie sortant du caddie, la bouche ouverte et les bras tendus.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_cuisine_nobg:
+          kind: image
+          out: "task_cuisine_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, en armure de chevalier, est en train de passer la serpillière avec un seau à côté de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_dechets_nobg:
+          kind: image
+          out: "task_dechets_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence 3, en armure, est en train de nettoyer le sol avec une serpillière et un seau, avec des éclaboussures d'eau et des étoiles scintillantes autour de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_entree_nobg:
+          kind: image
+          out: "task_entree_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Une porte en bois marron avec un judas et une poignée dorée est placée devant un bouclier gris métallique avec deux yeux marron de chaque côté, et en bas, un paillasson marron avec une bouche de monstre ouverte et une longue langue rose qui sort, ainsi qu'un pied avec une chaussure marron qui dépasse du bas de la porte.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_extras_nobg:
+          kind: image
+          out: "task_extras_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, en armure de chevalier, est accroupi et nettoie le sol avec une serpillière et un seau d'eau savonneuse.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_garage_nobg:
+          kind: image
+          out: "task_garage_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, vêtu d'une armure, nettoie le sol avec une serpillière et un seau, dans une pose dynamique.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_jardin_nobg:
+          kind: image
+          out: "task_jardin_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, vêtu d'une armure de chevalier, est accroupi, tenant une serpillière et un seau, en train de nettoyer le sol, avec de l'eau savonneuse et des bulles autour de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_linge_nobg:
+          kind: image
+          out: "task_linge_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, en armure de chevalier, est en train de nettoyer le sol avec une serpillière et un seau, dans une pose dynamique.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_repas_nobg:
+          kind: image
+          out: "task_repas_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un slime vert avec des os et des légumes qui sortent de son corps, la bouche ouverte avec une langue rose et des dents pointues, est posé sur une assiette en argent avec un couvercle de cloche de service soulevé, devant un bouclier.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_salle_de_bain_nobg:
+          kind: image
+          out: "task_salle_de_bain_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence 3, en armure, est accroupi et nettoie le sol avec une serpillière et un seau, avec des éclaboussures d'eau et des étoiles scintillantes autour de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_salon_nobg:
+          kind: image
+          out: "task_salon_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, en armure, est accroupi et nettoie le sol avec une serpillière et un seau, avec des éclaboussures d'eau et des étoiles brillantes autour de lui.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_terrasse_nobg:
+          kind: image
+          out: "task_terrasse_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un ensemble de meubles de jardin animés et menaçants, comprenant un parasol avec une bouche pleine de dents acérées et des yeux rouges lumineux, une table avec des racines comme pieds, et une chaise avec un visage effrayant et des yeux rouges, le tout devant un bouclier.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_toilettes_nobg:
+          kind: image
+          out: "task_toilettes_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un bouclier en métal rouillé et sale, avec un siège de toilette sale et rouillé au centre, d'où s'échappe une fumée verte et un monstre vert avec un escargot sur la tête.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_vaisselle_nobg:
+          kind: image
+          out: "task_vaisselle_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un tas de vaisselle sale et cassée, avec des restes de nourriture, des insectes, des tentacules et un œil rouge qui sortent d'une marmite, le tout devant un bouclier.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        familles_task_vehicules_nobg:
+          kind: image
+          out: "task_vehicules_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, en armure, est assis sur le sol, les jambes croisées, en train de polir son bouclier avec un chiffon, avec un seau d'eau savonneuse à côté de lui.
+    - name: traitements_historiques
+      enabled: true
+      dir: "resources_cloud/donjon"
+      items:
+        # 7 + 12 images detourees. Le suffixe `_nobg` est la marque de `remove_bg.py`.
+        big_detoures:
+          kind: source
+          out: "images/big/*_nobg.png"
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+        small_detoures:
+          kind: source
+          out: "images/small/*_nobg.png"
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+        # ⚠ NOMMES UN PAR UN, ET PAS `icon_*.png`. Ce joker-la recouvrirait aussi
+        #   `icon_01_P_*` et `icon_01_C_*`, deja declares plus haut et plus precis : ils y
+        #   perdraient leur item, donc leur identite dans l'inventaire, pour un gain nul.
+        # En forme de BLOC et non en flux : un flux sur deux lignes n'est pas depliable
+        # par `bundles apply`, qui doit pouvoir y inserer un `prompt:`.
+        icone_marchand:
+          kind: source
+          out: "images/medium/icon_Marchand.png"
+          traitements: [iconify]
+          prompt: >-
+            Une tente de cirque rayée violet et or, avec un panneau vierge au-dessus de l'entrée, abritant des outils de nettoyage comme un balai, des brosses, un seau en bois rempli de plumeaux et un linge plié. Le tout est présenté dans un style de jeu vidéo détaillé et coloré, avec des ombres douces et un éclairage uniforme, détouré sur fond transparent.
+        icone_edit:
+          kind: source
+          out: "images/medium/icon_edit.png"
+          traitements: [iconify]
+          prompt: >-
+            Un encrier en pierre de forme irrégulière, orné d'un petit bouclier gravé sur sa face avant, avec une plume d'oie beige et marron clair insérée dedans, émettant une légère lueur bleue à sa base. Le style est celui d'un jeu vidéo fantastique, avec des couleurs vives et des contours nets, le tout détouré sur fond transparent.
+        ecu_combat:
+          kind: source
+          out: "images/medium/ecu_combat.png"
+          traitements: [ecufy]
+          prompt: >-
+            Un blason de chevalier stylisé en or et marron, avec une hache de guerre et une épée médiévale croisées en son centre, et une chaussette sale et trouée pendue sur les armes. Illustration numérique de style fantasy, aux détails réalistes et aux couleurs terreuses, avec un éclairage doux et diffus, détourée sur fond transparent.
+
+    # =========================================================================
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_chest_item_nobg:
+          kind: image
+          out: "images/big/chest_item_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un coffre en bois avec des renforts métalliques, un motif de tête d'ours en colère avec des yeux rouges au centre, et des poignées sur les côtés.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_no_paiement_nobg:
+          kind: image
+          out: "images/big/no_paiement_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, les mains dans les poches retournées pour montrer qu'elles sont vides, un seau renversé et un plumeau à ses pieds.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_victory_nobg:
+          kind: image
+          out: "images/big/victory_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, debout sur un tas d'armures et d'armes, tient une coupe dans chaque main, les bras levés en signe de victoire.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_byebye_nobg:
+          kind: image
+          out: "images/small/byebye_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence est vu de dos, portant un baluchon sur une branche d'arbre sur son épaule droite.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_chef_nobg:
+          kind: image
+          out: "images/small/chef_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, portant une couronne dorée ornée de pierres précieuses, est assis et tient une épée en bois dans sa main droite.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_flee_nobg:
+          kind: image
+          out: "images/small/flee_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le personnage de la référence, portant un casque de soldat abîmé et tenant un bâton avec un drapeau blanc déchiré, est assis.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_switch_nobg:
+          kind: image
+          out: "images/small/switch_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Deux oursons en peluche avec des cornes, l'un marron avec des yeux rouges et une épée en bois, l'autre vert avec des yeux verts, un bouclier et un parchemin, se font face au centre d'une flèche circulaire bleue qui les entoure.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_argent_poche_nobg:
+          kind: image
+          out: "images/big/argent_poche_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un portefeuille en cuir marron, usé et texturé, est rempli de billets de banque stylisés, ressemblant à des parchemins anciens avec des motifs médiévaux comme des boucliers, des épées et des flacons, le tout détouré sur fond transparent. Le style est celui d'une illustration de jeu vidéo, avec des couleurs chaudes et terreuses, des ombres douces et un éclairage diffus qui met en valeur les textures du cuir et des billets.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_fairy_nobg:
+          kind: image
+          out: "images/big/fairy_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Une fée souriante aux longs cheveux clairs, vêtue d'une robe de soubrette grise et d'un tablier blanc, tient dans chaque main une petite boîte cadeau lumineuse, tandis que des bulles et des étoiles scintillantes l'entourent. Le personnage est représenté dans un style anime détaillé, avec des couleurs pastel douces et un éclairage lumineux, sur un fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_frost_frame_nobg:
+          kind: image
+          out: "images/big/frost_frame_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un cadre fin et irrégulier, comme des éclairs ou des branches stylisées, entoure les bords d'une image. Le cadre est de couleur bleu clair et est détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_skull_nobg:
+          kind: image
+          out: "images/big/skull_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un crâne humain réaliste, vu de face, avec des orbites oculaires sombres et une dentition complète, est représenté avec des détails anatomiques précis. Le dessin est réalisé dans un style d'illustration numérique, avec des lignes nettes, des ombres douces et une palette de couleurs neutres et naturelles pour l'os, le tout détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_cure_nobg:
+          kind: image
+          out: "images/small/cure_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Deux pansements adhésifs de couleur chair se croisent en forme de X, avec des perforations et une texture gaufrée visible, et des bords arrondis. Le style est une illustration numérique avec des ombres subtiles pour donner du volume, détourée sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_flamme_nobg:
+          kind: image
+          out: "images/small/flamme_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Une boule de feu stylisée, aux flammes vives et dynamiques, s'élève verticalement avec des volutes orange et jaunes intenses, le tout détouré sur fond transparent. Le style est celui d'un jeu vidéo ou d'un dessin animé, avec des contours nets et un dégradé de couleurs chaudes allant du jaune clair au rouge foncé, créant un effet de lumière interne et de chaleur intense.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_hand_nobg:
+          kind: image
+          out: "images/small/hand_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un point d'exclamation rouge vif, légèrement incliné vers la droite, avec une texture subtilement granuleuse. Le point d'exclamation est net et bien défini, détouré sur un fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_heart_nobg:
+          kind: image
+          out: "images/small/heart_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un bouclier en forme de cœur, rouge rouillé et usé, avec un cadre métallique riveté et une étoile à sept branches fissurée en son centre, est détouré sur fond transparent. Le style est celui d'une illustration numérique détaillée, avec des textures réalistes, des reflets métalliques et des ombres douces qui donnent du volume à l'objet. La palette de couleurs est dominée par le rouge profond et le gris argenté, avec des touches de brun rouille, et l'éclairage est diffus, mettant en valeur les détails de surface.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_notconnected_nobg:
+          kind: image
+          out: "images/small/notconnected_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un symbole de Wi-Fi stylisé en métal bleu usé et rouillé, avec une barre diagonale du même style le traversant, le tout détouré sur fond transparent. Le style est un dessin numérique avec des contours marqués, des textures détaillées de métal abîmé, et une palette de bleus froids avec des ombres douces et un éclairage diffus.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_scroll_nobg:
+          kind: image
+          out: "images/small/scroll_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un parchemin ancien déroulé, de couleur crème et légèrement jauni, avec des bords irréguliers et déchirés, est tenu par des rouleaux en bois sombre et doré, et présente une écriture manuscrite rouge et stylisée, partiellement visible sur le haut et le bas du document. Le style est une illustration numérique détaillée avec des textures réalistes, des ombres douces et un éclairage diffus qui met en valeur le relief du parchemin, le tout détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_tagxp_nobg:
+          kind: image
+          out: "images/small/tagXP_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Le mot "XP" est écrit en lettres majuscules stylisées, inclinées vers le haut et la droite, avec un contour noir épais et un remplissage bleu vif texturé. Les lettres sont nettes et bien définies, avec un léger effet de relief, détourées sur un fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        traitements_historiques_xp_nobg:
+          kind: image
+          out: "images/small/xp_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un jeton de jeu vidéo en métal, de forme ovale, avec un centre doré gravé des lettres "XP" dans un style rustique et usé, entouré d'un anneau métallique plus foncé et riveté, le tout détouré sur fond transparent. Le style est celui d'une illustration numérique détaillée, avec des textures réalistes de métal vieilli, des éraflures et une patine verdâtre sur les lettres, éclairé de manière à accentuer les reliefs et les reflets métalliques.
+    - name: captures
+      enabled: true
+      # LE POINT DE DEPOT UNIQUE des captures d'ecran de l'application.
+      #
+      # Il n'y en avait pas : les memes images vivaient en trois exemplaires — les PNG
+      # dans le repertoire deploye du site, leurs WebP a cote, et huit d'entre elles
+      # recopiees a l'identique dans stores/google/assets (verifie par empreinte, les
+      # huit etaient octet pour octet les memes). Desormais on depose ICI, et le site
+      # comme le store comme les videos en DERIVENT.
+      #
+      # Ce repertoire n'est ni embarque dans l'application ni publie : c'est un magasin
+      # de sources. Y ranger sept series de captures ne coute rien a personne, la ou
+      # sept series dans hosting/web seraient deployees pour rien.
+      #
+      # `langs: [en]` parce que la serie existante est ANGLAISE (les libelles a l'ecran
+      # le sont : « Me », « Shop », « Time to clean ! »). Deposer fr/, de/, es/, it/,
+      # pt/ et nl/ puis elargir cette liste ICI, en un seul endroit, suffira a nourrir
+      # les videos dans les sept langues.
+      dir: "resources_others/screenshots"
+      langs: [en]
+      items:
+        cap_02_crest: { kind: source, langs: [en], out: "@@@lang@@@/02-crest.png" }
+        cap_04_welcome: { kind: source, langs: [en], out: "@@@lang@@@/04-welcome.png" }
+        cap_05_call_of_adventure: { kind: source, langs: [en], out: "@@@lang@@@/05-call-of-adventure.png" }
+        cap_07_who_are_you: { kind: source, langs: [en], out: "@@@lang@@@/07-who-are-you.png" }
+        cap_09_tavern_challenge: { kind: source, langs: [en], out: "@@@lang@@@/09-tavern-challenge.png" }
+        cap_19_choose_destiny: { kind: source, langs: [en], out: "@@@lang@@@/19-choose-destiny.png" }
+        cap_20_choose_destiny_2: { kind: source, langs: [en], out: "@@@lang@@@/20-choose-destiny-2.png" }
+        cap_21_birth_of_clan: { kind: source, langs: [en], out: "@@@lang@@@/21-birth-of-clan.png" }
+        cap_23_prepare_adventure: { kind: source, langs: [en], out: "@@@lang@@@/23-prepare-adventure.png" }
+        cap_26_journey_begins: { kind: source, langs: [en], out: "@@@lang@@@/26-journey-begins.png" }
+        cap_32_choose_avatar: { kind: source, langs: [en], out: "@@@lang@@@/32-choose-avatar.png" }
+        cap_33_me: { kind: source, langs: [en], out: "@@@lang@@@/33-me.png" }
+        cap_34_items: { kind: source, langs: [en], out: "@@@lang@@@/34-items.png" }
+        cap_40_time_to_clean: { kind: source, langs: [en], out: "@@@lang@@@/40-time-to-clean.png" }
+        cap_44_trash: { kind: source, langs: [en], out: "@@@lang@@@/44-trash.png" }
+        cap_46_time_to_clean_2: { kind: source, langs: [en], out: "@@@lang@@@/46-time-to-clean-2.png" }
+        cap_50_carrier_pigeon: { kind: source, langs: [en], out: "@@@lang@@@/50-carrier-pigeon.png" }
+        cap_54_pocket_money: { kind: source, langs: [en], out: "@@@lang@@@/54-pocket-money.png" }
+        cap_55_pocket_money_2: { kind: source, langs: [en], out: "@@@lang@@@/55-pocket-money-2.png" }
+        cap_57_note_in_chest: { kind: source, langs: [en], out: "@@@lang@@@/57-note-in-chest.png" }
+        cap_59_loot_chest: { kind: source, langs: [en], out: "@@@lang@@@/59-loot-chest.png" }
+        cap_67_clan: { kind: source, langs: [en], out: "@@@lang@@@/67-clan.png" }
+        cap_69_open_loot: { kind: source, langs: [en], out: "@@@lang@@@/69-open-loot.png" }
+        cap_70_open_loot_2: { kind: source, langs: [en], out: "@@@lang@@@/70-open-loot-2.png" }
+        cap_72_loot_share: { kind: source, langs: [en], out: "@@@lang@@@/72-loot-share.png" }
+        cap_73_chiefs_word: { kind: source, langs: [en], out: "@@@lang@@@/73-chiefs-word.png" }
+        cap_playstore: { kind: source, langs: [en], out: "@@@lang@@@/playstore.png" }
+
+    # =========================================================================
+    - name: site
+      enabled: true
+      # Les vignettes du site, DERIVEES du point de depot. Elles existent deja, donc
+      # rien n'est regenere : la declaration sert de lien tracable et de garde-fou. Si
+      # l'une disparait, le prochain build la refait a partir de sa source.
+      #
+      # Le site sert des WebP a 900 px de large : c'est ce que reference son HTML, et
+      # une capture de 720 px n'a pas besoin de plus. Les PNG d'origine, eux, n'ont
+      # jamais ete servis — ils encombraient le repertoire deploye sans qu'aucune page
+      # ne les demande.
+      items:
+        site_02_crest:
+          kind: derive
+          refs: [cap_02_crest]
+          out: "hosting/web/assets/img/02-crest.webp"
+          quality: 82
+        site_05_call_of_adventure:
+          kind: derive
+          refs: [cap_05_call_of_adventure]
+          out: "hosting/web/assets/img/05-call-of-adventure.webp"
+          quality: 82
+        site_07_who_are_you:
+          kind: derive
+          refs: [cap_07_who_are_you]
+          out: "hosting/web/assets/img/07-who-are-you.webp"
+          quality: 82
+        site_21_birth_of_clan:
+          kind: derive
+          refs: [cap_21_birth_of_clan]
+          out: "hosting/web/assets/img/21-birth-of-clan.webp"
+          quality: 82
+        site_26_journey_begins:
+          kind: derive
+          refs: [cap_26_journey_begins]
+          out: "hosting/web/assets/img/26-journey-begins.webp"
+          quality: 82
+        site_32_choose_avatar:
+          kind: derive
+          refs: [cap_32_choose_avatar]
+          out: "hosting/web/assets/img/32-choose-avatar.webp"
+          quality: 82
+        site_40_time_to_clean:
+          kind: derive
+          refs: [cap_40_time_to_clean]
+          out: "hosting/web/assets/img/40-time-to-clean.webp"
+          quality: 82
+        site_44_trash:
+          kind: derive
+          refs: [cap_44_trash]
+          out: "hosting/web/assets/img/44-trash.webp"
+          quality: 82
+        site_46_time_to_clean_2:
+          kind: derive
+          refs: [cap_46_time_to_clean_2]
+          out: "hosting/web/assets/img/46-time-to-clean-2.webp"
+          quality: 82
+        site_50_carrier_pigeon:
+          kind: derive
+          refs: [cap_50_carrier_pigeon]
+          out: "hosting/web/assets/img/50-carrier-pigeon.webp"
+          quality: 82
+        site_55_pocket_money_2:
+          kind: derive
+          refs: [cap_55_pocket_money_2]
+          out: "hosting/web/assets/img/55-pocket-money-2.webp"
+          quality: 82
+        site_59_loot_chest:
+          kind: derive
+          refs: [cap_59_loot_chest]
+          out: "hosting/web/assets/img/59-loot-chest.webp"
+          quality: 82
+        site_67_clan:
+          kind: derive
+          refs: [cap_67_clan]
+          out: "hosting/web/assets/img/67-clan.webp"
+          quality: 82
+        site_69_open_loot:
+          kind: derive
+          refs: [cap_69_open_loot]
+          out: "hosting/web/assets/img/69-open-loot.webp"
+          quality: 82
+        site_72_loot_share:
+          kind: derive
+          refs: [cap_72_loot_share]
+          out: "hosting/web/assets/img/72-loot-share.webp"
+          quality: 82
+
+    # =========================================================================
+    - name: store
+      enabled: true
+      # Les captures de la fiche Play, derivees des memes sources. Elles etaient huit
+      # copies exactes de huit captures du site ; le lien est desormais ecrit plutot
+      # que subi.
+      items:
+        store_03_capture_1:
+          kind: derive
+          refs: [cap_04_welcome]
+          out: "../stores/google/assets/03-capture-1.png"
+        store_03_capture_2:
+          kind: derive
+          refs: [cap_21_birth_of_clan]
+          out: "../stores/google/assets/03-capture-2.png"
+        store_03_capture_3:
+          kind: derive
+          refs: [cap_40_time_to_clean]
+          out: "../stores/google/assets/03-capture-3.png"
+        store_03_capture_4:
+          kind: derive
+          refs: [cap_32_choose_avatar]
+          out: "../stores/google/assets/03-capture-4.png"
+        store_03_capture_5:
+          kind: derive
+          refs: [cap_33_me]
+          out: "../stores/google/assets/03-capture-5.png"
+        store_03_capture_6:
+          kind: derive
+          refs: [cap_54_pocket_money]
+          out: "../stores/google/assets/03-capture-6.png"
+        store_03_capture_7:
+          kind: derive
+          refs: [cap_59_loot_chest]
+          out: "../stores/google/assets/03-capture-7.png"
+        store_03_capture_8:
+          kind: derive
+          refs: [cap_67_clan]
+          out: "../stores/google/assets/03-capture-8.png"
+    # =========================================================================
+    - name: plans
+      enabled: false
+      # DESACTIVEE tant que les captures ne sont pas la : une etape desactivee est
+      # invisible, ni generee ni verifiee. La reactiver lancera Veo et Lyria, ce qui se
+      # compte en minutes et en argent reel — d'ou le drapeau plutot qu'un essai timide.
+      #
+      # CONTRAINTE DE PROMPT, non verifiable par le code : aucun plan ne doit montrer
+      # quelqu'un PARLER face camera. La voix off est remplacee langue par langue ; une
+      # bouche qui articule le francais sous une phrase allemande ruinerait la video.
+      dir: "resources_others/video/sources"
+      style: >
+        Warm hand-drawn animated illustration, soft ink outlines and light watercolour
+        washes, gentle camera. Cosy family home with a faint medieval fantasy wink.
+        No on-screen text, no letters, no logo, no watermark. Nobody speaks to camera.
+      items:
+
+        clip_intro:
+          kind: clip
+          out: "clip_intro.mp4"
+          # La premiere image vient d'une planche DEJA validee : le clip anime ce qui
+          # existe au lieu de reinventer le decor et les personnages.
+          refs: [guide_k1]
+          prompt: >
+            The family lowers their brooms and mops like adventurers at the end of a quest,
+            the camera drifting slowly backwards to reveal the tidy room around them.
+        clip_chest:
+          kind: clip
+          out: "clip_chest.mp4"
+          refs: [guide_p3]
+          prompt: >
+            The wooden chest lids opens slowly, warm golden light spilling out over the
+            faces around it. Slow push in towards the glow.
+        music_theme:
+          kind: music
+          out: "music_theme.wav"
+          prompt: >
+            Gentle warm acoustic theme, light plucked strings and soft flute, medieval
+            folk flavour, unhurried and hopeful, suitable as a quiet background bed under
+            a spoken narration. No drums, no big climax.
+          negative: "aggressive, epic, orchestral hits, vocals, drums"
+
+    # =========================================================================
+    - name: videos
+      enabled: false
+      # DESACTIVEE : a activer une fois les captures deposees et l'etape `plans` passee.
+      #
+      # Il n'y a PAS de « video maitre » qu'on habillerait. Il y a des PLANS sans langue,
+      # et la duree de chaque plan est celle de sa narration DANS LA LANGUE COURANTE :
+      # une phrase allemande plus longue allonge son plan, un clip trop court est prolonge
+      # sur sa derniere image. La version allemande dure donc plus longtemps que
+      # l'anglaise sans qu'un seul plan ait ete regenere.
+      items:
+
+        demo:
+          kind: video
+          # Video de DEMONSTRATION : montage de captures, pas une generation. Sept
+          # montages, chacun a partir des captures de sa langue. Confier des captures a
+          # un generateur video reviendrait a le laisser reinventer l'interface, avec des
+          # boutons qui n'existent pas et du texte deforme.
+          music: music_theme
+          shots:
+            - visual: clip_intro
+              min_duration: 4.0
+              text:
+                fr: "Dans Donjons & Savons, les tâches de la maison deviennent des monstres à vaincre."
+                en: "In Donjons & Savons, household chores become monsters to defeat."
+                es: "En Donjons & Savons, las tareas del hogar se convierten en monstruos que vencer."
+                de: "In Donjons & Savons wird aus Hausarbeit ein Monster, das besiegt werden will."
+                it: "In Donjons & Savons, le faccende di casa diventano mostri da sconfiggere."
+                pt: "Em Donjons & Savons, as tarefas da casa tornam-se monstros a derrotar."
+                nl: "In Donjons & Savons worden huishoudelijke klusjes monsters om te verslaan."
+            - visual: cap_33_me
+              motion: zoom_in
+              min_duration: 3.5
+              text:
+                fr: "Chaque membre du clan a son personnage, ses points de vie et son expérience."
+                en: "Every clan member has their own character, health points and experience."
+                es: "Cada miembro del clan tiene su personaje, sus puntos de vida y su experiencia."
+                de: "Jedes Clanmitglied hat einen eigenen Charakter, Lebenspunkte und Erfahrung."
+                it: "Ogni membro del clan ha il suo personaggio, i punti vita e l'esperienza."
+                pt: "Cada membro do clã tem o seu personagem, pontos de vida e experiência."
+                nl: "Elk clanlid heeft een eigen personage, levenspunten en ervaring."
+            - visual: cap_40_time_to_clean
+              motion: pan_left
+              min_duration: 3.5
+              text:
+                fr: "On choisit un monstre, c'est-à-dire une tâche, et on part au combat."
+                en: "You pick a monster, which is really a chore, and head into battle."
+                es: "Eliges un monstruo, es decir una tarea, y vas al combate."
+                de: "Du wählst ein Monster, also eine Aufgabe, und ziehst in den Kampf."
+                it: "Scegli un mostro, cioè una faccenda, e vai in battaglia."
+                pt: "Escolhes um monstro, ou seja uma tarefa, e vais para o combate."
+                nl: "Je kiest een monster, oftewel een klus, en gaat de strijd aan."
+            - visual: cap_44_trash
+              motion: zoom_in
+              min_duration: 3.5
+              text:
+                fr: "La tâche accomplie, une photo suffit comme preuve. Elle ne quitte jamais le téléphone."
+                en: "Once the chore is done, a photo is proof enough. It never leaves the phone."
+                es: "Hecha la tarea, una foto basta como prueba. Nunca sale del teléfono."
+                de: "Ist die Aufgabe erledigt, genügt ein Foto als Beweis. Es verlässt das Handy nie."
+                it: "Finita la faccenda, una foto basta come prova. Non lascia mai il telefono."
+                pt: "Feita a tarefa, uma foto basta como prova. Nunca sai do telemóvel."
+                nl: "Klus klaar? Een foto is bewijs genoeg. Hij verlaat de telefoon nooit."
+            - visual: cap_46_time_to_clean_2
+              motion: pan_right
+              min_duration: 3.5
+              text:
+                fr: "Un chef de clan valide, et l'expérience est gagnée. Rien n'est jamais retiré."
+                en: "A clan chief validates, and the experience is earned. Nothing is ever taken away."
+                es: "Un jefe de clan valida y se gana la experiencia. Nunca se quita nada."
+                de: "Ein Clanchef bestätigt, und die Erfahrung ist verdient. Nichts wird je abgezogen."
+                it: "Un capo clan convalida e l'esperienza è guadagnata. Non si toglie mai nulla."
+                pt: "Um chefe de clã valida e a experiência é ganha. Nunca se retira nada."
+                nl: "Een clanleider bevestigt en de ervaring is verdiend. Er wordt nooit iets afgenomen."
+            - visual: clip_chest
+              min_duration: 4.5
+              text:
+                fr: "Et quand le coffre du clan est plein, toute la famille l'ouvre ensemble."
+                en: "And when the clan chest is full, the whole family opens it together."
+                es: "Y cuando el cofre del clan está lleno, toda la familia lo abre junta."
+                de: "Und wenn die Clantruhe voll ist, öffnet die ganze Familie sie gemeinsam."
+                it: "E quando il forziere del clan è pieno, tutta la famiglia lo apre insieme."
+                pt: "E quando o baú do clã está cheio, toda a família o abre em conjunto."
+                nl: "En als de clankist vol is, opent de hele familie hem samen."
+          formats:
+            # Embarque dans l'app. 720x720 comme la video d'onboarding actuelle, et
+            # sous-titres INCRUSTES : DvVideo ne sait lire ni piste de sous-titres ni
+            # piste audio multiple (cf. son readme, section limites).
+            square:
+              size: "720x720"
+              out: "resources_cloud/donjon/videos/demo_v1_@@@lang@@@.mp4"
+              subtitles: burned
+            # Site et YouTube. Sous-titres en FICHIER a cote : c'est la seule forme
+            # qu'un navigateur et YouTube savent lire, et elle laisse l'image intacte.
+            landscape:
+              size: "1920x1080"
+              out: "hosting/web/assets/video/demo-@@@lang@@@.mp4"
+              subtitles: sidecar
+            # TikTok et Shorts : un fichier plat par langue, tout incruste. Ni l'un ni
+            # l'autre n'accepte de piste separee.
+            portrait:
+              size: "1080x1920"
+              out: "resources_others/video/out/demo-tiktok-@@@lang@@@.mp4"
+              subtitles: burned

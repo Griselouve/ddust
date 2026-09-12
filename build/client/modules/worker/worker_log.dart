@@ -28,6 +28,23 @@ part of 'worker.dart';
 // --- Globals shortcuts and miscellaneous
 // -----------------------------------------------------------------------------
 
+// Vie de la cotisation (évènements écrits par worker_store._logStoreEvent) → clé de
+// traduction. Hissée hors de _logLine parce que DEUX fonctions en ont besoin : _logLine pour
+// rendre la ligne, _buildLogStory pour la filtrer selon le lecteur et la destination. Une
+// seule liste, jamais deux à tenir synchrones — c'est la raison pour laquelle le filtre porte
+// sur les HUIT évènements et non sur les seules relances : un évènement ajouté ici demain est
+// masqué aux enfants par défaut, au lieu de leur être servi jusqu'à ce qu'on s'en aperçoive.
+const Map<String, String> _kStoreLogLines = <String, String>{
+    "StoreSubscription":     "log_store_subscription",
+    "StorePurchase":         "log_store_purchase",
+    "StoreRenewed":          "log_store_renewed",
+    "StoreTierChanged":      "log_store_tier_changed",
+    "StoreEnded":            "log_store_ended",
+    "StorePaymentDefault":   "log_store_payment_default",
+    "StorePaymentRecovered": "log_store_payment_recovered",
+    "StoreLocked":           "log_store_locked",
+};
+
 // -----------------------------------------------------------------------------
 // --- worker extension — Journal narratif
 // -----------------------------------------------------------------------------
@@ -47,6 +64,41 @@ extension Worker_log on worker {
 
                                 ActionRegistry.register("worker.open_my_log",               open_my_log);
 
+                                // Export du journal vers l'extérieur : garde d'âge, puis délégation
+                                // à dvsocialshare (cf. on_log_share).
+                                ActionRegistry.register("worker.on_log_share",              on_log_share);
+
+    }
+
+    // Icône « Partager » de log_page. Elle est déjà masquée aux non-adultes par on_log_appear ;
+    // ce second contrôle existe parce que MASQUER N'EST PAS INTERDIRE — l'action est nommée dans
+    // la conf, donc appelable autrement que par le tap sur l'icône (mutation de conf runtime,
+    // action rejouée, écran futur qui la câblerait). « Le partage vers l'extérieur est réservé
+    // aux adultes : un enfant ne peut rien publier » est une phrase publiée, elle doit être vraie
+    // au niveau de l'ACTION et pas seulement du pixel.
+    //
+    // Le test porte sur `legal_state == "a"` du joueur COURANT, et non sur le rôle de chef : la
+    // règle du § 5.3 parle de majorité légale. Sous impersonation, _userId est la cible — un chef
+    // qui a pris la place d'un enfant ne peut donc rien publier tant qu'il n'est pas revenu à
+    // lui-même, ce qui lève l'ambiguïté sur l'identité agissante.
+    Future<void> on_log_share(dynamic caller, dynamic event) async {
+
+                                try {
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                    final session    = await _readSession(region);
+                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (!await _ensureIsAdult(clanId, clanSecret, region)) {
+                                        deva_log("info", "[log] partage refusé : $_userId n'est pas légalement adulte");
+                                        return;
+                                    }
+                                } catch (e) {
+                                    // Repli STRICT : on ne publie pas ce qu'on n'a pas pu autoriser.
+                                    deva_log("error", "[log] on_log_share: contrôle d'âge FAILED ($e) → partage refusé");
+                                    return;
+                                }
+                                final r = ActionRegistry.get("share.log")?.call(caller, event);
+                                if (r is Future) await r;
     }
 
     // Ouvre l'écran « journal » pour le joueur cliqué. `event` = map du joueur (comme
@@ -88,10 +140,13 @@ extension Worker_log on worker {
     // Apparition de l'écran log_page : reconstitue le récit chronologique du joueur _logPlayerId
     // (ou du clan entier si _logClanWide) à partir de clans_logs et l'écrit dans log_page/story,
     // via _buildLogStory. Événements retenus (cf. _logLine) :
-    //  - TaskValidatedOk/Partial/Ko  → description « tâche accomplie » (dt_d_<task>) + XP gagnés
+    //  - TaskValidatedOk/Partial     → description « tâche accomplie » (dt_d_<task>) + XP gagnés,
+    //                                  la parenthèse étant OMISE si le total est nul
+    //  - TaskValidatedKo             → description d'EFFORT (dt_c_<task>), sans aucun chiffre
     //  - PlayerResurrected           → description d'accomplissement du gage (gage_d_<n>)
     //  - ClanCreated, PlayerLeveledUp, ClanLeveledUp, ItemGiven, ButinOpened, TributePaid…
-    // Les TaskDone (soumissions, avant verdict) sont ignorées.
+    // Les TaskDone (soumissions, avant verdict) sont ignorées, et la vie de la cotisation
+    // (_kStoreLogLines) n'apparaît qu'à un chef, à l'écran seulement — cf. _buildLogStory.
     // Troisième mode, _logNarrative (armé par butin_tale_page/share) : au lieu d'afficher la liste,
     // demande à l'IA (_narrateClanStory) un récit tiré du même journal clan-large. Le mode est
     // consommé dès l'entrée pour ne jamais relancer d'inférence par accident.
@@ -164,6 +219,16 @@ extension Worker_log on worker {
 
                                     final story = await DvOrb.wait_for_shape("log_page/story");
                                     if (story is DvLabel) { story.write(text); story.refreshUI(); }
+
+                                    // Icône de partage : révélée aux seuls ADULTES (§ 5.3 — « un enfant ne
+                                    // peut rien publier »). Elle naît `visible: false` en conf, donc une
+                                    // lecture en échec la laisse simplement masquée : le repli ne publie
+                                    // rien. L'enfant lit son journal et le conte du butin à l'écran — c'est
+                                    // l'EXPORT qui est réservé, pas la lecture.
+                                    final canShare = await _ensureIsAdult(clanId, clanSecret, region);
+                                    final shareBtn = await DvOrb.wait_for_shape("log_page/share");
+                                    shareBtn?.set("shape.visible", canShare);
+                                    shareBtn?.refreshUI();
                                 } catch (e) {
                                     deva_log("error", "[log] on_log_appear FAILED: $e");
                                 }
@@ -179,6 +244,17 @@ extension Worker_log on worker {
     //              couvrir des mois de jeu, tout en gardant l'invite d'une taille raisonnable.
     // Les lignes sont DÉJÀ résolues et localisées par _logLine (descriptions de tâches, noms des
     // joueurs substitués) : le modèle reçoit du récit lisible, pas du JSON à déchiffrer.
+    //
+    // C'est aussi ICI que se filtre la vie de la cotisation (_kStoreLogLines), et nulle part
+    // ailleurs — _logLine ne reçoit que le log, il n'a pas de quoi connaître son lecteur. Les
+    // trois sorties n'appellent pas le même filtre parce qu'elles n'ont pas le même destinataire :
+    //  - `rich`  : selon le RÔLE. Un membre non-admin n'apprend ni l'impayé, ni le gel, ni même
+    //              qu'une cotisation existe (§ 5.3 du dossier « intérêt supérieur de l'enfant »).
+    //  - `share` : TOUJOURS. Ce texte quitte la famille par le share sheet Android ; un chef n'a
+    //              pas à publier son incident de prélèvement au motif qu'il a le droit de le lire.
+    //  - `plain` : TOUJOURS. Le prompt du conteur interdit déjà de parler d'argent — ne pas lui en
+    //              donner la matière rend l'interdit vrai par construction, pas sur parole.
+    // La ligne d'audit, elle, reste écrite en base : c'est le rendu qui filtre, pas l'écriture.
     Future<({String rich, String share, String plain, int lines})> _buildLogStory(
             String clanId, String clanSecret, String region, {int plainMax = 300}) async {
 
@@ -215,12 +291,20 @@ extension Worker_log on worker {
                                 mine.sort((a, b) => (b.get("date")?.toString() ?? "")
                                     .compareTo(a.get("date")?.toString() ?? ""));
 
+                                // Rôle du LECTEUR, résolu une seule fois pour toute la boucle. Même garde que
+                                // tout le reste du monétaire (_storeCanBuy lit la même liste `admins`) : le
+                                // journal ne doit pas introduire un second critère. Coût nul en régime établi
+                                // (_ensureIsAdmin est caché sur le couple clanId/userId), et repli sûr — lecture
+                                // KO → false → masqué.
+                                final isAdmin = await _ensureIsAdmin(clanId, clanSecret, region);
+
                                 const int shareMax = 8;
                                 final richSb  = _StoryBuffer(centered: true);
                                 final shareSb = _StoryBuffer(max: shareMax);
                                 final plainSb = _StoryBuffer(max: plainMax);
                                 final lang    = TranslationRegistry.currentLang;
-                                int nb = 0;
+                                int nb      = 0;   // lignes rendues, toutes sorties confondues
+                                int nbShare = 0;   // lignes ENTRÉES dans `share` — seul compte valable pour la troncature
                                 for (final l in mine) {
                                     // Clan-large : chaque ligne porte le nom de SON acteur (résolu par _resolveDesc).
                                     if (_logClanWide) {
@@ -228,22 +312,29 @@ extension Worker_log on worker {
                                     }
                                     final line = await _logLine(l);
                                     if (line.isEmpty) continue;
+                                    final ev     = l.get("event")?.toString() ?? "";
                                     final day    = _dayKey(l);
                                     final header = _dateHeader(l, lang);
-                                    richSb.add(line, day, header);
-                                    shareSb.add(line, day, header);
-                                    // `plain` seulement : le conte IA ne parle pas de la fondation du clan. Le
-                                    // lecteur visé est une AUTRE famille — l'acte de naissance administratif ne
-                                    // lui raconte rien, et le modèle, fidèle à sa matière, ouvrait dessus. L'écran
-                                    // (`rich`) et le partage (`share`) la gardent : là, elle a sa place.
-                                    if ((l.get("event")?.toString() ?? "") != "ClanCreated") {
-                                        plainSb.add(line, day, header);
+                                    // Vie de la cotisation : jamais `continue` — la ligne doit encore
+                                    // atteindre `rich` quand le lecteur est chef (cf. matrice en en-tête).
+                                    final isStore = _kStoreLogLines.containsKey(ev);
+                                    if (!isStore || isAdmin) richSb.add(line, day, header);
+                                    if (!isStore) {
+                                        shareSb.add(line, day, header);
+                                        nbShare++;
+                                        // `plain` seulement : le conte IA ne parle pas de la fondation du clan. Le
+                                        // lecteur visé est une AUTRE famille — l'acte de naissance administratif ne
+                                        // lui raconte rien, et le modèle, fidèle à sa matière, ouvrait dessus. L'écran
+                                        // (`rich`) et le partage (`share`) la gardent : là, elle a sa place.
+                                        if (ev != "ClanCreated") plainSb.add(line, day, header);
                                     }
                                     nb++;
                                 }
-                                // Log tronqué (plus d'évènements que shareMax) : clore le partage par
-                                // un suffixe traduit dans la langue du message (repli fr).
-                                if (nb > shareMax) shareSb.append(await _resolveDesc("log_share_more"));
+                                // Partage tronqué (plus de lignes PARTAGEABLES que shareMax) : clore le
+                                // partage par un suffixe traduit dans la langue du message (repli fr). On
+                                // compte `nbShare` et non `nb` : les lignes de cotisation ne sont jamais
+                                // entrées dans `share`, les compter annoncerait une troncature qui n'a pas eu lieu.
+                                if (nbShare > shareMax) shareSb.append(await _resolveDesc("log_share_more"));
 
                                 deva_log("info", "[log] _buildLogStory: ${mine.length} évt(s) "
                                     "(${_logClanWide ? 'clan' : _logPlayerId}) → $nb ligne(s)");
@@ -264,7 +355,7 @@ extension Worker_log on worker {
     // Les agrégats sont volontairement PAUVRES : un total, pas un détail par joueur. Le premier
     // jet fournissait « XP par joueur : A: 725, B: 226… » et le modèle, fidèle à sa matière,
     // rendait un inventaire au lieu d'un récit. On ne lui tend plus que de quoi nommer les
-    // enfants (les prénoms, séparément) et de quoi citer UN chiffre (XP totale du clan) —
+    // enfants (les pseudonymes, séparément) et de quoi citer UN chiffre (XP totale du clan) —
     // jamais une liste qui appelle l'énumération. L'argent de poche n'est PAS transmis au
     // modèle : le prompt l'interdit désormais, la phrase qui en parle est fixe (share_tale_outro,
     // ajoutée après coup par on_log_appear). Les valeurs nulles sont omises : « 0 objet partagé »
@@ -280,9 +371,13 @@ extension Worker_log on worker {
                                     final clanDoc  = await _cloud?.read("workers", "clans", clanId,
                                         ownerId: clanSecret, region: region);
                                     final clanName = clanDoc?.get("internal.name")?.toString() ?? "";
-                                    final clanDesc = clanDoc?.get("description")?.toString() ?? "";
+                                    // internal.description depuis la migration ; le champ plat reste le
+                                    // repli pour les clans nés avant elle.
+                                    final clanDesc = clanDoc?.get("internal.description")?.toString().isNotEmpty == true
+                                        ? clanDoc!.get("internal.description").toString()
+                                        : clanDoc?.get("description")?.toString() ?? "";
 
-                                    // Prénoms (pour que le modèle NOMME les enfants) et XP TOTALE du clan (un
+                                    // Pseudonymes (pour que le modèle NOMME les enfants) et XP TOTALE du clan (un
                                     // seul nombre, jamais un par joueur) : le fait brut, pas une opinion — mais
                                     // assez pauvre pour ne pas suggérer une énumération.
                                     final players = await _cloud?.list("workers", "clans_players/$clanId/players", region: region) ?? [];
@@ -368,28 +463,32 @@ extension Worker_log on worker {
                                     return await _resolveDesc("log_member_left");
                                 }
 
+                                // Retrait / rétablissement du consentement parental : AUCUNE ligne de récit,
+                                // et c'est délibéré. Ces deux événements existent pour l'audit — ils tracent
+                                // qui a décidé quoi, et quand — pas pour la mémoire familiale. Le journal est
+                                // lu par les enfants, et le récit du clan est aussi ce que le conteur IA
+                                // reprend : « ton tuteur a demandé ton effacement » n'a sa place ni dans l'un
+                                // ni dans l'autre. Le comportement par défaut ("" sur événement inconnu) y
+                                // suffirait ; on l'écrit pour que personne n'ajoute la ligne « manquante ».
+                                if (ev == "ConsentWithdrawn" || ev == "ConsentRestored") {
+                                    return "";
+                                }
+
                                 // Vie de la cotisation (écrite par worker_store._logStoreEvent).
                                 // C'est ici que les achats se racontent depuis que l'écran « Mes
                                 // achats » a disparu : au récit du clan, avec le reste de son
                                 // histoire, plutôt que dans un relevé qu'il fallait aller chercher.
                                 //
-                                // Le ton est celui du reste du jeu — ces lignes sont lues par des
-                                // enfants, et un incident de prélèvement ne doit jamais ressembler à
-                                // une punition. Le nom du PRODUIT n'est pas écrit : « ddust_clan »
-                                // ne veut rien dire pour une famille, et le palier se lit sur la page
-                                // des paliers. Un événement inconnu ne rend rien plutôt qu'une ligne nue.
-                                const storeLines = <String, String>{
-                                    "StoreSubscription":     "log_store_subscription",
-                                    "StorePurchase":         "log_store_purchase",
-                                    "StoreRenewed":          "log_store_renewed",
-                                    "StoreTierChanged":      "log_store_tier_changed",
-                                    "StoreEnded":            "log_store_ended",
-                                    "StorePaymentDefault":   "log_store_payment_default",
-                                    "StorePaymentRecovered": "log_store_payment_recovered",
-                                    "StoreLocked":           "log_store_locked",
-                                };
-                                if (storeLines.containsKey(ev)) {
-                                    return await _resolveDesc(storeLines[ev]!);
+                                // Ces lignes ne sont PAS lues par des enfants : _buildLogStory les
+                                // retire du rendu quand le lecteur n'est pas chef, et les retire
+                                // toujours du partage et de la matière du conteur IA. Le ton reste
+                                // néanmoins celui du reste du jeu — un incident de prélèvement ne
+                                // doit ressembler à une punition pour personne. Le nom du PRODUIT
+                                // n'est pas écrit : « ddust_clan » ne veut rien dire pour une
+                                // famille, et le palier se lit sur la page des paliers. Un événement
+                                // inconnu ne rend rien plutôt qu'une ligne nue.
+                                if (_kStoreLogLines.containsKey(ev)) {
+                                    return await _resolveDesc(_kStoreLogLines[ev]!);
                                 }
 
                                 // Montée de niveau : « <nom> a atteint le niveau N ! » (+ titre si franchi).
@@ -432,11 +531,40 @@ extension Worker_log on worker {
                                         .replaceAll("{to}", l.get("data.to_name")?.toString() ?? "");
                                 }
 
-                                // Tâche validée (ok/partiel/refusé) : description « accomplie » de la tâche +
+                                // REFUS : la tâche a bien été faite et rendue, un admin l'a jugée non aboutie.
+                                // Elle rend la description d'EFFORT (dt_c_<base>) et NON celle de victoire :
+                                // les trois verdicts passaient par la même branche, si bien que le journal
+                                // affichait « Tu as vaincu l'Hydre de Céramique (0 XP) » — une ligne de
+                                // victoire démentie par son propre chiffre, dans une table append-only que
+                                // rien ne purge et que toute la fratrie lit.
+                                // Et SURTOUT pas d'XP : pas « 0 XP », rien. Le chiffre avait été mis pour
+                                // motiver ceux qui en gagnent ; sur un refus il ne fait que marquer l'échec.
+                                // Les dt_c_* ont été réécrits pour cet usage, du registre du renoncement vers
+                                // celui de l'effort (cf. decisiontree-donjon-global.yml) : les servir tels
+                                // qu'ils étaient aurait attribué un abandon à un enfant qui est allé au bout.
+                                // Tâche sans dt_c_ (créée par un chef, id horodaté) → "" → ligne omise, comme
+                                // le fait déjà dt_d_ pour les mêmes tâches.
+                                if (ev == "TaskValidatedKo") {
+                                    final base = _originalOf(l.get("task")?.toString() ?? "");
+                                    if (base.isEmpty) return "";
+                                    return await _resolveDesc("dt_c_$base");
+                                }
+
+                                // Tâche validée (ok/partiel) : description « accomplie » de la tâche +
                                 // XP gagnés → « <nom> vient de … (30 XP) ». Tâche `multiple` → id clone
                                 // `<base>__<uid>` ; la description est keyée sur la BASE (dt_d_<base>). _originalOf
                                 // est neutre pour les tâches non clonées.
-                                if (ev == "TaskValidatedOk" || ev == "TaskValidatedPartial" || ev == "TaskValidatedKo") {
+                                //
+                                // TOTAL NUL → aucune parenthèse. Un accept peut créditer 0 par deux
+                                // chemins parfaitement normaux : tâche revalidée dans sa fenêtre de
+                                // régénération (courbe de dégradation à 0 %, worker_tuning `return 0`)
+                                // et partiel sur une tâche à 1 XP (division entière, _applyVerdict).
+                                // Le travail a bien été fait et accepté ; « (0 XP) » collé à une ligne
+                                // de victoire dit le contraire, et le journal ne se purge jamais. Même
+                                // raison que pour le refus juste au-dessus : le chiffre est là pour
+                                // ceux qui en gagnent, pas pour signifier à un enfant qu'il n'a rien
+                                // gagné. Couvre aussi les logs d'un binaire antérieur à data.xp.
+                                if (ev == "TaskValidatedOk" || ev == "TaskValidatedPartial") {
                                     final base = _originalOf(l.get("task")?.toString() ?? "");
                                     if (base.isEmpty) return "";
                                     final desc = await _resolveDesc("dt_d_$base");
@@ -455,7 +583,7 @@ extension Worker_log on worker {
                                                                 .replaceAll("{bonus}", "+${xpN - baseN}")}";
                                         }
                                     }
-                                    return "$desc ($xp XP)";
+                                    return xpN > 0 ? "$desc ($xp XP)" : desc;
                                 }
 
                                 // Ouverture du coffre : événement de CLAN (pas d'acteur joueur), donc rendu
@@ -515,7 +643,7 @@ extension Worker_log on worker {
 
     // Résout une clé de traduction en texte BRUT (pas de rendu DvLabel : on substitue le nom
     // nous-mêmes), dans la langue courante avec repli "fr" — même schéma que _notifyAssignee.
-    // Le token @@@session.user.name@@@ des dt_d_* est remplacé par le nom du joueur consulté.
+    // Le token @@@session.user.name@@@ des dt_d_*/dt_c_* est remplacé par le nom du joueur consulté.
     Future<String> _resolveDesc(String key) async {
 
                                 final lang = TranslationRegistry.currentLang;
@@ -574,7 +702,7 @@ extension Worker_log on worker {
 //    le partage et le conte, en texte brut, les veulent nus.
 //  - `max` : le partage et le conte bornent le nombre de LIGNES (pas de jours) rendues ; l'écran
 //    ne borne rien (0 = illimité). Une fois le plafond atteint, `add()` devient un no-op silencieux
-//    — c'est à l'appelant de savoir qu'il a tronqué (cf. `nb > shareMax` dans _buildLogStory) et
+//    — c'est à l'appelant de savoir qu'il a tronqué (cf. `nbShare > shareMax` dans _buildLogStory) et
 //    d'ajouter lui-même un suffixe.
 class _StoryBuffer {
 

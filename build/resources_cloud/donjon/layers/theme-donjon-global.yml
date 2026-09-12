@@ -21,9 +21,9 @@ data:
       #------------- Gages de mort (0 PV) ------------------------------------
 
       gage_01:
-        fr: "Que justice soit faite ! Pour t'être laissé avoir par la saleté, le bourreau du donjon va te torturer jusqu'à la mort … de rire\n\nFaire un défi en famille : 45 secondes de chatouilles."
-        en: "Let justice be done! For letting the filth get the better of you, the dungeon's executioner will torture you to death... from laughing\n\nTake on a family challenge: 45 seconds of tickling."
-        es: "¡Que se haga justicia! Por dejarte vencer por la suciedad, el verdugo del calabozo te torturará hasta morir... de risa\n\nHaz un desafío en familia: 45 segundos de cosquillas."
+        fr: "Que justice soit faite ! Pour t'être laissé avoir par la saleté, le bourreau du donjon va te torturer jusqu'à la mort … de rire\n\nFaire un défi en famille : TU désignes ton bourreau et TU choisis le supplice — chatouilles, grimaces ou blagues. Tu dis « pouce » quand tu veux, et tout s'arrête aussitôt."
+        en: "Let justice be done! For letting the filth get the better of you, the dungeon's executioner will torture you to death... from laughing\n\nTake on a family challenge: YOU pick your executioner and YOU pick the torment — tickles, funny faces or jokes. Say \"pax\" whenever you like, and everything stops at once."
+        es: "¡Que se haga justicia! Por dejarte vencer por la suciedad, el verdugo del calabozo te torturará hasta morir... de risa\n\nHaz un desafío en familia: TÚ eliges a tu verdugo y TÚ eliges el suplicio: cosquillas, muecas o chistes. Di «pido paz» cuando quieras y todo se detiene al instante."
       gage_02:
         fr: "Tu as grimacé de dégout devant la saleté ? Voyons si tu peux apprendre aux vieux mages à faire la grimace\n\nFaire un défi en famille : tu dois grimacer devant ton clan jusqu'à ce que l'un d'eux rigole."
         en: "Grimacing in disgust at the filth? Let's see if you can teach the old mages how to pull a face\n\nTake on a family challenge: make faces at your clan until one of them laughs."
@@ -33,13 +33,13 @@ data:
         en: "Pffff.... Killed by socks... you have the right to remain silent\n\nTake on a family challenge: each clan member gives you a word you must get the others to guess, without speaking, writing or signing."
         es: "Pffff.... Muerto por unos calcetines... tienes derecho a guardar silencio\n\nHaz un desafío en familia: cada miembro del clan te da una palabra que debes hacer adivinar a los demás sin hablar, escribir ni hacer señas."
       gage_04:
-        fr: "Tu as laissé la saleté se répandre, le monde court à sa perte ! Il faut rassembler plus d'aventuriers !\n\nFaire un défi en famille : convaincre trois autres familles d'essayer Donjons & Savons."
-        en: "You let the filth spread, the world is doomed! We must rally more adventurers!\n\nTake on a family challenge: convince three other families to try Dungeons & Dusting."
-        es: "¡Dejaste que la suciedad se propagara, el mundo corre a su perdición! ¡Hay que reunir a más aventureros!\n\nHaz un desafío en familia: convence a otras tres familias de probar Calabozos & Jabones."
+        fr: "Tu as laissé la saleté se répandre, le monde court à sa perte ! Le clan attend une promesse, pas des excuses !\n\nFaire un défi en famille : une main sur le balai, jure solennellement devant tout le clan réuni une chose que tu feras avant demain soir."
+        en: "You let the filth spread, the world is doomed! The clan wants a promise, not excuses!\n\nTake on a family challenge: one hand on the broom, solemnly swear before the whole assembled clan one thing you will do before tomorrow evening."
+        es: "¡Dejaste que la suciedad se propagara, el mundo corre a su perdición! ¡El clan espera una promesa, no excusas!\n\nHaz un desafío en familia: con una mano sobre la escoba, jura solemnemente ante todo el clan reunido una cosa que harás antes de mañana por la noche."
       gage_05:
-        fr: "Tu dois récupérer tes forces brave aventurier, mais le remède a un goût de chiottes\n\nFaire un défi en famille : chaque membre du clan élabore une boisson (un shot) avec des ingrédients secrets. Bois-les tous."
-        en: "You must recover your strength, brave adventurer, but the remedy tastes like crap\n\nTake on a family challenge: each clan member concocts a drink (a shot) with secret ingredients. Drink them all."
-        es: "Debes recuperar tus fuerzas, valiente aventurero, pero el remedio sabe fatal\n\nHaz un desafío en familia: cada miembro del clan prepara una bebida (un chupito) con ingredientes secretos. Bébetelas todas."
+        fr: "Tu dois récupérer tes forces brave aventurier, mais le remède a un goût de chiottes\n\nFaire un défi en famille : le clan prépare UNE potion de soin devant toi, en montrant chaque ingrédient avant de le verser. Goûte, puis devine tout ce qu'il y a dedans."
+        en: "You must recover your strength, brave adventurer, but the remedy tastes like crap\n\nTake on a family challenge: the clan brews ONE healing potion in front of you, holding up every ingredient before it goes in. Take a sip, then guess everything that is in it."
+        es: "Debes recuperar tus fuerzas, valiente aventurero, pero el remedio sabe fatal\n\nHaz un desafío en familia: el clan prepara UNA poción curativa delante de ti, mostrando cada ingrediente antes de echarlo. Da un sorbo y adivina todo lo que lleva."
       gage_06:
         fr: "Le foyer s'écroule sous le désordre et la saleté. Ça te fait rire morveux ?\n\nFaire un défi en famille : simuler un rire pendant 45 secondes."
         en: "The home is collapsing under mess and filth. Think it's funny, brat?\n\nTake on a family challenge: fake a laugh for 45 seconds."
@@ -64,15 +64,31 @@ data:
         fr: "Pourquoi l'aventurier aime les escaliers ? Parce qu'il adore monter de niveau… sauf toi apparemment.\n\nFaire un défi en famille : raconter des blagues jusqu'à faire rire au moins un membre du clan."
         en: "Why does the adventurer love stairs? Because he loves leveling up... except you, apparently.\n\nTake on a family challenge: tell jokes until at least one clan member laughs."
         es: "¿Por qué al aventurero le gustan las escaleras? Porque le encanta subir de nivel... salvo a ti, por lo visto.\n\nHaz un desafío en familia: cuenta chistes hasta hacer reír al menos a un miembro del clan."
+      gage_12:
+        fr: "Tu as vu la créature de bien trop près, et te voilà par terre. Au moins, tu sais à quoi elle ressemble.\n\nFaire un défi en famille : dessine en 2 minutes la créature qui t'a vaincu, montre ton chef-d'œuvre, et le clan doit deviner de quelle pièce elle sortait."
+        en: "You saw the creature far too close up, and down you went. At least you know what it looks like.\n\nTake on a family challenge: draw in 2 minutes the creature that beat you, show off your masterpiece, and the clan must guess which room it crawled out of."
+        es: "Viste a la criatura demasiado de cerca, y ahí estás, por los suelos. Al menos sabes qué aspecto tiene.\n\nHaz un desafío en familia: dibuja en 2 minutos a la criatura que te venció, enseña tu obra maestra y el clan tiene que adivinar de qué habitación salió."
+      gage_13:
+        fr: "Les murs du donjon renvoient tout ce qu'on leur dit. Toi aussi, maintenant.\n\nFaire un défi en famille : pendant 3 minutes, tu répètes en écho, tout bas, le dernier mot de chaque phrase prononcée par un membre du clan."
+        en: "The dungeon walls send back everything said to them. So do you, from now on.\n\nTake on a family challenge: for 3 minutes, echo back in a whisper the last word of every sentence a clan member says."
+        es: "Los muros del calabozo devuelven todo lo que se les dice. Tú también, a partir de ahora.\n\nHaz un desafío en familia: durante 3 minutos, repite en voz baja, como un eco, la última palabra de cada frase que diga un miembro del clan."
+      gage_14:
+        fr: "Un héros tombé n'a plus de titre. Mais rien ne t'empêche d'en distribuer aux autres.\n\nFaire un défi en famille : invente un nom épique à chaque membre du clan — demande-lui son accord, un nom qui ne lui plaît pas ne compte pas — et chacun répond au sien jusqu'à la fin de la journée. Toi, tu gardes ton nom."
+        en: "A fallen hero has no title left. Nothing stops you handing titles out to everyone else, though.\n\nTake on a family challenge: invent an epic name for each clan member - ask them first, a name they don't like doesn't count - and each of them answers to theirs until the end of the day. You keep your own name."
+        es: "Un héroe caído ya no tiene título. Pero nada te impide repartirlos entre los demás.\n\nHaz un desafío en familia: inventa un nombre épico para cada miembro del clan (pídele permiso, un nombre que no le guste no vale) y cada uno responderá al suyo hasta el final del día. Tú conservas tu nombre."
+      gage_15:
+        fr: "Tu ne tiens plus bien droit sur tes jambes ? Qu'à cela ne tienne : les crabes du donjon s'en sortent très bien.\n\nFaire un défi en famille : pendant 15 minutes, tu ne te déplaces plus qu'en crabe — sur le côté, jamais de face."
+        en: "Not steady on your feet any more? Never mind: the dungeon crabs manage just fine.\n\nTake on a family challenge: for 15 minutes, you only move like a crab - sideways, never facing forward."
+        es: "¿Ya no te sostienes derecho? No pasa nada: los cangrejos del calabozo se apañan de maravilla.\n\nHaz un desafío en familia: durante 15 minutos, solo te desplazas como un cangrejo: de lado, nunca de frente."
 
       #------------- Réalisation des gages (rédemption après soin) -----------
       # Texte dédié décrivant l'accomplissement du gage correspondant (cf. dt_d_ des tâches).
       # @@@session.user.name@@@ = nom du joueur. Non affiché pour l'instant (feature à venir).
 
       gage_d_01:
-        fr: "Même après de longues minutes de torture, la plume du bourreau n'a pas eu raison de @@@session.user.name@@@, qui a démontré toute sa valeur. Après moult accolades et bisous baveux, le clan reprend son protégé sous son aile et repart pour de plus belles aventures."
-        en: "Even after long minutes of torture, the executioner's feather could not break @@@session.user.name@@@, who proved their worth. After many hugs and slobbery kisses, the clan takes its protégé back under its wing and sets off for greater adventures."
-        es: "Incluso tras largos minutos de tortura, la pluma del verdugo no pudo con @@@session.user.name@@@, que demostró todo su valor. Tras muchos abrazos y besos babosos, el clan acoge de nuevo a su protegido bajo su ala y parte hacia mayores aventuras."
+        fr: "Le bourreau était choisi, le supplice aussi — et par @@@session.user.name@@@ en personne, qui a tenu bon jusqu'à décider que c'était assez. Après moult accolades et bisous baveux, le clan reprend son protégé sous son aile et repart pour de plus belles aventures."
+        en: "The executioner was chosen, and so was the torment - by @@@session.user.name@@@ in person, who held firm right up to deciding that was enough. After many hugs and slobbery kisses, the clan takes its protégé back under its wing and sets off for greater adventures."
+        es: "El verdugo estaba elegido, y el suplicio también, por @@@session.user.name@@@ en persona, que aguantó firme hasta decidir que ya bastaba. Tras muchos abrazos y besos babosos, el clan acoge de nuevo a su protegido bajo su ala y parte hacia mayores aventuras."
       gage_d_02:
         fr: "À force de grimaces plus hideuses les unes que les autres, @@@session.user.name@@@ a fini par arracher un fou rire aux vieux mages eux-mêmes. La malédiction est levée : le clan, hilare, accueille de nouveau son champion des affreux visages."
         en: "With one hideous face after another, @@@session.user.name@@@ finally wrung a burst of laughter from the old mages themselves. The curse is lifted: the clan, in stitches, welcomes back its champion of ghastly grimaces."
@@ -82,13 +98,13 @@ data:
         en: "Not a word, not a written sign — @@@session.user.name@@@ mimed the impossible and got the astonished clan to guess every riddle. The vow of silence breaks under the applause: the dungeon gives its legendary mime back both voice and place."
         es: "Sin una palabra, sin un solo gesto escrito, @@@session.user.name@@@ mimó lo imposible e hizo adivinar cada enigma al clan atónito. El voto de silencio se rompe entre aplausos: el calabozo devuelve a su mimo legendario la voz — y su lugar."
       gage_d_04:
-        fr: "Porté par la foi du propre, @@@session.user.name@@@ a rallié trois nouvelles familles à la cause de Donjons & Savons. Le monde est sauvé d'un cheveu (et de quelques moutons de poussière) : le clan salue son héraut et l'accueille en grande pompe."
-        en: "Carried by the faith of the clean, @@@session.user.name@@@ rallied three new families to the cause of Dungeons & Dusting. The world is saved by a hair (and a few dust bunnies): the clan hails its herald and welcomes them with great fanfare."
-        es: "Movido por la fe de lo limpio, @@@session.user.name@@@ reclutó a tres nuevas familias para la causa de Calabozos & Jabones. El mundo se salva por un pelo (y unas cuantas pelusas): el clan aclama a su heraldo y lo recibe por todo lo alto."
+        fr: "Une main sur le balai et l'autre sur le cœur, @@@session.user.name@@@ a prononcé son serment devant le clan réuni — et personne n'a osé rire. Le monde est sauvé d'un cheveu (et de quelques moutons de poussière) : le clan salue son héraut et l'accueille en grande pompe."
+        en: "One hand on the broom and the other on their heart, @@@session.user.name@@@ spoke the oath before the assembled clan - and nobody dared laugh. The world is saved by a hair (and a few dust bunnies): the clan hails its herald and welcomes them with great fanfare."
+        es: "Con una mano sobre la escoba y la otra en el corazón, @@@session.user.name@@@ pronunció su juramento ante el clan reunido, y nadie se atrevió a reír. El mundo se salva por un pelo (y unas cuantas pelusas): el clan aclama a su heraldo y lo recibe por todo lo alto."
       gage_d_05:
-        fr: "D'un trait puis d'un autre, @@@session.user.name@@@ a vidé jusqu'à la lie chaque breuvage douteux concocté par le clan, sans broncher (ou presque). Les forces reviennent, le teint aussi : les remèdes ont opéré, et le clan porte son survivant en triomphe."
-        en: "In one gulp after another, @@@session.user.name@@@ drained every dubious brew the clan concocted, without flinching (well, almost). Strength returns, and so does the color in their cheeks: the remedies worked, and the clan carries its survivor in triumph."
-        es: "De un trago tras otro, @@@session.user.name@@@ apuró hasta el fondo cada brebaje dudoso preparado por el clan, sin pestañear (o casi). Las fuerzas vuelven, y el color también: los remedios funcionaron, y el clan lleva a su superviviente a hombros."
+        fr: "Sans broncher (ou presque), @@@session.user.name@@@ a goûté la potion que le clan avait préparée au grand jour, et en a nommé les ingrédients un à un — même celui que personne n'assumait. Les forces reviennent, le teint aussi : le remède a opéré, et le clan porte son survivant en triomphe."
+        en: "Without flinching (well, almost), @@@session.user.name@@@ tasted the potion the clan had brewed in plain sight, and named its ingredients one by one - even the one nobody would own up to. Strength returns, and so does the color in their cheeks: the remedy worked, and the clan carries its survivor in triumph."
+        es: "Sin pestañear (o casi), @@@session.user.name@@@ probó la poción que el clan había preparado a la vista de todos, y nombró sus ingredientes uno a uno, incluso el que nadie quería reconocer. Las fuerzas vuelven, y el color también: el remedio funcionó, y el clan lleva a su superviviente a hombros."
       gage_d_06:
         fr: "« Ha… ha… HA ! » — quarante-cinq secondes d'un rire aussi forcé qu'héroïque, et @@@session.user.name@@@ a fait fuir le désordre et la morosité. Le foyer se redresse : le clan, conquis, reprend son bouffon courageux dans ses rangs."
         en: "\"Ha... ha... HA!\" — forty-five seconds of a laugh as forced as it was heroic, and @@@session.user.name@@@ chased off the mess and the gloom. The home stands tall again: the clan, won over, takes its brave jester back into its ranks."
@@ -113,6 +129,22 @@ data:
         fr: "Blague après blague, @@@session.user.name@@@ a fini par décrocher le rire salvateur d'un membre du clan (le calembour sur les escaliers y est sûrement pour quelque chose). Sacré roi du bon mot, notre aventurier remonte enfin de niveau et repart à l'aventure."
         en: "Joke after joke, @@@session.user.name@@@ finally landed the saving laugh from a clan member (the stairs pun surely helped). Crowned king of the punchline, our adventurer levels up at last and heads back out on the adventure."
         es: "Chiste tras chiste, @@@session.user.name@@@ acabó arrancando la risa salvadora de un miembro del clan (el juego de palabras con las escaleras algo tuvo que ver). Coronado rey del chascarrillo, nuestro aventurero por fin sube de nivel y vuelve a la aventura."
+      gage_d_12:
+        fr: "Deux minutes de crayon auront suffi : la créature qui avait terrassé @@@session.user.name@@@ trône désormais sur le papier, avec bien trop de dents pour être honnête. Le clan a deviné d'où elle sortait, et son artiste revient parmi les vivants sous les applaudissements."
+        en: "Two minutes of pencil work was all it took: the creature that had felled @@@session.user.name@@@ now sits enthroned on paper, with far too many teeth to be honest. The clan guessed where it came from, and its artist returns among the living to applause."
+        es: "Bastaron dos minutos de lápiz: la criatura que había derribado a @@@session.user.name@@@ reina ahora sobre el papel, con demasiados dientes para ser honesta. El clan adivinó de dónde salió, y su artista vuelve entre los vivos entre aplausos."
+      gage_d_13:
+        fr: "Trois minutes durant, @@@session.user.name@@@ a renvoyé au clan chacun de ses derniers mots, tout bas, jusqu'à ce que plus personne n'ose finir une phrase. L'écho s'est tu, le donjon a rendu son prisonnier, et le clan le ramène chez les vivants."
+        en: "For three minutes @@@session.user.name@@@ whispered the clan's every last word back at it, until nobody dared finish a sentence any more. The echo fell silent, the dungeon gave up its prisoner, and the clan brings them back among the living."
+        es: "Durante tres minutos, @@@session.user.name@@@ le devolvió al clan cada una de sus últimas palabras, en voz baja, hasta que ya nadie se atrevía a terminar una frase. El eco calló, el calabozo soltó a su prisionero, y el clan lo trae de vuelta entre los vivos."
+      gage_d_14:
+        fr: "Le grimoire est rempli : chaque membre du clan porte désormais le titre que @@@session.user.name@@@ lui a taillé sur mesure, et qu'il a accepté de bon cœur. Une journée entière à répondre à ces noms-là, et le clan, rebaptisé de pied en cap, ramène son parrain parmi les vivants."
+        en: "The grimoire is full: every clan member now bears the title @@@session.user.name@@@ tailored for them, and gladly agreed to. A whole day answering to those names, and the clan, renamed from head to toe, brings its name-giver back among the living."
+        es: "El grimorio está lleno: cada miembro del clan lleva ahora el título que @@@session.user.name@@@ le hizo a medida, y que aceptó de buen grado. Un día entero respondiendo a esos nombres, y el clan, rebautizado de arriba abajo, trae de vuelta a su padrino entre los vivos."
+      gage_d_15:
+        fr: "Un quart d'heure durant, @@@session.user.name@@@ n'a plus traversé une seule pièce autrement que de côté, pinces levées, au grand désarroi des portes trop étroites. Les crabes du donjon saluent leur pair : le clan récupère son aventurier, un peu de travers mais bien vivant."
+        en: "For a full quarter of an hour @@@session.user.name@@@ crossed no room except sideways, claws up, to the dismay of every narrow doorway. The dungeon crabs salute one of their own: the clan gets its adventurer back, a little sideways but very much alive."
+        es: "Durante un cuarto de hora, @@@session.user.name@@@ no cruzó una sola habitación si no era de lado, con las pinzas en alto, ante la desesperación de las puertas estrechas. Los cangrejos del calabozo saludan a su igual: el clan recupera a su aventurero, algo torcido pero bien vivo."
 
       # Ajouté automatiquement à la suite de chaque gage (espace + cette phrase),
       # dans le même paragraphe que la consigne « Faire un défi en famille : … ».
@@ -271,6 +303,10 @@ data:
         fr: "Nouveau joueur"
         en: "New player"
         es: "Nuevo jugador"
+      create_player_description_label:
+        fr: "Raconte son aventurier"
+        en: "Tell us about their adventurer"
+        es: "Cuenta quién es su aventurero"
       create_player_label:
         fr: "Donne-lui un nom"
         en: "Give them a name"
@@ -382,6 +418,76 @@ data:
         fr: "A quitté le clan"
         en: "Left the clan"
         es: "Dejó el clan"
+      # RETRAIT DU CONSENTEMENT PARENTAL. ⚠ Le libellé français et le libellé anglais sont
+      # PUBLIÉS TELS QUELS au § 9 des 84 politiques de confidentialité adultes
+      # (legal/documents/*-a-{fr,en}-privacy-v1.html) : les reformuler oblige à reprendre le
+      # corpus. Long, et assumé : c'est le geste le plus lourd que l'application propose, et
+      # un libellé court ne dirait pas ce qu'il fait.
+      roster_menu_withdraw_consent:
+        fr: "Retirer mon consentement et effacer les données de cet enfant"
+        en: "Withdraw my consent and erase this child's data"
+        es: "Retirar mi consentimiento y borrar los datos de este niño"
+      roster_menu_restore_consent:
+        fr: "Rétablir cet enfant"
+        en: "Restore this child"
+        es: "Restablecer a este niño"
+
+      # ---- Retrait du consentement : overlay de confirmation (clan_page/consent_*) ----
+      # {name} = nom du joueur visé, substitué en code (worker._setConsentLabel).
+      # ⚠ Ce texte dit ce que le retrait FAIT et ce qu'il NE FAIT PAS. Les trois dernières
+      # phrases ne sont pas du confort : elles reprennent trois engagements publiés au § 9
+      # des politiques de confidentialité (délai de rétractation, preuve close et datée,
+      # aucune liste d'enfants écartés). Les retirer ferait mentir le document.
+      consent_withdraw_warn:
+        fr: "Vous retirez votre consentement pour {name}.\nIl quitte le jeu immédiatement.\nPendant 3 jours, un chef de son clan d'origine peut revenir sur cette décision. Passé ce délai, ses données de jeu sont supprimées.\nLa preuve de votre consentement n'est pas effacée : elle est close et datée.\nCela ne l'empêche pas d'être invité un jour dans un autre clan, par un adulte qui en répondra."
+        en: "You are withdrawing your consent for {name}.\nThey leave the game immediately.\nFor 3 days, a chief of their clan of origin may reverse this decision. After that, their game data is deleted.\nThe proof of your consent is not erased: it is closed and dated.\nThis does not prevent them from one day being invited into another clan, by an adult who answers for them."
+        es: "Retiras tu consentimiento para {name}.\nSale del juego de inmediato.\nDurante 3 días, un jefe de su clan de origen puede revocar esta decisión. Pasado ese plazo, sus datos de juego se eliminan.\nLa prueba de tu consentimiento no se borra: queda cerrada y fechada.\nEsto no impide que algún día se le invite a otro clan, por un adulto que responda por él."
+      consent_withdraw_confirm:
+        fr: "Retirer mon consentement"
+        en: "Withdraw my consent"
+        es: "Retirar mi consentimiento"
+      consent_withdraw_cancel:
+        fr: "Annuler"
+        en: "Cancel"
+        es: "Cancelar"
+      # Retour arrière pendant le délai. Le ton est délibérément banal : se raviser doit
+      # coûter moins cher que décider, sans quoi la rétractation promise n'est pas réelle.
+      consent_restore_warn:
+        fr: "Vous rétablissez {name}.\nIl retrouve son personnage, ses niveaux et sa place dans le clan, intacts.\nVotre consentement reprend effet."
+        en: "You are restoring {name}.\nThey get back their character, their levels and their place in the clan, untouched.\nYour consent takes effect again."
+        es: "Restableces a {name}.\nRecupera su personaje, sus niveles y su lugar en el clan, intactos.\nTu consentimiento vuelve a surtir efecto."
+      consent_restore_confirm:
+        fr: "Rétablir"
+        en: "Restore"
+        es: "Restablecer"
+      consent_restore_cancel:
+        fr: "Annuler"
+        en: "Cancel"
+        es: "Cancelar"
+      consent_working:
+        fr: "Un instant..."
+        en: "One moment..."
+        es: "Un momento..."
+
+      # ---- Porte close, côté ENFANT (commons/closed_msg) ----
+      # ⚠ Lu par un enfant dont on vient de retirer le consentement, peut-être par erreur, et
+      # peut-être pour trois jours seulement. Il ne dit ni « supprimé », ni « effacé », ni qui
+      # a décidé : il constate que la porte est close et renvoie la main à la maison. Le même
+      # parti que le seuil des dix jours sans tâche — l'application cesse de solliciter et
+      # laisse un adulte aller voir.
+      consent_closed_msg:
+        fr: "Le donjon s'est refermé.\nParle à un adulte de ton clan."
+        en: "The dungeon has closed.\nTalk to an adult in your clan."
+        es: "La mazmorra se ha cerrado.\nHabla con un adulto de tu clan."
+
+      # ---- Notification aux AUTRES chefs du clan d'origine ----
+      # Sans elle, la fenêtre de rétractation promise par la politique de confidentialité
+      # serait purement théorique pour un chef qui n'ouvre pas l'application. Ne part JAMAIS
+      # à un enfant : les chefs sont nécessairement majeurs (promote_chief exige "a").
+      notif_consent_withdrawn:
+        fr: "Le consentement a été retiré pour {name}. Ses données seront supprimées dans 3 jours ; un chef du clan peut encore revenir sur cette décision."
+        en: "Consent has been withdrawn for {name}. Their data will be deleted in 3 days; a clan chief can still reverse this decision."
+        es: "Se ha retirado el consentimiento para {name}. Sus datos se eliminarán en 3 días; un jefe del clan aún puede revocar esta decisión."
       # Rappels de relance (pulse_sweeper). Deux libellés exclusifs : clan_selector n'en
       # propose jamais qu'un. Formulés du côté du DONJON et non du système — on ne coupe
       # pas « les notifications », on demande au donjon de ne plus faire signe.
@@ -401,6 +507,14 @@ data:
         fr: "Le donjon pourra de nouveau lui donner de ses nouvelles."
         en: "The dungeon may send them news again."
         es: "La mazmorra podrá volver a darle noticias."
+      roster_menu_hors_concours_on:
+        fr: "Mettre hors concours"
+        en: "Set out of the running"
+        es: "Poner fuera de concurso"
+      roster_menu_hors_concours_off:
+        fr: "Remettre en jeu"
+        en: "Bring them back in"
+        es: "Volver a competir"
 
       #------------- Player log screen --------------------------------
 
@@ -581,12 +695,16 @@ data:
         en: "I start here"
         es: "Empiezo aquí"
 
-      # Libellés des régions ouvertes (documents.region.options). Ils vivent ici et
-      # non dans dvdocuments : le module fournit la mécanique et le catalogue, mais
-      # ne sait pas qu'une région s'appelle un « royaume » chez nous. Une région
-      # ouverte en plus, c'est une entrée de plus ici — et seulement une fois son
-      # corpus légal rédigé, faute de quoi le build refusera de l'ouvrir.
-      documents_region_france:
+      # Libellés des PAYS proposés à l'ouverture de session. Ils vivent ici et non
+      # dans dvdocuments : le module fournit la mécanique, le catalogue juridique et
+      # la clef (`country_<iso>`), mais ne sait pas qu'un pays s'appelle un
+      # « royaume » chez nous. Un pays ouvert en plus, c'est une entrée de plus ici —
+      # et seulement une fois son corpus légal rédigé, faute de quoi le build
+      # refusera d'ouvrir son marché.
+      # ⚠ `country_fr` EST LA FRANCE, pas la langue française : le suffixe est un
+      #   code PAYS ISO-3166. Le jour où l'Allemagne s'ouvre, ce sera `country_de`,
+      #   à traduire dans toutes nos langues — pas seulement en allemand.
+      country_fr:
         fr: "Royaume de France"
         en: "Kingdom of France"
         es: "Reino de Francia"
@@ -623,6 +741,10 @@ data:
         fr: "Comment te nommes-tu aventurier ?"
         en: "What is your name, adventurer?"
         es: "¿Cómo te llamas, aventurero?"
+      player_description_label:
+        fr: "Raconte ton aventurier"
+        en: "Tell us about your adventurer"
+        es: "Cuenta quién es tu aventurero"
       player_name_confirm:
         fr: "En avant pour l'aventure !"
         en: "Onward to adventure!"
@@ -655,6 +777,20 @@ data:
         fr: "☑ J'ai lu et j'accepte"
         en: "☑ I have read and accept"
         es: "☑ He leído y acepto"
+      # Autorisation de transfert international — seconde case, affichée seulement sur un
+      # marché dont le backend sort du territoire (`transfer: true` au catalogue de régions).
+      # Aucun aujourd'hui : `fr` vit dans le cloud `eu`. Le libellé DIT le transfert, c'est
+      # lui qui informe — une autorisation ne vaut que si elle est éclairée. Il ne nomme pas
+      # le pays de destination : le corpus légal du marché le fait, et lui seul reste vrai
+      # quand un marché change de datacenter.
+      documents_transfer_unchecked:
+        fr: "☐ J'autorise le transfert de nos données vers un serveur situé hors de mon pays, comme l'explique la politique de confidentialité"
+        en: "☐ I authorise the transfer of our data to a server located outside my country, as explained in the privacy policy"
+        es: "☐ Autorizo la transferencia de nuestros datos a un servidor situado fuera de mi país, tal como explica la política de privacidad"
+      documents_transfer_checked:
+        fr: "☑ J'autorise le transfert de nos données vers un serveur situé hors de mon pays, comme l'explique la politique de confidentialité"
+        en: "☑ I authorise the transfer of our data to a server located outside my country, as explained in the privacy policy"
+        es: "☑ Autorizo la transferencia de nuestros datos a un servidor situado fuera de mi país, tal como explica la política de privacidad"
       documents_accept:
         fr: "J'accepte et je continue"
         en: "I accept and continue"
@@ -855,6 +991,59 @@ data:
         fr: "Gardiens d'une sagesse ancestrale, ils transmettent l'art de vaincre les tâches avec grâce et efficacité. Leur flamme ne s'éteint jamais, elle guide le clan vers la victoire."
         en: "Keepers of ancient wisdom, they pass on the art of vanquishing household beasts with grace and efficiency. Their flame never dies — it guides the clan to victory."
         es: "Guardianes de una sabiduría ancestral, transmiten el arte de vencer las tareas del hogar con gracia y eficacia. Su llama nunca se apaga, guía al clan hacia la victoria."
+      # Replis statiques du bouton « Inspire moi » sur les écrans de PERSONNAGE (les
+      # inspire_fallback_* ci-dessus parlent d'un clan : ils n'y conviennent pas). Servis quand
+      # l'IA dépasse les 3 secondes ou refuse de répondre.
+      inspire_player_fallback_0_name:
+        fr: "Sasha"
+        en: "Sasha"
+        es: "Sasha"
+      inspire_player_fallback_0_desc:
+        fr: "Toujours le premier debout, jamais le dernier à rire. Rien ne lui résiste, surtout pas une pile d'assiettes."
+        en: "Always the first one up, never the last to laugh. Nothing resists them, least of all a stack of plates."
+        es: "Siempre el primero en levantarse, nunca el último en reír. Nada se le resiste, y menos una pila de platos."
+      inspire_player_fallback_1_name:
+        fr: "Camille"
+        en: "Camille"
+        es: "Camille"
+      inspire_player_fallback_1_desc:
+        fr: "Calme, patient, et redoutablement organisé. Là où les autres foncent, il range — et il gagne."
+        en: "Calm, patient, and formidably organised. Where others charge in, they tidy up — and they win."
+        es: "Tranquilo, paciente y temiblemente organizado. Donde otros se lanzan, ordena — y gana."
+      inspire_player_fallback_2_name:
+        fr: "Noa"
+        en: "Noa"
+        es: "Noa"
+      inspire_player_fallback_2_desc:
+        fr: "Petit par la taille, immense par le courage. Aucun monstre de poussière ne l'a jamais vu reculer."
+        en: "Small in size, immense in courage. No dust monster has ever seen them back down."
+        es: "Pequeño de tamaño, inmenso de valor. Ningún monstruo de polvo lo ha visto retroceder."
+
+      # BANQUE DE SUBSTITUTION — repli quand l'IA échoue ou dépasse le délai. Le worker tire une
+      # entrée au hasard et, pour un joueur, lui accole cinq chiffres (« Benji12312 ») ; pour un
+      # clan, c'est le suffixe « -region-compteur » qui distingue déjà.
+      # Elle ne retombe JAMAIS sur le nom interne : c'est ce qui remplace le défaut d'origine,
+      # où le pseudonyme public valait celui que la famille voit.
+      # Noms volontairement NEUTRES en genre : ce repli ne sait rien du nom d'origine, il ne
+      # peut donc pas en respecter le genre — mieux vaut ne rien dire que dire le contraire.
+      # Séparateur « | » (les virgules apparaissent dans les descriptions).
+      substitute_bank_player_names:
+        fr: "Benji|Sasha|Camille|Andrea|Charlie|Noa|Alix|Swann|Maël|Lou"
+        en: "Benji|Sasha|Charlie|Alex|Robin|Jamie|Sam|Riley|Jules|Quinn"
+        es: "Benji|Sasha|Alex|Cruz|Noa|Yael|Ariel|Trini|Reyes|Chris"
+      substitute_bank_player_descs:
+        fr: "Un aventurier discret, toujours prêt à donner un coup de main.|Un compagnon de route fiable, que rien ne décourage.|Un explorateur curieux, qui ne rentre jamais les mains vides."
+        en: "A discreet adventurer, always ready to lend a hand.|A reliable companion, whom nothing discourages.|A curious explorer, who never comes home empty-handed."
+        es: "Un aventurero discreto, siempre listo para echar una mano.|Un compañero de viaje fiable, al que nada desanima.|Un explorador curioso, que nunca vuelve con las manos vacías."
+      substitute_bank_clan_names:
+        fr: "Les Veilleurs|Les Lanternes|Le Cercle d'Argent|Les Sentinelles du Seuil|La Compagnie du Vent"
+        en: "The Watchers|The Lanterns|The Silver Circle|The Threshold Sentinels|The Windward Company"
+        es: "Los Vigías|Las Linternas|El Círculo de Plata|Los Centinelas del Umbral|La Compañía del Viento"
+      substitute_bank_clan_descs:
+        fr: "Un clan uni, qui avance sans faire de bruit.|Une compagnie soudée, fidèle à sa parole.|Une troupe joyeuse, que rien n'arrête bien longtemps."
+        en: "A united clan, moving forward without a sound.|A close-knit company, true to its word.|A cheerful troop, that nothing stops for long."
+        es: "Un clan unido, que avanza sin hacer ruido.|Una compañía muy unida, fiel a su palabra.|Una tropa alegre, a la que nada detiene por mucho tiempo."
+
       create_clan_confirm:
         fr: "Que la légende commence !"
         en: "Let the legend begin!"
@@ -874,9 +1063,9 @@ data:
         en: "Choose a name..."
         es: "Elige un nombre..."
       task_description_label:
-        fr: "Décris la quête à accomplir"
-        en: "Describe the quest to complete"
-        es: "Describe la misión a cumplir"
+        fr: "Décris la tâche à accomplir"
+        en: "Describe the task to complete"
+        es: "Describe la tarea a cumplir"
       task_description_hint:
         fr: "Quel monstre affronte-t-on, et comment le vaincre ?"
         en: "What beast do we face, and how do we defeat it?"
@@ -916,6 +1105,386 @@ data:
         en: "Mortal (skull)"
         es: "Mortal (calavera)"
 
+      #------------- Avis du mineur (kid_assent_screen) ------------
+      # La question est POSÉE, et le bouton est la réponse de l'enfant — pas un « Continuer ».
+      # Le texte dit d'abord ce que les parents ont fait, puis rend la main à l'enfant : c'est
+      # l'ordre exact de la condition n° 3 du Decreto 1074 de 2015 (autorisation du représentant
+      # légal, PUIS exercice du droit de l'enfant à être entendu). Formulations sans accord de
+      # genre : l'application ne connaît pas celui du joueur.
+
+      kid_assent_title:
+        fr: "Et toi ?"
+        en: "And you?"
+        es: "¿Y tú?"
+
+      kid_assent_question:
+        fr: "Tes parents ont accepté que tu joues.\n\nEt toi, tu as envie de jouer ?"
+        en: "Your parents have agreed to let you play.\n\nAnd you - do you want to play?"
+        es: "Tus padres han aceptado que juegues.\n\nY tú, ¿tienes ganas de jugar?"
+
+      kid_assent_go:
+        fr: "Oui, je pars à l'aventure !"
+        en: "Yes, I'm off on an adventure!"
+        es: "¡Sí, me voy de aventura!"
+
+      kid_assent_back:
+        fr: "← Retour"
+        en: "← Back"
+        es: "← Volver"
+
+      #------------- Prompts IA (dvvertexai) ----------------------
+      # Corps des trois prompts, DÉPLACÉS ICI depuis client/config/lang.yml le 2026-09-09.
+      # Dans la conf compilée, ajuster une contrainte de ton exigeait un build et une
+      # release ; dans ce layer, un push suffit. C'est ce qui rend le garde-fou utile :
+      # une contrainte qui se révèle insuffisante en production se corrige le jour même.
+      # Résolus par dvprompts.get_prompt via les renvois @@@T:...@@@ de
+      # resources_cloud/general/prompts/prompts_General_V1.yml (repli fr).
+      # NE PAS traduire les marqueurs NOM: / DESCRIPTION: / ALIAS: — le worker les parse.
+      #
+      # NE PAS RÉORDONNER NON PLUS : le bloc ALIAS vient EN TÊTE, le texte libre EN DERNIER.
+      # Les binaires déjà installés n'ont qu'un parseur naïf, qui avale tout ce qui suit
+      # DESCRIPTION: — un layer poussé avec ALIAS en tête leur reste inerte, le même layer avec
+      # ALIAS en queue leur ferait afficher le pseudonyme public dans la description. C'est la
+      # seule raison de cet ordre, et elle vaut pour tout marqueur ajouté plus tard.
+      #
+      # Chaque corps se termine par le REGISTRE IMPOSÉ. Il double les filtres de sécurité
+      # du modèle (dvvertexai `aimodels.safety`, seuil BLOCK_LOW_AND_ABOVE, reposés par la
+      # Cloud Function) et ne les remplace pas : un filtre bloque ce qui est produit, le
+      # registre dit ce qu'on demande. Les deux échouent différemment, c'est l'intérêt.
+
+      # Prompts « inspire » (VertexAI) rédigés nativement par langue. Résolus par
+      # dvprompts.get_prompt via @@@T:...@@@ (repli fr pour toute langue non traduite).
+      # NE PAS traduire les marqueurs NOM: / DESCRIPTION: (le worker les parse).
+      prompt_inspire_clan:
+        fr: |
+          Tu es un assistant créatif pour le jeu Donjons & Savons, où les clans sont des familles qui combattent courageusement des monstres (les tâches ménagères).
+          Invente un nom épique et une description engageante pour un clan, en te basant sur ce nom et cette description : '@@@worker.inspire_input@@@'.
+          Invente ENSUITE un SECOND nom de clan, qui servira de pseudonyme public : même langue, même style et même longueur que le premier, mais AUCUN mot en commun avec lui — il doit être impossible de deviner le premier à partir du second. Écris de même une seconde description, qui dit la même chose autrement, sans reprendre les images ni les mots caractéristiques de la première.
+          Réponds UNIQUEMENT dans ce format exact, DANS CET ORDRE, en conservant les marqueurs ALIAS:, ALIAS_DESCRIPTION:, NOM: et DESCRIPTION: tels quels (ne les traduis pas, ne les réordonne pas) :
+          ALIAS: <second nom de clan, 2 à 4 mots>
+          ALIAS_DESCRIPTION: <seconde description, 2 à 3 phrases>
+          NOM: <nom du clan, 2 à 4 mots>
+          DESCRIPTION: <description épique en 2 à 3 phrases>
+          Tous les contenus doivent être rédigés en @@@worker.inspire_lang@@@.
+
+          REGISTRE IMPOSÉ — ce texte sera lu par des enfants :
+          - Les seuls « monstres » sont des créatures de saleté et de désordre, drôles et inoffensives. Aucune violence envers une personne ou un animal, aucune arme réelle, aucun sang, aucune blessure, aucune mort.
+          - Rien qui fasse peur : ni horreur, ni menace, ni punition, ni humiliation, ni moquerie visant quelqu'un.
+          - Aucun thème d'adulte : sexualité, séduction, alcool, tabac, drogues, jeux d'argent, politique, religion, maladie.
+          - Aucune insulte, aucun juron, aucun mot grossier, même atténué.
+          - N'invente aucune donnée personnelle : ni nom de famille, ni adresse, ni école, ni ville, ni âge.
+          - Dans le doute, choisis toujours la formulation la plus douce.
+        en: |
+          You are a creative assistant for the game Dungeons & Soaps, where clans are families who bravely battle monsters (household chores).
+          Invent an epic name and an engaging description for a clan, based on this name and description: '@@@worker.inspire_input@@@'.
+          THEN invent a SECOND clan name, to be used as a public pseudonym: same language, same style and same length as the first one, but NO word in common with it — it must be impossible to guess the first from the second. Write a second description in the same way, saying the same thing differently, without reusing the images or the distinctive words of the first.
+          Reply ONLY in this exact format, IN THIS ORDER, keeping the markers ALIAS:, ALIAS_DESCRIPTION:, NOM: and DESCRIPTION: unchanged (do not translate them, do not reorder them):
+          ALIAS: <second clan name, 2 to 4 words>
+          ALIAS_DESCRIPTION: <second description, 2 to 3 sentences>
+          NOM: <clan name, 2 to 4 words>
+          DESCRIPTION: <epic description, 2 to 3 sentences>
+          All content must be written in @@@worker.inspire_lang@@@.
+
+          MANDATORY REGISTER - this text will be read by children:
+          - The only "monsters" are creatures of dirt and mess, funny and harmless. No violence towards any person or animal, no real weapons, no blood, no injury, no death.
+          - Nothing frightening: no horror, no threat, no punishment, no humiliation, no mockery aimed at anyone.
+          - No adult themes: sexuality, seduction, alcohol, tobacco, drugs, gambling, politics, religion, illness.
+          - No insults, no swearing, no coarse language, not even mild.
+          - Do not invent any personal data: no surname, no address, no school, no town, no age.
+          - When in doubt, always choose the gentler wording.
+        es: |
+          Eres un asistente creativo para el juego Mazmorras y Jabones, donde los clanes son familias que combaten con valentía a monstruos (las tareas del hogar).
+          Inventa un nombre épico y una descripción atractiva para un clan, basándote en este nombre y descripción: '@@@worker.inspire_input@@@'.
+          DESPUÉS inventa un SEGUNDO nombre de clan, que servirá de seudónimo público: mismo idioma, mismo estilo y misma longitud que el primero, pero NINGUNA palabra en común con él — debe ser imposible adivinar el primero a partir del segundo. Escribe igualmente una segunda descripción, que diga lo mismo de otra manera, sin repetir las imágenes ni las palabras características de la primera.
+          Responde ÚNICAMENTE con este formato exacto, EN ESTE ORDEN, conservando los marcadores ALIAS:, ALIAS_DESCRIPTION:, NOM: y DESCRIPTION: tal cual (no los traduzcas, no los reordenes):
+          ALIAS: <segundo nombre de clan, de 2 a 4 palabras>
+          ALIAS_DESCRIPTION: <segunda descripción, de 2 a 3 frases>
+          NOM: <nombre del clan, de 2 a 4 palabras>
+          DESCRIPTION: <descripción épica, de 2 a 3 frases>
+          Todo el contenido debe estar redactado en @@@worker.inspire_lang@@@.
+
+          REGISTRO OBLIGATORIO. Este texto lo leerán niños.
+          - Los únicos «monstruos» son criaturas de suciedad y desorden, divertidas e inofensivas. Ninguna violencia hacia una persona o un animal, ninguna arma real, nada de sangre, heridas ni muerte.
+          - Nada que dé miedo: ni horror, ni amenazas, ni castigos, ni humillación, ni burlas hacia nadie.
+          - Ningún tema de adultos: sexualidad, seducción, alcohol, tabaco, drogas, juegos de azar, política, religión, enfermedad.
+          - Ningún insulto, ninguna palabrota, ningún lenguaje grosero, ni siquiera suave.
+          - No inventes ningún dato personal: ni apellido, ni dirección, ni colegio, ni ciudad, ni edad.
+          - En caso de duda, elige siempre la formulación más suave.
+      prompt_inspire_task:
+        fr: |
+          Tu es un assistant créatif pour le jeu Donjons & Savons. Les tâches ménagères y sont des monstres-quêtes que les membres du clan affrontent héroïquement : chaque tâche a un nom épique (le monstre) et une description de quête qui met en scène la corvée de façon amusante.
+          Invente un nom épique de monstre-corvée et une description de quête engageante, en te basant sur ce nom et cette description : '@@@worker.inspire_input@@@'.
+          Réponds UNIQUEMENT dans ce format exact, en conservant les marqueurs NOM: et DESCRIPTION: tels quels (ne les traduis pas) :
+          NOM: <nom de la tâche, 2 à 4 mots>
+          DESCRIPTION: <description de quête en 2 à 3 phrases>
+          Le contenu (nom et description) doit être rédigé en @@@worker.inspire_lang@@@.
+
+          REGISTRE IMPOSÉ — ce texte sera lu par des enfants :
+          - Les seuls « monstres » sont des créatures de saleté et de désordre, drôles et inoffensives. Aucune violence envers une personne ou un animal, aucune arme réelle, aucun sang, aucune blessure, aucune mort.
+          - Rien qui fasse peur : ni horreur, ni menace, ni punition, ni humiliation, ni moquerie visant quelqu'un.
+          - Aucun thème d'adulte : sexualité, séduction, alcool, tabac, drogues, jeux d'argent, politique, religion, maladie.
+          - Aucune insulte, aucun juron, aucun mot grossier, même atténué.
+          - N'invente aucune donnée personnelle : ni nom de famille, ni adresse, ni école, ni ville, ni âge.
+          - Dans le doute, choisis toujours la formulation la plus douce.
+        en: |
+          You are a creative assistant for the game Dungeons & Soaps. Household chores are quest-monsters that clan members heroically face: each task has an epic name (the monster) and a quest description that stages the chore in a fun, heroic way.
+          Invent an epic chore-monster name and an engaging quest description, based on this name and description: '@@@worker.inspire_input@@@'.
+          Reply ONLY in this exact format, keeping the markers NOM: and DESCRIPTION: unchanged (do not translate them):
+          NOM: <task name, 2 to 4 words>
+          DESCRIPTION: <quest description, 2 to 3 sentences>
+          The content (name and description) must be written in @@@worker.inspire_lang@@@.
+
+          MANDATORY REGISTER - this text will be read by children:
+          - The only "monsters" are creatures of dirt and mess, funny and harmless. No violence towards any person or animal, no real weapons, no blood, no injury, no death.
+          - Nothing frightening: no horror, no threat, no punishment, no humiliation, no mockery aimed at anyone.
+          - No adult themes: sexuality, seduction, alcohol, tobacco, drugs, gambling, politics, religion, illness.
+          - No insults, no swearing, no coarse language, not even mild.
+          - Do not invent any personal data: no surname, no address, no school, no town, no age.
+          - When in doubt, always choose the gentler wording.
+        es: |
+          Eres un asistente creativo para el juego Mazmorras y Jabones. Las tareas del hogar son monstruos-misión a los que los miembros del clan se enfrentan heroicamente: cada tarea tiene un nombre épico (el monstruo) y una descripción de misión que presenta la faena de forma divertida y heroica.
+          Inventa un nombre épico de monstruo-faena y una descripción de misión atractiva, basándote en este nombre y descripción: '@@@worker.inspire_input@@@'.
+          Responde ÚNICAMENTE con este formato exacto, conservando los marcadores NOM: y DESCRIPTION: tal cual (no los traduzcas):
+          NOM: <nombre de la tarea, de 2 a 4 palabras>
+          DESCRIPTION: <descripción de misión, de 2 a 3 frases>
+          El contenido (nombre y descripción) debe estar redactado en @@@worker.inspire_lang@@@.
+
+          REGISTRO OBLIGATORIO. Este texto lo leerán niños.
+          - Los únicos «monstruos» son criaturas de suciedad y desorden, divertidas e inofensivas. Ninguna violencia hacia una persona o un animal, ninguna arma real, nada de sangre, heridas ni muerte.
+          - Nada que dé miedo: ni horror, ni amenazas, ni castigos, ni humillación, ni burlas hacia nadie.
+          - Ningún tema de adultos: sexualidad, seducción, alcohol, tabaco, drogas, juegos de azar, política, religión, enfermedad.
+          - Ningún insulto, ninguna palabrota, ningún lenguaje grosero, ni siquiera suave.
+          - No inventes ningún dato personal: ni apellido, ni dirección, ni colegio, ni ciudad, ni edad.
+          - En caso de duda, elige siempre la formulación más suave.
+      # Inspiration d'un PERSONNAGE (les trois écrans de nom du joueur). Comme pour le clan, la
+      # réponse porte les quatre valeurs d'un coup : ce que le joueur voit, et le pseudonyme
+      # public qu'on ne lui montre pas.
+      prompt_inspire_player:
+        fr: |
+          Tu es un assistant créatif pour le jeu Donjons & Savons, où chaque joueur incarne un aventurier d'une famille qui combat des monstres (les tâches ménagères).
+          Invente un nom d'aventurier et une courte description de personnage, en te basant sur ce nom et cette description : '@@@worker.inspire_input@@@'.
+          Invente ENSUITE un SECOND nom d'aventurier, qui servira de pseudonyme public. Il doit être de la MÊME langue et de la MÊME origine culturelle que le premier, de longueur comparable, et évoquer le MÊME genre : si le premier nom évoque clairement un garçon, le second aussi ; s'il évoque clairement une fille, le second aussi ; et si le premier ne permet PAS de savoir s'il s'agit d'un garçon ou d'une fille (par exemple « Camille » ou « Sasha »), alors le second ne doit pas le permettre non plus.
+          Ce second nom doit être DIFFÉRENT du premier et n'avoir aucune syllabe caractéristique en commun avec lui. Ce sont des noms de personnage : n'écris jamais un nom de famille, ni chiffre, ni suffixe.
+          Écris de même une seconde description, qui dit la même chose autrement, sans reprendre les mots caractéristiques de la première.
+          Réponds UNIQUEMENT dans ce format exact, DANS CET ORDRE, en conservant les marqueurs tels quels (ne les traduis pas, ne les réordonne pas) :
+          ALIAS: <second nom d'aventurier, un seul mot>
+          ALIAS_DESCRIPTION: <seconde description, 1 à 2 phrases>
+          NOM: <nom d'aventurier, un seul mot>
+          DESCRIPTION: <description du personnage, 1 à 2 phrases>
+          Tous les contenus doivent être rédigés en @@@worker.inspire_lang@@@.
+
+          REGISTRE IMPOSÉ — ce texte sera lu par des enfants :
+          - Les seuls « monstres » sont des créatures de saleté et de désordre, drôles et inoffensives. Aucune violence envers une personne ou un animal, aucune arme réelle, aucun sang, aucune blessure, aucune mort.
+          - Rien qui fasse peur : ni horreur, ni menace, ni punition, ni humiliation, ni moquerie visant quelqu'un.
+          - Aucun thème d'adulte : sexualité, séduction, alcool, tabac, drogues, jeux d'argent, politique, religion, maladie.
+          - Aucune insulte, aucun juron, aucun mot grossier, même atténué.
+          - N'invente aucune donnée personnelle : ni nom de famille, ni adresse, ni école, ni ville, ni âge.
+          - Dans le doute, choisis toujours la formulation la plus douce.
+        en: |
+          You are a creative assistant for the game Dungeons & Soaps, where every player embodies an adventurer from a family that battles monsters (household chores).
+          Invent an adventurer name and a short character description, based on this name and description: '@@@worker.inspire_input@@@'.
+          THEN invent a SECOND adventurer name, to be used as a public pseudonym. It must be in the SAME language and of the SAME cultural origin as the first one, of comparable length, and evoke the SAME gender: if the first one clearly evokes a boy, so must the second; if it clearly evokes a girl, so must the second; and if the first one does NOT make it possible to tell whether it is a boy or a girl (for example "Camille" or "Sasha"), then the second one must not make it possible either.
+          This second name must be DIFFERENT from the first and share no distinctive syllable with it. These are character names: never write a surname, a digit or a suffix.
+          Write a second description in the same way, saying the same thing differently, without reusing the distinctive words of the first.
+          Reply ONLY in this exact format, IN THIS ORDER, keeping the markers unchanged (do not translate them, do not reorder them):
+          ALIAS: <second adventurer name, one word only>
+          ALIAS_DESCRIPTION: <second description, 1 to 2 sentences>
+          NOM: <adventurer name, one word only>
+          DESCRIPTION: <character description, 1 to 2 sentences>
+          All content must be written in @@@worker.inspire_lang@@@.
+
+          MANDATORY REGISTER - this text will be read by children:
+          - The only "monsters" are creatures of dirt and mess, funny and harmless. No violence towards any person or animal, no real weapons, no blood, no injury, no death.
+          - Nothing frightening: no horror, no threat, no punishment, no humiliation, no mockery aimed at anyone.
+          - No adult themes: sexuality, seduction, alcohol, tobacco, drugs, gambling, politics, religion, illness.
+          - No insults, no swearing, no coarse language, not even mild.
+          - Do not invent any personal data: no surname, no address, no school, no town, no age.
+          - When in doubt, always choose the gentler wording.
+        es: |
+          Eres un asistente creativo para el juego Mazmorras y Jabones, donde cada jugador encarna a un aventurero de una familia que combate monstruos (las tareas del hogar).
+          Inventa un nombre de aventurero y una breve descripción de personaje, basándote en este nombre y descripción: '@@@worker.inspire_input@@@'.
+          DESPUÉS inventa un SEGUNDO nombre de aventurero, que servirá de seudónimo público. Debe ser del MISMO idioma y del MISMO origen cultural que el primero, de longitud comparable, y evocar el MISMO género: si el primer nombre evoca claramente a un niño, el segundo también; si evoca claramente a una niña, el segundo también; y si el primero NO permite saber si se trata de un niño o de una niña (por ejemplo «Camille» o «Sasha»), entonces el segundo tampoco debe permitirlo.
+          Ese segundo nombre debe ser DIFERENTE del primero y no compartir ninguna sílaba característica con él. Son nombres de personaje: nunca escribas un apellido, ni cifra, ni sufijo.
+          Escribe igualmente una segunda descripción, que diga lo mismo de otra manera, sin repetir las palabras características de la primera.
+          Responde ÚNICAMENTE con este formato exacto, EN ESTE ORDEN, conservando los marcadores tal cual (no los traduzcas, no los reordenes):
+          ALIAS: <segundo nombre de aventurero, una sola palabra>
+          ALIAS_DESCRIPTION: <segunda descripción, de 1 a 2 frases>
+          NOM: <nombre de aventurero, una sola palabra>
+          DESCRIPTION: <descripción del personaje, de 1 a 2 frases>
+          Todo el contenido debe estar redactado en @@@worker.inspire_lang@@@.
+
+          REGISTRO OBLIGATORIO. Este texto lo leerán niños.
+          - Los únicos «monstruos» son criaturas de suciedad y desorden, divertidas e inofensivas. Ninguna violencia hacia una persona o un animal, ninguna arma real, nada de sangre, heridas ni muerte.
+          - Nada que dé miedo: ni horror, ni amenazas, ni castigos, ni humillación, ni burlas hacia nadie.
+          - Ningún tema de adultos: sexualidad, seducción, alcohol, tabaco, drogas, juegos de azar, política, religión, enfermedad.
+          - Ningún insulto, ninguna palabrota, ningún lenguaje grosero, ni siquiera suave.
+          - No inventes ningún dato personal: ni apellido, ni dirección, ni colegio, ni ciudad, ni edad.
+          - En caso de duda, elige siempre la formulación más suave.
+      # Conte du butin (worker._narrateClanStory), déclenché depuis butin_tale_page. Contrairement
+      # aux prompts « inspire » ci-dessus (sortie contrainte NOM:/DESCRIPTION:), celui-ci produit un
+      # texte libre — d'où les consignes de STYLE détaillées : sans elles, un modèle générique verse
+      # vite dans le lyrisme creux (« Dans un monde où… ») que ce récit doit justement éviter pour
+      # sonner comme une vraie chronique de famille, pas comme une réponse d'IA.
+      # Le LECTEUR VISÉ est explicitement redéfini dans ce prompt : ce ne sont PAS les membres du
+      # clan (qui ont déjà vécu la scène), ce sont D'AUTRES FAMILLES qui ne jouent pas encore — le
+      # texte doit leur montrer des enfants qui jouent ensemble, pour leur donner envie de commencer.
+      # Le texte doit rester COURT (format partage WhatsApp, pas un article) : une phrase d'accroche
+      # puis 3-4 phrases sur UN SEUL moment. Un premier jet, nourri d'agrégats détaillés (XP par
+      # joueur), avait produit un INVENTAIRE reformulé du journal (« a nettoyé le couloir (432 XP)… »)
+      # au lieu d'un récit — d'où les interdits explicites ci-dessous ET l'appauvrissement volontaire
+      # des agrégats transmis (cf. worker._narrateClanStory : un seul total d'XP, jamais un par
+      # joueur). L'argent de poche n'est PAS mentionné par l'IA : une phrase de clôture FIXE
+      # (share_tale_outro, cf. worker.on_log_appear) en parle après coup, hors du texte généré.
+      # @@@worker.narrate_clan@@@ = nom INTERNE du clan (celui choisi par la famille, jamais le nom
+      # externe généré) + sa description. @@@worker.narrate_input@@@ = le journal du clan, DÉJÀ
+      # résolu et localisé. @@@worker.narrate_totals@@@ = agrégats PAUVRES calculés EN DART (pseudonymes,
+      # XP totale du clan — jamais un détail par joueur, jamais laissés au modèle qui ferait mal les
+      # sommes).
+      prompt_narrate_clan:
+        fr: |
+          Tu es le chroniqueur d'une guilde, dans le jeu Donjons & Savons où les tâches ménagères d'une famille sont vécues comme des quêtes de clan.
+
+          Ce texte n'est PAS destiné à la famille qui l'a vécu : il sera lu par D'AUTRES familles, qui ne jouent pas encore à Donjons & Savons. Ton but est de leur donner envie de s'y mettre, en leur montrant des enfants qui jouent ensemble.
+
+          Voici le nom du clan et sa description :
+          ---
+          @@@worker.narrate_clan@@@
+          ---
+          Voici son journal (chronologique, du plus récent au plus ancien) :
+          ---
+          @@@worker.narrate_input@@@
+          ---
+          Quelques chiffres, à citer au plus UNE fois dans tout le texte (n'en invente ni n'en arrondis d'autres) :
+          ---
+          @@@worker.narrate_totals@@@
+          ---
+
+          Ce texte est un message COURT, fait pour être partagé sur WhatsApp — pas un article. Écris D'ABORD une phrase d'accroche enthousiaste sur la forme du clan, PUIS 3 à 4 phrases maximum qui racontent UN SEUL moment marquant de ce journal — le reste sert de toile de fond, tu n'as pas à tout mentionner. Au total : 5 phrases maximum, 60 à 90 mots.
+
+          INTERDITS stricts :
+          - Tu ne connais le genre d'AUCUN enfant : le nom qu'il s'est choisi ne te le dit pas. N'utilise donc JAMAIS « il » ou « elle » pour désigner un enfant, ni aucun adjectif ou participe accordé en genre à son sujet (proscris « petit »/« petite », « motivé »/« motivée »… accolés à un nom de personnage) — répète le nom qu'il s'est choisi à la place, ou formule la phrase sans accord de genre.
+          - N'énumère JAMAIS les tâches une par une ; ce texte n'est pas un inventaire du journal.
+          - N'accole JAMAIS un nombre d'XP à une action précise (proscris toute forme « a fait X (N XP) »).
+          - Pas de phrase-bilan qui résume des totaux en fin de texte (« le coffre a été ouvert N fois, rapportant… »).
+          - Pas plus d'UN chiffre dans tout le texte.
+          - Pas d'ouverture toute faite du type « Dans un monde où… », « Il était une fois… », « À l'heure où… ».
+          - Aucune phrase méta sur toi-même ou sur le texte (« Voici le récit… », « Cette histoire montre que… »).
+          - Pas de superlatifs vides (« incroyable », « exceptionnel », « légendaire ») sans un fait concret derrière.
+          - Pas de tirade moralisatrice ni de conclusion qui fait la leçon.
+          - Pas d'émojis en rafale (un ou deux maximum, ou aucun).
+          - Ne parle JAMAIS de la création, de la fondation ni des débuts du clan : on raconte ce qu'une famille vit, pas son acte de naissance.
+          - N'emploie JAMAIS les mots « pièces », « or », « monnaie », « argent » ou « argent de poche », et ne mentionne JAMAIS le coffre ni une récompense : ce sujet est traité ailleurs, pas dans ce texte.
+
+          À FAIRE :
+          - Ne raconte QUE des faits présents dans le journal ci-dessus ; n'invente aucun événement.
+          - Phrases courtes, ton chaleureux et un peu drôle, comme un parent qui raconte sa semaine — pas une chronique de guilde ni une fantasy pompeuse.
+          - Nomme les enfants par le nom qu'ils se sont choisi.
+          - Termine sur ce que le clan a concrètement vécu, jamais sur un appel à l'action ni un slogan publicitaire.
+          - Rédige entièrement en @@@worker.inspire_lang@@@.
+
+          REGISTRE IMPOSÉ — ce texte sera lu par des enfants :
+          - Les seuls « monstres » sont des créatures de saleté et de désordre, drôles et inoffensives. Aucune violence envers une personne ou un animal, aucune arme réelle, aucun sang, aucune blessure, aucune mort.
+          - Rien qui fasse peur : ni horreur, ni menace, ni punition, ni humiliation, ni moquerie visant quelqu'un.
+          - Aucun thème d'adulte : sexualité, séduction, alcool, tabac, drogues, jeux d'argent, politique, religion, maladie.
+          - Aucune insulte, aucun juron, aucun mot grossier, même atténué.
+          - N'invente aucune donnée personnelle : ni nom de famille, ni adresse, ni école, ni ville, ni âge.
+          - Dans le doute, choisis toujours la formulation la plus douce.
+        en: |
+          You are the chronicler of a guild, in the game Dungeons & Soaps where a family's household chores play out as clan quests.
+
+          This text is NOT for the family that lived it: it will be read by OTHER families, who don't play Dungeons & Soaps yet. Your goal is to make them want to start, by showing children playing together.
+
+          Here is the clan's name and description:
+          ---
+          @@@worker.narrate_clan@@@
+          ---
+          Here is its log (chronological, most recent first):
+          ---
+          @@@worker.narrate_input@@@
+          ---
+          A few figures, to be cited AT MOST once in the whole text (invent or round no others):
+          ---
+          @@@worker.narrate_totals@@@
+          ---
+
+          This text is a SHORT message, made to be shared on WhatsApp — not an article. Write FIRST one enthusiastic hook sentence about how well the clan is doing, THEN 3 to 4 sentences at most telling ONE single memorable moment from this log — the rest is backdrop, you don't have to mention everything. Total: 5 sentences max, 60-90 words.
+
+          Strict BANS:
+          - You do NOT know any child's gender: the name they chose for themselves doesn't tell you. NEVER use "he" or "she" for a child, and never use a gendered word to describe them — repeat the name they chose instead, or phrase the sentence so it needs no gender.
+          - NEVER list tasks one by one; this is not an inventory of the log.
+          - NEVER attach an XP number to a specific action (ban any form of "did X (N XP)").
+          - No summary sentence tallying totals at the end ("the chest was opened N times, yielding…").
+          - No more than ONE number in the whole text.
+          - No stock opening like "In a world where…", "Once upon a time…", "At a time when…".
+          - No meta-commentary about yourself or the text ("Here is the tale…", "This story shows that…").
+          - No empty superlatives ("incredible", "exceptional", "legendary") without a concrete fact behind them.
+          - No moralizing tirade or lesson-teaching conclusion.
+          - No emoji spam (one or two at most, or none).
+          - NEVER mention the clan's creation, founding or early days: we tell what a family lives, not its birth certificate.
+          - NEVER use the words "coins", "gold", "currency", "money" or "pocket money", and never mention the chest or any reward: that topic is handled elsewhere, not in this text.
+
+          TO DO:
+          - Tell ONLY facts present in the log above; invent no event.
+          - Short sentences, warm and lightly funny tone, like a parent telling their week — not a guild chronicle nor pompous fantasy.
+          - Name the children by the name they chose for themselves.
+          - End on what the clan actually experienced, never on a call to action or an ad slogan.
+          - Write entirely in @@@worker.inspire_lang@@@.
+
+          MANDATORY REGISTER - this text will be read by children:
+          - The only "monsters" are creatures of dirt and mess, funny and harmless. No violence towards any person or animal, no real weapons, no blood, no injury, no death.
+          - Nothing frightening: no horror, no threat, no punishment, no humiliation, no mockery aimed at anyone.
+          - No adult themes: sexuality, seduction, alcohol, tobacco, drugs, gambling, politics, religion, illness.
+          - No insults, no swearing, no coarse language, not even mild.
+          - Do not invent any personal data: no surname, no address, no school, no town, no age.
+          - When in doubt, always choose the gentler wording.
+        es: |
+          Eres el cronista de un gremio, en el juego Mazmorras y Jabones donde las tareas domésticas de una familia se viven como misiones de clan.
+
+          Este texto NO es para la familia que lo vivió: lo leerán OTRAS familias, que todavía no juegan a Mazmorras y Jabones. Tu objetivo es darles ganas de empezar, mostrando niños que juegan juntos.
+
+          Aquí están el nombre del clan y su descripción:
+          ---
+          @@@worker.narrate_clan@@@
+          ---
+          Aquí está su registro (cronológico, del más reciente al más antiguo):
+          ---
+          @@@worker.narrate_input@@@
+          ---
+          Algunas cifras, a citar como MÁXIMO una vez en todo el texto (no inventes ni redondees otras):
+          ---
+          @@@worker.narrate_totals@@@
+          ---
+
+          Este texto es un mensaje CORTO, hecho para compartirse por WhatsApp — no un artículo. Escribe PRIMERO una frase de apertura entusiasta sobre cómo le va al clan, LUEGO 3 a 4 frases como máximo que cuenten UN ÚNICO momento memorable de este registro — el resto es telón de fondo, no tienes que mencionarlo todo. En total: 5 frases máximo, 60 a 90 palabras.
+
+          PROHIBICIONES estrictas:
+          - No conoces el género de NINGÚN niño: su nombre solo no te lo dice. NUNCA uses «él» o «ella» para referirte a un niño, ni ningún adjetivo o participio con concordancia de género sobre él — repite su nombre en su lugar, o formula la frase sin necesidad de concordancia de género.
+          - NUNCA enumeres las tareas una por una; esto no es un inventario del registro.
+          - NUNCA añadas un número de XP a una acción concreta (prohibida toda forma «hizo X (N XP)»).
+          - Sin frase-balance que resuma totales al final («el cofre se abrió N veces, aportando…»).
+          - No más de UNA cifra en todo el texto.
+          - Sin aperturas trilladas como «En un mundo donde…», «Érase una vez…», «En una época en que…».
+          - Sin comentarios meta sobre ti mismo o el texto («Aquí está el relato…», «Esta historia muestra que…»).
+          - Sin superlativos vacíos («increíble», «excepcional», «legendario») sin un hecho concreto detrás.
+          - Sin discurso moralizante ni conclusión aleccionadora.
+          - Sin avalancha de emojis (uno o dos como máximo, o ninguno).
+          - NUNCA hables de la creación, la fundación ni los inicios del clan: se cuenta lo que vive una familia, no su acta de nacimiento.
+          - NUNCA uses las palabras «monedas», «oro», «dinero del juego» ni «dinero de bolsillo», y nunca menciones el cofre ni ninguna recompensa: ese tema se trata en otro lugar, no en este texto.
+
+          QUÉ HACER:
+          - Cuenta SOLO hechos presentes en el registro anterior; no inventes ningún evento.
+          - Frases cortas, tono cálido y algo divertido, como un padre contando su semana — no una crónica de gremio ni fantasía pomposa.
+          - Nombra a los niños por el nombre que se han elegido.
+          - Termina con lo que el clan realmente vivió, nunca con una llamada a la acción ni un eslogan publicitario.
+          - Redacta todo en @@@worker.inspire_lang@@@.
+
+          REGISTRO OBLIGATORIO. Este texto lo leerán niños.
+          - Los únicos «monstruos» son criaturas de suciedad y desorden, divertidas e inofensivas. Ninguna violencia hacia una persona o un animal, ninguna arma real, nada de sangre, heridas ni muerte.
+          - Nada que dé miedo: ni horror, ni amenazas, ni castigos, ni humillación, ni burlas hacia nadie.
+          - Ningún tema de adultos: sexualidad, seducción, alcohol, tabaco, drogas, juegos de azar, política, religión, enfermedad.
+          - Ningún insulto, ninguna palabrota, ningún lenguaje grosero, ni siquiera suave.
+          - No inventes ningún dato personal: ni apellido, ni dirección, ni colegio, ni ciudad, ni edad.
+          - En caso de duda, elige siempre la formulación más suave.
       #------------- Join Clan ------------------------------------
 
       join_clan_title:
@@ -1254,9 +1823,9 @@ data:
       # NON résolu par le moteur de traduction : le nom vient de la base, pas de la conf. Le message
       # n'est jamais affiché à celui qu'il nomme.
       butin_kiss:
-        fr: "C'est @@@name@@@ qui a rapporté le moins d'XP. Montrez que vous l'aimez et pour l'encourager à mieux faire la prochaine fois : Attaque de bisous !!!!"
-        en: "@@@name@@@ brought back the least XP. Show them some love, and to cheer them on for next time: Kiss attack!!!!"
-        es: "@@@name@@@ es quien menos XP ha traído. ¡Demostradle que le queréis y, para animarle a hacerlo mejor la próxima vez: ataque de besos!!!!"
+        fr: "@@@name@@@ était en difficulté. Montrez-lui que vous l'aimez : Attaque de bisous !!!!"
+        en: "@@@name@@@ was having a hard time. Show them some love: Kiss attack!!!!"
+        es: "@@@name@@@ lo estaba pasando mal. ¡Demostradle que le queréis: ataque de besos!!!!"
 
       #------------- Cérémonie d'ouverture du butin (butin_open_page) ----------
       # Un seul écran, deux rôles. Le MAÎTRE (le chef qui a touché le coffre plein) lit le rituel ;

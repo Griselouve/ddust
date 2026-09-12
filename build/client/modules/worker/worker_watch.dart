@@ -182,6 +182,13 @@ extension Worker_watch on worker {
                                 // Révocation prioritaire : si le joueur courant a été mis enabled=false (par un
                                 // admin, possiblement depuis un autre appareil), on l'éjecte et on n'évalue rien d'autre.
                                 if (await _checkRevoked()) return;
+                                // Retrait du consentement parental : porte close, et rien d'autre ne se joue —
+                                // ni montée de niveau, ni butin, ni cadeau. Un joueur qu'on a cessé de traiter
+                                // ne doit rien voir arriver. Contrairement à la révocation ci-dessus, il n'est
+                                // PAS éjecté : son ancrage local au clan doit survivre pour qu'un chef puisse
+                                // revenir sur sa décision sans le contraindre à une ré-invitation.
+                                // Appelé dans les deux sens — c'est aussi lui qui rouvre la porte au retour arrière.
+                                if (await _checkConsentClosed()) return;
                                 // Bascule légale (mineur → adulte) déclenchée par le tuteur : le doc porte
                                 // legal_state="t" → on impose la CGU adulte bloquante et on n'évalue rien d'autre.
                                 if (await _checkAdultTransition()) return;
@@ -240,6 +247,12 @@ extension Worker_watch on worker {
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
                                     if (clanId.isEmpty || clanSecret.isEmpty || _userId.isEmpty) return;
+                                    // Amorce worker.player_is_adult (miroir de legal_state) pour dvtuto.
+                                    // Mis en cache par clan+utilisateur : gratuit en régime, et
+                                    // recalculé de lui-même à une bascule d'identité (impersonation).
+                                    // Ancré ici parce que dashboard et clan sont les deux funnels par
+                                    // lesquels un joueur enrôlé passe avant tout autre écran.
+                                    await _ensureIsAdult(clanId, clanSecret, region);
                                     _startPlayerVigilance(clanId, clanSecret, region);
                                     await _checkPendingCeremony();
                                 } catch (e) {
@@ -276,6 +289,12 @@ extension Worker_watch on worker {
                 _stopValidationPolling();
                 final userDoc = await _readSession(region) ?? Dvidle({});
                 userDoc.rem("docId");
+
+                // Verdict rendu, quelle qu'en soit l'issue : la preuve a fini sa vie utile. « Voir
+                // ma preuve » n'est offert qu'en état validating, et les deux branches ci-dessous
+                // vident active_proof — le fichier survivrait à sa propre atteignabilité. Lu AVANT
+                // le vidage, effacé ici, rattrapé au démarrage par _reconcileProofs si ça échoue.
+                await _forgetProof((await Deva.instance.get("session.active_proof"))?.toString() ?? "");
 
                 final refused = st == "assigned" && who == _userId;
                 if (refused) {

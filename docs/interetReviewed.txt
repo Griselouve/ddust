@@ -1,0 +1,734 @@
+# Donjons & Savons — Démonstration de l'intérêt supérieur de l'enfant
+
+*Argumentaire au sens de l'article 7 de la Ley 1581 de 2012 (Colombie), de l'article
+2.2.2.25.2.9 du Decreto Único Reglamentario 1074 de 2015 (qui compile l'article 12 du
+Decreto 1377 de 2013) et de la sentence C-748 de 2011 de la Corte Constitucional.*
+
+---
+
+## 0. Objet et portée
+
+Ce document expose la conception de Donjons & Savons et démontre, point par point, en quoi
+elle répond à l'intérêt supérieur de l'enfant.
+
+Il est issu d'une revue contradictoire de trois analyses indépendantes, chacune de ses
+affirmations ayant été confrontée au code et à la configuration qui la portent. Ce qu'une
+ligne du produit ne permet pas de vérifier n'y figure pas.
+
+Une version espagnole des sections 7 et 8 est requise pour le marché colombien.
+
+---
+
+## 1. Le cadre à satisfaire
+
+L'article 7 de la Ley 1581 de 2012 proscrit **par principe** le traitement des données
+des mineurs, hors données de nature publique, et exige le respect de leurs droits
+prévalents. La Corte Constitucional (C-748 de 2011) a précisé que ce principe n'est pas
+une interdiction absolue : le traitement est licite s'il répond à l'intérêt supérieur du
+mineur et respecte ses droits fondamentaux.
+
+L'article 2.2.2.25.2.9 du Decreto 1074 de 2015 en tire trois conditions opérationnelles :
+
+1. le traitement **répond à l'intérêt supérieur** de l'enfant et le respecte ;
+2. il **assure le respect de ses droits fondamentaux** ;
+3. le représentant légal donne l'autorisation, **après que le mineur a exercé son droit
+   d'être entendu**, son opinion étant valorisée selon sa maturité, son autonomie et sa
+   capacité à comprendre le sujet.
+
+Le présent document répond aux trois, dans cet ordre : la section 4 établit le bénéfice,
+la section 5 le respect des droits, la section 6 la proportionnalité du traitement, et
+la section 5.8 le recueil de l'avis de l'enfant.
+
+Les droits que la démonstration doit servir sont ceux de l'article 44 de la Constitution
+et de la Ley 1098 de 2006 — éducation et développement intégral (art. 29 et 39), jeu et
+loisirs (art. 30), vie familiale (art. 22) — ainsi que les articles 5, 12, 18 et 31 de
+la Convention internationale des droits de l'enfant.
+
+L'intérêt supérieur ne se limite pas à la protection passive : il inclut le développement
+global de l'enfant, son éducation, sa participation à la vie familiale et sociale, et la
+reconnaissance de sa dignité. Un dossier qui n'énoncerait que ce que l'application ne
+fait pas répondrait à côté de la question posée.
+
+---
+
+## 2. Ce que l'application traite : la posture retenue
+
+L'application **traite des données de mineurs**, et le dossier le dit franchement.
+L'identifiant technique du compte, le pseudonyme, l'avatar, la progression de jeu et
+l'indicateur mineur/majeur sont des données à caractère personnel rattachées à une
+personne identifiable.
+
+La démonstration ne repose donc pas sur une absence de traitement, mais sur ceci :
+
+> Le traitement est **limité au strict nécessaire au fonctionnement du jeu au sein de la
+> famille**, il est **proportionné**, et **aucune des données traitées ne sert un intérêt
+> autre que celui de l'enfant lui-même** — ni publicité, ni profilage, ni revente, ni
+> mise en relation, ni surveillance.
+
+---
+
+## 3. Finalité : l'application sert le développement de l'enfant
+
+La finalité du traitement est unique : permettre à un enfant de participer, sous la
+responsabilité de ses parents, à un jeu familial dont l'objet est la contribution aux
+tâches du foyer.
+
+- **Éducation et développement intégral.** Apprendre à tenir une chambre, mettre la
+  table, sortir les poubelles relève de la formation à l'autonomie que la Ley 1098 confie
+  à la famille. L'application structure cet apprentissage ; elle ne s'y substitue pas.
+- **Jeu et loisirs.** Elle transforme une contrainte en jeu partagé **sans substituer
+  l'écran à l'activité** : la partie se joue dans la maison, l'application n'est qu'un
+  tableau de score.
+- **Vie familiale.** Le mécanisme central est le clan : l'expérience se gagne
+  collectivement, le coffre s'ouvre ensemble, et les récompenses sont des moments de
+  famille définis par les parents.
+- **Droit d'être entendu.** L'enfant est interrogé avant toute collecte (§ 5.8), choisit
+  son pseudonyme, son avatar et ses titres, choisit les tâches qu'il entreprend, et peut
+  renoncer à une tâche engagée sans aucune conséquence.
+
+L'application n'est pas un jeu vidéo ordinaire : c'est un **support de médiation
+éducative**, qui transforme un espace de friction — la maison, les corvées — en terrain
+d'aventure partagé.
+
+---
+
+## 4. L'intérêt concret pour l'enfant
+
+### 4.1 Autonomie et responsabilité
+
+Le parcours d'une tâche est explicite et décomposé : l'enfant **choisit** une tâche parmi
+celles que les adultes ont retenues, s'**engage** à la réaliser, découvre **à l'avance
+les critères** qui permettront de la considérer comme faite, la réalise, la soumet, et
+**reçoit une reconnaissance** lorsque son effort est validé.
+
+Deux garanties structurelles en découlent :
+
+- **le critère est publié avant l'engagement.** Chaque tâche de la bibliothèque porte un
+  critère d'acceptation traduit, affiché à l'enfant avant qu'il s'engage et consulté par
+  l'adulte au moment du verdict. L'enfant sait à l'avance à quoi il sera jugé ;
+- **le renoncement est gratuit.** Abandonner une tâche engagée ne coûte aucun point et ne
+  laisse aucune trace. Le droit à l'erreur est inscrit dans le mécanisme.
+
+L'objectif n'est pas de surveiller l'enfant mais de lui donner une structure qui l'aide
+progressivement à s'organiser, à prendre des initiatives et à comprendre les conséquences
+de ses actes. Le jeu fournit un retour immédiat que la vie quotidienne ne donne pas
+toujours : une tâche terminée devient une contribution visible au fonctionnement du foyer.
+
+### 4.2 Compréhension de l'effort et de la récompense
+
+Le barème est explicite et compréhensible : une corvée rare et lourde vaut davantage
+qu'une corvée quotidienne, dans une proportion que l'enfant peut constater. Il apprend
+concrètement la relation entre l'effort fourni et la reconnaissance obtenue, et cette
+relation ne dépend pas de l'humeur d'un adulte : le barème appartient à la configuration
+du jeu, pas au parent.
+
+Le gain maximal qu'une seule tâche peut rapporter est indexé sur le niveau du joueur, de
+sorte que la progression conserve son sens dans la durée et qu'un débutant ne puisse pas
+obtenir d'un seul coup ce que le barème destine à plusieurs semaines.
+
+### 4.3 Constance et formation d'habitudes
+
+L'application **fait revenir l'enfant régulièrement, et c'est délibéré** : une habitude ne
+se forme que par la répétition, et un jeu qui ne ramènerait pas l'enfant n'aurait aucun
+effet éducatif. Deux ressorts y concourent — le plaisir (le coffre partagé, la famille
+réunie, les surprises) et le rappel (des notifications bornées).
+
+**Mais revenir ne signifie pas rester** (§ 5.4).
+
+### 4.4 Participation à la vie familiale et coopération
+
+Chaque tâche réalisée procure une récompense individuelle **et** contribue à la
+progression collective du clan. L'enfant comprend que son action lui est utile, qu'elle
+aide sa famille, que chacun peut contribuer à sa manière et que la réussite collective
+dépend de la participation de tous.
+
+Trois mécanismes soutiennent cette lecture coopérative :
+
+- **l'expérience gagnée par le clan est divisée par le nombre de ses membres actifs** :
+  une famille de deux progresse comme une famille de cinq. **Aucun enfant n'est pénalisé
+  par la taille de sa fratrie** ;
+- **aucun enfant n'est privé de sa part du coffre**, y compris ceux qui n'ont pas de
+  téléphone ou sont temporairement hors ligne. La seule exception concerne un adulte qui a
+  lui-même demandé à ne plus concourir (§ 4.5) — un enfant ne peut jamais en faire l'objet ;
+- **les adultes disposent de moyens discrets d'aider un enfant en retrait**, sans que
+  cela apparaisse comme une faveur publique.
+
+### 4.5 Une nouvelle dynamique entre l'adulte et l'enfant
+
+L'adulte passe du rôle de donneur d'ordres à celui de narrateur : la validation d'une
+tâche devient un moment d'échange et de reconnaissance.
+
+Un adulte qui joue lui aussi pose un risque particulier : il abat, en général, bien plus de
+travail domestique que ses enfants, et sa progression peut écraser la leur. Deux dispositifs
+y répondent.
+
+Le premier est permanent : **les adultes qui administrent le clan ne reçoivent aucun objet
+du coffre**, quelle que soit leur contribution. Ils organisent la maisonnée, ils ne se
+servent pas dans le butin.
+
+Le second est un réglage, **le mode « hors concours »**, qu'un adulte peut poser sur
+lui-même ou qu'un autre adulte peut poser pour lui — jamais sur un enfant. Le joueur
+concerné continue de jouer et **continue de faire progresser le clan exactement comme
+avant** : son travail alimente l'expérience collective et remplit le coffre. Mais il sort de
+toute comparaison et de toute récompense — ni part du butin, ni objet, ni argent, et son
+niveau, ses points de vie, sa progression et sa bourse **cessent d'être affichés aux autres
+membres**. Ce dernier point est le plus important : la barre de progression que chaque
+enfant voit sur sa propre tuile est calculée par rapport au meilleur contributeur du cycle,
+et un adulte actif l'écrasait mécaniquement pour toute la fratrie.
+
+Rien ne change pour l'intéressé lui-même : il conserve son écran personnel complet, et ses
+points de vie ne peuvent plus le faire « mourir » dans le jeu — celui qui s'est mis en
+retrait a le droit de se reposer. Le réglage est réversible à tout moment.
+
+### 4.6 Valoriser l'effort plutôt que la performance
+
+**L'application ne comporte ni classement, ni rang, ni score comparatif.** La contribution
+de chacun au coffre en cours est représentée par une barre, sans chiffre ni position, qui
+montre l'apport de chaque membre à un objectif commun — et non une place les uns par
+rapport aux autres.
+
+Le jugement d'une tâche comporte **trois issues, et aucune n'est une sanction** :
+
+- **acceptée** — l'expérience est créditée en totalité ;
+- **partielle** — un travail à moitié fait rapporte la moitié des points ; il n'est pas
+  perdu ;
+- **refusée** — la tâche revient au même enfant, qui peut recommencer. Rien n'est retiré.
+
+Et le journal familial ne conserve **aucune trace dévalorisante d'un travail refusé** : il
+le raconte comme une tentative, l'effort de l'enfant y est nommé, la difficulté est
+attribuée à la tâche, et **aucun score n'y est associé**. L'application ne tient pas le
+compte des échecs d'un enfant.
+
+### 4.7 Confiance en soi et maîtrise de son image
+
+Les niveaux, les titres et le journal donnent à l'enfant des preuves visibles de sa
+progression : il constate qu'il a appris à accomplir une tâche régulièrement, qu'il a
+contribué à un objectif familial, et que ses efforts sont reconnus par ses proches.
+
+Les titres ne sont pas des étiquettes imposées : ce sont des objets que l'enfant gagne et
+qu'il **décide ou non de porter**, et qu'il peut abandonner. Leur registre est humoristique
+— « Seigneur des Chaussettes » — et ne renvoie jamais à une note scolaire ni à une
+évaluation morale. L'enfant maîtrise l'image qu'il donne de lui à sa famille.
+
+### 4.8 Récompenser la présence, et pas seulement la performance
+
+Une mécanique de rencontre aléatoire échappe volontairement à toute logique de mérite :
+sans que personne ne soit prévenu, un cadeau devient accessible à qui le trouve. Son
+apparition est tirée **une fois par jour pour l'ensemble du clan** — ouvrir l'application
+plus souvent n'y change donc rien — et devient certaine au terme d'un mois sans visite.
+C'est le seul dispositif du jeu qui puisse bénéficier à l'enfant le moins performant sans
+qu'il ait rien accompli, et il est conçu pour cela :
+
+- **un joueur en difficulté y a droit comme les autres** — la restriction qui l'empêche
+  par ailleurs de prendre une tâche est ici explicitement levée, les cadeaux de soin lui
+  étant précisément destinés ;
+- **cinq des sept cadeaux bénéficient à autrui**, dont trois à l'ensemble du clan ;
+- **rien n'en est annoncé** : aucune notification, aucun badge, et le message qui suit
+  ne dit jamais le montant obtenu, pour qu'une surprise ne se transforme pas en bulletin
+  de score.
+
+### 4.9 Autonomie progressive
+
+Un parent peut accorder à un enfant qu'il juge suffisamment autonome le droit de voir son
+travail validé **sans contrôle préalable**. Ce n'est pas un contournement de la
+supervision : c'est une **marque de confiance décidée par l'adulte**, réversible,
+désactivée par défaut, et réglable enfant par enfant selon l'âge et la maturité — c'est-à-dire
+exactement la construction de l'autonomie progressive que la Ley 1098 confie à la famille.
+
+### 4.10 Compétences développées
+
+| Compétence | Traduction dans l'application |
+|---|---|
+| Organisation | Liste de tâches, disponibilité, délais de réapparition |
+| Planification | Choix d'une tâche et engagement à la réaliser |
+| Persévérance | Quêtes répétées et progression sur plusieurs jours |
+| Responsabilité | Validation après exécution |
+| Coopération | Expérience et récompenses du clan |
+| Compréhension des règles | Critères d'acceptation explicites et connus d'avance |
+| Autonomie progressive | Profil adapté à l'âge, jeu possible sans téléphone |
+| Communication familiale | Validation, récompenses et décisions prises avec les parents |
+| Gestion des objectifs | Progression individuelle et collective |
+| Créativité | Classes, titres, univers narratif et personnalisation |
+
+L'application ne remplace ni l'éducation parentale ni l'école. Elle fournit un support
+ludique qui transforme des attentes familiales abstraites en objectifs concrets et
+accessibles.
+
+---
+
+## 5. Les choix de conception qui protègent l'enfant
+
+### 5.1 L'application n'ajoute aucun pouvoir de l'adulte sur l'enfant
+
+Décider si une chambre est rangée est une prérogative parentale, avec ou sans application.
+Ce que le produit change, c'est qu'il **soumet cette décision à des contraintes que
+l'autorité verbale n'a pas** :
+
+- le critère d'appréciation est **publié à l'avance** et identique pour tous les membres ;
+- il existe un **verdict intermédiaire**, qui évite le tout-ou-rien ;
+- **un refus ne détruit rien** : la tâche revient à l'enfant, qui peut recommencer ;
+- **le barème n'appartient pas à l'adulte** : les points sont calculés par la
+  configuration du jeu ;
+- **tout verdict laisse une trace horodatée** dans un journal que l'enfant peut consulter.
+
+S'y ajoute, dès qu'un clan compte deux adultes administrateurs, une **validation croisée** :
+un adulte ne peut plus juger son propre travail.
+
+### 5.2 L'inactivité n'est pas sanctionnée : elle déclenche une alerte
+
+Les points de vie d'un personnage ne sont pas une réserve qui se vide et qu'il faudrait
+remplir : ils sont **entièrement dérivés de la date de la dernière tâche accomplie**. Un
+enfant qui n'a jamais joué ne perd rien, et **une seule tâche menée à son terme rend
+l'intégralité des points**. Une punition ne s'efface pas au premier geste ; celle-ci si,
+parce que ce n'en est pas une.
+
+Au terme de dix jours sans qu'aucune tâche n'ait été menée à son terme, le personnage
+n'est plus en état de partir au combat, et un **signal visible de tout le clan** apparaît
+sur sa fiche. Ce seuil ne s'applique pas à un adulte mis hors concours (§ 4.5) : celui qui
+s'est retiré de la course a le droit de se reposer, et son inactivité n'est signalée à
+personne. À ce stade, l'application cesse de solliciter l'enfant et **remet la main à
+sa famille** : le retour au jeu passe par un geste d'un adulte.
+
+Ce n'est pas une exclusion, c'est un **seuil d'alerte assumé** : quand un enfant n'a rien
+terminé depuis dix jours, la question n'est plus une question de jeu, et l'application
+considère qu'il revient à un adulte d'aller voir pourquoi. La documentation destinée aux
+parents l'explique en ces termes.
+
+Le gage qui accompagne ce moment est un défi familial humoristique, et **rien ne vérifie
+son accomplissement** : c'est l'adulte qui constate. L'application n'a, à aucun moment,
+le pouvoir de contraindre un enfant.
+
+### 5.3 Aucune sollicitation commerciale n'est adressée à un enfant
+
+- **La boutique est réservée aux adultes**, et gardée trois fois : il faut être
+  administrateur du clan, **et** légalement majeur — un enfant promu chef par ses parents
+  n'accède à aucune surface commerciale —, puis franchir une épreuve destinée à confirmer
+  qu'un adulte est bien devant l'écran. Être adulte administrateur ne dispense pas de le
+  prouver.
+- **Aucun écran de paiement n'est jamais présenté à un enfant** : ni la grille tarifaire,
+  ni la demande de première cotisation, ni la proposition de réabonnement.
+- **Aucune notification de nature administrative ou financière ne lui est adressée.** La
+  règle de routage ne souffre pas d'exception.
+- **En cas de défaut de paiement, l'enfant n'est ni informé ni sollicité** : le rappel est
+  réservé aux adultes du clan, qui sont de toute façon les seuls à pouvoir y remédier. La
+  demande de cotisation elle-même ne se ferme jamais devant un enfant, au motif explicite
+  que « lui fermer le jeu ne servirait qu'à l'inquiéter ».
+- **Aucune publicité, aucun identifiant publicitaire, aucune liaison à une régie**, et la
+  collecte de statistiques d'usage est désactivée.
+- **Le partage vers l'extérieur est réservé aux adultes** : un enfant ne peut rien publier.
+  Il peut demander que les aventures de son clan lui soient racontées et lire ce récit ;
+  l'envoyer à quelqu'un est un geste d'adulte. Le contrôle porte sur l'envoi, jamais sur la
+  lecture — priver un enfant de l'histoire de sa propre famille n'aurait aucun sens.
+- **Aucune invitation à noter l'application n'est présentée à un enfant.**
+- **Les suggestions de récompense proposées par l'éditeur excluent toute monnaie de jeu et
+  tout contenu numérique** : lorsqu'un lien commercial est proposé à un parent, il porte
+  sur des sorties, des livres ou des jeux physiques, et il est signalé comme tel.
+- **Les exemples de petites récompenses proposés par défaut sont neutres** — choisir le
+  dessert, une histoire de plus, choisir l'activité du week-end. Les parents restent libres
+  d'en définir d'autres ; ce que l'éditeur suggère, lui, ne l'est pas.
+
+### 5.4 Revenir n'est pas rester : l'absence de mécaniques de captation
+
+L'application ne comporte **aucun des ressorts de captation habituels** : ni série de
+connexions à entretenir, ni récompense quotidienne, ni jauge d'énergie ou de temps
+d'attente, ni piste de progression saisonnière dont les récompenses expireraient, ni
+publicité, ni monnaie achetable, ni classement. **Aucun gain n'expire** : une tâche mise
+en avant par un adulte rapporte un bonus décroissant qui revient à sa valeur normale,
+jamais en dessous.
+
+**La progression ne s'obtient qu'en accomplissant une tâche dans la maison**, et cette
+tâche reste suspendue tant qu'un adulte n'a pas constaté le travail. Le temps passé devant
+l'écran ne fait rien avancer : on choisit une tâche, on range le téléphone, on va la faire.
+
+**Les moments forts du jeu sont hors écran et collectifs** : le gage se joue devant la
+famille, l'ouverture du coffre réunit le clan autour d'un rituel, et les récompenses sont
+des sorties et des activités partagées.
+
+La seule exception est une rencontre aléatoire **dont l'apparition est tirée une fois par
+jour pour l'ensemble du clan** — précisément pour qu'ouvrir l'application plus souvent n'y
+change rien —, qui ne fait l'objet d'aucune annonce préalable, et dont les cadeaux vont
+majoritairement à quelqu'un d'autre que celui qui l'a trouvée.
+
+### 5.5 Des rappels bornés, et jamais comparatifs
+
+Les rappels adressés à une famille qui a cessé de jouer répondent à deux principes :
+**l'unité de rappel est le clan, jamais l'événement**, et **la condition d'entrée est le
+silence, jamais l'événement**. Une seule connexion de n'importe quel membre remet tous les
+compteurs à zéro : une famille qui joue ne reçoit jamais rien.
+
+Pour un enfant, s'y ajoutent cinq garanties :
+
+- **une notification au maximum par personne et par passe**, et l'arrêt définitif des
+  rappels au terme d'un mois de silence ;
+- **l'heure d'envoi est choisie pour lui** : la passe susceptible de l'atteindre part en
+  début de soirée locale, après l'école et avant le coucher, là où les rappels destinés aux
+  adultes partent au petit matin ;
+- **le texte ne nomme ni ne compte jamais les autres membres** : il parle de la place
+  gardée, jamais de l'absence remarquée. Désigner un enfant comme le retardataire de sa
+  fratrie transformerait le jeu en instrument de comparaison ;
+- **ce qui lui est annoncé existe réellement** : lorsqu'un défi lui est signalé, il a été
+  effectivement créé avant l'annonce ;
+- **le refus est à portée immédiate** : couper les rappels d'un enfant tient en un geste,
+  et un adulte peut le faire pour lui. Un refus qu'il faut chercher n'est pas un refus.
+
+Enfin, **aucun rappel n'est adressé à une famille en difficulté de paiement** : elle reçoit
+déjà les messages qui la concernent, et une famille en difficulté n'est pas une famille qui
+se désintéresse.
+
+### 5.6 Un contrôle parental effectif sur le contenu et le rythme
+
+Les adultes du clan administrent le clan, acceptent ou refusent les adhésions, jugent les
+travaux, définissent les récompenses et le contenu du coffre, et gèrent les profils des
+enfants sans téléphone ou temporairement hors ligne.
+
+Le contrôle du contenu est **granulaire** : un adulte active, désactive, masque, crée et
+modifie **chaque tâche individuellement**. Un questionnaire initial écarte automatiquement
+les tâches sans objet dans le logement.
+
+**L'application ne classe délibérément aucune tâche par degré de danger.** Le choix mérite
+d'être explicité, car il est contre-intuitif. Une bibliothèque de tâches ménagères est un
+catalogue générique ; savoir si « nettoyer le four » ou « tondre la pelouse » convient à un
+enfant donné suppose de connaître son âge, sa maturité, un éventuel handicap, l'équipement
+du logement et l'usage de la famille. L'éditeur ne dispose d'aucune de ces informations et
+ne cherche pas à les collecter. Poser un drapeau de sécurité sur une partie du catalogue
+reviendrait à **certifier implicitement tout le reste** : le parent qui verrait neuf tâches
+signalées en déduirait que les cent vingt-neuf autres ne demandent rien, ce que l'éditeur
+n'est en mesure de garantir pour aucune d'entre elles. Un classement partiel produirait donc
+moins de sécurité qu'aucun classement, en déplaçant vers le logiciel un jugement qui
+n'appartient qu'au responsable légal — et que les conditions générales lui attribuent
+explicitement (article 6 : choix des tâches, paramétrage, et sécurité physique de l'enfant
+pendant leur exécution).
+
+Ce jugement est **outillé, pas seulement invoqué**. L'adulte désactive ou masque toute tâche
+qui ne convient pas à son enfant, tâche par tâche et réversiblement, et l'application lui
+rappelle périodiquement l'existence de ce levier. Le second volet — être à portée de
+l'enfant pendant qu'il agit — sort par nature du champ du logiciel ; l'application ne peut
+ni l'exécuter ni le vérifier, mais elle le rappelle, à l'adulte et à l'enfant séparément :
+
+- **à l'adulte**, que les tâches se réalisent dans le monde réel, que l'application ne
+  surveille rien, et qu'il lui revient de rester à portée et de retirer ce qui ne convient
+  pas ;
+- **à l'enfant**, en des termes qui reprennent mot pour mot ses propres conditions
+  d'utilisation, de prévenir un adulte avant de commencer et de demander de l'aide
+  immédiatement — « aucun point d'expérience ne vaut une blessure ».
+
+Ces rappels s'espacent avec l'usage mais ne s'éteignent jamais.
+
+Le pouvoir de l'adulte a lui-même des bornes qu'il ne peut pas franchir : il ne peut pas
+créer de nouveaux domaines de tâches, et le fondateur du clan ne peut être ni révoqué ni
+rétrogradé.
+
+Un adulte peut jouer à la place d'un enfant trop jeune pour disposer d'un téléphone :
+**l'application n'exige d'aucun enfant qu'il possède un appareil.**
+
+### 5.7 Sécurité relationnelle : aucun contact avec l'extérieur
+
+- **Il n'existe ni annuaire, ni recherche de clan par son nom.** Ce dispositif a été
+  explicitement écarté au motif qu'un annuaire interrogeable constituerait un vecteur
+  d'abus pour une application d'enfants.
+- **On ne rejoint un clan que de deux façons** : par un code QR présenté en personne, ou
+  par un lien d'invitation chiffré par un code à six chiffres transmis oralement. L'entrée
+  suppose donc une présence physique ou une conversation, et le secret est consommé à la
+  première lecture.
+- **Il n'existe ni messagerie, ni discussion, ni aucune interaction entre membres de clans
+  différents.**
+- **L'application ne désigne jamais un enfant hors de son clan autrement que par un nom de
+  substitution.** Chaque joueur et chaque clan portent deux identités : celle que la famille
+  emploie entre ses membres, et une identité publique distincte — un autre nom, qui ne
+  partage rien avec le premier et ne permet pas d'y remonter. Ni le pseudonyme, ni l'avatar,
+  ni les résultats d'un enfant ne sont exposés à un tiers. Aucun écran n'affiche aujourd'hui
+  quoi que ce soit d'un autre clan ; cette identité publique existe pour qu'aucun ne puisse
+  jamais s'ouvrir sans elle.
+- **Partager un souvenir de famille reste un acte volontaire d'adulte**, et ne relève pas de
+  ce qui précède. Un parent peut envoyer à ses proches le récit des aventures de son clan,
+  avec les noms que sa famille se donne, comme il leur enverrait des photographies de
+  vacances. Ce qui doit être gardé, et qui l'est, c'est le pouvoir de le faire : il est
+  refusé à un mineur.
+
+### 5.8 Le consentement du représentant légal, et l'avis de l'enfant
+
+**L'enfant ne peut pas entrer seul.** Il n'existe aucune inscription enfant autonome : un
+enfant n'entre dans un clan que par une invitation émise par un adulte de ce clan, ou par
+un profil que cet adulte crée pour lui.
+
+**L'engagement de l'adulte lui est rappelé au moment de l'acte** — invitation d'un membre,
+création d'un profil de joueur, acceptation d'une adhésion — et non seulement à
+l'installation. Il déclare être le responsable légal de l'enfant, ou agir avec l'accord de
+celui-ci lorsque l'enfant appartient déjà à un autre clan. L'acceptation est horodatée et
+conservée : **le consentement précède toujours la collecte.**
+
+**L'enfant est ensuite interrogé, avant tout traitement.** Après avoir accepté une version
+des conditions générales rédigée pour lui dans un langage accessible, il lui est demandé
+explicitement s'il souhaite jouer. Cet écran se situe **avant la moindre écriture en base** :
+un enfant qui n'y donne pas suite ne laisse aucune trace, et peut revenir plus tard. Le
+droit d'être entendu prévu par l'article 2.2.2.25.2.9 est ainsi exercé **préalablement**,
+comme le texte l'exige.
+
+**Le lien de responsabilité est gelé et ne peut être ni transféré ni rompu.** Il demeure
+attaché au clan d'origine ; rejoindre un second clan ne le déplace pas ; seuls les adultes
+du clan d'origine peuvent déclarer l'enfant majeur ; et la dissolution de ce clan entraîne
+la suppression du profil de l'enfant qui n'aurait plus de responsable légal. **Aucun mineur
+ne peut se trouver dans le système sans adulte responsable identifié.**
+
+Symétriquement, **un adulte ne peut pas exclure un mineur de son clan d'origine** : la
+révocation lui est refusée tant que l'enfant est mineur. Le lien de responsabilité ne peut
+être coupé ni dans un sens ni dans l'autre.
+
+**Retirer son consentement n'est pas exclure, et cela, le représentant légal le peut à tout
+moment.** Les deux gestes sont distincts et le produit les distingue. Exclure laisserait un
+mineur dans le système sans adulte responsable : c'est pour cela que la révocation lui est
+refusée. Retirer son consentement ne laisse pas un enfant sans responsable — cela ne laisse
+pas d'enfant du tout, puisque ses données sont supprimées. L'option, réservée aux adultes du
+clan d'origine, est proposée dans le menu de gestion du personnage de l'enfant, et le § 6.3 en
+donne la chronologie.
+
+Cette faculté est la **contrepartie exacte** du consentement recueilli au § précédent. Donner
+son accord est un geste ; le retirer en coûtait un qui atteignait des tiers, puisque la seule
+voie était de supprimer son propre compte — ce qui dissolvait le clan et détruisait les données
+de toute la famille pour écarter un seul enfant. Un consentement qu'on ne peut retirer qu'à ce
+prix n'en est plus tout à fait un, et l'article 7(3) du RGPD exige que le retrait soit aussi
+simple que le fait de le donner.
+
+**L'application ne vérifie pas le lien de parenté**, et cela est indiqué dans la politique
+de confidentialité. Vérifier ce lien supposerait de collecter un état civil ou une pièce
+d'identité, c'est-à-dire de constituer précisément le fichier de données sensibles que ce
+produit se garde d'avoir : le remède serait plus intrusif que le risque. La protection
+réelle repose sur trois faits :
+
+1. **on ne peut pas entrer seul** — l'entrée exige une présence physique ou une
+   conversation ;
+2. **le lien de responsabilité ne peut pas être volé** — il est gelé sur le clan d'origine ;
+3. **il n'y a rien à obtenir** — un adulte qui mentirait sur son lien de parenté n'accède
+   à aucune donnée de l'enfant : ni adresse, ni photographie, ni localisation, ni
+   messagerie, ni contact avec l'extérieur. Il obtient le droit de lui proposer de ranger
+   sa chambre.
+
+### 5.9 L'intimité de l'enfant, y compris à l'égard de sa famille
+
+**La photographie que l'enfant prend pour rendre compte de son travail n'est jamais
+transmise** : ni au serveur, ni à l'appareil de l'adulte. Elle reste sur le téléphone de
+l'enfant, qui en est le seul détenteur.
+
+L'adulte ne peut ni la réclamer, ni y accéder à distance, ni la consulter après coup : il
+ne la voit que si l'enfant vient la lui montrer, en personne, sur son propre écran.
+L'application ne constitue donc **aucune archive d'images du domicile ou de l'activité d'un
+enfant** — là où un tableau de bord parental produirait, au fil des mois, un fonds
+consultable à distance de l'intérieur d'un logement.
+
+La photographie est **effacée au verdict**, et au plus tard à l'ouverture suivante de
+l'application. **Aucune sauvegarde en ligne n'en est faite** : la sauvegarde vers le nuage
+est explicitement désactivée pour l'application. Subsiste le seul transfert direct d'un
+téléphone à un autre, lors du remplacement d'un appareil, que le système ne permet pas de
+refuser séparément — la photographie passe alors d'un appareil de l'enfant à un autre, sans
+jamais transiter par un serveur. Elle ne peut pas non plus être choisie dans la galerie :
+elle est prise sur le moment, ou n'existe pas. L'absence de caméra n'empêche jamais un
+enfant de jouer.
+
+Dans le même esprit : **aucune donnée de localisation n'est collectée**, à aucun degré de
+précision ; et le contenu du coffre n'est pas journalisé, afin que la surprise préservée
+entre membres d'une même famille le reste.
+
+### 5.10 Ce que l'enfant peut faire seul
+
+L'enfant ne peut pas quitter seul le clan auquel son responsable légal l'a rattaché : le
+lien de responsabilité ne se rompt pas unilatéralement (§ 5.8). En revanche :
+
+- **il peut cesser de jouer à tout moment sans que cela lui coûte quoi que ce soit** — sa
+  progression, ses titres et sa part du coffre lui restent acquis, et l'application ne lui
+  adresse plus rien s'il coupe les rappels ;
+- **il peut, seul et sans l'accord d'aucun adulte, demander la suppression complète de son
+  compte et de ses données**, depuis l'application comme depuis le site public. Ce droit
+  n'est subordonné à aucune autorisation.
+
+Ce droit a désormais son exact pendant du côté de l'adulte : le représentant légal peut lui
+aussi, d'un seul geste et sans toucher au reste de la famille, retirer son consentement et
+faire effacer les données de cet enfant (§ 5.8). Les deux voies mènent au même endroit et
+suivent le même calendrier (§ 6.3) — ni l'une ni l'autre n'exige quoi que ce soit de la
+seconde.
+
+---
+
+## 6. Minimisation, sécurité et cycle de vie des données
+
+### 6.1 Données traitées
+
+| Donnée | Traitement | Justification par l'intérêt de l'enfant |
+|---|---|---|
+| Identifiant technique du compte (UID d'authentification, identifiant de jeu) | Stocké | Authentifier l'enfant et rattacher son personnage à son responsable |
+| Indicateur mineur / majeur | Stocké | Applique l'ensemble des protections décrites ci-dessus. **La date de naissance n'est jamais conservée** : elle est saisie, sert au calcul, et n'est jamais écrite |
+| Région de stockage | Stockée | Localisation des données dans la région choisie |
+| **Pseudonyme** — nom de personnage choisi librement — avatar, niveau, expérience, état du personnage, titres, tâches | Stockés, visibles du seul clan | C'est le jeu lui-même. L'application ne les expose jamais hors du clan, où un joueur n'est désigné que par son nom de substitution (§ 5.7) |
+| Journal d'événements du clan | Stocké | Mémoire familiale et traçabilité des décisions |
+| Jeton de notification, version d'application, date de dernière connexion, décalage horaire | Stockés | Acheminer les notifications, servir la bonne version, choisir une heure d'envoi adaptée à l'enfant |
+| Adresse électronique du compte d'authentification | **Détenue par le service d'authentification, sous-traitant**, aux seules fins d'authentification ; **jamais écrite dans les données de jeu** | Permettre à l'enfant de retrouver son personnage |
+| Photographie de preuve | **Jamais transmise**, jamais sauvegardée en ligne, effacée au verdict et au plus tard à l'ouverture suivante de l'application, invisible de l'adulte qui juge | Élimine tout risque d'image d'un mineur ou de son domicile hors de son appareil |
+| Nom, prénom, date de naissance, adresse postale, contacts, géolocalisation, photographie de profil | **Non collectés** | Inutiles au jeu ; la portée d'authentification demandée exclut le nom et la photographie du compte. Ce que l'application demande est un **nom de personnage** — « Comment te nommes-tu, aventurier ? » — et rien dans le produit, pas même les instructions données au modèle génératif, ne sollicite jamais un prénom réel. La date de naissance est saisie pour le seul calcul de la majorité et n'est jamais écrite |
+| Données transmises au service d'intelligence artificielle | Les textes que la famille vient de saisir ; et, pour le récit des aventures du clan, le journal de ses tâches accomplies avec les pseudonymes de ceux qui les ont menées. Dans les deux cas **à la demande explicite d'un utilisateur** (§ 6.2) | Ni identifiant technique, ni date de naissance, ni adresse, ni image, ni donnée de localisation. Traitement effectué dans la région de stockage du foyer |
+| Statistiques d'usage, identifiants publicitaires | **Désactivés** | Aucun profilage |
+| Données de facturation | Empreinte anonyme du clan, chez l'adulte payeur | Ni l'identifiant du clan ni son secret ne sont transmis à la plateforme de paiement |
+
+### 6.2 Recours à l'intelligence artificielle
+
+Le recours à un modèle génératif est **ponctuel, jamais automatique, jamais en arrière-plan**,
+et limité à deux usages, tous deux **déclenchés par un bouton** :
+
+- **proposer des idées de nom** — un joueur qui cherche un nom de personnage, de clan ou de
+  tâche demande des propositions, qu'il garde, modifie ou ignore ;
+- **raconter les aventures du clan** après l'ouverture d'un coffre, sous la forme d'un récit
+  destiné à la famille.
+
+Ce qui est transmis diffère selon l'usage, et ce dossier le dit précisément :
+
+- pour une **proposition de nom**, les seuls textes que l'utilisateur vient de saisir ;
+- pour le **récit**, le journal du clan : les tâches accomplies, les pseudonymes de ceux qui
+  les ont menées, et l'expérience totale du clan. Ce récit est écrit pour être lu par la
+  famille, et il la nomme comme elle se nomme entre ses membres. Substituer ces noms le
+  rendrait inutilisable par ceux à qui il est destiné, et priverait l'enfant du seul objet
+  que ce jeu produise et qui lui ressemble : le récit de ce qu'il a fait.
+
+Dans les deux cas : aucun identifiant technique, aucune date de naissance, aucune adresse,
+aucune image, aucune donnée de localisation. Les événements de facturation sont retirés du
+récit, quel qu'en soit le lecteur. Le traitement a lieu **dans la région de stockage du
+foyer**, chez un sous-traitant identifié par la politique de confidentialité, et **les données
+transmises ne servent pas à entraîner les modèles** — c'est l'engagement du prestataire, repris
+dans cette politique.
+
+**Rien n'est transmis sans qu'un utilisateur l'ait demandé.** Le nom public d'un joueur qui
+ne sollicite aucune proposition est construit **dans l'application**, à partir d'une liste
+qu'elle embarque : dans ce cas, il n'y a aucun appel, et le nom que l'enfant s'est choisi ne
+sort pas de son appareil.
+
+Un enfant peut demander le récit de son clan et le lire ; il ne peut pas l'envoyer à
+l'extérieur (§ 5.3).
+
+Les paramètres de sécurité du modèle sont réglés au niveau le plus strict — et **reposés par
+le serveur**, de sorte qu'un appareil modifié ne puisse pas les desserrer. Le registre des
+textes produits est contraint par des instructions explicites, ces contenus étant lus par
+des enfants.
+
+### 6.3 Conservation et suppression
+
+- **Suppression à la demande** : depuis l'application ou depuis une page web authentifiée,
+  par l'intéressé lui-même — y compris s'il est mineur — ou par son responsable légal. La
+  suppression est **en cascade** : si le compte supprimé était celui du seul adulte
+  responsable d'un clan, le clan est dissous, ses membres retirés, et les mineurs qui n'ont
+  plus de responsable légal sont eux-mêmes supprimés.
+- **Retrait du consentement pour un enfant** : exercé depuis l'application par un adulte du
+  clan d'origine. L'enfant **quitte le jeu immédiatement** ; pendant **trois jours**, un adulte
+  de ce clan peut revenir sur la décision, et rien n'est encore supprimé — ce délai n'existe que
+  pour cela. Passé ce terme, ses données de jeu sont supprimées et la preuve de consentement est
+  close et datée, selon les mêmes règles que ci-dessous. Le retrait vaut pour **tous** les clans
+  de l'enfant, et pour lui seul : aucun autre membre de la famille n'est atteint.
+- **La preuve de consentement n'est pas effacée mais close et datée**, et conservée cinq
+  ans : la preuve de ce qui a été accepté doit survivre au compte, c'est sa raison d'être.
+- **Conservation d'un clan inactif : deux ans** après l'arrêt des paiements, avec un
+  avertissement un mois avant l'effacement. Cette durée est un choix motivé par l'intérêt
+  de l'enfant : ce qui coûte à reconstituer n'est pas le clan mais **son histoire** — les
+  tâches réglées, les niveaux atteints, le journal de chacun. Une famille qui s'interrompt
+  n'a pas toujours renoncé : elle déménage, l'enfant grandit, la rentrée passe. Détruire au
+  bout de quelques semaines la mémoire familiale d'un enfant serait une décision contraire
+  à son intérêt.
+- **Un cas résiduel est signalé** : lorsqu'un compte est supprimé depuis le site et que
+  l'application n'est plus jamais ouverte, une photographie peut subsister dans l'espace
+  privé de l'application sur l'appareil de l'enfant. Elle est inaccessible aux autres
+  applications, disparaît à la désinstallation, et l'éditeur n'y a jamais eu accès ni aucun
+  moyen d'y accéder.
+
+**Aucune liste d'enfants écartés n'est constituée, et c'est une protection, non une lacune.**
+Retirer le consentement signifie *cesser de traiter les données* de l'enfant, non *lui
+interdire d'utiliser l'application*. L'en empêcher supposerait de conserver indéfiniment son
+identifiant, c'est-à-dire de constituer, à propos d'un enfant dont on vient précisément de
+demander l'effacement complet, le seul fichier d'enfants que ce produit n'ait pas. La mesure
+censée le protéger serait exactement celle qui l'exposerait — et elle serait de surcroît
+inopérante, puisque aucune identité n'est vérifiée (§ 5.8).
+
+La protection réelle est ailleurs, et elle tient : un mineur ne peut ni créer de clan, ni en
+chercher un, ni entrer autrement que sur l'invitation d'un adulte qui déclare en répondre
+(§ 5.7 et § 5.8). **Un enfant seul ne revient pas.** Qu'un autre adulte responsable l'invite
+un jour dans un autre clan, sous sa propre responsabilité et avec son propre consentement, est
+une situation que rien ne doit interdire : ce serait faire peser sur l'enfant la conséquence
+durable d'une décision qui n'est pas la sienne.
+
+### 6.4 Localisation et transfert international
+
+Les données de la région Amérique hispanophone sont hébergées dans des centres de données
+situés aux États-Unis, donc hors de Colombie. Ce transfert international relève de
+l'**article 26 de la Ley 1581** et fait l'objet d'une autorisation préalable et explicite
+du représentant légal, recueillie en même temps que son consentement. Le choix de région
+n'est pas modifiable et les données ne migrent pas d'une région à l'autre.
+
+### 6.5 Sous-traitants
+
+La politique de confidentialité identifie les sous-traitants — authentification, base de
+données, fonctions serveur, notifications, plateforme de paiement, service d'intelligence
+artificielle — ainsi que l'adhésion aux clauses de traitement de données correspondantes.
+**Aucun fichier produit par un utilisateur n'est hébergé** — aucune photographie, aucun
+document : le stockage de fichiers ne sert qu'à distribuer les éléments du jeu. Les textes
+saisis par la famille — pseudonyme, nom et description du clan, journal de ses aventures —
+vivent dans la base de données du foyer, dans la région qu'il a choisie.
+
+---
+
+## 7. Analyse de proportionnalité et conclusion
+
+Chaque donnée traitée est **nécessaire au service que l'enfant reçoit**. Aucune ne sert un
+intérêt tiers : ni publicité, ni profilage, ni revente, ni mise en relation. **L'application
+n'expose jamais un enfant hors de son cercle familial** — seul un adulte de sa famille peut
+choisir d'en partager un souvenir, faculté qui est refusée à l'enfant lui-même. Celui-ci
+n'est destinataire d'aucune sollicitation commerciale, et n'est soumis à aucune mécanique de
+comparaison ni de pénalité.
+
+Le représentant légal autorise avant toute collecte, est informé de la nature des données
+concernées, conserve la faculté de tout consulter, de tout régler et de tout faire
+supprimer, et son lien de responsabilité ne peut lui être retiré. L'enfant, lui, est
+interrogé avant que le traitement ne commence, dispose d'une information rédigée pour son
+âge, et détient le droit de faire effacer ses données sans l'accord de quiconque.
+
+En conséquence, le traitement **répond à l'intérêt supérieur de l'enfant, le respecte, et
+assure le respect de ses droits fondamentaux**, au sens de l'article 7 de la Ley 1581 de
+2012 et de l'article 2.2.2.25.2.9 du Decreto 1074 de 2015.
+
+La ligne de la démonstration n'est pas « nous ne traitons rien ». Elle est : **nous
+traitons peu, nous traitons pour lui, et nous pouvons le prouver point par point.**
+
+---
+
+## 8. Texte de synthèse pour la politique de confidentialité
+
+> Donjons & Savons est un jeu familial dont l'unique finalité est d'aider les enfants à
+> participer aux tâches du foyer dans un cadre ludique, coopératif et supervisé par leurs
+> parents. Le traitement des données des mineurs est limité à ce qui est strictement
+> nécessaire au fonctionnement du jeu au sein de la famille — identifiant de connexion,
+> pseudonyme, avatar, progression — avec l'autorisation préalable et explicite de leur
+> représentant légal, et après que l'enfant lui-même a été interrogé sur son souhait de
+> jouer.
+>
+> Aucune donnée d'un mineur n'est utilisée à des fins publicitaires, de profilage ou de
+> partage avec des tiers, et l'application n'en rend aucune visible en dehors de son clan
+> familial : au-delà du clan, un joueur n'est désigné que par un nom de substitution. Seul
+> un adulte du clan peut choisir de partager avec ses proches le récit des aventures de sa
+> famille ; cette faculté est refusée aux mineurs. La date de naissance n'est jamais
+> conservée. Les photographies prises pour rendre compte d'une tâche ne sont jamais
+> sauvegardées en ligne, restent sur l'appareil de l'enfant, ne sont pas même accessibles à
+> l'adulte qui apprécie son travail, et sont effacées dès que la tâche est jugée, au plus
+> tard à l'ouverture suivante de l'application.
+>
+> À la demande explicite d'un membre de la famille, l'application peut soumettre à un
+> service d'intelligence artificielle les textes qu'il vient de saisir, afin de lui proposer
+> des idées de noms, ou le journal des aventures du clan, afin d'en tirer un récit destiné à
+> la famille. Aucun identifiant, aucune date de naissance, aucune adresse et aucune image ne
+> sont transmis, et rien ne l'est jamais sans une telle demande.
+>
+> Les enfants ne sont exposés à aucune offre commerciale, à aucun écran de paiement, à
+> aucun contact avec des personnes extérieures à leur famille, et à aucune mécanique de
+> classement ou de pénalité. Le représentant légal peut à tout moment consulter, modifier
+> et supprimer l'ensemble des données de l'enfant ; l'enfant lui-même peut en demander la
+> suppression sans l'accord d'un adulte.
+>
+> Ce traitement répond ainsi à l'intérêt supérieur de l'enfant et au respect de ses droits
+> fondamentaux, au sens de l'article 7 de la Ley 1581 de 2012 et de l'article 2.2.2.25.2.9
+> du Decreto 1074 de 2015.
+
+*Une version espagnole de ce paragraphe est requise pour la politique destinée à la
+Colombie, et doit être insérée dans les documents `hispam-*-es-*` existants plutôt
+qu'ajoutée à côté.*

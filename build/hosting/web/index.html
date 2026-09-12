@@ -7,13 +7,22 @@
   <link rel="alternate" hreflang="fr" href="https://donjons.grisloup.com/fr/">
   <link rel="alternate" hreflang="en" href="https://donjons.grisloup.com/en/">
   <link rel="alternate" hreflang="es" href="https://donjons.grisloup.com/es/">
+  <link rel="alternate" hreflang="it" href="https://donjons.grisloup.com/it/">
+  <link rel="alternate" hreflang="de" href="https://donjons.grisloup.com/de/">
+  <link rel="alternate" hreflang="pt" href="https://donjons.grisloup.com/pt/">
+  <link rel="alternate" hreflang="nl" href="https://donjons.grisloup.com/nl/">
   <link rel="alternate" hreflang="x-default" href="https://donjons.grisloup.com/en/">
+  <link rel="canonical" href="https://donjons.grisloup.com/">
   <link rel="stylesheet" href="/assets/site.css">
   <script>
-    // Redirection vers la langue du navigateur ; fallback anglais.
+    // Redirection vers la langue du navigateur ; repli anglais.
+    // ⚠ LA LISTE EST DUPLIQUÉE DE site.js, faute de pouvoir l'importer : cette page
+    //   redirige avant tout chargement de script, et un <script src> de plus
+    //   ajouterait un aller-retour réseau devant une simple redirection.
     (function () {
+      var langs = ["fr", "en", "es", "it", "de", "pt", "nl"];
       var l = (navigator.language || "en").slice(0, 2).toLowerCase();
-      if (l !== "fr" && l !== "es") l = "en";
+      if (langs.indexOf(l) < 0) l = "en";
       location.replace("/" + l + "/");
     })();
   </script>
@@ -29,6 +38,10 @@
       <a class="btn" href="/fr/">Français</a>
       <a class="btn" href="/en/">English</a>
       <a class="btn" href="/es/">Español</a>
+      <a class="btn" href="/it/">Italiano</a>
+      <a class="btn" href="/de/">Deutsch</a>
+      <a class="btn" href="/pt/">Português</a>
+      <a class="btn" href="/nl/">Nederlands</a>
     </div>
   </main>
 </body>

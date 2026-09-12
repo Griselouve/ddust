@@ -114,17 +114,34 @@ conf:
       # ownerId est un secret partagé de clan, pas l'utilisateur.
       link:
         resources: []
+    # ⚠ Chaque base doit porter ICI la MÊME isolation que dans `firestore.databases`
+    #   du backend (config.yml de `backend`, ou config.yaml du module Pulumi qui la
+    #   déclare). Le builder le vérifie et bloque avant tout déploiement — mais il ne
+    #   peut pas deviner : une base ABSENTE de cette liste vaut `strict` côté client,
+    #   là où pufirestore, lui, ne génère alors aucune règle.
     firestore:
       databases:
-        books:
-          admins: []
-          isolation: strict
         messaging:
           isolation: strict
         sessions:
           isolation: strict
         workers:
           isolation: strict
+        # Bases dont les règles serveur sont écrites à la main (`raw` ou par
+        # collection) dans le module Pulumi qui les porte : pulock, pustore,
+        # puvirtuallobby. `none` parce que le filtrage doit rester du ressort de ces
+        # règles — dvcloud n'a pas à estampiller ni à filtrer sur `ownerId` des
+        # documents qui, par nature, se lisent entre comptes.
+        #
+        # Leur absence n'était pas neutre : elles héritaient de `strict`, et
+        # dvvirtuallobby lit des documents écrits par d'autres joueurs sans jamais
+        # manipuler `ownerId` — chaque lecture croisée revenait donc `null`.
+        locks:
+          isolation: none
+        store:
+          isolation: none
+        virtuallobby:
+          isolation: none
     sign-in:
       enabled: true
     providers:

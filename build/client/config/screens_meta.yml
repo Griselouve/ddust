@@ -20,22 +20,24 @@ conf:
     #   donc peuvent appartenir au même clan tout en lisant des conditions générales
     #   différentes. Toute comparaison « sont-ils joignables ? » se fait pour cette
     #   raison sur cloud_region, jamais sur la région (cf. _inviteRegionMismatch).
-    # ⚠ La liste des régions OUVERTES (`documents.regions`) n'est pas ici : elle vit
-    #   dans le build.yml de la suite et descend jusqu'au client par `layer.publish`.
-    #   Ce bloc ne porte que l'habillage — le module ne fournit ni libellé ni image.
-    # ⚠ UNE SEULE OPTION AUJOURD'HUI, et c'est volontaire : `documents.regions` du
+    # ⚠ CE QUE LE JOUEUR CHOISIT EST UN PAYS, pas un marché. Personne ne sait ce
+    #   qu'est le royaume « eun » ; tout le monde sait où est le Danemark. Le marché
+    #   se déduit du pays, et le datacenter du marché — le joueur n'en voit rien.
+    # ⚠ `options` N'EST PLUS ÉCRIT ICI, et c'est le fond de l'affaire : dvdocuments
+    #   dérive la liste de son `regions_catalog` (un pays par pays des marchés
+    #   ouverts, libellé `@@@T:country_<iso>@@@`, drapeau du datacenter). Une liste
+    #   tenue à la main aurait été à rallonger à chaque ouverture de marché, et
+    #   l'oubli n'aurait sauté aux yeux qu'en production. On ne redéclare ici que ce
+    #   qu'on veut habiller autrement, pays par pays — aujourd'hui, rien.
+    # ⚠ `default` reste un MARCHÉ : il ne pré-sélectionne rien à l'écran, il sert de
+    #   repli pour résoudre les documents tant que la session est muette.
+    # ⚠ UN SEUL PAYS AUJOURD'HUI, et c'est volontaire : `documents.regions` du
     #   build.yml n'ouvre que la France. L'écran de choix reste affiché malgré tout
     #   — choisir son royaume est l'acte par lequel le joueur reconnaît le droit
     #   qui lui sera appliqué, et un écran sauté ne vaut pas déclaration.
     region:
       enabled: true
       default: "fr"
-      options:
-        fr:
-          label: "@@@T:documents_region_france@@@"
-          # Drapeau EMBARQUÉ (build/resources/icon/eu.png) : sur cet écran la région n'est pas
-          # encore choisie, donc aucun asset cloud n'a pu être téléchargé.
-          image: "assets/icon/eu.png"
     birthdate:
       enabled: true
       display: 26
@@ -77,12 +79,14 @@ conf:
       fr:
         a: "parentalgate.invoke_gate"
         k: ""
-    # Un SEUL seuil opère, des deux côtés de l'Atlantique : 18 ans, l'âge de la majorité
-    # contractuelle. Tout mineur, quel que soit son âge, relève du consentement de son
-    # responsable légal : ddust n'exploite jamais le consentement propre du mineur que
-    # l'article 8 du RGPD autorise à partir de 13-16 ans selon l'État membre (15 ans en
-    # France). COPPA (moins de 13 ans aux États-Unis) est porté par la rédaction des
-    # documents us-*, pas par un palier applicatif.
+    # Un SEUL seuil opère : 18 ans, l'âge de la majorité contractuelle. Tout mineur, quel
+    # que soit son âge, relève du consentement de son responsable légal : ddust n'exploite
+    # jamais le consentement propre du mineur que l'article 8 du RGPD autorise à partir de
+    # 13-16 ans selon l'État membre (15 ans en France).
+    # ⚠ La règle SURVIT à l'ouverture d'un marché hors Union : ce qui varie d'un droit à
+    #   l'autre — COPPA aux États-Unis, la LPD suisse — est porté par la RÉDACTION des
+    #   documents de ce marché, jamais par un palier applicatif. C'est cette décision-là,
+    #   et elle seule, qui rend le corpus recopiable d'un marché au suivant.
     # ⚠ Le seuil bas reste déclaré à 0 : la clé `k` DOIT exister, car _computeLegalState
     # (dvdocuments_motor) initialise l'état légal à la clé du plus petit seuil. La
     # supprimer ferait basculer le défaut sur `a` et rendrait adulte un enfant de cinq ans.
@@ -108,13 +112,14 @@ conf:
   # DUPLIQUÉ de build/backend/config.yml — les deux doivent rester synchrones. Le client
   # lit ce bloc pour balayer les régions au login (worker_session : _resolveUserId,
   # _findBestSession) et retrouver seul la région d'un joueur qui réinstalle l'app.
+  #
+  # ⚠ `US` RETIRÉ LE 2026-09-08, en même temps que côté backend. Le client balayait une
+  #   région qui n'héberge plus rien : un aller-retour réseau par login, pour une base
+  #   qui n'existe plus. Motif complet dans build/backend/config.yml.
   regions:
     EU:
       label: "Europe"
       backend: "europe-west9"
-    US:
-      label: "United States"
-      backend: "us-central1"
 
   settings:
     configurations:

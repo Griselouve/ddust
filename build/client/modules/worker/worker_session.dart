@@ -193,14 +193,39 @@ extension Worker_session on worker {
                                             // cette feature : miroir de users.first_clan (déjà backfillé en base).
                                             firstClan: session.get("first_clan")?.toString() ?? "",
                                         );
+                                        // Rattrapage des identités de substitution d'avant le correctif
+                                        // (external y valait internal). Sans await : le démarrage ne doit
+                                        // rien à une écriture de confort, et un échec se retentera au
+                                        // prochain login.
+                                        _backfillExternalIdentity(session, sessionRegion);
                                         // Bascule légale en cours (tuteur a déclaré le joueur majeur) : le doc porte
                                         // legal_state="t" → on impose la CGU adulte et on saute le dashboard. C'est ce
                                         // qui « relance sur l'étape CGU » après un kill (routage re-dérivé à chaque login).
                                         if (await _checkAdultTransition()) return;
+                                        // Retrait du consentement parental en cours sur CE joueur : la porte est
+                                        // close et le démarrage s'arrête ici. Indispensable EN PLUS de la vigilance
+                                        // temps réel, qui ne réagit qu'aux CHANGEMENTS du document : un enfant qui
+                                        // relance l'application le lendemain du retrait n'en verrait aucun.
+                                        // Placé après la bascule légale (un joueur devenu majeur n'est plus visé)
+                                        // et avant tout le reste — il n'a plus rien à faire dans le jeu.
+                                        if (await _checkConsentClosed(ensureScreen: true)) return;
                                         // Compte pas encore lié : mineur admis dans son clan avant la liaison,
                                         // ou reprise après un kill sur l'écran de liaison. Bloquant, sans
                                         // « plus tard » — c'est ce qui rend l'étape reprise-après-kill.
                                         if (_anon) { await _requireAccountLink(); return; }
+                                        // EMPRUNT DE COMPTE, repris AVANT la vigilance : celle-ci est keyée sur
+                                        // _userId, et l'armer sur l'adulte pour la rebasculer ensuite ferait un
+                                        // watch de trop sur le mauvais joueur. Rend true si _userId n'est plus
+                                        // l'utilisateur authentifié — le reste du démarrage suit alors le point de
+                                        // vue de l'enfant, ce qui est exactement l'effet recherché.
+                                        // C'est aussi ici que le verrouillage échu rend la main : _impRestore
+                                        // refuse de reprendre et efface, l'adulte redémarre chez lui.
+                                        await _impRestore(
+                                            session.get("steps.clan.clanId")?.toString()     ?? "",
+                                            session.get("steps.clan.clanSecret")?.toString() ?? "",
+                                            sessionRegion,
+                                        );
+
                                         // Arme la vigilance temps réel du doc joueur dès la reprise à froid (avant
                                         // même le dashboard) : la montée de niveau sera détectée où que soit le joueur.
                                         _startPlayerVigilance(
@@ -231,6 +256,14 @@ extension Worker_session on worker {
                                                     _taskIdFromActive(activeTask, clanId));
                                             }
                                         }
+                                        // Réconciliation des photos de preuve — HORS du bloc ci-dessus, et c'est
+                                        // tout l'intérêt : le cas à rattraper est justement celui où il n'y a plus
+                                        // de tâche active. La preuve vit sur l'appareil du joueur alors que le
+                                        // verdict est écrit par l'appareil qui tranche : un effacement « au
+                                        // verdict » ne l'atteint pas quand l'admin décide à distance. Ici, la
+                                        // session fait autorité — tout fichier qui n'est pas active_proof est un
+                                        // orphelin. Fire-and-forget : le démarrage n'attend pas des accès disque.
+                                        _reconcileProofs(session.get("active_proof")?.toString() ?? "");
                                         // Lien d'invitation reçu avant l'authentification (cold start).
                                         final pendingGroup = (await deva_get("worker.pending_group_id"))?.toString() ?? "";
                                         if (pendingGroup.isNotEmpty) {
@@ -401,6 +434,11 @@ extension Worker_session on worker {
                                             pdoc.set("legal_state", "a");
                                             await _cloud?.write("workers", "clans_players/$clanId/players", _userId, pdoc,
                                                 region: region, ownerId: clanSecret);
+                                            // Le cache de _ensureIsAdult vient d'être démenti par cette écriture :
+                                            // il porte encore le "t" lu au login. Sans cette invalidation, un
+                                            // nouvel adulte déjà chef resterait privé de la boutique jusqu'au
+                                            // prochain démarrage — la garde ne doit pas survivre à sa raison d'être.
+                                            _isAdultClanId = "";
                                         }
                                     }
                                     // Commit définitif de l'état légal de session (mémoire + clé deva gameplay +
@@ -514,6 +552,7 @@ extension Worker_session on worker {
                                 // Repli sûr : purge le cache admin (sinon un compte réouvert sur le même appareil
                                 // hériterait du statut admin du précédent utilisateur).
                                 _isAdmin = false; _adminCount = 0; _isAdminClanId = ""; _isAdminUserId = "";
+                                _isAdult = false; _isAdultClanId = ""; _isAdultUserId = "";
                                 // Même repli pour le mode chef. Le vocabulaire du tiroir est STATIQUE au framework :
                                 // sans cette remise à zéro, le joueur suivant sur l'appareil hériterait du
                                 // vocabulaire admin (ni assigned ni dead ne griseraient, tout serait cliquable).
@@ -1241,6 +1280,17 @@ extension Worker_session on worker {
 
                                 final options = <String>["my_log", "tutorials", "change_lang"];
 
+                                // LE GUIDE, dans la version qui s'adresse à celui qui ouvre le menu.
+                                // Le partage se fait sur l'âge et NON sur le rôle de chef : le guide
+                                // parent parle de parentalité, pas de droits d'administration — un
+                                // adulte non chef y a droit, un aîné promu chef n'y a rien à lire.
+                                // `player_is_adult` est le miroir de `legal_state` posé par
+                                // _ensureIsAdult ; son repli est "false", donc l'inconnu reçoit le
+                                // guide de l'aventurier, qui ne peut jamais nuire à un adulte.
+                                final bool isAdult =
+                                    (await Deva.instance.get("worker.player_is_adult"))?.toString() == "true";
+                                options.add(isAdult ? "guide_parent" : "guide_enfant");
+
                                 // Rappels de relance : une seule des deux options, selon l'état courant.
                                 // Lecture directe plutôt que cache : un menu s'ouvre rarement, et un
                                 // réglage qui affiche l'inverse de ce qu'il vaut est pire que tout —
@@ -1379,6 +1429,12 @@ extension Worker_session on worker {
                                 }
 
                                 deva_log("info", "[delete_account] compte supprimé → déconnexion");
+                                // Photos de preuve : delete_user_data ne peut rien sur le disque de l'appareil.
+                                // C'est ici, et seulement ici, qu'on a la main dessus — d'où la purge totale
+                                // AVANT le logout, pendant que l'app tourne encore. Une suppression demandée
+                                // depuis le site laisse la photo jusqu'à la prochaine ouverture de l'app
+                                // (_reconcileProofs), ou jusqu'à la désinstallation : cas résiduel assumé.
+                                await _reconcileProofs("");
                                 // Même chemin que do_reset : nettoyage de la session locale puis logout
                                 // (→ on_logout → reset mémoire complet → navigate_reset("home")).
                                 final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";

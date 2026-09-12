@@ -1,0 +1,508 @@
+# ---------------------------------------------------------------------------
+# --- GENERE PAR `bundles tag` — NE PAS EDITER A LA MAIN
+# ---------------------------------------------------------------------------
+# Les filiations des assets faits a la main, deduites du marquage de
+# `build_assets.tags.yml` : le parent explicite d'un asset, et la
+# reference qui MENE la famille de chacun de ses tags (champ `heads`).
+#
+# Pour corriger : relancer `bundles tag`, pas editer ce fichier.
+# Chemins relatifs a la racine de la suite.
+refs:
+  "resources/images/splashs/splash.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/big/CoffreRitual.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+    - "resources_cloud/donjon/images/big/chest.png"
+  "resources_cloud/donjon/images/big/chest_item_nobg.png":
+    - "resources_cloud/donjon/images/big/chest.png"
+  "resources_cloud/donjon/images/big/logo.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/big/no_paiement_nobg.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/big/playstore.png":
+    - "resources_cloud/donjon/images/big/logo.png"
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/big/victory_nobg.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/chestok.png":
+    - "resources_cloud/donjon/images/big/chest.png"
+  "resources_cloud/donjon/images/medium/dt_t_animaux_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_animaux_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_animaux_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_animaux_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_balcon_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_balcon_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_bureau_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_bureau_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_bureau_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_bureau_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_bureau_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_bureau_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_09.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_10.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_enfant_11.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_08.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_09.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_chambre_parentale_10.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_couloir_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_couloir_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_couloir_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_couloir_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_courses_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_courses_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_courses_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_courses_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_courses_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_07.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_08.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_09.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_10.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_11.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_12.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_13.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_15.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_18.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_cuisine_19.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_dechets_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_dechets_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_dechets_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_dechets_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_dechets_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_dechets_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_dechets_07.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_entree_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_entree_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_entree_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_entree_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_extras_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_extras_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_extras_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_extras_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_extras_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_extras_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_extras_07.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_extras_08.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_garage_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_garage_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_garage_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_garage_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_garage_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_garage_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_jardin_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_jardin_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_jardin_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_jardin_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_jardin_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_jardin_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_02_alt.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_08.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_linge_09.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_moto_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_repas_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_repas_07.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_repas_10.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_repas_11.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_07.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_08.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_10.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_11.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_salle_de_bain_12.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_07.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_08.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_salon_09.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_terrasse_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_terrasse_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_terrasse_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_toilettes_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_07.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_08.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/dt_t_vaisselle_09.png":
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/dt_t_voiture_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/dt_t_voiture_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/icon_01_C_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+    - "resources_cloud/donjon/images/medium/intro_little_hobbit.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_01.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_02.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_03.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_04.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_05.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_06.png":
+    - "resources_cloud/donjon/images/medium/intro_little_knight.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_07.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_08.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_09.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_10.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_11.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/icon_01_P_12.png":
+    - "resources_cloud/donjon/images/medium/intro_little_elfe.png"
+  "resources_cloud/donjon/images/medium/task_animaux_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_balcon_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_bureau_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_chambre_parentale_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_couloir_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_courses_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_cuisine_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_dechets_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_entree_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_extras_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_garage_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_jardin_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_linge_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_repas_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_salle_de_bain_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_salon_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_terrasse_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_toilettes_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_vaisselle_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/medium/task_vehicules_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/small/adult.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/small/byebye_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/small/cadeau.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/small/chef_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+    - "resources_cloud/donjon/images/small/crown.png"
+  "resources_cloud/donjon/images/small/chestip.png":
+    - "resources_cloud/donjon/images/big/chest.png"
+  "resources_cloud/donjon/images/small/flee_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/small/nomore_chef.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+    - "resources_cloud/donjon/images/small/crown.png"
+  "resources_cloud/donjon/images/small/switch_nobg.png":
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+  "resources_cloud/donjon/images/splashs/pirates/splash.png":
+    - "resources/images/splashs/splash.png"
+  "resources_cloud/donjon/images/splashs/splash-pirate_pirate_v2.png":
+    - "resources/images/splashs/splash.png"
+  "resources_others/screenshots/en/playstore.png":
+    - "resources_cloud/donjon/images/big/logo.png"
+    - "resources/icon/icon.png"
+    - "resources_cloud/donjon/images/medium/nounours.png"
+    - "resources_cloud/donjon/images/medium/task_chambre_enfant_nobg.png"
+
+# Les SOURCES NOMMEES : une origine connue qui n'est pas un fichier.
+# Les avatars du clan descendent de personnes reelles, dont aucune
+# image ne vit dans le depot. A part des liens ci-dessus, qui vont
+# de fichier a fichier.
+sources:
+  "clan1grand":
+    - "resources_cloud/donjon/images/medium/icon_01_C_03.png"
+    - "resources_cloud/donjon/images/medium/icon_01_C_04.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_13.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_14.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_15.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_16.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_17.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_18.png"
+  "clan1grande":
+    - "resources_cloud/donjon/images/medium/icon_01_C_03.png"
+    - "resources_cloud/donjon/images/medium/icon_01_C_04.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_19.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_20.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_21.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_22.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_23.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_24.png"
+  "clan1maman":
+    - "resources_cloud/donjon/images/medium/icon_01_C_02.png"
+    - "resources_cloud/donjon/images/medium/icon_01_C_04.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_31.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_32.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_33.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_34.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_35.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_36.png"
+  "clan1papa":
+    - "resources_cloud/donjon/images/medium/icon_01_C_02.png"
+    - "resources_cloud/donjon/images/medium/icon_01_C_04.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_37.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_38.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_39.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_40.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_41.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_42.png"
+  "clan1petit":
+    - "resources_cloud/donjon/images/medium/icon_01_P_25.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_26.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_27.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_28.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_29.png"
+    - "resources_cloud/donjon/images/medium/icon_01_P_30.png"

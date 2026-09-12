@@ -1,6 +1,9 @@
 DONJONS & SAVONS — FACT SHEET / FICHE PRESSE
 =============================================
 
+Available in the seven languages of the site: EN, FR, ES, IT, DE, PT, NL.
+Disponible dans les sept langues du site : EN, FR, ES, IT, DE, PT, NL.
+
 EN ---------------------------------------------------------------
 
 What it is
@@ -10,7 +13,7 @@ What it is
   filled by the parents (pocket money, a family outing, a treat...).
 
 Key facts
-  * Developer / publisher : grisloup.com (solo indie developer, France)
+  * Developer / publisher : Grisloup (solo indie developer, France)
   * Platform              : Android (Google Play)
   * Languages             : French, English, Spanish
   * Business model        : family subscription after a 14-day trial,
@@ -43,7 +46,7 @@ C'est quoi ?
   famille, petite douceur...).
 
 Faits clés
-  * Développeur / éditeur : grisloup.com (développeur indépendant solo, France)
+  * Développeur / éditeur : Grisloup (développeur indépendant solo, France)
   * Plateforme            : Android (Google Play)
   * Langues               : français, anglais, espagnol
   * Modèle économique     : abonnement familial après 14 jours d'essai,
@@ -68,6 +71,185 @@ Faits clés
 Accroche
   Vos enfants ne rangent pas leur chambre ?
   Transformez votre maison en donjon.
+
+ES ---------------------------------------------------------------
+
+¿Qué es?
+  Un juego familiar que convierte las tareas del hogar en una
+  aventura de rol. La familia forma un clan, las tareas se
+  convierten en monstruos, vencerlos da experiencia, niveles y un
+  botín que llenan los padres (paga, salida en familia, un capricho...).
+
+Datos clave
+  * Desarrollador / editor : Grisloup (desarrollador independiente
+                             en solitario, Francia)
+  * Plataforma             : Android (Google Play)
+  * Idiomas                : francés, inglés, español
+  * Modelo de negocio      : suscripción familiar tras 14 días de prueba,
+                             una sola suscripción por clan ; tienda por
+                             unidades (escenarios, objetos, clases),
+                             reservada a los adultos. Sin publicidad, sin
+                             rastreadores, sin atajos comprables: nada de
+                             lo que se compra hace la tarea por ti
+  * Lanzamiento            : otoño de 2026 en Google Play, en Francia
+                             y después en la Unión Europea
+  * Público                : las familias — los niños juegan con el
+                             consentimiento y la supervisión de sus padres
+  * Privacidad             : sin publicidad, sin analytics, sin identificador
+                             publicitario ; las fotos de tareas nunca salen
+                             del teléfono ; la fecha de nacimiento nunca se
+                             conserva ; los clanes son herméticos entre sí
+                             (sin chat, sin directorio, solo por invitación)
+  * Sitio web              : https://donjons.grisloup.com
+  * Contacto de prensa     : donjons@grisloup.com
+
+Eslogan
+  ¿Tus hijos no ordenan su habitación?
+  Convierte tu casa en una mazmorra.
+
+IT ---------------------------------------------------------------
+
+Che cos'è?
+  Un gioco per famiglie che trasforma le faccende domestiche in
+  un'avventura di gioco di ruolo. La famiglia forma un clan, i lavori
+  di casa diventano mostri, sconfiggerli frutta esperienza, livelli e
+  uno scrigno del bottino riempito dai genitori (paghetta, gita in
+  famiglia, una piccola dolcezza...).
+
+Fatti chiave
+  * Sviluppatore / editore : Grisloup (sviluppatore indipendente solo,
+                             Francia)
+  * Piattaforma            : Android (Google Play)
+  * Lingue                 : francese, inglese, spagnolo
+  * Modello economico      : abbonamento familiare dopo 14 giorni di prova,
+                             un solo abbonamento per clan ; bottega a unità
+                             (scenari, oggetti, classi), riservata agli
+                             adulti. Senza pubblicità, senza tracciatori,
+                             senza scorciatoie acquistabili: niente di ciò
+                             che si compra dispensa dal fare il compito
+  * Uscita                 : autunno 2026 su Google Play, in Francia
+                             e poi nell'Unione Europea
+  * Pubblico               : le famiglie — i bambini giocano con il consenso
+                             e sotto la supervisione dei genitori
+  * Privacy                : niente pubblicità, niente analytics, nessun
+                             identificativo pubblicitario ; le foto dei
+                             compiti non escono mai dal telefono ; la data
+                             di nascita non viene mai conservata ; i clan
+                             sono ermetici gli uni agli altri (niente chat,
+                             niente elenco, solo su invito)
+  * Sito web               : https://donjons.grisloup.com
+  * Contatto stampa        : donjons@grisloup.com
+
+Slogan
+  I vostri figli non mettono in ordine la loro camera?
+  Trasformate la vostra casa in un dungeon.
+
+DE ---------------------------------------------------------------
+
+Was ist das?
+  Ein Familienspiel, das Hausarbeiten in ein Rollenspielabenteuer
+  verwandelt. Die Familie bildet einen Clan, die Aufgaben werden zu
+  Monstern, sie zu besiegen bringt Erfahrung, Stufen und eine von den
+  Eltern gefüllte Beutetruhe (Taschengeld, ein Familienausflug, eine
+  kleine Süßigkeit...).
+
+Eckdaten
+  * Entwickler / Herausgeber : Grisloup (unabhängiger Solo-Entwickler,
+                               Frankreich)
+  * Plattform                : Android (Google Play)
+  * Sprachen                 : Französisch, Englisch, Spanisch
+  * Geschäftsmodell          : Familienabonnement nach 14 Tagen Testphase,
+                               ein Abonnement pro Clan ; Einzelkäufe im Laden
+                               (Kulissen, Gegenstände, Klassen), Erwachsenen
+                               vorbehalten. Ohne Werbung, ohne Tracker, ohne
+                               kaufbare Abkürzung: nichts Gekauftes erledigt
+                               die Aufgabe
+  * Veröffentlichung         : Herbst 2026 bei Google Play, in Frankreich
+                               und danach in der Europäischen Union
+  * Zielgruppe               : Familien — die Kinder spielen mit Einwilligung
+                               und unter Aufsicht ihrer Eltern
+  * Datenschutz              : keine Werbung, kein Analytics, keine Werbe-ID ;
+                               Aufgabenfotos verlassen das Telefon nie ; das
+                               Geburtsdatum wird nie gespeichert ; die Clans
+                               sind gegeneinander abgeschottet (kein Chat,
+                               kein Verzeichnis, nur auf Einladung)
+  * Website                  : https://donjons.grisloup.com
+  * Pressekontakt            : donjons@grisloup.com
+
+Slogan
+  Ihre Kinder räumen ihr Zimmer nicht auf?
+  Verwandeln Sie Ihr Zuhause in einen Dungeon.
+
+PT ---------------------------------------------------------------
+
+O que é?
+  Um jogo familiar que transforma as tarefas domésticas numa aventura
+  de jogo de papéis. A família forma um clã, as tarefas tornam-se
+  monstros, derrotá-los rende experiência, níveis e um baú de espólio
+  enchido pelos pais (mesada, passeio em família, um pequeno mimo...).
+
+Factos essenciais
+  * Programador / editor : Grisloup (programador independente a solo,
+                           França)
+  * Plataforma           : Android (Google Play)
+  * Línguas              : francês, inglês, espanhol
+  * Modelo de negócio    : subscrição familiar após 14 dias de experiência,
+                           uma só subscrição por clã ; loja à unidade
+                           (cenários, objetos, classes), reservada aos
+                           adultos. Sem publicidade, sem rastreadores, sem
+                           atalhos compráveis: nada do que se compra faz a
+                           tarefa por si
+  * Lançamento           : outono de 2026 no Google Play, em França
+                           e depois na União Europeia
+  * Público              : as famílias — as crianças jogam com o
+                           consentimento e a supervisão dos pais
+  * Privacidade          : sem publicidade, sem analytics, sem identificador
+                           publicitário ; as fotografias de tarefas nunca
+                           saem do telemóvel ; a data de nascimento nunca é
+                           conservada ; os clãs são herméticos uns aos
+                           outros (sem conversação, sem diretório, apenas
+                           por convite)
+  * Sítio web            : https://donjons.grisloup.com
+  * Contacto de imprensa : donjons@grisloup.com
+
+Slogan
+  Os seus filhos não arrumam o quarto?
+  Transforme a sua casa numa masmorra.
+
+NL ---------------------------------------------------------------
+
+Wat is het?
+  Een gezinsspel dat huishoudelijke klusjes verandert in een
+  rollenspelavontuur. Het gezin vormt een clan, de klusjes worden
+  monsters, ze verslaan levert ervaring, niveaus en een door de ouders
+  gevulde buitkist op (zakgeld, een gezinsuitstap, een traktatie...).
+
+Kernfeiten
+  * Ontwikkelaar / uitgever : Grisloup (onafhankelijke solo-ontwikkelaar,
+                              Frankrijk)
+  * Platform                : Android (Google Play)
+  * Talen                   : Frans, Engels, Spaans
+  * Verdienmodel            : gezinsabonnement na 14 dagen proef, één
+                              abonnement per clan ; winkel per stuk (decors,
+                              voorwerpen, klassen), voorbehouden aan
+                              volwassenen. Zonder reclame, zonder trackers,
+                              zonder koopbare sluiproute: niets van wat je
+                              koopt doet het klusje voor je
+  * Uitgave                 : najaar 2026 op Google Play, in Frankrijk
+                              en daarna in de Europese Unie
+  * Doelgroep               : gezinnen — de kinderen spelen met toestemming
+                              en onder toezicht van hun ouders
+  * Privacy                 : geen reclame, geen analytics, geen
+                              advertentie-ID ; taakfoto's verlaten de telefoon
+                              nooit ; de geboortedatum wordt nooit bewaard ;
+                              de clans zijn hermetisch van elkaar gescheiden
+                              (geen chat, geen register, alleen op uitnodiging)
+  * Website                 : https://donjons.grisloup.com
+  * Perscontact             : donjons@grisloup.com
+
+Slogan
+  Ruimen uw kinderen hun kamer niet op?
+  Verander uw huis in een kerker.
 
 USAGE / UTILISATION ----------------------------------------------
 

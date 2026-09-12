@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
   <title>Donjons &amp; Savons — Account deletion</title>
+  <link rel="canonical" href="https://donjons.grisloup.com/delete-account/">
   <style>
     :root { --bg:#14110f; --card:#211c18; --ink:#efe7db; --muted:#a99e8e; --accent:#c9a24b; --danger:#c0483a; }
     * { box-sizing: border-box; }
@@ -109,7 +110,7 @@
     };
     var WEB_CLIENT_ID   = "@@@web_client_id@@@";
     var DELETE_ENDPOINT = "/api/delete";   // meme origine -> pas de CORS
-    var DELETE_REGIONS  = "@@@hosting_regions@@@";   // "eu,us" injecte au deploiement
+    var DELETE_REGIONS  = "@@@hosting_regions@@@";   // les cles de region, injectees au deploiement
 
     // --- i18n ---------------------------------------------------------------
     var I18N = {
@@ -169,6 +170,82 @@
         errPerm: "Solo puedes eliminar tu propia cuenta.",
         errGeneric: "Algo salió mal. Inténtalo de nuevo.",
         retry: "Reintentar"
+      },
+      it: {
+        title: "Eliminare il mio account Donjons & Savons",
+        intro: "L'eliminazione del tuo account rimuove immediatamente i tuoi dati da Donjons & Savons:",
+        item1: "il tuo personaggio, i tuoi livelli, la tua esperienza e il tuo oro;",
+        item2: "la tua appartenenza a tutti i clan di cui fai parte;",
+        item3: "se sei capo clan: il tuo clan e i profili dei bambini che vi giocano senza un account proprio.",
+        signinHint: "Accedi con l'account Google che usi nell'applicazione per continuare.",
+        connectedAs: "Connesso come",
+        warn: "Questa azione è definitiva. I tuoi dati escono dal gioco immediatamente, sono conservati 30 giorni fuori dal servizio (solo errore, assistenza o frode), poi cancellati definitivamente. Non potrai recuperarli e, se tornerai a giocare più avanti, ripartirai da zero. Solo le registrazioni della tua accettazione delle condizioni sono conservate 5 anni, a titolo di prova del consenso raccolto. Disdici il tuo abbonamento dal tuo account Google PRIMA di continuare: eliminare il tuo account qui non lo disdice, e continuerebbe a essere fatturato. I contenuti acquistati nella bottega sono persi insieme all'account, senza rimborso.",
+        ack: "Capisco che l'eliminazione del mio account è definitiva.",
+        del: "Elimina il mio account",
+        cancel: "Annulla",
+        working: "Eliminazione del tuo account…",
+        done: "Il tuo account è stato eliminato e i tuoi dati rimossi dal gioco. Sei stato disconnesso.",
+        errAuth: "Autenticazione non riuscita. Riconnettiti.",
+        errPerm: "Puoi eliminare soltanto il tuo account.",
+        errGeneric: "Si è verificato un errore. Riprova.",
+        retry: "Riprova"
+      },
+      de: {
+        title: "Mein Donjons-&-Savons-Konto löschen",
+        intro: "Die Löschung Ihres Kontos entfernt Ihre Daten sofort aus Donjons & Savons:",
+        item1: "Ihre Figur, Ihre Stufen, Ihre Erfahrung und Ihr Gold;",
+        item2: "Ihre Zugehörigkeit zu allen Clans, denen Sie angehören;",
+        item3: "wenn Sie Clanchef sind: Ihren Clan und die Profile der Kinder, die darin ohne eigenes Konto spielen.",
+        signinHint: "Melden Sie sich mit dem Google-Konto an, das Sie in der Anwendung verwenden, um fortzufahren.",
+        connectedAs: "Angemeldet als",
+        warn: "Diese Handlung ist endgültig. Ihre Daten verlassen das Spiel sofort, werden 30 Tage außerhalb des Dienstes aufbewahrt (nur bei Fehler, Support oder Betrug) und dann endgültig gelöscht. Sie können sie nicht wiederherstellen, und wenn Sie später wieder spielen, fangen Sie bei null an. Nur die Aufzeichnungen Ihrer Annahme der Bedingungen werden 5 Jahre lang als Nachweis der eingeholten Einwilligung aufbewahrt. Kündigen Sie Ihr Abonnement über Ihr Google-Konto ZUERST: die Löschung Ihres Kontos hier kündigt es nicht, und es würde weiter abgerechnet. Im Laden gekaufte Inhalte gehen mit dem Konto verloren, ohne Erstattung.",
+        ack: "Ich verstehe, dass die Löschung meines Kontos endgültig ist.",
+        del: "Mein Konto löschen",
+        cancel: "Abbrechen",
+        working: "Ihr Konto wird gelöscht…",
+        done: "Ihr Konto wurde gelöscht und Ihre Daten aus dem Spiel entfernt. Sie wurden abgemeldet.",
+        errAuth: "Die Authentifizierung ist fehlgeschlagen. Bitte melden Sie sich erneut an.",
+        errPerm: "Sie können nur Ihr eigenes Konto löschen.",
+        errGeneric: "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+        retry: "Erneut versuchen"
+      },
+      pt: {
+        title: "Eliminar a minha conta Donjons & Savons",
+        intro: "A eliminação da sua conta retira imediatamente os seus dados de Donjons & Savons:",
+        item1: "a sua personagem, os seus níveis, a sua experiência e o seu ouro;",
+        item2: "a sua pertença a todos os clãs de que faz parte;",
+        item3: "se for chefe de clã: o seu clã e os perfis das crianças que aí jogam sem conta própria.",
+        signinHint: "Ligue-se com a conta Google que utiliza na aplicação para continuar.",
+        connectedAs: "Ligado como",
+        warn: "Esta ação é definitiva. Os seus dados saem do jogo imediatamente, são conservados 30 dias fora do serviço (apenas erro, apoio ou fraude), e depois apagados definitivamente. Não os poderá recuperar e, se voltar a jogar mais tarde, começará do zero. Só os registos da sua aceitação das condições são conservados 5 anos, como prova do consentimento recolhido. Cancele a sua subscrição a partir da sua conta Google ANTES de continuar: eliminar a sua conta aqui não a cancela, e continuaria a ser faturada. Os conteúdos comprados na loja perdem-se com a conta, sem reembolso.",
+        ack: "Compreendo que a eliminação da minha conta é definitiva.",
+        del: "Eliminar a minha conta",
+        cancel: "Cancelar",
+        working: "A eliminar a sua conta…",
+        done: "A sua conta foi eliminada e os seus dados retirados do jogo. Terminou a sessão.",
+        errAuth: "A autenticação falhou. Volte a ligar-se.",
+        errPerm: "Só pode eliminar a sua própria conta.",
+        errGeneric: "Ocorreu um erro. Tente novamente.",
+        retry: "Tentar novamente"
+      },
+      nl: {
+        title: "Mijn Donjons & Savons-account verwijderen",
+        intro: "Het verwijderen van uw account haalt uw gegevens onmiddellijk weg uit Donjons & Savons:",
+        item1: "uw personage, uw niveaus, uw ervaring en uw goud;",
+        item2: "uw lidmaatschap van alle clans waartoe u behoort;",
+        item3: "als u clanhoofd bent: uw clan en de profielen van de kinderen die daarin spelen zonder eigen account.",
+        signinHint: "Meld u aan met het Google-account dat u in de applicatie gebruikt om verder te gaan.",
+        connectedAs: "Aangemeld als",
+        warn: "Deze handeling is definitief. Uw gegevens verlaten het spel onmiddellijk, worden 30 dagen buiten de dienst bewaard (alleen bij vergissing, ondersteuning of fraude) en daarna definitief gewist. U kunt ze niet terugkrijgen en als u later opnieuw speelt, begint u van nul. Alleen de registraties van uw aanvaarding van de voorwaarden worden 5 jaar bewaard, als bewijs van de verkregen toestemming. Zeg uw abonnement EERST op via uw Google-account: het verwijderen van uw account hier zegt het niet op, en het zou verder gefactureerd worden. In de winkel gekochte inhoud gaat met het account verloren, zonder terugbetaling.",
+        ack: "Ik begrijp dat het verwijderen van mijn account definitief is.",
+        del: "Mijn account verwijderen",
+        cancel: "Annuleren",
+        working: "Uw account wordt verwijderd…",
+        done: "Uw account is verwijderd en uw gegevens zijn uit het spel gehaald. U bent afgemeld.",
+        errAuth: "De authenticatie is mislukt. Meld u opnieuw aan.",
+        errPerm: "U kunt alleen uw eigen account verwijderen.",
+        errGeneric: "Er is een fout opgetreden. Probeer het opnieuw.",
+        retry: "Opnieuw proberen"
       }
     };
     var LANG = (navigator.language || "en").slice(0, 2).toLowerCase();
@@ -242,6 +319,8 @@
     // Les donnees sont partitionnees par region et rien, cote web, ne dit ou vit
     // l'utilisateur : on interroge donc CHAQUE region. Celles qui n'hebergent pas ce
     // compte repondent sans rien ecrire (garde-fou "not-in-region" cote Cloud Function).
+    // Il n'y en a qu'une depuis le 2026-09-08 (`eu`), et cette page n'a pas eu a le
+    // savoir : c'est tout l'interet de lire la liste au lieu de la coder en dur.
     // Si le placeholder n'a pas ete substitue (test local), on retombe sur l'endpoint nu.
     function deleteEndpoints() {
       var raw = DELETE_REGIONS.indexOf("@@@") === 0 ? "" : DELETE_REGIONS;

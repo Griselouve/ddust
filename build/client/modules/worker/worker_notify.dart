@@ -135,6 +135,12 @@ extension Worker_notify on worker {
                                     case "chest_empty":
                                         DvOrb.navigate_reset("testme");
                                         return;
+                                    // Retrait du consentement pour un enfant (_notifyConsentWithdrawn) : le
+                                    // seul écran qui compte est le Clan — c'est là que la tuile grisée porte
+                                    // « Rétablir », et le chef a trois jours pour s'en servir.
+                                    case "consent_withdrawn":
+                                        DvOrb.navigate_reset("clan_page");
+                                        return;
                                     // Boss, onboarding, retour du clan : le dashboard est le point de
                                     // départ du parcours dans les trois cas — c'est de là qu'on entre
                                     // dans les domaines, et donc qu'on tombe sur la tâche promue.
@@ -142,6 +148,80 @@ extension Worker_notify on worker {
                                         DvOrb.navigate_reset("dashboard");
                                         return;
                                 }
+    }
+
+    // -----------------------------------------------------------------------
+    // --- Retrait du consentement parental : alerte aux AUTRES chefs
+    // -----------------------------------------------------------------------
+
+    // Un chef vient de retirer son consentement pour un enfant du clan d'origine. Les AUTRES
+    // chefs disposent de trois jours pour revenir sur cette décision — encore faut-il qu'ils
+    // l'apprennent. Sans cet envoi, la fenêtre de rétractation que la politique de
+    // confidentialité leur promet ne vaudrait que pour celui qui ouvre l'écran Clan par hasard.
+    //
+    // Un envoi PAR chef, dans SA langue (modèle _notifyAdmins). Une action UNIQUE et SANS
+    // libellé : c'est la seule forme où dvmessaging déclenche quelque chose au tap du CORPS de
+    // la notification, et c'est ce qu'il faut ici — on n'arbitre pas depuis un bouton de
+    // notification une décision de cette nature, on ouvre l'écran Clan et on regarde la tuile.
+    //
+    // ⚠ NE PART JAMAIS À UN ENFANT, et la garde est structurelle plutôt que déclarative : les
+    // destinataires sont `clans.admins`, or promote_chief refuse d'y inscrire un joueur dont le
+    // legal_state n'est pas "a". Un chef est donc nécessairement majeur.
+    Future<void> _notifyConsentWithdrawn(String clanId, String clanSecret, String region,
+                                         String childId, String childName) async {
+
+                if (clanId.isEmpty || clanSecret.isEmpty || childId.isEmpty) return;
+                try {
+                    final clanDoc = await _cloud?.read("workers", "clans", clanId,
+                        ownerId: clanSecret, region: region);
+                    final admins = List<dynamic>.from(clanDoc?.get("admins") as List? ?? [])
+                        .map((a) => a.toString()).where((a) => a.isNotEmpty).toList();
+                    if (admins.isEmpty) return;
+
+                    final data = {"clanId": clanId, "motive": "consent_withdrawn"};
+
+                    for (final adminId in admins) {
+                        // Celui qui vient d'agir sait déjà ; l'enfant visé n'est de toute façon
+                        // pas chef, mais l'exclure explicitement coûte une ligne et ferme le cas.
+                        if (adminId == _userId || adminId == childId) continue;
+                        final pdoc = await _cloud?.read(
+                            "workers", "clans_players/$clanId/players", adminId,
+                            ownerId: clanSecret, region: region);
+                        if (pdoc == null) continue;
+                        if (pdoc.get("enabled") == false) continue;
+                        final lang    = pdoc.get("lang")?.toString() ?? "fr";
+                        final devices = List<dynamic>.from(pdoc.get("devices") as List? ?? [])
+                            .map((d) => d.toString()).toList();
+                        if (devices.isEmpty) continue;
+
+                        // Texte lu dans la langue du DESTINATAIRE (repli fr), et non via @@@T:@@@
+                        // qui résoudrait dans celle de l'émetteur. Modèle : _notifyAssignee.
+                        var text = (await deva_get("lang.translations.notif_consent_withdrawn.$lang"))?.toString() ?? "";
+                        if (text.isEmpty) {
+                            text = (await deva_get("lang.translations.notif_consent_withdrawn.fr"))?.toString() ?? "";
+                        }
+                        if (text.isEmpty) continue;
+                        final label = text.replaceAll("{name}", childName);
+
+                        try {
+                            final r = await _messaging?.send(dvmsg(
+                                range:   'global',
+                                label:   label,
+                                recipes: devices,
+                                data:    data,
+                                actions: {
+                                    "open": {"action": "worker.on_pulse_open", "wakeup": true},
+                                },
+                            ));
+                            deva_log("info", "[consent] alerte chef → $adminId ($lang)"
+                                " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
+                        } catch (e) {
+                            deva_log("error", "[consent] alerte chef $adminId échec: $e");
+                        }
+                    }
+                } catch (e) {
+                    deva_log("error", "[consent] _notifyConsentWithdrawn FAILED: $e");
+                }
     }
 
     // -----------------------------------------------------------------------

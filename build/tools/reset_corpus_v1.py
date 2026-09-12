@@ -63,10 +63,12 @@ DATE_KID = {
 }
 
 # Nom de fichier du corpus : {marché}-{état}-{langue}-{type}-v{N}.html
-NAME_RE = re.compile(r"^([a-z0-9]+)-([ak])-([a-z]{2,3})-([a-z0-9]+)-v(\d+)\.html$")
+# Classe alignee sur pucore/docnames (framework) : underscore admis dans le NOM
+# du document, et nulle part ailleurs.
+NAME_RE = re.compile(r"^([a-z0-9]+)-([ak])-([a-z]{2,3})-([a-z0-9_]+)-v(\d+)\.html$")
 
 # Référence à un document du corpus, où qu'elle se trouve (URL de bucket comprise).
-LINK_RE = re.compile(r"([a-z0-9]+-[ak]-[a-z]{2,3}-[a-z0-9]+)-v\d+\.html")
+LINK_RE = re.compile(r"([a-z0-9]+-[ak]-[a-z]{2,3}-[a-z0-9_]+)-v\d+\.html")
 
 
 def _set_version(text, lang, state, name):
@@ -89,7 +91,7 @@ def _reset_links(text, name):
     text, n = LINK_RE.subn(lambda m: f"{m.group(1)}-v1.html", text)
     if n == 0:
         raise SystemExit(f"[{name}] aucun lien interne trouvé, au moins un attendu.")
-    leftover = [m for m in re.findall(r"[a-z0-9]+-[ak]-[a-z]{2,3}-[a-z0-9]+-v(\d+)\.html", text) if m != "1"]
+    leftover = [m for m in re.findall(r"[a-z0-9]+-[ak]-[a-z]{2,3}-[a-z0-9_]+-v(\d+)\.html", text) if m != "1"]
     if leftover:
         raise SystemExit(f"[{name}] version résiduelle dans un lien : v{', v'.join(leftover)}")
     return text, n

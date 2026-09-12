@@ -64,6 +64,128 @@ conf:
                 when: { worker.player_last_is_admin: "true" }
                 text: "@@@T:tuto_dash_inv_admin@@@"
 
+      # ---------------------------------------------------------------------------------------
+      # LES DEUX GUIDES — ce que l'application attend de vous, pas où sont les boutons.
+      # ---------------------------------------------------------------------------------------
+      # Le reste du tutoriel montre l'interface ; ces deux leçons-là portent l'INTENTION. Elles
+      # existent parce que celle-ci se lit dans la vision et le dossier « intérêt de l'enfant »,
+      # et nulle part dans l'app une fois en main : un écran de mort ressemble à une punition de
+      # jeu tant qu'on n'a pas dit qu'il est une alerte. Un dispositif d'alerte que le
+      # destinataire ne sait pas lire n'alerte personne.
+      #
+      # Forme : uniquement des étapes `panel` ILLUSTRÉES — un dessin, une mise en situation
+      # (`text`), puis deux ou trois conseils. Aucune cible, donc aucun spotlight : ces écrans ne
+      # désignent rien, ils cadrent. Les icônes sont des icônes Material (toujours disponibles,
+      # aucun téléchargement) ; seule l'illustration est un asset, et son absence dégrade
+      # proprement en panneau sans image.
+      #
+      # Le partage se fait sur `worker.player_is_adult` et NON sur `player_last_is_admin` : le
+      # sujet est la parentalité, pas les droits de chef. Un adulte non chef reçoit les mêmes
+      # conseils ; un aîné promu chef reste un enfant et reçoit le guide de l'aventurier.
+      #
+      # ORDRE DES ÉCRANS, côté parent : l'effort D'ABORD, la mort ENSUITE. Ouvrir sur « votre
+      # enfant est mort » installerait exactement le contresens que ces écrans veulent défaire.
+      guide_parent:
+        screen: dashboard
+        order: 12                      # après dashboard_intro (10), avant recruit_dashboard (15)
+        header_top: true
+        requires: { worker.player_is_adult: "true" }
+        title: "@@@T:tuto_guide_parent_title@@@"
+        steps:
+          effort:
+            order: 10
+            text: "@@@T:guide_p1_situation@@@"
+            panel:
+              image: "images/big/guide_p1.png"
+              title: "@@@T:guide_p1_title@@@"
+              rows:
+                verdicts: { icon: "done_all", name: "@@@T:guide_p1_a@@@", desc: "@@@T:guide_p1_a_desc@@@" }
+                trace:    { icon: "visibility_off", name: "@@@T:guide_p1_b@@@", desc: "@@@T:guide_p1_b_desc@@@" }
+                mots:     { icon: "thumb_up", name: "@@@T:guide_p1_c@@@", desc: "@@@T:guide_p1_c_desc@@@" }
+          alerte:
+            order: 20
+            text: "@@@T:guide_p2_situation@@@"
+            panel:
+              image: "images/big/guide_p2.png"
+              title: "@@@T:guide_p2_title@@@"
+              rows:
+                # Dix jours : `pv` vaut 10 au départ et `decay` 1 jour par PV (build/readme.md § PV).
+                # Si la conf du decay change, ce texte change avec elle.
+                dix_jours: { icon: "schedule", name: "@@@T:guide_p2_a@@@", desc: "@@@T:guide_p2_a_desc@@@" }
+                retour:    { icon: "favorite", name: "@@@T:guide_p2_b@@@", desc: "@@@T:guide_p2_b_desc@@@" }
+                gage:      { icon: "mood",     name: "@@@T:guide_p2_c@@@", desc: "@@@T:guide_p2_c_desc@@@" }
+          butin:
+            order: 30
+            text: "@@@T:guide_p3_situation@@@"
+            panel:
+              image: "images/big/guide_p3.png"
+              title: "@@@T:guide_p3_title@@@"
+              rows:
+                temps:   { icon: "redeem", name: "@@@T:guide_p3_a@@@", desc: "@@@T:guide_p3_a_desc@@@" }
+                marchand: { icon: "block", name: "@@@T:guide_p3_b@@@", desc: "@@@T:guide_p3_b_desc@@@" }
+                chacun:  { icon: "groups", name: "@@@T:guide_p3_c@@@", desc: "@@@T:guide_p3_c_desc@@@" }
+          jouer:
+            order: 40
+            text: "@@@T:guide_p4_situation@@@"
+            panel:
+              image: "images/big/guide_p4.png"
+              title: "@@@T:guide_p4_title@@@"
+              rows:
+                hors_concours: { icon: "shield",     name: "@@@T:guide_p4_a@@@", desc: "@@@T:guide_p4_a_desc@@@" }
+                coup_de_pouce: { icon: "trending_up",name: "@@@T:guide_p4_b@@@", desc: "@@@T:guide_p4_b_desc@@@" }
+                photos:        { icon: "lock",       name: "@@@T:guide_p4_c@@@", desc: "@@@T:guide_p4_c_desc@@@" }
+
+      # Même mécanique, adressée à l'enfant. Deux règles de rédaction : tutoiement, et jamais une
+      # consigne d'obéissance — ces écrans disent ce à quoi l'enfant a DROIT (recommencer, refuser
+      # un gage, garder sa photo), pas ce qu'on attend de lui.
+      guide_enfant:
+        screen: dashboard
+        order: 13
+        header_top: true
+        requires: { worker.player_is_adult: "false" }
+        title: "@@@T:tuto_guide_enfant_title@@@"
+        steps:
+          clan:
+            order: 10
+            text: "@@@T:guide_k1_situation@@@"
+            panel:
+              image: "images/big/guide_k1.png"
+              title: "@@@T:guide_k1_title@@@"
+              rows:
+                ensemble: { icon: "groups",     name: "@@@T:guide_k1_a@@@", desc: "@@@T:guide_k1_a_desc@@@" }
+                choix:    { icon: "sports_mma", name: "@@@T:guide_k1_b@@@", desc: "@@@T:guide_k1_b_desc@@@" }
+                rythme:   { icon: "schedule",   name: "@@@T:guide_k1_c@@@", desc: "@@@T:guide_k1_c_desc@@@" }
+          pv:
+            order: 20
+            text: "@@@T:guide_k2_situation@@@"
+            panel:
+              image: "images/big/guide_k2.png"
+              title: "@@@T:guide_k2_title@@@"
+              rows:
+                baisse: { icon: "favorite", name: "@@@T:guide_k2_a@@@", desc: "@@@T:guide_k2_a_desc@@@" }
+                retour: { icon: "refresh",  name: "@@@T:guide_k2_b@@@", desc: "@@@T:guide_k2_b_desc@@@" }
+                gage:   { icon: "mood",     name: "@@@T:guide_k2_c@@@", desc: "@@@T:guide_k2_c_desc@@@" }
+          refus:
+            order: 30
+            text: "@@@T:guide_k3_situation@@@"
+            panel:
+              image: "images/big/guide_k3.png"
+              title: "@@@T:guide_k3_title@@@"
+              rows:
+                trois:   { icon: "done_all", name: "@@@T:guide_k3_a@@@", desc: "@@@T:guide_k3_a_desc@@@" }
+                encore:  { icon: "refresh",  name: "@@@T:guide_k3_b@@@", desc: "@@@T:guide_k3_b_desc@@@" }
+                journal: { icon: "star",     name: "@@@T:guide_k3_c@@@", desc: "@@@T:guide_k3_c_desc@@@" }
+          butin:
+            order: 40
+            text: "@@@T:guide_k4_situation@@@"
+            panel:
+              image: "images/big/guide_k4.png"
+              title: "@@@T:guide_k4_title@@@"
+              rows:
+                partage: { icon: "redeem", name: "@@@T:guide_k4_a@@@", desc: "@@@T:guide_k4_a_desc@@@" }
+                photo:   { icon: "lock",   name: "@@@T:guide_k4_b@@@", desc: "@@@T:guide_k4_b_desc@@@" }
+                dehors:  { icon: "people", name: "@@@T:guide_k4_c@@@", desc: "@@@T:guide_k4_c_desc@@@" }
+
       personnage_intro:
         screen: personnage
         order: 20
@@ -334,3 +456,57 @@ conf:
             text: "@@@T:tuto_items_chest@@@"
           wallet: { order: 30, text: "@@@T:tuto_items_wallet@@@" }
 
+      # -------------------------------------------------------------------------------------------
+      # PRUDENCE — les deux relances de sécurité.
+      #
+      # Les tâches du jeu se réalisent dans le MONDE RÉEL, et l'application n'a aucun moyen de savoir
+      # si l'une d'elles convient à cet enfant-là : cela dépend de son âge, de sa maturité, d'un
+      # éventuel handicap, de l'équipement du foyer. C'est pourquoi aucune tâche ne porte de drapeau
+      # de danger — un classement partiel certifierait implicitement tout le reste du catalogue.
+      # L'article 6 des CGU adulte attribue au responsable légal le choix des tâches, leur
+      # paramétrage ET la sécurité physique de l'enfant pendant leur exécution ; ces deux relances
+      # sont la traduction de cette clause dans l'app.
+      #
+      # DEUX leçons à `requires` mutuellement exclusifs plutôt qu'UNE à `overrides` : les overrides
+      # sont parcourus par un Map.forEach (premier `when` satisfait gagne) et dépendre de l'ordre
+      # d'une map qui traverse le builder serait fragile pour un message de sécurité.
+      #
+      # `worker.player_is_adult` est posé par _ensureIsAdult (worker_admin.dart), amorcé depuis
+      # _ensurePlayerVigilance (dashboard/clan appear). Repli : absent ou illisible → "false", donc
+      # message de prudence affiché — le bon sens de l'erreur. "t" (transition adulte déclarée mais
+      # CGU adulte pas encore acceptée) n'est PAS adulte.
+      #
+      # `max: 9999` = jamais éteint. dvtuto n'a pas d'illimité (défaut 5, plafond testé en dur dans
+      # _reminderDue) et un rappel de sécurité n'a aucune raison de s'arrêter définitivement ; on
+      # l'espace au lieu de l'éteindre.
+      # -------------------------------------------------------------------------------------------
+      safety_child:
+        # Écran Combat : le moment où une tâche s'engage, pas celui où on la choisit.
+        screen: combat
+        order: 48                      # après combat_domains (40) et combat_active (45)
+        requires: { worker.player_is_adult: "false" }
+        reminder:
+          every:  10
+          max:    9999
+          header: "@@@T:reminder_header_safety@@@"
+        steps:
+          warn: { order: 10, text: "@@@T:reminder_safety_child@@@" }
+
+      safety_adult:
+        screen: dashboard
+        order: 18                      # après recruit_dashboard (15)
+        requires: { worker.player_is_adult: "true" }
+        reminder:
+          every:  10
+          max:    9999
+          header: "@@@T:reminder_header_safety@@@"
+        steps:
+          # Plein écran : le message ne désigne rien dans l'app, justement parce que la supervision
+          # ne s'y joue pas.
+          watch: { order: 10, text: "@@@T:reminder_safety_adult@@@" }
+          # Le levier, lui, existe — mais seul un chef peut curer la liste des tâches.
+          curate:
+            order: 20
+            requires: { worker.player_last_is_admin: "true" }
+            target: combat_open
+            text: "@@@T:reminder_safety_curate@@@"

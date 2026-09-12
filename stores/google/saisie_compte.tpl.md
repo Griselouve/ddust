@@ -25,6 +25,7 @@ Ouvrir Play Console sur le **bon compte** : `https://play.google.com/console/u/1
 | Adresse e-mail | `@@@C:publisher.email@@@` |
 | Site web | `@@@C:publisher.website@@@` |
 | Numéro d'immatriculation | `@@@C:publisher.registration_number@@@` — le **SIREN**, immatriculé le 2026-09-02 |
+| Numéro D-U-N-S | `@@@C:publisher.duns@@@` — attribué par Altares/D&B ; c'est lui qui ouvre le profil de paiement **organisation** |
 | Numéro de TVA | *laisser vide* — franchise en base, et le n° intracommunautaire n'est pas encore attribué |
 | Consentement à l'affichage public | **cocher** |
 

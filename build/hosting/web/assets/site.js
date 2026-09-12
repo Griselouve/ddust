@@ -4,7 +4,11 @@
    déduites du chemin : /{lang}/{section}/ (slugs identiques dans les 3 langues). */
 
 (function () {
-  var LANGS = ["fr", "en", "es"];
+  // ⚠ SEPT LOCALES DEPUIS LE 2026-09-08. L'ordre est celui de `langues` du
+  //   build.yml : priorite, pas alphabet. Le selecteur de langue et le
+  //   parcours d'URL lisent cette seule liste — ajouter un repertoire
+  //   /xx/ sans l'ajouter ici le rend inatteignable.
+  var LANGS = ["fr", "en", "es", "it", "de", "pt", "nl"];
 
   var NAV = {
     fr: [
@@ -33,13 +37,53 @@
       ["press", "Prensa"],
       ["legal", "Legal"],
       ["betas", "Betas"]
+    ],
+    it: [
+      ["", "Home"],
+      ["concept", "Concetto"],
+      ["roadmap", "Roadmap"],
+      ["experience", "Esperienza"],
+      ["press", "Stampa"],
+      ["legal", "Legale"],
+      ["betas", "Beta"]
+    ],
+    de: [
+      ["", "Start"],
+      ["concept", "Konzept"],
+      ["roadmap", "Roadmap"],
+      ["experience", "Erlebnis"],
+      ["press", "Presse"],
+      ["legal", "Rechtliches"],
+      ["betas", "Betas"]
+    ],
+    pt: [
+      ["", "Início"],
+      ["concept", "Conceito"],
+      ["roadmap", "Roteiro"],
+      ["experience", "Experiência"],
+      ["press", "Imprensa"],
+      ["legal", "Legal"],
+      ["betas", "Betas"]
+    ],
+    nl: [
+      ["", "Home"],
+      ["concept", "Concept"],
+      ["roadmap", "Roadmap"],
+      ["experience", "Ervaring"],
+      ["press", "Pers"],
+      ["legal", "Juridisch"],
+      ["betas", "Beta's"]
     ]
   };
 
   var FOOTER = {
     fr: { legal: "Mentions légales & confidentialité", del: "Supprimer mon compte", contact: "Contact", cookies: "Cookie-free" },
     en: { legal: "Legal & privacy", del: "Delete my account", contact: "Contact", cookies: "Cookie-free" },
-    es: { legal: "Avisos legales y privacidad", del: "Eliminar mi cuenta", contact: "Contacto", cookies: "Cookie-free" }
+    es: { legal: "Avisos legales y privacidad", del: "Eliminar mi cuenta", contact: "Contacto", cookies: "Cookie-free" },
+    it: { legal: "Note legali e privacy", del: "Elimina il mio account", contact: "Contatti", cookies: "Cookie-free" },
+    de: { legal: "Rechtliches & Datenschutz", del: "Mein Konto löschen", contact: "Kontakt", cookies: "Cookie-free" },
+    pt: { legal: "Avisos legais e privacidade", del: "Eliminar a minha conta", contact: "Contacto", cookies: "Cookie-free" },
+    nl: { legal: "Juridisch & privacy", del: "Mijn account verwijderen", contact: "Contact", cookies: "Cookie-free" }
   };
 
   // Inscription à la liste d'attente des betas. Le bloc est injecté dans toute page
@@ -74,6 +118,46 @@
       bad: "Esta dirección de correo no parece válida.",
       err: "No se ha podido completar la inscripción. Vuelve a intentarlo en un momento.",
       note: "Formulario reservado a adultos. Tu dirección solo sirve para informarte de las betas, y la lista se borra cuando estas terminan. Baja a petición en donjons@grisloup.com."
+    },
+    it: {
+      title: "Unisciti alle beta",
+      lead: "Lascia il tuo indirizzo email: sarai avvisato appena si apriranno le prossime beta.",
+      ph: "tuo@email.com",
+      cta: "Iscriviti alle beta",
+      ok: "Grisloup ti ringrazia per la partecipazione. Riceverai molto presto notizie sulle prossime date delle beta e sull'avanzamento del progetto. A prestissimo!",
+      bad: "Questo indirizzo email non sembra valido.",
+      err: "L'iscrizione non è andata a buon fine. Riprova tra un istante.",
+      note: "Modulo riservato agli adulti. Il tuo indirizzo serve solo a informarti delle beta, e l'elenco viene cancellato al termine di queste. Cancellazione su semplice richiesta a donjons@grisloup.com."
+    },
+    de: {
+      title: "An den Betas teilnehmen",
+      lead: "Hinterlassen Sie Ihre E-Mail-Adresse: Sie werden benachrichtigt, sobald die nächsten Betas öffnen.",
+      ph: "ihre@email.com",
+      cta: "Für die Betas anmelden",
+      ok: "Grisloup dankt Ihnen für Ihre Teilnahme. Sie hören sehr bald von den nächsten Beta-Terminen und vom Fortschritt des Projekts. Bis ganz bald!",
+      bad: "Diese E-Mail-Adresse sieht nicht gültig aus.",
+      err: "Die Anmeldung konnte nicht abgeschlossen werden. Bitte versuchen Sie es gleich noch einmal.",
+      note: "Formular nur für Erwachsene. Ihre Adresse dient ausschließlich dazu, Sie über die Betas zu informieren, und die Liste wird nach deren Ende gelöscht. Austragung auf einfache Anfrage an donjons@grisloup.com."
+    },
+    pt: {
+      title: "Participar nas betas",
+      lead: "Deixe o seu endereço de correio eletrónico: será avisado assim que abrirem as próximas betas.",
+      ph: "o.seu@email.com",
+      cta: "Inscrever-me nas betas",
+      ok: "A Grisloup agradece a sua participação. Muito em breve receberá notícias sobre as próximas datas das betas e o avanço do projeto. Até muito breve!",
+      bad: "Este endereço de correio eletrónico não parece válido.",
+      err: "Não foi possível concluir a inscrição. Tente novamente dentro de instantes.",
+      note: "Formulário reservado a adultos. O seu endereço serve apenas para o informar das betas, e a lista é apagada quando estas terminam. Remoção mediante simples pedido para donjons@grisloup.com."
+    },
+    nl: {
+      title: "Meedoen aan de beta's",
+      lead: "Laat uw e-mailadres achter: u wordt verwittigd zodra de volgende beta's opengaan.",
+      ph: "uw@email.com",
+      cta: "Inschrijven voor de beta's",
+      ok: "Grisloup dankt u voor uw deelname. U hoort zeer binnenkort over de volgende betadata en de voortgang van het project. Tot heel binnenkort!",
+      bad: "Dit e-mailadres lijkt niet geldig.",
+      err: "De inschrijving kon niet worden voltooid. Probeer het zo dadelijk opnieuw.",
+      note: "Formulier voorbehouden aan volwassenen. Uw adres dient alleen om u over de beta's te informeren, en de lijst wordt gewist zodra die voorbij zijn. Uitschrijven op eenvoudig verzoek via donjons@grisloup.com."
     }
   };
 
@@ -96,12 +180,33 @@
       title: "Participar en las próximas betas",
       lead: "¡Apúntate para poder participar en las próximas betas!",
       cta: "Apuntarme"
+    },
+    it: {
+      title: "Partecipa alle prossime beta",
+      lead: "Iscriviti per poter partecipare alle prossime beta!",
+      cta: "Iscrivimi"
+    },
+    de: {
+      title: "An den nächsten Betas teilnehmen",
+      lead: "Melden Sie sich an, um an den nächsten Betas teilnehmen zu können!",
+      cta: "Anmelden"
+    },
+    pt: {
+      title: "Participar nas próximas betas",
+      lead: "Inscreva-se para poder participar nas próximas betas!",
+      cta: "Inscrever-me"
+    },
+    nl: {
+      title: "Deelnemen aan de volgende beta's",
+      lead: "Schrijf u in om aan de volgende beta's te kunnen deelnemen!",
+      cta: "Schrijf me in"
     }
   };
 
   // Glob NU, sans suffixe de région : puhosting le route vers la première région (eu).
-  // Une seule table d'inscrits, donc — ne pas imiter delete-account/, qui appelle
-  // /api/delete/eu ET /api/delete/us parce qu'il cherche des données déjà réparties.
+  // Une seule table d'inscrits, donc. delete-account/ suffixe la sienne parce qu'il
+  // cherche des données réparties par région — une seule aujourd'hui, mais il n'a pas
+  // à le savoir : il lit @@@hosting_regions@@@ et interroge ce qu'on lui donne.
   var BETA_ENDPOINT = "/api/beta";
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
