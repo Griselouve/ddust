@@ -4,11 +4,14 @@
    déduites du chemin : /{lang}/{section}/ (slugs identiques dans les 3 langues). */
 
 (function () {
-  // ⚠ SEPT LOCALES DEPUIS LE 2026-09-08. L'ordre est celui de `langues` du
+  // ⚠ HUIT LOCALES DEPUIS LE 2026-09-16. L'ordre est celui de `langues` du
   //   build.yml : priorite, pas alphabet. Le selecteur de langue et le
   //   parcours d'URL lisent cette seule liste — ajouter un repertoire
   //   /xx/ sans l'ajouter ici le rend inatteignable.
-  var LANGS = ["fr", "en", "es", "it", "de", "pt", "nl"];
+  // ⚠ `br` = PORTUGAIS DU BRESIL, `pt` = portugais du Portugal : deux langues,
+  //   deux repertoires, deux corpus legaux. Le repertoire s'appelle /br/, mais
+  //   le `hreflang` des pages dit `pt-BR` — c'est ce que lit un moteur.
+  var LANGS = ["fr", "en", "es", "it", "de", "pt", "br", "nl"];
 
   var NAV = {
     fr: [
@@ -65,6 +68,15 @@
       ["legal", "Legal"],
       ["betas", "Betas"]
     ],
+    br: [
+      ["", "Início"],
+      ["concept", "Conceito"],
+      ["roadmap", "Roteiro"],
+      ["experience", "Experiência"],
+      ["press", "Imprensa"],
+      ["legal", "Jurídico"],
+      ["betas", "Betas"]
+    ],
     nl: [
       ["", "Home"],
       ["concept", "Concept"],
@@ -77,13 +89,14 @@
   };
 
   var FOOTER = {
-    fr: { legal: "Mentions légales & confidentialité", del: "Supprimer mon compte", contact: "Contact", cookies: "Cookie-free" },
-    en: { legal: "Legal & privacy", del: "Delete my account", contact: "Contact", cookies: "Cookie-free" },
-    es: { legal: "Avisos legales y privacidad", del: "Eliminar mi cuenta", contact: "Contacto", cookies: "Cookie-free" },
-    it: { legal: "Note legali e privacy", del: "Elimina il mio account", contact: "Contatti", cookies: "Cookie-free" },
-    de: { legal: "Rechtliches & Datenschutz", del: "Mein Konto löschen", contact: "Kontakt", cookies: "Cookie-free" },
-    pt: { legal: "Avisos legais e privacidade", del: "Eliminar a minha conta", contact: "Contacto", cookies: "Cookie-free" },
-    nl: { legal: "Juridisch & privacy", del: "Mijn account verwijderen", contact: "Contact", cookies: "Cookie-free" }
+    fr: { editor: "Édité par", legal: "Mentions légales & confidentialité", del: "Supprimer mon compte", contact: "Contact", cookies: "Cookie-free" },
+    en: { editor: "Published by", legal: "Legal & privacy", del: "Delete my account", contact: "Contact", cookies: "Cookie-free" },
+    es: { editor: "Editado por", legal: "Avisos legales y privacidad", del: "Eliminar mi cuenta", contact: "Contacto", cookies: "Cookie-free" },
+    it: { editor: "Edito da", legal: "Note legali e privacy", del: "Elimina il mio account", contact: "Contatti", cookies: "Cookie-free" },
+    de: { editor: "Herausgegeben von", legal: "Rechtliches & Datenschutz", del: "Mein Konto löschen", contact: "Kontakt", cookies: "Cookie-free" },
+    pt: { editor: "Editado por", legal: "Avisos legais e privacidade", del: "Eliminar a minha conta", contact: "Contacto", cookies: "Cookie-free" },
+    br: { editor: "Editado por", legal: "Avisos legais e privacidade", del: "Excluir minha conta", contact: "Contato", cookies: "Cookie-free" },
+    nl: { editor: "Uitgegeven door", legal: "Juridisch & privacy", del: "Mijn account verwijderen", contact: "Contact", cookies: "Cookie-free" }
   };
 
   // Inscription à la liste d'attente des betas. Le bloc est injecté dans toute page
@@ -149,6 +162,16 @@
       err: "Não foi possível concluir a inscrição. Tente novamente dentro de instantes.",
       note: "Formulário reservado a adultos. O seu endereço serve apenas para o informar das betas, e a lista é apagada quando estas terminam. Remoção mediante simples pedido para donjons@grisloup.com."
     },
+    br: {
+      title: "Participar das betas",
+      lead: "Deixe seu e-mail: você será avisado assim que as próximas betas abrirem.",
+      ph: "seu@email.com",
+      cta: "Quero participar das betas",
+      ok: "A Grisloup agradece sua participação. Muito em breve você vai receber notícias sobre as próximas datas das betas e o andamento do projeto. Até logo!",
+      bad: "Esse e-mail não parece válido.",
+      err: "Não foi possível concluir a inscrição. Tente de novo daqui a pouco.",
+      note: "Formulário apenas para adultos. Seu e-mail serve só para avisar você sobre as betas, e a lista é apagada quando elas terminam. Para sair, basta pedir em donjons@grisloup.com."
+    },
     nl: {
       title: "Meedoen aan de beta's",
       lead: "Laat uw e-mailadres achter: u wordt verwittigd zodra de volgende beta's opengaan.",
@@ -195,6 +218,11 @@
       title: "Participar nas próximas betas",
       lead: "Inscreva-se para poder participar nas próximas betas!",
       cta: "Inscrever-me"
+    },
+    br: {
+      title: "Participar das próximas betas",
+      lead: "Inscreva-se para poder participar das próximas betas!",
+      cta: "Quero me inscrever"
     },
     nl: {
       title: "Deelnemen aan de volgende beta's",
@@ -250,7 +278,7 @@
     var t = FOOTER[lang];
     foot.innerHTML =
       '<div class="wrap">' +
-      '<span>© grisloup.com — Donjons &amp; Savons</span>' +
+      '<span>© Donjons &amp; Savons, ' + t.editor + ' <a href="https://grisloup.com/">Grisloup</a></span>' +
       '<a class="badge" href="/' + lang + '/legal/#cookies">' + t.cookies + "</a>" +
       '<a href="/' + lang + '/legal/">' + t.legal + "</a>" +
       '<a href="/delete-account/">' + t.del + "</a>" +

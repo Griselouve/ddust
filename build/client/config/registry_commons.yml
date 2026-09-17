@@ -7,17 +7,18 @@ conf:
     orb:
       class: DvOrb
       name: Ddust
-      home_page: home
+      home_page: awake
       window_width: 400
       window_height: 700
       #screenshots: ":download:/ddust/screenshots" #GUM décommenter avant mise en prod
       registry:
+        - awake
+        - lang_choice
         - home
         - region_screen
         - player_name_screen
         - age_screen
         - parentalgate_screen
-        - ddvideo
         - documents_acceptance_screen
         - kid_assent_screen
         - link_account_screen
@@ -69,6 +70,7 @@ conf:
         - give_page
         - item_view_page
         - create_player_screen
+        - invite_consent_screen
         - butin_notes_page
         - butin_tale_page
         # La fée (registry_fairy.yml). On n'y arrive que par sa tuile, apparue dix minutes
@@ -77,14 +79,12 @@ conf:
         - fairy_page
         # Boutique (registry_store.yml). `shop` était déjà là — les autres
         # arrivent avec dvstore. Un écran absent de cette liste est inatteignable.
-        - store_product_page
         - locked_page
-        - store_scenario_page
-        # Codes cadeaux : saisie (tous les chefs) et fabrique (mode test seulement).
-        # On n'y arrive que par le kebab de la boutique — mais un écran absent de cette
-        # liste est inatteignable, y compris par navigate_new.
+        # Code cadeau : saisie par un chef. On n'y arrive que par le kebab de la
+        # boutique, mais un écran absent de cette liste est inatteignable, y compris
+        # par navigate_new. (La fabrique de codes et la fiche produit ont été retirées
+        # le 2026-09-15, en attendant la refonte des codes et des achats à l'unité.)
         - giftcode_page
-        - giftcode_mint_page
         # Paliers d'abonnement (registry_store_tiers.yml). Seul écran d'où l'on
         # souscrit ou change de cotisation, et on n'y arrive jamais par hasard :
         # une raison commerciale l'ouvre (plafond atteint, relance, réabonnement).
@@ -142,6 +142,92 @@ conf:
         # recouvre la taskbar, parce qu'elle est la seule à devoir tout fermer, navigation comprise.
         - commons/closed_scrim
         - commons/closed_msg
+
+    # Écran D'ONBOARDING : hérite de "page" et injecte la scène d'ARRIVÉE — un voile qui
+    # se lève et une volée d'étincelles, 2,1 s, aucune image. Elle fait de chaque étape du
+    # tunnel une porte qu'on franchit plutôt qu'un formulaire qui s'affiche.
+    #
+    # Le BANDEAU de chapitre n'est pas injecté ici, et c'est délibéré : son libellé change
+    # à chaque écran. Une shape injectée par masque porte un seul dvid, qu'il faudrait
+    # remplir à l'exécution — ambigu dès que deux pages coexistent (new_or_pick_clan
+    # navigue en `new`). Chaque écran déclare donc le sien en une ligne, sur le gabarit
+    # commons/onboarding_banner.
+    #
+    # ⚠ AUCUNE IMAGE dans la scène `arrive`, et ce n'est pas de la sobriété : les premiers
+    #   écrans du tunnel se jouent avant que le royaume ne soit choisi, donc avant qu'un
+    #   seul asset ait pu être téléchargé. Un décor qui dépendrait du bucket ne se
+    #   montrerait qu'à partir du troisième écran — c'est-à-dire jamais, pour celui qui
+    #   décroche au premier.
+    page_onboarding:
+      masks:
+        - page
+      registry:
+        - commons/arrive_view
+
+    commons/arrive_view:
+      class: DvSceneView
+      layer: popup
+      scene: arrive
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # Le rideau qui tombe quand on quitte une étape. À déclarer ÉCRAN PAR ÉCRAN, et
+    # surtout pas dans le masque `page_onboarding` : voir le commentaire de la scène
+    # `depart` au thème — montée des deux côtés d'une navigation, elle laisserait la page
+    # d'arrivée noire indéfiniment.
+    # La célébration du pacte. Montée sur le SEUL écran qui la joue : contrairement à
+    # l'accueil, la navigation n'a pas lieu sous le rideau mais à la fin de l'interlude
+    # — la scène n'a donc personne à qui passer le relais.
+    commons/pacte_view:
+      class: DvSceneView
+      layer: popup
+      scene: pacte
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+
+    # ⚠ GABARIT, PAS SHAPE : chaque ecran declare LA SIENNE en masquant celle-ci
+    #   (`home/depart_view`, `region_screen/depart_view`, …). C'est le patron de
+    #   `home/intro_view` / `lang_choice/intro_view` — la seule DvSceneView dont on
+    #   sache avec certitude qu'elle s'affiche dans cette application, et elle est
+    #   declaree deux fois pour une seule scene. Listee telle quelle dans plusieurs
+    #   registries, la meme shape ne se peignait pas.
+    commons/depart_view:
+      class: DvSceneView
+      layer: popup
+      scene: depart
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        border: false
+
+    # Gabarit du bandeau « où en est l'aventure ». Chaque écran le masque et ne pose que
+    # son libellé.
+    #
+    # ⚠ UN CHAPITRE NOMMÉ, JAMAIS UN NUMÉRO. « Étape 3 sur 7 » serait faux : l'adulte qui
+    #   crée son clan et l'enfant qui rejoint le sien ne traversent pas le même nombre
+    #   d'écrans, et un compteur qui ment sur ce qu'il reste à faire est pire que pas de
+    #   compteur du tout. Un nom de chapitre dit où l'on est sans promettre une longueur.
+    commons/onboarding_banner:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 3%
+        y: 0.5%
+        w: 94%
+        h: 4.5%
+        text_align: CENTER
+        valign: CENTER
+        text_padding: 2.0
+        font_size: 10.0
+        font_weight: bold
 
     # Écran À TIROIR (combat + les 19 <domaine>_tasks) : hérite de page_taskbar et injecte le
     # dispositif d'ADMINISTRATION du chef de clan — le switch « Jeu | Admin » en bas du tiroir et
@@ -248,7 +334,7 @@ conf:
     #//------------------------------- CONSENTEMENT PARENTAL (modèle partagé) -------------
     # Mise en page commune des mentions de consentement affichées à l'adulte au moment où il
     # fait entrer quelqu'un dans son clan : création d'un profil joueur (create_player_screen),
-    # invitation d'un membre (clan_page/invite_panel) ou acceptation d'une adhésion
+    # invitation d'un membre (invite_consent_screen/notice) ou acceptation d'une adhésion
     # (accept_invitation_clan). Le consentement RGPD art. 8 doit être éclairé AU MOMENT de
     # l'acte, pas seulement dans les CGU acceptées à l'installation.
     # Le LIBELLÉ par défaut est celui de la CRÉATION d'un profil, seul cas où le déclarant est

@@ -43,7 +43,7 @@ conf:
 
     # Canal par lequel Google previent des CHANGEMENTS DE SOUS-TRAITANTS et des
     # incidents — deux notifications que le responsable de traitement doit recevoir
-    # (art. 28 RGPD, cf. stores/google/dpa.md). Pose par puproject au deploiement
+    # (art. 28 RGPD). Pose par puproject au deploiement
     # plutot qu'a la main en console : un contact manuel ne survivrait pas a une
     # recreation de projet, et son absence ne se remarque que le jour ou l'on
     # aurait du etre prevenu.
@@ -95,7 +95,7 @@ conf:
       # google-play-developer-notifications@system.gserviceaccount.com.
       - pubsub.googleapis.com
       # Balayage quotidien des timers de defaut de paiement (grace 10j, gel j50,
-      # suppression j730) : ces echeances doivent tomber meme si plus personne n'ouvre l'app.
+      # suppression j780) : ces echeances doivent tomber meme si plus personne n'ouvre l'app.
       - cloudscheduler.googleapis.com
       # Contacts essentiels (project.essential_contacts) : sans cette API, la ressource
       # echoue au deploiement. Le compte de service master doit aussi porter
@@ -271,7 +271,7 @@ conf:
           # Le `list` est ouvert à tout membre du clan, comme celui de clans_items/{clanId}/items
           # (le filtrage métier est fait côté client). Les lignes ne portent que des agrégats
           # chiffrés, jamais un nom d'objet ni un identifiant de joueur : le contenu du coffre
-          # reste une surprise, et rien ne purge cette table.
+          # reste une surprise.
           clans_chest_history:
             rule: |
               allow list, get, create, update, delete: if false;
@@ -345,11 +345,21 @@ conf:
           # par clan_purge), test, last_rtdn_at, updated_at. Pas de purchase_token ici :
           # un jeton d'achat est une donnée personnelle du payeur, il reste dans la
           # base `store`.
+          #
+          # ⚠ UN CLAN QUI N'A JAMAIS RIEN PAYÉ N'A PAS DE DOCUMENT ICI. `resource` vaut alors
+          #   null, `resource.data.ownerId` lève, et la règle refusait : la vigilance de
+          #   dvstore journalisait un 403 à chaque sondage, pour un joueur parfaitement
+          #   connecté et membre de son clan. Sur un document absent, on exige donc
+          #   seulement d'être membre de CE clan : il n'y a rien à lire, la réponse est
+          #   un « introuvable » propre au lieu d'un refus.
           clans_store:
             rule: |
               allow list: if false;
               allow get: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
+                && ((resource == null
+                     && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret != null)
+                 || (resource != null
+                     && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId));
               allow create, update, delete: if false;
           # Journal de facturation du clan : une ligne par événement Play (achat,
           # renouvellement, défaut, reprise, résiliation) et par octroi de crédit.
@@ -477,9 +487,55 @@ conf:
       - glob: "/api/beta"
         function: beta_signup
 
+    # ⚠ SANS CE BLOC, UNE PUBLICATION MET UNE HEURE A ETRE VISIBLE, ET PEUT CASSER LE SITE.
+    # Firebase pose `Cache-Control: max-age=3600` sur tout ce qu'il sert. Constate le
+    # 2026-09-15 : apres le remplacement des captures du site, le navigateur a garde l'ANCIENNE
+    # page presse, qui pointait les anciennes images deja supprimees du serveur, et l'ancien
+    # zip : images cassees et telechargement « non disponible », alors que le site en ligne
+    # etait correct.
+    #
+    # Les PAGES, la feuille de style et le script revalident donc a chaque visite. `no-cache`
+    # ne veut pas dire « ne garde rien » mais « redemande avant de servir » : avec l'ETag que
+    # Firebase envoie deja, c'est un 304 vide, quelques octets. (Contrairement a grisloup.com,
+    # site.css et site.js n'ont pas d'empreinte dans leur URL : ils ne peuvent pas etre gardes
+    # longtemps.) Les images gardent l'heure par defaut : une capture remplacee sous le meme
+    # nom se voit au plus une heure en retard, sans rien casser.
+    headers:
+      - glob: "**/*.html"
+        values:
+          Cache-Control: "no-cache"
+      - glob: "/assets/site.css"
+        values:
+          Cache-Control: "no-cache"
+      - glob: "/assets/site.js"
+        values:
+          Cache-Control: "no-cache"
+      # La police hebergee (Cinzel) : sa VERSION est dans le nom du fichier
+      # (`cinzel-v26-latin.woff2`). Une nouvelle version = un nouveau nom, donc le cache
+      # long ne peut jamais servir un fichier perime.
+      - glob: "/assets/fonts/*.woff2"
+        values:
+          Cache-Control: "public, max-age=31536000, immutable"
+
   storage:
     enabled: true
     buckets:
+      # LE SEUL BUCKET PUBLIC DU JEU, et il faut que ça reste vrai. Il porte la vague
+      # `ante` : le décor des tout premiers écrans, servi SANS jeton à quelqu'un qui
+      # n'a encore rien déclaré — ni royaume, ni âge, ni compte. À cet instant
+      # l'application n'a aucune session, donc aucun moyen de lire le bucket d'assets,
+      # qui exige une authentification.
+      #
+      # ⚠ N'Y METTRE QUE DU DÉCOR. Tout ce qui atterrit ici est lisible par n'importe
+      #   qui, pour toujours : une image, un son, une voix de narration. Jamais un
+      #   document légal versionné (ils ont leur propre bucket et leur propre index),
+      #   jamais rien qui concerne un joueur.
+      # ⚠ IL N'EXPOSE PAS LE JEU. C'est précisément pourquoi il existe : ouvrir le
+      #   bucket `assets` en lecture publique aurait exposé ses 550 Mo pour en servir
+      #   les trente premiers.
+      preload:
+        public_read: true
+        force_destroy: true
       assets:
         public_read: false
         # Intégralement reconstruit par la phase `upload` depuis general/ et donjon/ :
@@ -490,6 +546,20 @@ conf:
         #   programme, donc un bucket déjà sorti de la conf ne la verra jamais.
         force_destroy: true
 
+
+  # Vague `ante` : le sous-ensemble des assets republie dans le bucket PUBLIC.
+  # La liste elle-meme n'est pas ici — elle vit dans le layer du client
+  # (`assets.ante` de general/layers/assets-global.yml), qui est deja la source de
+  # toutes les autres vagues. Deux listes a tenir, c'est une liste qui divergera, et
+  # le symptome serait un decor qui manque sans que rien ne le signale.
+  preload:
+    enabled: true
+    bucket: "preload"
+    wave_layer: "general/layers/assets-global.yml"
+    probe: "ante.txt"
+    # Les langues a publier pour un nom qui porte @@@lang@@@. Celles de l'app, pas
+    # celles des marches : le client choisit sa langue AVANT son royaume.
+    langs: ["fr", "en", "es", "de", "it", "pt", "br", "nl"]
 
   assets:
     enabled: true
@@ -507,9 +577,6 @@ conf:
       - "general"
       - "donjon"
     pointers:
-      donjon/videos/video_fr.mp4: "donjon/videos/Donjons&Savons-FR_General_V1.mp4"
-      donjon/videos/video_en.mp4: "donjon/videos/Donjons&Savons-EN_General_V1.mp4"
-      donjon/videos/video_es.mp4: "donjon/videos/Donjons&Savons-ES_General_V1.mp4"
       general/prompts/prompts.yml: "general/prompts/prompts_General_V1.yml"
       donjon/images/splash-pirate.png: "donjon/images/splashs/pirates/splash.png"
       donjon/music/ambiant1.mp3: "donjon/music/Ambiant1_General_V1.mp3"
@@ -522,10 +589,13 @@ conf:
 
   aimodel:
     enabled: true
-    default_model: gemini-2.5-flash-lite
+    # ⚠ 2.5 RETIRE PAR GOOGLE (Flash-Lite coupe le 28/01/2027, Pro le 31/03/2027).
+    #   Bascule sur 3.5 Flash-Lite le 2026-09-15, en test. 2.5 Flash-Lite reste
+    #   autorise pour revenir en arriere cote client sans redeployer le backend.
+    default_model: gemini-3.5-flash-lite
     models:
+      - gemini-3.5-flash-lite
       - gemini-2.5-flash-lite
-      - gemini-2.5-pro
     # Une liste PAR RÉGION : le texte envoyé au modèle est saisi par l'utilisateur
     # (nom d'enfant, description de tâche), il doit être traité dans sa propre région.
     # Une liste unique enverrait les joueurs américains vers un modèle européen.
@@ -605,18 +675,29 @@ conf:
       # non-adulte (`promote_chief`), et l'achat lui-même passe encore par le contrôle
       # parental. Un client modifié contourne tout cela — la protection est ici du ressort
       # du store (Play facture le compte Google porteur de l'appareil), pas de cette liste.
-      # Les trois identifiants ci-dessous ne sont PAS écrits ici : ils sont lus dans
+      # Les identifiants ci-dessous ne sont PAS écrits ici : ils sont lus dans
       # `store.play` (build.yml de la suite), qui est aussi ce que pucatalog crée chez
       # Google. Une référence @@@C:...@@@ non résolue fait échouer le build.
       #
-      # Recopier "essai-14j" à la main était le piège le plus coûteux du dispositif :
+      # Recopier "fondateur" à la main était le piège le plus coûteux du dispositif :
       # une variante d'orthographe ne casse rien de visible, elle fait juste passer
-      # tous les essais pour des abonnements payants — et fausse les chiffres en
-      # silence, sans qu'aucun écran ne bronche.
+      # tous les clans de lancement pour des abonnés ordinaires, et fausse les
+      # chiffres en silence, sans qu'aucun écran ne bronche.
+      #
+      # ⚠ `TRIAL_OFFER_ID` est VIDE depuis le 2026-09-16 : l'offre d'essai a été
+      # retirée du catalogue (build.yml de la suite → store.play), le modèle demandant
+      # désormais sa première cotisation à un USAGE et non à une date. Les trois
+      # fonctions le tolèrent (`process.env.TRIAL_OFFER_ID || ''`) et plus aucun achat
+      # n'est classé `trial` : l'état reste dans l'énumération, il n'est simplement
+      # plus jamais atteint. La référence `TRIAL_OFFER_ID: "@@@C:store.play.trial_offer@@@"`
+      # a donc été RETIRÉE des trois fonctions : pucloudfunction refuse, à dessein, une
+      # référence qui résout sur une valeur vide (le déploiement échouait), et la
+      # valeur par défaut de pustore est déjà "". Le jour où l'on rouvrirait un essai,
+      # remplir `store.play.trial_offer` ET remettre cette ligne dans store_verify,
+      # store_rtdn et store_sweeper.
       store_verify:
         environment:
           PACKAGE_NAME: "@@@C:store.play.package@@@"
-          TRIAL_OFFER_ID: "@@@C:store.play.trial_offer@@@"
           # Offre de lancement à éligibilité développeur : un achat qui la porte
           # marque durablement `clans_store.founder`. C'est la seule preuve qui
           # vaille — Play l'a appliquée ou non, on ne fait que le constater.
@@ -737,7 +818,6 @@ conf:
       store_rtdn:
         environment:
           PACKAGE_NAME: "@@@C:store.play.package@@@"
-          TRIAL_OFFER_ID: "@@@C:store.play.trial_offer@@@"
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"
           # Play n'accepte qu'un topic : seul eu-play-rtdn est renseigné en console,
@@ -746,7 +826,6 @@ conf:
       store_sweeper:
         environment:
           PACKAGE_NAME: "@@@C:store.play.package@@@"
-          TRIAL_OFFER_ID: "@@@C:store.play.trial_offer@@@"
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"
           # Cycle de défaut de paiement (vision.md § « Les défauts de paiement »).
@@ -808,7 +887,27 @@ conf:
                "es":{"soft":"Tu bolsa parece un poco ligera hoy. Sin preocupaciones: la aventura continúa en Calabozos & Jabones, y podrás regularizarlo más tarde.",
                      "firm":"No dejes que un pequeño problema de bolsa detenga la aventura: la mazmorra todavía te espera.",
                      "last":"El grimorio va a cerrarse. ¡Nos encantó jugar con vosotros! La puerta de la mazmorra siempre quedará abierta para vuestro regreso.",
-                     "farewell":"Vuestro clan lleva dos años esperando. Sus datos se borrarán dentro de un mes: retomad la cuota antes de esa fecha y lo recuperaréis intacto."}}}
+                     "farewell":"Vuestro clan lleva dos años esperando. Sus datos se borrarán dentro de un mes: retomad la cuota antes de esa fecha y lo recuperaréis intacto."},
+               "de":{"soft":"Euer Geldbeutel wirkt heute etwas leicht. Keine Sorge: Das Abenteuer geht weiter in Donjons & Savons, und ihr könnt das später in Ordnung bringen.",
+                     "firm":"Lasst ein kleines Problem mit dem Geldbeutel nicht das Abenteuer stoppen: Der Kerker wartet immer noch auf euch.",
+                     "last":"Das Zauberbuch schließt sich gleich. Wir haben es geliebt, mit euch zu spielen! Die Tür des Kerkers bleibt für eure Rückkehr immer offen.",
+                     "farewell":"Euer Clan wartet seit zwei Jahren auf euch. Seine Daten werden in einem Monat gelöscht: Nehmt das Abonnement vorher wieder auf, und ihr findet ihn unversehrt wieder."},
+               "it":{"soft":"Il vostro borsellino sembra un po' leggero oggi. Nessuna preoccupazione: l'avventura continua in Donjons & Savons, e potrete sistemare tutto più tardi.",
+                     "firm":"Non lasciate che un piccolo problema di borsellino fermi l'avventura: il dungeon vi aspetta ancora.",
+                     "last":"Il grimorio sta per chiudersi. Ci è piaciuto tantissimo giocare con voi! La porta del dungeon resterà sempre aperta per il vostro ritorno.",
+                     "farewell":"Il vostro clan vi aspetta da due anni. I suoi dati saranno cancellati tra un mese: riprendete l'abbonamento prima di quella data e lo ritroverete intatto."},
+               "pt":{"soft":"A vossa bolsa parece um pouco leve hoje. Não se preocupem: a aventura continua em Donjons & Savons, e podem regularizar isto mais tarde.",
+                     "firm":"Não deixem que um pequeno problema de bolsa trave a aventura: a masmorra continua à vossa espera.",
+                     "last":"O grimório vai fechar-se. Adorámos jogar convosco! A porta da masmorra ficará sempre aberta para o vosso regresso.",
+                     "farewell":"O vosso clã espera-vos há dois anos. Os seus dados serão apagados dentro de um mês: retomem a subscrição antes dessa data e voltarão a encontrá-lo intacto."},
+               "br":{"soft":"A bolsa de vocês parece um pouco leve hoje. Não se preocupem: a aventura continua em Donjons & Savons, e vocês podem acertar isso mais tarde.",
+                     "firm":"Não deixem um probleminha de bolsa parar a aventura: a masmorra continua esperando por vocês.",
+                     "last":"O grimório vai se fechar. Adoramos jogar com vocês! A porta da masmorra vai estar sempre aberta para a volta de vocês.",
+                     "farewell":"O clã de vocês está esperando há dois anos. Os dados dele serão apagados daqui a um mês: retomem a assinatura antes dessa data e vão encontrá-lo intacto."},
+               "nl":{"soft":"Jullie buidel lijkt vandaag wat licht. Geen zorgen: het avontuur gaat door in Donjons & Savons, en jullie kunnen dit later in orde brengen.",
+                     "firm":"Laat een klein probleempje met de buidel het avontuur niet stoppen: de kerker wacht nog altijd op jullie.",
+                     "last":"Het toverboek gaat bijna dicht. We vonden het geweldig om met jullie te spelen! De deur van de kerker blijft altijd open voor jullie terugkeer.",
+                     "farewell":"Jullie clan wacht al twee jaar. Zijn gegevens worden over een maand gewist: hervat het abonnement voor die datum en jullie vinden hem ongeschonden terug."}}}
       count_sessions:
         entry_point: countSessions
         trigger: callable
@@ -882,7 +981,7 @@ conf:
             // Liste blanche des langues : elle DOIT suivre `langues` du build.yml de
             // la suite. Une inscription italienne enregistree comme 'en' n'est pas un
             // defaut d'affichage, c'est une donnee fausse dans la liste.
-            const lang = ['fr', 'en', 'es', 'it', 'de', 'pt', 'nl'].indexOf(rawLang) >= 0 ? rawLang : 'en';
+            const lang = ['fr', 'en', 'es', 'it', 'de', 'pt', 'br', 'nl'].indexOf(rawLang) >= 0 ? rawLang : 'en';
             const source = String(data.source ?? '').slice(0, 32);
 
             const db = getFirestore(admin.app(), '@@@region@@@_workers');
@@ -931,7 +1030,7 @@ conf:
           // joueur est chef unique d'un clan (fondateur seul admin), le clan est dissous : tous ses
           // membres sont tombstonés, et ceux qui n'ont plus de responsable légal (mineur, clan
           // d'origine dissous) ou plus aucun autre clan actif sont eux-mêmes supprimés (récursif).
-          // Les clanSecret sont conservés (recovery futur) ; l'admin SDK ignore les règles Firestore.
+          // L'admin SDK ignore les règles Firestore.
           // NB : ownerId reçu = UID Firebase (auth) ; les docs users/ et clans_players sont keyés par
           // le userId MÉTIER, traduit via userindexes/{firebaseUid}.userId (cf. worker.dart _resolveUserId).
           //
@@ -1134,7 +1233,6 @@ conf:
                 // vider. Le readme (section 16) dit pourtant `false` + `dissolved_at` = clan
                 // dissous, et `pulse_sweeper` ecarte les clans sur ce booleen : sans cette
                 // ecriture il reprend a chaque passe un clan dont plus personne n'est membre.
-                // Secret conserve, comme partout ailleurs : la suppression est fonctionnelle.
                 stage(db.collection('clans').doc(clanId), { enabled: false, dissolved_at: now });
 
                 // Dissolution : tombstone de TOUS les membres encore actifs, cascade si besoin.
@@ -1223,18 +1321,25 @@ conf:
             return { ok: true, deleted: Array.from(visited), firebaseUids: Array.from(fbUids) };
           });
       # -----------------------------------------------------------------------------
-      # Purge des clans au terme du calendrier de défaut de paiement (J730)
+      # Purge des clans : défaut de paiement (J780) OU abandon (24 mois de silence)
       # -----------------------------------------------------------------------------
-      # `pustore` ne supprime JAMAIS une donnée métier : à J730 son balayage pose
+      # DEUX POSEURS DE DRAPEAU, UNE SEULE PURGE. `purge_due` est posé soit par le
+      # balayage d'impayé de pustore, soit par la piste SOMMEIL de `pulse_sweeper`
+      # (`purge_reason: 'idle'`, clan sans abonnement vivant dont plus aucun membre ne
+      # s'est connecté depuis deux ans, préavis d'un mois envoyé aux adultes). Il ne doit
+      # exister qu'un chemin qui dissout : une cascade irréversible écrite deux fois est
+      # déjà un danger (cf. plus bas), trois fois serait une faute.
+      #
+      # `pustore` ne supprime JAMAIS une donnée métier : à J780 son balayage pose
       # `purge_due` et s'arrête là, par conception — définir ce que « supprimer »
       # veut dire chez soi est une décision applicative aux conséquences
       # irréversibles. C'est cette décision-ci, et elle est annoncée aux CGU
-      # (article « Défaut de paiement », jour 90).
+      # (article « Défaut de paiement », deux ans après le blocage).
       #
       # SUPPRESSION FONCTIONNELLE, comme delete_user_data et comme l'annonce la
       # politique de confidentialité (§ 8 : « suppression fonctionnelle immédiate,
       # puis conservation limitée hors du service, puis effacement définitif ») :
-      # tombstones, `enabled: false`, clanSecret conservés. L'effacement matériel à
+      # tombstones, `enabled: false`. L'effacement matériel à
       # 30 jours est une étape distincte, commune aux deux chemins de suppression, et
       # elle n'est pas plus livrée pour l'un que pour l'autre.
       #
@@ -1252,7 +1357,7 @@ conf:
         code: |
           import { onRequest } from 'firebase-functions/v2/https';
           import * as admin from 'firebase-admin';
-          import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+          import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
           admin.initializeApp();
 
           export const clanPurge = onRequest(async (_req, res) => {
@@ -1263,10 +1368,52 @@ conf:
             // Idempotence par `purged_at` et non en effaçant `purge_due` : le drapeau
             // est ce qui empêche le balayage de pustore de le reposer (sa garde est
             // `!d.purge_due`). L'effacer relancerait une purge par jour, indéfiniment.
-            const snap = await db.collection('clans_store').where('purge_due', '==', true).get();
-            const due  = snap.docs.filter((d) => !(d.data() || {}).purged_at);
+            const snap    = await db.collection('clans_store').where('purge_due', '==', true).get();
+            const pending = snap.docs.filter((d) => !(d.data() || {}).purged_at);
+
+            // GARDE DE RÉVEIL, pour les seules purges d'abandon. Le drapeau est posé par
+            // la passe horaire du pulse et honoré ici le soir : entre les deux, une famille
+            // peut avoir rouvert le jeu, précisément parce que le préavis l'y a invitée.
+            // L'effacer quand même, ce serait punir la seule réponse qu'on lui demandait.
+            //
+            // On compare à `idle_last_seen`, la dernière connexion OBSERVÉE au moment de
+            // poser le drapeau, et non à un seuil de conf : la question n'est pas « le clan
+            // dort-il assez ? », c'est « quelqu'un est-il revenu depuis ? ».
+            //
+            // ⚠ UNE LECTURE RATÉE N'EFFACE RIEN. L'erreur possible dans ce sens coûte une
+            //   journée ; dans l'autre, elle détruit un clan vivant.
+            const due: any[] = [];
+            let woken = 0;
+            for (const doc of pending) {
+              const data = doc.data() || {};
+              if (String(data.purge_reason || '') !== 'idle') { due.push(doc); continue; }
+              try {
+                const seenAt  = Date.parse(String(data.idle_last_seen || '')) || 0;
+                const members = await db.collection('clans_players').doc(doc.id).collection('players').get();
+                let lastSeen = 0;
+                for (const m of members.docs) {
+                  const md = m.data() || {};
+                  if (md.enabled === false || md.status === 'deleted') { continue; }
+                  const at = Date.parse(String(md.last_connected || '')) || 0;
+                  if (at > lastSeen) { lastSeen = at; }
+                }
+                if (!seenAt || lastSeen > seenAt) {
+                  await doc.ref.set({
+                    purge_due: FieldValue.delete(), purge_reason: FieldValue.delete(),
+                    idle_last_seen: FieldValue.delete(), updated_at: Timestamp.now(),
+                  }, { merge: true });
+                  woken++;
+                  console.log('[clan_purge] réveillé avant effacement :', doc.id);
+                  continue;
+                }
+                due.push(doc);
+              } catch (e) {
+                console.log('[clan_purge] garde de réveil illisible, purge reportée :', doc.id, String(e));
+              }
+            }
+
             if (!due.length) {
-              res.status(200).json({ scanned: snap.size, purged: 0 });
+              res.status(200).json({ scanned: snap.size, purged: 0, woken });
               return;
             }
 
@@ -1325,8 +1472,7 @@ conf:
                 seenClans.add(clanId);
                 dissolved.push(clanId);
 
-                // Le clan lui-même : marqué dissous, secret conservé (recovery, et
-                // c'est ce que fait déjà delete_user_data).
+                // Le clan lui-même : marqué dissous, comme le fait delete_user_data.
                 stage(db.collection('clans').doc(clanId), { enabled: false, dissolved_at: now });
 
                 const players = await db.collection('clans_players').doc(clanId).collection('players').get();
@@ -1423,18 +1569,23 @@ conf:
               await batchD.commit();
             }
 
-            // Marquage et journal de facturation. Le document `clans_store` n'est
-            // JAMAIS supprimé : c'est la piste d'audit sur laquelle les CGU s'appuient,
-            // et c'est elle qui justifie ce qui vient d'être fait.
+            // Marquage et journal de facturation.
             for (const doc of due) {
-              const ownerId = String((doc.data() || {}).ownerId || '');
+              const data    = doc.data() || {};
+              const ownerId = String(data.ownerId || '');
               await doc.ref.set({ purged_at: Timestamp.now(), updated_at: Timestamp.now() }, { merge: true });
+              // La RAISON au journal : une purge d'abandon n'a pas d'état commercial à
+              // citer, et la confondre avec la fin d'un impayé fausserait la piste d'audit
+              // le jour où une famille demanderait pourquoi son clan a disparu.
               await doc.ref.collection('events').add({
-                ownerId, type: 'purge', state: 'locked', created_at: Timestamp.now(),
+                ownerId, type: 'purge',
+                reason: String(data.purge_reason || 'dunning'),
+                state:  String(data.state || 'none'),
+                created_at: Timestamp.now(),
               });
             }
 
-            const report = { scanned: snap.size, purged: due.length,
+            const report = { scanned: snap.size, purged: due.length, woken,
                              clans: dissolved.length, accounts: deleted.size,
                              consents: consentWrites.length };
             console.log('[clan_purge]', JSON.stringify(report));
@@ -1535,6 +1686,25 @@ conf:
           #                        jours déréglerait la progression et viderait de son sens
           #                        l'option « Recommander » du chef
           #   chest_idle_days    — coffre non ouvert depuis ce délai
+          #   sleep              — CLAN ENDORMI, piste à part (décision du 2026-09-16).
+          #                        Au-delà de `forget_days` les relances de jeu se taisent
+          #                        pour de bon ; au-delà de `reminder_days[0]` commence une
+          #                        autre histoire, qui n'est plus une relance mais le sort
+          #                        des données d'un clan que plus personne n'ouvre :
+          #                          reminder_days — jours de silence de CHAQUE rappel doux
+          #                                          (6, 12, 18 mois). Un palier manqué ne
+          #                                          se rattrape pas en rafale : on saute
+          #                                          au dernier palier atteint, un seul
+          #                                          message part
+          #                          notice_days   — le PRÉAVIS d'effacement, un mois avant
+          #                          purge_days    — pose `purge_due` sur clans_store, que
+          #                                          `clan_purge` honore le soir même
+          #                        Un clan ABONNÉ n'est jamais concerné (il paie, il a le
+          #                        droit de dormir), ni un clan en défaut de paiement, qui
+          #                        a son propre calendrier. `purge_days - notice_days` est
+          #                        aussi le délai MINIMUM entre le préavis et l'effacement :
+          #                        un clan découvert déjà très ancien reçoit d'abord son
+          #                        préavis, et n'est effacé qu'un mois après
           #   windows            — fenêtre d'envoi LOCALE, par statut légal :
           #                        {minor|adult: {days, from, to}}. `days` en convention
           #                        JS (0 = dimanche … 6 = samedi), `from`/`to` en heures
@@ -1543,7 +1713,7 @@ conf:
           #                        document membre (compte antérieur au champ)
           #
           # Les textes qui peuvent atteindre un enfant — le boss et le retour du clan —
-          # obéissent à deux interdits, dans les trois langues : ne JAMAIS nommer ni
+          # obéissent à deux interdits, dans les sept langues : ne JAMAIS nommer ni
           # compter les autres membres (cela fabriquerait une comparaison entre frères et
           # sœurs à chaque relance), et parler de la place gardée, jamais de l'absence
           # remarquée.
@@ -1579,6 +1749,7 @@ conf:
              "boss_after_days":7,
              "boss_every_days":14,
              "chest_idle_days":21,
+             "sleep":{"reminder_days":[180,360,540],"notice_days":700,"purge_days":730},
              "windows":{"minor":{"days":[6],"from":9,"to":10},
                         "adult":{"days":[0,1,2,3,4,5,6],"from":17,"to":18}},
              "tz_default_minutes":60,
@@ -1595,7 +1766,9 @@ conf:
                      "chest_full":"Le coffre du clan déborde. Une cérémonie d'ouverture ferait des heureux.",
                      "chest_empty":"Le coffre du clan est vide. Un butin à y déposer donnerait un but aux prochaines tâches.",
                      "boss":"Un monstre de poussière vient d'apparaître dans votre donjon. Votre aide est nécessaire !",
-                     "comeback":"Le donjon a rouvert ses portes. Votre place y est gardée au chaud."},
+                     "comeback":"Le donjon a rouvert ses portes. Votre place y est gardée au chaud.",
+                     "sleep_reminder":"Votre clan vous attend toujours. Tout y est resté en place : les tâches, les niveaux, le butin.",
+                     "sleep_notice":"Votre clan dort depuis près de deux ans. Sans retour d'ici un mois, il sera effacé. Ouvrir le jeu suffit à le garder."},
                "en":{"onboarding_empty":"Your dungeon awaits, but it is still empty. Add your first task in thirty seconds.",
                      "onboarding_idle":"The tasks are ready and so is the dungeon. All it needs is a first adventurer to set off.",
                      "onboarding_alone":"Your dungeon is running, but you are alone in it. The QR code that brings your family in is waiting in the Clan tab.",
@@ -1604,7 +1777,9 @@ conf:
                      "chest_full":"The clan chest is overflowing. An opening ceremony would make someone very happy.",
                      "chest_empty":"The clan chest is empty. Some loot in it would give the next tasks a purpose.",
                      "boss":"A dust monster has just appeared in your dungeon. Your help is needed!",
-                     "comeback":"The dungeon has opened its doors again. Your place is being kept warm."},
+                     "comeback":"The dungeon has opened its doors again. Your place is being kept warm.",
+                     "sleep_reminder":"Your clan is still waiting for you. Everything is just as you left it: the tasks, the levels, the loot.",
+                     "sleep_notice":"Your clan has been asleep for almost two years. If nobody comes back within a month, it will be erased. Opening the game is enough to keep it."},
                "es":{"onboarding_empty":"Tu mazmorra te espera, pero todavía está vacía. Añade tu primera tarea en treinta segundos.",
                      "onboarding_idle":"Las tareas están listas y la mazmorra también. Solo falta un primer aventurero que se lance.",
                      "onboarding_alone":"Tu mazmorra funciona, pero estás solo en ella. El código QR que hace entrar a tu familia te espera en la pestaña Clan.",
@@ -1613,10 +1788,72 @@ conf:
                      "chest_full":"El cofre del clan está rebosando. Una ceremonia de apertura haría feliz a alguien.",
                      "chest_empty":"El cofre del clan está vacío. Un botín dentro daría sentido a las próximas tareas.",
                      "boss":"¡Un monstruo de polvo acaba de aparecer en tu mazmorra. Se necesita tu ayuda!",
-                     "comeback":"La mazmorra ha vuelto a abrir sus puertas. Tu sitio te espera calentito."}},
+                     "comeback":"La mazmorra ha vuelto a abrir sus puertas. Tu sitio te espera calentito.",
+                     "sleep_reminder":"Tu clan te sigue esperando. Todo sigue en su sitio: las tareas, los niveles, el botín.",
+                     "sleep_notice":"Tu clan lleva casi dos años dormido. Si nadie vuelve en un mes, se borrará. Basta con abrir el juego para conservarlo."},
+               "de":{"onboarding_empty":"Dein Kerker wartet auf dich, aber er ist noch leer. Füge in dreißig Sekunden deine erste Aufgabe hinzu.",
+                     "onboarding_idle":"Die Aufgaben sind bereit, der Kerker auch. Es fehlt nur noch ein erster Abenteurer, der loszieht.",
+                     "onboarding_alone":"Dein Kerker läuft, aber du bist allein darin. Der QR-Code, mit dem deine Familie hereinkommt, wartet im Tab Clan auf dich.",
+                     "validation":"Eine Aufgabe wurde erledigt und wartet auf dein Urteil, um belohnt zu werden.",
+                     "validation_open":"Eine Aufgabe wurde erledigt und wartet auf dein Urteil. Tippe, um sie zu öffnen.",
+                     "chest_full":"Die Clantruhe quillt über. Eine Öffnungszeremonie würde jemanden glücklich machen.",
+                     "chest_empty":"Die Clantruhe ist leer. Eine Beute darin gäbe den nächsten Aufgaben ein Ziel.",
+                     "boss":"Ein Staubmonster ist gerade in deinem Kerker aufgetaucht. Deine Hilfe wird gebraucht!",
+                     "comeback":"Der Kerker hat seine Tore wieder geöffnet. Dein Platz wird warmgehalten.",
+                     "sleep_reminder":"Dein Clan wartet immer noch auf dich. Alles ist noch an seinem Platz: die Aufgaben, die Stufen, die Beute.",
+                     "sleep_notice":"Dein Clan schläft seit fast zwei Jahren. Kommt innerhalb eines Monats niemand zurück, wird er gelöscht. Das Spiel zu öffnen genügt, um ihn zu behalten."},
+               "it":{"onboarding_empty":"Il tuo dungeon ti aspetta, ma è ancora vuoto. Aggiungi il tuo primo compito in trenta secondi.",
+                     "onboarding_idle":"I compiti sono pronti, e anche il dungeon. Manca solo un primo avventuriero che si lanci.",
+                     "onboarding_alone":"Il tuo dungeon funziona, ma ci sei da solo. Il codice QR che fa entrare la tua famiglia ti aspetta nella scheda Clan.",
+                     "validation":"Un compito è stato portato a termine e aspetta il tuo verdetto per essere ricompensato.",
+                     "validation_open":"Un compito è stato portato a termine e aspetta il tuo verdetto. Tocca per aprirlo.",
+                     "chest_full":"Lo scrigno del clan trabocca. Una cerimonia di apertura renderebbe felice qualcuno.",
+                     "chest_empty":"Lo scrigno del clan è vuoto. Un bottino da metterci darebbe uno scopo ai prossimi compiti.",
+                     "boss":"Un mostro di polvere è appena apparso nel tuo dungeon. Serve il tuo aiuto!",
+                     "comeback":"Il dungeon ha riaperto le sue porte. Il tuo posto ti aspetta al calduccio.",
+                     "sleep_reminder":"Il tuo clan ti aspetta ancora. Tutto è rimasto al suo posto: i compiti, i livelli, il bottino.",
+                     "sleep_notice":"Il tuo clan dorme da quasi due anni. Se nessuno torna entro un mese, sarà cancellato. Basta aprire il gioco per tenerlo."},
+               "pt":{"onboarding_empty":"A tua masmorra espera por ti, mas ainda está vazia. Adiciona a tua primeira tarefa em trinta segundos.",
+                     "onboarding_idle":"As tarefas estão prontas, e a masmorra também. Só falta um primeiro aventureiro que se lance.",
+                     "onboarding_alone":"A tua masmorra está a funcionar, mas estás sozinho nela. O código QR que faz entrar a tua família espera por ti no separador Clã.",
+                     "validation":"Uma tarefa foi concluída e espera o teu veredicto para ser recompensada.",
+                     "validation_open":"Uma tarefa foi concluída e espera o teu veredicto. Toca para a abrir.",
+                     "chest_full":"O baú do clã está a transbordar. Uma cerimónia de abertura faria alguém feliz.",
+                     "chest_empty":"O baú do clã está vazio. Um espólio lá dentro daria um objetivo às próximas tarefas.",
+                     "boss":"Um monstro de pó acaba de aparecer na tua masmorra. A tua ajuda é necessária!",
+                     "comeback":"A masmorra voltou a abrir as portas. O teu lugar está guardado e quentinho.",
+                     "sleep_reminder":"O teu clã continua à tua espera. Está tudo no seu lugar: as tarefas, os níveis, o espólio.",
+                     "sleep_notice":"O teu clã está adormecido há quase dois anos. Se ninguém voltar dentro de um mês, será apagado. Basta abrir o jogo para o manter."},
+               "br":{"onboarding_empty":"Sua masmorra está esperando por você, mas ainda está vazia. Adicione sua primeira tarefa em trinta segundos.",
+                     "onboarding_idle":"As tarefas estão prontas, e a masmorra também. Só falta um primeiro aventureiro para começar.",
+                     "onboarding_alone":"Sua masmorra está funcionando, mas você está sozinho nela. O código QR que traz sua família está esperando por você na aba Clã.",
+                     "validation":"Uma tarefa foi concluída e aguarda seu veredito para ser recompensada.",
+                     "validation_open":"Uma tarefa foi concluída e aguarda seu veredito. Toque para abri-la.",
+                     "chest_full":"O baú do clã está transbordando. Uma cerimônia de abertura deixaria alguém muito feliz.",
+                     "chest_empty":"O baú do clã está vazio. Um tesouro lá dentro daria um objetivo às próximas tarefas.",
+                     "boss":"Um monstro de poeira acabou de aparecer na sua masmorra. Sua ajuda é necessária!",
+                     "comeback":"A masmorra reabriu as portas. Seu lugar está guardado e quentinho.",
+                     "sleep_reminder":"Seu clã continua esperando por você. Está tudo no lugar: as tarefas, os níveis, o tesouro.",
+                     "sleep_notice":"Seu clã está dormindo há quase dois anos. Se ninguém voltar em um mês, ele será apagado. Basta abrir o jogo para mantê-lo."},
+               "nl":{"onboarding_empty":"Je kerker wacht op je, maar hij is nog leeg. Voeg in dertig seconden je eerste taak toe.",
+                     "onboarding_idle":"De taken staan klaar, de kerker ook. Er ontbreekt alleen nog een eerste avonturier die erin duikt.",
+                     "onboarding_alone":"Je kerker draait, maar je bent er alleen. De QR-code waarmee je familie binnenkomt, wacht op je in het tabblad Clan.",
+                     "validation":"Een taak is voltooid en wacht op jouw oordeel om beloond te worden.",
+                     "validation_open":"Een taak is voltooid en wacht op jouw oordeel. Tik om ze te openen.",
+                     "chest_full":"De clankist puilt uit. Een openingsceremonie zou iemand heel blij maken.",
+                     "chest_empty":"De clankist is leeg. Een buit erin zou de volgende taken een doel geven.",
+                     "boss":"Er is net een stofmonster in je kerker verschenen. Je hulp is nodig!",
+                     "comeback":"De kerker heeft zijn deuren weer geopend. Je plaats wordt warm gehouden.",
+                     "sleep_reminder":"Je clan wacht nog steeds op je. Alles staat nog op zijn plaats: de taken, de niveaus, de buit.",
+                     "sleep_notice":"Je clan slaapt al bijna twee jaar. Als er binnen een maand niemand terugkomt, wordt hij gewist. Het spel openen is genoeg om hem te houden."}},
              "buttons":{"fr":{"ok":"Valider","partial":"À moitié","ko":"Refuser"},
                         "en":{"ok":"Approve","partial":"Halfway","ko":"Reject"},
-                        "es":{"ok":"Validar","partial":"A medias","ko":"Rechazar"}}}
+                        "es":{"ok":"Validar","partial":"A medias","ko":"Rechazar"},
+                        "de":{"ok":"Bestätigen","partial":"Zur Hälfte","ko":"Ablehnen"},
+                        "it":{"ok":"Convalida","partial":"A metà","ko":"Rifiuta"},
+                        "pt":{"ok":"Validar","partial":"A meio","ko":"Recusar"},
+                        "br":{"ok":"Validar","partial":"Pela metade","ko":"Recusar"},
+                        "nl":{"ok":"Valideren","partial":"Half","ko":"Weigeren"}}}
         code: |
           import { onRequest } from 'firebase-functions/v2/https';
           import * as admin from 'firebase-admin';
@@ -1645,6 +1882,10 @@ conf:
           const MAX_PLAYERS = 3000;
           const MAX_CLANS   = 500;
           const MAX_NOTIFY  = 500;
+          // Clans endormis examinés par passe. Bas, et c'est sans conséquence : un clan
+          // endormi traité sort de la requête (effacé) ou n'a plus rien à recevoir avant
+          // six mois. Le rattrapage d'un stock ancien s'étale simplement sur plusieurs jours.
+          const MAX_SLEEP   = 300;
 
           const iso = (ms: number) => new Date(ms).toISOString();
           const num = (v: any) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
@@ -1818,6 +2059,13 @@ conf:
               const bossEvery = num(LIFE.boss_every_days)    || 14;
               const chestIdle = num(LIFE.chest_idle_days)    || 21;
 
+              // Le sommeil. Replis ÉCRITS EN DUR et non à 0 : une conf absente ne doit
+              // jamais rendre un seuil nul, qui ferait effacer des clans actifs.
+              const SLEEP       = LIFE.sleep || {};
+              const sleepRem    = (SLEEP.reminder_days || [180, 360, 540]).map(num);
+              const sleepNotice = num(SLEEP.notice_days) || 700;
+              const sleepPurge  = num(SLEEP.purge_days)  || 730;
+
               // --- 1. Énumération des candidats -------------------------------------
               // Deux requêtes, toutes deux BORNÉES DES DEUX CÔTÉS. La borne haute écarte
               // les vivants, la borne basse écarte les partis : sans elle, un joueur
@@ -1845,8 +2093,31 @@ conf:
                   candidates.add(d.id);
               }
 
+              // Les clans ENDORMIS : ceux dont un membre au moins ne s'est pas connecté
+              // depuis le premier palier de sommeil. Borne d'UN SEUL CÔTÉ, contrairement
+              // aux deux requêtes ci-dessus, et c'est voulu : un clan endormi ne doit pas
+              // sortir de la vue parce qu'il est endormi DEPUIS TROP LONGTEMPS — c'est
+              // précisément celui qu'il faut effacer. Il en sort en étant effacé.
+              //
+              // ⚠ LA REQUÊTE RAMÈNE DES CLANS ÉVEILLÉS : un enfant qui a arrêté de jouer
+              //   suffit à y faire entrer son clan. C'est la lecture de TOUS les membres,
+              //   plus bas, qui tranche. Et un clan qui n'était candidat QUE par ici n'a
+              //   rien à recevoir des autres pistes : `sleepOnly` l'en tient à l'écart,
+              //   sans quoi cette requête aurait réveillé des relances « retour du clan »
+              //   chez des enfants partis depuis des mois, que personne n'avait demandées.
+              const sleepOnly = new Set<string>();
+              const asleep = await W.collectionGroup('players')
+                  .where('last_connected', '<', iso(now - sleepRem[0] * DAY))
+                  .limit(MAX_SLEEP).get();
+              for (const d of asleep.docs) {
+                  const clanId = d.ref.parent.parent ? d.ref.parent.parent.id : '';
+                  if (!clanId || candidates.has(clanId)) continue;
+                  sleepOnly.add(clanId);
+                  candidates.add(clanId);
+              }
+
               const report: any = { candidates: candidates.size, dormant: dormant.size,
-                                    young: young.size, notified: 0, dry,
+                                    young: young.size, asleep: asleep.size, notified: 0, dry,
                                     motives: {}, skipped: {} };
               const bump = (bag: string, key: string) => {
                   report[bag][key] = (report[bag][key] || 0) + 1;
@@ -1893,6 +2164,13 @@ conf:
                   // rappels. `has_device: false` est un refus déjà exprimé ailleurs dans le
                   // jeu, `nudges: false` est le refus explicite du réglage « Rappels ».
                   const live: any[] = [];
+                  // INFORMABLES : équipés d'un appareil, qu'ils aient coupé les rappels ou
+                  // non. Le PRÉAVIS D'EFFACEMENT n'est pas une relance, c'est une information
+                  // sur les données de la famille : « ne plus me faire signe » refuse qu'on
+                  // la sollicite pour jouer, pas qu'on la prévienne avant d'effacer son clan.
+                  // Les rappels doux de sommeil, eux, restent des relances et passent par
+                  // `live`.
+                  const informable: any[] = [];
                   let lastSeen = 0;
                   // Effectif RECRUTÉ, distinct de `live` : il compte les membres sans appareil et
                   // ceux qui ont coupé les rappels. Un enfant créé par le chef (has_device: false)
@@ -1904,16 +2182,19 @@ conf:
                       enrolled++;
                       const at = Date.parse(String(d.last_connected || '')) || 0;
                       if (at > lastSeen) lastSeen = at;
-                      if (d.has_device === false || d.nudges === false) continue;
+                      if (d.has_device === false) continue;
                       // `tz` et `minor` sont GRATUITS : le document est déjà lu en
                       // entier ici, aucune requête supplémentaire. `tz_offset` doit être
                       // un nombre POSÉ — un `null` vaudrait 0 par coercition, c'est-à-dire
                       // UTC, et enverrait à 17 h Greenwich une famille de Varsovie.
-                      live.push({ id: m.id, lang: String(d.lang || LIFE.default_lang || 'fr'),
-                                  at, admin: admins.indexOf(m.id) >= 0,
-                                  tz: (typeof d.tz_offset === 'number' && Number.isFinite(d.tz_offset))
-                                          ? d.tz_offset : num(LIFE.tz_default_minutes),
-                                  minor: String(d.legal_state ?? '') !== 'a' });
+                      const who = { id: m.id, lang: String(d.lang || LIFE.default_lang || 'fr'),
+                                    at, admin: admins.indexOf(m.id) >= 0,
+                                    tz: (typeof d.tz_offset === 'number' && Number.isFinite(d.tz_offset))
+                                            ? d.tz_offset : num(LIFE.tz_default_minutes),
+                                    minor: String(d.legal_state ?? '') !== 'a' };
+                      informable.push(who);
+                      if (d.nudges === false) continue;
+                      live.push(who);
                   }
 
                   // ⚠ UNE NOTIFICATION AU MAXIMUM PAR PERSONNE ET PAR PASSE. C'était
@@ -1930,6 +2211,124 @@ conf:
                   const silentDays = lastSeen > 0 ? (now - lastSeen) / DAY : 0;
                   const bornAt     = Date.parse(String(clan.date || '')) || 0;
                   const ageDays    = bornAt ? (now - bornAt) / DAY : 1e9;
+
+                  // L'écriture de fin de passe, sortie en fonction parce que la piste
+                  // SOMMEIL la déclenche aussi, avant de quitter le clan.
+                  const flush = async () => {
+                      // ⚠ N'ÉCRIRE QUE SI QUELQUE CHOSE A CHANGÉ. La passe tourne
+                      //   désormais TOUTES LES HEURES : réécrire `updated_at` à chaque
+                      //   passage ferait vingt-quatre écritures par clan et par jour pour ne
+                      //   rien dire. `ownerId` et `updated_at` ne comptent donc pas comme un
+                      //   changement à eux seuls — ils accompagnent, ils ne déclenchent pas.
+                      //
+                      // ⚠ LES SENTINELLES DE SUPPRESSION COMPTENT, ELLES. Elles ne sont posées
+                      //   que lorsqu'il y a réellement une clef à effacer (le code teste
+                      //   `!== undefined` avant), et elles disparaissent d'elles-mêmes au
+                      //   passage suivant puisque la clef n'existe plus.
+                      const bouge = !pulseSnap.exists || Object.keys(patch).some((k) => {
+                          if (k === 'ownerId' || k === 'updated_at') return false;
+                          if (k === 'members') return true;
+                          return JSON.stringify(pulse[k]) !== JSON.stringify(patch[k]);
+                      });
+                      if (!dry && bouge) {
+                          await W.collection('clans_pulse').doc(clanId).set(patch, { merge: true });
+                      } else if (!dry) { bump('skipped', 'unchanged'); }
+                  };
+
+                  // ---- Piste SOMMEIL -----------------------------------------------
+                  // Un clan que plus personne n'ouvre depuis `forget_days` ne reçoit plus
+                  // aucune relance de jeu, et c'était tout : ses données restaient pour
+                  // toujours. Un clan qui avait payé finissait par être effacé par le
+                  // calendrier de défaut de paiement ; un clan qui n'avait JAMAIS payé, ou
+                  // qui avait résilié proprement, n'avait aucun calendrier pour le regarder.
+                  //
+                  // Cette piste est EXCLUSIVE : un clan endormi ne relève plus que d'elle.
+                  // Lui laisser les autres pistes, c'était lui convoquer un boss tous les
+                  // quinze jours pendant deux ans.
+                  if (lastSeen > 0 && silentDays >= forgetD) {
+
+                      // ABONNÉ : jamais. Il paie, il a le droit de ne pas jouer, et effacer
+                      // les données de quelqu'un qu'on prélève chaque mois est indéfendable.
+                      // `canceled` en fait partie : la période payée court jusqu'au bout.
+                      const alive = ['trial', 'active', 'canceled', 'grace', 'hold']
+                          .indexOf(String(store.state || '')) >= 0;
+                      if (alive) { bump('skipped', 'sleep_subscribed'); await flush(); continue; }
+
+                      // Aux ADULTES, et à eux seuls : le sort des données d'un clan n'est pas
+                      // une affaire d'enfant. Chacun dans sa fenêtre.
+                      const adultsLive = live.filter((p) => !p.minor);
+                      const adultsInfo = informable.filter((p) => !p.minor);
+
+                      if (silentDays >= sleepNotice) {
+                          const noticeAt = Date.parse(String(pulse.sleep_notice_at || '')) || 0;
+
+                          if (!noticeAt) {
+                              // LE PRÉAVIS, une fois. Parti, ou constaté impossible (aucun
+                              // adulte équipé) : on date, sinon on n'effacerait jamais un clan
+                              // dont personne n'a d'appareil. Hors fenêtre en revanche, on ne
+                              // date PAS — la passe de l'heure suivante réessaiera.
+                              const targets = adultsInfo.filter((p) => inWindow(now, p.tz, 'adult'));
+                              if (adultsInfo.length && !targets.length) {
+                                  bump('skipped', 'out_of_window');
+                              } else {
+                                  const sent = targets.length
+                                      ? await pushByLang(targets, 'sleep_notice', null) : 0;
+                                  patch.sleep_notice_at = iso(now);
+                                  if (sent > 0) { report.notified += 1; bump('motives', 'sleep_notice'); }
+                                  else { bump('skipped', 'sleep_notice_nobody'); }
+                              }
+                          } else if (silentDays >= sleepPurge
+                                     && (now - noticeAt) >= (sleepPurge - sleepNotice) * DAY) {
+                              // L'EFFACEMENT : un drapeau, rien d'autre. `clan_purge` est le
+                              // SEUL chemin qui dissout un clan, et il ne doit pas en exister
+                              // un second. `idle_last_seen` lui permet de vérifier, au moment
+                              // d'agir, que personne n'est revenu entre-temps.
+                              if (!dry) {
+                                  await W.collection('clans_store').doc(clanId).set({
+                                      ownerId, purge_due: true, purge_reason: 'idle',
+                                      idle_last_seen: iso(lastSeen), updated_at: iso(now),
+                                  }, { merge: true });
+                              }
+                              bump('motives', 'sleep_purge');
+                          }
+                      } else {
+                          // LES RAPPELS DOUX. Un palier manqué ne se rattrape pas en rafale :
+                          // on vise le DERNIER palier atteint et un seul message part. Sans
+                          // cela, un clan découvert à quatorze mois de silence recevrait ses
+                          // deux premiers rappels à une heure d'intervalle.
+                          const stage = num(pulse.sleep_stage);
+                          let reached = 0;
+                          while (reached < sleepRem.length && silentDays >= sleepRem[reached]) reached++;
+                          if (reached > stage) {
+                              const targets = adultsLive.filter((p) => inWindow(now, p.tz, 'adult'));
+                              if (adultsLive.length && !targets.length) {
+                                  bump('skipped', 'out_of_window');
+                              } else {
+                                  const sent = targets.length
+                                      ? await pushByLang(targets, 'sleep_reminder', null) : 0;
+                                  // Le palier avance MÊME sans envoi quand personne n'est
+                                  // joignable : un rappel qu'aucun appareil ne peut recevoir
+                                  // n'a pas à être retenté toutes les heures pendant six mois.
+                                  patch.sleep_stage = reached;
+                                  patch.sleep_at    = iso(now);
+                                  if (sent > 0) { report.notified += 1; bump('motives', 'sleep_reminder'); }
+                                  else { bump('skipped', 'sleep_reminder_nobody'); }
+                              }
+                          }
+                      }
+
+                      await flush();
+                      continue;
+                  }
+
+                  // RÉVEILLÉ : quelqu'un est revenu. Tout l'état de sommeil retombe, y
+                  // compris le préavis — un clan qui se rendort repartira de zéro, rappels
+                  // compris, plutôt que d'être effacé sur la foi d'un préavis d'il y a un an.
+                  if (pulse.sleep_stage     !== undefined) patch.sleep_stage     = FieldValue.delete();
+                  if (pulse.sleep_at        !== undefined) patch.sleep_at        = FieldValue.delete();
+                  if (pulse.sleep_notice_at !== undefined) patch.sleep_notice_at = FieldValue.delete();
+
+                  if (sleepOnly.has(clanId)) { bump('skipped', 'awake'); await flush(); continue; }
 
                   // ---- Piste ADULTE ------------------------------------------------
                   // DEUX pressions distinctes, et les confondre était une erreur :
@@ -2078,24 +2477,7 @@ conf:
                       if (Object.keys(memberPatch).length) patch.members = memberPatch;
                   }
 
-                  // ⚠ N'ÉCRIRE QUE SI QUELQUE CHOSE A CHANGÉ. La passe tourne
-                  //   désormais TOUTES LES HEURES : réécrire `updated_at` à chaque
-                  //   passage ferait vingt-quatre écritures par clan et par jour pour ne
-                  //   rien dire. `ownerId` et `updated_at` ne comptent donc pas comme un
-                  //   changement à eux seuls — ils accompagnent, ils ne déclenchent pas.
-                  //
-                  // ⚠ LES SENTINELLES DE SUPPRESSION COMPTENT, ELLES. Elles ne sont posées
-                  //   que lorsqu'il y a réellement une clef à effacer (le code teste
-                  //   `!== undefined` avant), et elles disparaissent d'elles-mêmes au
-                  //   passage suivant puisque la clef n'existe plus.
-                  const bouge = !pulseSnap.exists || Object.keys(patch).some((k) => {
-                      if (k === 'ownerId' || k === 'updated_at') return false;
-                      if (k === 'members') return true;
-                      return JSON.stringify(pulse[k]) !== JSON.stringify(patch[k]);
-                  });
-                  if (!dry && bouge) {
-                      await W.collection('clans_pulse').doc(clanId).set(patch, { merge: true });
-                  } else if (!dry) { bump('skipped', 'unchanged'); }
+                  await flush();
               }
 
               console.log('[pulse_sweeper]', JSON.stringify(report));
@@ -2454,7 +2836,7 @@ conf:
       store_sweeper:
         schedule:
           hour: "17"
-      # Purge des clans à J730. Une heure APRÈS le balayage d'impayé : c'est lui qui
+      # Purge des clans à J780. Une heure APRÈS le balayage d'impayé : c'est lui qui
       # pose `purge_due`, et l'ordre fait que le drapeau est honoré le jour même plutôt
       # que le lendemain. Suit donc `store_sweeper` quand celui-ci se déplace.
       clan_purge:

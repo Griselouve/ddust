@@ -30,7 +30,8 @@
        en-tête mal formé ne casse pas ce document-ci : il casse la dérivation des
        onze autres marchés.
     4. ATTRIBUT `lang` — un document italien annoncé `lang="fr"` se fait lire à
-       voix haute avec l'accent français par un lecteur d'écran.
+       voix haute avec l'accent français par un lecteur d'écran. Les documents `br`
+       s'annoncent `pt-BR` (cf. HTML_LANG).
     5. MÉDIATEUR DE LA CONSOMMATION — exactement une mention `CM2C` dans chaque
        CGU ADULTE de la souche `fr`, aucune ailleurs. Même raison qu'au point 2,
        et une raison de plus : l'article L616-1 impose de DÉSIGNER NOMMÉMENT le
@@ -69,6 +70,11 @@ IDENTITE = "SIREN 109354092, RCS Pontoise"
 MARCHES_MEDIATION = ("fr", "euo", "eus", "eun", "eux", "uk", "ch")
 
 MEDIATION = "CM2C"
+
+# L'attribut `lang` du HTML quand il diffère du code de langue de l'app. `br` est le
+# portugais du Brésil dans deva, mais c'est le BRETON pour un lecteur d'écran : le
+# document doit donc s'annoncer `pt-BR`. Ajouté le 2026-09-16 avec la langue `br`.
+HTML_LANG = {"br": "pt-BR"}
 
 
 def _compte(texte, litteral):
@@ -118,7 +124,7 @@ def controle():
                         ecarts.append("%s : en-tête version « %s » introuvable"
                                       % (path.name, tag_v))
 
-                    if ('<html lang="%s">' % lang) not in texte:
+                    if ('<html lang="%s">' % HTML_LANG.get(lang, lang)) not in texte:
                         ecarts.append("%s : attribut lang absent ou faux" % path.name)
 
     return attendus, ecarts

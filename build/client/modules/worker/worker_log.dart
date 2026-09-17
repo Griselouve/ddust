@@ -394,7 +394,9 @@ extension Worker_log on worker {
                                     if (names.isNotEmpty)  totals.writeln("Membres du clan : ${names.join(", ")}.");
                                     if (totalXp > 0)       totals.writeln("XP totale accumulée par le clan : $totalXp XP.");
 
-                                    const langNames = {"fr": "French", "en": "English", "es": "Spanish"};
+                                    const langNames = {"fr": "French", "en": "English", "es": "Spanish", "de": "German",
+                                                       "it": "Italian", "pt": "European Portuguese", "br": "Brazilian Portuguese",
+                                                       "nl": "Dutch"};
                                     await deva_set("worker.inspire_lang",   langNames[TranslationRegistry.currentLang] ?? "English");
                                     await deva_set("worker.narrate_clan",   "$clanName. $clanDesc".trim());
                                     await deva_set("worker.narrate_input",  plainText);
@@ -666,7 +668,7 @@ extension Worker_log on worker {
                                 return d == null ? "" : "${d.year}-${d.month}-${d.day}";
     }
 
-    // En-tête de groupe (« Lundi 21 Juin ») dans la langue courante (fr/en/es, repli fr).
+    // En-tête de groupe (« Lundi 21 Juin ») dans la langue courante (huit langues, repli fr).
     // weekday: 1=lundi … 7=dimanche ; month: 1..12.
     String _dateHeader(Dvidle l, String lang) {
 
@@ -676,11 +678,21 @@ extension Worker_log on worker {
                                     "fr": ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"],
                                     "en": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
                                     "es": ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"],
+                                    "de": ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],
+                                    "it": ["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"],
+                                    "pt": ["Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado","Domingo"],
+                                    "br": ["Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado","Domingo"],
+                                    "nl": ["Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag","Zondag"],
                                 };
                                 const months = {
                                     "fr": ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"],
                                     "en": ["January","February","March","April","May","June","July","August","September","October","November","December"],
                                     "es": ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],
+                                    "de": ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
+                                    "it": ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"],
+                                    "pt": ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
+                                    "br": ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
+                                    "nl": ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"],
                                 };
                                 final dd = days[lang]   ?? days["fr"]!;
                                 final mm = months[lang] ?? months["fr"]!;
@@ -689,7 +701,10 @@ extension Worker_log on worker {
                                 switch (lang) {
                                     case "en": return "$wd $mo ${d.day}";       // Monday June 21
                                     case "es": return "$wd ${d.day} de $mo";    // Lunes 21 de junio
-                                    default:   return "$wd ${d.day} $mo";       // Lundi 21 Juin
+                                    case "pt":
+                                    case "br": return "$wd, ${d.day} de $mo";   // Segunda-feira, 21 de junho
+                                    case "de": return "$wd, ${d.day}. $mo";     // Montag, 21. Juni
+                                    default:   return "$wd ${d.day} $mo";       // Lundi 21 Juin · Lunedì 21 giugno · Maandag 21 juni
                                 }
     }
 

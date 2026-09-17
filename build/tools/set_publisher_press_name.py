@@ -37,7 +37,7 @@ BUILD = Path(__file__).parent.parent
 SITE = BUILD / "hosting" / "web"
 FICHE = SITE / "assets" / "press" / "ddust-factsheet.txt"
 
-LANGS = ("fr", "en", "es", "it", "de", "pt", "nl")
+LANGS = ("fr", "en", "es", "it", "de", "pt", "br", "nl")
 
 # Pages presse : la ligne « Développeur » de la liste des faits clés.
 # La clef change de langue en langue, la valeur non — d'où une source par langue.
@@ -54,6 +54,8 @@ PAGES = {
            "<span>Grisloup — unabhängiger Solo-Entwickler (Frankreich)</span>"),
     "pt": ("<span>grisloup.com — programador independente a solo (França)</span>",
            "<span>Grisloup — programador independente a solo (França)</span>"),
+    "br": ("<span>grisloup.com — desenvolvedor independente solo (França)</span>",
+           "<span>Grisloup — desenvolvedor independente solo (França)</span>"),
     "nl": ("<span>grisloup.com — onafhankelijke solo-ontwikkelaar (Frankrijk)</span>",
            "<span>Grisloup — onafhankelijke solo-ontwikkelaar (Frankrijk)</span>"),
 }

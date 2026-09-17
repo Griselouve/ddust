@@ -1,8 +1,8 @@
 # -----------------------------------------------------------------------------
-# --- Assets generes — declaration lue par le builder (modules/builder/assetgen.py)
+# --- Assets generes, declaration lue par le builder (modules/builder/assetgen.py)
 # -----------------------------------------------------------------------------
 # Pose a cote du build.yml DE LA SUITE, et separe de lui a dessein : build.yml est
-# deja tres charge, et ceci n'est pas de la construction — c'est de la MATIERE.
+# deja tres charge, et ceci n'est pas de la construction, c'est de la MATIERE.
 #
 # Au niveau suite et non au niveau d'une app : ces fichiers n'appartiennent au client
 # pas plus qu'a la montre, resources_cloud est mutualise, et c'est deja contre cette
@@ -10,7 +10,7 @@
 #
 # TROIS REGLES, rappelees ici parce qu'elles decident de la facon de travailler :
 #   1. un fichier declare qui manque et qu'on ne sait pas produire ARRETE le build ;
-#   2. rien n'est jamais ecrase — une retouche a la main survit indefiniment et ne
+#   2. rien n'est jamais ecrase, une retouche a la main survit indefiniment et ne
 #      declenche aucune cascade sur ce qui en derive ;
 #   3. refaire un asset consiste a l'EFFACER et a relancer un build.
 #
@@ -22,7 +22,7 @@ assets:
   # --- LES BUNDLES : la bibliotheque d'assets, telle que la console la montre ------
   #
   # Un bundle = un repertoire, un rang d'affichage, et une place dans le modele de
-  # nommage. Un fichier HORS de tout bundle n'existe pas pour la bibliotheque — d'ou
+  # nommage. Un fichier HORS de tout bundle n'existe pas pour la bibliotheque, d'ou
   # l'avertissement que l'inventaire emet quand une sortie declaree tombe dehors.
   #
   # `root`    = la racine de manifeste cloud, celle que `dvcloudassets` retire pour
@@ -33,7 +33,7 @@ assets:
   # ⚠ PAS DE BUNDLE `media` (arbitre le 2026-09-11) : il n'existe aujourd'hui ni master
   #   YouTube ni video TikTok, et un bundle vide n'est que du bruit dans l'ecran
   #   Modules. Le format portrait de la video de demonstration ecrit pour l'instant
-  #   dans `resources_others/video/out/`, donc hors bundle — l'inventaire le signale a
+  #   dans `resources_others/video/out/`, donc hors bundle, l'inventaire le signale a
   #   chaque passe, et c'est ce qui rouvrira la question le jour ou il sortira.
   bundles:
     core:
@@ -55,21 +55,43 @@ assets:
     #   d'une capture. Plausible, et fausse.
     #
     #   Le drapeau vit sur le BUNDLE et non sur chaque fichier : c'est une propriete de
-    #   la matiere, la meme pour les 76 fichiers, et la poser une fois evite de la
+    #   la matiere, la meme pour tous ses fichiers, et la poser une fois evite de la
     #   reposer a chaque capture ajoutee.
-    screenshots:
-      dir: "resources_others/screenshots"
+    #
+    #   `showcase` : les prises de la vitrine (dvshowcase), refaites a chaque passage de
+    #   `builder.py suite=ddust showcase`. Elles ont remplace `resources_others/screenshots/`
+    #   le 2026-09-16 : le site, la fiche Play et les videos y puisent directement.
+    # Le decor de l'accueil servi par le bucket PUBLIC (vague `ante`). Il n'a pas de
+    # racine de manifeste : ces fichiers ne partent pas dans le bucket d'assets, ils
+    # vivent sous leur chemin nu dans `preload`, c'est justement ce qui permet de les
+    # lire avant qu'aucun manifeste n'ait ete charge.
+    preload:
+      dir: "resources_cloud/intro"
+      order: 35
+
+    showcase:
+      dir: "resources_others/showcase"
       order: 40
       generable: false
+
+    # Les SOURCES de l'accueil : ce que les modeles ont rendu, garde intact. Ni embarque
+    # ni televerse, c'est la matiere dont les deux bundles ci-dessus sont derives. On
+    # l'inventorie quand meme, et c'est tout l'interet : une derivation se refait, une
+    # generation se repaie. Perdre la source de vue, c'est se condamner a redemander au
+    # modele ce qu'on avait deja.
+    intro_sources:
+      dir: "resources_others/intro"
+      order: 45
     web:
       dir: "hosting/web/assets"
       order: 50
       generable: false
 
-  # Les sept langues officielles. Tout `out` contenant @@@lang@@@ produit sept fichiers,
-  # et tout bloc `text:` doit porter ces sept clefs — une langue oubliee est une erreur,
+  # Les huit langues officielles (`br`, portugais du Bresil, depuis le 2026-09-16). Tout
+  # `out` contenant @@@lang@@@ produit huit fichiers, et tout bloc `text:` doit porter ces
+  # huit clefs, une langue oubliee est une erreur,
   # pas un repli silencieux : une video muette sur un marche passerait inapercue.
-  langs: [fr, en, es, de, it, pt, nl]
+  langs: [fr, en, es, de, it, pt, br, nl]
 
   defaults:
     # MESURE, pas suppose (sondes des 2026-09-10 et 2026-09-11 sur asura-888) :
@@ -91,15 +113,89 @@ assets:
       locations: ["us-central1", "europe-west4"]
     music:
       model: "lyria-002"
-      locations: ["us-central1", "europe-west4"]
+      # ⚠ us-central1 SEULEMENT, mesure le 2026-09-13 : europe-west4 rend un 404
+      #   « Publisher model lyria-002 was not found or your project does not have
+      #   access to it ». Il y repondait le 2026-09-11, l'acces a donc ete retire
+      #   entre les deux, ce qu'aucune annonce n'a dit. La laisser dans la liste ne
+      #   coutait pas une erreur (la boucle de localisations aurait bascule) mais un
+      #   aller-retour inutile a chaque generation, et un message trompeur dans le
+      #   journal du build. L'y remettre demande de le remesurer, pas de l'esperer.
+      locations: ["us-central1"]
     voice:
-      model: "gemini-2.5-flash-tts"
-      # UNE seule voix pour les sept langues : la langue se deduit du texte, pas d'un
-      # parametre. C'est ce qui donne l'unite de timbre qu'un catalogue par langue ne
-      # donne pas — sept voix differentes feraient sept marques differentes.
-      voice: "Kore"
-      style: "Lis ce texte d'une voix chaleureuse et posee de conteur, sans emphase :"
-      locations: ["europe-west4", "us-central1"]
+      # ⚠ ELEVENLABS ET NON gemini-tts, depuis le 2026-09-13. Ce dernier rend une
+      #   LECTURE, reguliere, juste, sans intention, et deux reformulations du style
+      #   n'y ont rien change : demander de la lenteur a seulement fait passer les
+      #   repliques de 8,5 s a 20 s. On ne corrige pas un manque d'interpretation par
+      #   une consigne de rythme. La declaration gemini est conservee plus bas, au cas
+      #   ou l'on veuille y revenir pour du volume (elle est facturee a l'appel, la ou
+      #   ElevenLabs l'est au caractere).
+      #
+      # ⚠ LA CLEF N'EST PAS ICI ET N'Y SERA JAMAIS. Elle vit dans le coffre du
+      #   framework (`elevenlabs_apikey`), qui consulte d'abord les variables
+      #   d'environnement, `ELEVENLABS_APIKEY` suffit donc, et la demande une seule
+      #   fois si elle manque, avant de la ranger. Aucun fichier nouveau, aucune
+      #   convention nouvelle : c'est le meme mecanisme que le passphrase Pulumi.
+      tool: "eleven"
+      model: "eleven_multilingual_v2"
+
+      # UNE VOIX PAR LANGUE, a l'inverse de ce qu'on faisait chez Google ou l'on tenait
+      # a un timbre unique. Une voix francaise qui lit de l'espagnol s'entend ; le
+      # catalogue permet ici de choisir, par langue, quelqu'un qui sonne du pays.
+      # On declare des NOMS : un `voice_id` opaque ne se relit pas, ne se discute pas,
+      # et ne se verifie qu'en le collant dans un navigateur. Le module resout le nom
+      # contre le catalogue, et un nom introuvable dit lesquels existent.
+      #
+      # ⚠ LE NOM EST CELUI DU CATALOGUE, EN ENTIER. Les voix de la bibliotheque publique
+      #   portent un nom suivi de leur description (« Jenna - Warm, Soft, and Sultry ») :
+      #   c'est ce libelle complet qui fait foi. Le module tolere un prefixe, « Jenna »
+      #   suffirait tant qu'une seule voix commence ainsi, mais deux homonymes ajoutes
+      #   plus tard rendraient le choix silencieusement arbitraire.
+      voices:
+        fr: "Souni"
+        en: "Sylvie"
+        es: "Alejandra"
+        # Jenna couvre les QUATRE langues restantes. Le modele multilingue porte le timbre
+        # d'une langue a l'autre, et rien n'oblige a un locuteur different par marche quand
+        # le rendu tient la route : une voix dont on a valide qu'elle va aux quatre vaut
+        # mieux que quatre voix dont on n'a ecoute qu'une.
+        de: "Jenna - Warm, Soft, and Sultry"
+        it: "Jenna - Warm, Soft, and Sultry"
+        pt: "Jenna - Warm, Soft, and Sultry"
+        # ⚠ `br` PARTAGE LA VOIX DE `pt`, PAS SES TEXTES (2026-09-16). Le portugais du
+        #   Brésil est une langue à part entière dans l'app : chaque réplique a son texte
+        #   `br`, et donc son propre fichier `_br.mp3`. Seul le timbre est commun, faute
+        #   d'avoir validé une voix brésilienne au catalogue. En choisir une plus tard ne
+        #   demande que de changer cette ligne, puis d'effacer les `_br` pour les refaire.
+        br: "Jenna - Warm, Soft, and Sultry"
+        nl: "Jenna - Warm, Soft, and Sultry"
+
+      # Reglages de rendu, et c'est ICI que se joue le ton, pas dans le texte.
+      #
+      # `stability` est le reglage le plus contre-intuitif du lot : PLUS IL EST BAS, PLUS
+      # LA VOIX VIT. A 0,45 elle etait juste et reguliere, donc un peu mecanique ; a 0,30
+      # elle varie d'une phrase a l'autre, marque des elans, respire. Trop bas (sous 0,20)
+      # elle devient instable au point de changer de caractere en cours de replique.
+      #
+      # `expressivity` (le champ `style` de l'API) ajoute l'intention par-dessus. Monte de
+      # 0,25 a 0,45 : assez pour qu'un conteur ait l'air d'y croire, pas au point de
+      # surjouer, on raconte a un enfant le soir, on ne presente pas un jeu televise.
+      #
+      # ⚠ CES DEUX REGLAGES COUTENT DE LA REPRODUCTIBILITE : deux generations du meme
+      #   texte ne donneront plus exactement le meme fichier. C'est le prix d'une voix
+      #   vivante, et il se paie surtout si l'on regenere une seule replique d'une serie.
+      stability: 0.30
+      similarity: 0.80
+      expressivity: 0.45
+      format: "mp3_44100_128"
+
+      # --- Repli Google, conserve et inerte -----------------------------------
+      # Reprendre gemini-tts demande de remettre `tool: "gemini-tts"` ci-dessus et de
+      # redeclarer ces trois clefs a la place des `voices`.
+      #   model: "gemini-2.5-flash-tts"
+      #   voice: "Kore"
+      #   style: "Dis ce texte comme un conteur qui confie quelque chose a un enfant…"
+      #   locations: ["europe-west4", "us-central1"]
+
     video:
       fps: 30
       fill: "blur"
@@ -111,20 +207,20 @@ assets:
     # LES ASSETS HISTORIQUES, TOUS DECLARES. Un fichier pose dans un bundle et
     # declare nulle part est un RATE DE DECLARATION, pas une categorie a part :
     # il n'a ni etape, ni style, ni endroit ou ecrire un prompt, et la console ne
-    # peut rien en faire. Ces trois etapes ferment ce trou — 120 fichiers sur 378
+    # peut rien en faire. Ces trois etapes ferment ce trou, 120 fichiers sur 378
     # au 2026-09-11 : les icones d'interface, les musiques, les sons, les videos,
     # les images du site.
     #
     # ⚠ `source` VEUT DIRE « rien ne sait le refaire », et c'est la verite pour
     #   ceux-la : ils n'ont pas de prompt. Ce n'est pas un manque a combler d'un
-    #   coup — c'est un etat CONNU. Demander la regeneration de l'un d'eux ne
+    #   coup, c'est un etat CONNU. Demander la regeneration de l'un d'eux ne
     #   produit pas n'importe quoi : la console l'ecarte vers « a revoir », et la
     #   revue propose de le garder, d'en televerser une reprise, ou d'en ecrire un
     #   prompt. Ecrire ce prompt le fera passer de `source` a `image`, ici meme.
     #
     # ⚠ EN PREMIER, ET C'EST L'ORDRE QUI COMPTE. Les jokers ci-dessous ratissent
     #   large et recouvrent des fichiers que les etapes SUIVANTES declarent plus
-    #   precisement — les huit guides, les 205 familles, les captures du site. La
+    #   precisement, les huit guides, les 205 familles, les captures du site. La
     #   derniere declaration l'emporte : les precises doivent donc passer apres.
     - name: historique_core
       enabled: true
@@ -182,6 +278,564 @@ assets:
           out: "icon/us.png"
           prompt: >-
             Le drapeau des États-Unis d'Amérique, avec cinquante étoiles blanches sur un canton bleu et treize bandes horizontales alternées rouges et blanches. Le drapeau est représenté de manière simple et graphique, avec des couleurs vives et un design plat.
+    # =========================================================================
+    # ACCUEIL DU NOUVEAU JOUEUR, 1/3 : LES SOURCES
+    #
+    # Ce que les modeles rendent, garde INTACT et hors de tout bundle : PNG pleine
+    # resolution, WAV sans perte. Rien ici n'est servi a personne, ni embarque dans
+    # le paquet, ni televerse dans un bucket. C'est la matiere.
+    #
+    # ⚠ POURQUOI NE PAS GENERER DIRECTEMENT AU BON FORMAT : parce qu'une derivation
+    #   se refait, une generation se repaie. Changer le debit d'une voix ou la
+    #   qualite d'une image ne doit pas demander de redemander au modele, qui, lui,
+    #   rendrait autre chose. Les deux etapes suivantes ne font que decliner ceci.
+    # ⚠ `resources_others/` N'EST PAS UN BUNDLE (cf. le bloc `bundles` en tete) :
+    #   ces fichiers n'entrent donc pas dans l'inventaire, et c'est voulu.
+    # =========================================================================
+    - name: intro_sources
+      enabled: true
+      dir: "resources_others/intro"
+      # Meme main que l'icone et le splash : ce sont les deux seules images que le
+      # joueur aura vues avant l'interlude, et l'accueil doit etre du meme monde.
+      refs: [historique_core_icon, historique_core_splash]
+      style: >-
+        Rich fantasy game illustration in the exact style of the reference images:
+        bold expressive outlines, earthy palette warmed by candlelight and gold, soft
+        volumetric dust floating in the air, a faint medieval wink on modern household
+        objects. Portrait composition for a phone screen, the subject centred with
+        quiet margins at the top and bottom. No text, no letters, no logo, no
+        watermark, no frame.
+      items:
+
+        # --- Les quatre tableaux -------------------------------------------------
+        intro_t1_maison:
+          kind: image
+          aspect: "9:16"
+          out: "big/t1_maison.png"
+          prompt: >-
+            A cosy family living room at dusk, slowly turning into a dusty dungeon:
+            moss creeping over the sofa, cobwebs hanging from the lamp, floor tiles
+            becoming worn flagstones, a wooden chest half buried under laundry in the
+            corner. Melancholic but gentle, never frightening.
+
+        intro_t2_monstres:
+          kind: image
+          aspect: "9:16"
+          out: "big/t2_monstres.png"
+          prompt: >-
+            The household chores of that same room turned into small comical monsters:
+            a pile of dishes with teeth, a laundry basket with grabbing arms, a dust
+            bunny with glowing eyes under the table, a bin creature drooling. Mischievous
+            and funny, never scary, a child must want to fight them.
+
+        intro_t3_clan:
+          kind: image
+          aspect: "9:16"
+          out: "big/t3_clan.png"
+          prompt: >-
+            A family of four standing shoulder to shoulder like an adventuring party in
+            the doorway of that room, holding a broom, a mop, a feather duster and a
+            bucket the way one holds weapons. Determined and grinning, a rolled rug
+            carried behind them like a banner.
+
+        intro_t4_coffre:
+          kind: image
+          aspect: "9:16"
+          out: "big/t4_coffre.png"
+          prompt: >-
+            The same room, now clean and glowing, the family gathered around an open
+            wooden treasure chest spilling golden light: coins, and small tokens of
+            shared time, cinema tickets, a board game, a picnic basket. Warm,
+            triumphant, tender.
+
+        # --- Le lit sonore : EN ATTENTE ------------------------------------------
+        # RETIRE LE 2026-09-13, et ce n'est pas un renoncement : lyria-002 refuse ce
+        # morceau. Deux redactions, deux refus, HTTP 500 « Could not generate audio,
+        # try a different prompt » sur la premiere, HTTP 503 « Audio generation failed »
+        # sur la seconde, et une seule localisation ouverte depuis qu'europe-west4 a
+        # perdu le modele, donc aucun repli. L'interlude se joue tres bien sans : une
+        # narration sur fond de silence se remarque davantage qu'une narration sur nappe.
+        #
+        # POUR LA REPRENDRE : decommenter ci-dessous, remettre `intro_ambiance_mp3` dans
+        # l'etape `intro`, et redeclarer `sound: intro_ambiance` sur l'interlude du theme
+        # (+ son `sound.preload`). Trois endroits, tous signales.
+        #
+        # ⚠ ON NE DECRIT QUE DE LA MUSIQUE, c'est ce que la premiere redaction ignorait.
+        #   Elle demandait un BRUITAGE (« soft wind in a stone hall » : lyria compose, il
+        #   ne fait pas de sound design), une DUREE (le modele rend une trentaine de
+        #   secondes quoi qu'on lui dise) et un MIXAGE (« quiet enough to speak over »,
+        #   qui decrit la place du morceau dans un montage, pas le morceau). La seconde,
+        #   ci-dessous, est deja debarrassee de tout cela, et se fait refuser quand meme.
+        #
+        # intro_ambiance:
+        #   kind: music
+        #   out: "sounds/intro_ambiance.wav"
+        #   prompt: >-
+        #     Slow medieval fantasy instrumental: low sustained strings and a distant lute,
+        #     unhurried and a little mysterious, warming into a hopeful lift towards the end.
+        #   negative: "drums, vocals, epic orchestral hits, modern synths"
+
+        # --- La voix du conteur --------------------------------------------------
+        # ⚠ HUIT LANGUES DEPUIS LE 2026-09-16 : `br` (portugais du Bresil) s'ajoute, avec la
+        #   meme voix que `pt` mais ses propres textes (cf. `voices` en tete).
+        # ⚠ SEPT LANGUES DEPUIS LE 2026-09-15, avec l'ouverture de de/it/pt/nl dans l'app.
+        #   Les voix s'etaient d'abord limitees a fr/en/es pour ne pas alourdir le paquet
+        #   de langues que l'app n'offrait pas encore. Une fois ces langues choisissables,
+        #   un enfant allemand qui entendrait le conteur en francais ne comprendrait rien
+        #   a l'accueil ; le surcout reste de l'ordre du megaoctet (64 kbps mono).
+        #   `langs:` restreint les sorties ET les textes exiges (assetgen._texts). Le
+        #   worker retombe sur le francais pour toute langue non embarquee, jamais sur
+        #   le silence.
+        # ⚠ LE NOM DU FICHIER D'UN ECRAN EST LE dvid DE CET ECRAN. Le worker construit
+        #   « intro/voices/<page>_<lang>.wav » depuis la page courante, sans table de
+        #   correspondance : renommer un ecran sans renommer sa voix la fait taire, et
+        #   c'est le seul couplage, il est volontaire, et il tient en une ligne.
+        # ⚠ LES SOURCES SONT EN .mp3, pas en .wav : ElevenLabs rend directement du MP3
+        #   (128 kbps), la ou Vertex rendait du PCM brut qu'il fallait envelopper. Les
+        #   derivations restent utiles, elles ramenent a 64 kbps mono, ce qui divise
+        #   encore le poids par deux pour une narration ou personne n'entendra la
+        #   difference. Revenir a Vertex demanderait de remettre `.wav` ici.
+        #
+        # ⚠ LES TEXTES SONT ACCENTUES, eux. Le modele lit ce qu'on lui donne : « etait »
+        #   ne se prononce pas comme « était », et une voix de conteur qui ecorche sa
+        #   propre langue ruine exactement ce qu'on est venu chercher ici.
+
+        intro_v_t1:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/t1_@@@lang@@@.mp3"
+          text:
+            fr: "Il était une fois une maison envahie de poussière."
+            en: "Once upon a time, a house overrun with dust."
+            es: "Había una vez una casa invadida por el polvo."
+            de: "Es war einmal ein Haus, das im Staub versank."
+            it: "C'era una volta una casa invasa dalla polvere."
+            pt: "Era uma vez uma casa invadida pelo pó."
+            br: "Era uma vez uma casa invadida pela poeira."
+            nl: "Er was eens een huis dat onder het stof verdween."
+
+        intro_v_t2:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/t2_@@@lang@@@.mp3"
+          text:
+            fr: "La vaisselle grogne, le linge sale rôde, la poussière s'installe."
+            en: "The dishes growl, the dirty laundry prowls, the dust settles in."
+            es: "La vajilla gruñe, la ropa sucia acecha, el polvo se instala."
+            de: "Das Geschirr knurrt, die schmutzige Wäsche schleicht umher, der Staub macht es sich gemütlich."
+            it: "I piatti brontolano, i panni sporchi si aggirano, la polvere si sistema."
+            pt: "A loiça resmunga, a roupa suja anda à espreita, o pó instala-se."
+            br: "A louça resmunga, a roupa suja fica à espreita, a poeira se instala."
+            nl: "De afwas gromt, de vuile was sluipt rond, het stof nestelt zich."
+
+        intro_v_t3:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/t3_@@@lang@@@.mp3"
+          text:
+            fr: "Courage ! Formez une équipe, un clan, qui ne laisse personne derrière."
+            en: "Take heart! Form a team, a clan, that leaves no one behind."
+            es: "¡Ánimo! Formad un equipo, un clan, que no deje a nadie atrás."
+            de: "Nur Mut! Bildet ein Team, einen Clan, der niemanden zurücklässt."
+            it: "Coraggio! Formate una squadra, un clan, che non lascia indietro nessuno."
+            pt: "Coragem! Formem uma equipa, um clã, que não deixa ninguém para trás."
+            br: "Coragem! Formem uma equipe, um clã, que não deixa ninguém para trás."
+            nl: "Moed houden! Vorm een team, een clan, die niemand achterlaat."
+
+        # ⚠ CETTE REPLIQUE SE TERMINE PAR UNE QUESTION, et c'est elle qui fait la
+        #   jonction. L'interlude s'arretait sur une promesse, puis deux boutons
+        #   paraissaient sans rapport avec ce qu'on venait d'entendre : le conteur se
+        #   taisait, et un formulaire prenait sa place. En posant « as-tu deja un
+        #   personnage ? », la voix DEMANDE ce que l'ecran suivant propose, les deux
+        #   portes ne sont plus un choix administratif mais la reponse a la question.
+        #
+        #   Le tutoiement singulier est voulu ici, alors que le reste de la replique
+        #   s'adresse a la famille au pluriel : le recit parle au clan, la question
+        #   s'adresse a la personne qui tient le telephone.
+        intro_v_t4:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/t4_@@@lang@@@.mp3"
+          text:
+            fr: "Combattez les monstres, nettoyez cette maison. Des trésors vous attendent… et peut-être même de l'argent de poche. Mais d'abord : as-tu déjà un personnage ?"
+            en: "Fight the monsters, clean this house. Treasures await you… and maybe even some pocket money. But first: do you already have a character?"
+            es: "Combatid a los monstruos, limpiad esta casa. Os esperan tesoros… y quizá hasta algo de paga. Pero antes: ¿ya tienes un personaje?"
+            de: "Bekämpft die Monster, putzt dieses Haus. Schätze warten auf euch… und vielleicht sogar Taschengeld. Aber zuerst: Hast du schon einen Charakter?"
+            it: "Combattete i mostri, pulite questa casa. Vi aspettano tesori… e forse perfino la paghetta. Ma prima: hai già un personaggio?"
+            pt: "Combatam os monstros, limpem esta casa. Esperam-vos tesouros… e talvez até uma mesada. Mas primeiro: já tens uma personagem?"
+            br: "Combatam os monstros, limpem esta casa. Tesouros esperam por vocês… e talvez até uma mesada. Mas primeiro: você já tem um personagem?"
+            nl: "Bevecht de monsters, maak dit huis schoon. Er wachten schatten op jullie… en misschien zelfs zakgeld. Maar eerst: heb je al een personage?"
+
+        # --- Une replique par ecran d'onboarding ---------------------------------
+        intro_v_region_screen:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/region_screen_@@@lang@@@.mp3"
+          text:
+            fr: "Dans quel royaume va jouer ton personnage et ton clan ?"
+            en: "In which realm will your character and your clan play?"
+            es: "¿En qué reino jugarán tu personaje y tu clan?"
+            de: "In welchem Königreich werden dein Charakter und dein Clan spielen?"
+            it: "In quale regno giocheranno il tuo personaggio e il tuo clan?"
+            pt: "Em que reino vão jogar a tua personagem e o teu clã?"
+            br: "Em que reino seu personagem e seu clã vão jogar?"
+            nl: "In welk koninkrijk gaan je personage en je clan spelen?"
+
+        intro_v_age_screen:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/age_screen_@@@lang@@@.mp3"
+          text:
+            fr: "L'aubergiste se méfie. Ta date de naissance ?"
+            en: "The innkeeper is wary. Your date of birth?"
+            es: "El posadero desconfía. ¿Tu fecha de nacimiento?"
+            de: "Der Wirt ist misstrauisch. Dein Geburtsdatum?"
+            it: "L'oste è diffidente. La tua data di nascita?"
+            pt: "O estalajadeiro desconfia. A tua data de nascimento?"
+            br: "O taverneiro desconfia. Qual é a sua data de nascimento?"
+            nl: "De waard is argwanend. Je geboortedatum?"
+
+        # ⚠ PAS DE REPLIQUE POUR `link_account_screen`, ET C'EST VOULU. L'interlude du
+        #   pacte, qui le precede immediatement, dit deja « Tu peux maintenant entrer dans
+        #   le donjon ! », la redire a l'arrivee reviendrait a repeter la meme phrase a
+        #   deux secondes d'intervalle. L'ecran de login parait donc en silence, et c'est
+        #   le seul du tunnel dans ce cas.
+
+        # ⚠ CETTE REPLIQUE SE JOUE SUR L'ECRAN DE L'ENIGME, pas sur celui de l'age : c'est
+        #   la qu'elle a un sens (« resous l'enigme » se dit devant l'enigme). Le fichier
+        #   porte donc le dvid `parentalgate_screen`, et le worker le trouve sans table.
+        intro_v_parentalgate_screen:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/parentalgate_screen_@@@lang@@@.mp3"
+          text:
+            fr: "Si tu es un adulte, résous l'énigme."
+            en: "If you are an adult, solve the riddle."
+            es: "Si eres adulto, resuelve el enigma."
+            de: "Wenn du erwachsen bist, löse das Rätsel."
+            it: "Se sei un adulto, risolvi l'enigma."
+            pt: "Se és adulto, resolve o enigma."
+            br: "Se você é adulto, resolva o enigma."
+            nl: "Als je volwassen bent, los dan het raadsel op."
+
+        # Trois mots, et volontairement trois seulement. C'est le seul ecran du tunnel ou
+        # la voix ne raconte rien : elle demande de LIRE. Un conteur bavard, ici,
+        # detournerait de ce qu'il y a a lire, et ce qu'il y a a lire engage.
+        intro_v_documents_acceptance_screen:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/documents_acceptance_screen_@@@lang@@@.mp3"
+          text:
+            fr: "Lis attentivement les conditions."
+            en: "Read the terms carefully."
+            es: "Lee atentamente las condiciones."
+            de: "Lies die Bedingungen aufmerksam."
+            it: "Leggi attentamente le condizioni."
+            pt: "Lê atentamente as condições."
+            br: "Leia as condições com atenção."
+            nl: "Lees de voorwaarden aandachtig."
+
+        intro_v_kid_assent_screen:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/kid_assent_screen_@@@lang@@@.mp3"
+          text:
+            fr: "Tes parents ont dit oui. À toi de jouer !"
+            en: "Your parents said yes. Your turn now!"
+            es: "Tus padres han dicho que sí. ¡Te toca a ti!"
+            de: "Deine Eltern haben Ja gesagt. Jetzt bist du dran!"
+            it: "I tuoi genitori hanno detto sì. Tocca a te!"
+            pt: "Os teus pais disseram que sim. É a tua vez!"
+            br: "Seus pais disseram que sim. É a sua vez!"
+            nl: "Je ouders hebben ja gezegd. Nu is het jouw beurt!"
+
+        intro_v_player_name_screen:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/player_name_screen_@@@lang@@@.mp3"
+          text:
+            fr: "Comment s'appelle ton aventurier ?"
+            en: "What is your adventurer's name?"
+            es: "¿Cómo se llama tu aventurero?"
+            de: "Wie heißt dein Abenteurer?"
+            it: "Come si chiama il tuo avventuriero?"
+            pt: "Como se chama o teu aventureiro?"
+            br: "Qual é o nome do seu aventureiro?"
+            nl: "Hoe heet jouw avonturier?"
+
+        intro_v_new_or_pick_clan:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/new_or_pick_clan_@@@lang@@@.mp3"
+          text:
+            fr: "Tu peux fonder ton clan si tu es le premier, ou rejoindre les tiens."
+            en: "You can found your clan if you are the first, or join your own."
+            es: "Puedes fundar tu clan si eres el primero, o unirte a los tuyos."
+            de: "Du kannst deinen Clan gründen, wenn du der Erste bist, oder dich deinen Leuten anschließen."
+            it: "Puoi fondare il tuo clan se sei il primo, o unirti ai tuoi."
+            pt: "Podes fundar o teu clã se fores o primeiro, ou juntar-te aos teus."
+            br: "Você pode fundar seu clã se for o primeiro, ou se juntar aos seus."
+            nl: "Je kunt je clan stichten als je de eerste bent, of je bij de jouwen aansluiten."
+
+        intro_v_create_clan:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/create_clan_@@@lang@@@.mp3"
+          text:
+            fr: "Comment s'appelle ton clan ?"
+            en: "What is your clan called?"
+            es: "¿Cómo se llama tu clan?"
+            de: "Wie heißt dein Clan?"
+            it: "Come si chiama il tuo clan?"
+            pt: "Como se chama o teu clã?"
+            br: "Qual é o nome do seu clã?"
+            nl: "Hoe heet je clan?"
+
+        intro_v_kid_wants_clan:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/kid_wants_clan_@@@lang@@@.mp3"
+          text:
+            fr: "Rejoins un clan avec ta famille."
+            en: "Join a clan with your family."
+            es: "Únete a un clan con tu familia."
+            de: "Tritt mit deiner Familie einem Clan bei."
+            it: "Unisciti a un clan con la tua famiglia."
+            pt: "Junta-te a um clã com a tua família."
+            br: "Entre em um clã com a sua família."
+            nl: "Sluit je samen met je familie aan bij een clan."
+
+        # ⚠ « ET » ET NON « & ». Le nom de l'application s'ecrit avec une esperluette
+        #   partout ailleurs, mais une synthese vocale ne sait pas quoi en faire : selon
+        #   la langue et le modele, elle la lit « esperluette », l'epelle, ou l'avale. Un
+        #   texte destine a etre ENTENDU s'ecrit comme il se prononce.
+        #
+        # ⚠ LE NOM CHANGE AVEC LA LANGUE, Donjons et Savons, Dungeons and Dusting,
+        #   Calabozos y Jabones, et ce n'est pas une traduction approximative : ce sont
+        #   les trois noms deposes du jeu. Les recopier ici plutot que d'y mettre un jeton
+        #   les fige, mais un jeton ne se prononcerait pas.
+        #   de/it/pt/nl n'ont PAS de nom depose : ils disent la marque, « Donjons et
+        #   Savons », comme leurs pages du site. En inventer un serait deposer sans le dire.
+        intro_v_dashboard:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/dashboard_@@@lang@@@.mp3"
+          text:
+            fr: "Bienvenue dans Donjons et Savons."
+            en: "Welcome to Dungeons and Dusting."
+            es: "Bienvenido a Calabozos y Jabones."
+            de: "Willkommen bei Donjons et Savons."
+            it: "Benvenuto in Donjons et Savons."
+            pt: "Bem-vindo a Donjons et Savons."
+            br: "Bem-vindo a Donjons et Savons."
+            nl: "Welkom bij Donjons et Savons."
+
+        intro_v_decisiontree:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voices/decisiontree_@@@lang@@@.mp3"
+          text:
+            fr: "L'aubergiste va personnaliser tes quêtes. Réponds sans crainte, ou passe ton chemin."
+            en: "The innkeeper will tailor your quests. Answer freely, or go on your way."
+            es: "El posadero personalizará tus misiones. Responde sin miedo, o sigue tu camino."
+            de: "Der Wirt wird deine Quests anpassen. Antworte ohne Furcht, oder zieh deines Weges."
+            it: "L'oste personalizzerà le tue missioni. Rispondi senza timore, o prosegui per la tua strada."
+            pt: "O estalajadeiro vai personalizar as tuas missões. Responde sem receio, ou segue o teu caminho."
+            br: "O taverneiro vai personalizar suas missões. Responda sem medo, ou siga seu caminho."
+            nl: "De waard gaat je queesten op maat maken. Antwoord zonder vrees, of ga je eigen weg."
+
+
+    # =========================================================================
+    # ACCUEIL DU NOUVEAU JOUEUR, 2/3 : CE QUI EST EMBARQUE
+    #
+    # Le grand interlude se joue AVANT que le royaume ne soit choisi : a cet instant
+    # aucun datacenter n'est connu, aucun bucket n'est resoluble, aucune session
+    # n'existe. Ce qui n'est pas dans le paquet n'existe pas encore. D'ou le bundle
+    # `core` (dir: resources, bundled), et d'ou, aussi, le soin mis au poids.
+    #
+    # ⚠ WEBP ET MP3, PAS PNG ET WAV. Mesure du 2026-09-13 : les memes fichiers
+    #   pesaient 20,4 Mo bruts et 2,0 Mo derives, pour une difference que ni l'oeil
+    #   ni l'oreille ne relevent sur un telephone. Vingt megaoctets d'apk pour un
+    #   accueil de trente secondes, c'etait reprendre d'une main ce qu'on venait
+    #   d'economiser de l'autre en retirant la video.
+    # ⚠ SOUS-ARBRE `intro/` DEDIE, jamais `images/big/`. Le bundle gagne toujours sur
+    #   le cloud pour un meme chemin nu : une image posee sous un chemin du theme
+    #   masquerait silencieusement celle du theme, partout et pour toujours.
+    # =========================================================================
+    - name: intro
+      enabled: true
+      dir: "resources"
+      items:
+        intro_t1_maison_webp:
+          kind: derive
+          refs: [intro_t1_maison]
+          out: "intro/big/t1_maison.webp"
+          quality: 85
+        intro_t2_monstres_webp:
+          kind: derive
+          refs: [intro_t2_monstres]
+          out: "intro/big/t2_monstres.webp"
+          quality: 85
+        intro_t3_clan_webp:
+          kind: derive
+          refs: [intro_t3_clan]
+          out: "intro/big/t3_clan.webp"
+          quality: 85
+        intro_t4_coffre_webp:
+          kind: derive
+          refs: [intro_t4_coffre]
+          out: "intro/big/t4_coffre.webp"
+          quality: 85
+
+        # Le lit sonore : EN ATTENTE avec sa source (cf. `intro_ambiance` plus haut).
+        # 96 kbps parce que c'est de la musique et non de la parole, le debit de la
+        # voix y ferait entendre ses artefacts sur les tenues.
+        #
+        # intro_ambiance_mp3:
+        #   kind: derive
+        #   refs: [intro_ambiance]
+        #   out: "intro/sounds/intro_ambiance.mp3"
+        #   bitrate: "96k"
+        #   channels: 2
+
+        # Les quatre repliques des tableaux. 64 kbps mono : une narration n'a ni
+        # stereo a rendre ni aigus a preserver, et le gain est d'un facteur six.
+        intro_v_t1_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_t1]
+          out: "intro/voices/t1_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_t2_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_t2]
+          out: "intro/voices/t2_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_t3_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_t3]
+          out: "intro/voices/t3_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_t4_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_t4]
+          out: "intro/voices/t4_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+
+    # =========================================================================
+    # ACCUEIL DU NOUVEAU JOUEUR, 3/3 : LA VAGUE `ante`
+    #
+    # Les repliques des ecrans du tunnel. Elles ne sont PAS embarquees : elles
+    # descendent pendant les trente secondes de l'interlude d'accueil, depuis le
+    # bucket PUBLIC, avant meme que le royaume ne soit choisi (cf. `assets.ante` du
+    # layer client et `preload` de backend/config.yml).
+    #
+    # ⚠ `resources_cloud/intro/` N'EST PAS DANS `assets.directories` : ces fichiers
+    #   ne partent donc PAS dans le bucket d'assets, seulement dans le bucket public.
+    #   Ils y vivent sous leur chemin NU, « intro/voices/x.mp3 », c'est-a-dire
+    #   exactement celui que l'application demande. La vague `ante` se joue avant
+    #   tout manifeste : un chemin qui aurait besoin d'un alias de theme pour etre
+    #   resolu ne serait pas trouve.
+    # =========================================================================
+    # ⚠ EMBARQUEES, ET NON PLUS SERVIES PAR LE BUCKET. Elles ont d'abord descendu avec
+    #   la vague `ante`, pour ne pas alourdir le paquet, 644 Ko pour douze repliques en
+    #   trois langues. Le calcul etait juste et la conclusion fausse : un asset d'`ante`
+    #   n'est ECRIT QU'UNE FOIS sur une installation. La vague ne redescend pas ce qui est
+    #   deja en cache, et `_reconcileBundle` ne rattrape que les assets embarques. Le
+    #   2026-09-13, un appareil de test jouait encore les voix du matin, celles d'un autre
+    #   moteur de synthese, avec les textes d'avant, sans qu'aucun build n'y puisse rien.
+    #
+    #   644 Ko contre l'impossibilite de corriger une replique : le choix ne se discute pas.
+    #   Le nom de l'etape reste `intro_preload` pour ne pas casser les references.
+    - name: intro_preload
+      enabled: true
+      dir: "resources"
+      items:
+        intro_v_region_screen_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_region_screen]
+          out: "intro/voices/region_screen_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_age_screen_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_age_screen]
+          out: "intro/voices/age_screen_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_parentalgate_screen_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_parentalgate_screen]
+          out: "intro/voices/parentalgate_screen_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_documents_acceptance_screen_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_documents_acceptance_screen]
+          out: "intro/voices/documents_acceptance_screen_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_kid_assent_screen_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_kid_assent_screen]
+          out: "intro/voices/kid_assent_screen_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_player_name_screen_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_player_name_screen]
+          out: "intro/voices/player_name_screen_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_new_or_pick_clan_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_new_or_pick_clan]
+          out: "intro/voices/new_or_pick_clan_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_create_clan_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_create_clan]
+          out: "intro/voices/create_clan_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_kid_wants_clan_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_kid_wants_clan]
+          out: "intro/voices/kid_wants_clan_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_dashboard_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_dashboard]
+          out: "intro/voices/dashboard_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+        intro_v_decisiontree_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [intro_v_decisiontree]
+          out: "intro/voices/decisiontree_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+
     - name: historique_donjon
       enabled: true
       dir: "resources_cloud/donjon"
@@ -194,7 +848,11 @@ assets:
         pirates:  { kind: source, out: "images/splashs/pirates/*.png" }
         musiques: { kind: source, out: "music/*.mp3" }
         sons:     { kind: source, out: "sounds/*.mp3" }
-        videos:   { kind: source, out: "videos/*.mp4" }
+        # Plus de `videos:` ici : les trois mp4 d'introduction ont quitte le bundle le
+        # 2026-09-12, en meme temps que l'ecran qui les jouait. Ils vivent desormais
+        # dans `resources_others/videos/onboarding/`, hors bundle, donc hors
+        # inventaire : ils ne sont plus servis a personne par le bucket, et restent
+        # disponibles pour la promotion (site, stores, reseaux).
 
     # =========================================================================
 
@@ -509,17 +1167,196 @@ assets:
           out: "images/splashs/parchment_bg.png"
           prompt: >-
             Une feuille de papier vieilli et froissé, de couleur beige clair avec des bords irréguliers et déchirés, présentant des taches et des décolorations brunâtres sur les bords et par endroits sur la surface. La texture du papier est visible, avec de légères rides et des fibres apparentes, le tout dans un style réaliste avec un éclairage doux et diffus qui accentue les imperfections et le caractère ancien du papier.
+    # =========================================================================
+    # LE PACTE, les conditions viennent d'etre acceptees
+    #
+    # Quatre secondes entre la signature et la liaison du compte : un bouclier, deux
+    # epees qui claquent dessus, et « c'est parti ». C'est le seul interlude du tunnel
+    # qui CELEBRE au lieu d'expliquer, et il tombe au bon endroit, juste apres le seul
+    # ecran ou l'on a demande quelque chose d'aride.
+    #
+    # ⚠ DECLARE ICI ET PAS PLUS HAUT, A CAUSE DE L'ORDRE DES REFERENCES. Les epees sont
+    #   generees D'APRES le bouclier (`historique_donjon_shield`, etape precedente), et
+    #   assetgen refuse une reference vers un item declare plus loin. Remonter cette
+    #   etape aupres des autres `intro_*` casserait donc le build, et le casserait bien,
+    #   avec un message clair, ce qui est deja ca.
+    - name: pacte_sources
+      enabled: true
+      dir: "resources_others/pacte"
+      # Le bouclier EST la reference : c'est de lui que les epees tiennent leur metal,
+      # leur usure et leur eclairage. Sans cela on obtient deux belles epees qui ne sont
+      # visiblement pas du meme jeu.
+      refs: [historique_donjon_shield]
+      style: >-
+        Video game illustration matching the reference image exactly: worn and rusted
+        metal, crisp outlines, detailed textures, even lighting, transparent background.
+        No text, no logo, no frame, no shadow on the ground.
+      items:
+        # ⚠ `aspect: "1:1"` ET `traitements`, et les deux manquaient. Le premier parce que
+        #   ces epees viennent se poser sur un bouclier carre : rendues au format 3:2 par
+        #   defaut, elles arrivaient en 1248x832 et le cadrage les ecrasait dans une boite
+        #   qui n'etait pas la leur.
+        #
+        # ⚠ AUCUN MODELE NE REND DE CANAL ALPHA, et c'est la lecon a retenir. Demander un
+        #   « fond transparent » ne produit pas de transparence : le modele DESSINE ce
+        #   qu'il croit etre un fond transparent, c'est-a-dire le damier gris et blanc des
+        #   logiciels d'image. C'est exactement ce qu'on a obtenu, deux carrees a damier
+        #   qui se croisaient sur le bouclier. Le detourage se fait APRES, par `rembg`,
+        #   comme pour les 89 autres assets detoures de ddust.
+        #
+        #   Le prompt demande donc un fond UNI, qui se segmente proprement, au lieu d'une
+        #   transparence que le modele ne sait pas produire.
+        pacte_sword_l:
+          kind: image
+          aspect: "1:1"
+          out: "sword_left.png"
+          # ⚠ `unbg_flat` ET NON `remove_bg` : le fond est UNI, on n'a donc rien a deviner.
+          #   `rembg` segmente par probabilite et confondait les reflets clairs de la lame
+          #   avec le gris du fond, la lame ressortait criblee de trous, et l'on voyait
+          #   le bouclier a travers l'acier. Ni un seuil, ni une fermeture morphologique
+          #   ne rattrapaient cela. La propagation depuis les bords, elle, n'atteint jamais
+          #   un reflet enclave dans le sujet : mesure du 2026-09-13, 6,9 % de pixels
+          #   pleinement opaques contre 0,2 % avec `rembg`.
+          #
+          # `trim` ensuite : `unbg_flat` rend l'image entiere, sujet minuscule au milieu.
+          #   Sans rognage, l'epee arrive sept fois trop petite quelle que soit sa boite,
+          #   le cadrage `RATIO_IN` ajuste l'IMAGE, pas ce qu'elle contient.
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: >-
+            Une épée de chevalier vue de face, POMMEAU EN HAUT et POINTE DIRIGÉE VERS LE
+            BAS, légèrement inclinée vers la droite, garde droite et pommeau rond, métal
+            usé et piqué de rouille. L'épée occupe toute la hauteur de l'image, centrée,
+            sur un fond uni gris moyen parfaitement plat, sans motif, sans damier, sans
+            ombre portée.
+
+        # Cf. `pacte_sword_l` : meme format, meme detourage, meme fond uni.
+        pacte_sword_r:
+          kind: image
+          aspect: "1:1"
+          out: "sword_right.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: >-
+            La même épée, en miroir : POMMEAU EN HAUT et POINTE DIRIGÉE VERS LE BAS,
+            légèrement inclinée vers la gauche, garde droite et pommeau rond, métal usé
+            et piqué de rouille. L'épée occupe toute la hauteur de l'image, centrée, sur
+            un fond uni gris moyen parfaitement plat, sans motif, sans damier, sans ombre
+            portée.
+
+        # ⚠ LE SON N'EST PAS GENERE, IL EXISTE. Aucun de nos modeles ne fait de
+        #   bruitage, lyria compose de la musique, pas un choc de lames, et le jeu a
+        #   deja ce qu'il faut. On le DECLARE seulement, pour pouvoir le deriver : une
+        #   source declaree est verifiee, jamais fabriquee.
+        pacte_clang_src:
+          kind: source
+          out: "../../resources_cloud/donjon/sounds/effect_slash.mp3"
+
+        # ⚠ DECLAREE UNE SECONDE FOIS, ET C'EST VOULU. Le joker `musiques:` de l'etape
+        #   `historique_donjon` couvre deja ce fichier, mais UN JOKER NE SE REFERENCE
+        #   PAS : `refs` attend le nom d'un item, et un joker en represente vingt. Pour
+        #   deriver CE fichier-la, il lui faut un nom. Les deux declarations ne se
+        #   marchent pas dessus : une source n'est que VERIFIEE, jamais produite, et
+        #   verifier deux fois un fichier present ne fait rien du tout.
+        seuil_music_src:
+          kind: source
+          out: "../../resources_cloud/donjon/music/Ambiant1_General_V1.mp3"
+
+        # La replique finale. Trois mots : l'interlude dure quatre secondes, et ce qui
+        # suit est un bouton sur lequel il faut appuyer.
+        pacte_voice:
+          kind: voice
+          langs: [fr, en, es, de, it, pt, br, nl]
+          out: "voice_@@@lang@@@.mp3"
+          text:
+            fr: "C'est bon ! Tu peux maintenant entrer dans le donjon !"
+            en: "That's it! You may now enter the dungeon!"
+            es: "¡Listo! ¡Ya puedes entrar en la mazmorra!"
+            de: "Geschafft! Jetzt darfst du den Kerker betreten!"
+            it: "Fatto! Ora puoi entrare nel dungeon!"
+            pt: "Pronto! Agora já podes entrar na masmorra!"
+            br: "Pronto! Agora você já pode entrar na masmorra!"
+            nl: "Gelukt! Nu mag je de kerker betreden!"
+
+    # Le pacte est EMBARQUE, comme les quatre tableaux de l'accueil.
+    #
+    # ⚠ IL A COMMENCE DANS LE BUCKET `preload`, ET C'ETAIT UNE ERREUR. Le raisonnement
+    #   tenait, quatre secondes vues une fois ne justifient pas d'alourdir l'apk, mais
+    #   il se trompait d'ordre de grandeur : DERIVES, ces fichiers pesent 47 Ko en tout,
+    #   contre 2 Mo deja embarques pour l'interlude. On payait une dependance reseau
+    #   entiere pour economiser deux pour cent de ce qu'on embarque deja.
+    #
+    #   Et cette dependance ne tenait pas : la vague `ante` descend au tout debut, mais
+    #   un cache deja constitue lors d'un lancement precedent ne la rejoue pas, le jour
+    #   ou l'on ajoute un fichier, les installations existantes ne le voient jamais
+    #   arriver. La scene jouait alors son rideau, sans bouclier ni epees.
+    - name: pacte
+      enabled: true
+      dir: "resources"
+      items:
+        pacte_shield:
+          kind: derive
+          refs: [historique_donjon_shield]
+          out: "intro/pacte/shield.webp"
+          width: 384
+        pacte_sword_left:
+          kind: derive
+          refs: [pacte_sword_l]
+          out: "intro/pacte/sword_left.webp"
+          width: 384
+        pacte_sword_right:
+          kind: derive
+          refs: [pacte_sword_r]
+          out: "intro/pacte/sword_right.webp"
+          width: 384
+        # ⚠ `trim_silence` : le fichier d'origine porte 0,24 s de silence avant sa
+        #   premiere crete. Joue au bon instant, le choc s'entendait donc un quart de
+        #   seconde trop tard, un decalage qu'aucun reglage de scene ne pouvait
+        #   rattraper, puisqu'il n'etait pas dans la scene.
+        pacte_clang:
+          kind: derive
+          refs: [pacte_clang_src]
+          out: "intro/pacte/swords.mp3"
+          bitrate: "64k"
+          trim_silence: true
+          loudness: -14
+        pacte_voice_mp3:
+          kind: derive
+          langs: [fr, en, es, de, it, pt, br, nl]
+          refs: [pacte_voice]
+          out: "intro/voices/pacte_@@@lang@@@.mp3"
+          bitrate: "64k"
+          loudness: -14
+
+        # La musique du seuil. 96 kbps STEREO, et non le 64 mono des voix : une
+        # narration est une seule source au centre, une musique a une largeur, la
+        # reduire en mono s'entend immediatement sur des nappes d'ambiance.
+        #
+        # 4,1 Mo d'origine, ~2 Mo ici. C'est le plus gros fichier embarque du jeu, et il
+        # se justifie : c'est le seul son que le joueur entend avant d'avoir choisi son
+        # royaume, donc avant que le moindre bucket ne soit resoluble.
+        seuil_music:
+          kind: derive
+          refs: [seuil_music_src]
+          out: "intro/sounds/seuil.mp3"
+          bitrate: "96k"
+          channels: 2
+
     - name: historique_web
       enabled: true
       dir: "hosting/web/assets"
+      # `images` (img/*.webp) et `affiches` (video/*.png) retires le 2026-09-15 avec les
+      # fichiers qu'ils recensaient : un motif qui ne trouve plus rien ARRETE le build. Les
+      # captures du site sont desormais fabriquees dans le workspace (backend/build.yml,
+      # hosting_assets), elles n'ont plus d'exemplaire dans le depot a inventorier.
       items:
-        images:   { kind: source, out: "img/*.webp" }
-        # Les clips du site, leurs affiches et les versions webp de celles-ci.
+        # Les clips du site (installation de la beta) et leurs affiches webp.
         # NOM UNIQUE DANS TOUT LE FICHIER, et pas seulement dans son etape. assetgen
         # indexe ses items PAR NOM : un second `videos` etait refuse et le build
         # s'arretait. L'inventaire, lui, indexe par CHEMIN et ne voyait rien.
         clips:    { kind: source, out: "video/*.mp4" }
-        affiches: { kind: source, out: "video/*.png" }
         affichesw: { kind: source, out: "video/*.webp" }
 
     # =========================================================================
@@ -527,7 +1364,7 @@ assets:
       enabled: true
       # Les huit illustrations des lecons dvtuto guide_parent / guide_enfant.
       # DEJA PRODUITES le 2026-09-10 : cette etape ne regenere rien. Elle reste
-      # declaree pour deux raisons — le prompt est la seule trace de leur fabrication,
+      # declaree pour deux raisons, le prompt est la seule trace de leur fabrication,
       # et la declaration vaut liste de controle si l'une venait a disparaitre.
       dir: "resources_cloud/donjon/images/big"
       style: >
@@ -616,7 +1453,7 @@ assets:
     - name: personnages
       enabled: true
       # LES TROIS PLANCHES DE REFERENCE du theme donjon. Elles ont servi, a la main,
-      # a fabriquer presque tout le reste — les monstres de taches, les avatars, les
+      # a fabriquer presque tout le reste, les monstres de taches, les avatars, les
       # icones de domaine. Ce lien n'existait nulle part : ni dans les dates de
       # fichiers, ni dans les noms. Le declarer ici, c'est ce qui permettra plus tard
       # a une cascade de savoir ce qu'une retouche de l'elfe entraine.
@@ -648,14 +1485,14 @@ assets:
       #
       # ⚠ PLUS DE `refs:` AU NIVEAU DE L'ETAPE, ET C'EST UN RETRAIT DELIBERE DU
       #   2026-09-12. Elles posaient les trois personnages d'introduction comme parents
-      #   de CHACUN des 205 fichiers — 615 liens approximatifs. C'etait juste tant que
+      #   de CHACUN des 205 fichiers, 615 liens approximatifs. C'etait juste tant que
       #   rien de plus fin n'existait ; le marquage a la main a depuis donne a chaque
       #   monstre son parent UNIQUE ET REEL.
       #
       # ⚠ ET CE N'ETAIT PLUS UNE SIMPLE IMPRECISION : LA CASCADE SE CALCULE SUR CE
       #   GRAPHE. Le sous-graphe de l'elfe comptait 218 assets, c'est-a-dire presque tout
       #   `images/medium` ; regenerer l'elfe proposait donc de regenerer 138 monstres qui
-      #   n'en descendent pas — et l'ecran de cout chiffrait cette erreur en euros.
+      #   n'en descendent pas, et l'ecran de cout chiffrait cette erreur en euros.
       #
       # ⚠ L'ETAPE, ELLE, RESTE. C'est elle qui porte l'`item` de chaque fichier, donc le
       #   regroupement de style de `bundles prompts` : monstres 138, avatars 42,
@@ -667,7 +1504,7 @@ assets:
         monstres:   { kind: source, out: "dt_t_*.png" }
         # ⚠ CES TROIS ITEMS NE DOIVENT PAS LEUR ASPECT A UNE IMAGE SOURCE, MAIS A UN
         #   OUTIL. Le cercle dore vient de `tools/iconify.py`, le detourage de
-        #   `tools/remove_bg.py` — passes a la main, systematiquement, et le prefixe du
+        #   `tools/remove_bg.py`, passes a la main, systematiquement, et le prefixe du
         #   fichier le dit encore. Sans `traitements:`, une regeneration rendrait le
         #   dessin NU : pas de cercle, pas de detourage. Le fichier serait valide, du bon
         #   format, et la difference ne se verrait qu'a l'oeil, une fois publiee.
@@ -691,7 +1528,7 @@ assets:
     # =========================================================================
     # ⚠ CETTE ETAPE VIENT APRES LES JOKERS GENERIQUES, ET C'EST CE QUI LA FAIT MARCHER.
     #   Ces 22 fichiers sont deja couverts par `images/big/*.png`, `images/small/*.png`
-    #   et `images/medium/*.png` de l'etape `historique_donjon` — des jokers qui melangent
+    #   et `images/medium/*.png` de l'etape `historique_donjon`, des jokers qui melangent
     #   du traite et du non traite, et auxquels on ne peut donc pas attacher de chaine.
     #
     #   Un fichier revendique par deux items prend la declaration du DERNIER. C'est deja
@@ -2876,186 +3713,45 @@ assets:
             Un jeton de jeu vidéo en métal, de forme ovale, avec un centre doré gravé des lettres "XP" dans un style rustique et usé, entouré d'un anneau métallique plus foncé et riveté, le tout détouré sur fond transparent. Le style est celui d'une illustration numérique détaillée, avec des textures réalistes de métal vieilli, des éraflures et une patine verdâtre sur les lettres, éclairé de manière à accentuer les reliefs et les reflets métalliques.
     - name: captures
       enabled: true
-      # LE POINT DE DEPOT UNIQUE des captures d'ecran de l'application.
+      # Les prises de la vitrine dont la video de demonstration a besoin, dans les huit
+      # langues. Seules celles-ci sont nommees : un `visual` doit designer un item, pas
+      # un fichier. Les autres prises n'en restent pas moins inventoriees (bundle
+      # `showcase`).
       #
-      # Il n'y en avait pas : les memes images vivaient en trois exemplaires — les PNG
-      # dans le repertoire deploye du site, leurs WebP a cote, et huit d'entre elles
-      # recopiees a l'identique dans stores/google/assets (verifie par empreinte, les
-      # huit etaient octet pour octet les memes). Desormais on depose ICI, et le site
-      # comme le store comme les videos en DERIVENT.
-      #
-      # Ce repertoire n'est ni embarque dans l'application ni publie : c'est un magasin
-      # de sources. Y ranger sept series de captures ne coute rien a personne, la ou
-      # sept series dans hosting/web seraient deployees pour rien.
-      #
-      # `langs: [en]` parce que la serie existante est ANGLAISE (les libelles a l'ecran
-      # le sont : « Me », « Shop », « Time to clean ! »). Deposer fr/, de/, es/, it/,
-      # pt/ et nl/ puis elargir cette liste ICI, en un seul endroit, suffira a nourrir
-      # les videos dans les sept langues.
-      dir: "resources_others/screenshots"
-      langs: [en]
+      # ⚠ LE NOM D'UNE PRISE EST CELUI DE L'ECRAN (`<page>.png`, `<page>-01.png` pour une
+      #   variante). Renommer un ecran dans la conf de la vitrine rend la source absente,
+      #   et une source absente ARRETE le build : c'est voulu, la video ne doit pas
+      #   partir avec un trou.
+      dir: "resources_others/showcase"
       items:
-        cap_02_crest: { kind: source, langs: [en], out: "@@@lang@@@/02-crest.png" }
-        cap_04_welcome: { kind: source, langs: [en], out: "@@@lang@@@/04-welcome.png" }
-        cap_05_call_of_adventure: { kind: source, langs: [en], out: "@@@lang@@@/05-call-of-adventure.png" }
-        cap_07_who_are_you: { kind: source, langs: [en], out: "@@@lang@@@/07-who-are-you.png" }
-        cap_09_tavern_challenge: { kind: source, langs: [en], out: "@@@lang@@@/09-tavern-challenge.png" }
-        cap_19_choose_destiny: { kind: source, langs: [en], out: "@@@lang@@@/19-choose-destiny.png" }
-        cap_20_choose_destiny_2: { kind: source, langs: [en], out: "@@@lang@@@/20-choose-destiny-2.png" }
-        cap_21_birth_of_clan: { kind: source, langs: [en], out: "@@@lang@@@/21-birth-of-clan.png" }
-        cap_23_prepare_adventure: { kind: source, langs: [en], out: "@@@lang@@@/23-prepare-adventure.png" }
-        cap_26_journey_begins: { kind: source, langs: [en], out: "@@@lang@@@/26-journey-begins.png" }
-        cap_32_choose_avatar: { kind: source, langs: [en], out: "@@@lang@@@/32-choose-avatar.png" }
-        cap_33_me: { kind: source, langs: [en], out: "@@@lang@@@/33-me.png" }
-        cap_34_items: { kind: source, langs: [en], out: "@@@lang@@@/34-items.png" }
-        cap_40_time_to_clean: { kind: source, langs: [en], out: "@@@lang@@@/40-time-to-clean.png" }
-        cap_44_trash: { kind: source, langs: [en], out: "@@@lang@@@/44-trash.png" }
-        cap_46_time_to_clean_2: { kind: source, langs: [en], out: "@@@lang@@@/46-time-to-clean-2.png" }
-        cap_50_carrier_pigeon: { kind: source, langs: [en], out: "@@@lang@@@/50-carrier-pigeon.png" }
-        cap_54_pocket_money: { kind: source, langs: [en], out: "@@@lang@@@/54-pocket-money.png" }
-        cap_55_pocket_money_2: { kind: source, langs: [en], out: "@@@lang@@@/55-pocket-money-2.png" }
-        cap_57_note_in_chest: { kind: source, langs: [en], out: "@@@lang@@@/57-note-in-chest.png" }
-        cap_59_loot_chest: { kind: source, langs: [en], out: "@@@lang@@@/59-loot-chest.png" }
-        cap_67_clan: { kind: source, langs: [en], out: "@@@lang@@@/67-clan.png" }
-        cap_69_open_loot: { kind: source, langs: [en], out: "@@@lang@@@/69-open-loot.png" }
-        cap_70_open_loot_2: { kind: source, langs: [en], out: "@@@lang@@@/70-open-loot-2.png" }
-        cap_72_loot_share: { kind: source, langs: [en], out: "@@@lang@@@/72-loot-share.png" }
-        cap_73_chiefs_word: { kind: source, langs: [en], out: "@@@lang@@@/73-chiefs-word.png" }
-        cap_playstore: { kind: source, langs: [en], out: "@@@lang@@@/playstore.png" }
+        cap_clan: { kind: source, out: "@@@lang@@@/clan_page.png" }
+        cap_salon_tasks: { kind: source, out: "@@@lang@@@/salon_tasks.png" }
+        cap_combat_proof: { kind: source, out: "@@@lang@@@/combat-02.png" }
+        cap_combat_verdict: { kind: source, out: "@@@lang@@@/combat-03.png" }
 
     # =========================================================================
-    - name: site
-      enabled: true
-      # Les vignettes du site, DERIVEES du point de depot. Elles existent deja, donc
-      # rien n'est regenere : la declaration sert de lien tracable et de garde-fou. Si
-      # l'une disparait, le prochain build la refait a partir de sa source.
-      #
-      # Le site sert des WebP a 900 px de large : c'est ce que reference son HTML, et
-      # une capture de 720 px n'a pas besoin de plus. Les PNG d'origine, eux, n'ont
-      # jamais ete servis — ils encombraient le repertoire deploye sans qu'aucune page
-      # ne les demande.
-      items:
-        site_02_crest:
-          kind: derive
-          refs: [cap_02_crest]
-          out: "hosting/web/assets/img/02-crest.webp"
-          quality: 82
-        site_05_call_of_adventure:
-          kind: derive
-          refs: [cap_05_call_of_adventure]
-          out: "hosting/web/assets/img/05-call-of-adventure.webp"
-          quality: 82
-        site_07_who_are_you:
-          kind: derive
-          refs: [cap_07_who_are_you]
-          out: "hosting/web/assets/img/07-who-are-you.webp"
-          quality: 82
-        site_21_birth_of_clan:
-          kind: derive
-          refs: [cap_21_birth_of_clan]
-          out: "hosting/web/assets/img/21-birth-of-clan.webp"
-          quality: 82
-        site_26_journey_begins:
-          kind: derive
-          refs: [cap_26_journey_begins]
-          out: "hosting/web/assets/img/26-journey-begins.webp"
-          quality: 82
-        site_32_choose_avatar:
-          kind: derive
-          refs: [cap_32_choose_avatar]
-          out: "hosting/web/assets/img/32-choose-avatar.webp"
-          quality: 82
-        site_40_time_to_clean:
-          kind: derive
-          refs: [cap_40_time_to_clean]
-          out: "hosting/web/assets/img/40-time-to-clean.webp"
-          quality: 82
-        site_44_trash:
-          kind: derive
-          refs: [cap_44_trash]
-          out: "hosting/web/assets/img/44-trash.webp"
-          quality: 82
-        site_46_time_to_clean_2:
-          kind: derive
-          refs: [cap_46_time_to_clean_2]
-          out: "hosting/web/assets/img/46-time-to-clean-2.webp"
-          quality: 82
-        site_50_carrier_pigeon:
-          kind: derive
-          refs: [cap_50_carrier_pigeon]
-          out: "hosting/web/assets/img/50-carrier-pigeon.webp"
-          quality: 82
-        site_55_pocket_money_2:
-          kind: derive
-          refs: [cap_55_pocket_money_2]
-          out: "hosting/web/assets/img/55-pocket-money-2.webp"
-          quality: 82
-        site_59_loot_chest:
-          kind: derive
-          refs: [cap_59_loot_chest]
-          out: "hosting/web/assets/img/59-loot-chest.webp"
-          quality: 82
-        site_67_clan:
-          kind: derive
-          refs: [cap_67_clan]
-          out: "hosting/web/assets/img/67-clan.webp"
-          quality: 82
-        site_69_open_loot:
-          kind: derive
-          refs: [cap_69_open_loot]
-          out: "hosting/web/assets/img/69-open-loot.webp"
-          quality: 82
-        site_72_loot_share:
-          kind: derive
-          refs: [cap_72_loot_share]
-          out: "hosting/web/assets/img/72-loot-share.webp"
-          quality: 82
+    # Le groupe `site` (les vignettes du site DERIVEES des captures anglaises numerotees,
+    # hosting/web/assets/img/NN-*.webp) a ete RETIRE le 2026-09-15.
+    #
+    # ⚠ NE PAS LE REMETTRE. Le site ne montre plus ces captures : il montre celles de la
+    #   vitrine (dvshowcase), dans la langue de chaque page, declarees dans
+    #   backend/build.yml sous `hosting_assets` et fabriquees dans le workspace a chaque
+    #   build. Laisser ce groupe aurait refait a chaque build des images que plus aucune
+    #   page ne demande, directement dans le depot.
+    #   Les sources `cap_*` du groupe `captures` restent : les videos en derivent.
 
     # =========================================================================
-    - name: store
-      enabled: true
-      # Les captures de la fiche Play, derivees des memes sources. Elles etaient huit
-      # copies exactes de huit captures du site ; le lien est desormais ecrit plutot
-      # que subi.
-      items:
-        store_03_capture_1:
-          kind: derive
-          refs: [cap_04_welcome]
-          out: "../stores/google/assets/03-capture-1.png"
-        store_03_capture_2:
-          kind: derive
-          refs: [cap_21_birth_of_clan]
-          out: "../stores/google/assets/03-capture-2.png"
-        store_03_capture_3:
-          kind: derive
-          refs: [cap_40_time_to_clean]
-          out: "../stores/google/assets/03-capture-3.png"
-        store_03_capture_4:
-          kind: derive
-          refs: [cap_32_choose_avatar]
-          out: "../stores/google/assets/03-capture-4.png"
-        store_03_capture_5:
-          kind: derive
-          refs: [cap_33_me]
-          out: "../stores/google/assets/03-capture-5.png"
-        store_03_capture_6:
-          kind: derive
-          refs: [cap_54_pocket_money]
-          out: "../stores/google/assets/03-capture-6.png"
-        store_03_capture_7:
-          kind: derive
-          refs: [cap_59_loot_chest]
-          out: "../stores/google/assets/03-capture-7.png"
-        store_03_capture_8:
-          kind: derive
-          refs: [cap_67_clan]
-          out: "../stores/google/assets/03-capture-8.png"
+    # L'etape `store` (les huit captures de stores/google/assets/) a ete RETIREE le
+    # 2026-09-16. ⚠ NE PAS LA REMETTRE : le listing de `build.yml` est le seul producteur
+    # de ce dossier, et il PURGE avant d'ecrire. Deux producteurs se battaient a chaque
+    # build.
+
     # =========================================================================
     - name: plans
       enabled: false
       # DESACTIVEE tant que les captures ne sont pas la : une etape desactivee est
       # invisible, ni generee ni verifiee. La reactiver lancera Veo et Lyria, ce qui se
-      # compte en minutes et en argent reel — d'ou le drapeau plutot qu'un essai timide.
+      # compte en minutes et en argent reel, d'ou le drapeau plutot qu'un essai timide.
       #
       # CONTRAINTE DE PROMPT, non verifiable par le code : aucun plan ne doit montrer
       # quelqu'un PARLER face camera. La voix off est remplacee langue par langue ; une
@@ -3095,7 +3791,7 @@ assets:
     # =========================================================================
     - name: videos
       enabled: false
-      # DESACTIVEE : a activer une fois les captures deposees et l'etape `plans` passee.
+      # DESACTIVEE : a activer une fois l'etape `plans` passee (les captures, elles, sont la).
       #
       # Il n'y a PAS de « video maitre » qu'on habillerait. Il y a des PLANS sans langue,
       # et la duree de chaque plan est celle de sa narration DANS LA LANGUE COURANTE :
@@ -3121,8 +3817,9 @@ assets:
                 de: "In Donjons & Savons wird aus Hausarbeit ein Monster, das besiegt werden will."
                 it: "In Donjons & Savons, le faccende di casa diventano mostri da sconfiggere."
                 pt: "Em Donjons & Savons, as tarefas da casa tornam-se monstros a derrotar."
+                br: "Em Donjons & Savons, as tarefas de casa viram monstros a derrotar."
                 nl: "In Donjons & Savons worden huishoudelijke klusjes monsters om te verslaan."
-            - visual: cap_33_me
+            - visual: cap_clan
               motion: zoom_in
               min_duration: 3.5
               text:
@@ -3132,8 +3829,9 @@ assets:
                 de: "Jedes Clanmitglied hat einen eigenen Charakter, Lebenspunkte und Erfahrung."
                 it: "Ogni membro del clan ha il suo personaggio, i punti vita e l'esperienza."
                 pt: "Cada membro do clã tem o seu personagem, pontos de vida e experiência."
+                br: "Cada membro do clã tem seu personagem, pontos de vida e experiência."
                 nl: "Elk clanlid heeft een eigen personage, levenspunten en ervaring."
-            - visual: cap_40_time_to_clean
+            - visual: cap_salon_tasks
               motion: pan_left
               min_duration: 3.5
               text:
@@ -3143,8 +3841,9 @@ assets:
                 de: "Du wählst ein Monster, also eine Aufgabe, und ziehst in den Kampf."
                 it: "Scegli un mostro, cioè una faccenda, e vai in battaglia."
                 pt: "Escolhes um monstro, ou seja uma tarefa, e vais para o combate."
+                br: "Você escolhe um monstro, ou seja, uma tarefa, e parte para o combate."
                 nl: "Je kiest een monster, oftewel een klus, en gaat de strijd aan."
-            - visual: cap_44_trash
+            - visual: cap_combat_proof
               motion: zoom_in
               min_duration: 3.5
               text:
@@ -3154,8 +3853,9 @@ assets:
                 de: "Ist die Aufgabe erledigt, genügt ein Foto als Beweis. Es verlässt das Handy nie."
                 it: "Finita la faccenda, una foto basta come prova. Non lascia mai il telefono."
                 pt: "Feita a tarefa, uma foto basta como prova. Nunca sai do telemóvel."
+                br: "Feita a tarefa, uma foto basta como prova. Ela nunca sai do celular."
                 nl: "Klus klaar? Een foto is bewijs genoeg. Hij verlaat de telefoon nooit."
-            - visual: cap_46_time_to_clean_2
+            - visual: cap_combat_verdict
               motion: pan_right
               min_duration: 3.5
               text:
@@ -3165,6 +3865,7 @@ assets:
                 de: "Ein Clanchef bestätigt, und die Erfahrung ist verdient. Nichts wird je abgezogen."
                 it: "Un capo clan convalida e l'esperienza è guadagnata. Non si toglie mai nulla."
                 pt: "Um chefe de clã valida e a experiência é ganha. Nunca se retira nada."
+                br: "Um chefe de clã valida e a experiência é ganha. Nunca se tira nada."
                 nl: "Een clanleider bevestigt en de ervaring is verdiend. Er wordt nooit iets afgenomen."
             - visual: clip_chest
               min_duration: 4.5
@@ -3175,14 +3876,19 @@ assets:
                 de: "Und wenn die Clantruhe voll ist, öffnet die ganze Familie sie gemeinsam."
                 it: "E quando il forziere del clan è pieno, tutta la famiglia lo apre insieme."
                 pt: "E quando o baú do clã está cheio, toda a família o abre em conjunto."
+                br: "E quando o baú do clã está cheio, a família inteira o abre junta."
                 nl: "En als de clankist vol is, opent de hele familie hem samen."
           formats:
-            # Embarque dans l'app. 720x720 comme la video d'onboarding actuelle, et
-            # sous-titres INCRUSTES : DvVideo ne sait lire ni piste de sous-titres ni
-            # piste audio multiple (cf. son readme, section limites).
+            # Format carre, pour les vitrines qui le reclament (Play, posts sociaux).
+            # ⚠ IL N'EST PLUS EMBARQUE DANS L'APP : dvvideo a ete retire le 2026-09-12
+            #   avec l'ecran d'introduction, l'accueil etant desormais un interlude
+            #   dvflame joue sur des assets embarques. La sortie quitte donc le bundle
+            #   donjon, l'y laisser aurait remis 15 Mo par langue dans le bucket, pour
+            #   un lecteur qui n'existe plus. Sous-titres incrustes : hors de l'app, il
+            #   n'y a pas de piste separee a proposer.
             square:
               size: "720x720"
-              out: "resources_cloud/donjon/videos/demo_v1_@@@lang@@@.mp4"
+              out: "resources_others/video/out/demo-square-@@@lang@@@.mp4"
               subtitles: burned
             # Site et YouTube. Sous-titres en FICHIER a cote : c'est la seule forme
             # qu'un navigateur et YouTube savent lire, et elle laisse l'image intacte.

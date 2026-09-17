@@ -23,11 +23,11 @@ Le lecteur suisse lisait donc qu'un code étranger lui ouvrait un recours.
   ⚠ NE PAS CONFONDRE avec l'art. 14 al. 1 LPD, qui impose à un responsable de
     traitement établi à l'étranger de désigner un REPRÉSENTANT EN SUISSE. C'est
     l'équivalent de l'art. 27 RGPD : un point de contact pour la protection des
-    données, qui ne règle aucun litige contractuel. Ses trois conditions sont
-    CUMULATIVES (traitement de grande ampleur, régulier, à risque élevé) et
-    relèvent d'un dossier distinct. Le corpus `ch` ne prétend nulle part avoir
-    désigné un tel représentant, et ce silence est correct tant que les trois
-    conditions ne sont pas réunies.
+    données, qui ne règle aucun litige contractuel. Ses quatre conditions sont
+    CUMULATIVES (offre en Suisse, grande ampleur, régulier, risque élevé) et
+    relèvent d'un dossier distinct. Depuis le 2026-09-16, la politique adulte
+    `ch` dit explicitement qu'aucun représentant n'est désigné, et pourquoi
+    (`derive_market_corpus._CH_REPRESENTANT`).
 
 ⚠ LES TEXTES NE SONT PAS ICI. Ils vivent dans `derive_market_corpus._CH_MEDIATION`,
   déclarés comme les autres écarts suisses et appliqués par `_ch_blocks`. Ce

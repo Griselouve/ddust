@@ -19,7 +19,6 @@ build:
     - dvdocuments
     - dvparentalgate
     - dvdevicelock
-    - dvvideo
     - dvdecisiontree
     - dvvertexai
     - dvsocialshare
@@ -39,6 +38,9 @@ build:
     - dvtuto
     - dvstore
     - worker
+    # LA VITRINE : inerte en lancement normal. En mode `showcase` (config/showcase.yml),
+    # elle rejoue les écrans avec des données bidons et les photographie par langue.
+    - dvshowcase
   resources:
     - base
     - resources

@@ -6,12 +6,21 @@ conf:
   registry:
     #//------------------------------- HOME SCREEN -----------------------------------------
 
-    # Deux portes explicites, et c'est tout l'enjeu de cet écran : un nouveau joueur ouvre une
-    # session ANONYME et traverse tout l'onboarding (royaume, âge, vidéo, CGU) sans que Firebase
-    # Auth ne détienne son email, son nom ou sa photo — le compte Google n'est lié qu'à la fin.
-    # Un joueur existant, lui, s'authentifie tout de suite. Sans cette seconde porte, toute
-    # réinstallation créerait un compte anonyme jetable et tomberait dans le parcours de conflit,
-    # qui deviendrait le cas nominal au lieu d'un cas de bord.
+    # Deux portes explicites, et c'est tout l'enjeu de cet écran : un nouveau joueur traverse
+    # tout l'onboarding (royaume, âge, CGU) sans que Firebase Auth ne détienne son email, son
+    # nom ou sa photo — le compte Google n'est lié qu'à la fin. Un joueur existant, lui,
+    # s'authentifie tout de suite. Sans cette seconde porte, toute réinstallation créerait un
+    # compte anonyme jetable et tomberait dans le parcours de conflit, qui deviendrait le cas
+    # nominal au lieu d'un cas de bord.
+    #
+    # ⚠ CET ÉCRAN N'EST PLUS LE PREMIER. Le seuil (`awake`) et l'interlude passent avant :
+    #   on ne demande « nouveau ou ancien » qu'à quelqu'un qui a vu ce qu'on lui propose.
+    #
+    # Aucune des deux portes n'ouvre de session : la gauche entre dans le tunnel, la droite
+    # authentifie un compte qui existe déjà. La session anonyme, elle, attend la confirmation
+    # du royaume. Seuil, interlude, portes et royaume se jouent donc sans réseau — tout vient
+    # du paquet. C'était impossible tant qu'un `signInAnonymously` gardait la porte : qui
+    # ouvrait l'application dans un train voyait un message d'échec avant d'avoir vu le jeu.
     home:
       masks:
         - page
@@ -20,11 +29,18 @@ conf:
         - home/icon_background
         - home/connect
         - home/already_have_account
-        - home/lang_text
-        - home/lang_flag
         - home/rejected_scrim
         - home/rejected_text
         - home/rejected_close
+        # La scene d'accueil, montee ICI AUSSI. Elle ne se joue pas sur cet ecran :
+        # elle s'y TERMINE. La bascule de page a lieu sous le rideau noir, au dernier
+        # fondu (worker.on_intro_reveal) ; sans cette vue, la scene mourrait avec la
+        # page qu'on quitte et le rideau ne se leverait jamais — on verrait un saut sec
+        # vers un ecran deja decouvert. dvflame partage une scene entre ses vues : celle
+        # qui arrive reprend celle en cours.
+        - home/intro_view
+        # Le rideau du passage vers le royaume (interlude `passage_region`).
+        - home/depart_view
 
     home/icon_background:
       masks:
@@ -47,7 +63,23 @@ conf:
         events:
           tap: true
         freezing_actions:
-          tap: dvcloud.do_start_anonymous
+          # N'OUVRE PAS LA SESSION, et ne joue plus l'interlude non plus : celui-ci est
+          # passé avant, sur l'écran du seuil. Ce tap ne fait donc qu'entrer dans le
+          # tunnel. La session anonyme, elle, attend la confirmation du royaume —
+          # premier moment où l'application a quelque chose à demander au réseau. Tout
+          # ce qui précède se joue hors ligne, ce qui était impossible tant qu'un
+          # `signInAnonymously` gardait la porte.
+          #
+          # ⚠ UN INTERLUDE, ET PLUS UNE LIGNE DE CODE. `passage_region` fait tomber le
+          #   rideau et, au moment exact où l'écran est couvert, tire lui-même
+          #   `steps.navigate.region` (cf. `on_covered` au thème). Le worker portait
+          #   cette orchestration ; il n'a plus rien à en savoir.
+          tap: dvinterlude.play.passage_region
+        # ⚠ SANS L'ANNEAU. Le gel d'une `freezing_action` peint un voile et une roue
+        #   d'attente AU-DESSUS de tout — y compris du rideau qu'on vient de faire
+        #   tomber. C'est ce qui rendait la transition invisible : elle se jouait
+        #   derrière une roue. L'écran reste bloqué, simplement il ne le montre pas.
+        freeze_ring: false
 
     home/already_have_account:
       masks:
@@ -65,18 +97,15 @@ conf:
         freezing_actions:
           tap: dvcloud.do_login_existing
 
-    # Sélecteur de langue descendu sous les deux portes (sur region_screen il reste à 75%).
-    home/lang_text:
-      masks:
-        - region_screen/lang_text
-      shape:
-        y: 88%
-
-    home/lang_flag:
-      masks:
-        - region_screen/lang_flag
-      shape:
-        y: 88%
+    # ⚠ PLUS DE SELECTEUR DE LANGUE ICI, ET C'EST DELIBERE. La langue se choisit
+    #   maintenant au deuxieme ecran (`lang_choice`), sur sept grandes tuiles a drapeau,
+    #   AVANT que l'interlude ne parle — c'est meme la raison d'etre de cet ecran. Le
+    #   petit selecteur qui subsistait ici venait de l'epoque ou la question ne se posait
+    #   nulle part ailleurs ; le garder revenait a reposer, en petit et en bas de page,
+    #   une question a laquelle on venait de repondre en grand.
+    #
+    #   Il reste sur `region_screen`, ou il a un autre sens : on y change de langue apres
+    #   coup, si l'on s'est trompe de tuile.
 
     #//---- Compte refusé (« J'ai déjà un compte » sans compte en base) ----------------------
     # Overlay de widgets invisibles→visibles — jamais de showDialog. Trois messages, deux
@@ -127,46 +156,331 @@ conf:
         freezing_actions:
           tap: worker.on_rejected_close
 
+    home/intro_view:
+      class: DvSceneView
+      layer: popup
+      scene: intro
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        border: false
+
+    #//------------------------------- AWAKE (le seuil) --------------------------------------
+    # LE PREMIER ÉCRAN DU JEU. Noir, une phrase, rien d'autre — ni cadre, ni bouton, ni
+    # barre de titre. On touche n'importe où et le donjon s'ouvre.
+    #
+    # ⚠ IL EXISTE PARCE QUE L'ACCUEIL DEMANDAIT DE CHOISIR AVANT D'AVOIR RIEN MONTRÉ.
+    #   « Je suis nouveau » ou « Retrouver mon héros » : deux portes posées à quelqu'un
+    #   qui ne sait pas encore de quoi on lui parle. L'interlude passe donc avant, et
+    #   les portes après — quand on les présente, le joueur sait ce qu'il rejoint.
+    #
+    # ⚠ PAS DE BOUTON, ET C'EST LE PROPOS. Un bouton demande une décision ; ici on ne
+    #   décide de rien, on franchit. Toute la surface est tapable (awake/tap), et la
+    #   phrase ne fait que dire qu'il y a quelque chose de l'autre côté.
+    awake:
+      masks:
+        - page
+      show_appbar: false
+      show_back: false
+      block_back: true
+      title: ""
+      actions:
+        appear: worker.on_awake_appear
+      registry:
+        - awake/question
+        - awake/tap
+
+    # Le fond de cet écran est le noir du masque `page` : aucun décor, rien à charger,
+    # rien à attendre. C'est aussi ce qui le rend affichable à la toute première frame,
+    # avant même que le moindre asset ait été résolu.
+    #
+    # UN DvLabel PILOTÉ À LA MAIN, et non un DvSplash. Le splash sait paraître et
+    # s'effacer tout seul, ce qui était exactement ce qu'on voulait — mais il n'a
+    # jamais rien affiché ici, et deux tentatives n'ont pas suffi à comprendre
+    # pourquoi. Le label, lui, est le mécanisme le plus éprouvé du framework : on
+    # pose `shape.label`, on appelle `refreshUI()`, et ça se voit. Le fondu est
+    # refait à la main par le worker (worker.on_awake_appear), en quelques pas
+    # d'opacité — c'est dix lignes, et elles marchent.
+    #
+    # Pas de `label` ici : la phrase change à chaque langue, c'est le worker qui la
+    # pose. `opacity: 0` pour que la première n'apparaisse pas d'un coup.
+    awake/question:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 8%
+        y: 42%
+        w: 84%
+        h: 16%
+        text_align: CENTER
+        valign: CENTER
+        font_size: 20.0
+        font_family: "MedievalSharp"
+        font_color: "amber_200"
+        border: false
+        background_color: "transparent"
+        opacity: 0
+        label: ""
+        # Le rythme du defilement, lu par worker.on_awake_appear. `fadein`/`fadeout`
+        # sont la duree TOTALE d'un fondu ; `duration` le temps de lecture entre les
+        # deux. Un tour de sept langues dure environ (0,65 + 1,2 + 0,65) x 7 = 17 s.
+        #
+        # Point d'equilibre trouve a l'essai, entre deux exces : un premier reglage trop
+        # bref, ou la phrase paraissait clignoter, et un second a 1,1 / 1,6 / 1,1 ou l'on
+        # attendait visiblement devant un ecran noir. 1,2 s de pleine lecture suffit pour
+        # une phrase de six mots, et le fondu lui-meme reste lisible sur la plus grande
+        # partie de sa course.
+        fadein: 650
+        duration: 1200
+        fadeout: 650
+
+    # La surface qui reçoit le tap : invisible, plein écran, déclarée APRÈS la phrase
+    # pour passer au-dessus d'elle.
+    #
+    # ⚠ `actions` ET NON `freezing_actions`. Le gel de dvshape est le gel VISIBLE — voile
+    #   et anneau d'attente — et il s'affichait en plein sur le noir du seuil, juste avant
+    #   que l'interlude ne commence : une roue de chargement en guise d'ouverture. Le
+    #   double tap est déjà gardé ailleurs, par `_introPlaying` (worker), et l'interlude
+    #   pose de toute façon son propre gel, celui-là transparent.
+    awake/tap:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "transparent"
+        border: false
+        label: ""
+        events:
+          tap: true
+        actions:
+          # ⚠ PAS D'INTERLUDE ICI. Le seuil enchaine sur le choix de la langue, et ces
+          #   deux ecrans forment UN SEUL moment : le noir du seuil est deja le fond de
+          #   celui des langues. Un rideau entre les deux ferait clignoter un ecran deja
+          #   noir. (Un remplacement trop large avait pose `passage_suite` ici le
+          #   2026-09-13 : le tap du seuil naviguait alors vers le pas courant, et
+          #   l'accueil partait de travers.)
+          tap: steps.navigate
+
+    #//------------------------------- CHOIX DE LA LANGUE ------------------------------------
+    # Le deuxieme ecran, et le premier qui demande quelque chose. Huit langues posees a
+    # plat, drapeau et nom DANS LEUR PROPRE LANGUE — « Deutsch », jamais « Allemand » :
+    # c'est la seule ecriture que le lecteur vise reconnaitra a coup sur.
+    #
+    # ⚠ POURQUOI ICI ET PAS AILLEURS. L'interlude parle : quatre repliques de conteur, et
+    #   il faut bien savoir dans quelle langue les dire. Tant que ce choix venait apres,
+    #   on jouait l'accueil en francais a tout le monde — ce qui, pour un accueil, revient
+    #   a se tromper de personne des la premiere seconde. Le choix passe donc AVANT, et
+    #   c'est aussi ce qui dispense le seuil d'avoir a deviner : lui ne fait que defiler.
+    #
+    # ⚠ LES SEPT TUILES SONT ALLUMEES DEPUIS LE 2026-09-15. Quatre sont restees eteintes
+    #   tant que le corpus n'existait qu'en fr/en/es : visibles pour dire « pas encore »,
+    #   inertes pour ne rien promettre. `available: false` reste le moyen de refermer une
+    #   langue sans la faire disparaitre.
+    lang_choice:
+      masks:
+        - page
+      show_appbar: false
+      show_back: false
+      block_back: true
+      title: ""
+      registry:
+        - lang_choice/title
+        - lang_choice/en
+        - lang_choice/fr
+        - lang_choice/es
+        - lang_choice/de
+        - lang_choice/it
+        - lang_choice/pt
+        - lang_choice/br
+        - lang_choice/nl
+        - lang_choice/intro_view
+        - lang_choice/intro_label
+
+    # Le titre ne se traduit pas : il est ecrit dans les deux langues les plus probables
+    # de celui qui le lit, et surtout il montre ce qu'on attend — un drapeau a toucher.
+    lang_choice/title:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 6%
+        y: 7%
+        w: 88%
+        h: 8%
+        text_align: CENTER
+        valign: CENTER
+        font_size: 15.0
+        font_family: "MedievalSharp"
+        font_color: "amber_200"
+        background_color: "transparent"
+        label: "@@@T:lang_choice_title@@@"
+
+    # Gabarit commun des sept tuiles : chacune ne pose que sa hauteur, son code et son nom.
+    lang_choice/tile:
+      class: DvLangTile
+      layer: content
+      shape:
+        x: 18%
+        w: 64%
+        h: 8%
+        font_size: 15.0
+        font_family: "MedievalSharp"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_lang_chosen
+
+    # ⚠ HUIT TUILES DEPUIS LE 2026-09-16 : le portugais s'est scindé en deux langues,
+    #   `pt` (Portugal) et `br` (Brésil). Le pas est passé de 10 % à 9 % pour tout faire
+    #   tenir sous le titre ; la hauteur d'une tuile (8 %) n'a pas bougé.
+    # ⚠ LES DEUX PORTUGAIS SE NOMMENT PAR LEUR PAYS, dans leur langue : « Português » seul
+    #   ne dit pas à un Brésilien laquelle des deux tuiles est la sienne.
+    lang_choice/en:
+      masks:
+        - lang_choice/tile
+      shape:
+        y: 17%
+        code: "en"
+        label: "English"
+        available: true
+    lang_choice/fr:
+      masks:
+        - lang_choice/tile
+      shape:
+        y: 26%
+        code: "fr"
+        label: "Français"
+        available: true
+    lang_choice/es:
+      masks:
+        - lang_choice/tile
+      shape:
+        y: 35%
+        code: "es"
+        label: "Español"
+        available: true
+    lang_choice/de:
+      masks:
+        - lang_choice/tile
+      shape:
+        y: 44%
+        code: "de"
+        label: "Deutsch"
+        available: true
+    lang_choice/it:
+      masks:
+        - lang_choice/tile
+      shape:
+        y: 53%
+        code: "it"
+        label: "Italiano"
+        available: true
+    lang_choice/pt:
+      masks:
+        - lang_choice/tile
+      shape:
+        y: 62%
+        code: "pt"
+        label: "Português (Portugal)"
+        available: true
+    lang_choice/br:
+      masks:
+        - lang_choice/tile
+      shape:
+        y: 71%
+        code: "br"
+        label: "Português (Brasil)"
+        available: true
+    lang_choice/nl:
+      masks:
+        - lang_choice/tile
+      shape:
+        y: 80%
+        code: "nl"
+        label: "Nederlands"
+        available: true
+
+    #//---- L'interlude d'accueil, joué après le choix de la langue --------------------------
+    # La scène des quatre tableaux ne vit QUE sur cet écran, et surtout pas dans le masque
+    # `page` comme les célébrations : chaque page instancie sa propre copie des shapes
+    # injectées, et les quatre images seraient chargées par le dashboard, les tiroirs, le
+    # combat… pour une scène qu'aucun d'eux ne joue jamais.
+
+    lang_choice/intro_view:
+      class: DvSceneView
+      layer: popup
+      scene: intro
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        border: false
+
+    # Le texte du tableau courant. Rythme plus rapide que les célébrations (qui tiennent
+    # 6 s) : une réplique par tableau, et le tableau ne dure que 7,3 s.
+    lang_choice/intro_label:
+      masks:
+        - commons/levelup_label
+      shape:
+        y: 72%
+        h: 20%
+        fadein: 600
+        duration: 5000
+        fadeout: 700
+        font_size: 19.0
+
     #//------------------------------- REGION SCREEN -----------------------------------
 
     region_screen:
       masks:
-        - page
+        - page_onboarding
       show_appbar: true
       title: "@@@T:region_screen_title@@@"
+      # Decor d'arrivee + replique du conteur (worker_onboarding). Purement decoratif :
+      # ni garde, ni verrou, ni attente — un asset manquant se tait, et l'etape se
+      # comporte exactement pareil.
+      actions:
+        appear: worker.on_onboarding_appear
       registry:
+        - region_screen/banner
         - commons/icon_background
         - region_screen/intro_text
-        - region_screen/lang_text
-        - region_screen/lang_flag
         - documents/region_label
         # region_confirm avant le bouton : à la reprise de session le bouton rejoue le choix
         # dès son appear, et ce rejeu allume la confirmation — qui doit donc déjà exister.
         - documents/region_confirm
         - documents/region_button
         - documents/region_menu
+        # ⚠ EN DERNIER, ET C'EST TOUT L'INTÉRÊT. L'ordre de cette liste est celui d'ajout
+        #   des shapes : déclaré en tête, le rideau se peignait SOUS le décor, les
+        #   libellés et les boutons — il tombait bien, mais derrière l'écran.
+        - region_screen/depart_view
         #- region_screen/skip_fast_test
 
-    region_screen/lang_flag:
-      class: DvLangButton
-      layer: content
+    region_screen/banner:
+      masks:
+        - commons/onboarding_banner
       shape:
-        x: 35%
-        y: 75%
-        w: 13%
-        h: 6%
-        events:
-          tap: true
+        label: "@@@T:chapter_region_screen@@@"
 
-    region_screen/lang_text:
-      class: DvLabel
-      layer: content
-      shape:
-        x: 44%
-        y: 75%
-        w: 30%
-        h: 6%
-        label: "@@@T:lang_label@@@"
+    # ⚠ PLUS AUCUN SELECTEUR DE LANGUE DANS LE TUNNEL, ET C'EST LE DERNIER A PARTIR.
+    #   La langue se choisit desormais au deuxieme ecran (`lang_choice`), sur sept
+    #   grandes tuiles a drapeau, AVANT que le conteur ne parle — c'est la raison d'etre
+    #   de cet ecran. Les deux petits selecteurs qui subsistaient ensuite (ici et sur
+    #   `home`) reposaient en bas de page, et en petit, une question deja tranchee en
+    #   grand : de quoi faire douter qu'on y ait repondu.
+    #
+    #   Se tromper de tuile reste rattrapable : la langue se change dans les reglages,
+    #   ou en relancant une application qui n'a encore rien ecrit nulle part.
 
     region_screen/intro_text:
       masks:
@@ -192,11 +506,23 @@ conf:
         h: 7%
         icon_size: 30.0
         empty_label: "@@@T:region_select_label@@@"
+        # Le bouton porte le choix deja fait : il se lit comme la ligne du menu ou on l'a
+        # pris. Meme clef, meme regle.
+        icon_side: right
 
     # Popup des royaumes : la largeur du bouton qui l'ouvre.
     documents/region_menu:
       shape:
         w: 90%
+        # ⚠ LE DRAPEAU A DROITE. Place AVANT le libelle, il le QUALIFIE — « [drapeau EU]
+        #   France » se lit « la France europeenne », et comme ce drapeau n'est pas celui
+        #   du pays nomme, cela saute aux yeux comme une erreur : on croit que quelqu'un
+        #   s'est trompe de drapeau. Place APRES, il precise : « France - serveurs EU
+        #   [drapeau] ».
+        #
+        #   Ce drapeau designe le DATACENTER, jamais le pays : il n'existe pas de drapeau
+        #   pour « eu », et en dessiner un serait inventer un pays.
+        icon_side: right
 
     documents/region_confirm:
       masks:
@@ -207,6 +533,16 @@ conf:
         w: 90%
         h: 7%
         label: "@@@T:region_confirm@@@"
+        # Cf. `home/connect` : le gel reste, seule sa peinture part — la roue d'attente
+        # recouvrirait le rideau.
+        freeze_ring: false
+        # Même détournement que pour l'âge : l'interlude rappelle `do_region_confirm`
+        # une fois l'écran couvert. Ce qui suit est le premier appel réseau du parcours,
+        # et il se fait donc derrière un noir plutôt que devant un bouton enfoncé.
+        events:
+          tap: true
+        freezing_actions:
+          tap: dvinterlude.play.passage_royaume
 
     # region_screen/skip_fast_test:
       # class: DvLabel
@@ -230,14 +566,19 @@ conf:
     # leurs substituts, qui deviennent l'identité visible hors du clan — jamais affichés ici.
     player_name_screen:
       masks:
-        - page
+        - page_onboarding
       show_appbar: true
       title: "@@@T:player_name_screen_title@@@"
       keyboard_scrollable: true
-      shape:
-        actions:
-          appear: worker.on_player_name_appear
+      actions:
+        # Le handler metier D'ABORD, le decor ensuite : une liste d'actions n'est
+        # pas attendue une par une, et ce qui remplit l'ecran ne doit pas courir
+        # derriere ce qui l'habille (worker.on_onboarding_appear).
+        appear:
+          - worker.on_player_name_appear
+          - worker.on_onboarding_appear
       registry:
+        - player_name_screen/banner
         - player_name_screen/icon_background
         - player_name_screen/name_label
         - player_name_screen/name
@@ -246,6 +587,13 @@ conf:
         - player_name_screen/inspire
         - player_name_screen/replay
         - player_name_screen/confirm
+        - player_name_screen/depart_view
+
+    player_name_screen/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_player_name_screen@@@"
 
     player_name_screen/icon_background:
       masks:
@@ -297,22 +645,36 @@ conf:
       shape:
         label: "@@@T:player_name_confirm@@@"
         freezing_actions:
-          tap: steps.navigate
+          tap: dvinterlude.play.passage_suite
 
     #//------------------------------- AGE SCREEN -----------------------------------
 
     age_screen:
       masks:
-        - page
+        - page_onboarding
       show_appbar: true
       title: "@@@T:age_screen_title@@@"
+      # Decor d'arrivee + replique du conteur (worker_onboarding). Purement decoratif :
+      # ni garde, ni verrou, ni attente — un asset manquant se tait, et l'etape se
+      # comporte exactement pareil.
+      actions:
+        appear: worker.on_onboarding_appear
       registry:
+        - age_screen/banner
         - commons/icon_background
         - age_screen/intro_text
         - documents/birthday_label
         - documents/birthday_date
         - documents/age_confirm
+        # En dernier : cf. `region_screen`.
+        - age_screen/depart_view
         #- age_screen/skip_fast_test
+
+    age_screen/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_age_screen@@@"
 
     age_screen/intro_text:
       masks:
@@ -350,6 +712,16 @@ conf:
         y: 85%
         h: 7%
         label: "@@@T:confirm@@@"
+        # Cf. `home/connect`.
+        freeze_ring: false
+        # ⚠ ON DETOURNE L'ACTION DU MODULE VERS UN INTERLUDE, qui la rappellera lui-même
+        #   une fois l'écran couvert (`passage_age.on_covered` → `documents.do_confirm`).
+        #   La validation de la date reste entièrement chez dvdocuments : on n'intercale
+        #   qu'un rideau, et on ne touche à rien d'autre.
+        events:
+          tap: true
+        freezing_actions:
+          tap: dvinterlude.play.passage_age
 
     # age_screen/skip_fast_test:
       # class: DvLabel
@@ -373,6 +745,11 @@ conf:
         - page
       show_appbar: true
       title: "@@@T:parentalgate_title@@@"
+      # La replique du conteur, et RIEN D'AUTRE : pas de voile, pas d'etincelles. Cet
+      # ecran est un controle chronometre — l'habiller reviendrait a distraire de la
+      # seule chose qui s'y passe.
+      actions:
+        appear: worker.on_screen_voice
       registry:
         - parentalgate_screen/icon_background
 
@@ -420,35 +797,6 @@ conf:
         show_ok: false
         show_back: false
 
-    #//------------------------------- DDVIDEO SCREEN -----------------------------------------
-
-    ddvideo:
-      masks:
-        - page
-      title: "@@@T:ddvideo_title@@@"
-      show_appbar: false
-      registry:
-        - ddvideo/player
-
-    ddvideo/player:
-      class: DvVideo
-      layer: content
-      shape:
-        x: 0
-        y: 0
-        w: 100%
-        h: 100%
-        fullscreen: true
-        skip: true
-        loop: false
-        skip_shape:
-          border: true
-        actions:
-          skip:
-            - steps.navigate
-          end:
-            - steps.navigate
-
     #//------------------------------- DOCUMENTS ACCEPTANCE SCREEN ----------------------------
 
     documents_acceptance_screen:
@@ -456,7 +804,22 @@ conf:
         - page
       show_appbar: true
       title: "@@@T:documents_acceptance_title@@@"
+      # « Lis attentivement les conditions » — dit une fois, a l'arrivee. Aucun decor
+      # ici non plus, et pour une raison plus forte encore qu'ailleurs : c'est l'ecran
+      # ou le joueur engage sa signature.
+      #
+      # ⚠ CET ECRAN N'EST PAS RESERVE A L'ONBOARDING. Toute nouvelle version de document
+      #   le repose a tout le monde au lancement suivant : la replique se fera donc aussi
+      #   entendre a un joueur de longue date. C'est acceptable — elle dit exactement ce
+      #   qu'il convient de faire dans ce cas-la aussi.
+      actions:
+        # La replique, ET le lever du rideau : cet ecran arrive derriere le noir pose
+        # par `age_screen`, et il est le seul du tunnel a ne pas porter le masque
+        # `page_onboarding` — donc a ne pas avoir la scene `arrive` qui s'en charge
+        # ailleurs. Sans cela, il paraitrait d'un coup au milieu d'un fondu.
+        appear: worker.on_acceptance_appear
       registry:
+        - commons/arrive_view
         - documents/acceptance_title
         - documents/acceptance_content
         - documents/acceptance_hint
@@ -469,6 +832,7 @@ conf:
         # nulle part : sans elle, le module journalise un warning et ne demande RIEN.
         - documents/acceptance_transfer
         - documents/acceptance_accept
+        - commons/pacte_view
 
     documents/acceptance_title:
       masks:
@@ -509,14 +873,27 @@ conf:
 
     kid_assent_screen:
       masks:
-        - page
+        - page_onboarding
       show_appbar: true
       title: "@@@T:kid_assent_title@@@"
+      # Decor d'arrivee + replique du conteur (worker_onboarding). Purement decoratif :
+      # ni garde, ni verrou, ni attente — un asset manquant se tait, et l'etape se
+      # comporte exactement pareil.
+      actions:
+        appear: worker.on_onboarding_appear
       registry:
+        - kid_assent_screen/banner
         - commons/icon_background
         - kid_assent/back
         - kid_assent/question
         - kid_assent/go
+        - kid_assent_screen/depart_view
+
+    kid_assent_screen/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_kid_assent_screen@@@"
 
     # Flèche retour explicite : renvoie aux documents (route `back` du pas). Discrète, en haut
     # à gauche, hors du chemin du bouton principal.
@@ -527,7 +904,10 @@ conf:
       layer: content
       shape:
         x: 4%
-        y: 2%
+        # Descendu de 2 % à 7 % : la bande haute appartient désormais au bandeau de
+        # chapitre, injecté sur les huit écrans du tunnel. Cet écran n'a pas d'appbar,
+        # sa flèche y était donc seule — elle ne l'est plus.
+        y: 7%
         w: 30%
         h: 5%
         text_align: LEFT
@@ -558,7 +938,7 @@ conf:
         events:
           tap: true
         freezing_actions:
-          tap: steps.navigate.go
+          tap: dvinterlude.play.passage_assent
 
     #//------------------------------- LINK ACCOUNT SCREEN ------------------------------------
     # Dernière étape de l'onboarding et PREMIÈRE écriture en base : jusqu'ici tout s'est passé
@@ -569,13 +949,24 @@ conf:
 
     link_account_screen:
       masks:
-        - page
+        - page_onboarding
       show_appbar: false
       title: "@@@T:link_account_title@@@"
-      shape:
-        actions:
-          appear: worker.on_link_account_appear
+      # ⚠ PAS DE `on_onboarding_appear` ICI, ET C'EST DELIBERE. Cette action ne sert plus
+      #   qu'a dire la replique du conteur — le decor, lui, part tout seul avec la scene
+      #   `arrive` (`autostart`). Or cet ecran doit rester MUET : l'interlude du pacte,
+      #   qui le precede immediatement, vient de dire « Tu peux maintenant entrer dans le
+      #   donjon ! ».
+      #
+      #   Le laisser ferait rejouer `intro/voices/link_account_screen_*.mp3` — un fichier
+      #   qu'on ne genere plus, mais qui SURVIT DANS LE CACHE des installations
+      #   existantes, avec son ancien texte et son ancienne voix. C'est exactement ce qui
+      #   s'entendait encore le 2026-09-13 : « Un heros sans pacte se perd au premier
+      #   changement de telephone », dit par un moteur de synthese abandonne depuis.
+      actions:
+        appear: worker.on_link_account_appear
       registry:
+        - link_account_screen/banner
         - link_account/background
         - link_account/title
         - link_account/notice
@@ -586,6 +977,12 @@ conf:
         - link_account/conflict_text
         - link_account/conflict_confirm
         - link_account/conflict_cancel
+
+    link_account_screen/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_link_account_screen@@@"
 
     link_account/background:
       masks:
@@ -718,4 +1115,28 @@ conf:
           tap: true
         freezing_actions:
           tap: worker.on_link_conflict_cancel
+
+    #//------------------------------- LES RIDEAUX DE PASSAGE --------------------------
+    # Une declaration par ecran pour UNE SEULE scene : c'est le patron de
+    # `home/intro_view` / `lang_choice/intro_view`. Voir `commons/depart_view`.
+
+    home/depart_view:
+      masks:
+        - commons/depart_view
+
+    region_screen/depart_view:
+      masks:
+        - commons/depart_view
+
+    age_screen/depart_view:
+      masks:
+        - commons/depart_view
+
+    kid_assent_screen/depart_view:
+      masks:
+        - commons/depart_view
+
+    player_name_screen/depart_view:
+      masks:
+        - commons/depart_view
 

@@ -22,25 +22,77 @@ data:
 
     # Ordre = ordre d'apparition des écrans (dvsteps) + poids réel après imgshaking.
     # imgshaking redimensionne les images (splashs 1242 / big 768 / medium 384 / small 144),
-    # mais PAS les vidéos/mp3 : après build, seule la vidéo (~13-15 Mo) est vraiment lourde.
+    # mais PAS les mp3 : après build, aucun fichier n'est vraiment lourd — la vidéo
+    # d'introduction, qui l'était (16 Mo), a quitté l'application le 2026-09-12.
     # (Attention aux homonymes bundlés : resources/icon/shield.png et le shield.png du thème
     #  sont deux fichiers distincts. Le premier n'est demandé que via « assets/icon/shield.png »
     #  — préfixe explicite —, le second via son chemin nu « images/medium/shield.png », listé
     #  ci-dessous en vague major. Idem splash.png : « assets/images/splashs/splash.png » = bundlé.)
 
-    # vital : bloquant au boot, téléchargé un par un = bande passante dédiée. On n'y met que
-    # la vidéo : SEUL fichier lourd, doit démarrer le plus tôt et être garantie prête avant
-    # l'écran ddvideo (écran 5). Pour le récurrent, c'est un cache-hit instantané.
-    vital:
-      - "videos/video_@@@lang@@@.mp4"
+    # vital : bloquant au boot, téléchargé un par un = bande passante dédiée.
+    #
+    # ⚠ VIDE, ET C'EST UNE DÉCISION. La vidéo d'introduction y était seule (16 Mo) : il
+    #   fallait l'avoir descendue avant de montrer quoi que ce soit, et sur un réseau
+    #   moyen ça faisait des dizaines de secondes d'écran noir pour quelqu'un qui n'avait
+    #   encore rien vu du jeu. L'accueil est désormais un interlude dvflame joué sur des
+    #   assets EMBARQUÉS, donc sans un octet de réseau. Rien ne mérite plus de bloquer le
+    #   démarrage : tout ce qui compte est soit dans le paquet, soit dans `critical`.
+    #   Y remettre un fichier, c'est reprendre la décision — pas l'appliquer.
+    vital: []
 
-    # critical : 1re vague de fond (après la vidéo) — décor d'onboarding (écrans 3→9) +
-    # chrome du dashboard (écran 10). Images légères → parallèle, sans faire attendre.
+    # ante : AVANT que le royaume ne soit choisi, et c'est tout l'objet. Toutes les
+    # vagues ci-dessous attendent `documents.region_ready` — donc la confirmation de
+    # l'ecran du royaume. C'est la bonne regle pour des donnees ; c'en est une mauvaise
+    # pour du decor, qui laisse l'application nue pendant tout l'accueil puis fait tout
+    # descendre au moment precis ou le joueur voudrait avancer.
+    #
+    # Servie par le bucket PUBLIC (`preload`), en lecture seule et sans jeton : a cet
+    # instant il n'y a ni session ni region, donc aucun moyen de lire le bucket normal.
+    # Les trente secondes de l'interlude d'accueil couvrent le telechargement.
+    #
+    # ⚠ N'Y METTRE QUE DU DECOR : tout ce qui est ici est lisible par n'importe qui.
+    # ⚠ CHEMINS NUS, tels que l'application les demande. La vague se joue avant tout
+    #   manifeste : un chemin qui aurait besoin d'un alias de theme pour etre resolu
+    #   ne serait pas trouve.
+    ante:
+      # LE THEME EN PREMIER, et ce n'est pas un asset comme les autres : il porte les
+      # SCENES de l'interlude d'accueil et les libelles de tout le tunnel. Sans lui, le
+      # premier ecran affiche ses clefs de traduction en clair et l'interlude se joue
+      # sans decor — c'est-a-dire ne se joue pas.
+      #
+      # ⚠ IL EST DEJA EMBARQUE (build.yml → onboard), et pourtant il doit etre ici.
+      #   Le layer du CACHE ecrase celui du paquet des qu'il existe, et le cache ne se
+      #   rafraichit qu'apres le choix du royaume — donc trop tard pour l'accueil. Un
+      #   joueur qui a lance l'application une fois garderait un theme perime sur tous
+      #   ses ecrans d'entree, jusqu'a avoir choisi son royaume. Le faire descendre ici
+      #   remet le cache d'aplomb avant que quoi que ce soit ne le lise.
+      - "donjon/layers/theme-donjon-global.yml"
+
+      # ⚠ PLUS AUCUNE VOIX ICI. Les repliques du conteur sont EMBARQUEES depuis le
+      #   2026-09-13 : servies par cette vague, elles ne pouvaient plus jamais etre
+      #   corrigees sur une installation existante (voir `build_assets.yml`, etape
+      #   `intro_preload`). Il ne reste donc ici que le theme — qui, lui, a besoin de
+      #   descendre parce qu'il change sans qu'on republie l'application.
+
+
+    # Les origines SE COURENT : la premiere qui repond gagne, et c'est exactement ce
+    # qu'on cherche a minimiser. Un classement ecrit a la main vieillirait a la
+    # premiere ouverture de marche — et il y en aura une.
+    #
+    # ⚠ CE N'EST PAS LA REGION DU JOUEUR. C'est un point de service, qui sert des
+    #   fichiers identiques partout. Sa region de DROIT, elle, reste declaree par lui
+    #   sur l'ecran du royaume, et ne se deduit de rien.
+    ante_origins:
+      - "https://storage.googleapis.com/dvddust-eu-preload-storage"
+
+    # critical : 1re vague de fond — décor d'onboarding (écrans 3→9) + chrome du dashboard
+    # (écran 10). Images légères → parallèle, sans faire attendre. Elle démarre désormais
+    # tout de suite après le choix du royaume, plus rien ne la précède.
     critical:
       - "images/medium/intro_little_elfe.png"  # overlay pop écrans 3/4/7/9
       - "images/medium/intro_little_hobbit.png"
       - "images/medium/intro_little_knight.png"
-      - "music/ambiant1.mp3"                # ambiance jouée à l'écran ddvideo
+      - "music/ambiant1.mp3"                # ambiance lancée en quittant l'écran de l'âge
       - "sounds/anim_burn.mp3"              # son de la scène burn = célébration bienvenue
                                             # clan, jouée dès le 1er dashboard (écran 10)
       - "images/splashs/parchment_bg.png"   # fond CGU (écran 6)
@@ -170,8 +222,9 @@ data:
       - "music/fairy.mp3"                   # jouée EN BOUCLE tant que la fée est là (pointer backend)
 
     # lazy (automatique) : les ~151 medium/dt_t_*.png (icônes de tâches par domaine) + le reste.
-    blacklist:
-      - "videos/video_{any}.mp4"
+    # La blacklist ne retient plus rien : elle ne protégeait que les vidéos d'introduction,
+    # qui ne sont plus servies par le bucket (elles vivent hors bundle, usage promotionnel).
+    blacklist: []
 
   # Catalogue des thèmes. Chaque entrée décrit ce qu'il faut charger pour l'habiter :
   # les layers de conf (traductions, registry, scènes) et les racines d'assets, dans

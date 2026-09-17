@@ -19,17 +19,46 @@ conf:
       # Leçon d'impersonation : jouée à l'atterrissage sur le dashboard quand un admin vient de
       # « prendre la place » d'un joueur (flag worker.impersonating posé par take_place, remis à
       # false au retour). take_place réinitialise aussi dvtuto.seen.impersonation_back → rejouée à
-      # CHAQUE prise de place (rappel de sécurité important). Pointe le bouton de retour.
+      # CHAQUE prise de place (rappel de sécurité important). Pointe le bouton de retour, puis
+      # explique les DEUX portes de sortie mises en place le 2026-09-10 : le code temporaire à
+      # 4 chiffres choisi à l'emprunt (imp_pin_set → imp_pin_ask), et le déverrouillage de
+      # l'appareil au 5e échec (worker.on_imp_device_unlock).
+      #
+      # Les `requires` sont répétés SUR CHAQUE ÉTAPE, et ce n'est pas une redondance : le rejeu
+      # depuis l'écran Tutoriels force la leçon et court-circuite les `requires` de la LEÇON
+      # (dvtuto_motor, `if (!isForced && !await _eligible(...))`), pas ceux des étapes. Sans cette
+      # garde, n'importe qui — un enfant compris — pourrait se faire raconter le dispositif
+      # d'emprunt depuis la liste des tutoriels. L'étape `idle` est le repli lisible de ce cas :
+      # sans elle, la leçon rejouée hors emprunt se terminerait sans avoir rien affiché.
       impersonation_back:
         screen: dashboard
         order: 5                                        # avant dashboard_intro : prime à l'arrivée
+        header_top: true
         requires: { worker.impersonating: "true" }
         title: "@@@T:tuto_impersonation_title@@@"
         steps:
           back:
             order: 10
+            requires: { worker.impersonating: "true" }
             target: commons/impersonation_back
             text: "@@@T:tuto_impersonation_back@@@"
+          # Le code : choisi PAR L'ADULTE au moment du prêt, oublié dès le retour. Dit explicitement
+          # que toucher le bandeau ne rend plus le compte tout seul — c'était le comportement d'avant.
+          pin:
+            order: 20
+            requires: { worker.impersonating: "true" }
+            text: "@@@T:tuto_impersonation_pin@@@"
+          # La sortie de secours. Ne promet RIEN de plus que ce que le code fait : l'app plafonne sa
+          # garantie au verrou de l'appareil, et rend le compte d'elle-même sur un appareil sans verrou.
+          unlock:
+            order: 30
+            requires: { worker.impersonating: "true" }
+            text: "@@@T:tuto_impersonation_unlock@@@"
+          # Rejeu hors emprunt (écran Tutoriels) : une phrase, aucun détail du dispositif.
+          idle:
+            order: 40
+            requires: { worker.impersonating: "false" }
+            text: "@@@T:tuto_impersonation_idle@@@"
       dashboard_intro:
         screen: dashboard
         order: 10
@@ -85,6 +114,12 @@ conf:
       #
       # ORDRE DES ÉCRANS, côté parent : l'effort D'ABORD, la mort ENSUITE. Ouvrir sur « votre
       # enfant est mort » installerait exactement le contresens que ces écrans veulent défaire.
+      #
+      # ⚠ La garde adulte est portée par la LEÇON **et** par chacune de ses étapes. Le rejeu depuis
+      # l'écran Tutoriels force la leçon et court-circuite les `requires` de niveau leçon — seuls
+      # ceux des étapes tiennent. Sans eux, un enfant lisait, en quatre écrans, le mode d'emploi du
+      # hors-concours, du coup de pouce et de la validation. L'étape `not_adult` évite la leçon vide
+      # de ce cas, et renvoie vers le guide qui lui est destiné.
       guide_parent:
         screen: dashboard
         order: 12                      # après dashboard_intro (10), avant recruit_dashboard (15)
@@ -92,30 +127,50 @@ conf:
         requires: { worker.player_is_adult: "true" }
         title: "@@@T:tuto_guide_parent_title@@@"
         steps:
+          not_adult:
+            order: 5
+            requires: { worker.player_is_adult: "false" }
+            text: "@@@T:guide_p_not_adult@@@"
           effort:
             order: 10
+            requires: { worker.player_is_adult: "true" }
             text: "@@@T:guide_p1_situation@@@"
             panel:
               image: "images/big/guide_p1.png"
               title: "@@@T:guide_p1_title@@@"
+              # `verdicts` (les trois issues d'une tache) a ete retiree le 2026-09-15 : elle
+              # decrivait une mecanique que le joueur decouvre en jouant, la ou cet ecran
+              # doit parler de l'ATTITUDE a avoir. Deux lignes qui portent valent mieux
+              # que trois dont une explique le logiciel.
               rows:
-                verdicts: { icon: "done_all", name: "@@@T:guide_p1_a@@@", desc: "@@@T:guide_p1_a_desc@@@" }
                 trace:    { icon: "visibility_off", name: "@@@T:guide_p1_b@@@", desc: "@@@T:guide_p1_b_desc@@@" }
                 mots:     { icon: "thumb_up", name: "@@@T:guide_p1_c@@@", desc: "@@@T:guide_p1_c_desc@@@" }
+          # ⚠ L'ALERTE EN DERNIER, ET CE N'EST PAS UN DETAIL D'ORDRE. Les trois ecrans qui
+          #   la precedent expliquent comment ACCOMPAGNER : accueillir un resultat, laisser
+          #   de la place, recompenser. Celui-ci explique quoi faire quand ca se passe mal.
+          #   Le lire en deuxieme donnait au guide un air d'avertissement.
           alerte:
-            order: 20
+            order: 40
+            requires: { worker.player_is_adult: "true" }
             text: "@@@T:guide_p2_situation@@@"
             panel:
               image: "images/big/guide_p2.png"
               title: "@@@T:guide_p2_title@@@"
+              # ⚠ LE REMEDE AVANT LE SYMPTOME. « Une seule tache repare tout » passe en tete :
+              #   un parent qui ouvre cet ecran veut d'abord savoir que la situation se
+              #   rattrape en un geste. Lui decrire la mecanique de perte avant le remede
+              #   revenait a l'inquieter puis a le rassurer.
+              #
+              # `gage` a ete retiree le 2026-09-15 : le gage est desormais dit dans le texte
+              # de la perte de PV, ou il a sa place, plutot que dans une ligne a lui.
               rows:
+                retour:    { icon: "favorite", name: "@@@T:guide_p2_b@@@", desc: "@@@T:guide_p2_b_desc@@@" }
                 # Dix jours : `pv` vaut 10 au départ et `decay` 1 jour par PV (build/readme.md § PV).
                 # Si la conf du decay change, ce texte change avec elle.
                 dix_jours: { icon: "schedule", name: "@@@T:guide_p2_a@@@", desc: "@@@T:guide_p2_a_desc@@@" }
-                retour:    { icon: "favorite", name: "@@@T:guide_p2_b@@@", desc: "@@@T:guide_p2_b_desc@@@" }
-                gage:      { icon: "mood",     name: "@@@T:guide_p2_c@@@", desc: "@@@T:guide_p2_c_desc@@@" }
           butin:
             order: 30
+            requires: { worker.player_is_adult: "true" }
             text: "@@@T:guide_p3_situation@@@"
             panel:
               image: "images/big/guide_p3.png"
@@ -125,7 +180,8 @@ conf:
                 marchand: { icon: "block", name: "@@@T:guide_p3_b@@@", desc: "@@@T:guide_p3_b_desc@@@" }
                 chacun:  { icon: "groups", name: "@@@T:guide_p3_c@@@", desc: "@@@T:guide_p3_c_desc@@@" }
           jouer:
-            order: 40
+            order: 20
+            requires: { worker.player_is_adult: "true" }
             text: "@@@T:guide_p4_situation@@@"
             panel:
               image: "images/big/guide_p4.png"
@@ -133,7 +189,9 @@ conf:
               rows:
                 hors_concours: { icon: "shield",     name: "@@@T:guide_p4_a@@@", desc: "@@@T:guide_p4_a_desc@@@" }
                 coup_de_pouce: { icon: "trending_up",name: "@@@T:guide_p4_b@@@", desc: "@@@T:guide_p4_b_desc@@@" }
-                photos:        { icon: "lock",       name: "@@@T:guide_p4_c@@@", desc: "@@@T:guide_p4_c_desc@@@" }
+                # `photos` retiree le 2026-09-15 : la preuve photo ne quitte pas le
+                # telephone de l'enfant, ce qui est vrai mais ne dit rien de « jouer sans
+                # les ecraser ». Le sujet appartient aux conditions, pas a ce guide.
 
       # Même mécanique, adressée à l'enfant. Deux règles de rédaction : tutoiement, et jamais une
       # consigne d'obéissance — ces écrans disent ce à quoi l'enfant a DROIT (recommencer, refuser
@@ -171,8 +229,11 @@ conf:
             panel:
               image: "images/big/guide_k3.png"
               title: "@@@T:guide_k3_title@@@"
+              # `trois` (les trois verdicts possibles) a ete retiree le 2026-09-15, comme son
+              # equivalent `verdicts` du guide du parent : elle enumere une mecanique que
+              # l'enfant decouvre en jouant, alors que cet ecran doit lui dire une seule
+              # chose, qu'un refus ne lui coute rien.
               rows:
-                trois:   { icon: "done_all", name: "@@@T:guide_k3_a@@@", desc: "@@@T:guide_k3_a_desc@@@" }
                 encore:  { icon: "refresh",  name: "@@@T:guide_k3_b@@@", desc: "@@@T:guide_k3_b_desc@@@" }
                 journal: { icon: "star",     name: "@@@T:guide_k3_c@@@", desc: "@@@T:guide_k3_c_desc@@@" }
           butin:
@@ -181,10 +242,18 @@ conf:
             panel:
               image: "images/big/guide_k4.png"
               title: "@@@T:guide_k4_title@@@"
+              # ⚠ LA FETE D'ABORD, LE PARTAGE ENSUITE. Ce que l'enfant retient d'un coffre
+              #   qui s'ouvre, c'est le moment qu'on passe ensemble ; le fait que chacun
+              #   recoive sa part vient apres, et repond a la question qu'il se posera
+              #   alors. L'ordre inverse commencait par une regle.
+              #
+              # `photo` a ete retiree le 2026-09-15, en meme temps que son equivalent du
+              # guide du parent : la preuve photo ne quitte pas le telephone, c'est vrai et
+              # c'est important, mais cela appartient aux conditions et non a l'ecran qui
+              # parle de la recompense. L'ecran s'appelle desormais « Le butin » tout court.
               rows:
-                partage: { icon: "redeem", name: "@@@T:guide_k4_a@@@", desc: "@@@T:guide_k4_a_desc@@@" }
-                photo:   { icon: "lock",   name: "@@@T:guide_k4_b@@@", desc: "@@@T:guide_k4_b_desc@@@" }
                 dehors:  { icon: "people", name: "@@@T:guide_k4_c@@@", desc: "@@@T:guide_k4_c_desc@@@" }
+                partage: { icon: "redeem", name: "@@@T:guide_k4_a@@@", desc: "@@@T:guide_k4_a_desc@@@" }
 
       personnage_intro:
         screen: personnage
@@ -196,12 +265,39 @@ conf:
           level:   { order: 30, target: personnage/lvl_flame,   text: "@@@T:tuto_perso_level@@@" }
           pv:      { order: 40, target: personnage/pv_heart,    text: "@@@T:tuto_perso_pv@@@" }
           menu:    { order: 50, target: personnage/settings,    text: "@@@T:tuto_perso_menu@@@" }
-          # Panneau : options du menu Personnage (kebab settings).
+          # Panneau : options du menu Personnage (kebab settings). Alimenté par `menu:` → il lit les
+          # options RÉELLES de personnage/settings_menu, libellés et `desc` compris : aucune liste à
+          # recopier, donc aucune divergence possible quand une option s'ajoute (c'est ainsi que
+          # « Ne plus me faire signe » et les deux guides y sont apparus tout seuls).
+          # Il montre les DEUX états des bascules exclusives (faire signe / ne plus faire signe,
+          # guide du parent / de l'aventurier) là où le selector n'en propose qu'un : c'est assumé,
+          # une légende dit ce qui existe, pas ce qui est actif à l'instant.
           menu_options:
             order: 52
             panel:
               title: "@@@T:tuto_perso_menu_title@@@"
               menu: personnage/settings_menu
+          # Les deux options que le panneau seul laisse obscures, parce qu'elles ne font rien de
+          # visible sur l'écran d'où on les touche. Aucune garde : elles ne portent que sur SOI :
+          # un mineur a le droit de couper ses propres rappels et de lire son propre journal.
+          #
+          # ⚠ DEUX PAVES DANS LE MEME ECRAN, ET NON DEUX ETAPES QUI SE SUIVENT. Elles disaient
+          #   chacune une option du même menu, sans rien désigner à l'écran : les enchaîner
+          #   coûtait un tap pour une page qui tenait dans la précédente. Un tutoriel se juge
+          #   au nombre de gestes qu'il demande autant qu'à ce qu'il explique.
+          #
+          # ⚠ DEUX PAVES ET NON UN SEUL. Un panneau à deux lignes a été essayé le 2026-09-15 :
+          #   il fondait les deux options dans une même boîte, avec un titre commun, et
+          #   faisait d'un droit (couper les rappels) une ligne de légende parmi d'autres.
+          #   Deux pavés gardent à chacune sa place, et ne coûtent toujours qu'un tap.
+          #
+          # « Ne plus me faire signe » est un DROIT, et c'est pourquoi il figure ici et pas
+          # seulement dans la légende : personne ne cherche un réglage qu'il ignore.
+          menu_details:
+            order: 54
+            text:
+              - "@@@T:tuto_perso_menu_journal@@@"
+              - "@@@T:tuto_perso_menu_nudges@@@"
 
       clan_intro:
         screen: clan_page
@@ -217,8 +313,29 @@ conf:
           roster:        { order: 50, target: clan_page/roster,          text: "@@@T:tuto_clan_roster@@@" }
           roster_avatar: { order: 52, target: "clan_page/roster#avatar", text: "@@@T:tuto_clan_roster_avatar@@@" }
           roster_name:   { order: 54, target: "clan_page/roster#name",   text: "@@@T:tuto_clan_roster_name@@@" }
+          # La BOURSE du bord droit de la tuile. Pas de spotlight : DvRoster n'expose que trois
+          # sous-parties (avatar / name / kebab, cf. spotlightSubRect), la bourse n'en est pas une
+          # et en ajouter une toucherait le framework. Message plein écran, donc — d'autant que le
+          # sujet n'est pas où elle est, mais ce que le tap dessus déclenche : `purse_option`
+          # (registry_clan_page) court-circuite le kebab et lance directement « Payer son tribut ».
+          # Un raccourci qui engage de l'argent réel ne doit pas se découvrir par accident.
+          roster_purse:
+            order: 55
+            requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_clan_roster_purse@@@"
           roster_kebab:  { order: 56, target: "clan_page/roster#kebab",  text: "@@@T:tuto_clan_roster_kebab@@@" }
-          # Panneau (admins) : actions du menu roster, lues depuis clan_page/roster_menu.
+          # Cadre le panneau qui suit. Il liste TOUTES les actions qui existent, alors que
+          # clan_selector n'en propose qu'une poignée à la fois (mort ou vivant, absent, enfant,
+          # soi-même, clan d'origine…) : sans cette phrase, le chef cherche dans son menu des
+          # options qu'il vient de lire et qui n'y sont pas.
+          roster_options_intro:
+            order: 57
+            requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_clan_options_intro@@@"
+          # Panneau (admins) : actions du menu roster, lues depuis clan_page/roster_menu. `menu:` →
+          # les 16 options réelles avec leur `desc` ; « Prendre sa place », « Déclarer hors ligne »,
+          # « Déclarer majeur », « Payer son tribut », « Rappels on/off », « Guérir » et « Coup de
+          # pouce » y sont documentées par leur description, qui est la seule chose à tenir à jour.
           roster_options:
             order: 58
             requires: { worker.player_last_is_admin: "true" }
@@ -226,28 +343,59 @@ conf:
               title: "@@@T:tuto_clan_options_title@@@"
               menu: clan_page/roster_menu
           menu:     { order: 60, target: clan_page/settings,    text: "@@@T:tuto_clan_menu@@@" }
-          # Panneau : options du menu Clan (kebab settings).
+          # Panneau du menu Clan, COUPÉ EN DEUX au même endroit que clan_settings_selector.
+          #
+          # `menu: clan_page/settings_menu` lit la conf du menu et NON le retour de son selector : il
+          # listait donc « QR Code du clan », « Inviter à distance » et « Créer un joueur » — trois
+          # commandes de gestion que le selector réserve aux chefs — à n'importe quel enfant du clan.
+          #
+          # D'où deux panneaux à `rows:` explicites, et pas une garde sur le panneau auto-synchronisé :
+          # la garde du second devrait s'écrire `player_last_is_admin: "false"`, or cette clé n'est PAS
+          # amorcée avant le premier passage de _checkChiefPromotion (son absence y signifie « jamais
+          # vue », ce qui lui interdit un amorçage à "false" — il rejouerait l'animation de promotion
+          # à chaque connexion d'un chef). Une garde négative sur une clé qui peut être nulle aurait
+          # privé les enfants des DEUX panneaux. Ici, seul le second est gardé, en positif.
+          #
+          # Prix à payer : les deux listes sont écrites à la main. Les LIBELLÉS, eux, ne peuvent pas
+          # diverger — ce sont les tokens du menu lui-même. Seul l'ensemble des options peut dériver :
+          # une option ajoutée à clan_page/settings_menu est à reporter dans celui des deux panneaux
+          # qui correspond à sa place dans clan_settings_selector (worker_clan.dart).
           menu_options:
             order: 62
             panel:
               title: "@@@T:tuto_clan_menu_title@@@"
-              menu: clan_page/settings_menu
+              rows:
+                clan_log:  { image: "images/small/scroll_nobg.png", name: "@@@T:clan_menu_log@@@",       desc: "@@@T:clan_menu_log_desc@@@" }
+                tutorials: { image: "images/medium/nope.png",       name: "@@@T:clan_menu_tutorials@@@", desc: "@@@T:clan_menu_tutorials_desc@@@" }
+          menu_options_admin:
+            order: 63
+            requires: { worker.player_last_is_admin: "true" }
+            panel:
+              title: "@@@T:tuto_clan_menu_admin_title@@@"
+              rows:
+                clan_qr:            { image: "images/small/qr-code.png", name: "@@@T:clan_menu_qr@@@",            desc: "@@@T:clan_menu_qr_desc@@@" }
+                clan_invite_remote: { icon: "share",                     name: "@@@T:clan_menu_invite_remote@@@", desc: "@@@T:clan_menu_invite_remote_desc@@@" }
+                create_player:      { icon: "group_add",                 name: "@@@T:clan_menu_create_player@@@", desc: "@@@T:clan_menu_create_player_desc@@@" }
           # Le couple « QR Code du clan » / « Créer un joueur », dans cet ordre : la RÈGLE d'abord,
           # l'exception ensuite. C'est le geste que les parents ratent le plus. Le tutoriel détaillait
           # « Créer un joueur » (l'enfant sans téléphone, le cas rare) et taisait le QR code, qui est
           # pourtant le cas nominal de la cible — un ado a un téléphone. Les deux étapes se lisent
           # comme une paire : sans la première, la seconde se fait passer pour la voie normale.
-          qr_hint:
-            order: 63
-            requires: { worker.player_last_is_admin: "true" }
-            text: "@@@T:tuto_clan_qr@@@"
-          # « Créer un joueur » n'est pas une option anodine et n'apparaît qu'aux chefs : on précise
-          # tout de suite à quoi elle sert (le détail complet est dans la leçon create_player_intro,
-          # jouée au clic sur l'option).
-          create_player_hint:
+          #
+          # ⚠ DEUX PAVES, UN SEUL TAP. Le commentaire ci-dessus le disait deja : « les deux
+          #   etapes se lisent comme une paire ». Elles les separaient pourtant par un tap,
+          #   et aucune des deux ne designait quoi que ce soit a l'ecran. `text` accepte une
+          #   LISTE : chaque entree devient un pave, empile sous le precedent.
+          #
+          # ⚠ DEUX PAVES ET NON UN TEXTE FUSIONNE : ce sont deux cas distincts, le nominal
+          #   et le rare. Les couler dans un seul bloc de dix lignes les melangerait, et un
+          #   pave de dix lignes se saute la ou deux paves de cinq se lisent.
+          recrutement:
             order: 64
             requires: { worker.player_last_is_admin: "true" }
-            text: "@@@T:tuto_clan_create_player@@@"
+            text:
+              - "@@@T:tuto_clan_qr@@@"
+              - "@@@T:tuto_clan_create_player@@@"
 
       # Leçon « Créer un joueur » : MANUELLE (jamais jouée à l'arrivée sur clan_page) — worker.create_player
       # la joue au clic sur l'option, sur l'écran Clan (DvMenu a déjà refermé le menu), puis n'ouvre
@@ -259,13 +407,30 @@ conf:
         manual: true
         title: "@@@T:tuto_create_player_title@@@"
         steps:
-          # Deux messages plein écran (aucune cible : l'option vient d'être touchée, son menu est fermé).
-          what:   { order: 10, text: "@@@T:tuto_create_player_what@@@" }
-          switch: { order: 20, text: "@@@T:tuto_create_player_switch@@@" }
+          # Deux paves plein écran (aucune cible : l'option vient d'être touchée, son menu est fermé),
+          # dans le MEME ecran : ils forment une seule explication en deux temps, ce que l'option
+          # cree puis comment on s'en sert. Les separer par un tap faisait lire le premier sans
+          # savoir a quoi il menait.
+          #
+          # ⚠ DEUX PAVES ET NON UN TEXTE FUSIONNE : le premier definit un objet (un personnage
+          #   fictif), le second un geste (prendre sa place). Les couler ensemble donnerait un
+          #   bloc de douze lignes, qu'on saute.
+          #
+          # `requires` sur CHAQUE étape et pas sur la leçon : la leçon n'en a pas besoin au déclenchement
+          # (worker.create_player ne s'atteint que depuis une option réservée aux chefs), mais elle est
+          # listée dans l'écran Tutoriels, où le rejeu force et court-circuite les gardes de niveau leçon.
+          # Un mineur pouvait donc s'y faire expliquer la création d'un joueur et la prise de relais.
+          what:
+            order: 10
+            requires: { worker.player_last_is_admin: "true" }
+            text:
+              - "@@@T:tuto_create_player_what@@@"
+              - "@@@T:tuto_create_player_switch@@@"
           # Légende : les deux icônes du parcours (création = icône Material du menu Clan, relais = asset
           # du menu d'un membre).
           icons:
             order: 30
+            requires: { worker.player_last_is_admin: "true" }
             panel:
               title: "@@@T:tuto_create_player_icons_title@@@"
               rows:
@@ -283,8 +448,10 @@ conf:
         title: "@@@T:tuto_combat_domains_title@@@"
         steps:
           intro:   { order: 10, text: "@@@T:tuto_combat_domains_intro@@@" }
-          # Surlignage SEUL (pas de texte) : montre les domaines une fois cadrés par l'intro.
-          domains: { order: 20, target: combat/tiroir }
+          # ⚠ L'ETAPE DE SURLIGNAGE MUET A ETE RETIREE le 2026-09-15. Elle perçait le voile
+          #   sur le tiroir sans afficher un mot ni une fleche : un ecran entier, un tap, et
+          #   rien a lire. Ce que l'intro vient de nommer n'a pas besoin d'etre montre en
+          #   silence — et une etape sans texte se lit comme un bug d'affichage.
           # Switch Jeu | Admin = 2 DvLabel (commons/mode_game + commons/mode_admin), union en un seul trou.
           # Visible des seuls chefs vivants → étape réservée aux admins.
           switch:
@@ -293,17 +460,29 @@ conf:
             target: "commons/mode_game+commons/mode_admin"
             text: "@@@T:tuto_combat_switch@@@"
           # Mode jeu : texte adapté joueur (défaut) / admin (override).
+          # ⚠ LE GRISE EST UNE PRECISION DU MODE JEU, pas une etape a lui. Il repondait a la
+          #   question que le pave precedent venait de poser (« pourquoi celui-ci ne
+          #   repond pas ? ») et la faisait attendre un tap. Deux paves empiles, une seule
+          #   fois a toucher.
+          #
+          #   `overrides` ne porte que sur le PREMIER pave : c'est lui qui change selon
+          #   qu'on est chef ou joueur. Le second dit la meme chose a tout le monde.
           play:
             order: 40
-            text: "@@@T:tuto_combat_domains_play@@@"
+            text:
+              - "@@@T:tuto_combat_domains_play@@@"
+              - "@@@T:tuto_combat_domains_grey@@@"
             overrides:
               admin:
                 when: { worker.player_last_is_admin: "true" }
                 text: "@@@T:tuto_combat_domains_play_admin@@@"
-          grey:          { order: 50, text: "@@@T:tuto_combat_domains_grey@@@" }
-          reperes_intro: { order: 60, text: "@@@T:tuto_combat_domains_reperes_intro@@@" }
+          # ⚠ L'INTRO EST PASSEE DANS LE PANNEAU. Une etape panneau accepte un `text` : il
+          #   s'affiche entre le titre et les lignes, en mise en situation. L'annoncer sur
+          #   un ecran separe faisait promettre une liste puis attendre un tap pour la
+          #   montrer.
           reperes:
             order: 70
+            text: "@@@T:tuto_combat_domains_reperes_intro@@@"
             panel:
               title: "@@@T:tuto_combat_badges_title@@@"
               rows:
@@ -312,13 +491,11 @@ conf:
                 xp:     { image: "images/small/xp_nobg.png",     name: "@@@T:tuto_badge_xp@@@",      desc: "@@@T:tuto_badge_xp_desc@@@" }
                 skull:  { image: "images/big/skull_nobg.png",  name: "@@@T:tuto_badge_skull@@@",   desc: "@@@T:tuto_badge_skull_desc@@@" }
                 cure:   { image: "images/small/cure_nobg.png",   name: "@@@T:tuto_badge_cure@@@",    desc: "@@@T:tuto_badge_cure_desc@@@" }
-          admin_intro:
-            order: 80
-            requires: { worker.player_last_is_admin: "true" }
-            text: "@@@T:tuto_combat_domains_admin_intro@@@"
+          # Cf. les reperes : l'intro passe dans le panneau qu'elle annonce.
           admin_options:
             order: 90
             requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_combat_domains_admin_intro@@@"
             panel:
               title: "@@@T:tuto_combat_admin_title@@@"
               menu: commons/tiroir_menu
@@ -334,23 +511,35 @@ conf:
         title: "@@@T:tuto_combat_tasks_title@@@"
         steps:
           intro: { order: 10, text: "@@@T:tuto_combat_tasks_intro@@@" }
-          tasks: { order: 20, target: "@tiroir" }
+          # Cf. `combat_domains` : l'etape de surlignage muet a ete retiree le 2026-09-15.
           switch:
             order: 30
             requires: { worker.player_last_is_admin: "true" }
             target: "commons/mode_game+commons/mode_admin"
             text: "@@@T:tuto_combat_switch@@@"
+          # ⚠ LE GRISE EST UNE PRECISION DU MODE JEU, pas une etape a lui. Il repondait a la
+          #   question que le pave precedent venait de poser (« pourquoi celui-ci ne
+          #   repond pas ? ») et la faisait attendre un tap. Deux paves empiles, une seule
+          #   fois a toucher.
+          #
+          #   `overrides` ne porte que sur le PREMIER pave : c'est lui qui change selon
+          #   qu'on est chef ou joueur. Le second dit la meme chose a tout le monde.
           play:
             order: 40
-            text: "@@@T:tuto_combat_tasks_play@@@"
+            text:
+              - "@@@T:tuto_combat_tasks_play@@@"
+              - "@@@T:tuto_combat_tasks_grey@@@"
             overrides:
               admin:
                 when: { worker.player_last_is_admin: "true" }
                 text: "@@@T:tuto_combat_tasks_play_admin@@@"
-          grey:          { order: 50, text: "@@@T:tuto_combat_tasks_grey@@@" }
-          reperes_intro: { order: 60, text: "@@@T:tuto_combat_tasks_reperes_intro@@@" }
+          # ⚠ L'INTRO EST PASSEE DANS LE PANNEAU. Une etape panneau accepte un `text` : il
+          #   s'affiche entre le titre et les lignes, en mise en situation. L'annoncer sur
+          #   un ecran separe faisait promettre une liste puis attendre un tap pour la
+          #   montrer.
           reperes:
             order: 70
+            text: "@@@T:tuto_combat_tasks_reperes_intro@@@"
             panel:
               title: "@@@T:tuto_combat_badges_title@@@"
               rows:
@@ -359,16 +548,23 @@ conf:
                 xp:     { image: "images/small/xp_nobg.png",     name: "@@@T:tuto_badge_xp@@@",      desc: "@@@T:tuto_badge_xp_desc@@@" }
                 skull:  { image: "images/big/skull_nobg.png",  name: "@@@T:tuto_badge_skull@@@",   desc: "@@@T:tuto_badge_skull_desc@@@" }
                 cure:   { image: "images/small/cure_nobg.png",   name: "@@@T:tuto_badge_cure@@@",    desc: "@@@T:tuto_badge_cure_desc@@@" }
-          admin_intro:
-            order: 80
-            requires: { worker.player_last_is_admin: "true" }
-            text: "@@@T:tuto_combat_tasks_admin_intro@@@"
+          # Cf. les reperes : l'intro passe dans le panneau qu'elle annonce.
           admin_options:
             order: 90
             requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_combat_tasks_admin_intro@@@"
             panel:
               title: "@@@T:tuto_combat_admin_title@@@"
               menu: commons/tiroir_menu
+          # La tuile « + ». Elle n'existe QUE sur les écrans de tâches et QUE en mode admin : ce
+          # n'est pas une shape mais une icône injectée dans le tiroir (_notifyTiroirExtras →
+          # dvtiroir.update_extras), donc rien à cibler — message plein écran. La grille des
+          # domaines la refuse par conf (combat/tiroir → extras_enabled: false), d'où son absence
+          # de la leçon `combat_domains` : un chef ne crée jamais de domaine.
+          admin_add:
+            order: 95
+            requires: { worker.player_last_is_admin: "true" }
+            text: "@@@T:tuto_combat_tasks_admin_add@@@"
 
       # Combat — leçon 3 : une TÂCHE EN COURS (page combat, `session.active_task` renseignée → widgets
       # icône/critères/difficulté/ok/cancel visibles). Explique le déroulé : accomplir la tâche, la faire
@@ -379,18 +575,61 @@ conf:
         order: 45
         header_top: true
         requires: { session.active_task: { nonempty: true } }
+        # ⚠ CE QUE LA LECON A PRIS, ELLE LE REND. `on_end` part a la fin de la lecon quelle
+        #   qu'en soit l'issue, et ne relache QUE la tache prise pour la demonstration : celle
+        #   que le joueur avait deja commencee ne bouge pas.
+        on_end: worker.on_tuto_demo_drop
         title: "@@@T:tuto_combat_active_title@@@"
         steps:
-          intro:      { order: 10, text: "@@@T:tuto_combat_active_intro@@@" }
-          difficulty: { order: 20, target: combat/difficulty, text: "@@@T:tuto_combat_active_difficulty@@@" }
-          criteria:   { order: 30, target: combat/encourage,  text: "@@@T:tuto_combat_active_criteria@@@" }
+          # ⚠ LA GARDE EST SUR CHAQUE ETAPE, ET PAS SEULEMENT SUR LA LECON. Le rejeu depuis
+          #   l'ecran Tutoriels FORCE la lecon et court-circuite le `requires` ci-dessus :
+          #   seuls ceux des etapes tiennent. Sans eux, cette lecon se jouait sans tache en
+          #   cours, et ses quatre etapes a cible designaient des widgets masques.
+          #
+          #   Meme motif que `not_adult` dans le guide du parent : une etape de repli, sous
+          #   la garde inverse, qui explique pourquoi il n'y a rien a voir et comment y
+          #   remedier. Une lecon vide serait pire qu'une lecon absente.
+          # ⚠ LE TUTORIEL PREND LUI-MEME UNE TACHE. Cette lecon explique les boutons d'une
+          #   tache en cours : sans tache en cours, ils n'existent pas. Elle se contentait
+          #   alors de renvoyer le joueur en choisir une et de revenir, ce qui revient a
+          #   decrire un geste au lieu de le montrer. `action` joue A L'ENTREE de l'etape,
+          #   donc le texte ci-dessous s'affiche une fois la tache prise et l'ecran de
+          #   combat pose.
+          #
+          # ⚠ `awaits` N'EST PAS UN CONFORT. `on_tuto_demo_take` rend la main bien avant que
+          #   l'ecran de combat ne soit monte (verrou, ecriture Firestore, navigation). Sans
+          #   cette attente, les etapes suivantes designeraient des widgets pas encore la et
+          #   se sauteraient toutes seules. Et si l'attente expire, c'est que la prise a
+          #   echoue : l'etape se saute, et `aucune` prend le relais juste en dessous.
+          demo:
+            order: 5
+            requires: { session.active_task: { empty: true } }
+            action: worker.on_tuto_demo_take
+            awaits: { session.active_task: { nonempty: true } }
+            text: "@@@T:tuto_combat_active_demo@@@"
+          # Aucune tache libre dans tout le clan : la demonstration n'a pas pu avoir lieu.
+          aucune:
+            order: 6
+            requires: { session.active_task: { empty: true } }
+            text: "@@@T:tuto_combat_active_none@@@"
+          intro:      { order: 10, requires: { session.active_task: { nonempty: true } }, text: "@@@T:tuto_combat_active_intro@@@" }
+          difficulty: { order: 20, requires: { session.active_task: { nonempty: true } }, target: combat/difficulty, text: "@@@T:tuto_combat_active_difficulty@@@" }
+          criteria:   { order: 30, requires: { session.active_task: { nonempty: true } }, target: combat/encourage,  text: "@@@T:tuto_combat_active_criteria@@@" }
           # Bouton « J'ai vaincu le monstre ! » : accomplir puis toucher (photo preuve).
-          done:      { order: 40, target: combat/ok, text: "@@@T:tuto_combat_active_done@@@" }
+          done:      { order: 40, requires: { session.active_task: { nonempty: true } }, target: combat/ok, text: "@@@T:tuto_combat_active_done@@@" }
           # Faire valider par le chef (preuve à l'appui) ; parenthèse pour le chef solo (auto-validation).
-          validate:  { order: 50, text: "@@@T:tuto_combat_active_validate@@@" }
-          wait:    { order: 60, text: "@@@T:tuto_combat_active_wait@@@" }
+          validate:  { order: 50, requires: { session.active_task: { nonempty: true } }, text: "@@@T:tuto_combat_active_validate@@@" }
+          wait:    { order: 60, requires: { session.active_task: { nonempty: true } }, text: "@@@T:tuto_combat_active_wait@@@" }
           # « Retraite ! » : abandonner, la tâche redevient libre pour le clan.
-          retreat: { order: 70, target: combat/cancel, text: "@@@T:tuto_combat_active_retreat@@@" }
+          retreat: { order: 70, requires: { session.active_task: { nonempty: true } }, target: combat/cancel, text: "@@@T:tuto_combat_active_retreat@@@" }
+          # Derniere etape, et SEULEMENT quand la tache vient de la demonstration : le joueur
+          # doit savoir qu'on la lui retire, sinon la disparition du combat passe pour un bug.
+          # `session.tuto_demo_task` est pose par `on_tuto_demo_take` et vide par `on_end`,
+          # qui part juste apres cette etape.
+          rendue:
+            order: 80
+            requires: { session.tuto_demo_task: { nonempty: true } }
+            text: "@@@T:tuto_combat_active_given_back@@@"
 
       # -------------------------------------------------------------------------------------------
       # REMINDERS de recrutement — ce ne sont PAS des tutoriels.
@@ -438,23 +677,58 @@ conf:
         steps:
           kebab: { order: 10, target: clan_page/settings, text: "@@@T:reminder_recruit_clan@@@" }
 
-      # Écran Items : DvExplorer n'expose pas de spotlightSubRect (contrairement à DvRoster), donc
-      # impossible de cibler individuellement le coffre ou la bourse. Cibler la grille entière
-      # (items/explorer, y:3% h:82%) ne laisse quasi aucune place pour la bulle de texte (cf.
-      # TutoOverlay._buildBubble, qui calcule l'espace libre autour du trou) : messages plein écran,
-      # sans target, comme les intros des leçons combat. Le coffre n'est poussé par _pushClanItems
-      # (worker_items.dart) qu'aux admins → étape sautée pour les autres joueurs.
+      # Écran Items. DvExplorer sait depuis le 2026-09-15 désigner UNE de ses tuiles :
+      # `items/explorer#type:<type>` perce le trou sur la première tuile de ce type, et la flèche
+      # part de la bulle vers elle (cf. DvExplorer.spotlightSubRect). Deux explications en
+      # profitent, parce qu'elles parlent d'une case précise et non de la grille : le coffre
+      # (`butin`, épinglé en haut) et la bourse (`argent_poche`).
+      #
+      # ⚠ `type:argent_poche` NE DÉSIGNE QU'UNE SEULE TUILE, y compris chez un chef. Deux
+      #   documents portent ce type, mais le portefeuille DU COFFRE a pour owner « butin » : il
+      #   vit dans le coffre et n'est jamais poussé dans la grille (cf. _pushClanItems). Il n'y a
+      #   donc pas d'ambiguïté à lever.
+      #
+      # La GRILLE, elle, reste sans cible : elle occupe y:3% h:82% et un trou de cette taille ne
+      # laisserait aucune place à la bulle (cf. TutoOverlay._buildBubble, qui cherche l'espace
+      # libre autour du trou). Un message plein écran la cadre mieux qu'un trou qui la recouvre.
+      #
+      # Le coffre n'est poussé par _pushClanItems (worker_items.dart) qu'aux admins → tuile
+      # absente pour les autres, donc étape sautée par la garde comme par la mesure.
       items_intro:
         screen: testme
         order: 55
         title: "@@@T:tuto_items_title@@@"
         steps:
-          grid:  { order: 10, text: "@@@T:tuto_items_grid@@@" }
-          chest:
+          # La grille entiere : rien a designer, c'est tout l'ecran. Message plein ecran.
+          grille:
+            order: 10
+            text: "@@@T:tuto_items_grid@@@"
+          # ⚠ LA BOURSE EST DESIGNEE, ET LE TRIBUT VOYAGE AVEC ELLE. Ces deux paves parlent de
+          #   la meme case : ou est ton or, et par ou il peut sortir. Les separer aurait coute
+          #   un tap pour re-designer la meme tuile.
+          #
+          # Le TRIBUT, vu du joueur. Pendant de l'option chef « Payer son tribut »
+          # (worker.pay_tribute, écran money_page) : le jeu ne constate aucun versement, c'est
+          # un chef qui le déclare et la bourse baisse d'autant. Aucune garde : savoir que son
+          # or peut sortir du jeu n'est pas une commande d'administration, c'est ce qui donne
+          # son sens à la bourse. Formulé au conditionnel : l'application ne promet pas
+          # d'argent à la place des parents.
+          bourse:
             order: 20
+            target: "items/explorer#type:argent_poche"
+            text:
+              - "@@@T:tuto_items_wallet@@@"
+              - "@@@T:tuto_items_tribute@@@"
+          # ⚠ LE COFFRE RESTE SEUL, ET C'EST SA GARDE QUI L'IMPOSE. Il n'apparait qu'aux chefs,
+          #   la ou les paves ci-dessus s'adressent a tout le monde : le glisser dans l'un
+          #   d'eux appliquerait sa garde au groupe entier, et un joueur simple perdrait du
+          #   meme coup l'explication de sa propre grille. Une garde se pose sur une ETAPE,
+          #   pas sur un pave.
+          chest:
+            order: 30
             requires: { worker.player_last_is_admin: "true" }
+            target: "items/explorer#type:butin"
             text: "@@@T:tuto_items_chest@@@"
-          wallet: { order: 30, text: "@@@T:tuto_items_wallet@@@" }
 
       # -------------------------------------------------------------------------------------------
       # PRUDENCE — les deux relances de sécurité.

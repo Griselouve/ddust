@@ -22,10 +22,17 @@ conf:
   registry:
 
     #//------------------------------- Paliers -------------------------------------
-    # PAS BLOQUANT, comme tout le reste de la monétisation : `show_back: true` et
-    # aucune taskbar retirée. La doctrine du projet est qu'aucun état commercial ne
-    # ferme le jeu avant le 50e jour d'impayé — on montre l'offre, on ne barre pas
-    # la porte. Une page de tarifs sans sortie serait exactement le contraire.
+    # NÉE NON BLOQUANTE : `show_back: true` et aucune taskbar retirée. C'est la forme
+    # de presque toutes les venues — plafond atteint, bandeau d'impayé, relance,
+    # réabonnement, changement de palier : la famille a voulu quelque chose, on lui dit
+    # le prix, elle décide. Un clan qui a DÉJÀ payé n'est jamais enfermé ici : son
+    # calendrier de défaut de paiement lui laisse cinquante jours, relances comprises.
+    #
+    # DEUX venues font exception, et le worker retire alors la flèche et l'appbar
+    # (_storeGotoTiers `blocking: true`) : la première cotisation d'un clan qui a épuisé
+    # ses reports, et rien d'autre. On ne fait pas crédit à qui n'a jamais payé — mais
+    # on ne le prend pas non plus en traître, d'où le bouton « Plus tard » plus bas et
+    # son décompte annoncé.
     #
     # `masks: [page]` et non `page_taskbar` : c'est un écran empilé pour répondre à
     # une question, pas un onglet de jeu. Il n'hérite donc ni de la taskbar, ni du
@@ -51,6 +58,7 @@ conf:
         - tiers_page/monthly
         - tiers_page/yearly
         - tiers_page/list
+        - tiers_page/defer
 
     # LA RAISON DE LA VENUE. Rempli et révélé par le worker depuis
     # `worker.store.notice` ; né invisible, et il le reste pour une venue sans
@@ -157,3 +165,39 @@ conf:
         border_radius: 10.0
         row_color: "0xB3000000"
         row_border_color: "0xFFB07328"
+
+    # « PLUS TARD » — le report de première cotisation, et la seule sortie d'une
+    # venue de type `pitch`.
+    #
+    # NÉ INVISIBLE, et il le reste partout ailleurs : plafond atteint, relance
+    # d'impayé, réabonnement, montée de palier. Ces venues-là ont déjà leur sortie
+    # (la flèche de l'appbar), un second bouton pour partir ne dirait rien de plus.
+    # C'est worker._tiersSyncDefer qui le révèle, avec le DÉCOMPTE écrit dessus
+    # (« encore deux fois ») : une famille doit savoir combien de fois elle pourra
+    # encore repousser. Un refus toujours accepté, puis une porte qui se ferme sans
+    # prévenir, est la pire des deux façons de demander son prix.
+    #
+    # Le décompte vit dans le LIBELLÉ et non dans un second texte : la ligne est
+    # déjà l'endroit où l'on regarde au moment de partir.
+    #
+    # DISCRET par sa couleur (le brun éteint des boutons inactifs de cette page, pas
+    # l'or) : c'est la sortie, pas la proposition. La liste des paliers se rétrécit
+    # pour lui faire place quand il paraît, et reprend sa hauteur quand il s'efface —
+    # un blanc en bas d'une grille de cinq lignes se lit comme un écran inachevé.
+    tiers_page/defer:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        x: 5%
+        y: 89%
+        w: 90%
+        h: 7%
+        font_size: 12.0
+        font_color: "#7A6A3A"
+        label: ""
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.tiers_defer

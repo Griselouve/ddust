@@ -89,7 +89,7 @@ MARCHES = ("fr", "euo", "eus", "eun", "eux", "uk", "ch")
 # ⚠ SEPT LANGUES DEPUIS LE 2026-09-08. Les `set_publisher_*.py` de septembre
 #   portent encore ("fr","en","es") : les recopier raterait it/de/pt/nl, et en
 #   silence pour celles-là.
-LANGS = ("fr", "en", "es", "it", "de", "pt", "nl")
+LANGS = ("fr", "en", "es", "it", "de", "pt", "br", "nl")
 
 # ── Coordonnées : elles ne se traduisent PAS ─────────────────────────────────
 # Une désignation de médiateur n'est pas de la prose. Le nom, l'adresse, l'URL et
@@ -132,7 +132,11 @@ INTRO = {
     "pt": "Em conformidade com as disposições do Código do Consumo francês relativas ao « processo de mediação "
           "de litígios de consumo », depois de nos ter contactado e na falta de uma resposta satisfatória, tem "
           "a possibilidade de recorrer gratuitamente a um procedimento de mediação de consumo junto de:",
-    "nl": "Overeenkomstig de bepalingen van het Franse consumentenwetboek betreffende de « bemiddelingsprocedure "
+    "br": "Em conformidade com as disposições do Código de Consumo francês relativas ao \"processo de mediação "
+          "de litígios de consumo\", depois de ter entrado em contato conosco e na falta de uma resposta "
+          "satisfatória, você tem a possibilidade de recorrer gratuitamente a um procedimento de mediação de "
+          "consumo junto a:",
+    "nl":"Overeenkomstig de bepalingen van het Franse consumentenwetboek betreffende de « bemiddelingsprocedure "
           "voor consumentengeschillen », kunt u, nadat u contact met ons hebt opgenomen en bij gebreke van een "
           "voor u bevredigend antwoord, kosteloos een consumentenbemiddelingsprocedure inleiden bij:",
 }
@@ -145,6 +149,7 @@ LIBELLES = {
     "it": ("Tel.:", "Sito web:", "E-mail:"),
     "de": ("Tel.:", "Website:", "E-Mail:"),
     "pt": ("Tel.:", "Sítio web:", "E-mail:"),
+    "br": ("Tel.:", "Site:", "E-mail:"),
     "nl": ("Tel.:", "Website:", "E-mail:"),
 }
 
@@ -157,6 +162,7 @@ TITRE_SITE = {
     "it": "Mediazione del consumo",
     "de": "Verbrauchermediation",
     "pt": "Mediação de consumo",
+    "br": "Mediação de consumo",
     "nl": "Consumentenbemiddeling",
 }
 
@@ -175,7 +181,9 @@ ANCRE_CGU = {
     "de": "Sie behalten in jedem Fall das Recht, das zuständige Gericht Ihres Wohnorts anzurufen.</p>",
     "pt": "Conserva em qualquer caso o direito de recorrer ao tribunal competente do seu local de "
           "residência.</p>",
-    "nl": "U behoudt in elk geval het recht om de bevoegde rechtbank van uw woonplaats aan te spreken.</p>",
+    "br": "Você mantém em qualquer caso o direito de recorrer ao tribunal competente do seu local de "
+          "residência.</p>",
+    "nl":"U behoudt in elk geval het recht om de bevoegde rechtbank van uw woonplaats aan te spreken.</p>",
 }
 
 # Fin du bloc « Éditeur » des pages `legal/` du site ddust — dernier bloc avant
@@ -189,6 +197,7 @@ ANCRE_SITE = {
     "it": "(Google Ireland Ltd), unica regione aperta a oggi.</p>",
     "de": "(Google Ireland Ltd), der einzigen bislang offenen Region.</p>",
     "pt": "(Google Ireland Ltd), única região aberta até à data.</p>",
+    "br": "(Google Ireland Ltd), única região aberta até o momento.</p>",
     "nl": "(Google Ireland Ltd), de enige tot op heden open regio.</p>",
 }
 

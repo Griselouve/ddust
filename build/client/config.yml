@@ -80,7 +80,7 @@ conf:
     auth:
       actions:
         on_authenticated: worker.on_login
-        on_login_required: navigate_reset.home
+        on_login_required: navigate_reset.awake
         on_logout: worker.on_logout
         # on_anonymous_started reste VIDE volontairement : doStartAnonymous dispatche
         # on_anonymous_started PUIS on_authenticated. Y remettre worker.on_login ferait
@@ -92,7 +92,7 @@ conf:
         on_account_rejected: worker.on_account_rejected
         # Le sign-in Google lui-même n'a pas abouti. Sans cette ligne, un enfant dont
         # le parent refuse l'autorisation (compte supervisé Family Link) revient sur
-        # `home` sans un mot — c'est l'échec silencieux que publication.md interdit.
+        # `home` sans un mot — c'est l'échec silencieux à proscrire.
         on_login_failed: worker.on_login_failed
       # Le joueur démarre en session anonyme et ne lie son compte Google qu'à la fin de
       # l'onboarding : ni email, ni nom, ni photo dans l'annuaire Firebase Auth avant que
@@ -187,13 +187,16 @@ conf:
       parallel: 6      # passe lazy téléchargée avec 6 fichiers en parallèle (défaut module = 4)
 
   # --- Messaging (masque flutter/modules/dvmessaging/config.yml) ---------------
+  # ⚠ LE `depends.appear.region_ready` A ÉTÉ RETIRÉ le 2026-09-12, avec la déduction
+  #   automatique de région. Il retardait l'`appeared` de dvmessaging jusqu'au drapeau
+  #   du datacenter — drapeau qui se levait alors au boot, sans que personne n'ait rien
+  #   choisi. Maintenant que la région attend le joueur, il ne se lève qu'après l'écran
+  #   du royaume : le depends serait tombé dans son timeout de 30 s à chaque lancement
+  #   et aurait sali les logs d'une erreur pour rien. Il ne protégeait d'ailleurs rien —
+  #   dvmessaging n'a pas d'`appear()`, et son `msgregister` est déjà déclenché par le
+  #   worker (on_documents_ready), la région connue.
   messaging:
     broadcast_enabled: true
-    depends:
-      appear:
-        region_ready:
-          key: documents.region_ready
-          value: "true"
 
   # --- dvsession config ---------------------------------------------------------
   session:
@@ -288,22 +291,16 @@ conf:
       on_entitlement_changed: worker.on_entitlement_changed
       on_state_changed: worker.on_store_state_changed
 
-    # BANC D'ESSAI : PLUS ICI.
+    # BANC D'ESSAI : SUPPRIMÉ (2026-09-15).
     #
-    # `store.debug` vivait dans ce fichier, donc dans le binaire : éprouver un impayé
-    # ou une paywall demandait de l'éditer PUIS DE RECONSTRUIRE L'APP. Pire, un état
-    # simulé oublié dans une release vendrait un abonnement que personne ne peut
-    # acheter — c'est arrivé (`simulate_state: "active"` était posé ici).
+    # `store.debug` vivait autrefois dans ce fichier, donc dans le binaire : un état
+    # simulé oublié dans une release vendait un abonnement que personne ne pouvait
+    # acheter (`simulate_state: "active"` a été posé ici). Il est ensuite passé dans
+    # un layer cloud avec un écran de scénarios, retiré de l'app à son tour.
     #
-    # Il vit désormais dans le layer cloud `layers/store-base-global.yml`, publié au
-    # bucket avec le catalogue, sous forme de SCÉNARIOS nommés (« abonné illimité »,
-    # « impayé dur », « clan gelé »…). On en change depuis l'app, dans le kebab de la
-    # boutique → « Changer de scénario » : worker.store_scenario_apply mute
-    # `store.debug.*` à chaud puis rappelle `store.refresh`, ce qui rejoue toute la
-    # simulation — retour au vrai canal Play compris — sans rebuild ni redémarrage.
-    #
-    # Le bucket de production porte `test_mode: false` et `scenario: ""` : l'entrée
-    # de menu disparaît et le canal Play est réel, sans qu'une ligne de code change.
+    # Ne JAMAIS reposer `store.debug.simulate_*` dans une conf embarquée : la
+    # simulation de dvstore reste disponible pour le développement, mais elle
+    # s'active dès que la clef existe.
 
 
   # --- aimodels config (vertex AI, pas de téléchargement local) ----------------
@@ -313,7 +310,7 @@ conf:
       vertex_pro:
         name: "vertex-gemini-pro"
         chat_format: "vertex"
-        model: "gemini-2.5-flash-lite"
+        model: "gemini-3.5-flash-lite"
 
   # --- prompts config (dvprompts — surchargé par l'asset cloud prompts.yml) -----
   prompts:

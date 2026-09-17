@@ -1,0 +1,263 @@
+# -----------------------------------------------------------------------------
+# --- LA VITRINE (dvshowcase) : rejouer les écrans avec des données bidons,
+# --- les photographier dans chaque langue. Cf. flutter/modules/dvshowcase/readme.md
+# -----------------------------------------------------------------------------
+conf:
+  deva:
+    modes:
+      # Ce qu'on éteint pour rejouer un écran sans compte ni réseau. Un module
+      # idle ne tourne ni son invoke() ni son appear(). La liste se règle à
+      # l'usage : un écran qui naît vide au premier passage dit ce qui lui manque.
+      showcase:
+        idles:
+          - worker
+          - dvcloud
+          - dvmessaging
+          - dvsession
+          - dvsteps
+          - dvvertexai
+          - dvvirtuallobby
+          - dvdeeplink
+
+        # LES DOUBLURES. Le worker est éteint, mais ses actions d'écran restent
+        # enregistrées : celles qui lisent la session (absente ici) répondraient
+        # « rien » par-dessus les données bidons. Chacune de ces entrées remplace
+        # l'action par la valeur qu'elle rend ; `false` = ne rien faire.
+        #
+        # ⚠ SEULEMENT CELLES QUI GÊNENT. Les autres (grille des domaines, tuiles
+        #   de tâches) lisent la conf locale et remplissent précisément la vitrine.
+        stubs:
+          worker:
+            # Sans session, le sélecteur ne voit pas de chef et rend « aucune
+            # option » : le kebab des tuiles du roster disparaissait.
+            clan_selector:
+              selectable: [player_log, support_player, take_place, promote_chief]
+              disabled: []
+              single: ""
+            # Sans session, le journal se déclarait vide PAR-DESSUS le récit bidon.
+            on_log_appear: false
+            # Étape « démonstration » de la leçon combat_active : elle prend une vraie
+            # tâche en base, puis attend 6 s qu'elle devienne active. Sans compte, ces
+            # 6 s passaient pour rien à chaque langue, avant de sauter l'étape.
+            on_tuto_demo_take: false
+            # La cérémonie d'ouverture du butin choisit son texte (rituel du meneur ou récit
+            # des joueurs) sur un rôle que seul le worker connaît, et qu'aucun `store` ne peut
+            # poser : sans meneur, c'était toujours le récit. Éteinte ici, ses textes sont posés
+            # par l'écran butin_open_page plus bas, une variante par rôle.
+            on_opening_appear: false
+            # La fée pose ses deux cadeaux depuis le document partagé du clan : sans lui, elle
+            # écrivait deux libellés VIDES par-dessus ceux de la vitrine. Éteinte ici, l'écran
+            # fairy_page plus bas pose les cadeaux et lance lui-même l'animation.
+            on_fairy_appear: false
+            # L'onglet Items lit les objets du clan en base : sans compte, il poussait une
+            # grille VIDE par-dessus celle de la vitrine. Éteint ici, l'écran testme plus bas
+            # pose lui-même le coffre, la bourse et les titres.
+            on_items_appear: false
+            # La saisie d'argent remet le montant à 0 et choisit ses textes selon un mode que
+            # seul le worker connaît. Éteinte ici, l'écran money_page plus bas pose les textes
+            # de la promesse d'argent au coffre, et une somme déjà tapée.
+            on_money_appear: false
+
+  showcase:
+    # Les huit langues de la fiche. Les libellés d'interface se traduisent seuls ;
+    # les données bidons ci-dessous portent, quand il le faut, une valeur par langue.
+    # `br` (portugais du Brésil) depuis le 2026-09-16 : ses captures iront dans
+    # `resources_others/showcase/br/` au prochain passage de la vitrine.
+    langs: [fr, en, es, it, de, pt, br, nl]
+    # Les instantanés vont dans `resources_others/showcase/<langue>/` (défaut du
+    # module). Aucun lien avec les captures du site : le choix se fera après.
+
+    # CE QUI VAUT POUR TOUS LES ÉCRANS, posé avant chacun d'eux. Le nom du joueur
+    # se lit sur l'écran Personnage ET dans les lignes du journal ; celui du clan sur
+    # l'écran Clan. Nom propre de famille, donc traduit comme une famille le dirait.
+    common:
+      session:
+        user:
+          name: "Papa"
+        # REMIS À VIDE AVANT CHAQUE ÉCRAN. Ce qu'un `store` pose est forcé pour tout le
+        # lancement : sans ces trois lignes, la tâche en cours posée pour une variante du
+        # combat resterait active sur tous les écrans photographiés après elle.
+        active_task: ""
+        active_proof: ""
+        review_task: ""
+        clan:
+          name:
+            fr: "Les Chevaliers du Balai"
+            en: "The Broom Knights"
+            es: "Los Caballeros de la Escoba"
+            it: "I Cavalieri della Scopa"
+            de: "Die Besenritter"
+            pt: "Os Cavaleiros da Vassoura"
+            br: "Os Cavaleiros da Vassoura"
+            nl: "De Bezemridders"
+      # Qui tient le téléphone. REMIS À VIDE AVANT CHAQUE ÉCRAN, pour la même raison que la
+      # tâche en cours : la variante adulte du tableau de bord ne doit pas déteindre sur la
+      # suite. Vide et non "false" : "false" réveillerait les étapes réservées aux enfants
+      # (« ce guide est pour les parents ») sur des écrans qui ne les montraient pas.
+      worker:
+        player_is_adult: ""
+        player_last_is_admin: ""
+
+    # LES ÉCRANS DÉCLARÉS. Tous les autres écrans du registre sont photographiés nus.
+    screens:
+      # LE TABLEAU DE BORD porte les deux guides (dvtuto.yml, guide_parent / guide_enfant),
+      # triés sur `worker.player_is_adult`, que le worker éteint ne pose jamais.
+      #   dashboard-tuto-* : joueur sans âge connu : présentation joueur + guide de l'aventurier
+      #                      (ses étapes n'ont pas de garde, celles du parent en ont une).
+      #   dashboard-01-tuto-* : un chef adulte : présentation chef, guide du parent, rappel de
+      #                      sécurité. Le guide de l'aventurier y repasse : le parcours de vitrine
+      #                      ignore les conditions de LEÇON, seules celles d'étape trient.
+      dashboard:
+        label: "Le tableau de bord"
+        feed:
+          - wait: 300
+        variants:
+          - tuto: true
+            feed:
+              - store: { worker: { player_is_adult: "true", player_last_is_admin: "true" } }
+              - wait: 300
+
+      clan_page:
+        label: "Le clan"
+        feed:
+          # L'icône du clan : posée AVANT la naissance de l'écran, à la clef même que le
+          # worker écrit quand le chef en choisit une (worker_avatars.dart).
+          - store:
+              registry:
+                clan_page/icon:
+                  shape:
+                    image: "images/medium/icon_01_C_04.png"
+          - action: dvroster.set_members
+            target: clan_page/roster
+            payload:
+              - { id: p1, name: "Papa",  avatar: "images/medium/icon_01_P_38.png", level: 12, pv: 40, xp: 1840, progress: 0.62, admin: true, founder: true, legal_state: a, wallet: 35 }
+              - { id: p2, name: "Lilou", avatar: "images/medium/icon_01_P_10.png", level: 7,  pv: 25, xp: 610,  progress: 0.30, legal_state: k, wallet: 12, task_status: assigned }
+              - { id: p3, name: "Tom",   avatar: "images/medium/icon_01_P_06.png", level: 5,  pv: 10, xp: 320,  progress: 0.85, legal_state: k, wallet: 4,  task_status: validating }
+          - wait: 300
+
+      # LA CÉRÉMONIE D'OUVERTURE DU BUTIN : le même écran pour trois moments, que
+      # worker.on_opening_appear tranche d'habitude (doublé en tête de fichier).
+      # ⚠ CHAQUE ÉTAT POSE LES QUATRE VALEURS. Un `store` reste posé pour tout le lancement :
+      #   une valeur oubliée dans un état serait celle de l'état photographié avant lui.
+      butin_open_page:
+        label: "L'ouverture du butin"
+        # butin_open_page.png : un joueur appelé, qui lit le récit de la bataille.
+        feed:
+          - store:
+              registry:
+                butin_open_page/text: { shape: { label: "@@@T:opening_player_text@@@" } }
+                butin_open_page/ok:   { shape: { label: "@@@T:opening_player_btn@@@", visible: true } }
+                butin_open_page/list: { shape: { visible: false } }
+          - wait: 300
+        variants:
+          # butin_open_page-01 : le meneur lit le rituel (réunir le clan, que chacun raconte...).
+          - feed:
+              - store:
+                  registry:
+                    butin_open_page/text: { shape: { label: "@@@T:opening_master_text@@@" } }
+                    butin_open_page/ok:   { shape: { label: "@@@T:opening_master_btn@@@", visible: true } }
+                    butin_open_page/list: { shape: { visible: false } }
+              - wait: 300
+          # butin_open_page-02 : le meneur a appelé le clan et attend les réponses.
+          - feed:
+              - store:
+                  registry:
+                    butin_open_page/text: { shape: { label: "@@@T:opening_master_text@@@" } }
+                    butin_open_page/ok:   { shape: { label: "@@@T:opening_master_btn@@@", visible: false } }
+                    butin_open_page/list: { shape: { visible: true } }
+              - action: dvlist.set_rows
+                payload:
+                  page: butin_open_page
+                  rows:
+                    - { id: p1, label: "Papa",  desc: "@@@T:opening_ready_row@@@", image: "images/medium/icon_01_P_38.png", trail_image: "images/small/adm_enable.png" }
+                    - { id: p2, label: "Lilou", desc: "@@@T:opening_ready_row@@@", image: "images/medium/icon_01_P_10.png", trail_image: "images/small/adm_enable.png" }
+                    - { id: p3, label: "Tom",   desc: "@@@T:opening_wait_row@@@",  image: "images/medium/icon_01_P_06.png", trail_image: "" }
+              - wait: 300
+
+      # L'ONGLET ITEMS d'un chef : le coffre du clan, sa bourse bien remplie, et deux titres
+      # gagnés. Même forme de tuiles que worker._pushClanItems (worker_items.dart) : `badge`
+      # est ce qui s'affiche en pastille (la somme d'une bourse, le niveau requis d'un titre).
+      # `owner` : p1 = Papa (cf. clan_page), clan01 = le clan.
+      testme:
+        label: "Les items"
+        feed:
+          - action: dvexplorer.set_entries
+            payload:
+              - { id: chest,  type: butin,        name: "", quantity: 1,  badge: "",   cost: 0, owner: clan01, last_used: "", title_idx: -1 }
+              - { id: purse,  type: argent_poche, name: "", quantity: 35, badge: "35", cost: 0, owner: p1,     last_used: "", title_idx: -1 }
+              - { id: title1, type: titre_perso,  name: "", quantity: 1,  badge: "10", cost: 0, owner: p1,     last_used: "", title_idx: 1 }
+              - { id: title2, type: titre_clan,   name: "", quantity: 1,  badge: "5",  cost: 0, owner: clan01, last_used: "", title_idx: 0 }
+          - wait: 500
+
+      # LA PROMESSE D'ARGENT AU COFFRE (bourse du coffre, depuis butin_page), 20 déjà tapés.
+      money_page:
+        label: "L'argent de poche"
+        feed:
+          - store:
+              registry:
+                money_page/warning: { shape: { label: "@@@T:butin_money_warning@@@" } }
+                money_page/label:   { shape: { label: "@@@T:money_lbl_add@@@" } }
+                money_page/amount:  { shape: { label: "20" } }
+          - wait: 300
+
+      # LA FÉE, une fois entièrement révélée, les deux cadeaux dans les mains.
+      # L'animation s'ouvre sur deux secondes de NOIR TOTAL et révèle la fée en une dizaine de
+      # secondes (scène `fairy` du thème) : photographiée au délai ordinaire, l'image était
+      # noire. Les cadeaux s'allument d'eux-mêmes à la fin du dernier acte
+      # (worker.on_fairy_ready, tiré par la scène, que la vitrine laisse vivre).
+      # Deux cadeaux au hasard du catalogue (fairy-base-global.yml) : l'XP pour tout le clan, et
+      # le soin pour soi.
+      fairy_page:
+        label: "La fée"
+        feed:
+          - store:
+              registry:
+                fairy_page/gift_left:  { shape: { label: "@@@T:fairy_gift_xp_clan@@@" } }
+                fairy_page/gift_right: { shape: { label: "@@@T:fairy_gift_heal_self@@@" } }
+          - action: dvflame.start.fairy
+          - wait: 12000
+
+      # LE COMBAT : un seul écran, quatre états, tranchés par worker.on_combat_appear
+      # selon la session (cf. worker_combat.dart). `salon_01` = « Aspirer ou balayer ».
+      combat:
+        label: "Le combat"
+        feed:                                          # combat.png : la grille des domaines
+          - wait: 300
+        variants:
+          # combat-01 : une tâche en cours (monstre, critères, difficulté, vaincu/retraite).
+          # C'est l'état que vise la leçon combat_active : ses étapes sont photographiées ici.
+          - tuto: true
+            feed:
+              - store: { session: { active_task: salon_01 } }
+              - wait: 300
+          # combat-02 : preuve prise, en attente de validation (« Voir ma preuve »).
+          - feed:
+              - store: { session: { active_task: salon_01, active_proof: demo } }
+              - wait: 300
+          # combat-03 : un chef juge la tâche (les trois boutons de verdict).
+          - feed:
+              - store: { session: { review_task: salon_01 } }
+              - wait: 300
+
+      # LE JOURNAL DE PAPA. Même rendu que le worker (worker_log.dart, _StoryBuffer) :
+      # un en-tête de date centré par jour, une ligne par exploit. Les lignes sont les
+      # VRAIES descriptions de tâches (dt_d_*), qui disent « @@@session.user.name@@@
+      # vient de... » : elles se traduisent seules et nomment Papa. Seules les dates
+      # sont écrites par langue.
+      log_page:
+        label: "Le journal"
+        feed:
+          - store:
+              registry:
+                log_page/story:
+                  shape:
+                    label:
+                      fr: "<center>Lundi 14 septembre</center>\n\n@@@T:dt_d_salon_01@@@ (30 XP)\n\n@@@T:dt_d_linge_01@@@ (20 XP)\n\n\n<center>Dimanche 13 septembre</center>\n\n@@@T:dt_d_cuisine_01@@@ (45 XP)\n\n@@@T:dt_d_salon_03@@@ (25 XP)\n\n\n<center>Samedi 12 septembre</center>\n\n@@@T:dt_d_linge_01@@@ (20 XP)"
+                      en: "<center>Monday September 14</center>\n\n@@@T:dt_d_salon_01@@@ (30 XP)\n\n@@@T:dt_d_linge_01@@@ (20 XP)\n\n\n<center>Sunday September 13</center>\n\n@@@T:dt_d_cuisine_01@@@ (45 XP)\n\n@@@T:dt_d_salon_03@@@ (25 XP)\n\n\n<center>Saturday September 12</center>\n\n@@@T:dt_d_linge_01@@@ (20 XP)"
+                      es: "<center>Lunes 14 de septiembre</center>\n\n@@@T:dt_d_salon_01@@@ (30 XP)\n\n@@@T:dt_d_linge_01@@@ (20 XP)\n\n\n<center>Domingo 13 de septiembre</center>\n\n@@@T:dt_d_cuisine_01@@@ (45 XP)\n\n@@@T:dt_d_salon_03@@@ (25 XP)\n\n\n<center>Sábado 12 de septiembre</center>\n\n@@@T:dt_d_linge_01@@@ (20 XP)"
+                      it: "<center>Lunedì 14 settembre</center>\n\n@@@T:dt_d_salon_01@@@ (30 XP)\n\n@@@T:dt_d_linge_01@@@ (20 XP)\n\n\n<center>Domenica 13 settembre</center>\n\n@@@T:dt_d_cuisine_01@@@ (45 XP)\n\n@@@T:dt_d_salon_03@@@ (25 XP)\n\n\n<center>Sabato 12 settembre</center>\n\n@@@T:dt_d_linge_01@@@ (20 XP)"
+                      de: "<center>Montag, 14. September</center>\n\n@@@T:dt_d_salon_01@@@ (30 XP)\n\n@@@T:dt_d_linge_01@@@ (20 XP)\n\n\n<center>Sonntag, 13. September</center>\n\n@@@T:dt_d_cuisine_01@@@ (45 XP)\n\n@@@T:dt_d_salon_03@@@ (25 XP)\n\n\n<center>Samstag, 12. September</center>\n\n@@@T:dt_d_linge_01@@@ (20 XP)"
+                      pt: "<center>Segunda-feira, 14 de setembro</center>\n\n@@@T:dt_d_salon_01@@@ (30 XP)\n\n@@@T:dt_d_linge_01@@@ (20 XP)\n\n\n<center>Domingo, 13 de setembro</center>\n\n@@@T:dt_d_cuisine_01@@@ (45 XP)\n\n@@@T:dt_d_salon_03@@@ (25 XP)\n\n\n<center>Sábado, 12 de setembro</center>\n\n@@@T:dt_d_linge_01@@@ (20 XP)"
+                      br: "<center>Segunda-feira, 14 de setembro</center>\n\n@@@T:dt_d_salon_01@@@ (30 XP)\n\n@@@T:dt_d_linge_01@@@ (20 XP)\n\n\n<center>Domingo, 13 de setembro</center>\n\n@@@T:dt_d_cuisine_01@@@ (45 XP)\n\n@@@T:dt_d_salon_03@@@ (25 XP)\n\n\n<center>Sábado, 12 de setembro</center>\n\n@@@T:dt_d_linge_01@@@ (20 XP)"
+                      nl: "<center>Maandag 14 september</center>\n\n@@@T:dt_d_salon_01@@@ (30 XP)\n\n@@@T:dt_d_linge_01@@@ (20 XP)\n\n\n<center>Zondag 13 september</center>\n\n@@@T:dt_d_cuisine_01@@@ (45 XP)\n\n@@@T:dt_d_salon_03@@@ (25 XP)\n\n\n<center>Zaterdag 12 september</center>\n\n@@@T:dt_d_linge_01@@@ (20 XP)"
+          - wait: 300

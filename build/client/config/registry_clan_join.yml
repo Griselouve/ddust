@@ -8,10 +8,16 @@ conf:
 
     new_or_pick_clan:
       masks:
-        - page
+        - page_onboarding
       show_appbar: true
       title: "@@@T:new_or_pick_clan_title@@@"
+      # Decor d'arrivee + replique du conteur (worker_onboarding). Purement decoratif :
+      # ni garde, ni verrou, ni attente — un asset manquant se tait, et l'etape se
+      # comporte exactement pareil.
+      actions:
+        appear: worker.on_onboarding_appear
       registry:
+        - new_or_pick_clan/banner
         - new_or_pick_clan/icon_background
         - new_or_pick_clan/join
         - new_or_pick_clan/create
@@ -20,6 +26,13 @@ conf:
         - new_or_pick_clan/confirm_scan
         - new_or_pick_clan/confirm_yes
         - new_or_pick_clan/confirm_no
+        - new_or_pick_clan/depart_view
+
+    new_or_pick_clan/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_new_or_pick_clan@@@"
 
     new_or_pick_clan/icon_background:
       masks:
@@ -37,7 +50,7 @@ conf:
         events:
           tap: true
         freezing_actions:
-          tap: steps.navigate.join
+          tap: dvinterlude.play.passage_join
 
     new_or_pick_clan/create:
       masks:
@@ -134,7 +147,7 @@ conf:
         events:
           tap: true
         actions:
-          tap: worker.on_confirm_create_clan_choice
+          tap: dvinterlude.play.passage_creation
 
     new_or_pick_clan/confirm_no:
       masks:
@@ -156,14 +169,19 @@ conf:
 
     create_clan:
       masks:
-        - page
+        - page_onboarding
       show_appbar: true
       title: "@@@T:create_clan_screen_title@@@"
       keyboard_scrollable: true
-      shape:
-        actions:
-          appear: worker.on_create_clan_appear
+      actions:
+        # Le handler metier D'ABORD, le decor ensuite : une liste d'actions n'est
+        # pas attendue une par une, et ce qui remplit l'ecran ne doit pas courir
+        # derriere ce qui l'habille (worker.on_onboarding_appear).
+        appear:
+          - worker.on_create_clan_appear
+          - worker.on_onboarding_appear
       registry:
+        - create_clan/banner
         - create_clan/icon_background
         - create_clan/name_label
         - create_clan/name
@@ -172,6 +190,13 @@ conf:
         - create_clan/inspire
         - create_clan/replay
         - create_clan/confirm
+        - create_clan/depart_view
+
+    create_clan/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_create_clan@@@"
 
     create_clan/icon_background:
       masks:
@@ -223,14 +248,14 @@ conf:
       shape:
         label: "@@@T:create_clan_confirm@@@"
         freezing_actions:
-          tap: steps.navigate
+          tap: dvinterlude.play.passage_suite
 
     #//------------------------------- DECISIONTREE SCREEN ------------------------------------
 
     decisiontree:
       class: DvDecisionTree
       masks:
-        - page
+        - page_onboarding
       show_appbar: true
       title: "@@@T:decisiontree_title@@@"
       questions_asset: "configs/decisiontree.yml"
@@ -241,14 +266,27 @@ conf:
         border: true
         text_align: CENTER
       registry:
+        - decisiontree/banner
         - decisiontree/icon_background
         - decisiontree/intro
         - decisiontree/options
+        - decisiontree/depart_view
+      # ⚠ A LA RACINE, ET NON SOUS `shape:`. Une PAGE resout ses actions par
+      #   `DvView._resolveActions()`, qui lit `get("actions")` — un `shape.actions` y est
+      #   purement ignore, sans erreur ni avertissement. `freezing_actions`, juste en
+      #   dessous, reste sous `shape:` : il est traite par DvShape, et celui-la y trouve
+      #   bien son compte.
+      actions:
+        appear: worker.on_onboarding_appear
       shape:
         freezing_actions:
-          done:
-            - worker.storetasks
-            - steps.navigate
+          done: dvinterlude.play.passage_quete
+
+    decisiontree/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_decisiontree@@@"
 
     decisiontree/icon_background:
       masks:
@@ -504,9 +542,13 @@ conf:
         - page
       show_appbar: true
       title: "@@@T:join_clan_title@@@"
-      shape:
-        actions:
-          appear: worker.on_kid_wants_clan_appear
+      actions:
+        appear:
+          # Le metier D'ABORD, la replique ensuite : une liste d'actions n'est pas
+          # attendue une par une, et ce qui remplit l'ecran ne doit pas courir derriere
+          # ce qui l'habille.
+          - worker.on_kid_wants_clan_appear
+          - worker.on_screen_voice
       registry:
         - commons/icon_background
         - kid_wants_clan/notice
@@ -653,5 +695,19 @@ conf:
         events:
           tap: true
         freezing_actions:
+          # Refuser une demande d'admission n'appartient pas au tunnel d'accueil : pas de
+          # rideau, on revient simplement d'ou l'on vient.
           tap: steps.navigate
+
+    new_or_pick_clan/depart_view:
+      masks:
+        - commons/depart_view
+
+    create_clan/depart_view:
+      masks:
+        - commons/depart_view
+
+    decisiontree/depart_view:
+      masks:
+        - commons/depart_view
 

@@ -44,13 +44,8 @@ conf:
         # Ordre = z-order : l'aura SOUS le coffre, et les deux au-dessus de tout le reste.
         - clan_page/butin_aura
         - clan_page/butin_open
-        # Overlay de consentement du chef au recrutement — listé en DERNIER : le voile et son
-        # panneau doivent couvrir jusqu'au coffre.
-        - clan_page/invite_scrim
-        - clan_page/invite_panel
-        - documents/ack_options
-        - clan_page/invite_yes
-        - clan_page/invite_no
+        # Le consentement du chef au recrutement a quitte cet ecran le 2026-09-15 : il a
+        # desormais le sien (invite_consent_screen, plus bas dans ce fichier).
         # Overlay de retrait du consentement parental — listé APRÈS celui du recrutement :
         # les deux ne s'ouvrent jamais ensemble, mais celui-ci porte une suppression et doit
         # couvrir tout le reste sans exception.
@@ -387,104 +382,128 @@ conf:
         # Clan n'a plus à en parler, et l'on ne cherche plus son relevé de cotisation
         # sous un menu qui parle de recrutement et de tutoriels.
 
-    #//------------------------------- Overlay CONSENTEMENT du chef (recrutement) ---------
-    # Révélé par worker.on_invite_clan / on_invite_clan_remote AVANT que le lobby ne soit créé :
+    #//------------------------------- ECRAN de CONSENTEMENT du chef (recrutement) -------
+    # Ouvert par worker.on_invite_clan / on_invite_clan_remote AVANT que le lobby ne soit cree :
     # le chef qui recrute fait potentiellement entrer un enfant dans son clan, il doit avoir la
-    # mention de responsabilité légale et le lien vers les CGU adulte sous les yeux À CET INSTANT
-    # (RGPD art. 8 : le consentement doit être éclairé au moment de l'acte, pas seulement à
-    # l'installation). Un seul point de passage pour le QR et pour l'invitation à distance : c'est
-    # la DEMANDE de recrutement qui est gardée, pas l'écran qui en découle.
-    # Idiome maison — jamais de fenêtre modale : widgets posés en layer:overlay, invisibles par
-    # défaut, révélés/masqués à la volée (cf. overlay « Créer un clan », registry_clan_join.yml).
-    # L'option kebab se déclenche sur CET écran (DvMenu a déjà refermé son menu).
-    clan_page/invite_scrim:
+    # mention de responsabilite legale et le lien vers les CGU adulte sous les yeux A CET INSTANT
+    # (RGPD art. 8 : le consentement doit etre eclaire au moment de l'acte, pas seulement a
+    # l'installation). Un seul point de passage pour le QR et pour l'invitation a distance : c'est
+    # la DEMANDE de recrutement qui est gardee, pas l'ecran qui en decoule.
+    #
+    # ⚠ UN ECRAN, ET NON PLUS UN OVERLAY. C'etait jusqu'au 2026-09-15 un voile noir a 80 % pose
+    #   sur clan_page. L'idiome maison proscrit la fenetre MODALE, pas la page : le voile laissait
+    #   le roster, la banniere de recrutement et le coffre transparaitre sous le texte, ce qui
+    #   donnait trois plans de lecture superposes pour un acte qui engage la responsabilite legale
+    #   du chef. Une declaration se lit sur un fond qui ne bouge pas.
+    #
+    # ⚠ LE RETOUR EST LIBRE (`show_back: true`). Renoncer a inviter ne demande aucune confirmation,
+    #   et `worker.pending_invite_kind` est repose a chaque ouverture : un retour sans passer par
+    #   « Pas maintenant » ne laisse donc rien derriere lui.
+    invite_consent_screen:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:invite_consent_title@@@"
+      # ⚠ `actions` A LA RACINE, et non sous `shape:`. C'est de la racine que l'appear d'une PAGE
+      #   est tire ; declare sous `shape:`, il ne part jamais (cf. la correction du 2026-09-14 sur
+      #   douze pages). L'appear reconstruit les cases a neuf et rallume le bouton eteint.
+      actions:
+        appear:
+          - worker.on_invite_consent_appear
+      registry:
+        - commons/splash_background
+        - invite_consent_screen/panel
+        - invite_consent_screen/notice
+        - documents/ack_options
+        - invite_consent_screen/yes
+        - invite_consent_screen/no
+
+    # Fond du bloc de lecture. Sur l'overlay, c'est le voile noir qui portait le texte ; ici le
+    # decor de l'ecran passerait au travers et rendrait la mention illisible. Meme fond que les
+    # boutons du jeu (noir ~60 % + cadre dore) : l'ecran reste dans le donjon.
+    invite_consent_screen/panel:
       class: DvLabel
-      layer: overlay
+      layer: content
       shape:
-        x: 0%
-        y: 0%
-        w: 100%
-        h: 100%
-        background_color: "#FF000000"
-        opacity: 0.8
-        border: false
-        visible: false
-        events:
-          tap: true
-        actions:
-          tap: worker.noop # avale les taps derrière le panneau
+        x: 4%
+        y: 2%
+        w: 92%
+        h: 68%
+        background_color: "0x99000000"
+        border: true
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 8.0
+        label: ""
 
     # Le masque commons/parental_consent fournit la mise en page (JUSTIFY, link_color, lien inline
-    # vers les CGU adulte) ; le LIBELLÉ, lui, est surchargé. Son texte par défaut est
-    # inconditionnel (« vous déclarez être son responsable légal »), ce qui n'est vrai que sur
-    # l'écran de création d'un profil d'enfant : ici, on ne sait pas qui scannera le QR — un
-    # adulte, un enfant sans clan, ou un enfant déjà pris en charge par le chef d'un autre clan.
-    # invite_consent_notice énonce les trois cas et ne fait déclarer que celui qui s'applique.
+    # vers les CGU adulte) ; le LIBELLE, lui, est surcharge. Son texte par defaut est
+    # inconditionnel (« vous declarez etre son responsable legal »), ce qui n'est vrai que sur
+    # l'ecran de creation d'un profil d'enfant : ici, on ne sait pas qui scannera le QR — un
+    # adulte, un enfant sans clan, ou un enfant deja pris en charge par le chef d'un autre clan.
+    # invite_consent_notice enonce les trois cas et ne fait declarer que celui qui s'applique.
     # ⚠️ Aucun events.tap ici : le GestureDetector de la shape capterait le tap avant le lien.
-    clan_page/invite_panel:
+    invite_consent_screen/notice:
       masks:
         - commons/parental_consent
-      layer: overlay
+      layer: content
       shape:
-        x: 8%
-        y: 8%
-        w: 84%
+        x: 7%
+        y: 5%
+        w: 86%
         h: 30%
         font_size: 13.0
-        font_color: "amber_200" # lisible sur le voile noir
+        font_color: "amber_200"
         label: "@@@T:invite_consent_notice@@@"
-        visible: false
 
-    # Les trois cas énoncés par la mention ci-dessus, mais À COCHER : le chef ne se contente
-    # plus d'accuser réception, il déclare CELUI qui s'applique — et cette déclaration part avec
-    # l'invitation pour se coller à la preuve d'acceptation de celui qui entrera (cf.
+    # Les trois cas enonces par la mention ci-dessus, mais A COCHER : le chef ne se contente
+    # plus d'accuser reception, il declare CELUI qui s'applique — et cette declaration part avec
+    # l'invitation pour se coller a la preuve d'acceptation de celui qui entrera (cf.
     # documents.acknowledgements dans screens_meta.yml).
-    # Les options ne sont PAS écrites ici : documents.show_ack les pousse depuis la conf du
+    # Les options ne sont PAS ecrites ici : documents.show_ack les pousse depuis la conf du
     # module, coquille vide comme documents/region_menu.
     documents/ack_options:
-      layer: overlay # override : le défaut du module est en layer content
+      layer: content
       shape:
-        x: 8%
-        y: 39%
-        w: 84%
-        h: 27%
-        font_color: "amber_200" # même lisibilité que la mention, sur le même voile noir
+        x: 7%
+        y: 37%
+        w: 86%
+        h: 31%
+        font_color: "amber_200"
         font_size: 12.0
         row_height: 28.0
-        visible: false
         events:
           change: true
         actions:
           change: worker.on_invite_ack_changed
 
-    # Le bouton est ÉTEINT ET SOURD à l'ouverture de l'overlay, et ne s'allume qu'une fois une
-    # case cochée (worker._setInviteYesReady) : une invitation sans déclaration ne part pas.
-    # `events.tap` est déclaré à true ici — c'est le worker qui le coupe et le rétablit.
-    clan_page/invite_yes:
+    # Le bouton est ETEINT ET SOURD a l'ouverture de l'ecran, et ne s'allume qu'une fois une
+    # case cochee (worker._setInviteYesReady) : une invitation sans declaration ne part pas.
+    # `events.tap` est declare a true ici — c'est le worker qui le coupe et le retablit.
+    invite_consent_screen/yes:
       masks:
         - commons/btn_wide
-      layer: overlay
+      layer: content
       shape:
-        y: 68%
+        y: 74%
         h: 11%
         text_align: CENTER
         label: "@@@T:invite_consent_yes@@@"
-        visible: false
         events:
           tap: true
         actions:
           tap: worker.on_confirm_invite_consent
 
-    clan_page/invite_no:
+    invite_consent_screen/no:
       masks:
         - commons/btn_wide
-      layer: overlay
+      layer: content
       shape:
-        y: 81%
+        y: 87%
         h: 11%
         text_align: CENTER
         label: "@@@T:invite_consent_no@@@"
-        visible: false
         events:
           tap: true
         actions:
@@ -727,7 +746,12 @@ conf:
       layer: content
       shape:
         y: 74%
-        h: 11%
+        # 12 % et non 11 : cinquante caracteres en corps 14 tiennent sur deux lignes dans
+        # 90 % de largeur, et il faut de quoi les loger toutes les deux sans rogner la
+        # seconde. `text_padding: 0` retire la marge interne du gabarit de bouton, qui
+        # mangeait une partie de cette hauteur.
+        h: 12%
+        text_padding: 0.0
         text_align: CENTER
         font_size: 14.0
         label: "@@@T:clan_invite_cta@@@"

@@ -68,9 +68,6 @@ extension Worker_fairy on worker {
                                 // Tirée par la CONF : `on_end` du fondu de sortie du voile noir.
                                 ActionRegistry.register("worker.on_fairy_done",         on_fairy_done);
 
-                                // Banc d'essai (kebab de la boutique, mode test seulement).
-                                ActionRegistry.register("worker.force_fairy",           force_fairy);
-
                                 // Les cadeaux. Ce sont des clefs d'action ORDINAIRES, et c'est tout
                                 // l'intérêt : le catalogue (fairy-base-global.yml) ne fait que les
                                 // nommer. Un thème ou un pack qui veut « la même chose, en plus
@@ -129,21 +126,6 @@ extension Worker_fairy on worker {
                                 final v   = await _fairyTr(key);
                                 if (v == key) return giftId;      // clef non traduite : l'id est plus parlant
                                 return flat ? v.replaceAll("\n", " ") : v;
-    }
-
-    // Nom lisible du tiroir et de la monstre-tâche où la fée se tient. Sert au journal de mise au
-    // point du banc d'essai : sans lui, il faut ouvrir les dix-neuf domaines pour la trouver.
-    // Le titre de la tâche suit la même règle d'affichage que le tiroir : un titre réécrit par un
-    // chef (_titleOverride) l'emporte sur le libellé de catalogue.
-    Future<String> _fairyWhere() async {
-
-                                if (_fairyDomain.isEmpty) return "";
-                                final domain = await _fairyTr("dt_domain_$_fairyDomain");
-                                final task   = (_titleOverride[_fairyTaskId]?.isNotEmpty ?? false)
-                                    ? _titleOverride[_fairyTaskId]!
-                                    : await _fairyTr("dt_t_${_originalOf(_fairyTaskId)}");
-                                return "onglet Combat → « $domain » ($_fairyDomain), "
-                                       "à la place de « $task » ($_fairyTaskId)";
     }
 
     // -----------------------------------------------------------------------
@@ -318,7 +300,7 @@ extension Worker_fairy on worker {
     }
 
     // Fait apparaître la fée : choisit sa place et ses deux cadeaux, puis écrit le doc partagé.
-    // Facteur commun au tirage et au banc d'essai (force_fairy).
+    // Appelée par le tirage quotidien.
     Future<bool> _spawnFairy(String clanId, String clanSecret, String region,
                              {String reason = ""}) async {
 
@@ -439,38 +421,6 @@ extension Worker_fairy on worker {
                                     weights.removeAt(k);
                                 }
                                 return out;
-    }
-
-    // -----------------------------------------------------------------------
-    // --- Banc d'essai : la faire venir tout de suite
-    // -----------------------------------------------------------------------
-    //
-    // Kebab de la boutique, gardé par store.debug.test_mode (layer CLOUD) : le bucket de
-    // production ne pose pas ce drapeau, l'option n'existe donc pas chez les joueurs. Rien à
-    // retirer plus tard.
-    Future<void> force_fairy(dynamic caller, dynamic event) async {
-
-                                final ctx = await _butinCtx();
-                                if (ctx == null) return;
-                                final ok = await _spawnFairy(ctx.get("clanId").toString(),
-                                                             ctx.get("clanSecret").toString(),
-                                                             ctx.get("region").toString(),
-                                                             reason: "banc d'essai");
-                                if (!ok) return;
-
-                                // OÙ elle est, en toutes lettres et en évidence. Le banc d'essai la place
-                                // dans un domaine AU HASARD parmi dix-neuf : sans cette ligne, la retrouver
-                                // veut dire ouvrir les tiroirs un par un. En `warning` et non en `info` : la
-                                // seule ligne du journal qu'on vient VRAIMENT y chercher ne doit pas se
-                                // noyer dans le flot des lectures de tâches qui la suivent immédiatement.
-                                final mins = (await _fairyNum("window_minutes", 10)).round();
-                                deva_log("warning", "[fairy] ══════════════════════════════════════════");
-                                deva_log("warning", "[fairy] BANC D'ESSAI — elle t'attend $mins min ici :");
-                                deva_log("warning", "[fairy]   ${await _fairyWhere()}");
-                                deva_log("warning", "[fairy]   cadeaux : "
-                                    "${await _fairyGiftLabel(_fairyGiftLeft, flat: true)}"
-                                    "  |  ${await _fairyGiftLabel(_fairyGiftRight, flat: true)}");
-                                deva_log("warning", "[fairy] ══════════════════════════════════════════");
     }
 
     // -----------------------------------------------------------------------
