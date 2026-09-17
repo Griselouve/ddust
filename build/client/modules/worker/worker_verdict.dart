@@ -625,6 +625,24 @@ extension Worker_verdict on worker {
                                 final reviewTask = (await Deva.instance.get("session.review_task"))?.toString() ?? "";
                                 if (reviewTask.isEmpty) { DvOrb.navigate_reset("combat"); return; }
 
+                                // PREMIÈRE COTISATION : la porte se ferme AVANT le verdict, sur la
+                                // validation qui atteint le seuil. Le verdict est mis de côté et rejoué
+                                // dès que l'achat aboutit — la famille ne perd pas la tâche qu'elle
+                                // rendait, elle la reçoit entière une fois abonnée. Un abandon l'oublie :
+                                // la tâche reste en attente de validation, et c'est la pression qu'on
+                                // veut, exercée sur l'adulte qui peut payer.
+                                //
+                                // Un refus (`ko`) n'est jamais intercepté : il ne compte pas au compteur,
+                                // et demander sa cotisation à une famille au moment précis où elle refuse
+                                // un travail serait le pire enchaînement du parcours.
+                                //
+                                // `session.review_task` est encore posée ici : rejouer _handleVerdict tel
+                                // quel suffit, avec son nettoyage et sa navigation.
+                                if (verdict != "ko"
+                                    && await _storePitchIntercept({"kind": "verdict", "verdict": verdict})) {
+                                    return;
+                                }
+
                                 final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final userDoc    = await _readSession(region) ?? Dvidle({});
                                 var   clanId     = userDoc.get("steps.clan.clanId")?.toString()     ?? "";

@@ -35,6 +35,12 @@ conf:
     #   build.yml n'ouvre que la France. L'écran de choix reste affiché malgré tout
     #   — choisir son royaume est l'acte par lequel le joueur reconnaît le droit
     #   qui lui sera appliqué, et un écran sauté ne vaut pas déclaration.
+    # ⚠ CE QUI LE GARANTIT est désormais dvdocuments lui-même : depuis le
+    #   2026-09-12, le module ne déduit PLUS jamais la région (`_autoResolveRegions`
+    #   supprimée). Il l'avait fait en silence jusque-là, et le paragraphe ci-dessus
+    #   n'était qu'un commentaire sans effet. `enabled: true` suffit donc : la seule
+    #   façon de ne pas poser l'écran serait `enabled: false`, que ddust n'utilise pas
+    #   et n'utilisera pas.
     region:
       enabled: true
       default: "fr"
@@ -139,6 +145,11 @@ conf:
           fr: "Français"
           en: "English"
           es: "Español"
+          de: "Deutsch"
+          it: "Italiano"
+          pt: "Português (Portugal)"
+          br: "Português (Brasil)"
+          nl: "Nederlands"
 
   virtuallobby:
     ttl_hours: 72
@@ -196,11 +207,6 @@ conf:
     log:
       text: "@@@log.share_intro@@@\n\n@@@log.share_text@@@\n\n@@@T:share_site_link@@@"
       image: "images/big/logo.png"
-    # Codes cadeaux fraîchement fabriqués (écran de mode test). C'est le SEUL moyen de
-    # les sortir de l'app : seule leur empreinte est conservée côté serveur, ils ne
-    # s'affichent qu'une fois. Posés au runtime dans worker.mint.codes.
-    gift_codes:
-      text: "@@@worker.mint.codes@@@"
 
   # --- Interludes : ce qui EXISTE ---------------------------------------------------
   # Les cinq célébrations que le worker sait déclencher (dvinterlude.play.<id>). On ne déclare ICI
@@ -211,6 +217,49 @@ conf:
   # THÈME (resources_cloud/layers/theme-donjon-global.yml). Un autre univers y redéfinit les
   # animations à son goût sans toucher une ligne d'ici.
   interludes:
+    # ACCUEIL DU NOUVEAU JOUEUR — le seul interlude qui se joue avant que quoi que ce soit
+    # n'existe : pas de session, pas de royaume, pas de réseau. Quatre tableaux embarqués.
+    #
+    # `freeze` au défaut (true) : L'INTERLUDE NE SE SAUTE PAS. Il l'a pu un temps, par
+    #   un voile tapable — puis on l'a retiré. C'est trente secondes une fois dans la
+    #   vie d'une installation, et c'est le seul moment où le jeu explique de quoi il
+    #   parle avant de commencer à demander. Laisser passer outre, c'est laisser arriver
+    #   au premier formulaire quelqu'un qui ne sait toujours pas où il est — exactement
+    #   ce qu'on corrige ici. Le gel `quiet` de dvorb ne peint rien : il rend seulement
+    #   l'écran sourd aux taps le temps de la scène.
+    # `music: keep` : aucune ambiance ne joue encore sur `home`. Avec `cut` (le défaut),
+    #   la fin de l'interlude tirerait `dvsound.ambiance.resume` et FERAIT DÉMARRER une
+    #   musique que personne n'avait lancée — l'ambiance du donjon a son moment, bien
+    #   plus loin, à la sortie de l'écran de l'âge.
+    # `guard: 45` : au-delà des 30,6 s de la scène, marge comprise. Le garde-fou ne
+    #   protège pas la scène, il protège l'application d'une scène qui ne finirait
+    #   jamais (vue détruite par une navigation imprévue).
+    # Pas de `splash` : le texte CHANGE à chaque tableau. C'est le worker qui le pose,
+    #   beat après beat, via `dvorb.splash.home/intro_label`.
+    intro:
+      music: keep
+      guard: 45
+      on_finished:
+        worker: { order: 1, action: "worker.on_intro_finished" }
+
+    # ⚠ LES TROIS PASSAGES (`passage_region`, `passage_royaume`, `passage_age`) SONT
+    #   DECLARES AU THEME, et non ici. Ils y portent leur `on_covered` — donc leur
+    #   destination — et cela n'a de sens qu'à côté de la scène dont ils dépendent : le
+    #   moment de la bascule est un instant de la timeline, pas un réglage d'écran.
+
+    # LE PACTE — quatre secondes, à la sortie des conditions.
+    #
+    # `music: keep` : l'ambiance du donjon tourne depuis l'écran de l'âge. La couper puis
+    #   la reprendre pour quatre secondes s'entendrait comme un incident.
+    # `guard: 15` : deux fois la scène, marge comprise. Comme ailleurs, il ne protège pas
+    #   la scène mais l'application d'une scène qui ne finirait jamais.
+    # Pas de `splash` : il n'y a rien à lire, la voix dit tout.
+    pacte:
+      music: keep
+      guard: 15
+      on_finished:
+        worker: { order: 1, action: "worker.on_pacte_finished" }
+
     # Montée de niveau ET bienvenue clan. Le `on_finished` ne relâche aucun garde : il réveille
     # l'attente de on_dashboard_appear, qui ne rend la main au tutoriel qu'une fois la bienvenue
     # terminée (sans quoi le voile du tuto se poserait par-dessus la scène `burn`). Une vraie

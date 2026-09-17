@@ -26,176 +26,56 @@ data:
     # ---------------------------------------------------------------------------
     # Quand demande-t-on sa premiere cotisation a un clan qui n'en a jamais eu ?
     #
+    # IL N'Y A PLUS D'ESSAI CALENDAIRE (decision du 2026-09-16, l'offre Play
+    # `essai-14j` est retiree du catalogue). L'acces libre du debut EST la
+    # generosite du modele, et il se mesure en USAGE et non en jours : une famille
+    # qui installe l'app le samedi et n'y revient qu'au week-end suivant n'a rien
+    # consomme de son essai, alors qu'un calendrier le lui aurait mange en entier.
+    #
     # Le plafond de joueurs attrape les foyers qui GRANDISSENT : le 3e membre ouvre la
     # page des paliers, avec le palier adapte deja fleche. Il ne dit en revanche jamais
     # rien a un foyer d'un parent et un enfant, qui tient dans le palier d'entree et
     # n'en sortira pas — environ quatre clans sur dix. Pour ceux-la, la seule porte est
     # le nombre de taches menees a leur terme : `clans/{clanId}.validations`.
     #
-    # DEUX, et pas UNE. Une famille joue sa premiere tache dans les dix minutes qui
-    # suivent l'installation ; la deuxieme dit qu'elle est REVENUE. Aucune condition de
-    # delai en revanche : deux validations dans le meme quart d'heure sont le signe le
-    # plus favorable qui soit, pas un artefact a filtrer.
+    # DEUX SEUILS, parce qu'il y a deux populations, et qu'un chiffre unique dirait
+    # une betise a l'une des deux :
     #
-    # Ce seuil est ICI et pas dans le code parce que regler le moment de la conversion
-    # est precisement ce qu'on voudra ajuster en observant les premieres semaines — et
-    # une version sur les stores pour deplacer un entier serait absurde. Le relever sert
-    # aussi a REJOUER le test au banc, le compteur vivant sur le doc du clan.
+    #   after_growth — clan CONSTITUE (au moins deux membres). Compte a partir de
+    #     l'ANCRE `validations_anchor`, posee sur le doc du clan a l'instant ou le
+    #     clan cesse d'etre seul. Trois validations VECUES A PLUSIEURS, et pas trois
+    #     validations tout court : un fondateur qui a deja valide neuf taches seul en
+    #     preparant le terrain n'a encore rien vu du jeu qu'on lui vend, et lui
+    #     presenter la note a la seconde ou sa famille arrive serait le pire moment
+    #     du parcours. Aucune condition de delai : trois validations dans le meme
+    #     quart d'heure sont le signe le plus favorable qui soit.
     #
-    # Ce que le seuil declenche est un MUR : page des paliers en racine de pile, sans
-    # fleche de retour, jusqu'a souscription. Il ne s'affiche QUE chez les chefs — les
-    # enfants continuent de jouer, leurs taches s'empilent simplement en attente d'une
-    # validation que personne ne rend.
+    #   solo — clan reste SEUL. Dix, parce qu'un fondateur solitaire n'a pas encore
+    #     le jeu qu'il paiera (il s'auto-valide sans preuve, personne ne le regarde
+    #     jouer) : on le laisse aller bien plus loin avant de lui demander quoi que
+    #     ce soit. Il n'est pas exempte pour autant — l'ancienne regle l'ajournait
+    #     indefiniment, et un clan d'un seul joueur qui joue tous les jours pendant
+    #     six mois coute de l'infrastructure sans jamais rencontrer une seule porte.
+    #
+    #   defers — REPORTS autorises. L'ecran est refusable un petit nombre de fois,
+    #     annonce honnetement (« vous pourrez encore reporter deux fois »), puis il
+    #     devient une racine de pile. On ne fait PAS credit a qui n'a jamais paye :
+    #     le calendrier de defaut de paiement (grace, relances, gel a J50) reste
+    #     reserve aux clans qui ont deja cotise, ou l'echec est presque toujours
+    #     technique. Un ecran refusable indefiniment enseignerait que payer est
+    #     facultatif, puis fermerait le donjon deux mois plus tard sur une famille
+    #     installee : ni convertie, ni menagee.
+    #
+    # Ces trois reglages sont ICI et pas dans le code parce que regler le moment de la
+    # conversion est precisement ce qu'on voudra ajuster en observant les premieres
+    # semaines — et une version sur les stores pour deplacer un entier serait absurde.
+    # Les relever sert aussi a REJOUER le test au banc, les compteurs vivant sur le
+    # doc du clan.
+    #
+    # Ce que le seuil declenche s'affiche QUE chez les chefs — les enfants continuent
+    # de jouer, leurs taches s'empilent simplement en attente d'une validation que
+    # personne ne rend, et c'est tres exactement la pression qu'on veut.
     pitch:
-      min_validations: 2
-
-    # ===========================================================================
-    # BANC D'ESSAI - SCENARIOS DE TEST
-    # ---------------------------------------------------------------------------
-    # Un scenario n'est pas un reglage mais un PAQUET COHERENT : ce qu'on veut
-    # eprouver est « un clan en impaye dur », pas « hold avec firm ». On en change
-    # dans l'app, kebab de la boutique -> « Changer de scenario ».
-    #
-    # Le worker traduit ces champs en `store.debug.simulate_*`, que dvstore relit a
-    # chaque `store.refresh` : la bascule est immediate, sur cet appareil.
-    #
-    #   state         : none | trial | active | canceled | grace | hold | locked | expired
-    #   tier          : identifiant du palier au catalogue (vide si aucun droit)
-    #   dunning_phase : soft | firm | last. Declenche AUSSI l'envoi de la vraie relance
-    #                   push aux chefs du clan (worker._notifyDunning), par le meme
-    #                   canal et avec le meme texte que celle du serveur.
-    #   founder       : marque fondateur
-    #   credits       : mois offerts en reserve
-    #   expiry_days   : indicatif seulement. dvstore derive lui-meme une echeance
-    #                   plausible de l'etat simule ; le champ est conserve parce qu'il
-    #                   documente l'intention du scenario et servirait tel quel a une
-    #                   ecriture serveur, si l'on en voulait une un jour.
-    #
-    # CE QUE LE BANC NE REPRODUIT PAS : la projection clans_store n'est pas ecrite
-    # (elle est fermee au client, et la faire ecrire par une fonction couterait une
-    # allowlist a maintenir pour une fonction qui accorde un droit payant en
-    # production). L'etat ne se propage donc pas aux autres appareils du clan et ne
-    # survit pas au redemarrage, et le balayage quotidien du serveur ne voit rien —
-    # il tourne a 5 h du matin, on ne l'observait de toute facon pas en session.
-    #
-    # Ce layer est publie au bucket : ajouter un scenario ne demande ni rebuild ni
-    # code. Les LIBELLES, eux, sont dans lang.yml (embarque) — un outil de
-    # diagnostic doit rester lisible quand le layer de theme du bucket est en retard.
-    #
-    # BUCKET DE PRODUCTION : `test_mode: false`, et l'entree de menu disparait.
-    # ===========================================================================
-
-    debug:
-
-      # Affiche « Changer de scenario » dans le kebab de la boutique. Double d'une
-      # condition d'administrateur cote worker : un enfant ne voit jamais cette entree.
-      test_mode: true
-
-      # Scenario applique en dernier, pour cocher la bonne ligne. Purement indicatif :
-      # la verite est dans clans_store, pas ici.
-      scenario: ""
-
-      scenarios:
-
-        # Sortie du banc : n'ecrit RIEN, se contente de faire relire la projection
-        # telle qu'elle est. Sans `state`, le worker n'appelle pas le serveur — on ne
-        # veut surtout pas ecraser l'etat d'un clan qui aurait reellement paye.
-        reel:
-          label: "@@@T:scenario_reel@@@"
-          desc:  "@@@T:scenario_reel_desc@@@"
-
-        jamais_abonne:
-          label: "@@@T:scenario_none@@@"
-          desc:  "@@@T:scenario_none_desc@@@"
-          state: "none"
-
-        essai:
-          label: "@@@T:scenario_trial@@@"
-          desc:  "@@@T:scenario_trial_desc@@@"
-          state: "trial"
-          tier:  "ddust_clan"
-          expiry_days: 14
-
-        # TROIS paliers au banc, pas cinq : ce qu'on vient eprouver ici n'est pas la
-        # grille tarifaire mais le PLAFOND. Il suffit d'un palier etroit (2 places, ou
-        # l'on bute des le troisieme membre), d'un palier courant (5 places, celui que
-        # la plupart des familles souscrivent) et d'un palier sans plafond du tout.
-        # Tribu et Guilde ne se comportent pas autrement que Clan — les ajouter
-        # allongerait la liste sans rien apprendre.
-        abonne_essentiel:
-          label: "@@@T:scenario_essentiel@@@"
-          desc:  "@@@T:scenario_essentiel_desc@@@"
-          state: "active"
-          tier:  "ddust_essentiel"
-          expiry_days: 30
-
-        abonne_clan:
-          label: "@@@T:scenario_clan@@@"
-          desc:  "@@@T:scenario_clan_desc@@@"
-          state: "active"
-          tier:  "ddust_clan"
-          expiry_days: 30
-
-        abonne_royaume:
-          label: "@@@T:scenario_royaume@@@"
-          desc:  "@@@T:scenario_royaume_desc@@@"
-          state: "active"
-          tier:  "ddust_royaume"
-          expiry_days: 30
-
-        # Mois offerts en cours : l'etat qu'un balayage produit en consommant un
-        # credit. Sans lui, un clan actif sans prelevement n'a aucun moyen de
-        # comprendre pourquoi il joue — c'est la ligne qu'on vient verifier ici.
-        fondateur:
-          label: "@@@T:scenario_founder@@@"
-          desc:  "@@@T:scenario_founder_desc@@@"
-          state: "active"
-          tier:  "ddust_clan"
-          expiry_days: 30
-          founder: true
-          credits: 2
-
-        resilie:
-          label: "@@@T:scenario_canceled@@@"
-          desc:  "@@@T:scenario_canceled_desc@@@"
-          state: "canceled"
-          tier:  "ddust_clan"
-          expiry_days: 12
-
-        # Echeance DEPASSEE + phase de relance : c'est la conjonction des deux qui
-        # fait partir une relance au prochain balayage.
-        impaye_doux:
-          label: "@@@T:scenario_grace@@@"
-          desc:  "@@@T:scenario_grace_desc@@@"
-          state: "grace"
-          tier:  "ddust_clan"
-          expiry_days: -12
-          dunning_phase: "soft"
-
-        impaye_dur:
-          label: "@@@T:scenario_hold@@@"
-          desc:  "@@@T:scenario_hold_desc@@@"
-          state: "hold"
-          tier:  "ddust_clan"
-          expiry_days: -45
-          dunning_phase: "last"
-
-        # Fin du cycle de defaut (J50). Le jeu reste ouvert : c'est precisement ce
-        # qu'on vient verifier.
-        clan_gele:
-          label: "@@@T:scenario_locked@@@"
-          desc:  "@@@T:scenario_locked_desc@@@"
-          state: "locked"
-          tier:  "ddust_clan"
-          expiry_days: -50
-
-        # Etat TERMINAL d'un abonnement a reconduction automatique : Play le rend
-        # (SUBSCRIPTION_STATE_EXPIRED) quand une resiliation a depasse son echeance,
-        # quand un achat est rembourse/annule, ou quand une reserve de mois offerts
-        # s'epuise. Rien a voir avec une offre a duree determinee — il n'y en a pas
-        # au catalogue, et il n'en faut pas pour atteindre cet etat.
-        expire:
-          label: "@@@T:scenario_expired@@@"
-          desc:  "@@@T:scenario_expired_desc@@@"
-          state: "expired"
-          expiry_days: -3
+      after_growth: 3
+      solo: 10
+      defers: 3

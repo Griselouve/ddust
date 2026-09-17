@@ -5,9 +5,63 @@
 conf:
   # --- dvsteps: enchaînement des écrans ----------------------------------------
   steps:
-    # Ordre d'onboarding : royaume → âge → vidéo → CGU → LIAISON DU COMPTE → nom → clan.
+    # Ordre d'onboarding : royaume → âge → CGU → LIAISON DU COMPTE → nom → clan.
     # Tout ce qui précède la liaison se déroule en session anonyme, sans une seule écriture
     # en base ; le nom vient après, quand le joueur a une identité durable.
+    # Le seuil : un tap, l'interlude, puis les deux portes. Aucune route conditionnelle —
+    # à ce stade on ne sait rien du joueur, et c'est exactement ce qu'on veut.
+    awake:
+      navigate: reset
+      # ⚠ LES ROUTES DE REPRISE, ET CE N'EST PAS UN COPIER-COLLER MALHEUREUX. `on_login`
+      #   s'execute au DEMARRAGE et route le joueur selon ce qu'il trouve en base :
+      #   `steps.navigate.dashboard` pour un joueur enrole, `.player_name` pour un compte
+      #   sans personnage, `.clan` pour un personnage sans clan, etc. Il part donc depuis
+      #   l'ecran d'accueil, celui que l'orb vient d'ouvrir.
+      #
+      #   dvsteps resout une route dans le pas de la PAGE COURANTE : sans ces lignes, le
+      #   pas ne connait aucune de ces destinations. Jusqu'au 2026-09-14 il retombait alors
+      #   sur `default` en silence, et TOUTE reprise de session atterrissait sur le choix
+      #   des langues ; depuis, dvsteps refuse et le journalise, ce qui est plus honnete
+      #   mais laisse le joueur sur place. Dans les deux cas il faut ces routes.
+      #
+      #   Un joueur deja enrole ne doit jamais voir l'accueil. C'est ici que cela se joue.
+      routes:
+        default: lang_choice
+        region: region_screen
+        player_name: player_name_screen
+        age: age_screen
+        link: link_account_screen
+        join: kid_assent_screen
+        clan: new_or_pick_clan
+        dashboard: dashboard
+
+    # Le choix de la langue. L'interlude se joue SUR cet écran, une fois la langue
+    # connue ; c'est sa fin (worker.on_intro_finished) qui mène aux deux portes.
+    lang_choice:
+      navigate: reset
+      # ⚠ LES ROUTES DE REPRISE, ET CE N'EST PAS UN COPIER-COLLER MALHEUREUX. `on_login`
+      #   s'execute au DEMARRAGE et route le joueur selon ce qu'il trouve en base :
+      #   `steps.navigate.dashboard` pour un joueur enrole, `.player_name` pour un compte
+      #   sans personnage, `.clan` pour un personnage sans clan, etc. Il part donc depuis
+      #   l'ecran d'accueil, celui que l'orb vient d'ouvrir.
+      #
+      #   dvsteps resout une route dans le pas de la PAGE COURANTE : sans ces lignes, le
+      #   pas ne connait aucune de ces destinations. Jusqu'au 2026-09-14 il retombait alors
+      #   sur `default` en silence, et TOUTE reprise de session atterrissait sur le choix
+      #   des langues ; depuis, dvsteps refuse et le journalise, ce qui est plus honnete
+      #   mais laisse le joueur sur place. Dans les deux cas il faut ces routes.
+      #
+      #   Un joueur deja enrole ne doit jamais voir l'accueil. C'est ici que cela se joue.
+      routes:
+        default: home
+        region: region_screen
+        player_name: player_name_screen
+        age: age_screen
+        link: link_account_screen
+        join: kid_assent_screen
+        clan: new_or_pick_clan
+        dashboard: dashboard
+
     home:
       navigate: reset
       routes:
@@ -45,15 +99,24 @@ conf:
         cancel: player_name_screen
         default: new_or_pick_clan
 
+    # L'ÉCRAN VIDÉO A DISPARU le 2026-09-12, et avec lui le seul fichier de la vague
+    # `vital` : 16 Mo qu'il fallait avoir descendus avant de montrer quoi que ce soit.
+    # L'accueil est désormais porté par un interlude dvflame joué sur des assets
+    # embarqués, donc sans un octet de réseau. L'âge enchaîne directement sur les
+    # conditions — même patron que l'ancien pas `ddvideo` : `documents.show_cgu`
+    # navigue lui-même (navigate_reset interne au module), il ne rend donc aucune
+    # clé de route et dvsteps se contente de tirer `actions.routed` après coup.
+    #
+    # L'ambiance du donjon partait à la fin de la vidéo ; elle part ici. C'est le
+    # premier moment où elle a des chances d'être en cache : le royaume est choisi
+    # depuis un écran, la vague `critical` est lancée.
     age_screen:
-      navigate: reset
-      routes:
-        default: ddvideo
-
-    ddvideo:
       routeur: documents.show_cgu
       actions:
-        routed: dvsound.loop.ambiant
+        # ⚠ PASSE PAR LE WORKER, qui COUPE d'abord la musique du seuil. Cette ligne
+        #   lancait directement la playlist ; depuis que le seuil a la sienne, cela
+        #   faisait jouer les deux ensemble a partir d'ici.
+        routed: worker.on_ambiance_relais
 
     # Trois issues : le mineur va demander son entrée dans un clan (il liera son compte
     # après l'admission), l'adulte encore anonyme doit lier son compte tout de suite, et
@@ -63,6 +126,26 @@ conf:
     # RÉ-acceptation : une nouvelle version de document repose cet écran à tout le monde, et un
     # joueur déjà enrôlé doit retrouver son dashboard (ou finir la saisie de son nom) au lieu
     # d'être renvoyé dans le funnel de jointure — cf. worker.legalstate.
+    # ⚠ CET ECRAN A BESOIN DE SON PAS, meme s'il n'est pas a nous. `parentalgate_screen`
+    #   appartient a dvparentalgate : il s'intercale entre l'age et les conditions quand
+    #   un adulte se declare, et dvdocuments enchaine ensuite par `steps.navigate`. Sans
+    #   pas ici, dvsteps ne trouve rien pour la page courante, le journal dit « pas de
+    #   step configuré pour la page: parentalgate_screen » et le parcours s'arrete net —
+    #   enigme resolue, ecran fige.
+    #
+    #   Le routeur est le meme que celui de l'age, et pour cause : c'est la meme suite.
+    #   Le detour par l'enigme ne change pas la destination, il ne fait que la retarder.
+    #
+    # ⚠ CE PAS N'ETAIT PAS NECESSAIRE AVANT LE 2026-09-13, et c'est ce qui le rendait
+    #   invisible. `documents.do_confirm` etait alors appele par le BOUTON de l'age :
+    #   dvsteps prenait la page de l'appelant — `age_screen` — et son pas s'appliquait.
+    #   Depuis que la confirmation passe par un interlude (appelant nul), dvsteps se
+    #   rabat sur la page COURANTE, qui est l'enigme au moment ou elle se resout.
+    parentalgate_screen:
+      routeur: documents.show_cgu
+      actions:
+        routed: worker.on_ambiance_relais
+
     documents_acceptance_screen:
       routeur: worker.legalstate
       navigate: reset
@@ -204,10 +287,6 @@ conf:
     # routeur se pose sur l'écran d'où le joueur part, jamais sur celui qu'il veut
     # atteindre. Une entrée et une clef dans `grants` au catalogue suffiront — sans
     # une ligne de Dart.
-    store_product_page:
-      navigate: new
-      routes:
-        default: store_product_page
 
     # Page des paliers. Ouverte par worker._storeGotoTiers, qui publie d'abord la
     # RAISON de la venue — jamais par un `navigate_new.tiers_page` en dur, qui

@@ -74,6 +74,7 @@ extension Worker_clan on worker {
 
                                 ActionRegistry.register("worker.on_accept_request_clan",       on_accept_request_clan);
                                 ActionRegistry.register("worker.on_invite_ack_changed",        on_invite_ack_changed);
+                                ActionRegistry.register("worker.on_invite_consent_appear",     on_invite_consent_appear);
 
                                 ActionRegistry.register("worker.on_virtuallobby_accepted",     (c, e) async { if (e is Map) await on_virtuallobby_accepted(c, e); });
 
@@ -338,7 +339,11 @@ extension Worker_clan on worker {
     //-----------------------------------------------------------------------
 
 
-    Future<void> on_create_clan_appear(DvShape? caller, dynamic event) async {
+    // ⚠ `dynamic caller` ET NON `DvShape?` : l'`appear` d'une PAGE passe la page
+    //   elle-même, et une page est un DvView, pas un DvShape. Typer le paramètre
+    //   `DvShape?` faisait lever un `type 'DvPage' is not a subtype of 'DvShape?'` que
+    //   DvView attrape et journalise — l'écran naissait donc inerte, en silence.
+    Future<void> on_create_clan_appear(dynamic caller, dynamic event) async {
 
                                 _resetAiDraft();
                                 final nameEntry = await DvOrb.wait_for_shape("create_clan/name");
@@ -411,7 +416,11 @@ extension Worker_clan on worker {
     // --- Bouton « marche arrière » adulte sur l'écran de rejointe (kid_wants_clan) -----------------
     // Invisible par défaut ; révélé uniquement pour l'adulte (venu de new_or_pick_clan via « Rejoindre »).
     // Les mineurs (k/t) arrivent ici en racine et ne doivent jamais atteindre l'option « créer ».
-    Future<void> on_kid_wants_clan_appear(DvShape? caller, dynamic event) async {
+    // ⚠ `dynamic caller` ET NON `DvShape?` : l'`appear` d'une PAGE passe la page
+    //   elle-même, et une page est un DvView, pas un DvShape. Typer le paramètre
+    //   `DvShape?` faisait lever un `type 'DvPage' is not a subtype of 'DvShape?'` que
+    //   DvView attrape et journalise — l'écran naissait donc inerte, en silence.
+    Future<void> on_kid_wants_clan_appear(dynamic caller, dynamic event) async {
 
                                 // Premier instant où une écriture devient indispensable au mineur : le lobby
                                 // ne peut lui transmettre le clanSecret que sous un uid connu. On inscrit donc
@@ -522,9 +531,12 @@ extension Worker_clan on worker {
                                     deva_log("error", "[clan] clan_settings_selector FAILED: $e");
                                 }
                                 // Lecture KO → isAdmin false : repli sûr (les options chef restent cachées).
-                                final options = <String>["clan_log"];
+                                // Les tutoriels en DEUXIEME position, juste apres le journal :
+                                // c'est l'option qu'on cherche quand on ne sait pas quoi faire, et
+                                // elle etait enterree sous deux entrees reservees au chef. Un
+                                // membre simple ne voyait meme qu'une ligne avant elle.
+                                final options = <String>["clan_log", "tutorials"];
                                 if (isAdmin) options.addAll(["clan_qr", "clan_invite_remote"]);
-                                options.add("tutorials");
                                 if (isAdmin) options.add("create_player");
                                 return options;
     }
@@ -1311,29 +1323,30 @@ extension Worker_clan on worker {
     //-- Invitation clan ---------------------------------------------------
     //-----------------------------------------------------------------------
 
-    // --- Overlay de consentement du chef au recrutement (écran clan_page) ---------------------
-    // Widgets posés en layer:overlay, invisibles par défaut — même idiome que l'overlay
-    // « Créer un clan » (_setCreateConfirmVisible), jamais de fenêtre modale.
-    Future<void> _setInviteConsentVisible(bool v) async {
+    // --- Écran de consentement du chef au recrutement (invite_consent_screen) -----------------
+    //
+    // ⚠ UN ECRAN, ET NON PLUS UN OVERLAY. C'etait un voile noir a 80 % pose sur clan_page, et
+    //   l'idiome maison — jamais de fenetre modale — n'imposait pas cela : il proscrit la MODALE,
+    //   pas la page. Sous le voile, le roster, le coffre et la banniere de recrutement restaient
+    //   visibles : trois plans de lecture superposes pour un acte qui engage la responsabilite
+    //   legale du chef. Une declaration se lit sur un fond qui ne bouge pas.
+    //
+    // La remise a neuf des cases n'a plus sa place ici : elle est passee a l'`appear` de l'ecran
+    // (on_invite_consent_appear), le seul moment ou les shapes existent a coup sur.
+    Future<void> _openInviteConsent() async {
 
-                                for (final id in const [
-                                    "clan_page/invite_scrim",
-                                    "clan_page/invite_panel",
-                                    "documents/ack_options",
-                                    "clan_page/invite_yes",
-                                    "clan_page/invite_no",
-                                ]) {
-                                    final s = DvOrb.get_shape_by_id(id);
-                                    s?.set("shape.visible", v);
-                                    s?.refreshUI();
-                                }
-                                if (!v) return;
-                                // Ouverture : on repose la question À NEUF. Les cases sont
-                                // reconstruites depuis la conf (donc décochées) et le bouton repart
-                                // éteint — une déclaration faite pour l'invitation précédente ne vaut
-                                // pas pour celle-ci.
-                                // Les cases sont reconstruites depuis la conf (donc décochées) par
-                                // show_ack : le bouton doit repartir éteint avec elles.
+                                DvOrb.navigate_new("invite_consent_screen");
+    }
+
+    // L'ecran vient de s'afficher : on repose la question A NEUF. Les cases sont reconstruites
+    // depuis la conf (donc decochees) par show_ack, et le bouton repart eteint avec elles — une
+    // declaration faite pour l'invitation precedente ne vaut pas pour celle-ci.
+    //
+    // ⚠ `dynamic caller` ET NON `DvShape?` : l'appear d'une PAGE passe un DvPage, qui n'est pas
+    //   une shape. Un handler type DvShape? leve un NoSuchMethodError silencieux (vecu le
+    //   2026-09-14 sur dix handlers d'onboarding).
+    Future<void> on_invite_consent_appear(dynamic caller, dynamic event) async {
+
                                 await ActionRegistry.get("documents.show_ack")?.call(null, "guardian");
                                 _setInviteYesReady(false);
     }
@@ -1350,9 +1363,12 @@ extension Worker_clan on worker {
     // n'expliquerait rien.
     // ⚠ On ne le CACHE pas : un bouton éteint qui reste là dit qu'il manque quelque chose, un
     //   bouton disparu laisse croire que l'écran est cassé.
+    //
+    // Appelee depuis l'`appear` de l'ecran ET a chaque changement de case : la shape peut donc
+    // ne pas encore exister au tout premier passage, d'ou le `?..` qui ne leve pas.
     void _setInviteYesReady(bool ready) {
 
-                                DvOrb.get_shape_by_id("clan_page/invite_yes")
+                                DvOrb.get_shape_by_id("invite_consent_screen/yes")
                                     ?..set("shape.opacity", ready ? _inviteYesOn : _inviteYesOff)
                                     ..set("shape.events.tap", ready)
                                     ..refreshUI();
@@ -1380,7 +1396,7 @@ extension Worker_clan on worker {
 
                                 if ((await _clanIdIfChief("on_invite_clan")).isEmpty) return;
                                 await deva_set("worker.pending_invite_kind", "qr");
-                                await _setInviteConsentVisible(true);
+                                await _openInviteConsent();
     }
 
     // Contrôles communs aux deux modes de recrutement (QR et invitation à distance) : le clan doit
@@ -1437,7 +1453,12 @@ extension Worker_clan on worker {
                                     ?.call(null, "guardian"))?.toString() ?? "";
                                 await deva_set("worker.pending_ack", sealed);
 
-                                await _setInviteConsentVisible(false);
+                                // On quitte l'ecran AVANT de creer le lobby : `create_management`
+                                // enchaine sur l'ecran QR (ou PIN), et il doit se poser sur
+                                // clan_page, pas par-dessus une declaration deja signee. Les deux
+                                // operations sont synchrones sur le meme Navigator : le pop est
+                                // acquis quand le push part.
+                                DvOrb.navigate_back();
                                 final kind = (await deva_get("worker.pending_invite_kind"))?.toString() ?? "qr";
                                 await deva_set("worker.pending_invite_kind", "");
                                 // Le clan est relu ici et pas conservé depuis la garde : entre le tap sur
@@ -1449,7 +1470,7 @@ extension Worker_clan on worker {
                                 ActionRegistry.get("virtuallobby.create_management")?.call(null, {"group_id": groupId});
     }
 
-    \ Horodate la PREMIÈRE invitation ouverte par le clan (`clans.first_invite_at`, écrit une seule
+    // Horodate la PREMIÈRE invitation ouverte par le clan (`clans.first_invite_at`, écrit une seule
     // fois). Sert au balayage serveur (pulse_sweeper) à distinguer deux clans d'un seul membre qui
     // n'ont rien à voir : celui dont le chef a essayé d'inviter et n'y est pas arrivé, et celui qui
     // joue seul délibérément — un clan de 1 à 2 joueurs, c'est ~40 % des clans, le palier le plus
@@ -1484,7 +1505,7 @@ extension Worker_clan on worker {
     Future<void> on_cancel_invite_consent(DvShape? caller, dynamic event) async {
 
                                 await deva_set("worker.pending_invite_kind", "");
-                                await _setInviteConsentVisible(false);
+                                DvOrb.navigate_back();
     }
 
     // Invitation à distance : même chemin que le QR (consentement puis create_management), mais le
@@ -1495,7 +1516,7 @@ extension Worker_clan on worker {
 
                                 if ((await _clanIdIfChief("on_invite_clan_remote")).isEmpty) return;
                                 await deva_set("worker.pending_invite_kind", "pin");
-                                await _setInviteConsentVisible(true);
+                                await _openInviteConsent();
     }
 
     Future<void> on_management_created(DvShape? caller, Map event) async {

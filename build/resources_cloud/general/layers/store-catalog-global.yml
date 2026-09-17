@@ -18,7 +18,6 @@ data:
         - essentiel-monthly
         - essentiel-yearly
         offers:
-        - essai-14j
         - fondateur
         label: '@@@T:store_essentiel@@@'
         description: '@@@T:store_essentiel_desc@@@'
@@ -31,16 +30,28 @@ data:
           listings:
             fr-FR:
               title: Essentiel — jusqu'à 2 joueurs
-              description: 'Une petite escouade : un adulte et son aventurier, ou
-                deux compagnons.'
+              description: 'Une petite escouade : un adulte et son aventurier, ou deux compagnons.'
             en-US:
               title: Essential — up to 2 players
-              description: 'A small squad: one adult and their adventurer, or two
-                companions.'
+              description: 'A small squad: one adult and their adventurer, or two companions.'
             es-ES:
               title: Esencial — hasta 2 jugadores
-              description: 'Una pequeña escuadra: un adulto y su aventurero, o dos
-                compañeros.'
+              description: 'Una pequeña escuadra: un adulto y su aventurero, o dos compañeros.'
+            de-DE:
+              title: 'Essenziell: bis zu 2 Spieler'
+              description: 'Ein kleiner Trupp: ein Erwachsener und sein Abenteurer, oder zwei Gefährten.'
+            it-IT:
+              title: 'Essenziale: fino a 2 giocatori'
+              description: 'Una piccola squadra: un adulto e il suo avventuriero, o due compagni.'
+            pt-PT:
+              title: 'Essencial: até 2 jogadores'
+              description: 'Um pequeno esquadrão: um adulto e o seu aventureiro, ou dois companheiros.'
+            pt-BR:
+              title: 'Essencial: até 2 jogadores'
+              description: 'Um pequeno esquadrão: um adulto e seu aventureiro, ou dois companheiros.'
+            nl-NL:
+              title: 'Essentieel: tot 2 spelers'
+              description: 'Een kleine ploeg: een volwassene en zijn avonturier, of twee kameraden.'
           plans:
             essentiel-monthly:
               period: P1M
@@ -86,7 +97,6 @@ data:
         - clan-monthly
         - clan-yearly
         offers:
-        - essai-14j
         - fondateur
         label: '@@@T:store_clan@@@'
         description: '@@@T:store_clan_desc@@@'
@@ -99,16 +109,28 @@ data:
           listings:
             fr-FR:
               title: Clan — jusqu'à 4 joueurs
-              description: 'La maisonnée ordinaire : parents et enfants autour des
-                mêmes quêtes.'
+              description: 'La maisonnée ordinaire : parents et enfants autour des mêmes quêtes.'
             en-US:
               title: Clan — up to 4 players
-              description: 'The ordinary household: parents and children on the same
-                quests.'
+              description: 'The ordinary household: parents and children on the same quests.'
             es-ES:
               title: Clan — hasta 4 jugadores
-              description: 'El hogar corriente: padres e hijos en torno a las mismas
-                misiones.'
+              description: 'El hogar corriente: padres e hijos en torno a las mismas misiones.'
+            de-DE:
+              title: 'Clan: bis zu 4 Spieler'
+              description: 'Der ganz normale Haushalt: Eltern und Kinder auf denselben Quests.'
+            it-IT:
+              title: 'Clan: fino a 4 giocatori'
+              description: 'La famiglia di tutti i giorni: genitori e figli sulle stesse missioni.'
+            pt-PT:
+              title: 'Clã: até 4 jogadores'
+              description: 'O lar comum: pais e filhos nas mesmas missões.'
+            pt-BR:
+              title: 'Clã: até 4 jogadores'
+              description: 'A casa de sempre: pais e filhos nas mesmas missões.'
+            nl-NL:
+              title: 'Clan: tot 4 spelers'
+              description: 'Het gewone gezin: ouders en kinderen op dezelfde queesten.'
           plans:
             clan-monthly:
               period: P1M
@@ -154,7 +176,6 @@ data:
         - tribu-monthly
         - tribu-yearly
         offers:
-        - essai-14j
         - fondateur
         label: '@@@T:store_tribu@@@'
         description: '@@@T:store_tribu_desc@@@'
@@ -170,12 +191,25 @@ data:
               description: 'Quand la maisonnée déborde : grande fratrie, foyers réunis.'
             en-US:
               title: Tribe — up to 7 players
-              description: 'When the household overflows: a big sibling crew, homes
-                joined.'
+              description: 'When the household overflows: a big sibling crew, homes joined.'
             es-ES:
               title: Tribu — hasta 7 jugadores
-              description: 'Cuando la casa se desborda: hermandad numerosa, hogares
-                reunidos.'
+              description: 'Cuando la casa se desborda: hermandad numerosa, hogares reunidos.'
+            de-DE:
+              title: 'Stamm: bis zu 7 Spieler'
+              description: 'Wenn der Haushalt überquillt: viele Geschwister, vereinte Familien.'
+            it-IT:
+              title: 'Tribù: fino a 7 giocatori'
+              description: 'Quando la casa trabocca: tanti fratelli, famiglie riunite.'
+            pt-PT:
+              title: 'Tribo: até 7 jogadores'
+              description: 'Quando a casa transborda: muitos irmãos, lares reunidos.'
+            pt-BR:
+              title: 'Tribo: até 7 jogadores'
+              description: 'Quando a casa transborda: muitos irmãos, famílias reunidas.'
+            nl-NL:
+              title: 'Stam: tot 7 spelers'
+              description: 'Als het huis overloopt: een grote kinderschaar, samengevoegde gezinnen.'
           plans:
             tribu-monthly:
               period: P1M
@@ -221,7 +255,6 @@ data:
         - guilde-monthly
         - guilde-yearly
         offers:
-        - essai-14j
         - fondateur
         label: '@@@T:store_guilde@@@'
         description: '@@@T:store_guilde_desc@@@'
@@ -234,14 +267,28 @@ data:
           listings:
             fr-FR:
               title: Guilde — jusqu'à 12 joueurs
-              description: Cousins, grands-parents, deux maisons qui n'en font plus
-                qu'une.
+              description: Cousins, grands-parents, deux maisons qui n'en font plus qu'une.
             en-US:
               title: Guild — up to 12 players
               description: Cousins, grandparents, two houses that have become one.
             es-ES:
               title: Gremio — hasta 12 jugadores
               description: Primos, abuelos, dos casas que ya son una.
+            de-DE:
+              title: 'Gilde: bis zu 12 Spieler'
+              description: Cousins, Großeltern, zwei Häuser, die eins geworden sind.
+            it-IT:
+              title: 'Gilda: fino a 12 giocatori'
+              description: Cugini, nonni, due case diventate una.
+            pt-PT:
+              title: 'Guilda: até 12 jogadores'
+              description: Primos, avós, duas casas que se tornaram uma.
+            pt-BR:
+              title: 'Guilda: até 12 jogadores'
+              description: Primos, avós, duas casas que viraram uma só.
+            nl-NL:
+              title: 'Gilde: tot 12 spelers'
+              description: Neven en nichten, grootouders, twee huizen die er één zijn geworden.
           plans:
             guilde-monthly:
               period: P1M
@@ -287,7 +334,6 @@ data:
         - royaume-monthly
         - royaume-yearly
         offers:
-        - essai-14j
         - fondateur
         label: '@@@T:store_royaume@@@'
         description: '@@@T:store_royaume_desc@@@'
@@ -303,12 +349,25 @@ data:
               description: 'Pour les clans sans fin : aucun plafond, tous les aventuriers.'
             en-US:
               title: Kingdom — unlimited players
-              description: 'For clans without end: no cap, as many adventurers as
-                you like.'
+              description: 'For clans without end: no cap, as many adventurers as you like.'
             es-ES:
               title: Reino — jugadores ilimitados
-              description: 'Para los clanes sin fin: sin límite, tantos aventureros
-                como queráis.'
+              description: 'Para los clanes sin fin: sin límite, tantos aventureros como queráis.'
+            de-DE:
+              title: 'Königreich: unbegrenzt viele Spieler'
+              description: 'Für Clans ohne Ende: keine Grenze, so viele Abenteurer, wie ihr wollt.'
+            it-IT:
+              title: 'Regno: giocatori illimitati'
+              description: 'Per i clan senza fine: nessun limite, tutti gli avventurieri che volete.'
+            pt-PT:
+              title: 'Reino: jogadores ilimitados'
+              description: 'Para clãs sem fim: sem limite, tantos aventureiros quantos quiserem.'
+            pt-BR:
+              title: 'Reino: jogadores ilimitados'
+              description: 'Para clãs sem fim: sem limite, quantos aventureiros vocês quiserem.'
+            nl-NL:
+              title: 'Koninkrijk: onbeperkt spelers'
+              description: 'Voor clans zonder einde: geen limiet, zoveel avonturiers als jullie willen.'
           plans:
             royaume-monthly:
               period: P1M
@@ -356,16 +415,28 @@ data:
           listings:
             fr-FR:
               title: Validations automatiques
-              description: 'Certaines tâches se valident seules : plus personne ne
-                repasse derrière. Réglable enfant par enfant, et acquis pour de bon.'
+              description: 'Certaines tâches se valident seules : plus personne ne repasse derrière. Réglable enfant par enfant, et acquis pour de bon.'
             en-US:
               title: Automatic approvals
-              description: Some tasks approve themselves — nobody has to check behind.
-                Set it child by child, and it stays set.
+              description: Some tasks approve themselves — nobody has to check behind. Set it child by child, and it stays set.
             es-ES:
               title: Validaciones automáticas
-              description: 'Algunas tareas se validan solas: nadie tiene que repasarlas.
-                Se ajusta niño por niño, y queda para siempre.'
+              description: 'Algunas tareas se validan solas: nadie tiene que repasarlas. Se ajusta niño por niño, y queda para siempre.'
+            de-DE:
+              title: Automatische Bestätigungen
+              description: 'Manche Aufgaben bestätigen sich selbst: Niemand muss mehr nachkontrollieren. Für jedes Kind einzeln einstellbar, und dauerhaft erworben.'
+            it-IT:
+              title: Convalide automatiche
+              description: 'Alcuni compiti si convalidano da soli: nessuno deve più ricontrollare. Regolabile bambino per bambino, e acquisito per sempre.'
+            pt-PT:
+              title: Validações automáticas
+              description: 'Algumas tarefas validam-se sozinhas: ninguém tem de voltar a verificar. Ajustável criança a criança, e adquirido para sempre.'
+            pt-BR:
+              title: Validações automáticas
+              description: 'Algumas tarefas se validam sozinhas: ninguém precisa conferir de novo. Ajustável criança por criança, e seu para sempre.'
+            nl-NL:
+              title: Automatische validaties
+              description: 'Sommige taken valideren zichzelf: niemand hoeft nog na te kijken. Per kind in te stellen, en voorgoed verworven.'
         prix:
           eur: '1.99'
           sek: '29'
@@ -390,16 +461,28 @@ data:
           listings:
             fr-FR:
               title: Pack « Quêtes » I
-              description: 'Un premier recueil de quêtes à mener en clan : des objectifs
-                qui durent plus qu''une journée, et une récompense au bout.'
+              description: 'Un premier recueil de quêtes à mener en clan : des objectifs qui durent plus qu''une journée, et une récompense au bout.'
             en-US:
               title: Quest Pack I
-              description: 'A first book of quests for the clan: goals that last longer
-                than a day, and a reward at the end.'
+              description: 'A first book of quests for the clan: goals that last longer than a day, and a reward at the end.'
             es-ES:
               title: Pack « Misiones » I
-              description: 'Un primer libro de misiones para el clan: objetivos que
-                duran más de un día, y una recompensa al final.'
+              description: 'Un primer libro de misiones para el clan: objetivos que duran más de un día, y una recompensa al final.'
+            de-DE:
+              title: Quest-Paket I
+              description: 'Eine erste Sammlung von Quests für den Clan: Ziele, die länger als einen Tag dauern, und eine Belohnung am Ende.'
+            it-IT:
+              title: Pacchetto «Missioni» I
+              description: 'Una prima raccolta di missioni da vivere in clan: obiettivi che durano più di un giorno, e una ricompensa alla fine.'
+            pt-PT:
+              title: Pack «Missões» I
+              description: 'Uma primeira coletânea de missões para o clã: objetivos que duram mais do que um dia, e uma recompensa no fim.'
+            pt-BR:
+              title: Pack "Missões" I
+              description: 'Uma primeira coleção de missões para o clã: objetivos que duram mais de um dia, e uma recompensa no final.'
+            nl-NL:
+              title: Queestenpakket I
+              description: 'Een eerste bundel queesten voor de clan: doelen die langer dan een dag duren, en een beloning aan het eind.'
         prix:
           eur: '3.99'
           sek: '55'
@@ -424,17 +507,28 @@ data:
           listings:
             fr-FR:
               title: Pack « Potions » I
-              description: 'Un premier assortiment de potions : des effets temporaires
-                qui changent une semaine d''aventure — bonus d''XP, coups de pouce,
-                sursis.'
+              description: 'Un premier assortiment de potions : des effets temporaires qui changent une semaine d''aventure — bonus d''XP, coups de pouce, sursis.'
             en-US:
               title: Potion Pack I
-              description: 'A first assortment of potions: temporary effects that
-                change a week of adventure — XP bonuses, helping hands, reprieves.'
+              description: 'A first assortment of potions: temporary effects that change a week of adventure — XP bonuses, helping hands, reprieves.'
             es-ES:
               title: Pack « Pociones » I
-              description: 'Un primer surtido de pociones: efectos temporales que
-                cambian una semana de aventura — bonus de XP, empujones, prórrogas.'
+              description: 'Un primer surtido de pociones: efectos temporales que cambian una semana de aventura — bonus de XP, empujones, prórrogas.'
+            de-DE:
+              title: Trank-Paket I
+              description: 'Eine erste Auswahl an Tränken: zeitlich begrenzte Effekte, die eine Abenteuerwoche verändern, wie XP-Bonus, Schubse und Aufschub.'
+            it-IT:
+              title: Pacchetto «Pozioni» I
+              description: 'Un primo assortimento di pozioni: effetti temporanei che cambiano una settimana di avventura, come bonus di XP, colpetti e proroghe.'
+            pt-PT:
+              title: Pack «Poções» I
+              description: 'Um primeiro sortido de poções: efeitos temporários que mudam uma semana de aventura, como bónus de XP, empurrões e adiamentos.'
+            pt-BR:
+              title: Pack "Poções" I
+              description: 'Um primeiro sortimento de poções: efeitos temporários que mudam uma semana de aventura, como bônus de XP, empurrõezinhos e adiamentos.'
+            nl-NL:
+              title: Drankjespakket I
+              description: 'Een eerste assortiment drankjes: tijdelijke effecten die een avonturenweek veranderen, zoals XP-bonus, duwtjes en uitstel.'
         prix:
           eur: '3.99'
           sek: '55'
@@ -459,19 +553,28 @@ data:
           listings:
             fr-FR:
               title: Pack de tâches « Bricolage »
-              description: 'Une réserve de tâches prêtes à poser, du côté des outils
-                : réparer, monter, ranger l''atelier. À piocher dedans plutôt qu''à
-                les écrire.'
+              description: 'Une réserve de tâches prêtes à poser, du côté des outils : réparer, monter, ranger l''atelier. À piocher dedans plutôt qu''à les écrire.'
             en-US:
               title: 'Task Pack: Handiwork'
-              description: 'A ready-made stack of tasks from the toolbox side: fix
-                it, build it, tidy the workshop. Pick from them instead of writing
-                them.'
+              description: 'A ready-made stack of tasks from the toolbox side: fix it, build it, tidy the workshop. Pick from them instead of writing them.'
             es-ES:
               title: Pack de tareas « Bricolaje »
-              description: 'Una reserva de tareas listas para usar, del lado de las
-                herramientas: reparar, montar, ordenar el taller. Elegir en vez de
-                escribir.'
+              description: 'Una reserva de tareas listas para usar, del lado de las herramientas: reparar, montar, ordenar el taller. Elegir en vez de escribir.'
+            de-DE:
+              title: Aufgabenpaket „Heimwerken“
+              description: 'Ein Vorrat an fertigen Aufgaben rund ums Werkzeug: reparieren, aufbauen, die Werkstatt aufräumen. Aussuchen statt selbst schreiben.'
+            it-IT:
+              title: Pacchetto compiti «Fai da te»
+              description: 'Una scorta di compiti pronti all''uso, dal lato degli attrezzi: riparare, montare, riordinare il laboratorio. Da scegliere invece che scrivere.'
+            pt-PT:
+              title: Pack de tarefas «Bricolage»
+              description: 'Uma reserva de tarefas prontas a usar, do lado das ferramentas: reparar, montar, arrumar a oficina. Escolher em vez de escrever.'
+            pt-BR:
+              title: Pack de tarefas "Consertos"
+              description: 'Um estoque de tarefas prontas para usar, do lado das ferramentas: consertar, montar, arrumar a oficina. Escolher em vez de escrever.'
+            nl-NL:
+              title: Takenpakket ‘Klussen’
+              description: 'Een voorraad kant-en-klare taken uit de gereedschapskist: repareren, in elkaar zetten, de werkplaats opruimen. Kiezen in plaats van schrijven.'
         prix:
           eur: '3.99'
           sek: '55'
@@ -496,16 +599,28 @@ data:
           listings:
             fr-FR:
               title: Pack de tâches « Routine »
-              description: Se brosser les dents, préparer son cartable la veille,
-                ranger sa chambre. Les tâches de tous les jours, déjà écrites.
+              description: Se brosser les dents, préparer son cartable la veille, ranger sa chambre. Les tâches de tous les jours, déjà écrites.
             en-US:
               title: 'Task Pack: Routine'
-              description: Brushing teeth, packing the schoolbag the night before,
-                tidying the room. The everyday tasks, already written.
+              description: Brushing teeth, packing the schoolbag the night before, tidying the room. The everyday tasks, already written.
             es-ES:
               title: Pack de tareas « Rutina »
-              description: Lavarse los dientes, preparar la mochila la víspera, ordenar
-                el cuarto. Las tareas de cada día, ya escritas.
+              description: Lavarse los dientes, preparar la mochila la víspera, ordenar el cuarto. Las tareas de cada día, ya escritas.
+            de-DE:
+              title: Aufgabenpaket „Alltag“
+              description: Zähne putzen, am Vorabend die Schultasche packen, das Zimmer aufräumen. Die Aufgaben des Alltags, schon geschrieben.
+            it-IT:
+              title: Pacchetto compiti «Routine»
+              description: Lavarsi i denti, preparare lo zaino la sera prima, riordinare la camera. I compiti di tutti i giorni, già scritti.
+            pt-PT:
+              title: Pack de tarefas «Rotina»
+              description: Lavar os dentes, preparar a mochila na véspera, arrumar o quarto. As tarefas de todos os dias, já escritas.
+            pt-BR:
+              title: Pack de tarefas "Rotina"
+              description: Escovar os dentes, arrumar a mochila na véspera, arrumar o quarto. As tarefas de todo dia, já escritas.
+            nl-NL:
+              title: Takenpakket ‘Routine’
+              description: Tanden poetsen, de avond ervoor je schooltas inpakken, je kamer opruimen. De taken van elke dag, al geschreven.
         prix:
           eur: '3.99'
           sek: '55'
@@ -530,17 +645,28 @@ data:
           listings:
             fr-FR:
               title: Extension « Butin »
-              description: 'Le plus gros morceau du jeu : l''or, la boutique des héros,
-                le butin aléatoire, l''équipement, les faveurs et les saisons. Les
-                tâches deviennent une économie.'
+              description: 'Le plus gros morceau du jeu : l''or, la boutique des héros, le butin aléatoire, l''équipement, les faveurs et les saisons. Les tâches deviennent une économie.'
             en-US:
               title: Loot Expansion
-              description: 'The biggest piece of the game: gold, the heroes'' shop,
-                random loot, equipment, favours and seasons. Chores become an economy.'
+              description: 'The biggest piece of the game: gold, the heroes'' shop, random loot, equipment, favours and seasons. Chores become an economy.'
             es-ES:
               title: Expansión « Botín »
-              description: 'La pieza más grande del juego: el oro, la tienda de los
-                héroes, el botín aleatorio, el equipo, los favores y las temporadas.'
+              description: 'La pieza más grande del juego: el oro, la tienda de los héroes, el botín aleatorio, el equipo, los favores y las temporadas.'
+            de-DE:
+              title: Erweiterung „Beute“
+              description: 'Das größte Stück des Spiels: Gold, der Heldenladen, zufällige Beute, Ausrüstung, Gefälligkeiten und Saisons. Hausarbeit wird zur Wirtschaft.'
+            it-IT:
+              title: Espansione «Bottino»
+              description: 'Il pezzo più grande del gioco: l''oro, il negozio degli eroi, il bottino casuale, l''equipaggiamento, i favori e le stagioni. Le faccende diventano un''economia.'
+            pt-PT:
+              title: Expansão «Espólio»
+              description: 'A maior peça do jogo: o ouro, a loja dos heróis, o espólio aleatório, o equipamento, os favores e as temporadas. As tarefas tornam-se uma economia.'
+            pt-BR:
+              title: Expansão "Tesouro"
+              description: 'A maior peça do jogo: o ouro, a loja dos heróis, o tesouro aleatório, o equipamento, os favores e as temporadas. As tarefas viram uma economia.'
+            nl-NL:
+              title: Uitbreiding ‘Buit’
+              description: 'Het grootste stuk van het spel: goud, de heldenwinkel, willekeurige buit, uitrusting, gunsten en seizoenen. Klusjes worden een economie.'
         prix:
           eur: '7.99'
           sek: '109'
@@ -565,16 +691,28 @@ data:
           listings:
             fr-FR:
               title: Pack « Quêtes » II
-              description: Un deuxième recueil de quêtes, pour les clans qui ont fait
-                le tour du premier.
+              description: Un deuxième recueil de quêtes, pour les clans qui ont fait le tour du premier.
             en-US:
               title: Quest Pack II
-              description: A second book of quests, for clans that have been all the
-                way through the first.
+              description: A second book of quests, for clans that have been all the way through the first.
             es-ES:
               title: Pack « Misiones » II
-              description: Un segundo libro de misiones, para los clanes que ya han
-                terminado el primero.
+              description: Un segundo libro de misiones, para los clanes que ya han terminado el primero.
+            de-DE:
+              title: Quest-Paket II
+              description: Eine zweite Sammlung von Quests, für Clans, die mit der ersten durch sind.
+            it-IT:
+              title: Pacchetto «Missioni» II
+              description: Una seconda raccolta di missioni, per i clan che hanno finito la prima.
+            pt-PT:
+              title: Pack «Missões» II
+              description: Uma segunda coletânea de missões, para os clãs que já terminaram a primeira.
+            pt-BR:
+              title: Pack "Missões" II
+              description: Uma segunda coleção de missões, para os clãs que já terminaram a primeira.
+            nl-NL:
+              title: Queestenpakket II
+              description: Een tweede bundel queesten, voor clans die de eerste helemaal hebben uitgespeeld.
         prix:
           eur: '3.99'
           sek: '55'
@@ -599,16 +737,28 @@ data:
           listings:
             fr-FR:
               title: Pack « Quêtes » III
-              description: Le troisième et dernier recueil de quêtes. De quoi tenir
-                une saison de plus.
+              description: Le troisième et dernier recueil de quêtes. De quoi tenir une saison de plus.
             en-US:
               title: Quest Pack III
-              description: The third and last book of quests. Enough to carry one
-                more season.
+              description: The third and last book of quests. Enough to carry one more season.
             es-ES:
               title: Pack « Misiones » III
-              description: El tercer y último libro de misiones. Suficiente para aguantar
-                otra temporada.
+              description: El tercer y último libro de misiones. Suficiente para aguantar otra temporada.
+            de-DE:
+              title: Quest-Paket III
+              description: Die dritte und letzte Sammlung von Quests. Genug für eine weitere Saison.
+            it-IT:
+              title: Pacchetto «Missioni» III
+              description: La terza e ultima raccolta di missioni. Abbastanza per un'altra stagione.
+            pt-PT:
+              title: Pack «Missões» III
+              description: A terceira e última coletânea de missões. O suficiente para mais uma temporada.
+            pt-BR:
+              title: Pack "Missões" III
+              description: A terceira e última coleção de missões. O suficiente para mais uma temporada.
+            nl-NL:
+              title: Queestenpakket III
+              description: De derde en laatste bundel queesten. Genoeg voor nog een seizoen.
         prix:
           eur: '3.99'
           sek: '55'
@@ -633,16 +783,28 @@ data:
           listings:
             fr-FR:
               title: Pack « Potions » II
-              description: Un deuxième assortiment de potions, avec des effets que
-                le premier n'avait pas.
+              description: Un deuxième assortiment de potions, avec des effets que le premier n'avait pas.
             en-US:
               title: Potion Pack II
-              description: A second assortment of potions, with effects the first
-                one did not have.
+              description: A second assortment of potions, with effects the first one did not have.
             es-ES:
               title: Pack « Pociones » II
-              description: Un segundo surtido de pociones, con efectos que el primero
-                no tenía.
+              description: Un segundo surtido de pociones, con efectos que el primero no tenía.
+            de-DE:
+              title: Trank-Paket II
+              description: Eine zweite Auswahl an Tränken, mit Effekten, die die erste nicht hatte.
+            it-IT:
+              title: Pacchetto «Pozioni» II
+              description: Un secondo assortimento di pozioni, con effetti che il primo non aveva.
+            pt-PT:
+              title: Pack «Poções» II
+              description: Um segundo sortido de poções, com efeitos que o primeiro não tinha.
+            pt-BR:
+              title: Pack "Poções" II
+              description: Um segundo sortimento de poções, com efeitos que o primeiro não tinha.
+            nl-NL:
+              title: Drankjespakket II
+              description: Een tweede assortiment drankjes, met effecten die het eerste niet had.
         prix:
           eur: '3.99'
           sek: '55'
@@ -667,16 +829,28 @@ data:
           listings:
             fr-FR:
               title: Pack « Potions » III
-              description: Le troisième et dernier assortiment de potions, le plus
-                corsé des trois.
+              description: Le troisième et dernier assortiment de potions, le plus corsé des trois.
             en-US:
               title: Potion Pack III
-              description: The third and last assortment of potions, the strongest
-                of the three.
+              description: The third and last assortment of potions, the strongest of the three.
             es-ES:
               title: Pack « Pociones » III
-              description: El tercer y último surtido de pociones, el más fuerte de
-                los tres.
+              description: El tercer y último surtido de pociones, el más fuerte de los tres.
+            de-DE:
+              title: Trank-Paket III
+              description: Die dritte und letzte Auswahl an Tränken, die stärkste der drei.
+            it-IT:
+              title: Pacchetto «Pozioni» III
+              description: Il terzo e ultimo assortimento di pozioni, il più forte dei tre.
+            pt-PT:
+              title: Pack «Poções» III
+              description: O terceiro e último sortido de poções, o mais forte dos três.
+            pt-BR:
+              title: Pack "Poções" III
+              description: O terceiro e último sortimento de poções, o mais forte dos três.
+            nl-NL:
+              title: Drankjespakket III
+              description: Het derde en laatste assortiment drankjes, het sterkste van de drie.
         prix:
           eur: '3.99'
           sek: '55'
@@ -701,19 +875,28 @@ data:
           listings:
             fr-FR:
               title: Pack « Devoirs faits »
-              description: 'Le seul pack qui traverse les trois mécaniques : la quête
-                « 13 de moyenne », la tâche « apprendre le cours », la potion « +15
-                % d''XP en SVT ».'
+              description: 'Le seul pack qui traverse les trois mécaniques : la quête « 13 de moyenne », la tâche « apprendre le cours », la potion « +15 % d''XP en SVT ».'
             en-US:
               title: Homework Done Pack
-              description: 'The one pack that crosses all three mechanics: a quest
-                for the term average, a task for learning the lesson, a potion for
-                +15% XP.'
+              description: 'The one pack that crosses all three mechanics: a quest for the term average, a task for learning the lesson, a potion for +15% XP.'
             es-ES:
               title: Pack « Deberes hechos »
-              description: 'El único pack que atraviesa las tres mecánicas: la misión
-                de la nota media, la tarea de estudiar la lección, la poción de +15
-                % de XP.'
+              description: 'El único pack que atraviesa las tres mecánicas: la misión de la nota media, la tarea de estudiar la lección, la poción de +15 % de XP.'
+            de-DE:
+              title: Paket „Hausaufgaben erledigt“
+              description: 'Das einzige Paket, das alle drei Mechaniken verbindet: die Quest für den Notendurchschnitt, die Aufgabe zum Lernen, der Trank für +15 % XP.'
+            it-IT:
+              title: Pacchetto «Compiti fatti»
+              description: 'L''unico pacchetto che attraversa le tre meccaniche: la missione della media dei voti, il compito di studiare la lezione, la pozione da +15 % di XP.'
+            pt-PT:
+              title: Pack «Trabalhos de casa feitos»
+              description: 'O único pack que atravessa as três mecânicas: a missão da média das notas, a tarefa de estudar a matéria, a poção de +15 % de XP.'
+            pt-BR:
+              title: Pack "Lição de casa feita"
+              description: 'O único pack que atravessa as três mecânicas: a missão da média das notas, a tarefa de estudar a matéria, a poção de +15 % de XP.'
+            nl-NL:
+              title: Pakket ‘Huiswerk gedaan’
+              description: 'Het enige pakket dat alle drie de mechanieken combineert: de queeste voor het gemiddelde, de taak om de les te leren, het drankje voor +15 % XP.'
         prix:
           eur: '3.99'
           sek: '55'
@@ -738,16 +921,28 @@ data:
           listings:
             fr-FR:
               title: Thème « Star Sweep »
-              description: 'Tout le jeu rhabillé en space opera : décors, monstres,
-                objets et ton. La même aventure, jouée ailleurs.'
+              description: 'Tout le jeu rhabillé en space opera : décors, monstres, objets et ton. La même aventure, jouée ailleurs.'
             en-US:
               title: Star Sweep Theme
-              description: 'The whole game re-skinned as space opera: art, monsters,
-                items and tone. The same adventure, played somewhere else.'
+              description: 'The whole game re-skinned as space opera: art, monsters, items and tone. The same adventure, played somewhere else.'
             es-ES:
               title: Tema « Star Sweep »
-              description: 'Todo el juego revestido de ópera espacial: escenarios,
-                monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+              description: 'Todo el juego revestido de ópera espacial: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+            de-DE:
+              title: Thema „Star Sweep“
+              description: 'Das ganze Spiel neu eingekleidet als Space Opera: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt.'
+            it-IT:
+              title: Tema «Star Sweep»
+              description: 'Tutto il gioco rivestito da space opera: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove.'
+            pt-PT:
+              title: Tema «Star Sweep»
+              description: 'Todo o jogo revestido de ópera espacial: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar.'
+            pt-BR:
+              title: Tema "Star Sweep"
+              description: 'O jogo inteiro vestido de ópera espacial: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar.'
+            nl-NL:
+              title: Thema ‘Star Sweep’
+              description: 'Het hele spel in een nieuw jasje als space opera: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld.'
         prix:
           eur: '5.99'
           sek: '79'
@@ -772,16 +967,28 @@ data:
           listings:
             fr-FR:
               title: Thème « La Casa Nostra »
-              description: 'Tout le jeu rhabillé en univers mafieux : décors, monstres,
-                objets et ton. La même aventure, jouée ailleurs.'
+              description: 'Tout le jeu rhabillé en univers mafieux : décors, monstres, objets et ton. La même aventure, jouée ailleurs.'
             en-US:
               title: La Casa Nostra Theme
-              description: 'The whole game re-skinned as a mob story: art, monsters,
-                items and tone. The same adventure, played somewhere else.'
+              description: 'The whole game re-skinned as a mob story: art, monsters, items and tone. The same adventure, played somewhere else.'
             es-ES:
               title: Tema « La Casa Nostra »
-              description: 'Todo el juego revestido de universo mafioso: escenarios,
-                monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+              description: 'Todo el juego revestido de universo mafioso: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+            de-DE:
+              title: Thema „La Casa Nostra“
+              description: 'Das ganze Spiel neu eingekleidet als Mafiageschichte: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt.'
+            it-IT:
+              title: Tema «La Casa Nostra»
+              description: 'Tutto il gioco rivestito da storia di mafia: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove.'
+            pt-PT:
+              title: Tema «La Casa Nostra»
+              description: 'Todo o jogo revestido de universo mafioso: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar.'
+            pt-BR:
+              title: Tema "La Casa Nostra"
+              description: 'O jogo inteiro vestido de universo mafioso: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar.'
+            nl-NL:
+              title: Thema ‘La Casa Nostra’
+              description: 'Het hele spel in een nieuw jasje als maffiaverhaal: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld.'
         prix:
           eur: '5.99'
           sek: '79'
@@ -806,16 +1013,28 @@ data:
           listings:
             fr-FR:
               title: Thème « Pirates of the accariens »
-              description: 'Tout le jeu rhabillé en univers pirate : décors, monstres,
-                objets et ton. La même aventure, jouée ailleurs.'
+              description: 'Tout le jeu rhabillé en univers pirate : décors, monstres, objets et ton. La même aventure, jouée ailleurs.'
             en-US:
               title: Pirates of the Accarians Theme
-              description: 'The whole game re-skinned as a pirate tale: art, monsters,
-                items and tone. The same adventure, played somewhere else.'
+              description: 'The whole game re-skinned as a pirate tale: art, monsters, items and tone. The same adventure, played somewhere else.'
             es-ES:
               title: Tema « Pirates of the accariens »
-              description: 'Todo el juego revestido de universo pirata: escenarios,
-                monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+              description: 'Todo el juego revestido de universo pirata: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+            de-DE:
+              title: Thema „Pirates of the accariens“
+              description: 'Das ganze Spiel neu eingekleidet als Piratengeschichte: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt.'
+            it-IT:
+              title: Tema «Pirates of the accariens»
+              description: 'Tutto il gioco rivestito da universo pirata: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove.'
+            pt-PT:
+              title: Tema «Pirates of the accariens»
+              description: 'Todo o jogo revestido de universo pirata: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar.'
+            pt-BR:
+              title: Tema "Pirates of the accariens"
+              description: 'O jogo inteiro vestido de universo pirata: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar.'
+            nl-NL:
+              title: Thema ‘Pirates of the accariens’
+              description: 'Het hele spel in een nieuw jasje als piratenverhaal: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld.'
         prix:
           eur: '5.99'
           sek: '79'
@@ -840,19 +1059,28 @@ data:
           listings:
             fr-FR:
               title: Classes de personnage
-              description: Chaque héros choisit une voie, avec ses avantages, ses
-                inconvénients et ses synergies de clan. Un thème rhabille l'aventure
-                ; une classe la rejoue autrement.
+              description: Chaque héros choisit une voie, avec ses avantages, ses inconvénients et ses synergies de clan. Un thème rhabille l'aventure ; une classe la rejoue autrement.
             en-US:
               title: Character Classes
-              description: Each hero picks a path, with its strengths, its weaknesses
-                and its clan synergies. A theme re-skins the adventure; a class replays
-                it.
+              description: Each hero picks a path, with its strengths, its weaknesses and its clan synergies. A theme re-skins the adventure; a class replays it.
             es-ES:
               title: Clases de personaje
-              description: Cada héroe elige una vía, con sus ventajas, sus inconvenientes
-                y sus sinergias de clan. Un tema reviste la aventura; una clase la
-                rejuega.
+              description: Cada héroe elige una vía, con sus ventajas, sus inconvenientes y sus sinergias de clan. Un tema reviste la aventura; una clase la rejuega.
+            de-DE:
+              title: Charakterklassen
+              description: Jeder Held wählt einen Weg, mit Vorteilen, Nachteilen und Clan-Synergien. Ein Thema kleidet das Abenteuer neu ein; eine Klasse spielt es anders.
+            it-IT:
+              title: Classi di personaggio
+              description: Ogni eroe sceglie una via, con i suoi vantaggi, i suoi svantaggi e le sue sinergie di clan. Un tema riveste l'avventura; una classe la rigioca.
+            pt-PT:
+              title: Classes de personagem
+              description: Cada herói escolhe um caminho, com as suas vantagens, desvantagens e sinergias de clã. Um tema reveste a aventura; uma classe volta a jogá-la.
+            pt-BR:
+              title: Classes de personagem
+              description: Cada herói escolhe um caminho, com suas vantagens, desvantagens e sinergias de clã. Um tema veste a aventura; uma classe faz jogar de novo.
+            nl-NL:
+              title: Personageklassen
+              description: Elke held kiest een pad, met voordelen, nadelen en clansynergieën. Een thema geeft het avontuur een nieuw jasje; een klasse speelt het anders.
         prix:
           eur: '6.99'
           sek: '95'

@@ -95,6 +95,7 @@
       <div class="warn" id="err-msg"></div>
       <button id="btn-retry"></button>
     </section>
+    <p class="muted" id="t-editor"></p>
   </main>
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -115,6 +116,8 @@
     // --- i18n ---------------------------------------------------------------
     var I18N = {
       en: {
+        editor: "Published by",
+        legal: "Legal & privacy",
         title: "Delete my Donjons & Savons account",
         intro: "Deleting your account immediately removes your data from Donjons & Savons:",
         item1: "your character, levels, experience and gold;",
@@ -134,6 +137,8 @@
         retry: "Try again"
       },
       fr: {
+        editor: "Édité par",
+        legal: "Mentions légales & confidentialité",
         title: "Supprimer mon compte Donjons & Savons",
         intro: "La suppression de votre compte retire immédiatement vos données de Donjons & Savons :",
         item1: "votre personnage, vos niveaux, votre expérience et votre or ;",
@@ -153,6 +158,8 @@
         retry: "Réessayer"
       },
       es: {
+        editor: "Editado por",
+        legal: "Avisos legales y privacidad",
         title: "Eliminar mi cuenta de Donjons & Savons",
         intro: "Eliminar tu cuenta retira inmediatamente tus datos de Donjons & Savons:",
         item1: "tu personaje, niveles, experiencia y oro;",
@@ -172,6 +179,8 @@
         retry: "Reintentar"
       },
       it: {
+        editor: "Edito da",
+        legal: "Note legali e privacy",
         title: "Eliminare il mio account Donjons & Savons",
         intro: "L'eliminazione del tuo account rimuove immediatamente i tuoi dati da Donjons & Savons:",
         item1: "il tuo personaggio, i tuoi livelli, la tua esperienza e il tuo oro;",
@@ -191,6 +200,8 @@
         retry: "Riprova"
       },
       de: {
+        editor: "Herausgegeben von",
+        legal: "Rechtliches & Datenschutz",
         title: "Mein Donjons-&-Savons-Konto löschen",
         intro: "Die Löschung Ihres Kontos entfernt Ihre Daten sofort aus Donjons & Savons:",
         item1: "Ihre Figur, Ihre Stufen, Ihre Erfahrung und Ihr Gold;",
@@ -210,6 +221,8 @@
         retry: "Erneut versuchen"
       },
       pt: {
+        editor: "Editado por",
+        legal: "Avisos legais e privacidade",
         title: "Eliminar a minha conta Donjons & Savons",
         intro: "A eliminação da sua conta retira imediatamente os seus dados de Donjons & Savons:",
         item1: "a sua personagem, os seus níveis, a sua experiência e o seu ouro;",
@@ -228,7 +241,30 @@
         errGeneric: "Ocorreu um erro. Tente novamente.",
         retry: "Tentar novamente"
       },
+      br: {
+        editor: "Editado por",
+        legal: "Avisos legais e privacidade",
+        title: "Excluir minha conta Donjons & Savons",
+        intro: "A exclusão da sua conta retira na hora os seus dados de Donjons & Savons:",
+        item1: "seu personagem, seus níveis, sua experiência e seu ouro;",
+        item2: "sua participação em todos os clãs de que você faz parte;",
+        item3: "se você for chefe de clã: seu clã e os perfis das crianças que jogam nele sem conta própria.",
+        signinHint: "Entre com a conta Google que você usa no aplicativo para continuar.",
+        connectedAs: "Conectado como",
+        warn: "Esta ação é definitiva. Seus dados saem do jogo na hora, ficam guardados 30 dias fora do serviço (apenas para erro, suporte ou fraude), e depois são apagados definitivamente. Você não vai poder recuperá-los e, se voltar a jogar mais tarde, vai começar do zero. Só os registros da sua aceitação das condições ficam guardados 5 anos, como prova do consentimento obtido. Cancele sua assinatura pela sua conta Google ANTES de continuar: excluir sua conta aqui não cancela a assinatura, e ela continuaria sendo cobrada. Os conteúdos comprados na loja se perdem junto com a conta, sem reembolso.",
+        ack: "Entendo que a exclusão da minha conta é definitiva.",
+        del: "Excluir minha conta",
+        cancel: "Cancelar",
+        working: "Excluindo sua conta…",
+        done: "Sua conta foi excluída e seus dados retirados do jogo. Você foi desconectado.",
+        errAuth: "A autenticação falhou. Entre de novo.",
+        errPerm: "Você só pode excluir sua própria conta.",
+        errGeneric: "Ocorreu um erro. Tente novamente.",
+        retry: "Tentar de novo"
+      },
       nl: {
+        editor: "Uitgegeven door",
+        legal: "Juridisch & privacy",
         title: "Mijn Donjons & Savons-account verwijderen",
         intro: "Het verwijderen van uw account haalt uw gegevens onmiddellijk weg uit Donjons & Savons:",
         item1: "uw personage, uw niveaus, uw ervaring en uw goud;",
@@ -248,7 +284,11 @@
         retry: "Opnieuw proberen"
       }
     };
-    var LANG = (navigator.language || "en").slice(0, 2).toLowerCase();
+    // ⚠ LA REGION COMPTE POUR LE PORTUGAIS. `br` (Brésil) et `pt` (Portugal) sont deux
+    //   textes différents : un navigateur en « pt-BR » doit lire le brésilien, alors que
+    //   les deux premières lettres seules l'auraient envoyé au Portugal.
+    var NAVLANG = (navigator.language || "en").toLowerCase();
+    var LANG = NAVLANG.indexOf("pt-br") === 0 ? "br" : NAVLANG.slice(0, 2);
     var T = I18N[LANG] || I18N.en;
 
     function txt(id, key) { document.getElementById(id).textContent = T[key]; }
@@ -259,7 +299,20 @@
     document.getElementById("btn-delete").textContent = T.del;
     document.getElementById("btn-cancel").textContent = T.cancel;
     document.getElementById("btn-retry").textContent = T.retry;
-    document.documentElement.lang = (I18N[LANG] ? LANG : "en");
+    // Éditeur + mentions légales, dans la langue affichée (anglais par défaut, comme T).
+    var LEGAL_LANG = I18N[LANG] ? LANG : "en";
+    var ed = document.getElementById("t-editor");
+    ed.appendChild(document.createTextNode(T.editor + " "));
+    var edLink = document.createElement("a");
+    edLink.href = "https://grisloup.com/"; edLink.textContent = "Grisloup";
+    ed.appendChild(edLink);
+    ed.appendChild(document.createTextNode(" · "));
+    var legalLink = document.createElement("a");
+    legalLink.href = "/" + LEGAL_LANG + "/legal/"; legalLink.textContent = T.legal;
+    ed.appendChild(legalLink);
+    // `br` n'est pas un code de langue valide pour le brésilien (ce serait le breton) :
+    // l'attribut `lang` du document dit `pt-BR`, le seul que lise un lecteur d'écran.
+    document.documentElement.lang = I18N[LANG] ? (LANG === "br" ? "pt-BR" : LANG) : "en";
 
     // --- Etats UI -----------------------------------------------------------
     var STATES = ["signin", "confirm", "working", "done", "error"];

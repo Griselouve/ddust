@@ -66,6 +66,18 @@ extension Worker_screen_tiroir on worker {
 
                                 _stopCombatSiege();   // anti-fuite : coupe le son de combat si on quitte via la taskbar
 
+                                // ⚠ APPELÉE D'ICI ET NON AJOUTÉE À LA LISTE `appear`, pour la raison
+                                //   même que dvtuto (cf. le commentaire du registry) : une liste
+                                //   d'actions n'est pas awaitée, la réplique tournerait donc EN
+                                //   PARALLÈLE de ce qui suit et se poserait par-dessus l'animation
+                                //   de bienvenue du clan.
+                                //
+                                //   Non awaitée ici non plus, mais lancée AVANT les I/O : la voix
+                                //   accompagne l'écran qui se peint, elle ne le retarde pas. Et elle
+                                //   ne se dit qu'à la toute première arrivée — le dashboard est un
+                                //   lieu de passage, pas une étape.
+                                unawaited(on_dashboard_welcome(null, null));
+
                                 // CLAN GELÉ (J50 du calendrier de défaut de paiement) : le donjon se
                                 // ferme, ici et une seule fois. Le dashboard est le passage obligé de
                                 // tout joueur enrôlé — le garder suffit à garder les 25 écrans de jeu,
@@ -85,13 +97,32 @@ extension Worker_screen_tiroir on worker {
                                     return;
                                 }
 
-                                // MUR DE PREMIÈRE COTISATION. La seconde — et dernière — porte fermée du
-                                // jeu, et elle ne se ferme QUE pour les chefs : les enfants et les
-                                // adultes non-administrateurs ne la voient jamais, ils continuent de
-                                // jouer. Leurs tâches s'empilent simplement en attente d'une validation
-                                // que personne ne rend, et c'est très exactement la pression qu'on veut —
-                                // elle s'exerce sur l'adulte qui peut payer, sans qu'aucun enfant ne voie
-                                // d'écran de paiement.
+                                // MUR DE PREMIÈRE COTISATION, REPORTS ÉPUISÉS. La seconde — et dernière —
+                                // porte fermée du jeu, et elle ne se ferme QUE pour les chefs : les
+                                // enfants et les adultes non-administrateurs ne la voient jamais, ils
+                                // continuent de jouer. Leurs tâches s'empilent simplement en attente d'une
+                                // validation que personne ne rend, et c'est très exactement la pression
+                                // qu'on veut — elle s'exerce sur l'adulte qui peut payer, sans qu'aucun
+                                // enfant ne voie d'écran de paiement.
+                                //
+                                // DEUX RAISONS d'être ici, et la première n'est pas celle qu'on croit.
+                                //
+                                // 1. Le mur, une fois les reports épuisés : sinon il suffirait de relancer
+                                //    l'app pour rouvrir le donjon, et le mur ne serait un mur que pour qui
+                                //    ne sait pas le contourner.
+                                //
+                                // 2. LA PREMIÈRE PRÉSENTATION D'UNE SESSION, même s'il reste des reports.
+                                //    C'est ce qui rattrape le chef qui valide TOUT depuis la notification
+                                //    push : ce chemin-là est headless, il ne peut montrer aucun écran, et
+                                //    il arme la porte sans jamais la présenter. Sans ce passage, un parent
+                                //    qui ne valide que depuis ses notifications ne verrait jamais la
+                                //    demande et ne consommerait jamais un report. C'est aussi ce que dit
+                                //    la règle produit : l'écran s'ouvre pour le premier chef qui se
+                                //    connecte, pas seulement pour celui qui valide.
+                                //
+                                // Une présentation par session au plus (_storePitchConsume garde le
+                                // drapeau) : revenir trois fois au dashboard dans la même soirée n'use pas
+                                // les trois reports.
                                 //
                                 // Ici et pas ailleurs, pour la même raison que le gel : le dashboard est
                                 // le passage obligé de tout joueur enrôlé, le garder suffit à garder les
@@ -102,9 +133,15 @@ extension Worker_screen_tiroir on worker {
                                 // tutoriel — n'a lieu d'être joué pour être balayé dans la foulée.
                                 // APRÈS le gel : un clan gelé relève de locked_page, pas d'une vente.
                                 if (await _storePitchDue()) {
-                                    deva_log("info", "[store] première cotisation demandée — mur");
-                                    await _storeGotoTiers(notice: "@@@T:store_pitch_second@@@", blocking: true);
-                                    return;
+                                    final blocking = _pitchDefersLeft <= 0;
+                                    if (blocking || !_pitchShown) {
+                                        if (!blocking) await _storePitchConsume();
+                                        deva_log("info", "[store] première cotisation demandée"
+                                                         "${blocking ? " — mur (reports épuisés)" : ""}");
+                                        await _storeGotoTiers(notice: "@@@T:store_pitch_first@@@",
+                                                              blocking: blocking, pitch: true);
+                                        return;
+                                    }
                                 }
 
                                 // Rappel d'impayé : doux, réservé aux chefs de clan, et seulement une

@@ -455,6 +455,18 @@ extension Worker_screen_clan on worker {
                                 await deva_set("worker.clan_alone", next);
                                 await Deva.instance.store();
                                 deva_log("info", "[clan] clan_alone=$next");
+
+                                // LE CLAN VIENT DE SE CONSTITUER : on ancre le compteur de validations
+                                // (cf. _storeAnchorGrowth). C'est le seul instant où l'on sait que les
+                                // validations qui suivront seront vécues à plusieurs, et c'est de lui que
+                                // part la demande de première cotisation. Posé depuis ce drapeau parce
+                                // qu'il est justement la transition, et qu'il est déjà tenu à jour par les
+                                // trois endroits qui connaissent l'effectif sans le relire.
+                                //
+                                // Écriture cloud IDEMPOTENTE et à sens unique : un clan qui rétrécit puis
+                                // regrandit garde sa première ancre, un chef ne repousse donc pas la
+                                // demande en retirant puis réadmettant un membre.
+                                if (!alone) await _storeAnchorGrowth();
     }
 
     //-----------------------------------------------------------------------

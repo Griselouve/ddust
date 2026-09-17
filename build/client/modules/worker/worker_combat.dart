@@ -326,6 +326,18 @@ extension Worker_combat on worker {
                                     && await _ensureIsAdmin(clanId, clanSecret, region)
                                     && _adminCount <= 1) {
 
+                                    // PREMIÈRE COTISATION, SECOND SITE D'INTERCEPTION — et il est
+                                    // indispensable, pour la raison même qui oblige à compter les
+                                    // validations ici : l'admin solo n'appelle JAMAIS _applyVerdict, il
+                                    // inline son propre verdict juste en dessous. Une porte posée là-bas
+                                    // seulement ne se fermerait donc jamais devant un clan à un seul chef,
+                                    // c'est-à-dire exactement la population que le seuil `solo` vise.
+                                    //
+                                    // AVANT toute écriture : rien n'est crédité, `session.active_task` est
+                                    // encore posée, et rejouer cette action après l'achat refait le geste
+                                    // entier — verdict, XP, journal, libération.
+                                    if (await _storePitchIntercept(const {"kind": "combat_ok"})) return;
+
                                     // XP calculé AVANT _writeVerdict (proportionnalité = dead/revive du cycle
                                     // précédent, que la validation va réécrire). Identique à _handleVerdict.
                                     final task = await deva_get("tasks.$taskId");

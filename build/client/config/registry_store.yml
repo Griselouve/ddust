@@ -157,6 +157,17 @@ conf:
         # Obligatoire côté store : un réinstall ne doit pas faire payer deux fois.
         # Ouvert à tous — restaurer n'est pas acheter, et l'appareil d'un enfant
         # peut très bien être celui qu'on réinstalle.
+        # Meme declaration que dans les kebabs du clan et du personnage : meme libelle,
+        # meme action, meme page. Une option d'aide qui changerait de nom d'un ecran a
+        # l'autre ne se reconnaitrait plus.
+        tutorials:
+          image: "images/medium/nope.png"
+          desc: "@@@T:clan_menu_tutorials_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_tutorials@@@"
+          actions:
+            tap: navigate_new.tutoriels
+
         store_restore:
           icon: "restore"
           desc: "@@@T:store_restore_desc@@@"
@@ -175,18 +186,6 @@ conf:
             label: "@@@T:giftcode_menu@@@"
           actions:
             tap: navigate_new.giftcode_page
-        # Fabriquer des codes. Sous la MÊME garde que le banc d'essai
-        # (store.debug.test_mode, posé par le layer cloud) : le bucket de production la
-        # fait disparaître sans qu'une ligne de code ne change, il n'y aura rien à
-        # retirer plus tard. La vraie porte est de toute façon serveur — GRANT_ADMINS
-        # refuse tout compte qui n'est pas celui de l'éditeur.
-        store_mint:
-          icon: "confirmation_number"
-          desc: "@@@T:giftcode_mint_menu_desc@@@"
-          shape:
-            label: "@@@T:giftcode_mint_menu@@@"
-          actions:
-            tap: navigate_new.giftcode_mint_page
         # Résiliation et moyen de paiement : chez Play, jamais dans l'app.
         # Filtré aux chefs abonnés par shop_settings_selector.
         store_manage:
@@ -196,30 +195,6 @@ conf:
             label: "@@@T:store_manage@@@"
           actions:
             tap: store.manage
-        # Banc d'essai. Visible seulement si store.debug.test_mode (layer cloud) et
-        # pour un administrateur de clan : le bucket de production le retire sans
-        # qu'une seule ligne de code ne change.
-        store_scenario:
-          icon: "science"
-          desc: "@@@T:scenario_menu_desc@@@"
-          shape:
-            label: "@@@T:scenario_menu@@@"
-          actions:
-            tap: navigate_new.store_scenario_page
-        # Fait venir la FÉE tout de suite, dans un domaine au hasard. Elle n'apparaît
-        # sinon qu'au terme d'un tirage quotidien étalé sur trente jours : impossible de
-        # revoir l'animation à la demande sans ça.
-        # Placée ici — et non dans le mode chef du tiroir — pour la même raison que le banc
-        # d'essai : même garde (store.debug.test_mode, posé par le LAYER CLOUD), donc le
-        # bucket de production la fait disparaître sans qu'une ligne de code ne change.
-        # Il n'y aura rien à retirer plus tard.
-        fairy_test:
-          icon: "auto_awesome"
-          desc: "@@@T:fairy_test_desc@@@"
-          shape:
-            label: "@@@T:fairy_test@@@"
-          actions:
-            tap: worker.force_fairy
 
     #//------------------------------- Abonnement : DÉMÉNAGÉ ------------------------
     # `subscription_page` (bandeau d'état, bascule mensuel/annuel, bouton de palier)
@@ -238,81 +213,11 @@ conf:
     # La mécanique d'achat, elle, n'a pas bougé de worker_store : contrôle parental,
     # prix de la périodicité courante, achat dvstore.
 
-    #//------------------------------- Fiche produit -------------------------------
-    # Produits à l'unité (packs de contenu, options). Calquée sur item_view_page :
-    # une image, un nom, une description, un bouton d'action. Le bouton porte son
-    # libellé et son action à chaud — « Acheter » devient « Déjà acquis » (grisé)
-    # pour un produit déjà possédé.
-
-    store_product_page:
-      masks:
-        - page
-      show_appbar: true
-      show_back: true
-      title: ""
-      actions:
-        appear: worker.on_store_product_appear
-      registry:
-        - store_product_page/image
-        - store_product_page/name
-        - store_product_page/desc
-        - store_product_page/buy
-
-    store_product_page/image:
-      masks:
-        - commons/nobordershape
-      class: DvImage
-      layer: content
-      shape:
-        x: 20%
-        y: 6%
-        w: 60%
-        h: 30%
-        stretch: "RATIO_IN"
-        opacity: 1.0
-        visible: false
-
-    store_product_page/name:
-      class: DvLabel
-      layer: content
-      shape:
-        x: 5%
-        y: 38%
-        w: 90%
-        h: 7%
-        font_size: 18.0
-        font_color: "amber_200"
-        text_align: CENTER
-        label: ""
-
-    store_product_page/desc:
-      masks:
-        - commons/intro_text
-      shape:
-        x: 5%
-        y: 47%
-        w: 90%
-        h: 34%
-        text_padding: 10.0
-        font_size: 13.0
-        scrollable: true
-        label: ""
-        background_color: black
-        font_color: "amber_200"
-        opacity: 0.6
-
-    store_product_page/buy:
-      masks:
-        - commons/btn_wide
-      shape:
-        y: 88%
-        h: 9%
-        label: ""
-        visible: false
-        events:
-          tap: true
-        freezing_actions:
-          tap: worker.store_buy_product
+    #//------------------------------- Fiche produit : SUPPRIMÉE --------------------
+    # `store_product_page` (fiche d'un produit à l'unité : image, nom, description,
+    # bouton d'achat) a été retirée le 2026-09-15. Rien n'y menait : l'identifiant du
+    # produit affiché n'était jamais renseigné. Elle reviendra avec la refonte des
+    # codes et des achats à l'unité, repensée de zéro.
 
     #//------------------------------- Mes achats : SUPPRIMÉ ------------------------
     # L'écran « Mes achats » (relevé de facturation lu dans clans_store/{clanId}/events)
@@ -444,79 +349,11 @@ conf:
         freezing_actions:
           tap: worker.store_revive_clan
 
-    #//------------------------------- Banc d'essai --------------------------------
-    # CHANGER DE SCÉNARIO SANS REBUILDER.
-    #
-    # Éprouver la monétisation demandait jusqu'ici d'éditer `store.debug` dans
-    # config.yml puis de reconstruire l'app — une release pour voir à quoi
-    # ressemble un impayé. Or dvstore relit sa conf à chaque `store.refresh`
-    # (dvstore_motor.start → loadConfig) : muter `store.debug.*` en mémoire puis
-    # rafraîchir rejoue toute la simulation, retour au vrai canal Play compris.
-    #
-    # Le CATALOGUE de scénarios vit dans le layer cloud store-base-global.yml : en
-    # ajouter un se fait en republiant les assets, sans toucher au code. Ne restent
-    # ici que la structure de l'écran et le nom des actions.
-    #
-    # Un scénario n'est pas un réglage mais un PAQUET cohérent (état + palier +
-    # phase de relance + crédits) : ce qu'on veut éprouver est « un clan en impayé
-    # dur », pas « hold avec firm ».
-
-    store_scenario_page:
-      masks:
-        - page
-      show_appbar: true
-      show_back: true
-      title: "@@@T:scenario_title@@@"
-      actions:
-        appear: worker.on_store_scenario_appear
-      registry:
-        - commons/splash_background
-        - store_scenario_page/summary
-        - store_scenario_page/list
-
-    # État EFFECTIVEMENT publié par dvstore après la bascule (state / produit /
-    # source). C'est la confirmation que le scénario a bien pris — sans elle, on
-    # tapote et l'on croit sur parole.
-    # `scrollable` parce que le contenu est TRÈS variable : deux lignes quand tout va
-    # bien, six quand le serveur refuse (repli, uid à recopier, message d'erreur brut).
-    # C'est justement dans ce dernier cas qu'il faut pouvoir tout lire.
-    store_scenario_page/summary:
-      masks:
-        - commons/intro_text
-      shape:
-        x: 5%
-        y: 2%
-        w: 90%
-        h: 20%
-        font_size: 11.0
-        text_align: CENTER
-        scrollable: true
-        label: ""
-        background_color: black
-        font_color: "amber_200"
-        opacity: 0.6
-
-    store_scenario_page/list:
-      class: DvList
-      layer: content
-      action: worker.store_scenario_apply
-      shape:
-        x: 3%
-        y: 24%
-        w: 94%
-        h: 72%
-        row_height: 72.0
-        icon_size: 32.0
-        font_size: 14.0
-        font_color: "#C8A84B"
-        empty_label: "@@@T:scenario_empty@@@"
-        background_color: "0xB3000000"
-        border: true
-        border_color: "0xFFB07328"
-        border_size: 1.0
-        border_radius: 10.0
-        row_color: "0xB3000000"
-        row_border_color: "0xFFB07328"
+    #//------------------------------- Banc d'essai : SUPPRIMÉ -----------------------
+    # `store_scenario_page` (changer de scénario d'abonnement à chaud) et l'option
+    # « Faire venir la fée » ont été retirées le 2026-09-15, avec leur catalogue de
+    # scénarios (store-base-global.yml). La simulation elle-même reste dans dvstore
+    # (`store.debug.simulate_*`, cf. son readme) : elle ne s'active que si on la pose.
 
     #//------------------------------- Code cadeau ---------------------------------
     # UN CHAMP, UN BOUTON. On tape ce qui est écrit sur la carte (ou reçu par mail), le
@@ -674,258 +511,10 @@ conf:
         actions:
           tap: worker.on_giftcode_close
 
-    #//------------------------------- Fabrique de codes (mode test) ---------------
-    # Sous la MÊME garde que le banc d'essai : `store.debug.test_mode` (layer cloud) et
-    # administrateur de clan. Le bucket de production le fait disparaître sans qu'une
-    # ligne de code ne change.
-    #
-    # Cet écran existe parce qu'une cloud function `callable` exige un jeton
-    # d'UTILISATEUR authentifié : `store_mint` ne se joint ni en curl avec un compte de
-    # service, ni depuis un script. La vraie garde n'est de toute façon pas ici mais au
-    # serveur — GRANT_ADMINS refuse tout compte qui n'est pas celui de l'éditeur, et
-    # cet écran ne rendrait donc rien entre d'autres mains.
-    #
-    # ⚠ Les codes ne sont montrés QU'UNE FOIS : seule leur empreinte est conservée.
-    # D'où le bouton de partage, qui est le seul moyen de les sortir d'ici.
-
-    giftcode_mint_page:
-      masks:
-        - page
-      show_appbar: true
-      show_back: true
-      title: "@@@T:giftcode_mint_title@@@"
-      keyboard_scrollable: true
-      actions:
-        appear: worker.on_giftcode_mint_appear
-      registry:
-        - commons/splash_background
-        - giftcode_mint_page/hint
-        - giftcode_mint_page/count_label
-        - giftcode_mint_page/count
-        - giftcode_mint_page/months_label
-        - giftcode_mint_page/months
-        - giftcode_mint_page/uses_label
-        - giftcode_mint_page/uses
-        - giftcode_mint_page/days_label
-        - giftcode_mint_page/days
-        - giftcode_mint_page/label_label
-        - giftcode_mint_page/label
-        - giftcode_mint_page/confirm
-        - giftcode_mint_page/result
-        - giftcode_mint_page/share
-        - giftcode_mint_page/revoke
-        - giftcode_mint_page/revoke_btn
-
-    giftcode_mint_page/hint:
-      masks:
-        - commons/nobordershape
-      class: DvLabel
-      layer: content
-      shape:
-        x: 5%
-        y: 3%
-        w: 90%
-        h: 8%
-        label: "@@@T:giftcode_mint_hint@@@"
-        text_align: CENTER
-        font_size: 11.0
-        font_color: "amber_200"
-
-    giftcode_mint_page/count_label:
-      masks:
-        - commons/label_label
-      shape:
-        x: 5%
-        y: 12%
-        w: 42%
-        h: 4%
-        font_size: 11.0
-        label: "@@@T:giftcode_mint_count@@@"
-
-    giftcode_mint_page/count:
-      masks:
-        - commons/entry
-      shape:
-        x: 5%
-        y: 16%
-        w: 42%
-        h: 7%
-        type: INTEGER
-        text_align: CENTER
-        value: "10"
-
-    giftcode_mint_page/months_label:
-      masks:
-        - commons/label_label
-      shape:
-        x: 53%
-        y: 12%
-        w: 42%
-        h: 4%
-        font_size: 11.0
-        label: "@@@T:giftcode_mint_months@@@"
-
-    giftcode_mint_page/months:
-      masks:
-        - commons/entry
-      shape:
-        x: 53%
-        y: 16%
-        w: 42%
-        h: 7%
-        type: INTEGER
-        text_align: CENTER
-        value: "2"
-
-    giftcode_mint_page/uses_label:
-      masks:
-        - commons/label_label
-      shape:
-        x: 5%
-        y: 25%
-        w: 42%
-        h: 4%
-        font_size: 11.0
-        label: "@@@T:giftcode_mint_uses@@@"
-
-    # 1 = un cadeau nominatif. Au-delà, c'est un lot : le même code sert autant de clans
-    # DIFFÉRENTS, et un clan donné ne peut toujours le réclamer qu'une fois.
-    giftcode_mint_page/uses:
-      masks:
-        - commons/entry
-      shape:
-        x: 5%
-        y: 29%
-        w: 42%
-        h: 7%
-        type: INTEGER
-        text_align: CENTER
-        value: "1"
-
-    giftcode_mint_page/days_label:
-      masks:
-        - commons/label_label
-      shape:
-        x: 53%
-        y: 25%
-        w: 42%
-        h: 4%
-        font_size: 11.0
-        label: "@@@T:giftcode_mint_days@@@"
-
-    # PÉREMPTION, en jours et calculée au serveur. 0 = sans fin, et c'est le défaut le
-    # plus dangereux du dispositif : un code de flyer qui n'expire jamais reste
-    # réclamable pour toujours. Le champ est là pour qu'y penser ne demande aucun
-    # détour — et la coupure d'un lot, en bas d'écran, pour les fois où l'on n'y a pas
-    # pensé.
-    giftcode_mint_page/days:
-      masks:
-        - commons/entry
-      shape:
-        x: 53%
-        y: 29%
-        w: 42%
-        h: 7%
-        type: INTEGER
-        text_align: CENTER
-        value: "0"
-
-    giftcode_mint_page/label_label:
-      masks:
-        - commons/label_label
-      shape:
-        x: 5%
-        y: 38%
-        w: 90%
-        h: 4%
-        font_size: 11.0
-        label: "@@@T:giftcode_mint_label@@@"
-
-    # Le libellé du LOT — « betas août », « fondateurs » : c'est ce qui permettra plus
-    # tard de retrouver l'opération dans le journal de facturation des clans servis,
-    # sans avoir gardé les codes eux-mêmes.
-    giftcode_mint_page/label:
-      masks:
-        - commons/entry
-      shape:
-        x: 5%
-        y: 42%
-        w: 90%
-        h: 7%
-        type: TEXT
-        font_size: 12.0
-        hint: "@@@T:giftcode_mint_label_hint@@@"
-
-    giftcode_mint_page/confirm:
-      masks:
-        - commons/btn_medium
-      shape:
-        x: 10%
-        y: 52%
-        w: 80%
-        h: 8%
-        label: "@@@T:giftcode_mint_confirm@@@"
-        events:
-          tap: true
-        freezing_actions:
-          tap: worker.on_giftcode_mint
-
-    giftcode_mint_page/result:
-      masks:
-        - commons/intro_text
-      shape:
-        x: 5%
-        y: 62%
-        w: 90%
-        h: 20%
-        font_size: 12.0
-        text_align: CENTER
-        scrollable: true
-        label: ""
-        background_color: black
-        font_color: "amber_200"
-        opacity: 0.6
-
-    giftcode_mint_page/share:
-      masks:
-        - commons/btn_wide
-      shape:
-        y: 83%
-        h: 7%
-        font_size: 13.0
-        label: "@@@T:giftcode_mint_share@@@"
-        visible: false
-        events:
-          tap: true
-        freezing_actions:
-          tap: share.gift_codes
-
-    # COUPER un lot (son identifiant, rendu à la fabrication) ou un code isolé (tel
-    # qu'on le taperait pour l'utiliser). Ne supprime rien : pose `revoked`. Ce qui a
-    # déjà été donné reste donné — couper arrête ce qui ne l'a pas encore été.
-    giftcode_mint_page/revoke:
-      masks:
-        - commons/entry
-      shape:
-        x: 5%
-        y: 91%
-        w: 52%
-        h: 7%
-        type: TEXT
-        font_size: 12.0
-        hint: "@@@T:giftcode_revoke_hint@@@"
-
-    giftcode_mint_page/revoke_btn:
-      masks:
-        - commons/btn_medium
-      shape:
-        x: 60%
-        y: 91%
-        w: 35%
-        h: 7%
-        font_size: 12.0
-        label: "@@@T:giftcode_revoke@@@"
-        events:
-          tap: true
-        freezing_actions:
-          tap: worker.on_giftcode_revoke
+    #//------------------------------- Fabrique de codes : SUPPRIMÉE -----------------
+    # `giftcode_mint_page` (fabriquer et révoquer des codes cadeaux depuis l'app, sous
+    # `store.debug.test_mode`) a été retirée le 2026-09-15. La gestion des codes sera
+    # refondue, et on repartira de zéro plutôt que de faire évoluer cet écran. La SAISIE
+    # d'un code par un chef (`giftcode_page`, ci-dessus) reste en place. Côté serveur,
+    # `store_mint` / `store_revoke` (pustore) n'ont pas été touchées : elles attendent
+    # la refonte.

@@ -59,103 +59,17 @@ tags:
 traitements:
   - "clan1"
 assets:
-  "hosting/web/assets/img/02-crest.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/04-welcome.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/05-call-of-adventure.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/07-who-are-you.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/09-tavern-challenge.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/19-choose-destiny.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/20-choose-destiny-2.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/21-birth-of-clan.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/23-prepare-adventure.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/26-journey-begins.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/32-choose-avatar.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/33-me.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/34-items.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/40-time-to-clean.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/44-trash.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/46-time-to-clean-2.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/50-carrier-pigeon.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/54-pocket-money.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/55-pocket-money-2.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/57-note-in-chest.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/59-loot-chest.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/67-clan.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/69-open-loot.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/70-open-loot-2.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/72-loot-share.webp":
-    tags: ["capture"]
-  "hosting/web/assets/img/73-chiefs-word.webp":
-    tags: ["capture"]
   "hosting/web/assets/video/beta-download-en.mp4":
     tags: ["alone"]
   "hosting/web/assets/video/beta-download-es.mp4":
     tags: ["alone"]
   "hosting/web/assets/video/beta-download-fr.mp4":
     tags: ["alone"]
-  "hosting/web/assets/video/beta-download-poster-en.png":
-    tags: ["alone"]
   "hosting/web/assets/video/beta-download-poster-en.webp":
-    tags: ["alone"]
-  "hosting/web/assets/video/beta-download-poster-es.png":
     tags: ["alone"]
   "hosting/web/assets/video/beta-download-poster-es.webp":
     tags: ["alone"]
-  "hosting/web/assets/video/beta-download-poster-fr.png":
-    tags: ["alone"]
   "hosting/web/assets/video/beta-download-poster-fr.webp":
-    tags: ["alone"]
-  "hosting/web/assets/video/chest-opening-poster.png":
-    tags: ["capture"]
-  "hosting/web/assets/video/chest-opening-poster.webp":
-    tags: ["capture"]
-  "hosting/web/assets/video/chest-opening.mp4":
-    tags: ["capture", "alone"]
-  "hosting/web/assets/video/onboarding-kid-poster.png":
-    tags: ["capture"]
-  "hosting/web/assets/video/onboarding-kid-poster.webp":
-    tags: ["capture"]
-  "hosting/web/assets/video/onboarding-kid.mp4":
-    tags: ["alone"]
-  "hosting/web/assets/video/task-defeating-poster.png":
-    tags: ["capture"]
-  "hosting/web/assets/video/task-defeating-poster.webp":
-    tags: ["capture"]
-  "hosting/web/assets/video/task-defeating.mp4":
-    tags: ["alone"]
-  "hosting/web/assets/video/trailer-en.mp4":
-    tags: ["alone"]
-  "hosting/web/assets/video/trailer-es.mp4":
-    tags: ["alone"]
-  "hosting/web/assets/video/trailer-fr.mp4":
-    tags: ["alone"]
-  "hosting/web/assets/video/trailer-poster.png":
-    tags: ["alone"]
-  "hosting/web/assets/video/trailer-poster.webp":
     tags: ["alone"]
   "resources/icon/eu.png":
     tags: ["alone"]
@@ -771,64 +685,3 @@ assets:
     tags: ["splash"]
   "resources_cloud/donjon/images/splashs/splash-pirate_pirate_v2.png":
     tags: ["splash"]
-  "resources_cloud/donjon/videos/Donjons&Savons-EN_General_V1.mp4":
-    tags: ["alone"]
-  "resources_cloud/donjon/videos/Donjons&Savons-ES_General_V1.mp4":
-    tags: ["alone"]
-  "resources_cloud/donjon/videos/Donjons&Savons-FR_General_V1.mp4":
-    tags: ["alone"]
-  "resources_others/screenshots/en/02-crest.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/04-welcome.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/05-call-of-adventure.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/07-who-are-you.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/09-tavern-challenge.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/19-choose-destiny.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/20-choose-destiny-2.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/21-birth-of-clan.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/23-prepare-adventure.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/26-journey-begins.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/32-choose-avatar.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/33-me.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/34-items.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/40-time-to-clean.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/44-trash.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/46-time-to-clean-2.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/50-carrier-pigeon.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/54-pocket-money.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/55-pocket-money-2.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/57-note-in-chest.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/59-loot-chest.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/67-clan.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/69-open-loot.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/70-open-loot-2.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/72-loot-share.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/73-chiefs-word.png":
-    tags: ["capture"]
-  "resources_others/screenshots/en/playstore.png":
-    derived: true
-    tags: ["bandeau", "nounours"]

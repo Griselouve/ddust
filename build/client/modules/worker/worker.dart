@@ -68,6 +68,7 @@ part 'worker_notify.dart';
 part 'worker_log.dart';
 part 'worker_store.dart';
 part 'worker_fairy.dart';
+part 'worker_onboarding.dart';
 
 
 // -----------------------------------------------------------------------------
@@ -320,6 +321,37 @@ class worker extends DvBeing {
     // « levelup » qui s'achève est une bienvenue et que le tutoriel l'attend derrière. Il est tiré
     // dans TOUS les cas (fin normale, garde-fou, préemption) : le relais ne peut pas rester en l'air.
     bool _welcomeTuto = false;
+
+    // --- Accueil et onboarding (cf. worker_onboarding) -------------------------------------
+    // Le grand interlude d'accueil est en cours. Garde le double tap sur « Je suis nouveau » :
+    // le bouton ne gèle l'écran que pendant le `lead` (une demi-seconde), après quoi il est de
+    // nouveau tapable pendant les trente secondes de la scène — et un second `play` préempterait
+    // le premier, coupant l'accueil au milieu pour le recommencer.
+    bool _introPlaying = false;
+
+    // La phrase du seuil défile (cf. worker_onboarding.on_awake_appear). Garde le
+    // doublon de boucle : `appear` est émis à chaque montage de la vue, et deux boucles
+    // sur le même splash le feraient clignoter à contretemps.
+    bool _awakeCycling = false;
+
+    // La musique du seuil tourne. Garde le double lancement : `on_awake_appear` est tire
+    // au boot ET a chaque retour sur le seuil, et deux boucles sur le meme surnom se
+    // superposeraient — deux fois la meme musique, decalees.
+    bool _seuilMusique = false;
+
+    // Le son du choc des lames est charge. Evite de le relire au second coup, un quart
+    // de seconde apres le premier.
+    bool _lamesPretes = false;
+
+    // Un onboarding VIVANT est en cours : le joueur vient de confirmer son royaume et la session
+    // anonyme s'ouvre à l'instant. Dit à on_login qu'il arrive au milieu d'un parcours, et non
+    // sur les décombres d'un parcours abandonné — sans quoi il effacerait le royaume qu'on vient
+    // de choisir et renverrait à l'accueil.
+    //
+    // ⚠ EN MÉMOIRE SEULEMENT, et c'est voulu : un kill le fait tomber, et la reprise à froid
+    //   retrouve alors la règle habituelle (un royaume résiduel ramène à l'accueil, d'où l'on
+    //   peut aussi bien recommencer que réclamer un compte existant).
+    bool _onboardingLive = false;
 
     // --- Cérémonie d'ouverture du butin ---------------------------------------------------
     // Rôle de CET appareil dans la cérémonie en cours : "" (aucune), "master" (le chef qui tient le
@@ -858,10 +890,6 @@ class worker extends DvBeing {
     // clan (un foyer change d'habitudes, la référence doit suivre).
     final int    _chestHistDepth = 20;
 
-    // --- Boutique (dvstore) --------------------------------------------------
-    // Produit sélectionné dans la liste de la boutique, le temps d'ouvrir sa fiche
-    // (même mécanique que _giveItemId pour give_page).
-    String _storeProductId = "";
 
     // Périodicité choisie sur l'écran d'abonnement : "monthly" ou "yearly". Ce
     // n'est qu'une préférence d'affichage/achat, jamais un état commercial —
@@ -875,21 +903,45 @@ class worker extends DvBeing {
 
     // Offre associée à l'achat mis de côté, portée avec lui à travers la porte
     // parentale. null = celle que le serveur juge éligible ; "" = tarif courant
-    // sans aucune offre (reprise après gel : on ne redonne pas l'essai gratuit à
-    // chaque défaut de paiement). Voir dvstore.buy — la distinction est une règle
-    // commerciale, pas une commodité.
+    // sans aucune offre (reprise après gel : on ne redonne pas l'offre fondateurs à
+    // chaque défaut de paiement ; l'offre d'essai, elle, n'existe plus depuis le
+    // 2026-09-16). Voir dvstore.buy — la distinction est une règle commerciale, pas
+    // une commodité.
     String? _storePendingOffer;
+
+    // --- Relance d'abonnement (worker_store.dart). Une extension ne peut pas porter
+    // de champ d'instance : l'état de la relance vit donc ici.
+
+    // Reports restants, tenus en mémoire pour la page des paliers. Rafraîchi à chaque
+    // évaluation (qui lit le doc du clan de toute façon) : l'écran s'ouvre toujours
+    // dans la foulée d'une évaluation, il n'a donc jamais à relire quoi que ce soit
+    // pour savoir s'il doit montrer « Plus tard ». -1 = pas encore su.
+    int _pitchDefersLeft = -1;
+
+    // Au plus UN report consommé par session : trois retours au dashboard dans la même
+    // soirée ne doivent pas user les trois reports en dix minutes. Voir
+    // _storePitchConsume.
+    bool _pitchShown = false;
+
+    // LA VALIDATION MISE DE CÔTÉ. Même idiome que le contrôle parental (_storeBuyGated) :
+    // l'écran s'interpose, l'acte est rappelé s'il aboutit, et un abandon l'oublie
+    // simplement. Mémoire seule, et c'est voulu : une validation qu'on retrouverait
+    // trois jours plus tard, sur un autre appareil, créditerait de l'XP pour un geste
+    // dont plus personne ne se souvient.
+    Map<String, String>? _pendingVerdict;
+
+    // Vrai le temps d'un rejeu. Sans lui, un verdict rejoué juste après l'achat
+    // repasserait par l'interception, et si l'entitlement n'est pas ENCORE publié au
+    // moment précis du rappel (l'ordre entre la publication de dvstore et le callback
+    // métier n'est pas un contrat), la famille qui vient de payer se verrait
+    // représenter la page des paliers. On ne fait pas dépendre l'écran qu'elle voit
+    // d'une course entre deux publications.
+    bool _pitchSuspended = false;
 
     // La RAISON d'une venue commerciale (plafond de joueurs atteint, relance
     // d'impayé) n'est pas une variable de worker : _storeGotoTiers la publie dans
     // `worker.store.notice`, que `tiers_page` peint en tête d'écran. Une chaîne en
     // mémoire ici n'appartiendrait qu'à un écran, et l'information vaut mieux que ça.
-
-    // Dernier ratage du banc d'essai (pas de clan sous la main pour envoyer la
-    // relance). Affiché tel quel sur le bandeau de l'écran de scénarios : un banc qui
-    // échouerait en silence est pire que pas de banc du tout — on croirait éprouver
-    // ce qu'on n'éprouve pas. Mémoire seule, remis à zéro à chaque tentative.
-    String _storeBenchError = "";
 
     dvcloud?     get _cloud     => Deva.instance.module("dvcloud")     as dvcloud?;
     dvmessaging? get _messaging => Deva.instance.module("dvmessaging") as dvmessaging?;
@@ -935,12 +987,19 @@ class worker extends DvBeing {
                                 _register_log();
                                 _register_store();
                                 _register_fairy();
+                                _register_onboarding();
     }
 
     @override
     Future<void> invoke() async {
 
                                 await _loadTuning();
+                                // Le défilement des langues sur le SEUIL. Lancé ici et non par un
+                                // `appear` de page : `awake` est bâtie avant que ce register ne soit
+                                // fini, et ses actions sont résolues à sa construction — elle aurait
+                                // pointé sur une action encore inexistante. Non attendu : on_login
+                                // ne doit pas rester derrière une boucle d'affichage.
+                                unawaited(on_awake_appear(null, null));
                                 await on_login(null, null);
                                 deva_set("worker.session.invoked", "true");
                                 deva_log("info", "Module worker invoked");

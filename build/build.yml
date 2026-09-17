@@ -105,8 +105,17 @@ langues:
   - es
   - it
   - de
-  - pt
+  - pt      # portugais EUROPÉEN (Portugal)
+  - br      # portugais du BRÉSIL, depuis le 2026-09-16 (voir ci-dessous)
   - nl
+
+# ⚠ `pt` ET `br` SONT DEUX LANGUES, pas une langue et sa variante d'affichage. Le
+#   portugais du Brésil diffère de celui du Portugal par la grammaire (você / tu,
+#   gérondif), le vocabulaire (tela / ecrã, celular / telemóvel) et l'orthographe :
+#   un enfant brésilien qui lit « Toca no ecrã » ne se sent pas chez lui. Chacune a
+#   donc ses traductions, sa fiche store et ses documents légaux (`-pt-` et `-br-`).
+#   Seule la VOIX du conteur est partagée : même voix, textes différents
+#   (build_assets.yml). `br` n'est pas le breton : cf. dvlang/readme.md.
 
 # =============================================================================
 # DOCUMENTS LÉGAUX — les régions ouvertes. Décision du 2026-08-27.
@@ -397,8 +406,8 @@ build:
 # -----------------------------------------------------------------------------
 # La même identité doit se retrouver, à l'identique, en six endroits : profil de
 # paiement Play, déclaration de statut de vendeur (DSA), facturation GCP, éditeur
-# déclaré aux CGU, mention « éditeur » du site, et responsable de traitement de
-# stores/google/dpa.md §3. Un écart bloque la validation ou fragilise le dossier
+# déclaré aux CGU, mention « éditeur » du site, et délégué à la protection des
+# données déclaré au niveau de l'organisation Google. Un écart bloque la validation ou fragilise le dossier
 # RGPD — d'où une source unique plutôt que six saisies.
 #
 # ⚠ RÉÉCRIT LE 2026-09-03 — L'IMMATRICULATION EST OBTENUE.
@@ -410,15 +419,15 @@ build:
 # grisloup/docs/plan-creation-micro-entreprise.md, dont le tableau d'identité en
 # tête est la source unique que ce bloc recopie.
 #
-# ⚠ CE BLOC DÉCRIT LA CIBLE, PAS L'ÉTAT DE LA CONSOLE AUJOURD'HUI. Le compte Play
-# est encore un compte PARTICULIER dont le profil de paiement, vérifié le
-# 2026-08-20, porte la résidence réelle — et Google refuse une domiciliation sur
-# un compte personnel. La bascule se fait en une fois, à la phase 4 du plan :
-# D-U-N-S, second profil de paiement de type organisation, conversion, 72 h. Tant
-# qu'elle n'a pas eu lieu, `saisie_compte.md` décrit des écrans qui n'accepteront
-# pas encore ces valeurs. C'est voulu : la feuille de saisie sert le jour de la
-# conversion, et une feuille qui porterait l'ancienne adresse ferait republier le
-# domicile.
+# ⚠ CE BLOC EST L'ÉTAT DE LA CONSOLE (constaté le 2026-09-16). Le compte Play est
+# converti en ORGANISATION, son profil de paiement vérifié, et la déclaration de
+# statut de vendeur (DSA) porte ces valeurs. Le dossier stores/google/ qui a servi
+# à la saisie a été supprimé le 2026-09-16 : il reste dans l'historique git.
+# Changer une valeur ici impose de la reprendre à la main dans la Play Console
+# (statut de vendeur), la console d'administration Google (admin.google.com →
+# Compte → Paramètres du compte → Mentions légales et conformité : délégué à la
+# protection des données) et le profil de paiement. Le n° de TVA intracom, une
+# fois actif, s'ajoute aux trois.
 #
 # ⚠ AUCUN bloc `layer:` ici, et c'est délibéré. builder._ingest_shared_conf ne
 # donne la section entière qu'aux apps `pulumi` ; pour une app embarquée, une
@@ -434,21 +443,13 @@ build:
 # du DSA fait afficher nom + adresse complète + téléphone sur la fiche Play dans
 # l'EEE. Pour un compte ORGANISATION, adresse et téléphone sont publiés même sans
 # monétisation. C'est désormais sans conséquence : ce sont ceux de la structure.
-# Détail : stores/google/compte.md, et stores/google/publication.md §6.1.
 # =============================================================================
 
 publisher:
 
-  # Feuille de saisie des consoles, RENDUE au build depuis le gabarit : les valeurs
-  # ci-dessous y sont injectées telles quelles. C'est ce qu'on ouvre devant le
-  # formulaire — plus rien à recouper, plus aucune référence à résoudre de tête.
-  # Une référence @@@C:...@@@ qui ne résout pas FAIT ÉCHOUER le build : un champ
-  # vide dans une procédure de saisie, c'est une case remplie de mémoire.
-  # Une saisie par section de conf partagée : `publisher` donne saisie_compte.md,
-  # `store` donnera saisie_produits.md le jour où le catalogue en aura besoin.
-  doc:
-    template: ../stores/google/saisie_compte.tpl.md
-    path: ../stores/google/saisie_compte.md
+  # Plus de `doc:` ici depuis le 2026-09-16 : la feuille de saisie a servi (statut
+  # de vendeur DSA, frais de service réduits) et a été supprimée. Le builder sait
+  # toujours rendre une feuille depuis une section : `doc: { template, path }`.
 
   # ===========================================================================
   # RÈGLE DE NOMMAGE DU PORTEFEUILLE — arrêtée le 2026-09-03
@@ -554,7 +555,7 @@ publisher:
   # ⚠ CE N'EST PAS UNE MENTION LÉGALE. Aucun texte français ne l'exige — ni la
   # LCEN, ni R123-237 du code de commerce, qui demandent le RCS. Il ne descend
   # donc ni dans le corpus légal, ni sur le site. Il est ici parce que ce bloc est
-  # l'identité en un seul endroit, et parce que `saisie_compte.tpl.md` le lit.
+  # l'identité en un seul endroit (il a servi au profil de paiement organisation).
   # ⚠ LA FICHE D&B EST CE QUE GOOGLE CONFRONTE au profil de paiement, et c'est
   # ELLE dont Apple tire l'adresse « trader » affichée sur l'App Store européen,
   # souvent sans correction possible ensuite. Le NOM y est vérifié conforme
@@ -602,47 +603,33 @@ publisher:
 # plus les contacts renseignés. À refaire à chaque version publiée par Google —
 # donc exactement ce qu'une mémoire humaine ne tient pas, d'où l'automatisation.
 #
-# Des trois démarches de dpa.md §2, une seule reste manuelle (le contact Firebase,
-# sans API) : les contacts essentiels GCP sont posés par puproject au déploiement,
-# et l'archivage est fait par le build.
+# Les contacts essentiels GCP sont posés par puproject au déploiement, et
+# l'archivage est fait par le build.
 #
-# Clés PLATES (`cdpa_*`, `dpst_*`) : le moteur de rendu des gabarits fait de la
-# substitution sans boucle, une liste y rendrait son repr Python. `archive:` ne
-# liste que les préfixes — c'est le code qui compose les noms de clés.
+# Clés PLATES (`cdpa_*`, `dpst_*`) : `archive:` ne liste que les préfixes, c'est
+# le code qui compose les noms de clés.
 #
 # Pas de bloc `layer:` : rien de tout ceci ne descend au client ni au bucket.
 # =============================================================================
 
 dpa:
 
-  doc:
-    template: ../stores/google/saisie_dpa.tpl.md
-    path: ../stores/google/saisie_dpa.md
-    # Filet : si l'archivage a échoué plusieurs builds de suite, le document sort
-    # quand même mais le build le dit en jaune.
-    expect:
-      - legal/cdpa-*.pdf
-      - legal/firebase-dpst-*.pdf
-
-  # Chemin où le build écrit, relatif à build/ — c'est ce que le code consomme.
-  archive_dir: legal/
-  # Le MÊME endroit, vu depuis la feuille de saisie (qui vit dans stores/google/).
-  # Les deux existent parce qu'ils ne s'adressent pas au même lecteur : afficher
-  # `legal/` dans la feuille envoyait chercher dans `stores/google/legal/`, qui
-  # n'existe pas.
-  archive_dir_doc: ../../build/legal/
-  archive: [cdpa, dpst]
-
-  # Catégorie de contact essentiel GCP. La RESSOURCE est déclarée dans
-  # backend/config.yml → conf.project.essential_contacts, et c'est elle qui fait
-  # foi ; les deux clés ci-dessous n'existent que pour l'AFFICHER dans la feuille.
+  # Plus de `doc:` depuis le 2026-09-16 : la feuille saisie_dpa.md (et tout
+  # stores/google/) a été supprimée, les démarches étant faites. Ce qui suit reste
+  # ACTIF : le build continue d'archiver les textes Google à chaque version.
   #
-  # Elles étaient une seconde source de vérité muette : changer la catégorie côté
-  # backend aurait fait mentir la feuille sans que rien ne le signale. Le code du
-  # builder recoupe désormais `contact_category_code` avec ce que déclare
-  # réellement le backend et sort un avertissement jaune en cas d'écart.
-  contact_category: Juridique       # libellé affiché par la console GCP (fr)
-  contact_category_code: LEGAL      # code API — recoupé avec backend/config.yml
+  # Pour mémoire, l'état constaté le 2026-09-16 : délégué à la protection des données
+  # déclaré au niveau de l'ORGANISATION (admin.google.com → Compte → Paramètres du
+  # compte → Mentions légales et conformité ; pas dans Firebase, qui ne fait
+  # qu'afficher), représentant local vide, autorité CNIL ; contact essentiel GCP
+  # donjons@grisloup.com LEGAL VALID ; profil de paiement de la facturation au nom
+  # de l'entreprise.
+
+  # Chemin où le build écrit, relatif à build/ : c'est ce que le code consomme.
+  # Sous-répertoire `vendors/` : les contrats des sous-traitants, rangés à part des
+  # documents légaux de l'éditeur (`documents/`).
+  archive_dir: legal/vendors/
+  archive: [cdpa, dpst]
 
   # `_anchor` : fragment de texte qui doit être présent dans la page. Il ne vérifie
   # pas le PDF (le texte d'un PDF Chrome est compressé) mais qu'on est bien sur le
@@ -666,51 +653,29 @@ dpa:
 # -----------------------------------------------------------------------------
 # Les cinq formulaires de l'étape 8 (Sécurité des données, IARC, Public cible,
 # Accès à l'app, fiche) sont tous obligatoires AVANT la première release, test
-# fermé compris. Ce bloc porte ce qui s'y saisit ; playstore.md garde le pourquoi.
-#
-# `assets:` est une LISTE parce qu'elle est consommée par du code (la copie), pas
-# par un gabarit — le moteur de rendu, lui, substitue sans boucle, d'où des clés
-# plates pour tout ce que la feuille cite. Même partage des rôles que dpa.archive.
-#
-# L'ORDRE de la liste est l'ordre de téléversement : le build renomme en
-# 01-icone / 02-feature / 03-capture-N, de sorte que le dossier de destination se
-# lise sans se reporter ici.
+# fermé compris. Ce bloc porte ce qui s'y saisit.
 #
 # Pas de bloc `layer:` : rien ne descend au client.
 # =============================================================================
 
 listing:
 
-  doc:
-    template: ../stores/google/saisie_playstore.tpl.md
-    path: ../stores/google/saisie_playstore.md
-
-  assets_dir: ../stores/google/assets/
-  assets:
-    - kind: icon
-      expect: 512x512
-      source: hosting/web/icon-512.png
-    - kind: feature
-      expect: 1024x500
-      source: hosting/web/assets/img/playstore.png
-    # Captures : Play impose un intervalle (côté court ≥ 320 px, ratio ≤ 2:1) et
-    # non une taille fixe — d'où l'absence d'`expect`, le contrôle est la règle.
-    - kind: screenshot
-      source: hosting/web/assets/img/04-welcome.png
-    - kind: screenshot
-      source: hosting/web/assets/img/21-birth-of-clan.png
-    - kind: screenshot
-      source: hosting/web/assets/img/40-time-to-clean.png
-    - kind: screenshot
-      source: hosting/web/assets/img/32-choose-avatar.png
-    - kind: screenshot
-      source: hosting/web/assets/img/33-me.png
-    - kind: screenshot
-      source: hosting/web/assets/img/54-pocket-money.png
-    - kind: screenshot
-      source: hosting/web/assets/img/59-loot-chest.png
-    - kind: screenshot
-      source: hosting/web/assets/img/67-clan.png
+  # Plus de `doc:`, d'`assets:` ni d'`assets_dir:` depuis le 2026-09-16 : le dossier
+  # stores/google/ (feuilles de saisie rendues au build, images rassemblées sous noms
+  # canoniques) a été supprimé, la fiche étant remplie. Ce bloc garde les TEXTES. Pour
+  # retrouver la mécanique : historique git de ce fichier.
+  #
+  # Images téléversées, dans l'ordre, pour mémoire (sans `assets:` le build ne les
+  # copie plus ; sans `assets_dir:` il les copierait dans build/assets/) :
+  #   icône 512x512      hosting/web/icon-512.png
+  #   feature 1024x500   resources_cloud/donjon/images/big/playstore.png
+  #   captures 1 à 8     resources_others/showcase/en/ : combat-01, salon_tasks, combat,
+  #                      clan_page, avatar_explorer, new_or_pick_clan,
+  #                      butin_open_page-02, money_page (.png)
+  # Captures prises par la vitrine (`builder.py suite=ddust showcase`), 720x1236. Play
+  # impose côté court ≥ 320 px et ratio ≤ 2:1. Ni `personnage` (« Coming soon ») ni
+  # `butin_page` (grille de prix) : une fiche ne montre pas un écran vide ni un tarif
+  # qui peut bouger.
 
   # ---------------------------------------------------------------------------
   # TEXTES
@@ -720,12 +685,17 @@ listing:
   short_fr: "Transformez les corvées en aventure familiale : tâches-monstres, XP et butins."
   short_en: "Turn chores into a family adventure: monster tasks, XP, levels and loot chests."
   short_es: "Convierte las tareas en una aventura familiar: monstruos, XP, niveles y botín."
+  short_de: "Hausarbeit wird zum Familienabenteuer: Monster-Aufgaben, XP, Stufen und Beute."
+  short_it: "Trasforma le faccende in un'avventura in famiglia: mostri, XP, livelli, bottino."
+  short_pt: "Transforma as tarefas numa aventura em família: monstros, XP, níveis e espólio."
+  short_br: "Transforme as tarefas de casa numa aventura em família: monstros, XP e tesouros."
+  short_nl: "Maak van klusjes een gezinsavontuur: monstertaken, XP, niveaus en buit."
 
   # ⚠ Copie COMMERCIALE, pas de la conf technique : elle se relit avant d'être
-  # collée. Les versions EN et ES sont des ADAPTATIONS — la chute joue sur
+  # collée. Les six versions étrangères sont des ADAPTATIONS : la chute joue sur
   # épées/éponges, qui ne se traduit pas mot à mot. Les arguments de conformité
   # (pas de pub, pas de traceur, photos qui restent sur l'appareil, données en
-  # Europe) sont conservés tels quels dans les trois : ce sont eux qui portent la
+  # Europe) sont conservés tels quels dans les sept : ce sont eux qui portent la
   # promesse, et ils doivent rester vrais.
   long_fr: |
     ⚔️ Les corvées sont des monstres. Abattez-les en famille !
@@ -787,12 +757,112 @@ listing:
 
     El botín es la promesa cumplida. ¡A por vuestras espadas... y vuestras esponjas!
 
+  long_de: |
+    ⚔️ Hausarbeiten sind Monster. Besiegt sie als Familie!
+
+    Donjons & Savons verwandelt euer Zuhause in einen Kerker: Die Familie wird zum Clan, jede Hausarbeit zu einem Monster, das es zu besiegen gilt, und jeder Sieg bringt dem Spieler und dem Clan Erfahrung. Ist die Clantruhe voll, öffnet die Familie eine Beute: eine echte Belohnung, die die Eltern im Voraus festgelegt haben. Das Spiel täuscht die Belohnung nicht vor: Es gibt dem Familienversprechen einen Rahmen.
+
+    🛡️ So funktioniert es
+    • Ein Elternteil gründet den Clan und lädt die Familie ein (QR-Code oder sicherer Link).
+    • Jeder wählt seinen Avatar und seinen Abenteurernamen.
+    • Zimmer aufräumen, Müll rausbringen, Tisch decken: 19 Bereiche und über 150 Aufgaben, auf euren Haushalt abgestimmt, dazu eure eigenen Aufgaben.
+    • Die Eltern bestätigen die Heldentaten (Fotobeweis möglich, das Foto bleibt auf dem Handy).
+    • XP, Stufen, Titel, Lebenspunkte, Clantagebuch und Zeremonien zum Öffnen der Beute.
+
+    👨‍👩‍👧‍👦 Für Familien gemacht
+    • Keine Werbung, keine Tracker, keine überraschenden Käufe.
+    • Minderjährige treten einem Clan nur mit Zustimmung eines verantwortlichen Erwachsenen bei.
+    • Fotos verlassen nie das Gerät; die Daten bleiben in Europa gespeichert.
+    • Konto selbst löschen, in der App oder auf der Website.
+
+    Die Beute ist das gehaltene Versprechen. Zu den Schwertern… und zu den Schwämmen!
+
+  long_it: |
+    ⚔️ Le faccende sono mostri. Sconfiggeteli in famiglia!
+
+    Donjons & Savons trasforma la casa in un dungeon: la famiglia diventa un clan, ogni faccenda domestica diventa un mostro da sconfiggere, e ogni vittoria fa guadagnare esperienza al giocatore e al clan. Quando lo scrigno del clan è pieno, la famiglia apre un bottino: una ricompensa vera, decisa in anticipo dai genitori. Il gioco non simula la ricompensa: dà una struttura alla promessa di famiglia.
+
+    🛡️ Come funziona
+    • Un genitore fonda il clan e invita la famiglia (codice QR o link sicuro).
+    • Ognuno sceglie il suo avatar e il suo nome da avventuriero.
+    • Riordinare la camera, portare fuori la spazzatura, apparecchiare la tavola: 19 ambiti e più di 150 compiti, adattati alla vostra casa, più i compiti che aggiungete voi.
+    • I genitori convalidano le imprese (prova fotografica possibile, la foto resta sul telefono).
+    • XP, livelli, titoli, punti vita, diario del clan e cerimonie di apertura del bottino.
+
+    👨‍👩‍👧‍👦 Pensato per le famiglie
+    • Nessuna pubblicità, nessun tracciamento, nessun acquisto a sorpresa.
+    • I minori entrano in un clan solo con il consenso di un adulto responsabile.
+    • Le foto non lasciano mai il dispositivo; i dati restano ospitati in Europa.
+    • Eliminazione dell'account in autonomia, nell'app o sul sito.
+
+    Il bottino è la promessa mantenuta. Alle spade… e alle spugne!
+
+  long_pt: |
+    ⚔️ As tarefas são monstros. Derrotem-nos em família!
+
+    Donjons & Savons transforma a casa numa masmorra: a família torna-se um clã, cada tarefa doméstica torna-se um monstro a vencer, e cada vitória dá experiência ao jogador e ao clã. Quando o baú do clã está cheio, a família abre um espólio: uma recompensa a sério, combinada antecipadamente pelos pais. O jogo não simula a recompensa: dá estrutura à promessa familiar.
+
+    🛡️ Como funciona
+    • Um dos pais funda o clã e convida a família (código QR ou link seguro).
+    • Cada um escolhe o seu avatar e o seu nome de aventureiro.
+    • Arrumar o quarto, levar o lixo, pôr a mesa: 19 áreas e mais de 150 tarefas, ajustadas ao vosso lar, além das que vocês acrescentarem.
+    • Os pais validam as proezas (prova fotográfica opcional, a foto nunca sai do telemóvel).
+    • XP, níveis, títulos, pontos de vida, diário do clã e cerimónias de abertura do espólio.
+
+    👨‍👩‍👧‍👦 Pensado para famílias
+    • Sem publicidade, sem rastreadores, sem compras surpresa.
+    • Os menores só entram num clã com o consentimento de um adulto responsável.
+    • As fotos nunca saem do dispositivo; os dados ficam alojados na Europa.
+    • Podes eliminar a tua conta sozinho, na app ou no site.
+
+    O espólio é a promessa cumprida. Às espadas… e às esponjas!
+
+  long_br: |
+    ⚔️ As tarefas são monstros. Derrotem todos eles em família!
+
+    Donjons & Savons transforma a casa numa masmorra: a família vira um clã, cada tarefa doméstica vira um monstro a vencer, e cada vitória dá experiência ao jogador e ao clã. Quando o baú do clã fica cheio, a família abre um tesouro: uma recompensa de verdade, combinada antes pelos pais. O jogo não simula a recompensa: ele dá estrutura à promessa da família.
+
+    🛡️ Como funciona
+    • Um dos pais cria o clã e convida a família (QR Code ou link seguro).
+    • Cada um escolhe seu avatar e seu nome de aventureiro.
+    • Arrumar o quarto, levar o lixo, pôr a mesa: 19 áreas e mais de 150 tarefas, ajustadas à casa de vocês, além das que vocês criarem.
+    • Os pais validam as façanhas (prova com foto opcional, a foto nunca sai do celular).
+    • XP, níveis, títulos, pontos de vida, diário do clã e cerimônias de abertura do tesouro.
+
+    👨‍👩‍👧‍👦 Feito para famílias
+    • Sem anúncios, sem rastreadores, sem compras surpresa.
+    • Menores só entram num clã com o consentimento de um adulto responsável.
+    • As fotos nunca saem do aparelho; os dados ficam hospedados na Europa.
+    • Você mesmo pode excluir sua conta, no app ou no site.
+
+    O tesouro é a promessa cumprida. Às espadas… e às esponjas!
+
+  long_nl: |
+    ⚔️ Klusjes zijn monsters. Versla ze als gezin!
+
+    Donjons & Savons maakt van je huis een kerker: het gezin wordt een clan, elk huishoudelijk klusje wordt een monster om te verslaan, en elke overwinning levert ervaring op voor de speler en voor de clan. Is de clankist vol, dan opent het gezin een buit: een echte beloning, vooraf afgesproken door de ouders. Het spel doet niet alsof er een beloning is: het geeft de gezinsbelofte een structuur.
+
+    🛡️ Zo werkt het
+    • Een ouder sticht de clan en nodigt het gezin uit (QR-code of beveiligde link).
+    • Iedereen kiest een avatar en een avonturiersnaam.
+    • Je kamer opruimen, het vuilnis buitenzetten, de tafel dekken: 19 domeinen en meer dan 150 taken, afgestemd op jullie huishouden, plus de taken die jullie zelf toevoegen.
+    • De ouders valideren de heldendaden (fotobewijs mogelijk, de foto blijft op de telefoon).
+    • XP, niveaus, titels, levenspunten, clandagboek en ceremonies om de buit te openen.
+
+    👨‍👩‍👧‍👦 Gemaakt voor gezinnen
+    • Geen reclame, geen trackers, geen verrassingsaankopen.
+    • Minderjarigen komen alleen in een clan met toestemming van een verantwoordelijke volwassene.
+    • Foto's verlaten nooit het toestel; de gegevens blijven in Europa gehost.
+    • Je account zelf verwijderen, in de app of op de website.
+
+    De buit is de gehouden belofte. Naar de zwaarden… en naar de sponzen!
+
   # ---------------------------------------------------------------------------
   # RÉGLAGES DE LA FICHE
   # ---------------------------------------------------------------------------
   category: "Application → Parentalité"
   tags: "famille, corvées, tâches, enfants, motivation, RPG"
-  languages: "fr-FR (par défaut), en-US, es-ES"
+  languages: "fr-FR (par défaut), en-US, es-ES, de-DE, it-IT, pt-PT, pt-BR, nl-NL"
   # ⚠ LA FRANCE SEULE, ET LA BELGIQUE EN A ÉTÉ RETIRÉE LE 2026-08-27. Elle était
   #   là du temps où un corpus `eu` unique couvrait toute l'Union : un testeur
   #   belge y trouvait des CGU faites pour lui. Depuis que les documents suivent
@@ -834,9 +904,9 @@ listing:
 #   - pucatalog les CRÉE        (chez Google, en Play Console)
 #
 # Trois copies, ce sont deux occasions de diverger. Et la divergence ne se voit
-# pas : une variante d'orthographe sur `essai-14j` ne casse rien à l'écran, elle
-# fait juste passer tous les essais pour des abonnements payants dans les
-# chiffres. Un identifiant Play, lui, ne se corrige jamais — il se contourne.
+# pas : une variante d'orthographe sur `fondateur` ne casse rien à l'écran, elle
+# fait juste passer tous les clans de lancement pour des abonnés ordinaires dans
+# les chiffres. Un identifiant Play, lui, ne se corrige jamais : il se contourne.
 #
 # Le builder redistribue ce bloc : conf du client, config.yaml du backend, et le
 # layer cloud déclaré ci-dessous. On n'écrit donc un identifiant qu'ICI.
@@ -905,7 +975,17 @@ store:
     # store_sweeper (cf. backend/config.yml). Ils ne sont plus écrits qu'ici : les
     # fonctions les reçoivent par référence @@@C:...@@@, et pucatalog crée chez
     # Google des offres portant exactement ces noms. Ils ne PEUVENT plus diverger.
-    trial_offer:   essai-14j
+    #
+    # ⚠ `trial_offer` est VIDE depuis le 2026-09-16, et ce n'est pas un oubli : il n'y
+    # a plus d'essai calendaire au catalogue (voir `offers` plus bas). Les trois
+    # fonctions le tolèrent — `process.env.TRIAL_OFFER_ID || ''` — et un identifiant
+    # vide ne peut alors correspondre à aucune offre d'achat, si bien qu'aucun
+    # abonnement n'est plus classé `trial`. C'est exactement ce qu'on veut : l'état
+    # n'existe plus. Le champ reste déclaré pour le jour où l'on rouvrirait un essai ;
+    # la référence @@@C: correspondante, elle, a été retirée des trois fonctions
+    # (backend/config.yml), car pucloudfunction refuse une référence qui résout sur
+    # du vide. Rouvrir un essai = remplir ce champ ET remettre les trois références.
+    trial_offer:   ""
     founder_offer: fondateur
 
     # --- Qui a droit à l'offre fondateurs ---------------------------------------
@@ -955,16 +1035,20 @@ store:
     # --- Les deux offres, déclarées une fois, attachées à chaque base plan ----
     offers:
 
-      # Quatorze jours et pas un mois : un mois complet laissait passer le pic
-      # d'enthousiasme avant le premier paiement. Éligibilité « acquisition de
-      # nouveaux clients » : Play vérifie lui-même qu'aucun abonnement n'a jamais
-      # existé sur ce compte — rien à coder côté serveur.
-      # ⚠ PROMESSE COMMERCIALE EMBARQUÉE : les quatorze jours sont annoncés dans
-      # lang.yml. Les deux durées doivent bouger ensemble.
-      essai-14j:
-        eligibility: new_customers
-        phases:
-          - { duration: P14D, free: true }
+      # ⚠ L'OFFRE D'ESSAI A ÉTÉ RETIRÉE LE 2026-09-16, et il faut dire pourquoi
+      # plutôt que de laisser un trou. Elle offrait quatorze jours calendaires aux
+      # nouveaux clients. Le modèle ne demande plus sa première cotisation à une date
+      # mais à un USAGE : trois tâches menées à leur terme depuis que le clan n'est
+      # plus seul, dix pour un clan resté seul (store-base-global.yml → store.pitch).
+      # L'accès libre du début EST devenu l'essai, et il est meilleur — une famille
+      # qui installe l'app un samedi et n'y revient que le week-end suivant n'a rien
+      # consommé, là où quatorze jours lui auraient tout mangé sans qu'elle joue.
+      # En cumuler deux aurait servi deux gratuités à la suite.
+      #
+      # pucatalog ne supprime jamais rien chez Google : une offre présente chez Play
+      # et absente d'ici passe HORS VENTE (deactivate_offer). Les abonnements qui la
+      # portaient déjà courent jusqu'à leur terme, et c'est le comportement voulu.
+      # La redéclarer ici la réactiverait telle quelle.
 
       # Offre de lancement. Éligibilité DÉTERMINÉE PAR LE DÉVELOPPEUR : Play ne
       # filtre rien, c'est `store_eligibility` qui tranche à partir du cutoff posé
@@ -1149,7 +1233,6 @@ store:
         - essentiel-monthly
         - essentiel-yearly
       offers:
-        - essai-14j
         - fondateur
       label: "@@@T:store_essentiel@@@"
       description: "@@@T:store_essentiel_desc@@@"
@@ -1169,6 +1252,21 @@ store:
           es-ES:
             title: "Esencial — hasta 2 jugadores"
             description: "Una pequeña escuadra: un adulto y su aventurero, o dos compañeros."
+          de-DE:
+            title: "Essenziell: bis zu 2 Spieler"
+            description: "Ein kleiner Trupp: ein Erwachsener und sein Abenteurer, oder zwei Gefährten."
+          it-IT:
+            title: "Essenziale: fino a 2 giocatori"
+            description: "Una piccola squadra: un adulto e il suo avventuriero, o due compagni."
+          pt-PT:
+            title: "Essencial: até 2 jogadores"
+            description: "Um pequeno esquadrão: um adulto e o seu aventureiro, ou dois companheiros."
+          pt-BR:
+            title: "Essencial: até 2 jogadores"
+            description: "Um pequeno esquadrão: um adulto e seu aventureiro, ou dois companheiros."
+          nl-NL:
+            title: "Essentieel: tot 2 spelers"
+            description: "Een kleine ploeg: een volwassene en zijn avonturier, of twee kameraden."
         plans:
           essentiel-monthly:
             period: P1M
@@ -1220,7 +1318,6 @@ store:
         - clan-monthly
         - clan-yearly
       offers:
-        - essai-14j
         - fondateur
       label: "@@@T:store_clan@@@"
       description: "@@@T:store_clan_desc@@@"
@@ -1240,6 +1337,21 @@ store:
           es-ES:
             title: "Clan — hasta 4 jugadores"
             description: "El hogar corriente: padres e hijos en torno a las mismas misiones."
+          de-DE:
+            title: "Clan: bis zu 4 Spieler"
+            description: "Der ganz normale Haushalt: Eltern und Kinder auf denselben Quests."
+          it-IT:
+            title: "Clan: fino a 4 giocatori"
+            description: "La famiglia di tutti i giorni: genitori e figli sulle stesse missioni."
+          pt-PT:
+            title: "Clã: até 4 jogadores"
+            description: "O lar comum: pais e filhos nas mesmas missões."
+          pt-BR:
+            title: "Clã: até 4 jogadores"
+            description: "A casa de sempre: pais e filhos nas mesmas missões."
+          nl-NL:
+            title: "Clan: tot 4 spelers"
+            description: "Het gewone gezin: ouders en kinderen op dezelfde queesten."
         plans:
           clan-monthly:
             period: P1M
@@ -1270,7 +1382,6 @@ store:
         - tribu-monthly
         - tribu-yearly
       offers:
-        - essai-14j
         - fondateur
       label: "@@@T:store_tribu@@@"
       description: "@@@T:store_tribu_desc@@@"
@@ -1290,6 +1401,21 @@ store:
           es-ES:
             title: "Tribu — hasta 7 jugadores"
             description: "Cuando la casa se desborda: hermandad numerosa, hogares reunidos."
+          de-DE:
+            title: "Stamm: bis zu 7 Spieler"
+            description: "Wenn der Haushalt überquillt: viele Geschwister, vereinte Familien."
+          it-IT:
+            title: "Tribù: fino a 7 giocatori"
+            description: "Quando la casa trabocca: tanti fratelli, famiglie riunite."
+          pt-PT:
+            title: "Tribo: até 7 jogadores"
+            description: "Quando a casa transborda: muitos irmãos, lares reunidos."
+          pt-BR:
+            title: "Tribo: até 7 jogadores"
+            description: "Quando a casa transborda: muitos irmãos, famílias reunidas."
+          nl-NL:
+            title: "Stam: tot 7 spelers"
+            description: "Als het huis overloopt: een grote kinderschaar, samengevoegde gezinnen."
         plans:
           tribu-monthly:
             period: P1M
@@ -1320,7 +1446,6 @@ store:
         - guilde-monthly
         - guilde-yearly
       offers:
-        - essai-14j
         - fondateur
       label: "@@@T:store_guilde@@@"
       description: "@@@T:store_guilde_desc@@@"
@@ -1340,6 +1465,21 @@ store:
           es-ES:
             title: "Gremio — hasta 12 jugadores"
             description: "Primos, abuelos, dos casas que ya son una."
+          de-DE:
+            title: "Gilde: bis zu 12 Spieler"
+            description: "Cousins, Großeltern, zwei Häuser, die eins geworden sind."
+          it-IT:
+            title: "Gilda: fino a 12 giocatori"
+            description: "Cugini, nonni, due case diventate una."
+          pt-PT:
+            title: "Guilda: até 12 jogadores"
+            description: "Primos, avós, duas casas que se tornaram uma."
+          pt-BR:
+            title: "Guilda: até 12 jogadores"
+            description: "Primos, avós, duas casas que viraram uma só."
+          nl-NL:
+            title: "Gilde: tot 12 spelers"
+            description: "Neven en nichten, grootouders, twee huizen die er één zijn geworden."
         plans:
           guilde-monthly:
             period: P1M
@@ -1371,7 +1511,6 @@ store:
         - royaume-monthly
         - royaume-yearly
       offers:
-        - essai-14j
         - fondateur
       label: "@@@T:store_royaume@@@"
       description: "@@@T:store_royaume_desc@@@"
@@ -1391,6 +1530,21 @@ store:
           es-ES:
             title: "Reino — jugadores ilimitados"
             description: "Para los clanes sin fin: sin límite, tantos aventureros como queráis."
+          de-DE:
+            title: "Königreich: unbegrenzt viele Spieler"
+            description: "Für Clans ohne Ende: keine Grenze, so viele Abenteurer, wie ihr wollt."
+          it-IT:
+            title: "Regno: giocatori illimitati"
+            description: "Per i clan senza fine: nessun limite, tutti gli avventurieri che volete."
+          pt-PT:
+            title: "Reino: jogadores ilimitados"
+            description: "Para clãs sem fim: sem limite, tantos aventureiros quantos quiserem."
+          pt-BR:
+            title: "Reino: jogadores ilimitados"
+            description: "Para clãs sem fim: sem limite, quantos aventureiros vocês quiserem."
+          nl-NL:
+            title: "Koninkrijk: onbeperkt spelers"
+            description: "Voor clans zonder einde: geen limiet, zoveel avonturiers als jullie willen."
         plans:
           royaume-monthly:
             period: P1M
@@ -1489,6 +1643,21 @@ store:
           es-ES:
             title: "Validaciones automáticas"
             description: "Algunas tareas se validan solas: nadie tiene que repasarlas. Se ajusta niño por niño, y queda para siempre."
+          de-DE:
+            title: "Automatische Bestätigungen"
+            description: "Manche Aufgaben bestätigen sich selbst: Niemand muss mehr nachkontrollieren. Für jedes Kind einzeln einstellbar, und dauerhaft erworben."
+          it-IT:
+            title: "Convalide automatiche"
+            description: "Alcuni compiti si convalidano da soli: nessuno deve più ricontrollare. Regolabile bambino per bambino, e acquisito per sempre."
+          pt-PT:
+            title: "Validações automáticas"
+            description: "Algumas tarefas validam-se sozinhas: ninguém tem de voltar a verificar. Ajustável criança a criança, e adquirido para sempre."
+          pt-BR:
+            title: "Validações automáticas"
+            description: "Algumas tarefas se validam sozinhas: ninguém precisa conferir de novo. Ajustável criança por criança, e seu para sempre."
+          nl-NL:
+            title: "Automatische validaties"
+            description: "Sommige taken valideren zichzelf: niemand hoeft nog na te kijken. Per kind in te stellen, en voorgoed verworven."
       prix:
         eur:  "1.99"
         sek:  "29"
@@ -1525,6 +1694,21 @@ store:
           es-ES:
             title: "Pack « Misiones » I"
             description: "Un primer libro de misiones para el clan: objetivos que duran más de un día, y una recompensa al final."
+          de-DE:
+            title: "Quest-Paket I"
+            description: "Eine erste Sammlung von Quests für den Clan: Ziele, die länger als einen Tag dauern, und eine Belohnung am Ende."
+          it-IT:
+            title: "Pacchetto «Missioni» I"
+            description: "Una prima raccolta di missioni da vivere in clan: obiettivi che durano più di un giorno, e una ricompensa alla fine."
+          pt-PT:
+            title: "Pack «Missões» I"
+            description: "Uma primeira coletânea de missões para o clã: objetivos que duram mais do que um dia, e uma recompensa no fim."
+          pt-BR:
+            title: "Pack \"Missões\" I"
+            description: "Uma primeira coleção de missões para o clã: objetivos que duram mais de um dia, e uma recompensa no final."
+          nl-NL:
+            title: "Queestenpakket I"
+            description: "Een eerste bundel queesten voor de clan: doelen die langer dan een dag duren, en een beloning aan het eind."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1561,6 +1745,21 @@ store:
           es-ES:
             title: "Pack « Pociones » I"
             description: "Un primer surtido de pociones: efectos temporales que cambian una semana de aventura — bonus de XP, empujones, prórrogas."
+          de-DE:
+            title: "Trank-Paket I"
+            description: "Eine erste Auswahl an Tränken: zeitlich begrenzte Effekte, die eine Abenteuerwoche verändern, wie XP-Bonus, Schubse und Aufschub."
+          it-IT:
+            title: "Pacchetto «Pozioni» I"
+            description: "Un primo assortimento di pozioni: effetti temporanei che cambiano una settimana di avventura, come bonus di XP, colpetti e proroghe."
+          pt-PT:
+            title: "Pack «Poções» I"
+            description: "Um primeiro sortido de poções: efeitos temporários que mudam uma semana de aventura, como bónus de XP, empurrões e adiamentos."
+          pt-BR:
+            title: "Pack \"Poções\" I"
+            description: "Um primeiro sortimento de poções: efeitos temporários que mudam uma semana de aventura, como bônus de XP, empurrõezinhos e adiamentos."
+          nl-NL:
+            title: "Drankjespakket I"
+            description: "Een eerste assortiment drankjes: tijdelijke effecten die een avonturenweek veranderen, zoals XP-bonus, duwtjes en uitstel."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1597,6 +1796,21 @@ store:
           es-ES:
             title: "Pack de tareas « Bricolaje »"
             description: "Una reserva de tareas listas para usar, del lado de las herramientas: reparar, montar, ordenar el taller. Elegir en vez de escribir."
+          de-DE:
+            title: "Aufgabenpaket „Heimwerken“"
+            description: "Ein Vorrat an fertigen Aufgaben rund ums Werkzeug: reparieren, aufbauen, die Werkstatt aufräumen. Aussuchen statt selbst schreiben."
+          it-IT:
+            title: "Pacchetto compiti «Fai da te»"
+            description: "Una scorta di compiti pronti all'uso, dal lato degli attrezzi: riparare, montare, riordinare il laboratorio. Da scegliere invece che scrivere."
+          pt-PT:
+            title: "Pack de tarefas «Bricolage»"
+            description: "Uma reserva de tarefas prontas a usar, do lado das ferramentas: reparar, montar, arrumar a oficina. Escolher em vez de escrever."
+          pt-BR:
+            title: "Pack de tarefas \"Consertos\""
+            description: "Um estoque de tarefas prontas para usar, do lado das ferramentas: consertar, montar, arrumar a oficina. Escolher em vez de escrever."
+          nl-NL:
+            title: "Takenpakket ‘Klussen’"
+            description: "Een voorraad kant-en-klare taken uit de gereedschapskist: repareren, in elkaar zetten, de werkplaats opruimen. Kiezen in plaats van schrijven."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1633,6 +1847,21 @@ store:
           es-ES:
             title: "Pack de tareas « Rutina »"
             description: "Lavarse los dientes, preparar la mochila la víspera, ordenar el cuarto. Las tareas de cada día, ya escritas."
+          de-DE:
+            title: "Aufgabenpaket „Alltag“"
+            description: "Zähne putzen, am Vorabend die Schultasche packen, das Zimmer aufräumen. Die Aufgaben des Alltags, schon geschrieben."
+          it-IT:
+            title: "Pacchetto compiti «Routine»"
+            description: "Lavarsi i denti, preparare lo zaino la sera prima, riordinare la camera. I compiti di tutti i giorni, già scritti."
+          pt-PT:
+            title: "Pack de tarefas «Rotina»"
+            description: "Lavar os dentes, preparar a mochila na véspera, arrumar o quarto. As tarefas de todos os dias, já escritas."
+          pt-BR:
+            title: "Pack de tarefas \"Rotina\""
+            description: "Escovar os dentes, arrumar a mochila na véspera, arrumar o quarto. As tarefas de todo dia, já escritas."
+          nl-NL:
+            title: "Takenpakket ‘Routine’"
+            description: "Tanden poetsen, de avond ervoor je schooltas inpakken, je kamer opruimen. De taken van elke dag, al geschreven."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1672,6 +1901,21 @@ store:
           es-ES:
             title: "Expansión « Botín »"
             description: "La pieza más grande del juego: el oro, la tienda de los héroes, el botín aleatorio, el equipo, los favores y las temporadas."
+          de-DE:
+            title: "Erweiterung „Beute“"
+            description: "Das größte Stück des Spiels: Gold, der Heldenladen, zufällige Beute, Ausrüstung, Gefälligkeiten und Saisons. Hausarbeit wird zur Wirtschaft."
+          it-IT:
+            title: "Espansione «Bottino»"
+            description: "Il pezzo più grande del gioco: l'oro, il negozio degli eroi, il bottino casuale, l'equipaggiamento, i favori e le stagioni. Le faccende diventano un'economia."
+          pt-PT:
+            title: "Expansão «Espólio»"
+            description: "A maior peça do jogo: o ouro, a loja dos heróis, o espólio aleatório, o equipamento, os favores e as temporadas. As tarefas tornam-se uma economia."
+          pt-BR:
+            title: "Expansão \"Tesouro\""
+            description: "A maior peça do jogo: o ouro, a loja dos heróis, o tesouro aleatório, o equipamento, os favores e as temporadas. As tarefas viram uma economia."
+          nl-NL:
+            title: "Uitbreiding ‘Buit’"
+            description: "Het grootste stuk van het spel: goud, de heldenwinkel, willekeurige buit, uitrusting, gunsten en seizoenen. Klusjes worden een economie."
       prix:
         eur:  "7.99"
         sek:  "109"
@@ -1708,6 +1952,21 @@ store:
           es-ES:
             title: "Pack « Misiones » II"
             description: "Un segundo libro de misiones, para los clanes que ya han terminado el primero."
+          de-DE:
+            title: "Quest-Paket II"
+            description: "Eine zweite Sammlung von Quests, für Clans, die mit der ersten durch sind."
+          it-IT:
+            title: "Pacchetto «Missioni» II"
+            description: "Una seconda raccolta di missioni, per i clan che hanno finito la prima."
+          pt-PT:
+            title: "Pack «Missões» II"
+            description: "Uma segunda coletânea de missões, para os clãs que já terminaram a primeira."
+          pt-BR:
+            title: "Pack \"Missões\" II"
+            description: "Uma segunda coleção de missões, para os clãs que já terminaram a primeira."
+          nl-NL:
+            title: "Queestenpakket II"
+            description: "Een tweede bundel queesten, voor clans die de eerste helemaal hebben uitgespeeld."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1744,6 +2003,21 @@ store:
           es-ES:
             title: "Pack « Misiones » III"
             description: "El tercer y último libro de misiones. Suficiente para aguantar otra temporada."
+          de-DE:
+            title: "Quest-Paket III"
+            description: "Die dritte und letzte Sammlung von Quests. Genug für eine weitere Saison."
+          it-IT:
+            title: "Pacchetto «Missioni» III"
+            description: "La terza e ultima raccolta di missioni. Abbastanza per un'altra stagione."
+          pt-PT:
+            title: "Pack «Missões» III"
+            description: "A terceira e última coletânea de missões. O suficiente para mais uma temporada."
+          pt-BR:
+            title: "Pack \"Missões\" III"
+            description: "A terceira e última coleção de missões. O suficiente para mais uma temporada."
+          nl-NL:
+            title: "Queestenpakket III"
+            description: "De derde en laatste bundel queesten. Genoeg voor nog een seizoen."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1780,6 +2054,21 @@ store:
           es-ES:
             title: "Pack « Pociones » II"
             description: "Un segundo surtido de pociones, con efectos que el primero no tenía."
+          de-DE:
+            title: "Trank-Paket II"
+            description: "Eine zweite Auswahl an Tränken, mit Effekten, die die erste nicht hatte."
+          it-IT:
+            title: "Pacchetto «Pozioni» II"
+            description: "Un secondo assortimento di pozioni, con effetti che il primo non aveva."
+          pt-PT:
+            title: "Pack «Poções» II"
+            description: "Um segundo sortido de poções, com efeitos que o primeiro não tinha."
+          pt-BR:
+            title: "Pack \"Poções\" II"
+            description: "Um segundo sortimento de poções, com efeitos que o primeiro não tinha."
+          nl-NL:
+            title: "Drankjespakket II"
+            description: "Een tweede assortiment drankjes, met effecten die het eerste niet had."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1816,6 +2105,21 @@ store:
           es-ES:
             title: "Pack « Pociones » III"
             description: "El tercer y último surtido de pociones, el más fuerte de los tres."
+          de-DE:
+            title: "Trank-Paket III"
+            description: "Die dritte und letzte Auswahl an Tränken, die stärkste der drei."
+          it-IT:
+            title: "Pacchetto «Pozioni» III"
+            description: "Il terzo e ultimo assortimento di pozioni, il più forte dei tre."
+          pt-PT:
+            title: "Pack «Poções» III"
+            description: "O terceiro e último sortido de poções, o mais forte dos três."
+          pt-BR:
+            title: "Pack \"Poções\" III"
+            description: "O terceiro e último sortimento de poções, o mais forte dos três."
+          nl-NL:
+            title: "Drankjespakket III"
+            description: "Het derde en laatste assortiment drankjes, het sterkste van de drie."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1852,6 +2156,21 @@ store:
           es-ES:
             title: "Pack « Deberes hechos »"
             description: "El único pack que atraviesa las tres mecánicas: la misión de la nota media, la tarea de estudiar la lección, la poción de +15 % de XP."
+          de-DE:
+            title: "Paket „Hausaufgaben erledigt“"
+            description: "Das einzige Paket, das alle drei Mechaniken verbindet: die Quest für den Notendurchschnitt, die Aufgabe zum Lernen, der Trank für +15 % XP."
+          it-IT:
+            title: "Pacchetto «Compiti fatti»"
+            description: "L'unico pacchetto che attraversa le tre meccaniche: la missione della media dei voti, il compito di studiare la lezione, la pozione da +15 % di XP."
+          pt-PT:
+            title: "Pack «Trabalhos de casa feitos»"
+            description: "O único pack que atravessa as três mecânicas: a missão da média das notas, a tarefa de estudar a matéria, a poção de +15 % de XP."
+          pt-BR:
+            title: "Pack \"Lição de casa feita\""
+            description: "O único pack que atravessa as três mecânicas: a missão da média das notas, a tarefa de estudar a matéria, a poção de +15 % de XP."
+          nl-NL:
+            title: "Pakket ‘Huiswerk gedaan’"
+            description: "Het enige pakket dat alle drie de mechanieken combineert: de queeste voor het gemiddelde, de taak om de les te leren, het drankje voor +15 % XP."
       prix:
         eur:  "3.99"
         sek:  "55"
@@ -1890,6 +2209,21 @@ store:
           es-ES:
             title: "Tema « Star Sweep »"
             description: "Todo el juego revestido de ópera espacial: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar."
+          de-DE:
+            title: "Thema „Star Sweep“"
+            description: "Das ganze Spiel neu eingekleidet als Space Opera: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt."
+          it-IT:
+            title: "Tema «Star Sweep»"
+            description: "Tutto il gioco rivestito da space opera: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove."
+          pt-PT:
+            title: "Tema «Star Sweep»"
+            description: "Todo o jogo revestido de ópera espacial: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar."
+          pt-BR:
+            title: "Tema \"Star Sweep\""
+            description: "O jogo inteiro vestido de ópera espacial: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar."
+          nl-NL:
+            title: "Thema ‘Star Sweep’"
+            description: "Het hele spel in een nieuw jasje als space opera: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld."
       prix:
         eur:  "5.99"
         sek:  "79"
@@ -1926,6 +2260,21 @@ store:
           es-ES:
             title: "Tema « La Casa Nostra »"
             description: "Todo el juego revestido de universo mafioso: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar."
+          de-DE:
+            title: "Thema „La Casa Nostra“"
+            description: "Das ganze Spiel neu eingekleidet als Mafiageschichte: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt."
+          it-IT:
+            title: "Tema «La Casa Nostra»"
+            description: "Tutto il gioco rivestito da storia di mafia: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove."
+          pt-PT:
+            title: "Tema «La Casa Nostra»"
+            description: "Todo o jogo revestido de universo mafioso: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar."
+          pt-BR:
+            title: "Tema \"La Casa Nostra\""
+            description: "O jogo inteiro vestido de universo mafioso: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar."
+          nl-NL:
+            title: "Thema ‘La Casa Nostra’"
+            description: "Het hele spel in een nieuw jasje als maffiaverhaal: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld."
       prix:
         eur:  "5.99"
         sek:  "79"
@@ -1962,6 +2311,21 @@ store:
           es-ES:
             title: "Tema « Pirates of the accariens »"
             description: "Todo el juego revestido de universo pirata: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar."
+          de-DE:
+            title: "Thema „Pirates of the accariens“"
+            description: "Das ganze Spiel neu eingekleidet als Piratengeschichte: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt."
+          it-IT:
+            title: "Tema «Pirates of the accariens»"
+            description: "Tutto il gioco rivestito da universo pirata: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove."
+          pt-PT:
+            title: "Tema «Pirates of the accariens»"
+            description: "Todo o jogo revestido de universo pirata: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar."
+          pt-BR:
+            title: "Tema \"Pirates of the accariens\""
+            description: "O jogo inteiro vestido de universo pirata: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar."
+          nl-NL:
+            title: "Thema ‘Pirates of the accariens’"
+            description: "Het hele spel in een nieuw jasje als piratenverhaal: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld."
       prix:
         eur:  "5.99"
         sek:  "79"
@@ -2001,6 +2365,21 @@ store:
           es-ES:
             title: "Clases de personaje"
             description: "Cada héroe elige una vía, con sus ventajas, sus inconvenientes y sus sinergias de clan. Un tema reviste la aventura; una clase la rejuega."
+          de-DE:
+            title: "Charakterklassen"
+            description: "Jeder Held wählt einen Weg, mit Vorteilen, Nachteilen und Clan-Synergien. Ein Thema kleidet das Abenteuer neu ein; eine Klasse spielt es anders."
+          it-IT:
+            title: "Classi di personaggio"
+            description: "Ogni eroe sceglie una via, con i suoi vantaggi, i suoi svantaggi e le sue sinergie di clan. Un tema riveste l'avventura; una classe la rigioca."
+          pt-PT:
+            title: "Classes de personagem"
+            description: "Cada herói escolhe um caminho, com as suas vantagens, desvantagens e sinergias de clã. Um tema reveste a aventura; uma classe volta a jogá-la."
+          pt-BR:
+            title: "Classes de personagem"
+            description: "Cada herói escolhe um caminho, com suas vantagens, desvantagens e sinergias de clã. Um tema veste a aventura; uma classe faz jogar de novo."
+          nl-NL:
+            title: "Personageklassen"
+            description: "Elke held kiest een pad, met voordelen, nadelen en clansynergieën. Een thema geeft het avontuur een nieuw jasje; een klasse speelt het anders."
       prix:
         eur:  "6.99"
         sek:  "95"
@@ -2664,7 +3043,7 @@ revenus:
     # contenu offert : aucune vente, uniquement de la rétention
     'a6728b19f4b1':
       # --- roadmap (console deva) ---
-      rank: 104
+      rank: 115
       store: true
       rsp: 233
       nom: 'defis'
@@ -2674,12 +3053,18 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**mise à jour gratuite** — défis hebdomadaires, succès et titres, POKEDEX et objets de collection. Ce que le site annonce sous « Plus de contenu ». Premier update après le lancement : il n''a pas à se vendre, il a à ramener les familles'
-      last_modification: '2026-09-08T17:16:32'
+      last_modification: '2026-09-17T02:01:24'
       # --- economie (console deva) ---
       churn_facteur: 0.9875
       duree_contenu_mois: 2
       perte_evitee: 45
       gratuit: true
+
+
+
+
+
+
 
 
 
@@ -2778,7 +3163,7 @@ revenus:
     #   qui ferme le bloc des onze — « dernier livré l'emporte ».
     '0877dd1dcfb0':
       # --- roadmap (console deva) ---
-      rank: 170
+      rank: 180
       store: true
       rsp: 610
       nom: 'loots'
@@ -2787,7 +3172,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — « Extension Butin », 7.99 €, le produit le plus cher du catalogue** — or, boutique des héros, loot aléatoire, objets et équipement, faveurs, saisons et affiliation. ⚠ **CE LOT PORTE LES MOTEURS DE QUÊTES ET DE POTIONS**, pas seulement l''économie : c''est lui qui ouvre la boutique et rend vendables les dix lots de contenu qui le suivent. Ses six packs sont partis vivre dans leurs propres lots. *Éclaté le 2026-09-04 : il agrégeait six produits vendus séparément.*'
-      last_modification: '2026-09-07T12:36:40'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
@@ -2881,9 +3266,15 @@ revenus:
 
 
 
+
+
+
+
+
+
     '1c1703f9c5bd':
       # --- roadmap (console deva) ---
-      rank: 270
+      rank: 280
       store: true
       rsp: 377
       nom: 'minijeux'
@@ -2893,7 +3284,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**mise à jour gratuite** — mini-jeux pour vaincre les monstres aléatoires (énigme, réflexe, memory, question piège). **Code assumé**, bâti sur le moteur d''événements livré au MVP'
-      last_modification: '2026-09-07T12:37:19'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       churn_facteur: 0.95
       duree_contenu_mois: 2
@@ -2989,9 +3380,15 @@ revenus:
 
 
 
+
+
+
+
+
+
     '5b617e0e5480':
       # --- roadmap (console deva) ---
-      rank: 360
+      rank: 370
       store: true
       rsp: 233
       nom: 'classes'
@@ -3001,7 +3398,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante à 6.99 €** (décision 2026-08-24), deuxième prix du catalogue derrière « Butin » — classes de personnage : voies, avantages et inconvénients, synergies de clan. Ce n''est pas un pack de contenu mais une **extension majeure du jeu** : un thème rhabille l''aventure, une classe la rejoue autrement'
-      last_modification: '2026-09-08T03:43:12'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       churn_facteur: 0.9375
       revenu_direct: 18
@@ -3096,9 +3493,15 @@ revenus:
 
 
 
+
+
+
+
+
+
     '0b7c8f278959':
       # --- roadmap (console deva) ---
-      rank: 445
+      rank: 455
       store: true
       rsp: 144
       nom: 'theme_pirates'
@@ -3108,10 +3511,16 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er thème, 5.99 €** — rejouer l''aventure en univers pirate. ⚠ **CE LOT PORTE LE SYSTÈME DE THÈMES**, pas seulement son contenu : c''est lui qui essuie les plâtres — bascule d''univers, déclinaison des assets, des libellés et du ton. Les deux thèmes suivants n''ont plus que leur contenu à produire, d''où leur estimation bien plus basse. *Détaché de `themes` le 2026-09-02.*'
-      last_modification: '2026-09-07T12:37:56'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -3200,7 +3609,7 @@ revenus:
 
     'b4483c2704e7':
       # --- roadmap (console deva) ---
-      rank: 490
+      rank: 500
       store: true
       rsp: 55
       nom: 'theme_casanostra'
@@ -3210,10 +3619,16 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e thème, 5.99 €** — univers mafia. Le système de thèmes existe déjà (`theme_pirates`) : il ne reste que le contenu. *Détaché de `themes` le 2026-09-02.'
-      last_modification: '2026-09-08T03:43:43'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -3302,7 +3717,7 @@ revenus:
 
     '1521505a498c':
       # --- roadmap (console deva) ---
-      rank: 580
+      rank: 590
       store: true
       rsp: 55
       nom: 'theme_starsweep'
@@ -3312,11 +3727,17 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e thème, 5.99 €** — space opera. Contenu seul, comme le précédent. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DES TROIS**, et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et la valeur 0.9312 décrivait l''état du modèle une fois les TROIS thèmes sortis. Le poser sur chacun aurait fait obtenir au premier thème seul le bénéfice de rétention des trois. *Détaché de `themes` le 2026-09-02.*'
-      last_modification: '2026-09-07T12:38:28'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       churn_facteur: 0.925
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -3414,7 +3835,7 @@ revenus:
 
     '3df87efd34d2':
       # --- roadmap (console deva) ---
-      rank: 160
+      rank: 170
       store: true
       rsp: 21
       nom: 'validations automatiques'
@@ -3423,10 +3844,16 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — validations automatiques, 1.99 €** — réglables par enfant, et définitives. À ne pas confondre avec l''effet temporaire « validation auto 3 jours » d''une potion. Le produit le moins cher du catalogue, et le seul du bloc qui ne dépende d''aucune mécanique de `loots` : il ne réclame que le socle d''achat d''extensions, livré au MVP. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-06T21:16:56'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -3488,7 +3915,7 @@ revenus:
 
     '71b889d2505e':
       # --- roadmap (console deva) ---
-      rank: 180
+      rank: 190
       store: true
       rsp: 34
       nom: 'quetes I'
@@ -3497,10 +3924,16 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er pack de quêtes, 3.99 €** — contenu seul : la mécanique de quêtes vit dans `loots`, publié avant. Il sort dans la foulée de l''Extension Butin, pour qu''une boutique qui s''ouvre ne soit pas vide. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-07T12:36:54'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -3562,7 +3995,7 @@ revenus:
 
     '81291102e209':
       # --- roadmap (console deva) ---
-      rank: 300
+      rank: 310
       store: true
       rsp: 34
       nom: 'quêtes II'
@@ -3571,10 +4004,16 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:21:30'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -3636,7 +4075,7 @@ revenus:
 
     '0ab7912989d0':
       # --- roadmap (console deva) ---
-      rank: 370
+      rank: 380
       store: true
       rsp: 34
       nom: 'quêtes III'
@@ -3645,7 +4084,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e et dernier pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-08T03:43:12'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
@@ -3708,9 +4147,15 @@ revenus:
 
 
 
+
+
+
+
+
+
     'ecb38169ab68':
       # --- roadmap (console deva) ---
-      rank: 190
+      rank: 200
       store: true
       rsp: 34
       nom: 'potions I'
@@ -3719,7 +4164,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er pack de potions, 3.99 €** — contenu seul : la mécanique de potions vit dans `loots`, publié avant. Livré dans la même foulée que le premier pack de quêtes. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-07T12:36:56'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
@@ -3782,9 +4227,15 @@ revenus:
 
 
 
+
+
+
+
+
+
     '09a10ee9b42d':
       # --- roadmap (console deva) ---
-      rank: 310
+      rank: 320
       store: true
       rsp: 34
       nom: 'potions II'
@@ -3793,10 +4244,16 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-06T20:21:38'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -3858,7 +4315,7 @@ revenus:
 
     '4333deadd8b3':
       # --- roadmap (console deva) ---
-      rank: 380
+      rank: 390
       store: true
       rsp: 34
       nom: 'potions III'
@@ -3868,7 +4325,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e et dernier pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-08T03:43:12'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
@@ -3931,9 +4388,15 @@ revenus:
 
 
 
+
+
+
+
+
+
     '13a9e8d0a1b9':
       # --- roadmap (console deva) ---
-      rank: 290
+      rank: 300
       store: true
       rsp: 55
       nom: 'devoirs faits'
@@ -3942,7 +4405,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack « Devoirs faits », 3.99 €** — **le seul pack qui traverse les trois mécaniques** : quête (« 13 de moyenne générale »), tâches additionnelles (« Apprendre le cours de maths ») et potion (« +15 % XP sur les exercices de SVT »). D''où 55rsp là où les autres packs valent 34. C''est aussi le plus vendable aux parents — il répond à la seule chose qu''ils n''arrivent pas à faire tenir par la routine. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-07T12:37:19'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 2
       duree_contenu_mois: 2
@@ -4005,9 +4468,15 @@ revenus:
 
 
 
+
+
+
+
+
+
     '258ff7d2b854':
       # --- roadmap (console deva) ---
-      rank: 390
+      rank: 400
       store: true
       rsp: 21
       nom: 'pack bricolage'
@@ -4017,10 +4486,16 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack de tâches « Bricolage », 3.99 €** — contenu YAML pur dans un pipeline déjà livré : aucune mécanique requise, d''où la cotation la plus basse du bloc. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-08T03:43:12'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -4086,7 +4561,7 @@ revenus:
     #   Meme regle que `theme_starsweep` pour les themes.
     'cbe53f2e0c9b':
       # --- roadmap (console deva) ---
-      rank: 280
+      rank: 290
       store: true
       rsp: 21
       nom: 'routine'
@@ -4095,11 +4570,17 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack de tâches « Routine », 3.99 €** — se brosser les dents, préparer son cartable la veille… Contenu YAML pur, aucune mécanique requise. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DU BLOC** (0.9625), et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et cette valeur décrit l''état du modèle une fois les ONZE lots sortis. Même règle que `theme_starsweep` pour les thèmes. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-07T12:37:19'
+      last_modification: '2026-09-17T01:30:18'
       # --- economie (console deva) ---
       churn_facteur: 0.9625
       revenu_direct: 15
       duree_contenu_mois: 2
+
+
+
+
+
+
 
 
 
@@ -4257,14 +4738,20 @@ revenus:
       # --- roadmap (console deva) ---
       rank: 80
       store: false
-      rsp: 610
+      rsp: 1597
       nom: 'premier pas'
       id: '37efb92085ab'
       rampup_semaines: 10
       maint_demarrage: 3.0
       maint_croisiere: 2.0
       description: '**le MVP complet : lancement commercial FR/EN/ES puis consolidation.** Boucle de jeu, butin, abonnements, offre fondateurs, parrainage, corpus légal multirégion, publication Play — puis multitenancy, facturation multi-clan, notifications métier, invitations à distance et réserve de feedback. *Fusion du 2026-08-29 des lots `beta` (lancement, 377rsp) et `mvp` (consolidation, 610rsp). Ddust rentre dans la forme commune du portefeuille — un MVP puis des extensions — et les deux noms trompeurs disparaissent. L''historique du produit n''est pas perdu : il vit dans `ddust/produit`, livré le 2026-08-22.* ⚠ **Prérequis : `grisloup/mvp`** — seule l''immatriculation ouvre le compte Play organisation et fournit le SIREN du corpus légal.'
-      last_modification: '2026-09-10T20:06:45'
+      last_modification: '2026-09-17T01:57:37'
+
+
+
+
+
+
 
 
 
@@ -4356,7 +4843,7 @@ revenus:
 
     '0f3ce68de9ba':
       # --- roadmap (console deva) ---
-      rank: 150
+      rank: 160
       store: false
       rsp: 34
       nom: 'ios'
@@ -4366,7 +4853,13 @@ revenus:
       maint_demarrage: 0.25
       maint_croisiere: 0.25
       description: '**portage iOS de l''app** — fiche App Store Connect dans les sept langues, catalogue d''achats recréé côté Apple, revue, recette sur appareil. ⚠ **C''est CE lot qui fait entrer les utilisateurs iOS**, pas `deva/ios` : le passage framework rend le portage possible, il ne publie rien. *Une plateforme de plus à entretenir.*'
-      last_modification: '2026-09-06T21:16:20'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -4433,7 +4926,7 @@ revenus:
 
     '32329fd13dae':
       # --- roadmap (console deva) ---
-      rank: 20000
+      rank: 20010
       store: false
       rsp: 377
       nom: 'socle'
@@ -4443,7 +4936,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**ce sur quoi tout le reste se pose** — conf découpée en layers, thèmes, écrans de base, son, langues, démarrage. Rien de spectaculaire, et le premier écran qui gèle rend l''app inutilisable.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -4510,7 +5009,7 @@ revenus:
 
     '3ee5cdbbf4e8':
       # --- roadmap (console deva) ---
-      rank: 20010
+      rank: 20020
       store: false
       rsp: 610
       nom: 'clan'
@@ -4520,7 +5019,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**le clan** — le créer, le rejoindre par QR code ou par lien, le roster de ses membres, la promotion d''un chef. C''est la porte d''entrée de l''app : un joueur qui n''arrive pas à rejoindre son clan n''a rien à faire dedans.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -4587,7 +5092,7 @@ revenus:
 
     '81a9612bcfad':
       # --- roadmap (console deva) ---
-      rank: 20020
+      rank: 20030
       store: false
       rsp: 377
       nom: 'personnage'
@@ -4597,7 +5102,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**le joueur** — enrollment, session, nom, avatar, photo, écran personnage, passage à l''âge adulte. Tout ce qui fait qu''un enfant se reconnaît dans l''application.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -4664,7 +5175,7 @@ revenus:
 
     '982e1c595070':
       # --- roadmap (console deva) ---
-      rank: 20030
+      rank: 20040
       store: false
       rsp: 610
       nom: 'taches'
@@ -4674,7 +5185,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**le cœur de la boucle** — prendre, relâcher, terminer une tâche, la faire valider par un parent, gérer les domaines, les tâches mortelles et immortelles et leur respawn. C''est ce que l''app fait, tout le reste l''entoure.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -4741,7 +5258,7 @@ revenus:
 
     '3b81e080ee72':
       # --- roadmap (console deva) ---
-      rank: 20040
+      rank: 20050
       store: false
       rsp: 233
       nom: 'progression'
@@ -4751,7 +5268,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**ce qui donne envie de recommencer** — XP du joueur et du clan, niveaux, titres, points de vie et leur décroissance, barème d''effort. La mécanique de jeu qui transforme une corvée en partie.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -4818,7 +5341,7 @@ revenus:
 
     '5ad520b40c19':
       # --- roadmap (console deva) ---
-      rank: 20050
+      rank: 20060
       store: false
       rsp: 233
       nom: 'notifications'
@@ -4828,7 +5351,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**garder l''app vivante quand elle est fermée** — notifications push, décroissance des PV, balayeur de relance d''engagement. Sans ça une app familiale s''oublie en trois jours.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -4895,7 +5424,7 @@ revenus:
 
     'a245b12c4cb8':
       # --- roadmap (console deva) ---
-      rank: 20060
+      rank: 20070
       store: false
       rsp: 144
       nom: 'journal'
@@ -4905,7 +5434,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**la mémoire du clan** — le journal narratif reconstruit depuis les logs, et son partage social. C''est ce qui donne au travail accompli une trace qu''on relit.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -4972,7 +5507,7 @@ revenus:
 
     'c03a9e06baad':
       # --- roadmap (console deva) ---
-      rank: 20070
+      rank: 20080
       store: false
       rsp: 610
       nom: 'contenu_visuel'
@@ -4982,7 +5517,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**269 images, faites une par une** — 218 medium, 33 small, 14 big, 4 splashs, plus les 10 visuels du Play Store. Le code de ddust est vibe-codé, donc rapide ; ces pièces-là ne le sont pas, et trouver les bons outils a pris du temps. Rien de tout cela n''apparaît dans une mesure de volume de code.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -5049,7 +5590,7 @@ revenus:
 
     'e525cb94cb33':
       # --- roadmap (console deva) ---
-      rank: 20080
+      rank: 20090
       store: false
       rsp: 233
       nom: 'contenu_sonore'
@@ -5059,7 +5600,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**19 pièces sonores** — 9 musiques, 7 effets, 3 vidéos. Un autre métier que l''image, et le même constat : invisible dans le code, bien réel dans le temps passé.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -5126,7 +5673,7 @@ revenus:
 
     '3ca5a6277c98':
       # --- roadmap (console deva) ---
-      rank: 20090
+      rank: 20100
       store: false
       rsp: 377
       nom: 'celebrations'
@@ -5136,7 +5683,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**le moment où l''app prend la main sur les sens** — montée de niveau, mort et gage, guérison, coup de pouce, la Fée. Une image, un son qui l''annonce, une vibration, et un écran qui ne répond plus le temps que ça se joue.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -5203,7 +5756,7 @@ revenus:
 
     '992f6f465ef6':
       # --- roadmap (console deva) ---
-      rank: 20100
+      rank: 20110
       store: false
       rsp: 144
       nom: 'administration'
@@ -5213,7 +5766,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**les gestes du chef de clan** — cacher, désactiver, modifier ou recommander une tâche, déconnecter un joueur, gérer un départ, jouer à la place d''un autre. Tout ce qui n''est pas du jeu mais sans quoi le jeu s''enraye.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -5280,7 +5839,7 @@ revenus:
 
     'bfdf9b81c269':
       # --- roadmap (console deva) ---
-      rank: 20110
+      rank: 20120
       store: false
       rsp: 610
       nom: 'butin'
@@ -5290,7 +5849,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**la récompense** — inventaire, coffre, distribution, et la cérémonie d''ouverture. Le seul moment de l''app où l''objet numérique renvoie à un objet physique posé sur une table.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -5357,7 +5922,7 @@ revenus:
 
     '4facbb5b056a':
       # --- roadmap (console deva) ---
-      rank: 20120
+      rank: 20130
       store: false
       rsp: 377
       nom: 'boutique'
@@ -5367,7 +5932,13 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**la monétisation** — abonnements, achats, entitlement vérifié côté serveur. Le principe tient en une phrase : l''entitlement n''est jamais écrit par un client.'
-      last_modification: '2026-09-04T11:12:06'
+      last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
 
 
 
@@ -5379,11 +5950,18 @@ revenus:
       nom: 'requisites'
       id: '2fb66c075ba3'
       accroche: 'Le développement exigé par une contrainte légale ou par la revue « intérêt supérieur de l''enfant »'
+      livre: '2026-09-15'
       rampup_semaines: 0
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**Ce que le produit doit faire pour que les documents ne mentent pas.** Correctifs et écrans dictés par une obligation — RGPD, politique Google Play Families, article 7 de la loi colombienne 1581 — et par les points de `docs/interestActionPoints.txt` : journal filtré des relances de paiement, photos effacées au verdict, prénoms substitués avant l''appel au modèle, avis de l''enfant recueilli avant tout traitement, retrait de consentement proportionné, relances sorties du mode simulation. *Ne porte aucune fonctionnalité produit : chaque tâche d''ici existe parce qu''une phrase publiée en dépend.*'
-      last_modification: '2026-09-11T01:27:06'
+      last_modification: '2026-09-15T21:37:57'
+
+
+
+
+
+
 
 
 
@@ -5395,27 +5973,35 @@ revenus:
       nom: 'légal'
       id: 'dc31b23a0d6c'
       accroche: 'Le corpus juridique et les démarches, sans une ligne de code'
+      livre: '2026-09-16'
       rampup_semaines: 0
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**Les documents et les formalités, rien d''exécutable.** Reprises de fond du corpus des 336 documents (contradiction sur l''adresse électronique, relecture des 84 politiques enfant, description de la boutique alignée sur le catalogue réel), préalables d''ouverture de marché (`hispam`, Loi 25 québécoise, représentant suisse), mention de l''éditeur, AIPD. *Se livre APRÈS `requisites` : le dossier « intérêt supérieur de l''enfant » décrit l''application dans son état cible et n''est communicable qu''une fois cette cible atteinte.*'
-      last_modification: '2026-09-11T01:27:06'
+      last_modification: '2026-09-16T18:24:21'
+
+
+
+
+
+
 
 
 
     'b68ba8193315':
       # --- roadmap (console deva) ---
-      rank: 70
+      rank: 66
       store: false
       rsp: 21
       nom: 'pub'
       id: 'b68ba8193315'
       accroche: 'Ce qui manque entre une app qui marche et une app sur le store'
+      livre: '2026-09-16'
       rampup_semaines: 0
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**Les prérequis de la publication.** Chaîne de versioning (builder, et détection de mise à jour côté client), feuilles de saisie versionnées dans `delivery/`, lien Play Console ↔ projet GCP sans lequel `store_verify` ne peut acquitter aucun achat, visuels de la fiche. *Porte le drapeau `mvp` : c''est sa livraison qui signifie « l''app est publiée », et qui fait basculer le projet de `implementation` à `exploitation`.*'
-      last_modification: '2026-09-10T20:06:45'
+      last_modification: '2026-09-16T23:21:52'
 
   canaux:
     # Un store par ligne, et non un taux unique : les commissions divergeront,

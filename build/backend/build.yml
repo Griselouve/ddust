@@ -30,7 +30,7 @@ build:
   # qui a ete achete : l'un decide de l'offre, l'autre constate les achats.
   - pucatalog
   # Balayage quotidien des timers de facturation. Les echeances de defaut de paiement
-  # (grace 10j, gel j50, suppression j730) ne peuvent pas dependre d'une ouverture de
+  # (grace 10j, gel j50, suppression j780) ne peuvent pas dependre d'une ouverture de
   # l'app : un clan en defaut est justement un clan que plus personne n'ouvre.
   - puscheduler
   resources:
@@ -38,3 +38,166 @@ build:
   - hosting
   - resources_cloud
   state: backend
+  # LES ASSETS DU SITE WEB, un par un : d'ou vient chaque fichier dans le framework,
+  # et ou il atterrit sur le site. Poses dans le workspace par `build`, APRES la
+  # recopie de `hosting` (une entree remplace le fichier du meme nom), puis publies
+  # tels quels par `upload`. Cf. builder/readme.md, « assets du site web ».
+  #
+  #   - src: resources_others/showcase/fr/clan_page.png   # relatif a la suite
+  #     out: web/assets/img/clan.webp                     # relatif a assets/ (web = racine du site)
+  #     width: 900                                        # facultatif : largeur max
+  #     quality: 82                                       # facultatif
+  #     langs: [fr, en]                                   # facultatif : @@@lang@@@ dans src/out
+  #
+  # LES CAPTURES viennent de la vitrine (dvshowcase), DANS LA LANGUE DE LA PAGE, et gardent
+  # leur nom : web/assets/img/showcase/<langue>/<capture>.webp. Les autres images du site
+  # vivent encore dans hosting/web/assets/img.
+  # 640 px : deux fois la plus grande largeur affichée (300 px sur l'accueil).
+  #
+  # ⚠ CETTE LISTE EST AUSSI CELLE DU KIT PRESSE (entrée `zip` en fin de liste) : le kit ne
+  #   montre que ce que le site montre. Une capture ajoutée au site s'ajoute aux deux.
+  #
+  # ⚠ SEPT LANGUES ICI, HUIT SUR LE SITE (depuis le 2026-09-16). Le portugais du Brésil
+  #   (`br`) a ses pages, mais pas encore ses captures : `resources_others/showcase/br/`
+  #   n'existera qu'au prochain passage de la vitrine (`builder.py suite=ddust showcase`).
+  #   Or UNE SOURCE ABSENTE ARRÊTE LE BUILD — et c'est justement un build qui embarque la
+  #   langue `br` dans l'application avant que la vitrine puisse la photographier. Déclarer
+  #   `br` ici tout de suite fermait donc la porte de l'intérieur.
+  #   GESTE À FAIRE UNE FOIS LA VITRINE PASSÉE EN `br` : remplacer les seize
+  #   `langs: [fr, en, es, it, de, pt, nl]` ci-dessous par `[fr, en, es, it, de, pt, br, nl]`.
+  #   Jusque-là, les pages `/br/` du site pointent des images et un kit presse absents :
+  #   c'est sans danger tant qu'on ne publie pas (`upload`), et c'est pourquoi la mise en
+  #   ligne du site attend ce passage.
+  hosting_assets:
+  # Accueil, et Expérience chapitre 3 : une tâche en cours de combat.
+  - src: resources_others/showcase/@@@lang@@@/combat-01.png
+    out: web/assets/img/showcase/@@@lang@@@/combat-01.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Concept « Une famille unie », et Expérience chapitre 4 : le chef attend le clan.
+  - src: resources_others/showcase/@@@lang@@@/butin_open_page-02.png
+    out: web/assets/img/showcase/@@@lang@@@/butin_open_page-02.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Concept « Vous ne pouvez pas vous perdre », et Expérience chapitre 5 : guide du parent.
+  - src: resources_others/showcase/@@@lang@@@/dashboard-01-tuto-06.png
+    out: web/assets/img/showcase/@@@lang@@@/dashboard-01-tuto-06.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 1 : « Qui es-tu, aventurier ? ».
+  - src: resources_others/showcase/@@@lang@@@/age_screen.png
+    out: web/assets/img/showcase/@@@lang@@@/age_screen.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 1 : rejoindre ou créer un clan.
+  - src: resources_others/showcase/@@@lang@@@/new_or_pick_clan.png
+    out: web/assets/img/showcase/@@@lang@@@/new_or_pick_clan.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 1 : le tableau de bord.
+  - src: resources_others/showcase/@@@lang@@@/dashboard.png
+    out: web/assets/img/showcase/@@@lang@@@/dashboard.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 2 : préparer l'aventure.
+  - src: resources_others/showcase/@@@lang@@@/decisiontree.png
+    out: web/assets/img/showcase/@@@lang@@@/decisiontree.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 2 : l'écran du clan.
+  - src: resources_others/showcase/@@@lang@@@/clan_page.png
+    out: web/assets/img/showcase/@@@lang@@@/clan_page.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 2 : le choix de l'avatar.
+  - src: resources_others/showcase/@@@lang@@@/avatar_explorer.png
+    out: web/assets/img/showcase/@@@lang@@@/avatar_explorer.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 3 : la grille des pièces.
+  - src: resources_others/showcase/@@@lang@@@/combat.png
+    out: web/assets/img/showcase/@@@lang@@@/combat.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 3 : les monstres du salon.
+  - src: resources_others/showcase/@@@lang@@@/salon_tasks.png
+    out: web/assets/img/showcase/@@@lang@@@/salon_tasks.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 4 : la promesse d'argent de poche.
+  - src: resources_others/showcase/@@@lang@@@/money_page.png
+    out: web/assets/img/showcase/@@@lang@@@/money_page.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 4 : l'ouverture du butin, côté joueur.
+  - src: resources_others/showcase/@@@lang@@@/butin_open_page.png
+    out: web/assets/img/showcase/@@@lang@@@/butin_open_page.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 5 : guide du parent, que mettre dans le butin.
+  - src: resources_others/showcase/@@@lang@@@/dashboard-01-tuto-08.png
+    out: web/assets/img/showcase/@@@lang@@@/dashboard-01-tuto-08.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # Expérience chapitre 5 : guide de l'aventurier.
+  - src: resources_others/showcase/@@@lang@@@/dashboard-01-tuto-10.png
+    out: web/assets/img/showcase/@@@lang@@@/dashboard-01-tuto-10.webp
+    width: 640
+    quality: 82
+    langs: [fr, en, es, it, de, pt, nl]
+  # LE KIT PRESSE, un par langue (lien de la page presse de chaque langue). Refait à chaque
+  # build depuis les sources : logo et icône de l'app, fiche presse, et les captures du site
+  # en pleine résolution (PNG 720 px, telles que la vitrine les produit).
+  - zip: web/assets/press/ddust-presskit-@@@lang@@@.zip
+    langs: [fr, en, es, it, de, pt, nl]
+    files:
+    - src: hosting/web/logo.png
+      name: donjons-et-savons-logo.png
+    - src: resources/icon/icon.png
+      name: donjons-et-savons-icon.png
+    - src: hosting/web/assets/press/ddust-factsheet.txt
+      name: factsheet.txt
+    - src: resources_others/showcase/@@@lang@@@/combat-01.png
+      name: screenshots/combat-01.png
+    - src: resources_others/showcase/@@@lang@@@/butin_open_page-02.png
+      name: screenshots/butin_open_page-02.png
+    - src: resources_others/showcase/@@@lang@@@/dashboard-01-tuto-06.png
+      name: screenshots/dashboard-01-tuto-06.png
+    - src: resources_others/showcase/@@@lang@@@/age_screen.png
+      name: screenshots/age_screen.png
+    - src: resources_others/showcase/@@@lang@@@/new_or_pick_clan.png
+      name: screenshots/new_or_pick_clan.png
+    - src: resources_others/showcase/@@@lang@@@/dashboard.png
+      name: screenshots/dashboard.png
+    - src: resources_others/showcase/@@@lang@@@/decisiontree.png
+      name: screenshots/decisiontree.png
+    - src: resources_others/showcase/@@@lang@@@/clan_page.png
+      name: screenshots/clan_page.png
+    - src: resources_others/showcase/@@@lang@@@/avatar_explorer.png
+      name: screenshots/avatar_explorer.png
+    - src: resources_others/showcase/@@@lang@@@/combat.png
+      name: screenshots/combat.png
+    - src: resources_others/showcase/@@@lang@@@/salon_tasks.png
+      name: screenshots/salon_tasks.png
+    - src: resources_others/showcase/@@@lang@@@/money_page.png
+      name: screenshots/money_page.png
+    - src: resources_others/showcase/@@@lang@@@/butin_open_page.png
+      name: screenshots/butin_open_page.png
+    - src: resources_others/showcase/@@@lang@@@/dashboard-01-tuto-08.png
+      name: screenshots/dashboard-01-tuto-08.png
+    - src: resources_others/showcase/@@@lang@@@/dashboard-01-tuto-10.png
+      name: screenshots/dashboard-01-tuto-10.png

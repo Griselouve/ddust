@@ -38,6 +38,10 @@ extension Worker_tasks on worker {
                                 ActionRegistry.register("worker.storetasks",                 storetasks);
 
                                 ActionRegistry.register("worker.on_fast_test_skip",         on_fast_test_skip);
+                                // Tache de demonstration du tutoriel « ta tache en cours » : prise a
+                                // l'entree d'une etape (`action:`), rendue a la fin de la lecon (`on_end:`).
+                                ActionRegistry.register("worker.on_tuto_demo_take",         on_tuto_demo_take);
+                                ActionRegistry.register("worker.on_tuto_demo_drop",         on_tuto_demo_drop);
 
                                 // Sélection générique : un seul handler préfixé remplace ~150 registrations
                                 // de tâches feuilles. Action "seltask.<taskId>" (ex: seltask.voiture_01).
@@ -210,7 +214,7 @@ extension Worker_tasks on worker {
 
                                 // 1. Synchronise le module documents en mémoire :
                                 //    → documents.session.region, documents.session.legalstate,
-                                //      documents.region_ready (débloque le wait messaging)
+                                //      documents.region_ready
                                 await ActionRegistry.get("documents._sync_session")?.call(null, null);
 
                                 // 2. Enregistrement FCM (normalement déclenché via on_documents_ready).
@@ -1062,6 +1066,93 @@ extension Worker_tasks on worker {
     // génériques préfixés enregistrés dans register() :
     //   - "seltask.<id>"      -> _selectTask("<id>")
     //   - "seldomain.<dom>"   -> ouvre l'écran "<dom>_tasks" si le domaine est enabled
+
+    //-----------------------------------------------------------------------
+    //-- Tache de DEMONSTRATION (tutoriel « ta tache en cours ») ------------
+    //-----------------------------------------------------------------------
+    //
+    // La lecon `combat_active` explique les boutons d'une tache en cours. Sans tache en
+    // cours, ces boutons n'existent pas : elle se contentait de dire au joueur d'aller en
+    // prendre une et de revenir. Montrer le geste vaut mieux que le decrire, donc le
+    // tutoriel prend lui-meme une tache, deroule ses explications dessus, et la rend.
+    //
+    // ⚠ UNE VRAIE TACHE, PAR LE VRAI CHEMIN. On passe par `_selectTask`, comme un tap : meme
+    //   verrou dvlock, meme assignation dans `clans_tasks`, meme navigation. Une fausse tache
+    //   d'apparat aurait demande un mode « faire semblant » dans tout l'ecran de combat, et
+    //   ce mode aurait diverge du vrai a la premiere evolution.
+    //
+    // ⚠ CE QUI EST PRIS EST RENDU. `session.tuto_demo_task` retient que cette tache-la
+    //   appartient au tutoriel : elle est relachee a la fin de la lecon (`on_end`), et elle
+    //   seule. Si le joueur avait deja une tache en cours, on n'y touche pas du tout.
+
+    Future<void> on_tuto_demo_take(dynamic caller, dynamic event) async {
+
+                                // Deja une tache en cours : le tutoriel se joue dessus, il n'a rien a prendre.
+                                final ongoing = (await Deva.instance.get("session.active_task"))?.toString() ?? "";
+                                if (ongoing.isNotEmpty) {
+                                    deva_log("info", "[tuto] tâche déjà en cours, pas de démonstration : $ongoing");
+                                    return;
+                                }
+                                if ((await deva_get("session.player_dead")) == true) return;
+
+                                // Etat frais : une tache libre il y a dix minutes peut etre prise depuis.
+                                await _refreshTaskStatuses(force: true);
+
+                                final String moi = _userId;
+                                String choisie = "";
+                                double meilleur = double.infinity;
+                                for (final entry in _taskDocsCache.entries) {
+                                    final d  = entry.value;
+                                    final id = entry.key;
+                                    if (id.isEmpty) continue;
+                                    if ((d.get("status")?.toString()   ?? "alive") != "alive") continue;
+                                    if ((d.get("assignee")?.toString() ?? "").isNotEmpty)      continue;
+                                    if (d.get("enabled") == false || d.get("enabled")?.toString() == "false") continue;
+                                    if (d.get("visible") == false || d.get("visible")?.toString() == "false") continue;
+                                    // Clone d'une tache multiple : il appartient a son owner, pas au premier venu.
+                                    final original = d.get("original")?.toString() ?? "";
+                                    final owner    = d.get("owner")?.toString()    ?? "";
+                                    if (original.isNotEmpty && owner.isNotEmpty && owner != moi) continue;
+                                    // Domaine coupe par un chef : ses taches ne sont pas montrables.
+                                    final domain = d.get("domain")?.toString() ?? "";
+                                    if (domain.isNotEmpty) {
+                                        final en = await deva_get("domains.$domain.enabled");
+                                        if (en == false || en?.toString() == "false") continue;
+                                    }
+                                    // A egalite de disponibilite, la MOINS couteuse : une demonstration ne doit
+                                    // pas engager le joueur dans le plus gros monstre du donjon.
+                                    final effortRaw = await deva_get("tasks.$id.effort") ?? d.get("effort");
+                                    final double eff = double.tryParse(effortRaw?.toString() ?? "") ?? 999;
+                                    if (eff < meilleur) { meilleur = eff; choisie = id; }
+                                }
+
+                                if (choisie.isEmpty) {
+                                    deva_log("info", "[tuto] aucune tâche libre : démonstration impossible");
+                                    return;
+                                }
+                                deva_log("info", "[tuto] tâche de démonstration : $choisie (effort=$meilleur)");
+                                await Deva.instance.set("session.tuto_demo_task", choisie);
+                                await _selectTask(choisie);
+    }
+
+    Future<void> on_tuto_demo_drop(dynamic caller, dynamic event) async {
+
+                                final demo = (await Deva.instance.get("session.tuto_demo_task"))?.toString() ?? "";
+                                if (demo.isEmpty) return;
+                                await Deva.instance.set("session.tuto_demo_task", "");
+
+                                // On ne rend QUE ce qu'on a pris. Entre-temps le joueur a pu abandonner de
+                                // lui-meme, ou l'admin resoudre la tache : `active_task` ne porte alors plus
+                                // la notre, et il n'y a rien a defaire.
+                                final active = (await Deva.instance.get("session.active_task"))?.toString() ?? "";
+                                final id = _taskIdFromActive(active, (await Deva.instance.get("session.clan.id"))?.toString() ?? "");
+                                if (active.isEmpty || (id != demo && active != demo)) {
+                                    deva_log("info", "[tuto] tâche de démonstration déjà résolue autrement, rien à rendre");
+                                    return;
+                                }
+                                deva_log("info", "[tuto] fin du tutoriel : la tâche de démonstration est rendue");
+                                await on_combat_cancel(null, null);
+    }
 
     //-----------------------------------------------------------------------
     //-- Task take (verrou + persistance + affichage combat) ----------------

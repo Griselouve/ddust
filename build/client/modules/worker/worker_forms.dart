@@ -220,7 +220,9 @@ extension Worker_forms on worker {
                                 // désormais en anglais). Sert surtout de garde pour les langues non traduites
                                 // (le prompt retombe sur le fragment fr mais la sortie reste dans la bonne langue).
                                 // Point d'extension pour de futures langues : élargir ce mapping.
-                                const langNames = {"fr": "French", "en": "English", "es": "Spanish"};
+                                const langNames = {"fr": "French", "en": "English", "es": "Spanish", "de": "German",
+                                                   "it": "Italian", "pt": "European Portuguese", "br": "Brazilian Portuguese",
+                                                   "nl": "Dutch"};
                                 await deva_set("worker.inspire_lang", langNames[TranslationRegistry.currentLang] ?? "English");
 
                                 final inputDesc = _originalDesc!.isEmpty ? "(vide)" : _originalDesc!;
@@ -851,7 +853,11 @@ extension Worker_forms on worker {
                                 if (!_impersonating) await _flushPendingMemberJoined(name);
     }
 
-    Future<void> on_player_name_appear(DvShape? caller, dynamic event) async {
+    // ⚠ `dynamic caller` ET NON `DvShape?` : l'`appear` d'une PAGE passe la page
+    //   elle-même, et une page est un DvView, pas un DvShape. Typer le paramètre
+    //   `DvShape?` faisait lever un `type 'DvPage' is not a subtype of 'DvShape?'` que
+    //   DvView attrape et journalise — l'écran naissait donc inerte, en silence.
+    Future<void> on_player_name_appear(dynamic caller, dynamic event) async {
 
                                 _resetAiDraft();
                                 final nameEntry = await DvOrb.wait_for_shape("player_name_screen/name");
@@ -901,7 +907,11 @@ extension Worker_forms on worker {
     //-----------------------------------------------------------------------
 
     // Apparition : pré-remplit le champ avec le nom courant et active le bouton d'emblée.
-    Future<void> on_rename_appear(DvShape? caller, dynamic event) async {
+    // ⚠ `dynamic caller` ET NON `DvShape?` : l'`appear` d'une PAGE passe la page
+    //   elle-même, et une page est un DvView, pas un DvShape. Typer le paramètre
+    //   `DvShape?` faisait lever un `type 'DvPage' is not a subtype of 'DvShape?'` que
+    //   DvView attrape et journalise — l'écran naissait donc inerte, en silence.
+    Future<void> on_rename_appear(dynamic caller, dynamic event) async {
 
                                 _resetAiDraft();
                                 final nameEntry = await DvOrb.wait_for_shape("player_rename_screen/name");
@@ -1010,7 +1020,11 @@ extension Worker_forms on worker {
     }
 
     // Apparition : champ vide + bouton confirmer grisé (calqué sur on_player_name_appear).
-    Future<void> on_create_player_appear(DvShape? caller, dynamic event) async {
+    // ⚠ `dynamic caller` ET NON `DvShape?` : l'`appear` d'une PAGE passe la page
+    //   elle-même, et une page est un DvView, pas un DvShape. Typer le paramètre
+    //   `DvShape?` faisait lever un `type 'DvPage' is not a subtype of 'DvShape?'` que
+    //   DvView attrape et journalise — l'écran naissait donc inerte, en silence.
+    Future<void> on_create_player_appear(dynamic caller, dynamic event) async {
 
                                 _resetAiDraft();
                                 final nameEntry = await DvOrb.wait_for_shape("create_player_screen/name");
@@ -1100,6 +1114,7 @@ extension Worker_forms on worker {
     // espagnoles sont là parce que le modèle traduit parfois le marqueur malgré la consigne :
     // les accepter coûte deux entrées de table et évite de perdre une réponse entière.
     static const Map<String, String> _aiMarkers = {
+
         'NOM':                'name',
         'NOMBRE':             'name',
         'NAME':               'name',

@@ -29,6 +29,7 @@
 21. [philosophie deva](#21-philosophie-deva)
 22. [chantiers actifs](#22-chantiers-actifs)
 23. [écarts connus](#23-écarts-connus)
+24. [conservation des données](#24-conservation-des-données)
 
 ---
 
@@ -48,7 +49,7 @@ La famille est le clan. Les corvées sont les monstres. Le butin est la promesse
 
 Application mobile B2C familiale, Android en cible principale (le client compile aussi pour Windows, qui sert de banc de développement). Version courante `1.0.6+7`, en préparation de test fermé Play (France), le reste de l'UE au lancement puis les US. La Belgique a été retirée de la piste fermée le 2026-08-27 : depuis que les documents légaux suivent le marché, seul le marché `fr` est ouvert et un testeur belge n'aurait pas de conditions générales qui le visent.
 
-**Monétisation tranchée et livrée** : abonnement par clan, cinq paliers indexés sur le seul nombre de joueurs (1,99 € à 7,99 €/mois), essai gratuit de 14 jours, offre fondateurs pour les premiers clans. L'app se lance payante — la beta gratuite préalable a été supprimée (décision du 2026-08-11, motif repris dans `docs/vision.md` § Stratégie) : une beta gratuite produit de la rétention, jamais de la conversion, et faire commencer à payer des familles déjà installées coûte plus de churn qu'un prix affiché dès le premier écran.
+**Monétisation tranchée et livrée** : abonnement par clan, cinq paliers indexés sur le seul nombre de joueurs (1,99 € à 7,99 €/mois), offre fondateurs pour les premiers clans. **Pas d'essai calendaire** : le jeu s'ouvre librement et la première cotisation se demande à un usage (trois tâches menées à leur terme depuis que le clan n'est plus seul, dix pour un clan resté seul), sur la validation elle-même et non à l'entrée du jeu. C'est la décision du 2026-09-16, qui remplace les quatorze jours gratuits ; la beta gratuite préalable, elle, avait été supprimée le 2026-08-11 (motif repris dans `docs/vision.md` § Stratégie) : une beta gratuite produit de la rétention, jamais de la conversion.
 
 Développée en indépendant, éditeur personne physique (`build.yml` → `publisher`), sans publicité, sans traceur, sans achat surprise, et sans qu'aucune photo ne soit sauvegardée en ligne.
 
@@ -117,10 +118,10 @@ client Flutter (Android, Windows)
   │    ~19 500 lignes (session, clan, members, tasks, forms, avatars, tiroir,
   │    combat, verdict, watch, celebrations, items, butin, chest, notify, log,
   │    store, fairy, admin, tuning, screens…)
-  └─ 39 modules Deva
+  └─ 36 modules Deva
        dvcore · dvlang · dvsettings · dvorb · dvmarkdown · dvapp · dvtable
        dvcloud · dvcloudassets · dvlayers · dvtheme · dvprompts · dvmessaging
-       dventries · dvtaskbar · dvdocuments · dvparentalgate · dvvideo
+       dventries · dvtaskbar · dvdocuments · dvparentalgate · dvdevicelock
        dvdecisiontree · dvvertexai · dvsocialshare · dvvirtuallobby · dvlock
        dvqrcode · dvqrcodereader · dvcamera · dvdeeplink · dvvibrations
        dvsound · dvpops · dvsteps · dvsession · dvflame · dvinterlude
@@ -135,7 +136,7 @@ backend Pulumi (GCP — 2 régions : europe-west9, us-central1)
   ├─ Cloud Functions TypeScript (5 propres + 8 de modules)
   ├─ Cloud Scheduler (balayage des impayés 17 h, purge 18 h, relances TOUTES LES HEURES)
   ├─ Firebase Hosting (site vitrine + page de suppression de compte)
-  ├─ Vertex AI (Gemini 2.5 Flash Lite, localisation par région)
+  ├─ Vertex AI (Gemini 3.5 Flash Lite, localisation par région)
   └─ verrous distribués (dvlock / pulock)
 ```
 
@@ -279,11 +280,22 @@ Deux usages seulement — l'inspiration d'un nom et le conte du butin — tous d
 
 ### deux garde-fous, qui échouent différemment
 
-**Les filtres du modèle.** `dvvertexai` pose explicitement `BLOCK_LOW_AND_ABOVE` sur les quatre catégories de contenu texte (`aimodels.safety`) au lieu de s'en remettre aux défauts de Vertex, et la Cloud Function `ai_generate` **repose les siens sans lire ceux du client** : un appareil modifié ne peut pas les desserrer. Rien à écrire côté ddust, c'est le défaut du module.
+**Les filtres du modèle.** `dvvertexai` pose explicitement `BLOCK_LOW_AND_ABOVE` sur les quatre catégories de contenu texte (`aimodels.safety`) au lieu de s'en remettre aux défauts de Vertex. Rien à écrire côté ddust, c'est le défaut du module. **Ce qui les garantit dépend du chemin** (voir « par où passe l'appel » ci-dessous) : sur Android, les filtres partent avec la requête et c'est **App Check** qui garantit qu'elle vient de l'application authentique ; sur Windows, la Cloud Function `ai_generate` **repose les siens sans lire ceux du client**.
 
 **Le registre imposé dans les prompts.** Chacun des trois corps se termine par un bloc qui borne le ton : les seuls monstres sont de saleté et de désordre, aucune violence envers une personne ou un animal, rien qui fasse peur, aucun thème d'adulte, aucun mot grossier, aucune donnée personnelle inventée, et « dans le doute, la formulation la plus douce ».
 
 Un filtre bloque ce qui a été **produit** ; un registre dit ce qu'on **demande**. Ils ne se remplacent pas.
+
+### par où passe l'appel : direct sur Android, proxy sur Windows
+
+**Décision du 2026-09-16.** Le chemin dépend de la plateforme, pas de l'application :
+
+- **Android, c'est-à-dire le public** : appel **direct** à Vertex par Firebase AI Logic (`aimodels.transport: firebase`), **App Check exigé** (Play Integrity, jetons à usage limité). Un seul aller-retour, réponse possible au fil de l'eau : c'est ce que demandent une app publique, et plus encore Engrams.
+- **Windows, c'est-à-dire l'environnement de test du développeur** : **proxy** `ai_generate` (module `puvertexai`), parce qu'App Check ne sait rien attester sur Windows. Le proxy n'est pas une porte publique : il ne doit pas permettre de contourner App Check.
+
+Le proxy est né le 2026-09-05 pour la console. En faire le chemin de ddust était une extension par prudence, abandonnée : elle ajoutait un aller-retour et un démarrage à froid, et interdisait la réponse au fil de l'eau.
+
+⚠ **État au 2026-09-16 : ni App Check ni le choix par plateforme ne sont livrés.** ddust ne pose pas `transport`, le défaut `firebase` s'applique partout, `firebase_app_check` n'est embarqué dans aucun module, et `aimodel.require_app_check` vaut `false` dans `backend/config.yml`. Tâche *premier pas* : « IA de ddust : App Check en direct sur Android, proxy réservé à Windows, avant la production Play ». Tant qu'elle n'est pas livrée, un client modifié peut desserrer les filtres (registre, écart E1 ; AIPD, § 5.2).
 
 **Les trois corps vivent dans le layer cloud** `theme-donjon-global.yml`, et non plus dans `client/config/lang.yml`. C'est le point qui donne sa valeur au reste : compilés, ils auraient exigé un build **et une release au store** pour corriger une contrainte de ton qui se révélerait insuffisante en production. Dans le layer, un push suffit. `prompts_General_V1.yml` ne porte que les renvois `@@@T:…@@@` — il ne contient aucun texte de prompt et n'a jamais été le levier qu'on croyait. ⚠ Ne pas redéclarer ces clés dans la conf compilée : le layer est `above: conf`, une copie oubliée ne se verrait pas et servirait de repli silencieux.
 
@@ -629,7 +641,7 @@ Un bouton de partage publie les **15 événements les plus récents** en texte b
 
 **Adulte, et non chef.** Le rôle de chef est une fonction de jeu ; la phrase publiée parle de majorité légale. Un second parent membre partage l'histoire de sa famille sans avoir été promu — et un mineur promu chef ne publie rien. Le tap passe par `worker.on_log_share`, qui **refait** le contrôle avant de déléguer à `share.log` : masquer une icône n'est pas interdire une action, et celle-ci est nommée dans la conf donc appelable autrement. Sous impersonation, `_userId` est la cible : un chef qui a pris la place d'un enfant ne peut rien publier tant qu'il n'est pas revenu à lui-même.
 
-Les trois autres sorties `dvsocialshare` sont gardées en amont et n'ont pas bougé : `share.clan_invite` et `share.clan_invite_pin` ne sont atteignables que par les options admin du menu Clan, `share.gift_codes` par le kebab boutique (`canBuy`).
+Les trois autres sorties `dvsocialshare` sont gardées en amont et n'ont pas bougé : `share.clan_invite` et `share.clan_invite_pin` ne sont atteignables que par les options admin du menu Clan. (`share.gift_codes` est parti avec la fabrique de codes, retirée de l'app le 2026-09-15.)
 
 ---
 
@@ -637,7 +649,7 @@ Les trois autres sorties `dvsocialshare` sont gardées en amont et n'ont pas bou
 
 ### le modèle
 
-**Un abonnement par clan, cinq paliers qui ne se distinguent QUE par le nombre de joueurs.** Essai gratuit de 14 jours, quelle que soit la taille du clan — un mois complet laissait passer le pic d'enthousiasme avant le premier paiement.
+**Un abonnement par clan, cinq paliers qui ne se distinguent QUE par le nombre de joueurs.** **Aucun essai calendaire** : le jeu s'ouvre librement, et la première cotisation se demande à un USAGE, pas à une date (voir « les deux portes fermées » plus bas). C'est le changement du 2026-09-16, et il remplace les quatorze jours gratuits qui existaient jusque-là.
 
 | Palier | Joueurs | Part des clans | Mensuel | Annuel |
 |---|---|---|---|---|
@@ -651,7 +663,9 @@ Les bornes suivent la **démographie réelle des foyers**, pas une progression r
 
 **Un joueur est un joueur.** Le décompte porte sur les membres actifs, admins compris, sans distinction d'enfant ni d'adulte ; un membre révoqué ou parti libère sa place ; déclarer un mineur majeur ne change rien. La grille précédente portait **deux plafonds distincts** (`max_kids` / `max_adults`), ce qui obligeait à savoir de quelle nature était chaque membre pour dire s'il restait de la place : une famille ne pouvait pas prévoir son propre palier, et le code ne pouvait pas contrôler proprement un candidat dont l'âge n'était pas encore connu. **Convention** : `-1` = illimité, jamais 0 — un plafond à zéro se lirait « aucun joueur autorisé », l'exact contraire, et un test `count >= max` écrit sans précaution bloquerait tout le monde sur le palier le plus cher.
 
-Deux offres sont attachées à chaque base plan : `essai-14j` (éligibilité « nouveaux clients », arbitrée par Play lui-même) et `fondateur` (un mois offert puis la première année à −30 %, **éligibilité déléguée au développeur** : c'est la fonction `store_eligibility` qui tranche, en comparant la date de création du clan à un cutoff vivant dans un document de configuration serveur — décalable sans redéploiement). Un clan dont la date de création est illisible est considéré comme fondateur : les clans les plus anciens sont précisément ceux d'avant que le champ n'existe, et l'offre leur est due.
+**Une seule offre** est attachée à chaque base plan : `fondateur` (un mois offert puis la première année à −30 %, **éligibilité déléguée au développeur** : c'est la fonction `store_eligibility` qui tranche, en comparant la date de création du clan à un cutoff vivant dans un document de configuration serveur, décalable sans redéploiement). Un clan dont la date de création est illisible est considéré comme fondateur : les clans les plus anciens sont précisément ceux d'avant que le champ n'existe, et l'offre leur est due.
+
+L'offre `essai-14j` a été **retirée le 2026-09-16**. Elle donnait quatorze jours calendaires aux nouveaux clients ; l'accès libre du début joue désormais ce rôle, et il le joue mieux : il se mesure en tâches menées à leur terme, si bien qu'une famille qui installe l'app un samedi et n'y revient que le week-end suivant n'a rien consommé. En cumuler deux aurait servi deux gratuités à la suite. `store.play.trial_offer` est donc vide, et aucun abonnement n'est plus classé `trial` — l'état reste dans l'énumération de dvstore, il n'est simplement plus jamais atteint. pucatalog ne supprime jamais rien chez Google : l'offre passe **hors vente**, et la redéclarer la réactiverait telle quelle.
 
 ### qui paie, qui bénéficie
 
@@ -672,25 +686,42 @@ L'écran présente les cinq paliers ensemble et n'en surligne que **deux** : le 
 
 Les prix viennent **toujours de Play** (localisés, taxes incluses — exigence de la politique du store), avec un repli du catalogue **par périodicité** : sans un repli annuel distinct, l'onglet « Par an » afficherait le tarif mensuel, et une grille tarifaire qui ment est pire qu'une grille vide — elle mentirait précisément pendant toute la recette, où aucun canal Play n'est ouvert. Le nom affiché est celui du **catalogue** et non celui de Play : sur un comparatif, le titre Play répéterait la marque à chacune des cinq lignes et noierait le seul mot qui les distingue.
 
-Toutes les lignes sont tapables sauf le palier courant, **y compris les moins chères** : une descente de palier est un droit, et la refuser pousserait à résilier tout court, ce qui coûte bien plus qu'un downgrade. Un plafond dépassé après une descente **n'évince personne** — il ne bloque que les entrées suivantes.
+Deux raisons, et deux seulement, rendent une ligne non tapable : c'est le **palier courant** (on ne rachète pas ce qu'on a), ou c'est un palier **trop petit pour l'effectif du clan**. Les lignes moins chères qui couvrent encore l'effectif restent tapables : une descente de palier est un droit, et la refuser pousserait à résilier tout court, ce qui coûte bien plus qu'un downgrade. Mais vendre à un clan de six un palier qui en tient quatre, c'est lui vendre un refus : il paierait pour se retrouver au-dessus du plafond, sans place pour le prochain membre et sans rien y comprendre. L'effectif réel étant rappelé sous la ligne d'ancrage, la raison du grisage se lit sur l'écran sans qu'un texte ait à l'expliquer. Effectif illisible : on ne grise rien, même arbitrage que partout ailleurs. Un plafond dépassé après une descente **n'évince personne**, il ne bloque que les entrées suivantes.
 
 ### deux portes fermées, et deux seulement
 
-Le jeu ne se ferme pour **aucun** état commercial. Ni la fin d'essai, ni l'impayé en cours ne barrent quoi que ce soit : la page des paliers porte l'offre, le bandeau prévient. Deux exceptions, toutes deux gardées au **dashboard** — le passage obligé de tout joueur enrôlé, ce qui suffit à garder les 25 écrans de jeu sans en instrumenter aucun :
+Le jeu ne se ferme pour **aucun** état commercial d'un clan qui a déjà payé. Ni la fin d'abonnement, ni l'impayé en cours ne barrent quoi que ce soit : la page des paliers porte l'offre, le bandeau prévient. Deux exceptions seulement, et la doctrine qui les sépare tient en une phrase : **on fait crédit à qui a déjà payé, on ne fait pas crédit à qui n'a jamais payé.**
 
-**1. Le clan gelé** (`locked`, au 50ᵉ jour d'un impayé jamais régularisé). Le donjon se ferme, une seule fois, et l'écran de gel devient la racine de la pile. Ce qui justifie de fermer au bout du compte n'est pas la sanction mais le **coût** : Firestore, Storage et Vertex AI sont facturés à l'éditeur, et un clan qui ne paie plus depuis deux mois continuait de les consommer. Le gel survenu **en cours de séance** (le balayage passe à 5 h, la vigilance temps réel le rapporte aussitôt) est traité aussi : sans cela, une famille déjà dans le jeu au moment du gel y resterait jusqu'à la prochaine ouverture — soit précisément la session la plus longue. Un enfant qui tombe sur cet écran ne se voit **rien** proposer : il lit la ligne qui dit que rien n'est perdu.
+**1. Le clan gelé** (`locked`, au 50ᵉ jour d'un impayé jamais régularisé), gardé au **dashboard** : le passage obligé de tout joueur enrôlé, ce qui suffit à garder les 25 écrans de jeu sans en instrumenter aucun. Le donjon se ferme, une seule fois, et l'écran de gel devient la racine de la pile. Ce qui justifie de fermer au bout du compte n'est pas la sanction mais le **coût** : Firestore, Storage et Vertex AI sont facturés à l'éditeur, et un clan qui ne paie plus depuis deux mois continuait de les consommer. Le gel survenu **en cours de séance** (le balayage passe à 5 h, la vigilance temps réel le rapporte aussitôt) est traité aussi : sans cela, une famille déjà dans le jeu au moment du gel y resterait jusqu'à la prochaine ouverture, soit précisément la session la plus longue. Un enfant qui tombe sur cet écran ne se voit **rien** proposer : il lit la ligne qui dit que rien n'est perdu. Ces cinquante jours sont **réservés aux clans qui ont cotisé** : l'échec y est presque toujours technique (carte expirée, découvert passager) et la famille a un historique à perdre.
 
-**2. Le mur de première cotisation.** Le plafond de joueurs attrape les foyers qui **grandissent** ; il ne dit jamais rien à un foyer d'un parent et un enfant, qui tient dans le palier d'entrée — soit environ quatre clans sur dix. Pour ceux-là, la seule porte est le nombre de tâches menées à leur terme : `clans.validations`, incrémenté à chaque verdict accepté. Le seuil est de **2**, et le raisonnement est entier : une famille joue sa première tâche dans les dix minutes qui suivent l'installation ; la deuxième dit qu'elle est **revenue**. Aucune condition de délai — deux validations dans le même quart d'heure sont le signe le plus favorable qui soit, pas un artefact à filtrer.
+**2. La demande de première cotisation**, et elle ne se présente **pas** au dashboard : elle se présente **sur la validation d'une tâche**, avant que le verdict ne soit rendu. C'est le seul moment du parcours où la famille vient de constater de ses yeux que le jeu tourne, et c'est le seul argument dont on ait besoin. Le verdict est **mis de côté puis rejoué** dès que l'achat aboutit (même idiome que le contrôle parental) : la tâche rendue n'est pas perdue, elle est créditée entière une fois le clan abonné. Un abandon l'oublie simplement, et la tâche reste en attente d'une validation que personne ne rend.
 
-Le mur est un état **dérivé**, recalculé à chaque arrivée au dashboard depuis des faits persistants, et surtout pas un drapeau one-shot : il survit au changement d'appareil comme à une réinstallation, et vaut pour les deux chefs d'un clan sans rien à synchroniser. **Trois conditions**, et la deuxième protège les enfants :
+Le plafond de joueurs attrape les foyers qui **grandissent** ; il ne dit jamais rien à un foyer d'un parent et un enfant, qui tient dans le palier d'entrée, soit environ quatre clans sur dix. Pour ceux-là, la porte est le nombre de tâches menées à leur terme : `clans.validations`, incrémenté à chaque verdict accepté. **Deux seuils, parce qu'il y a deux populations**, tous deux réglables au bucket (`store.pitch`) :
+
+- **clan constitué : trois validations à partir de l'ancre.** L'ancre (`clans.validations_anchor`) est posée à l'instant où le clan cesse d'être seul. Trois validations **vécues à plusieurs**, et pas trois validations tout court : un fondateur qui a préparé le terrain seul n'a encore rien vu du jeu qu'on lui vend, et lui présenter la note à la seconde où sa famille arrive serait le plus mauvais moment du parcours. L'ancre est posée une fois pour toutes : un chef qui retire puis réadmet un membre ne repousse pas la demande ;
+- **clan resté seul : dix validations.** Un fondateur solitaire n'a pas encore le jeu qu'il paiera (il s'auto-valide sans preuve, personne ne le regarde jouer), on le laisse donc aller bien plus loin. Il n'est plus **exempté** pour autant, comme il l'était : un clan d'un joueur qui joue tous les jours pendant six mois coûtait de l'infrastructure sans jamais rencontrer une seule porte.
+
+Aucune condition de délai dans les deux cas : trois validations dans le même quart d'heure sont le signe le plus favorable qui soit, pas un artefact à filtrer.
+
+**Trois reports, annoncés.** L'écran n'est pas un mur du premier coup : il porte un bouton « Plus tard » **avec le décompte écrit dessus** (« encore deux fois », puis « dernière fois »), et le compteur (`clans.pitch_defers`) vit sur le clan, donc il ne se remet pas à zéro en changeant d'appareil, en réinstallant, ni en passant à l'autre chef. Une fois les reports épuisés, l'écran devient la racine de la pile, et le dashboard le redemande aussi : sans cela il suffirait de relancer l'app pour rouvrir le donjon.
+
+**Un report se consomme à la PRÉSENTATION, pas au geste de refus**, et au plus **un par session**. Compter le refus aurait paru plus juste, mais il y a deux façons de refuser (le bouton et la flèche arrière) : ne compter que la première offrait des reports illimités à qui utilise la seconde, et compter les deux suppose de distinguer un départ d'un aller-retour, ce qu'aucune pile de navigation ne dit proprement. La présentation, elle, est un fait unique et observable. Le plafond par session évite qu'un aller-retour au dashboard n'use les trois reports en dix minutes.
+
+**Deux endroits présentent l'écran**, et le second n'est pas redondant : la validation qui atteint le seuil, et la **première arrivée au dashboard d'une session** si la porte est armée. Ce second passage rattrape le chef qui valide tout **depuis la notification push** : ce chemin est headless, il ne peut montrer aucun écran, et il armerait la porte sans jamais la présenter. Sans lui, un parent qui ne valide que depuis ses notifications ne verrait jamais la demande. Une demande déjà présentée dans la session ne se remet pas devant lui à chaque tâche validée : on le rappellera à la prochaine ouverture.
+
+Pourquoi un petit nombre fini plutôt qu'une tolérance longue : un « défaut de paiement » chez quelqu'un qui n'a jamais payé serait une fiction (pas de dette, pas d'échec de prélèvement, aucun signal Play), et surtout un écran refusable indéfiniment **enseigne que payer est facultatif**, puis ferme le donjon deux mois plus tard sur une famille installée. Ni convertie, ni ménagée : la pire des deux issues, au moment précis où la relation valait le plus. Pour la famille réellement en difficulté, l'outil est ailleurs et il est meilleur — les **codes cadeaux** et `store_grant`, un geste choisi au cas par cas. Un clan qui a payé puis **résilié volontairement** relève du régime court, pas des cinquante jours : une résiliation n'est pas un impayé.
+
+**Trois conditions** pour que la demande se présente, et la deuxième protège les enfants :
 
 - le clan ne cotise pas ;
 - l'utilisateur **peut payer** (administrateur) — un enfant ne peut pas, lui fermer le jeu ne servirait qu'à l'inquiéter. Cette condition couvre au passage la prise de place, qui change l'identité agissante ;
-- le clan **n'est plus seul**. Un fondateur teste volontiers deux tâches en attendant que sa famille installe le jeu — et l'admin solo auto-valide sans preuve, si bien que le compteur atteint le seuil en quelques minutes. Le mur tomberait alors avant que le clan existe vraiment : un écran de paiement sans issue en face d'un roster d'une tuile, et l'essai de 14 jours qui démarre pendant la phase de constitution, celle qui a le plus de chances d'échouer.
+- la porte n'est **pas déjà armée**, auquel cas elle reste due jusqu'à souscription. `clans.pitch_due_since`, écrit à la première présentation, est ce qui permet à l'écran de se présenter « au premier chef qui se connecte » : le second chef n'a rien validé, il ne tomberait sur rien sans lui.
 
-Le mur ne se ferme **que pour les chefs**. Les enfants continuent de jouer : leurs tâches s'empilent en attente d'une validation que personne ne rend, et c'est très exactement la pression qu'on veut — elle s'exerce sur l'adulte qui peut payer, sans qu'aucun enfant ne voie d'écran de paiement.
+L'état est **dérivé**, recalculé depuis des faits persistants et surtout pas un drapeau one-shot : il survit au changement d'appareil comme à une réinstallation, et vaut pour les deux chefs d'un clan sans rien à synchroniser.
 
-Le compteur `validations` est **falsifiable** (la règle de `clans` autorise tout détenteur du secret à écrire) : sans gravité, le fausser ne peut qu'**avancer** la demande de cotisation, jamais la retarder ni accorder un droit.
+La demande ne se ferme **que pour les chefs**. Les enfants continuent de jouer : leurs tâches s'empilent en attente d'une validation que personne ne rend, et c'est très exactement la pression qu'on veut — elle s'exerce sur l'adulte qui peut payer, sans qu'aucun enfant ne voie d'écran de paiement.
+
+Les compteurs (`validations`, `validations_anchor`, `pitch_defers`) sont **falsifiables** (la règle de `clans` autorise tout détenteur du secret à écrire) : sans gravité, les fausser ne peut qu'**avancer** la demande de cotisation, jamais la retarder ni accorder un droit. Le seul qui pourrait jouer dans l'autre sens, `pitch_defers`, n'offre rien de plus que trois écrans refusés de plus.
 
 ### plafond de membres
 
@@ -701,7 +732,7 @@ Deux arbitrages d'erreur, tous deux dans le même sens :
 - **catalogue absent** (le layer du bucket n'est pas descendu) → aucun plafond. Plafonner sur une ignorance refuserait des membres pour une raison qui n'existe pas ;
 - **effectif illisible** → on laisse passer. Des deux erreurs possibles, refuser un membre sur une lecture ratée est de très loin la pire : elle est visible, injuste et sans recours, là où laisser passer un membre de trop coûte une place, une fois, et se rattrape au contrôle suivant.
 
-Le bandeau de refus lui-même a **deux formes**, choisies sur l'histoire commerciale du clan et jamais sur le plafond. À un clan qui n'a **jamais** souscrit, on annonce ce qui l'attend — cotisation, 14 jours offerts, arrêt quand il veut ; « le clan est au complet » se lirait comme un refus alors que c'est une proposition. À tous les autres — abonné qui déborde, résilié, expiré, gelé — on ne promet **pas** les 14 jours : Play ne re-sert pas l'offre d'essai à un compte qui l'a déjà eue, et une promesse que la feuille de paiement dément est pire que pas de promesse du tout.
+Le bandeau de refus lui-même a **deux formes**, choisies sur l'histoire commerciale du clan et jamais sur le plafond. À un clan qui n'a **jamais** souscrit, on annonce ce qui l'attend : cotisation, arrêt quand il veut ; « le clan est au complet » se lirait comme un refus alors que c'est une proposition. À tous les autres (abonné qui déborde, résilié, expiré, gelé) on dit le plafond, parce qu'ils savent déjà ce qu'est la cotisation. Aucun des deux ne promet plus de jours offerts : il n'y a plus d'essai au catalogue, et l'accès libre du début est derrière une famille qui bute sur le plafond. Une promesse embarquée au binaire que la feuille de paiement dément ne se rattrape par aucun layer.
 
 ### défaut de paiement
 
@@ -714,8 +745,10 @@ C'est un jeu familial destiné à aider les parents : on montre de la compréhen
 | 20-40 | `firm` | relances plus fermes |
 | 40-50 | `last` | messages d'adieu |
 | 50 | **gel** | le donjon se ferme, l'écran de clan gelé prend la racine de la pile |
-| 700-730 | `farewell` | on prévient un mois avant l'effacement |
-| **730** | purge | dissolution fonctionnelle du clan (`clan_purge`) |
+| 750-780 | `farewell` | on prévient un mois avant l'effacement |
+| **780** | purge | dissolution fonctionnelle du clan (`clan_purge`) |
+
+**Ce calendrier ne regarde que les clans qui ont payé** : il compte depuis le premier impayé, et un clan sans achat n'a pas de document de facturation. Les autres, jamais abonnés ou résiliés proprement, relèvent de la **piste sommeil** des relances (section 13), qui efface après deux ans sans aucune connexion.
 
 **Deux ans entre le gel et la suppression, et non 40 jours.** Le calendrier ne change pas avant : grâce 10 jours, relances jusqu'à J50, gel à J50 — c'est **après** que l'on desserre. Une famille qui arrête n'a pas toujours renoncé : elle déménage, l'enfant grandit, la rentrée passe. Ce qui coûte à reconstituer n'est pas le clan mais son **histoire** — les tâches réglées, les niveaux, le butin, le journal de chacun. La conserver ne coûte, elle, presque rien : un clan gelé ne fait plus aucune requête, les preuves photo n'ont jamais quitté les appareils, et il ne reste que quelques mégaoctets par clan. Supprimer coûterait même des écritures. La phase `farewell` existe parce que deux ans de silence s'achevant sur une suppression que personne n'a vue venir rendrait vaine l'opportunité qu'on veut leur laisser.
 
@@ -810,9 +843,27 @@ C'est le **seul motif dont la fenêtre ne suit pas le statut légal du destinata
 
 **Une notification au maximum par personne et par passe.** C'était garanti par construction tant que les deux pistes visaient des populations disjointes ; le boss s'adressant désormais à tout le clan, la passe tient la liste de qui elle a déjà servi.
 
-**Les garde-fous** : silence total sur un clan en défaut de paiement (il reçoit déjà les relances de cotisation, et une famille en difficulté n'est pas une famille qui se désintéresse), sur un clan gelé ou purgé, sur un clan « muté », sur un joueur déclaré hors-ligne, et sur quiconque a coupé les rappels. **Plafonds durs** sur chaque requête (3000 joueurs, 500 clans, 500 notifications) : ce n'est pas une optimisation — le budget coupe Cloud Run à 8 €/mois avec `auto_disable`, et une requête emballée qui retente n'aurait pas seulement coûté cher, elle aurait **éteint le backend**.
+**Les garde-fous** : silence total sur un clan en défaut de paiement (il reçoit déjà les relances de cotisation, et une famille en difficulté n'est pas une famille qui se désintéresse), sur un clan gelé ou purgé, sur un clan « muté », sur un joueur déclaré hors-ligne, et sur quiconque a coupé les rappels. **Plafonds durs** sur chaque requête (3000 joueurs, 500 clans, 300 clans endormis, 500 notifications) : ce n'est pas une optimisation — le budget coupe Cloud Run à 8 €/mois avec `auto_disable`, et une requête emballée qui retente n'aurait pas seulement coûté cher, elle aurait **éteint le backend**.
 
 **« Ne plus me faire signe »** est à un tap dans le kebab Personnage, et un chef peut aussi le poser pour un enfant depuis le roster : un refus qu'il faut chercher n'est pas un refus. Le réglage est écrit en **deep-merge ciblé** sur le doc membre — un PATCH complet emporterait xp, pv et `last_task` — et le kebab le **relit** à chaque ouverture plutôt que de le mettre en cache : un réglage qui affiche l'inverse de ce qu'il vaut est pire que tout. Illisible, on n'affiche **ni** l'une **ni** l'autre option plutôt que de deviner.
+
+**Les clans endormis : une troisième piste, et elle n'est plus une relance.** Au-delà de 30 jours de silence, les relances de jeu se taisent pour de bon. Jusqu'au 2026-09-16, c'était tout : un clan que plus personne n'ouvrait gardait ses données **pour toujours**, sauf s'il avait payé puis sombré dans l'impayé, auquel cas le calendrier de facturation finissait par l'effacer. Un clan qui n'avait **jamais** payé, ou qui avait **résilié proprement**, n'avait aucun calendrier pour le regarder. La piste SOMMEIL comble ce trou, avec le réglage `sleep` de `PULSE_LIFECYCLE` :
+
+| silence (tous membres confondus) | ce qui part | à qui |
+|---|---|---|
+| 6, 12 et 18 mois | `sleep_reminder` : « votre clan vous attend toujours » | adultes, **sauf** ceux qui ont coupé les rappels |
+| 23 mois (`notice_days: 700`) | `sleep_notice` : effacement dans un mois, ouvrir le jeu suffit | **tous** les adultes équipés |
+| 24 mois (`purge_days: 730`), et au moins un mois après le préavis | `purge_due` sur `clans_store`, `purge_reason: 'idle'` | `clan_purge` le soir même |
+
+Cinq décisions portent la piste :
+
+- **la trace de vie est `clans_players.last_connected`**, la plus récente de **tous** les membres actifs : une connexion d'un enfant garde le clan en vie comme celle d'un chef. La requête est une troisième énumération en collectionGroup, qui réutilise l'index déjà déclaré pour les relances. Elle n'est bornée **que d'un côté**, et c'est voulu : un clan ne doit pas sortir de la vue parce qu'il dort *depuis trop longtemps*, c'est précisément celui qu'il faut effacer — il en sort en étant effacé ;
+- **la piste est exclusive.** Un clan endormi ne relève plus que d'elle : lui laisser les autres pistes, c'était lui convoquer un boss tous les quinze jours pendant deux ans. Et comme la requête ramène aussi des clans **éveillés** (un enfant qui a arrêté de jouer suffit à y faire entrer son clan), un clan qui n'était candidat **que** par elle est tenu à l'écart des autres pistes : sans quoi elle aurait réveillé des relances « retour du clan » chez des enfants partis depuis des mois ;
+- **un clan abonné n'est jamais concerné**, `canceled` compris jusqu'au terme de la période payée : effacer les données de quelqu'un qu'on prélève chaque mois est indéfendable. Un clan en **défaut de paiement** non plus : il a son propre calendrier, qui reste prioritaire ;
+- **le préavis n'est pas une relance.** « Ne plus me faire signe » refuse qu'on sollicite une famille pour jouer, pas qu'on la prévienne avant d'effacer son clan : le préavis part donc aussi aux adultes qui ont coupé les rappels. Les rappels semestriels, eux, respectent le réglage ;
+- **aucun effacement sans préavis daté.** Le préavis est daté quand il est parti, ou quand il est constaté impossible (aucun adulte équipé : sinon on n'effacerait jamais un clan dont personne n'a d'appareil) — jamais quand la passe tombe hors fenêtre, qui réessaie l'heure suivante. Un clan découvert déjà très ancien, au déploiement par exemple, reçoit donc d'abord son préavis et n'est effacé qu'**un mois après**. Un palier de rappel manqué ne se rattrape pas en rafale : on vise le dernier atteint, un seul message part.
+
+**Réveil.** Une seule connexion fait retomber tout l'état de sommeil, préavis compris : un clan qui se rendort repart de zéro plutôt que d'être effacé sur la foi d'un préavis d'il y a un an. Et parce que le drapeau est posé par la passe horaire mais honoré le soir, `clan_purge` porte une **garde de réveil** : il relit la dernière connexion et la compare à `idle_last_seen`, celle qu'avait observée la passe au moment de poser le drapeau. Quelqu'un est revenu entre-temps (précisément parce que le préavis l'y invitait), le drapeau est retiré et rien n'est effacé. Une lecture ratée reporte la purge au lendemain : se tromper dans ce sens coûte une journée, dans l'autre un clan vivant.
 
 **Où l'état vit.** Les compteurs sont dans `clans_pulse`, en lecture seule pour les clients. Les marqueurs **par membre** y vivent aussi, alors que leur place naturelle serait le doc `clans_players` correspondant : plusieurs écritures du client sur ce document sont des PATCH **complets**, un champ serveur posé là serait effacé au prochain login du joueur, et la relance repartirait de zéro indéfiniment.
 
@@ -896,25 +947,17 @@ Le même souci a réordonné une paire d'étapes de `clan_intro` : « QR code du
 
 ---
 
-## 15. banc d'essai
+## 15. banc d'essai : retiré
 
-Éprouver un impayé, une paywall ou l'apparition d'une fée ne doit demander ni rebuild, ni console, ni attendre trente jours. Trois outils, tous gardés par `store.debug.test_mode` — un drapeau du **layer cloud**, pas du binaire : le bucket de production le pose à `false`, l'entrée de menu disparaît, et il n'y a rien à retirer plus tard. Une condition d'administrateur s'y ajoute côté worker : un enfant ne voit jamais ces entrées.
+Le 2026-09-15, les trois outils de test que portait le kebab de la boutique ont été retirés de l'app, conf, code et traductions compris :
 
-> Le réglage vivait autrefois dans `config.yml`, donc dans le binaire : éprouver un impayé demandait d'éditer **puis de reconstruire l'app**. Pire, un état simulé oublié dans une release vendrait un abonnement que personne ne peut acheter — c'est arrivé.
+- **« Changer de scénario »** (`store_scenario_page`) et son catalogue de scénarios du layer `store-base-global.yml` ;
+- **« Faire venir la fée »** (`worker.force_fairy`) ;
+- **la fabrique de codes** (`giftcode_mint_page`), avec la fiche produit (`store_product_page`) : la gestion des codes et des achats à l'unité sera refondue de zéro. Les fonctions serveur `store_mint` / `store_revoke` restent déployées en attendant, mais plus rien dans l'app ne les appelle ; la saisie d'un code par un chef (`giftcode_page`, `store_claim`) est inchangée.
 
-**Les scénarios commerciaux** (kebab de la boutique → « Changer de scénario ») sont des **paquets cohérents** déclarés dans le layer du bucket : ce qu'on veut éprouver est « un clan en impayé dur », pas « hold avec firm ». Le worker les traduit en réglages de simulation que dvstore relit à chaque rafraîchissement ; la bascule est immédiate, et « réel » ressort du banc sans rien écraser. Trois paliers seulement y figurent, pas cinq : ce qu'on éprouve n'est pas la grille tarifaire mais le **plafond** — un palier étroit (2 places), un palier courant, un palier illimité. Une phase de relance déclenche en plus l'**envoi réel** de la notification correspondante aux chefs, par le même canal et avec le même texte que celle du serveur.
+Ils étaient gardés par `store.debug.test_mode`, qui valait déjà `false` dans tous les buckets : aucun joueur ne les voyait. La **simulation** d'abonnement reste dans dvstore (`store.debug.simulate_*`, cf. son readme) pour le développement ; elle ne s'active que si la clef est posée.
 
-**Ce que le banc ne reproduit pas**, et qu'il faut savoir en lisant ses résultats : la projection `clans_store` n'est **pas** écrite (elle est fermée au client), donc l'état ne se propage pas aux autres appareils du clan et ne survit pas au redémarrage ; et le balayage quotidien du serveur ne voit rien — il tourne à 5 h du matin, on ne l'observait de toute façon pas en session. Une première version passait par une fonction serveur qui écrivait la vraie projection : c'était payer très cher trois avantages minces, dont une **allowlist de comptes à maintenir pour une fonction qui accorde un droit payant en production** — « être administrateur du clan » ne la protège pas, n'importe qui crée un clan et en devient l'administrateur. Ce qui manquait réellement — recevoir la notification — ne demandait aucun serveur.
-
-**La fabrique de codes** (`store_mint` / `store_revoke`) s'appelle depuis l'app, sous le compte éditeur : une fonction callable exige un jeton d'**utilisateur** authentifié, elle ne se joint donc ni en curl avec un compte de service, ni depuis un script. La vraie garde reste serveur (`GRANT_ADMINS`) ; l'écran ne fait qu'éviter de montrer une porte qui ne s'ouvrirait pas.
-
-**« Faire venir la fée »** la fait apparaître tout de suite, et **écrit en clair dans le journal de mise au point** où elle se trouve (domaine, tâche remplacée, les deux cadeaux). Elle est placée au hasard parmi dix-neuf domaines : sans cette ligne, la retrouver veut dire ouvrir les tiroirs un par un. Elle est journalisée en `warning` et non en `info` — la seule ligne qu'on vient vraiment y chercher ne doit pas se noyer dans le flot des lectures de tâches qui la suivent.
-
-**Le balayage de relance** a son propre banc, côté serveur : la fonction étant en `trigger: http`, elle est **privée** (seules les identités portant `run.invoker` peuvent l'appeler). Un paramètre force un motif sur un clan donné, immédiatement, **par le chemin réel** — même code, même charge utile, mêmes mots. C'est mieux qu'un banc côté client, qui passerait par un autre chemin d'envoi et exigerait de recopier les textes dans le dictionnaire du client, où ils divergeraient. Ni cadence ni silence ne s'appliquent, et **aucun état n'est écrit** : le banc ne consomme pas un palier de relance et ne fausse donc pas la passe du soir. Ni les **fenêtres d'envoi** non plus, et c'est le même raisonnement : un banc qui n'accepterait de parler que le samedi entre 9 h et 10 h ne serait pas un banc. Seule exception assumée : le boss pose un vrai `recommended`, puisque c'est précisément ce qu'il s'agit de vérifier. Il s'appelle par **`build/tools/pulse_bench.py`**.
-
-Deux autres interrupteurs, hors mode test : `PULSE_ENABLED` (une fonction qui va chercher des familles inactives doit pouvoir être coupée sans redéploiement) et `catalog.dry_run` du backend, qui affiche le plan complet de publication en Play Console — créations, modifications, désactivations — sans rien écrire. C'est le seul moment où une faute de frappe se rattrape encore : un identifiant Play créé ne se supprime **jamais**.
-
-Enfin, un verrou de production (`build.production_on`) neutralise le mot-clef `reset` du builder : le jour où l'app sert de vrais clans, il reste tapable mais ne supprime plus rien — ni Firestore, ni GCS, ni Auth, ni les caches locaux.
+> ⚠ Un appareil de développement qui a utilisé le banc peut avoir gardé des `store.debug.simulate_*` persistés (layer `runtime`) : dvstore y reste alors en mode simulé. Le scénario `reel`, qui les effaçait, est parti avec le banc. Vider les données de l'app sur ces appareils.
 
 ---
 
@@ -964,7 +1007,10 @@ title_idx: -1                    # titre PORTÉ ; -1 = aucun
 butin_xp_factor: 1               # amorcé par la conf, modifiable en partie
 max_xp_butin: 50                 # plafond d'UN crédit (+20 × niveau du clan)
 enabled_multiple: ["chambre_enfant_01", ...]
-validations: 0                   # tâches validées — déclenche le mur de 1re cotisation
+validations: 0                   # tâches validées : déclenche la 1re cotisation
+validations_anchor: 0            # compteur à l'instant où le clan a cessé d'être seul
+pitch_defers: 0                  # reports consommés (3 au plus)
+pitch_due_since: "..."           # 1re présentation de la demande ; vide = jamais armée
 first_invite_at: "..."           # une invitation a-t-elle déjà été ouverte ?
 internal: { name: "Les Chevaliers du Frigo", description: "..." }
 external:                                             # figée à la création, jamais renommée
@@ -1021,7 +1067,7 @@ Quatre documents à identifiant **fixe ou dérivé**, tous idempotents : **`buti
 
 **`clans_logs/{clanId}/logs/{rev}_{event}_{slug}`** — journal d'audit append-only (section 11).
 
-**`clans_chest_history/{clanId}/history/{docId}`** — une ligne par butin **ouvert** : `amount` (portefeuille), `gold`, `cost` (somme des objets), `players`, `highest` (part du meilleur contributeur, en %). Append-only, jamais purgée, et **elle ne porte que des agrégats chiffrés** — jamais un nom d'objet ni un identifiant de joueur : le contenu du coffre reste une surprise, et c'est pour cela qu'elle est une table à part.
+**`clans_chest_history/{clanId}/history/{docId}`** — une ligne par butin **ouvert** : `amount` (portefeuille), `gold`, `cost` (somme des objets), `players`, `highest` (part du meilleur contributeur, en %). Append-only, et **elle ne porte que des agrégats chiffrés** — jamais un nom d'objet ni un identifiant de joueur : le contenu du coffre reste une surprise, et c'est pour cela qu'elle est une table à part.
 
 > ⚠️ **Personne ne l'écrit encore.** Ce qui existe n'en est que le **lecteur** : la moyenne des 20 dernières lignes situe un dépôt et choisit le ton de la notification. Table vide = aucun verdict, l'annonce part nue. La cérémonie d'ouverture, qui devait l'alimenter, est livrée et ne le fait pas — c'est le principal reliquat du chantier butin (section 22).
 
@@ -1166,7 +1212,9 @@ Trois textes librement saisis — nom de joueur, nom de clan, description de cla
 
 ### suppression et conservation
 
-Deux chemins, une même sémantique : **suppression fonctionnelle** (tombstones, `enabled: false`, secrets conservés pour une éventuelle restauration), l'effacement matériel étant une étape distincte et commune aux deux, **non livrée et assumée comme telle** (section 23). Le **retrait de consentement** ci-dessous est une troisième porte d'entrée, mais pas un troisième chemin : il emprunte la cascade de `delete_user_data`, sans en dupliquer une ligne.
+> Les durées, et ce que le code en tient réellement, sont à la **section 24**. Cette sous-section décrit les chemins de suppression, pas les règles de conservation.
+
+Deux chemins, une même sémantique : **suppression fonctionnelle** (tombstones, `enabled: false`), l'effacement matériel étant une étape distincte et commune aux deux, **non livrée et assumée comme telle** (section 23). Le **retrait de consentement** ci-dessous est une troisième porte d'entrée, mais pas un troisième chemin : il emprunte la cascade de `delete_user_data`, sans en dupliquer une ligne.
 
 - **à la demande** (`delete_user_data`, option in-app + page web) : self-delete uniquement, en cascade. Le compte est désactivé, ses adhésions tombstonées ; s'il était **chef unique** d'un clan, le clan est dissous (`enabled: false` + `dissolved_at`, exactement comme par l'autre chemin), tous ses membres tombstonés, et ceux qui n'ont plus de responsable légal (mineur dont le clan d'origine disparaît) ou plus aucun autre clan actif sont eux-mêmes supprimés — **récursivement**. Le consentement n'est pas effacé mais **clos et daté** : la preuve de ce qui a été accepté doit survivre au compte, c'est toute sa raison d'être, et la politique de confidentialité la conserve 5 ans à ce titre. Une acceptation déjà close par une version plus récente garde **sa** date de fin. Un garde-fou multi-région évite de créer des documents fantômes : la page web interroge chaque région, dont la plupart n'hébergent pas le compte, et sans sortie anticipée les écritures en merge y **créeraient** les documents absents ;
 - **retrait du consentement parental** (`delete_user_data`, paramètres `consentTarget` + `clanId`) : un chef du **clan d'origine** retire son consentement pour **un seul** enfant, depuis le kebab de sa tuile (section 9). Le geste ne coûte plus la suppression du compte du chef — c'est-à-dire la dissolution du clan et la destruction des données de toute la famille — ce que l'**article 7(3) du RGPD** ne pouvait pas admettre : donner le consentement est un geste, le retirer doit en coûter un.
@@ -1184,7 +1232,8 @@ Deux chemins, une même sémantique : **suppression fonctionnelle** (tombstones,
   >
   > **Aucune ligne de récit** n'est produite : `ConsentWithdrawn` / `ConsentRestored` existent pour l'audit, pas pour la mémoire familiale. Le journal est lu par les enfants et sert de matière au conteur IA ;
 
-- **au terme du calendrier de facturation** (`clan_purge`, J780) : même cascade, appliquée aux clans dont le balayage a posé le drapeau. Le document de facturation n'est **jamais** supprimé — c'est la piste d'audit qui justifie ce qui vient d'être fait. L'idempotence passe par un horodatage de purge et non par l'effacement du drapeau, dont l'absence relancerait une purge par jour, indéfiniment. Le consentement y est **clos et daté comme par l'autre chemin** : ce chemin-ci ne le faisait pas, et l'oubli ne se voyait qu'au retour du joueur — `enabled: false` est ce que la reprise de session relit pour ne pas restaurer `accepted_versions`, sans quoi un compte supprimé avec son clan qui revient un jour **saute l'écran CGU**.
+- **pour abandon** (`clan_purge`, drapeau posé par la piste sommeil de `pulse_sweeper`) : un clan sans abonnement en cours dont aucun membre ne s'est connecté depuis deux ans, préavis d'un mois envoyé aux adultes. Même fonction, même cascade que le chemin ci-dessous — il ne doit exister qu'un seul chemin qui dissout. Seule différence : la **garde de réveil**, qui retire le drapeau si quelqu'un s'est connecté depuis qu'il a été posé. La raison (`idle` ou `dunning`) est écrite au journal de facturation : confondre les deux fausserait la piste d'audit le jour où une famille demanderait pourquoi son clan a disparu ;
+- **au terme du calendrier de facturation** (`clan_purge`, J780) : même cascade, appliquée aux clans dont le balayage a posé le drapeau. L'idempotence passe par un horodatage de purge et non par l'effacement du drapeau, dont l'absence relancerait une purge par jour, indéfiniment. Le consentement y est **clos et daté comme par l'autre chemin** : ce chemin-ci ne le faisait pas, et l'oubli ne se voyait qu'au retour du joueur — `enabled: false` est ce que la reprise de session relit pour ne pas restaurer `accepted_versions`, sans quoi un compte supprimé avec son clan qui revient un jour **saute l'écran CGU**.
 
 > ⚠️ La cascade est **dupliquée** entre les deux fonctions. Ce n'est pas un choix : chaque Cloud Function est déployée avec son propre `index.ts`, sans bibliothèque partagée. Toute correction de l'une doit être portée dans l'autre — il s'agit d'une suppression irréversible, deux implémentations qui divergeraient seraient un vrai danger.
 >
@@ -1194,9 +1243,9 @@ Deux chemins, une même sémantique : **suppression fonctionnelle** (tombstones,
 
 Analytics désactivé et pas de collecte d'ID publicitaires (politique « Familles »). Suppression de compte autonome (exigée) : page web `hosting/web/delete-account/` **et** option in-app. Les deux permissions à impact console (caméra, notifications) sont déclarées **explicitement** dans le build plutôt que laissées apparaître au gré des plugins.
 
-Le dossier de sous-traitance RGPD — adhésion au DPA Google (CDPA + Firebase DPST), registre art. 30, annexe Data safety — est dans `stores/google/dpa.md`, et les **archives datées** des deux contrats sont produites **par le build** : les contrats d'adhésion de Google ne se signent plus, aucune case « j'accepte » n'existe dans les consoles récentes, et la preuve d'adhésion au titre de l'accountability est l'archive du texte en vigueur. À refaire à chaque version publiée par Google — donc exactement ce qu'une mémoire humaine ne tient pas.
+Le registre des traitements (art. 30) est `grisloup/docs/registre_traitements.md`. Les **archives datées** des deux contrats sont produites **par le build** : les contrats d'adhésion de Google ne se signent plus, aucune case « j'accepte » n'existe dans les consoles récentes, et la preuve d'adhésion au titre de l'accountability est l'archive du texte en vigueur. À refaire à chaque version publiée par Google : exactement ce qu'une mémoire humaine ne tient pas.
 
-Les déclarations Play Console sont préparées dans `stores/google/playstore.md`, `compte.md` et `publication.md`, et les **feuilles de saisie** (`saisie_compte.md`, `saisie_dpa.md`, `saisie_playstore.md`) sont **rendues au build** depuis le `build.yml` de la suite : c'est ce qu'on ouvre devant le formulaire, plus rien à recouper de tête. Une référence non résolue **fait échouer le build** — un champ vide dans une procédure de saisie, c'est une case remplie de mémoire.
+Les déclarations Play Console (statut de vendeur DSA, frais de service réduits, sous-traitance RGPD, fiche, produits) sont faites. Le dossier `stores/google/` qui les préparait (procédure de publication, feuilles de saisie rendues au build, images de la fiche) a été supprimé le 2026-09-16 et reste dans l'historique git. `build.yml` garde les données encore vivantes : l'identité (`publisher`), l'archivage des textes Google (`dpa`) et les textes de la fiche (`listing`).
 
 **Le statut de vendeur (DSA)** : se déclarer professionnel fait afficher nom, adresse complète et téléphone sur la fiche Play dans l'EEE — mais seulement à partir du moment où une fiche est publique. Tant que la diffusion reste en piste fermée, rien n'est exposé. C'est pourquoi le bloc `publisher` du `build.yml` **ne déclare aucun layer** : sans `layer.publish`, la section ne descend ni dans l'APK ni dans le bucket que l'app lit sans authentification. En ajouter un exposerait une donnée personnelle dans un APK décompressable.
 
@@ -1252,7 +1301,7 @@ Onze phrases se sont révélées fausses, ou vraies seulement après un correcti
 |---|---|
 | « L'application ne traite aucune donnée personnelle de mineur » | « Le traitement est limité au strict nécessaire au fonctionnement du jeu au sein de la famille » |
 | « La date de naissance est effacée après usage » | « La date de naissance n'est jamais conservée » — elle n'est jamais écrite |
-| « Aucune adresse e-mail n'est collectée » | « Aucune adresse électronique n'est stockée dans les données de jeu ; l'adresse du compte Google est détenue par Firebase, sous-traitant, aux seules fins d'authentification » |
+| « Aucune adresse e-mail n'est collectée », y compris pour un enfant | « Aucune adresse électronique n'est stockée dans les données de jeu ; l'adresse du compte Google est détenue par le service d'authentification Firebase, sous-traitant, pour vérifier la connexion ». Un profil créé par un adulte n'a pas de compte Google, donc pas d'adresse. Ne pas écrire « aux seules fins d'authentification » tant que l'écran Profil affiche l'adresse (`dvcloud/user_email_label`, tâche « premier pas » du 2026-09-16). Corrigé le 2026-09-16 dans le § 4 des 96 politiques adultes : la souche non européenne le niait encore |
 | « Seuls des noms générés sont transmis à l'IA » | **Faux, et durablement** : le conte du butin transmet les pseudonymes internes et le journal du clan, par choix (2026-09-10). Écrire ce qui est vrai — les textes saisis par la famille, et pour le conte le journal de ses tâches ; jamais un identifiant, une date de naissance ni une image |
 | « Aucune donnée d'un mineur n'est visible en dehors de son clan » | « L'**application** n'en rend aucune visible hors du clan ; un adulte peut décider de partager le récit de son clan avec ses proches » |
 | « prénom » pour désigner ce que le joueur saisit | « **pseudonyme** ». L'application ne demande jamais un prénom (« Comment te nommes-tu aventurier ? ») et n'en fait jamais produire au modèle. C'est ce qui rend défendable la ligne « nom, prénom : non collectés » |
@@ -1409,7 +1458,7 @@ le document, c'est ce qui décrit **mal la cible elle-même**. Le tri se fait su
 et sur aucune autre.
 
 - **L'effacement matériel n'existe pas, et c'est assumé.** Les deux chemins de suppression
-  marquent (tombstones, `enabled: false`, secrets conservés) ; **rien n'efface jamais rien**.
+  marquent (tombstones, `enabled: false`) ; **rien n'efface jamais rien**.
   La politique de confidentialité promet pourtant au § 8 une suppression en trois temps —
   fonctionnelle immédiate, conservation limitée, puis effacement définitif. Le troisième
   temps est un développement à part, sous forme de **fonction cloud** : une TTL Firestore a
@@ -1417,20 +1466,16 @@ et sur aucune autre.
   enregistrements imbriqués qui ne sont pas propres à un utilisateur. Reporté au moment où il
   y aura quelque chose à effacer.
 
-  Trois horloges, à ne surtout pas confondre le jour où la fonction s'écrira : **30 jours**
-  après une suppression à la demande ; **rien** après `clan_purge`, dont les deux ans sont
-  déjà écoulés quand il s'exécute — lui ajouter 30 jours conserverait plus longtemps
-  qu'annoncé ; **5 ans** pour une preuve d'acceptation, à compter de son `date_end`. La
-  première est courte : elle court trente jours après le premier testeur qui supprimera son
-  compte, pas dans deux ans.
+  Les durées de conservation et l'état de chaque règle dans le code sont consignés à la
+  section 24, règle par règle.
 
   Ce que la fonction devra traiter, pour ne pas refaire l'inventaire : les arborescences d'un
   clan dissous (`clans_tasks`, `clans_items`, `clans_logs`, `clans_chest_history`,
-  `clans_players`, `clans_pulse`, puis `clans` — **jamais `clans_store`**, piste d'audit) ;
+  `clans_players`, `clans_pulse`, puis `clans`) ;
   pour un compte, ses lignes de journal dans les clans **survivants** (`userId` *et*
   `adminId` — décision prise : effacer, pas anonymiser), ses objets (`owner == uid` :
   `wallet_<uid>`, `title_p_*_<uid>`), ses jetons (`msgregistry`/`msgindex`/`msgdesktops`),
-  ses achats (`store_purchases`), **son compte Firebase Auth** — `delete_user_data` retourne
+  **son compte Firebase Auth** — `delete_user_data` retourne
   déjà `firebaseUids` sans que personne ne le consomme —, puis `userindexes` et `users`, à
   lire **avant** de les effacer sous peine de perdre la carte. Le compte de service `backend`
   ne doit pas être élargi pour cela (c'est lui qui porte les deux cascades) : un SA `purge`
@@ -1480,3 +1525,98 @@ et sur aucune autre.
   Le module était le seul fautif : `pustore`, `pubudget`, `dvcloud`, `dvlock` et
   `dvvirtuallobby` écrivent tous `expiration`. Le rappel est désormais dans `pufirestore` même,
   à l'endroit où la politique se pose.
+
+---
+
+## 24. conservation des données
+
+**Ce chapitre consigne, règle par règle, ce qui est promis sur la conservation des données et ce que le code en fait réellement.** Il existe parce que les règles sont nombreuses, éparpillées entre la politique de confidentialité, les CGU, le registre des traitements et une dizaine de fonctions, et qu'une partie d'entre elles n'est pas encore codée : c'est exactement la configuration où une règle change à un endroit et pas aux autres.
+
+### trois sources, un seul contenu
+
+| Source | Rôle | Ce qui y fait foi |
+|---|---|---|
+| Politique de confidentialité, § 8 et § 9 (`legal/documents/*-privacy-v1.html`, 8 langues × 12 marchés, adulte et enfant) | la **promesse publique**, opposable | le texte exact dit aux familles |
+| Registre des traitements (`grisloup/docs/registre_traitements.md`, annexe E pour les écarts) | le **registre RGPD** (art. 30), interne | la fiche par traitement et la liste des écarts |
+| Ce chapitre | la **règle vue du code** : mécanisme, fichier, état | ce qui est réellement tenu aujourd'hui |
+
+Les trois disent la même chose, et **se modifient dans le même geste** : changer une durée, c'est reprendre la politique dans ses huit langues et ses douze marchés, la fiche du registre et la ligne correspondante ici. Une règle qui n'apparaît que dans l'un des trois est un écart.
+
+⚠ **Jusqu'au 2026-09-16, la règle était inverse** : les durées ne devaient figurer que dans la politique et le registre, jamais dans un readme. Elle a été changée précisément parce que l'état réel du code n'était écrit nulle part, et que des promesses publiées ne correspondaient à aucun mécanisme sans que rien ne le signale.
+
+### vocabulaire
+
+- **Suppression fonctionnelle** : la donnée sort du service (`enabled: false`, tombstone, `dissolved_at`). Plus personne ne la voit, mais elle est toujours en base.
+- **Conservation restreinte** : 30 jours hors du service, sous accès restreint, pour une erreur de manipulation, le support ou une fraude, et rien d'autre.
+- **Effacement définitif** : la donnée n'existe plus. **Effacer, jamais anonymiser** : un journal de clan n'est pas « rendu anonyme », il est effacé en entier.
+- **Clan bloqué** : un clan dont le calendrier commercial a fermé le donjon (gel). À ne pas confondre avec un clan **inactif** (plus personne ne s'y connecte) ni avec le **mur de première cotisation** (écran côté client, qui ne démarre aucun compteur serveur).
+
+### les états
+
+| État | Sens |
+|---|---|
+| **tenu** | un mécanisme du code applique la règle entièrement |
+| **plateforme** | la règle est tenue par un réglage de Google, pas par notre code : un changement fait en console ne serait vu par personne |
+| **partiel** | une partie de la règle est appliquée, le reste ne l'est pas (détaillé dans la ligne) |
+| **non codé** | la règle est publiée et aucun mécanisme ne l'applique |
+| **manuel** | la règle repose sur un geste humain, sans rappel automatique |
+
+### comptes et consentement
+
+| Donnée | Règle publiée | Mécanisme | État |
+|---|---|---|---|
+| **Compte supprimé** (`users`, `userindexes`, `clanSecret`, compte Firebase Auth) | suppression fonctionnelle immédiate, 30 jours de conservation restreinte, puis effacement définitif, sans restauration | `delete_user_data` (backend `config.yml`), cascade : désactivation du compte, tombstones, dissolution des clans dont il était chef unique, suppression des mineurs qui perdent leur clan d'origine et des profils sans autre clan actif | **partiel** : la suppression fonctionnelle est tenue. Les 30 jours et l'effacement ne sont pas codés, et **le compte Firebase Auth n'est jamais supprimé** : `delete_user_data` retourne `firebaseUids` et personne ne le consomme |
+| **Compte anonyme inactif** (onboarding abandonné avant la liaison Google) | effacé après 30 jours d'inactivité | `oauth.anonymous.autodelete: true` (backend `config.yml`) | **plateforme** |
+| **Données d'un enfant**, retrait du consentement par un chef du clan d'origine | effet immédiat, 3 jours de rétractation, puis suppression, 30 jours de conservation restreinte, effacement | trois champs sur le doc membre (`consent_at`, `consent_due`, `consent_by`), `_kConsentGraceDays = 3`, puis `delete_user_data` (section 19) | **partiel** : les 3 jours sont tenus, mais l'échéance est constatée **par un client** (rafraîchissement du roster de n'importe quel membre) : si plus personne n'ouvre l'app, la suppression attend. 30 jours et effacement non codés |
+| **Preuves d'acceptation** (`documents_sessions`, `documents_acceptance`) | closes et datées à la suppression ou au retrait, conservées 5 ans, désactivées | clôture (`enabled: false`, `date_end`) par `delete_user_data` et `clan_purge`. Jamais créées pour un enfant sans compte | **partiel** : la clôture est tenue, l'effacement à 5 ans n'est pas codé |
+| **Date de naissance** | jamais conservée, seul l'état légal l'est | saisie puis oubliée, seul `legal_state` est écrit | **tenu** |
+| **Historique des connexions** (base `sessions`) | 90 jours | TTL Firestore sur `sessions`, champ `expiration` posé à chaque écriture (`dvcloud`, `_sessionsTtlDays = 90`) | **tenu** |
+
+### jeu et clans
+
+| Donnée | Règle publiée | Mécanisme | État |
+|---|---|---|---|
+| **Joueur qui quitte un clan** (`clans_players`) | fiche effacée 30 jours après le départ | tombstone `enabled: false` | **non codé** au-delà de la suppression fonctionnelle. Obstacle connu : rien ne distingue un départ volontaire (`revoke_player`, dont le tombstone porte la règle `original_clan` et doit survivre) d'une suppression (`status: 'deleted'`) |
+| **Clan dissous** (clan, tâches, objets, historique du coffre, journal entier, `clans_pulse`) | effacé 30 jours après la dissolution, rien de conservé, pas même anonymisé | `clans.enabled: false` + `dissolved_at` | **non codé** au-delà de la suppression fonctionnelle |
+| **Clan bloqué pour impayé** | conservé deux ans à compter du blocage, préavis un mois avant, puis dissous | `store_sweeper` (pustore) : gel à J50 depuis le premier impayé, phase `farewell` J750-780, `purge_due` à **J780** (`locked_day + 730`, et non 730). `clan_purge` dissout le soir même | **tenu** jusqu'à la dissolution, puis la ligne « clan dissous » |
+| **Clan bloqué après résiliation ou fin des mois offerts** | conservé deux ans à compter du blocage, puis dissous | **aucun** : le calendrier ne démarre que sur un échec de paiement (`grace`, `hold`) | **non codé** (registre E3). Depuis le 2026-09-16, un tel clan est rattrapé par la piste sommeil **s'il reste deux ans sans aucune connexion** ; mais un clan résilié où quelqu'un se connecte encore n'est jamais bloqué côté serveur, donc aucun compteur ne démarre |
+| **Clan inactif** (sans abonnement vivant, aucune connexion d'aucun membre) | rappel aux adultes à 6, 12 et 18 mois (sauf rappels coupés), préavis à tous les adultes un mois avant, dissolution à deux ans ; une connexion annule tout ; un clan abonné n'est jamais concerné | `pulse_sweeper`, piste sommeil (`PULSE_LIFECYCLE.sleep` : 180/360/540, 700, 730), `purge_due` avec `purge_reason: 'idle'` et `idle_last_seen`, puis `clan_purge` avec **garde de réveil** (section 13) | **tenu** (codé le 2026-09-16, pas encore déployé), puis la ligne « clan dissous » |
+| **Invitation à distance** (lien chiffré par PIN) | 72 heures | TTL Firestore sur les cinq collections de `puvirtuallobby`, `dvvirtuallobby.ttl_hours: 72` | **tenu** (au registre, pas dans la politique) |
+| **Photos de preuve** | restent sur l'appareil, effacées dès le verdict, au plus tard à l'ouverture suivante ; supprimer son compte depuis l'application efface celles qui restent | `_forgetProof` au verdict, `_reconcileProofs` à l'ouverture, `_reconcileProofs("")` avant la déconnexion d'une suppression de compte | **tenu**. Cas résiduel exact et conforme au texte : une suppression faite **depuis le site** laisse la photo jusqu'à la prochaine ouverture de l'app ou la désinstallation |
+
+### achats
+
+| Donnée | Règle publiée | Mécanisme | État |
+|---|---|---|---|
+| **Référence d'achat Google Play** (`purchaseToken` dans `store_purchases`) | effacée dès la fin de l'abonnement | aucun | **non codé** |
+| **Verrou de jeton d'achat** (`store_tokens`, doc-id = empreinte du jeton) | *non publié* | TTL Firestore, `expiration` à 5 ans (pustore) | **écart de texte** : cité au registre (E2), absent de la politique. C'est une empreinte et non le jeton, mais elle en dérive |
+| **Historique d'achat et journal de facturation** (`store_purchases`, `clans_store/{clanId}/events`) | deux ans après la fin de l'abonnement ou du dernier mois offert, rattaché à la personne qui a payé | aucun | **non codé** |
+| **Utilisation d'un code cadeau** | effacée 30 jours après la fin de validité du code | aucun | **non codé** |
+| **Tentatives de saisie de codes** (`store_code_attempts`) | effacement automatique | TTL, fin de fenêtre + 24 h | **tenu** |
+| **Dédoublonnage des notifications Play** (`store_rtdn_index`) | 30 jours | TTL, `expiration` à 30 jours | **tenu** (au registre, pas dans la politique) |
+
+### technique
+
+| Donnée | Règle publiée | Mécanisme | État |
+|---|---|---|---|
+| **Jetons de notification et files d'envoi** (`msgregistry`, `msgindex`, `msgdesktops`, `msgevents`, `msgdata`) | 30 jours après la dernière connexion de l'appareil | TTL Firestore (pumessaging), champ `expiration` réécrit au démarrage de l'appareil | **tenu** depuis le 2026-09-10 (le champ s'appelait `expire` et rien n'expirait, section 23). Les documents antérieurs portent encore `expire` : sans utilisateurs en production, le reliquat est nul |
+| **Compteur d'utilisation des suggestions IA** (`aimodel_usage`) | 48 heures | TTL Firestore (puvertexai, `TTL_MS = 48 h`) | **tenu dans le module, sans objet pour les joueurs** : sur Android l'IA est appelée en direct (§ 6, « par où passe l'appel »), le compteur n'est donc jamais écrit. Il n'existe que pour le proxy `ai_generate`, réservé à Windows (environnement de test) |
+| **Journaux techniques des serveurs** | 30 jours | rétention par défaut du bucket `_Default` de Cloud Logging, **déclarée nulle part** | **plateforme** |
+| **Liste d'attente des bêtas** (`eu-workers/beta_signups`) | supprimée en totalité à la fin des bêtas, ou plus tôt sur demande | suppression manuelle | **manuel** : aucun rappel ne la déclenchera |
+
+### ce qui n'est pas codé, regroupé
+
+Toutes les lignes « non codé » et la partie manquante des lignes « partiel » relèvent de **trois chantiers**, et d'aucun autre :
+
+1. **L'effacement définitif** (registre E2, travail en cours) : les 30 jours de conservation restreinte puis l'effacement pour les comptes, les fiches de joueurs, les clans dissous et leurs journaux ; la suppression du compte Firebase Auth ; le vidage du jeton d'achat à la fin de l'abonnement ; l'historique d'achat à deux ans ; les codes cadeaux à fin de validité + 30 jours ; les preuves à cinq ans. L'inventaire de ce que la fonction devra traiter est à la section 23 (« l'effacement matériel n'existe pas »), avec le discriminant départ volontaire / suppression qui manque aux tombstones.
+2. **Le blocage après résiliation ou fin des mois offerts** (registre E3, tâche *ddust/premier pas* « monétisation : fin du cycle de défaut de paiement ») : sans lui, le « deux ans à compter du blocage » ne vaut que pour l'impayé.
+3. **L'échéance du retrait de consentement constatée par un client** : si plus personne n'ouvre l'app, la suppression attend. Le balayeur de l'effacement définitif est l'endroit naturel où reprendre ce filet.
+
+Deux points ne relèvent d'aucun chantier et doivent simplement **rester vrais** : les durées tenues par la **plateforme** (comptes anonymes, journaux serveur), qu'aucun code ne surveille, et la **liste des bêtas**, qui dépend d'un geste manuel à la fin des bêtas.
+
+### tenue de ce chapitre
+
+- **Changer une durée** : politique (8 langues × 12 marchés, adulte et, si elle y figure, enfant), registre, ce chapitre. Dans le même geste.
+- **Ajouter une collection** qui contient une donnée personnelle : une ligne ici, avec son état, même « non codé ». Une collection sans ligne est une donnée dont personne ne sait combien de temps elle vit.
+- **Livrer un mécanisme** : passer la ligne à **tenu**, retirer l'écart de l'annexe E du registre, et le point correspondant de « ce qui n'est pas codé ».
+- **Ajouter une TTL** : le champ s'appelle `expiration`, pas autrement (`pufirestore` le code en dur, section 23). Une TTL posée sur un autre nom de champ n'efface rien et ne le dit pas.

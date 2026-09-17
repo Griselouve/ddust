@@ -190,38 +190,78 @@ data:
         fr: "Titre de personnage"
         en: "Character title"
         es: "Título de personaje"
+        de: "Charaktertitel"
+        it: "Titolo del personaggio"
+        pt: "Título de personagem"
+        br: "Título de personagem"
+        nl: "Personagetitel"
       it_d_titre_perso:
         fr: "Un titre gagné à la sueur de l'éponge. À toi de décider si tu le portes."
         en: "A title earned by the sweat of your sponge. Up to you whether you wear it."
         es: "Un título ganado con el sudor de la esponja. Tú decides si lo llevas."
+        de: "Ein Titel, verdient im Schweiße deines Schwamms. Du entscheidest, ob du ihn trägst."
+        it: "Un titolo guadagnato col sudore della spugna. Sta a te decidere se portarlo."
+        pt: "Um título ganho com o suor da esponja. Tu decides se o usas."
+        br: "Um título ganho com o suor da esponja. Você decide se vai usá-lo."
+        nl: "Een titel verdiend in het zweet van je spons. Jij beslist of je hem draagt."
 
       it_t_titre_clan:
         fr: "Titre de clan"
         en: "Clan title"
         es: "Título de clan"
+        de: "Clantitel"
+        it: "Titolo del clan"
+        pt: "Título de clã"
+        br: "Título de clã"
+        nl: "Clantitel"
       it_d_titre_clan:
         fr: "Un titre gagné par le clan tout entier. Seul un chef décide de l'arborer."
         en: "A title earned by the whole clan. Only a chief decides to bear it."
         es: "Un título ganado por todo el clan. Solo un jefe decide lucirlo."
+        de: "Ein Titel, verdient vom ganzen Clan. Nur ein Clanchef entscheidet, ihn zu tragen."
+        it: "Un titolo guadagnato da tutto il clan. Solo un capo decide di sfoggiarlo."
+        pt: "Um título ganho pelo clã inteiro. Só um chefe decide ostentá-lo."
+        br: "Um título ganho pelo clã inteiro. Só um chefe decide exibi-lo."
+        nl: "Een titel verdiend door de hele clan. Alleen een clanhoofd beslist of hij gedragen wordt."
 
       it_t_butin:
         fr: "Coffre du butin"
         en: "Loot chest"
         es: "Cofre del botín"
+        de: "Beutetruhe"
+        it: "Scrigno del bottino"
+        pt: "Baú do espólio"
+        br: "Baú do tesouro"
+        nl: "Buitkist"
       it_d_butin:
         fr: "Le coffre du clan : les récompenses y dorment jusqu'à l'ouverture du butin."
         en: "The clan's chest: rewards sleep here until the loot is opened."
         es: "El cofre del clan: las recompensas duermen aquí hasta que se abra el botín."
+        de: "Die Truhe des Clans: Die Belohnungen schlafen hier, bis die Beute geöffnet wird."
+        it: "Lo scrigno del clan: le ricompense dormono qui fino all'apertura del bottino."
+        pt: "O baú do clã: as recompensas dormem aqui até o espólio ser aberto."
+        br: "O baú do clã: as recompensas dormem aqui até o tesouro ser aberto."
+        nl: "De kist van de clan: de beloningen slapen hier tot de buit wordt geopend."
 
       it_t_argent:
         fr: "Argent de poche"
         en: "Pocket money"
         es: "Dinero de bolsillo"
+        de: "Taschengeld"
+        it: "Paghetta"
+        pt: "Semanada"
+        br: "Mesada"
+        nl: "Zakgeld"
       # en/es pas encore resynchronisés avec le fr (2026-07-28) : à retraduire si besoin.
       it_d_argent:
         fr: "Argent obtenu à troquer contre de l'argent réel avec tes chefs de clan."
         en: "The loot's purse: the money promised to the adventurers."
         es: "La bolsa del botín: el dinero prometido a los aventureros."
+        de: "Erbeutetes Geld, das du bei deinen Clanchefs gegen echtes Geld eintauschen kannst."
+        it: "Soldi ottenuti da scambiare con soldi veri con i tuoi capi clan."
+        pt: "Dinheiro ganho para trocar por dinheiro a sério com os teus chefes de clã."
+        br: "Dinheiro ganho para trocar por dinheiro de verdade com seus chefes de clã."
+        nl: "Verdiend geld dat je bij je clanhoofden kunt ruilen voor echt geld."
 
       #------------- Familles d'items (onglets) ------------------------
 
@@ -229,26 +269,56 @@ data:
         fr: "Général"
         en: "General"
         es: "General"
+        de: "Allgemein"
+        it: "Generale"
+        pt: "Geral"
+        br: "Geral"
+        nl: "Algemeen"
       it_f_equipement:
         fr: "Équipement"
         en: "Gear"
         es: "Equipo"
+        de: "Ausrüstung"
+        it: "Equipaggiamento"
+        pt: "Equipamento"
+        br: "Equipamento"
+        nl: "Uitrusting"
       it_f_potions:
         fr: "Potions"
         en: "Potions"
         es: "Pociones"
+        de: "Tränke"
+        it: "Pozioni"
+        pt: "Poções"
+        br: "Poções"
+        nl: "Drankjes"
       it_f_magie:
         fr: "Magie"
         en: "Magic"
         es: "Magia"
+        de: "Magie"
+        it: "Magia"
+        pt: "Magia"
+        br: "Magia"
+        nl: "Magie"
       it_f_skills:
         fr: "Talents"
         en: "Skills"
         es: "Talentos"
+        de: "Talente"
+        it: "Talenti"
+        pt: "Talentos"
+        br: "Talentos"
+        nl: "Talenten"
       it_f_titres:
         fr: "Titres"
         en: "Titles"
         es: "Títulos"
+        de: "Titel"
+        it: "Titoli"
+        pt: "Títulos"
+        br: "Títulos"
+        nl: "Titels"
 
       #------------- Options du menu des items -------------------------
 
@@ -259,30 +329,65 @@ data:
         fr: "Porter ce titre"
         en: "Wear this title"
         es: "Llevar este título"
+        de: "Titel tragen"
+        it: "Porta questo titolo"
+        pt: "Usar este título"
+        br: "Usar este título"
+        nl: "Titel dragen"
       it_o_title_unapply:
         fr: "Ne plus porter ce titre"
         en: "Stop wearing this title"
         es: "Dejar de llevar este título"
+        de: "Titel ablegen"
+        it: "Non portare più il titolo"
+        pt: "Deixar de usar o título"
+        br: "Parar de usar o título"
+        nl: "Titel afleggen"
       it_o_trash:
         fr: "À la poubelle"
         en: "In the bin"
         es: "A la basura"
+        de: "Ab in den Müll"
+        it: "Nel cestino"
+        pt: "Para o lixo"
+        br: "Para o lixo"
+        nl: "In de prullenbak"
       it_o_give:
         fr: "Donner"
         en: "Give"
         es: "Dar"
+        de: "Schenken"
+        it: "Regala"
+        pt: "Dar"
+        br: "Dar"
+        nl: "Geven"
       it_o_to_chest:
         fr: "Remettre dans le coffre"
         en: "Put back in the chest"
         es: "Devolver al cofre"
+        de: "Zurück in die Truhe"
+        it: "Rimetti nello scrigno"
+        pt: "Devolver ao baú"
+        br: "Devolver ao baú"
+        nl: "Terug in de kist"
       it_o_view:
         fr: "Voir"
         en: "View"
         es: "Ver"
+        de: "Ansehen"
+        it: "Guarda"
+        pt: "Ver"
+        br: "Ver"
+        nl: "Bekijken"
       it_o_open:
         fr: "Ouvrir le coffre"
         en: "Open the chest"
         es: "Abrir el cofre"
+        de: "Truhe öffnen"
+        it: "Apri lo scrigno"
+        pt: "Abrir o baú"
+        br: "Abrir o baú"
+        nl: "Kist openen"
 
       #------------- Fiche d'un objet (écran item_view_page) -----------
 
@@ -290,6 +395,11 @@ data:
         fr: "L'objet"
         en: "The item"
         es: "El objeto"
+        de: "Der Gegenstand"
+        it: "L'oggetto"
+        pt: "O objeto"
+        br: "O objeto"
+        nl: "Het voorwerp"
 
       #------------- Don d'un objet à un joueur (option item_give) -----
 
@@ -298,11 +408,21 @@ data:
         fr: "À qui donner ?"
         en: "Give to whom?"
         es: "¿A quién dárselo?"
+        de: "Wem schenken?"
+        it: "A chi darlo?"
+        pt: "A quem dar?"
+        br: "Dar para quem?"
+        nl: "Aan wie geven?"
       # Liste vide : le donneur est le seul membre du clan (il ne s'y voit pas lui-même).
       it_give_empty:
         fr: "Tu es seul dans ce clan : personne à qui donner."
         en: "You are alone in this clan: no one to give to."
         es: "Estás solo en este clan: no hay a quién dárselo."
+        de: "Du bist allein in diesem Clan: Es gibt niemanden zum Beschenken."
+        it: "Sei da solo in questo clan: non c'è nessuno a cui darlo."
+        pt: "Estás sozinho neste clã: não há ninguém a quem dar."
+        br: "Você está sozinho neste clã: não há ninguém para quem dar."
+        nl: "Je bent alleen in deze clan: er is niemand om aan te geven."
       # Notification poussée au DESTINATAIRE, dans SA langue (worker._notifyItemGift) :
       # {item} = l'objet donné (nom propre s'il en a un, sinon le libellé de son type, résolu
       # lui aussi dans la langue du destinataire), {name} = le donneur. Substitutions en code —
@@ -311,6 +431,11 @@ data:
         fr: "Prend bien soin de {item} (signé {name})"
         en: "Take good care of {item} (signed {name})"
         es: "Cuida bien de {item} (firmado {name})"
+        de: "Pass gut auf {item} auf (gezeichnet {name})"
+        it: "Abbi cura di {item} (firmato {name})"
+        pt: "Cuida bem de {item} (assinado {name})"
+        br: "Cuide bem de {item} (assinado {name})"
+        nl: "Zorg goed voor {item} (getekend {name})"
 
       #------------- Écran du coffre -----------------------------------
 
@@ -320,14 +445,29 @@ data:
         fr: "Touchez un objet pour le sortir du coffre, touchez la bourse pour promettre de l'argent."
         en: "Tap an item to take it out of the chest, tap the purse to promise money."
         es: "Toca un objeto para sacarlo del cofre, toca la bolsa para prometer dinero."
+        de: "Tippe einen Gegenstand an, um ihn aus der Truhe zu nehmen, tippe den Geldbeutel an, um Geld zu versprechen."
+        it: "Tocca un oggetto per toglierlo dallo scrigno, tocca il borsellino per promettere soldi."
+        pt: "Toca num objeto para o tirar do baú, toca na bolsa para prometer dinheiro."
+        br: "Toque em um objeto para tirá-lo do baú, toque na bolsa para prometer dinheiro."
+        nl: "Tik op een voorwerp om het uit de kist te halen, tik op de buidel om geld te beloven."
       butin_validate:
         fr: "Valider"
         en: "Confirm"
         es: "Confirmar"
+        de: "Bestätigen"
+        it: "Conferma"
+        pt: "Confirmar"
+        br: "Confirmar"
+        nl: "Bevestigen"
       butin_empty:
         fr: "Le coffre est vide."
         en: "The chest is empty."
         es: "El cofre está vacío."
+        de: "Die Truhe ist leer."
+        it: "Lo scrigno è vuoto."
+        pt: "O baú está vazio."
+        br: "O baú está vazio."
+        nl: "De kist is leeg."
       #------------- Note du coffre (butin_note_page) -------------
       # Un chef y dépose un mot lu par tout le clan à la prochaine ouverture — secret jusque-là,
       # y compris des autres chefs.
@@ -335,37 +475,72 @@ data:
         fr: "Une note dans le coffre"
         en: "A note in the chest"
         es: "Una nota en el cofre"
+        de: "Eine Notiz in der Truhe"
+        it: "Un biglietto nello scrigno"
+        pt: "Uma nota no baú"
+        br: "Uma nota no baú"
+        nl: "Een briefje in de kist"
       butin_note_hint:
         fr: "Cette note sera lue par tout le clan à l'ouverture du coffre — personne ne la voit avant, pas même les autres chefs. C'est l'endroit rêvé pour une annonce ou une surprise : « on va tous à un super parc d'attractions, vous l'avez mérité »."
         en: "This note will be read by the whole clan when the chest is opened — nobody sees it before then, not even the other chiefs. It's the perfect place for an announcement or a surprise: “we're all going to an amazing amusement park, you've earned it.”"
         es: "Esta nota será leída por todo el clan al abrir el cofre — nadie la ve antes, ni siquiera los demás jefes. Es el lugar perfecto para un anuncio o una sorpresa: «vamos todos a un parque de atracciones increíble, os lo habéis ganado»."
+        de: "Diese Notiz wird vom ganzen Clan gelesen, wenn die Truhe geöffnet wird. Vorher sieht sie niemand, nicht einmal die anderen Clanchefs. Der perfekte Ort für eine Ankündigung oder eine Überraschung: „Wir fahren alle in einen super Freizeitpark, ihr habt es euch verdient.“"
+        it: "Questo biglietto sarà letto da tutto il clan all'apertura dello scrigno. Nessuno lo vede prima, nemmeno gli altri capi. È il posto perfetto per un annuncio o una sorpresa: «andiamo tutti in un fantastico parco divertimenti, ve lo siete meritato»."
+        pt: "Esta nota será lida pelo clã inteiro quando o baú for aberto. Ninguém a vê antes, nem sequer os outros chefes. É o sítio ideal para um anúncio ou uma surpresa: «vamos todos a um parque de diversões espetacular, vocês merecem»."
+        br: "Esta nota será lida pelo clã inteiro quando o baú for aberto. Ninguém a vê antes, nem mesmo os outros chefes. É o lugar ideal para um anúncio ou uma surpresa: \"vamos todos a um parque de diversões incrível, vocês merecem\"."
+        nl: "Dit briefje wordt door de hele clan gelezen als de kist opengaat. Niemand ziet het eerder, zelfs de andere clanhoofden niet. De perfecte plek voor een aankondiging of een verrassing: ‘we gaan allemaal naar een supergaaf pretpark, jullie hebben het verdiend’."
       butin_note_ok:
         fr: "Valider"
         en: "Confirm"
         es: "Confirmar"
+        de: "Bestätigen"
+        it: "Conferma"
+        pt: "Confirmar"
+        br: "Confirmar"
+        nl: "Bevestigen"
       # Ligne « Ajouter une note », TOUJOURS présente en tête du contenu du coffre (avant mes
       # notes existantes, s'il y en a) → butin_note_page, toujours vierge.
       butin_note_add_label:
         fr: "Ajouter une note"
         en: "Add a note"
         es: "Añadir una nota"
+        de: "Notiz hinzufügen"
+        it: "Aggiungi un biglietto"
+        pt: "Adicionar uma nota"
+        br: "Adicionar uma nota"
+        nl: "Briefje toevoegen"
       # Ligne d'une de MES notes dans le contenu du coffre (butin_page/list) : visible du seul
       # auteur, touchée pour la SUPPRIMER directement (pas d'édition, cf. worker._deleteButinNote).
       butin_note_row_label:
         fr: "Votre note"
         en: "Your note"
         es: "Tu nota"
+        de: "Deine Notiz"
+        it: "Il tuo biglietto"
+        pt: "A tua nota"
+        br: "Sua nota"
+        nl: "Jouw briefje"
       # Bouton de l'écran de récompenses (butin_rewards_page/ok).
       butin_ok:
         fr: "ok"
         en: "ok"
         es: "ok"
+        de: "ok"
+        it: "ok"
+        pt: "ok"
+        br: "ok"
+        nl: "ok"
       # Deuxième phrase : le conseil de la tirelire. Le jour de l'ouverture, l'argent se distribue
       # séance tenante — mieux vaut qu'il soit déjà là, sous les yeux, plutôt que promis.
       butin_money_warning:
         fr: "Attention : c'est une promesse d'argent RÉEL, à distribuer entre les joueurs le jour où le butin sera ouvert. Prévois une tirelire ou un vrai coffre où déposer cet argent au fur et à mesure : le jour de l'ouverture, la distribution sera immédiate."
         en: "Careful: this is a promise of REAL money, to be shared among the players on the day the loot is opened. Keep a piggy bank or a real chest and put the money in as you go: on opening day, sharing it out will be immediate."
         es: "Atención: es una promesa de dinero REAL, para repartir entre los jugadores el día en que se abra el botín. Ten una hucha o un cofre de verdad donde ir metiendo ese dinero: el día de la apertura, el reparto será inmediato."
+        de: "Achtung: Das ist ein Versprechen von ECHTEM Geld, das am Tag der Beute-Öffnung unter den Spielern aufgeteilt wird. Leg dir ein Sparschwein oder eine echte Truhe zu und steck das Geld nach und nach hinein: Am Tag der Öffnung wird dann sofort verteilt."
+        it: "Attenzione: è una promessa di soldi VERI, da dividere tra i giocatori il giorno in cui si aprirà il bottino. Tieni un salvadanaio o un vero scrigno dove mettere quei soldi man mano: il giorno dell'apertura la distribuzione sarà immediata."
+        pt: "Atenção: é uma promessa de dinheiro A SÉRIO, para repartir entre os jogadores no dia em que o espólio for aberto. Arranja um mealheiro ou um baú verdadeiro onde ir pondo esse dinheiro: no dia da abertura, a distribuição será imediata."
+        br: "Atenção: é uma promessa de dinheiro DE VERDADE, para dividir entre os jogadores no dia em que o tesouro for aberto. Arrume um cofrinho ou um baú de verdade para ir guardando esse dinheiro: no dia da abertura, a distribuição será imediata."
+        nl: "Let op: dit is een belofte van ECHT geld, dat verdeeld wordt onder de spelers op de dag dat de buit opengaat. Zet een spaarpot of een echte kist klaar en stop het geld er gaandeweg in: op de dag van de opening kan het meteen worden uitgedeeld."
 
       #------------- Écran de saisie d'une somme (money_page) -----------
 
@@ -373,40 +548,80 @@ data:
         fr: "Argent de poche"
         en: "Pocket money"
         es: "Dinero de bolsillo"
+        de: "Taschengeld"
+        it: "Paghetta"
+        pt: "Semanada"
+        br: "Mesada"
+        nl: "Zakgeld"
       # Ce qu'on est en train de faire : ajouter au coffre, ou y remettre le sien.
       money_lbl_add:
         fr: "Somme à ajouter"
         en: "Amount to add"
         es: "Cantidad a añadir"
+        de: "Betrag zum Hinzufügen"
+        it: "Somma da aggiungere"
+        pt: "Quantia a adicionar"
+        br: "Quantia a adicionar"
+        nl: "Bedrag om toe te voegen"
       money_lbl_back:
         fr: "Somme à remettre dans le coffre"
         en: "Amount to put back in the chest"
         es: "Cantidad a devolver al cofre"
+        de: "Betrag zurück in die Truhe"
+        it: "Somma da rimettere nello scrigno"
+        pt: "Quantia a devolver ao baú"
+        br: "Quantia a devolver ao baú"
+        nl: "Bedrag terug in de kist"
       # Paiement du tribut : le chef déclare ce qu'il verse POUR DE VRAI au joueur.
       money_lbl_pay:
         fr: "Somme versée au joueur"
         en: "Amount paid to the player"
         es: "Cantidad entregada al jugador"
+        de: "An den Spieler gezahlter Betrag"
+        it: "Somma versata al giocatore"
+        pt: "Quantia entregue ao jogador"
+        br: "Quantia entregue ao jogador"
+        nl: "Bedrag betaald aan de speler"
       # Accolé au libellé ci-dessus, suivi du solde : uniquement quand un maximum existe.
       money_lbl_max:
         fr: "maximum :"
         en: "maximum:"
         es: "máximo:"
+        de: "Maximum:"
+        it: "massimo:"
+        pt: "máximo:"
+        br: "máximo:"
+        nl: "maximum:"
       # Touche du pavé : trois lettres maximum, la case est carrée.
       money_key_max:
         fr: "MAX"
         en: "MAX"
         es: "MÁX"
+        de: "MAX"
+        it: "MAX"
+        pt: "MÁX"
+        br: "MÁX"
+        nl: "MAX"
       money_warn_back:
         fr: "Cet argent quitte ta bourse et retourne dans le coffre du clan : il sera repartagé à la prochaine ouverture du butin."
         en: "This money leaves your purse and goes back into the clan's chest: it will be shared again the next time the loot is opened."
         es: "Este dinero sale de tu bolsa y vuelve al cofre del clan: se repartirá de nuevo en la próxima apertura del botín."
+        de: "Dieses Geld verlässt deinen Geldbeutel und geht zurück in die Truhe des Clans: Es wird bei der nächsten Beute-Öffnung neu verteilt."
+        it: "Questi soldi escono dal tuo borsellino e tornano nello scrigno del clan: saranno ridivisi alla prossima apertura del bottino."
+        pt: "Este dinheiro sai da tua bolsa e volta para o baú do clã: será repartido de novo na próxima abertura do espólio."
+        br: "Este dinheiro sai da sua bolsa e volta para o baú do clã: será dividido de novo na próxima abertura do tesouro."
+        nl: "Dit geld gaat uit je buidel terug in de kist van de clan: het wordt opnieuw verdeeld bij de volgende opening van de buit."
       # Versement du tribut. {name} = le joueur payé. Le jeu ne peut pas constater le versement :
       # c'est le chef qui le déclare, et l'avertissement est là pour qu'il ne le déclare pas à vide.
       money_warn_pay:
         fr: "Cette somme est l'argent RÉEL que vous devez remettre à {name}, de la main à la main. Elle sera retirée de sa bourse."
         en: "This amount is the REAL money you must hand over to {name}. It will be taken out of their purse."
         es: "Esta cantidad es el dinero REAL que debes entregar a {name} en mano. Se descontará de su bolsa."
+        de: "Dieser Betrag ist ECHTES Geld, das du {name} persönlich in die Hand geben musst. Er wird von seinem Geldbeutel abgezogen."
+        it: "Questa somma è denaro VERO che devi consegnare a {name} di persona. Sarà tolta dal suo borsellino."
+        pt: "Esta quantia é dinheiro A SÉRIO que tens de entregar a {name} em mão. Será descontada da sua bolsa."
+        br: "Esta quantia é dinheiro DE VERDADE que você tem que entregar a {name} em mãos. Será descontada da bolsa dele."
+        nl: "Dit bedrag is ECHT geld dat je persoonlijk aan {name} moet overhandigen. Het wordt van zijn of haar buidel afgetrokken."
       # Notification au joueur payé. {amount} = la somme versée. « argent de poche » et non
       # « pièces » : c'est de l'argent réel, et l'app doit le dire du même mot partout. Unité
       # d'argot (balles/bucks/pavos) pour que {amount} ne sonne pas comme un nombre nu.
@@ -414,3 +629,8 @@ data:
         fr: "Ton tribut t'attend : {amount} balles d'argent de poche bien réel !"
         en: "Your tribute awaits: {amount} very real bucks of pocket money!"
         es: "¡Tu tributo te espera: {amount} pavos de dinero de bolsillo bien real!"
+        de: "Dein Tribut wartet: {amount} Mäuse echtes Taschengeld!"
+        it: "Il tuo tributo ti aspetta: {amount} dindini di paghetta verissima!"
+        pt: "O teu tributo espera-te: {amount} paus de semanada bem verdadeira!"
+        br: "Seu tributo espera por você: {amount} de mesada bem de verdade!"
+        nl: "Je tribuut wacht op je: {amount} pegels echt zakgeld!"

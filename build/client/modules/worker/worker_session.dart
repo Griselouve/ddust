@@ -120,17 +120,38 @@ extension Worker_session on worker {
                                 // persisté pendant une session d'impersonation avant un kill).
                                 _authUserId    = _userId;
                                 _impersonating = false;
+                                // AMORCE du miroir store, et pas seulement du champ Dart : `worker.impersonating`
+                                // sert de garde aux étapes de la leçon dvtuto `impersonation_back`, et une clé
+                                // JAMAIS écrite se lit `null` — qui ne vaut ni "true" ni "false". La leçon rejouée
+                                // depuis l'écran Tutoriels par quelqu'un qui n'a jamais prêté son compte voyait
+                                // alors TOUTES ses étapes sautées, donc une leçon vide. take_place / _impRestore
+                                // le repassent à "true" juste après, restore_self à "false".
+                                await deva_set("worker.impersonating", "false");
                                 await _applyImpersonation(false, "");
 
                                 final best = await _findBestSession();
                                 // Onboarding anonyme pas encore flushé : la base est vide, il n'y a donc
                                 // RIEN à reprendre. Le tampon d'acceptation ne survit pas à un kill, par
                                 // choix — une preuve de consentement à demi-écrite n'en est pas une. On
-                                // efface l'état local résiduel et on renvoie sur home, seul endroit d'où
-                                // l'on peut aussi choisir « Retrouver mon héros ». Une fois le flush passé
+                                // efface l'état local résiduel et on repart du seuil, d'où le parcours
+                                // ramène à `home` — seul endroit où l'on peut aussi choisir « Retrouver
+                                // mon héros ». (C'était `home` directement jusqu'au 2026-09-13, ce qui
+                                // faisait sauter l'accueil à quiconque avait interrompu une première
+                                // tentative.) Une fois le flush passé
                                 // (mineur admis dans son clan avant d'avoir lié son compte), la session
                                 // existe et le routage nominal ci-dessous reprend la main.
                                 if (best == null && _anon) {
+                                    // La session vient de s'ouvrir, à la seconde, parce que le joueur a
+                                    // confirmé son royaume (on_region_screen_done). Il n'y a évidemment
+                                    // rien en base : c'est le début du parcours, pas ses décombres.
+                                    // _restartAnonymousOnboarding effacerait ici le royaume qu'on vient
+                                    // de choisir et renverrait à l'accueil — une boucle dont on ne
+                                    // sortirait jamais. On enchaîne donc simplement l'étape suivante.
+                                    if (_onboardingLive) {
+                                        _onboardingLive = false;
+                                        await ActionRegistry.get("steps.navigate")?.call(caller, event);
+                                        return;
+                                    }
                                     await _restartAnonymousOnboarding();
                                     return;
                                 }
@@ -360,9 +381,12 @@ extension Worker_session on worker {
                                 await _enterOnboarding(caller, event);
     }
 
-    // Entrée dans l'onboarding. Le premier écran n'est PAS toujours le royaume :
-    // quand une seule région est ouverte, il n'y a rien à choisir et dvdocuments
-    // l'a déjà posée en session. On enchaîne alors directement sur l'âge.
+    // Entrée dans l'onboarding. Le premier écran est le ROYAUME — toujours, pour
+    // ddust : depuis le 2026-09-12 dvdocuments ne déduit plus jamais la région, et
+    // seule une application qui coupe la question (`region.enabled: false`, que
+    // ddust n'utilise pas) obtiendrait autre chose. La branche « âge » ci-dessous
+    // n'est donc plus empruntée ici, et c'est très bien qu'elle reste : le worker
+    // ne doit pas présumer de la conf d'une app qui réutiliserait ce code.
     //
     // ⚠ LA DÉCISION APPARTIENT AU MODULE, pas au worker. Elle dépend de la conf
     //   des régions ouvertes et de leurs datacenters — la recopier ici la ferait
@@ -382,30 +406,24 @@ extension Worker_session on worker {
 
                                 final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 _cloud?.configure("region", region);
-                                // Session anonyme : on n'écrit RIEN. L'index, les steps et l'enregistrement
-                                // du device partent d'un bloc au flush (_flushOnboarding), une fois le
-                                // compte Google lié — ou, pour un mineur, à l'entrée dans le flux de
-                                // jointure de clan, premier moment où une écriture devient nécessaire.
+                                // ON N'ÉCRIT RIEN, ET PAS SEULEMENT QUAND LA SESSION EST ANONYME.
+                                // L'index, les steps et l'enregistrement du device partent d'un seul
+                                // bloc au flush (_flushOnboarding), une fois les conditions acceptées.
+                                //
+                                // ⚠ CETTE ÉTAPE ÉCRIVAIT, pour un compte déjà authentifié qui refaisait
+                                //   son onboarding : `userindexes`, puis les steps `region` et
+                                //   `legal_state`. Trois allers-retours réseau AVANT que quiconque ait
+                                //   accepté quoi que ce soit, et autant d'occasions de laisser en base
+                                //   un compte à moitié constitué. Or un compte à moitié constitué est
+                                //   pire qu'un compte absent : absent, on recommence de zéro ; à
+                                //   moitié là, la reprise le prend pour un parcours en cours et
+                                //   aiguille sur un état qui n'existe pas vraiment.
+                                //
+                                // L'abonnement FCM global, lui, reste : ce n'est pas une donnée
+                                // inscrite au nom de quelqu'un, c'est un canal, et il est refait à
+                                // l'identique au flush.
                                 if (!_anon && region.isNotEmpty) {
                                     await _messaging?.msgregister('global');
-                                    final firebaseUid = _cloud?.currentUser()?.providerUid ?? "";
-                                    if (firebaseUid.isNotEmpty && _userId.isNotEmpty) {
-                                        try {
-                                            await _cloud?.write("workers", "userindexes", firebaseUid,
-                                                Dvidle({"ownerId": firebaseUid, "userId": _userId, "enabled": true}), region: region);
-                                        } catch (e) {
-                                            deva_log("error", "[worker] on_documents_ready: userindexes write FAILED: $e");
-                                        }
-                                    }
-                                    final legalState = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "a";
-                                    // Deux valeurs distinctes dans le même appel : le 1er argument ROUTE
-                                    // (datacenter), le 3e est ce qu'on ENREGISTRE — le royaume choisi par
-                                    // le joueur. Y écrire la région cloud effacerait le choix : plusieurs
-                                    // royaumes partagent un datacenter, ils s'y confondraient, et la
-                                    // reprise de session ne saurait plus lequel rejouer.
-                                    final market = (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
-                                    await _writeStep(region, "region",      market);
-                                    await _writeStep(region, "legal_state", legalState);
                                 }
                                 await ActionRegistry.get("steps.navigate")?.call(caller, event);
     }
@@ -455,16 +473,61 @@ extension Worker_session on worker {
                                 }
 
                                 final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                // Anonyme : ni le step cgu, ni Vertex. Le step part au flush ; Vertex a
-                                // besoin des secrets, que dvcloud refuse volontairement de charger pour une
-                                // session anonyme — il démarrera au prochain on_login, une fois le compte lié.
+                                // LE PREMIER MOMENT OÙ L'ON ÉCRIT, et c'est le bon : les conditions
+                                // viennent d'être acceptées. Tout ce qui précède — royaume, âge, état
+                                // légal — n'a vécu jusqu'ici que dans la session locale.
+                                //
+                                // Anonyme : rien encore. Son flush viendra à la liaison du compte
+                                // (adulte) ou à l'entrée dans le flux de clan (mineur), parce qu'il
+                                // n'a pas encore d'identité durable à qui rattacher tout cela.
+                                //
+                                // Déjà authentifié — un compte Google dont la session en base a
+                                // disparu, et qui refait donc tout le parcours : le bloc part
+                                // MAINTENANT et EN UNE FOIS, au lieu des trois écritures égrenées
+                                // d'écran en écran qu'on faisait avant. `proofAlreadyWritten` parce
+                                // que dvdocuments, hors mode différé, vient d'inscrire la preuve
+                                // lui-même : le flush n'a donc rien à rejouer de ce côté.
+                                // (La bascule légale mineur → adulte, elle, est sortie plus haut :
+                                // elle ne passe jamais par ici.)
+                                //
+                                // Vertex attend aussi le compte lié : dvcloud refuse volontairement de
+                                // charger les secrets pour une session anonyme.
                                 if (!_anon) {
-                                    if (region.isNotEmpty) await _writeStep(region, "cgu", "accepted");
+                                    if (region.isNotEmpty) await _flushOnboarding(proofAlreadyWritten: true);
                                     final _ai = Deva.instance.module("dvvertexai");
                                     if (_ai != null) try { await (_ai as dynamic).startVertexMotor(); } catch (_) {}
                                 }
                                 final legalState = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "";
                                 await Deva.instance.set("worker.session.create_clan_disabled", _gameplayLegal(legalState) == "k" ? "true" : "");
+
+                                // LE PACTE — quatre secondes de célébration avant la liaison du
+                                // compte. C'est le seul endroit du tunnel où l'on célèbre, et il
+                                // est choisi : on vient de faire lire des conditions générales, et
+                                // ce qui suit est un bouton « se connecter ». Sans rien entre les
+                                // deux, le jeu n'aurait été, depuis l'interlude, qu'une suite de
+                                // formalités.
+                                //
+                                // ⚠ RÉSERVÉ À L'ADULTE ANONYME EN COURS D'INSCRIPTION, et les deux
+                                //   conditions comptent. Cet écran n'est PAS réservé à l'onboarding :
+                                //   toute nouvelle version de document le repose à un joueur de
+                                //   longue date, à qui « c'est parti, connecte-toi » ne voudrait
+                                //   rien dire — il est connecté depuis des mois. Et un mineur part
+                                //   vers l'avis de l'enfant, pas vers une liaison de compte : la
+                                //   même réplique l'enverrait appuyer sur un bouton qui n'existe
+                                //   pas pour lui.
+                                //
+                                // ⚠ LA NAVIGATION PART DE `on_pacte_finished`, d'où le `return` : la
+                                //   jouer ici ferait défiler l'écran suivant sous la scène.
+                                if (_anon && _gameplayLegal(legalState) == "a") {
+                                    final play = ActionRegistry.get("dvinterlude.play.pacte");
+                                    if (play != null) {
+                                        await play(null, null);
+                                        return;
+                                    }
+                                    // dvinterlude absent du build : on n'ampute personne de son
+                                    // inscription pour une animation.
+                                    deva_log("warning", "[pacte] dvinterlude absent : célébration sautée");
+                                }
                                 await ActionRegistry.get("steps.navigate")?.call(caller, event);
     }
 
@@ -482,9 +545,30 @@ extension Worker_session on worker {
                                     : (await Deva.instance.get("documents.session.region"))?.toString() ?? "";
                                 final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (market.isEmpty || region.isEmpty) return;
-                                // Anonyme : le choix du royaume ne crée plus le doc `users`. Il vit dans
-                                // documents.session.region et sera inscrit au flush avec le reste.
-                                if (!_anon) await _writeStep(region, "region_intro", market);
+
+                                // PREMIER CONTACT RÉSEAU DE TOUT L'ONBOARDING. Jusqu'ici — accueil,
+                                // interlude, catalogue des royaumes — l'application n'a parlé à
+                                // personne : tout venait du paquet. La session anonyme s'ouvre donc
+                                // ICI, au premier instant où elle sert réellement à quelque chose, et
+                                // non au tap d'accueil comme avant. C'est ce qui rend l'arrivée jouable
+                                // hors ligne, et c'est aussi ce qui fait qu'un échec de connexion est
+                                // signalé APRÈS que le joueur a vu le jeu, et non à sa place.
+                                //
+                                // Le royaume, lui, est déjà persisté localement (persistRegionEarly) :
+                                // s'il n'y a pas de réseau, on n'a rien perdu — le choix sera rejoué
+                                // tel quel au retour.
+                                if (_cloud?.currentUser() == null) {
+                                    _onboardingLive = true;
+                                    await ActionRegistry.get("dvcloud.do_start_anonymous")?.call(caller, null);
+                                    return;   // la suite du parcours part de on_login
+                                }
+                                // RIEN N'EST ÉCRIT ICI, POUR PERSONNE. Le royaume vit dans
+                                // documents.session.region et sera inscrit au flush, avec le reste.
+                                // Il l'était autrefois pour un compte déjà authentifié — et c'est
+                                // exactement ce qui rendait certains états irrattrapables : un
+                                // incident réseau deux écrans plus loin laissait un `users` portant
+                                // un royaume mais pas de conditions acceptées, que la reprise
+                                // suivante relisait comme un onboarding légitimement commencé.
                                 await ActionRegistry.get("steps.navigate")?.call(caller, event);
     }
 
@@ -561,8 +645,30 @@ extension Worker_session on worker {
                                 _declareTiroirVocabulary();
                                 await _syncChiefUi();
                                 await Deva.instance.set("worker.session.clan_done", "");
-                                if (DvOrb.get_current_page()?.dvid != "home") {
-                                    DvOrb.navigate_reset("home");
+
+                                // ⚠ AU SEUIL, ET NON SUR `home`. Se deconnecter, c'est revenir au
+                                //   tout debut : l'ecran noir qui demande « le donjon vous attend,
+                                //   etes-vous pret ? ». `home` est l'ecran des deux portes, qui
+                                //   vient APRES le seuil, le choix de la langue et l'interlude :
+                                //   y atterrir directement donne l'impression d'une application
+                                //   qui a perdu le fil.
+                                //
+                                //   C'etait un arbitrage du 2026-09-13, pris pour eviter de
+                                //   reimposer trente secondes d'accueil a quelqu'un qui veut
+                                //   seulement changer de compte. L'accueil ne se rejoue pas pour
+                                //   autant : le seuil attend un tap, et la porte « retrouver mon
+                                //   heros » est a deux ecrans.
+                                //
+                                // ⚠ ET IL FAUT REARMER LE SEUIL. Ses deux gardes sont des drapeaux
+                                //   de session : `_awakeCycling` empeche deux boucles de phrases
+                                //   de se superposer, `_seuilMusique` empeche deux musiques. Tous
+                                //   deux restent leves apres un premier passage — sans cette
+                                //   remise a zero, on revient sur un ecran noir, muet et sans
+                                //   musique, exactement ce qui a ete observe.
+                                _awakeCycling  = false;
+                                _seuilMusique  = false;
+                                if (DvOrb.get_current_page()?.dvid != "awake") {
+                                    DvOrb.navigate_reset("awake");
                                 }
     }
 
@@ -676,6 +782,11 @@ extension Worker_session on worker {
 
                                 final reason = event?.toString() ?? "";
                                 deva_log("warning", "[worker] connexion échouée: $reason");
+                                // L'ouverture de session déclenchée par la confirmation du royaume a
+                                // échoué (hors ligne, le plus souvent). Le parcours n'est plus vivant :
+                                // le prochain on_login qui aboutira devra reprendre la règle normale,
+                                // sans quoi il enchaînerait une étape depuis un écran qu'on a quitté.
+                                _onboardingLive = false;
                                 await _showHomeOverlay(
                                     reason == "anonymous_failed" ? "start_failed" : "signin_failed_parent");
     }
@@ -694,7 +805,11 @@ extension Worker_session on worker {
                                 DvOrb.navigate_reset("link_account_screen");
     }
 
-    Future<void> on_link_account_appear(DvShape? caller, dynamic event) async {
+    // ⚠ `dynamic caller` ET NON `DvShape?` : l'`appear` d'une PAGE passe la page
+    //   elle-même, et une page est un DvView, pas un DvShape. Typer le paramètre
+    //   `DvShape?` faisait lever un `type 'DvPage' is not a subtype of 'DvShape?'` que
+    //   DvView attrape et journalise — l'écran naissait donc inerte, en silence.
+    Future<void> on_link_account_appear(dynamic caller, dynamic event) async {
 
                                 _hideShapes([
                                     "link_account/error",
@@ -769,15 +884,33 @@ extension Worker_session on worker {
     //-- Le flush ------------------------------------------------------------
 
     // Première écriture réelle du joueur en base : index, doc `users` et preuve de
-    // consentement, d'un seul tenant. Deux appelants — la liaison du compte Google
-    // (adulte) et l'entrée dans le flux de jointure de clan (mineur, qui a besoin d'un
-    // uid pour dialoguer avec le lobby). Idempotente : rejouable telle quelle.
+    // consentement, d'un seul tenant. Idempotente : rejouable telle quelle.
+    //
+    // TROIS appelants, un par façon d'arriver au bout du parcours :
+    //   * la liaison du compte Google — l'adulte anonyme, qui vient d'acquérir une
+    //     identité durable à qui rattacher tout cela ;
+    //   * l'entrée dans le flux de jointure de clan — le mineur, qui a besoin d'un uid
+    //     pour dialoguer avec le lobby, et qui liera son compte après son admission ;
+    //   * l'acceptation des conditions — le compte Google déjà authentifié dont la
+    //     session en base a disparu, et qui refait donc tout le parcours
+    //     (`proofAlreadyWritten`, dvdocuments n'étant pas différé pour lui).
+    //
+    // ⚠ C'EST LE SEUL POINT D'ÉCRITURE DE L'ONBOARDING, et ça doit le rester. Les
+    //   étapes intermédiaires écrivaient autrefois au fil de l'eau pour les sessions
+    //   authentifiées ; un incident réseau entre deux écrans laissait alors un compte à
+    //   moitié constitué, que la reprise suivante prenait pour un parcours en cours.
+    //   Un compte absent se refait de zéro ; un compte à moitié là ne se répare pas.
     //
     // Rend false sans avoir tout écrit dès qu'une étape échoue. L'appelant ne doit alors
     // PAS poursuivre : atteindre new_or_pick_clan sans userindexes ferait échouer la
     // création de clan au niveau des règles Firestore, panne bien plus tardive et bien
     // plus obscure que le message ré-essayable affiché à cet instant.
-    Future<bool> _flushOnboarding() async {
+    // [proofAlreadyWritten] : la preuve de consentement a DÉJÀ été inscrite par
+    // dvdocuments, qui n'était pas en mode différé (session non anonyme). Il n'y a
+    // donc rien « en attente », et la garde d'intégrité ci-dessous — qui refuse
+    // d'inscrire un compte accepté sans preuve à écrire — doit le savoir : son
+    // intention est remplie autrement, pas contournée.
+    Future<bool> _flushOnboarding({bool proofAlreadyWritten = false}) async {
 
                                 // `region` route (datacenter), `market` s'enregistre (royaume choisi).
                                 // Les deux sont exigés : sans le royaume, la reprise de session ne
@@ -801,7 +934,7 @@ extension Worker_session on worker {
                                 final existing = await _readSession(region) ?? Dvidle({});
                                 final dvdocs   = ModuleRegistry.create("documents");
                                 final pending  = dvdocs != null && ((dvdocs as dynamic).hasPendingAcceptance as bool? ?? false);
-                                if (!pending && existing.get("steps.cgu") == null) {
+                                if (!pending && !proofAlreadyWritten && existing.get("steps.cgu") == null) {
                                     deva_log("error", "[worker] _flushOnboarding: aucune acceptation à inscrire → rien n'est écrit");
                                     return false;
                                 }
@@ -857,8 +990,8 @@ extension Worker_session on worker {
 
                                 // 3. Session légale + preuve de consentement, rejouée par dvdocuments avec
                                 //    l'horodatage RÉEL de l'acceptation.
-                                bool docsOk = false;
-                                if (dvdocs != null) {
+                                bool docsOk = proofAlreadyWritten;
+                                if (dvdocs != null && !proofAlreadyWritten) {
                                     try {
                                         docsOk = await (dvdocs as dynamic).flushPending() as bool? ?? false;
                                     } catch (e) {
@@ -890,8 +1023,6 @@ extension Worker_session on worker {
     // compte existant, qui se termine par son on_login).
     Future<void> _restartAnonymousOnboarding({bool navigate = true}) async {
 
-                                final residue = ((await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "").isNotEmpty;
-
                                 final dvdocs = ModuleRegistry.create("documents");
                                 if (dvdocs != null) {
                                     try { await (dvdocs as dynamic).resetLocalSession(); } catch (_) {}
@@ -908,12 +1039,32 @@ extension Worker_session on worker {
                                 await Deva.instance.set("session.user.name",                   "");
                                 await Deva.instance.store();
                                 if (!navigate) return;
-                                if (residue) {
-                                    deva_log("info", "[worker] onboarding anonyme interrompu → retour à l'accueil");
-                                    DvOrb.navigate_reset("home");
-                                } else {
-                                    deva_log("info", "[worker] session anonyme ouverte → entrée dans l'onboarding");
-                                    await _enterOnboarding(null, null);
+
+                                // ⚠ LE SEUIL, TOUJOURS — ET LA BRANCHE QUI A DISPARU D'ICI ETAIT LA
+                                //   CAUSE DE L'ACCUEIL SAUTE. Il y avait un `else` qui appelait
+                                //   `_enterOnboarding()` : « c'est le tap qui vient d'ouvrir la
+                                //   session, on entre directement dans le tunnel ». Ce raisonnement
+                                //   est mort le jour où `_onboardingLive` est apparu — ce cas-là est
+                                //   désormais intercepté par `on_login` AVANT d'arriver ici. Tout ce
+                                //   qui parvient jusqu'à cette méthode est une REPRISE.
+                                //
+                                //   Et cette branche ne se contentait pas d'être inutile : elle
+                                //   nuisait. `_enterOnboarding` tire `steps.navigate.region` alors
+                                //   que la page courante est `awake`, dont le pas ne déclare aucune
+                                //   route `region` — dvsteps retombait donc sur `default`,
+                                //   c'est-à-dire `lang_choice`. Une seconde et demie après le
+                                //   lancement, l'application sautait par-dessus son propre accueil,
+                                //   et la boucle du seuil cherchait en vain une shape déjà détruite
+                                //   (« awake/question jamais montée » dans le journal).
+                                //
+                                // ⚠ PAS DE `navigate_reset` SI L'ON Y EST DEJA : au démarrage l'orb
+                                //   ouvre `awake` (home_page) et la boucle des sept langues tient
+                                //   une référence sur `awake/question`. Reconstruire la page à
+                                //   l'identique la lui arracherait, et le seuil deviendrait un écran
+                                //   noir muet.
+                                deva_log("info", "[worker] onboarding anonyme sans données → retour au seuil");
+                                if (DvOrb.get_current_page()?.dvid != "awake") {
+                                    DvOrb.navigate_reset("awake");
                                 }
     }
 
@@ -1189,6 +1340,17 @@ extension Worker_session on worker {
                                     return;
                                 }
 
+                                // Envois globaux adressés à CET appareil. Les destinataires étaient codés en
+                                // dur (un poste Windows et `BP2A.250605.015`, un Build.ID Android que tous
+                                // les téléphones à la même mise à jour partageaient).
+                                // ⚠ recipes vide = TOUS les appareils du tenant : sans identifiant, on sort.
+                                final selfDevice  = await _cloud?.deviceId() ?? "";
+                                if (selfDevice.isEmpty) {
+                                    deva_log("error", "[test] deviceId indisponible (compte non connecté ?)");
+                                    return;
+                                }
+                                final selfRecipes = [selfDevice];
+
                                 // 1. Notification silencieuse (local, sans label, 1 action)
                                 deva_log("info", "[test] envoi notification silencieuse...");
                                 try {
@@ -1223,7 +1385,7 @@ extension Worker_session on worker {
                                     final result = await messaging.send(dvmsg(
                                         range:   'global',
                                         label:   'Test notification globale',
-                                        recipes: ['{19943852-4271-468B-8781-77B0B3087774}', 'BP2A.250605.015'],
+                                        recipes: selfRecipes,
                                     ));
                                     deva_log("info", "[test] globale: ${result.get('status')}");
                                 } catch (e) {
@@ -1239,7 +1401,7 @@ extension Worker_session on worker {
                                         label:   'Test notification broadcast',
                                         eventID: eventID,
                                         mode:    'noorb',
-                                        recipes: ['{19943852-4271-468B-8781-77B0B3087774}', 'BP2A.250605.015'],
+                                        recipes: selfRecipes,
                                         actions: {
                                             'tap': {
                                                 'action': 'worker.on_test_silent',
@@ -1315,8 +1477,13 @@ extension Worker_session on worker {
                                 }
 
                                 options.add("privacy");
-                                if (!_impersonating) options.add("delete_account");
+                                // ⚠ LA SUPPRESSION DU COMPTE EN DERNIER, APRES la deconnexion. Elle
+                                //   etait avant-derniere, donc collee au-dessus d'une option
+                                //   voisine par le libelle et anodine par l'effet : se deconnecter
+                                //   se defait, supprimer son compte non. Une action irreversible se
+                                //   met au bout de la liste, ou l'on n'arrive pas par inadvertance.
                                 options.add("logout");
+                                if (!_impersonating) options.add("delete_account");
                                 return options;
     }
 
@@ -1436,7 +1603,7 @@ extension Worker_session on worker {
                                 // (_reconcileProofs), ou jusqu'à la désinstallation : cas résiduel assumé.
                                 await _reconcileProofs("");
                                 // Même chemin que do_reset : nettoyage de la session locale puis logout
-                                // (→ on_logout → reset mémoire complet → navigate_reset("home")).
+                                // (-> on_logout -> reset memoire complet -> navigate_reset("awake")).
                                 final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 if (region.isNotEmpty) { try { await _deleteSession(region); } catch (_) {} }
                                 await Deva.instance.set("worker.session.clan_done", "");
