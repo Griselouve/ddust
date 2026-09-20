@@ -1,0 +1,14 @@
+# Les versions PUBLIEES de l'application, la plus recente en tete.
+#
+# ⚠ ECRIT PAR LE BUILDER (mot-clef `release`), pas a la main. Le fichier est
+#   reemis en entier a chaque publication : un commentaire ajoute ici
+#   disparaitrait a la suivante. Ce qui se regle a la main vit dans
+#   `releases/i18n.yml` (libelles) et `releases/template.html` (gabarit).
+#
+# ⚠ SEULES LES VERSIONS MINEURES ET MAJEURES y figurent : un `patch` part sur
+#   la piste interne de Google Play et ne concerne aucun visiteur.
+#
+# Corriger un texte ici PUIS relancer un `release` est sans danger : la
+# generation relit ce fichier, elle ne le devine pas.
+
+releases: []

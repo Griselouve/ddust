@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!--
+  GABARIT de la page « Nouveautés », une par langue.
+
+  ⚠ NE PAS EDITER LES PAGES GENEREES (hosting/web/<langue>/releases/index.html) :
+    le prochain `release` les reecrit toutes les huit depuis ce fichier. Ce qui se
+    corrige ici est le SQUELETTE ; les textes vivent dans i18n.yml, la liste des
+    versions dans releases.yml, et les deux sont a cote.
+
+  Les jetons @@@...@@@ sont resolus par deva/python/modules/dvrelease/dvrelease_site.py
+  AU MOMENT DE LA GENERATION, pas au deploiement : un jeton inconnu partirait donc
+  en clair sur le site. La generation liste ceux qu'elle n'a pas su resoudre.
+-->
+<html lang="@@@html_lang@@@">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@@@title@@@</title>
+  <meta name="description" content="@@@meta@@@">
+@@@alternates@@@
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#14110f"></head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="/@@@lang@@@/"><img src="/logo.png" alt="Donjons &amp; Savons"></a>
+      <nav id="site-nav"></nav>
+      <div id="lang-switch"></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" style="padding-bottom:0">
+      <h1>@@@h1@@@</h1>
+      <p class="sub">@@@sub@@@</p>
+    </section>
+
+    <ul class="timeline">
+@@@items@@@
+    </ul>
+
+    <div id="beta-signup"></div>
+
+    <div class="cta-row">
+      <a class="btn" href="/@@@lang@@@/roadmap/">@@@cta_roadmap@@@</a>
+      <a class="btn outline" href="/@@@lang@@@/experience/">@@@cta_experience@@@</a>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <script src="/assets/site.js" defer></script>
+</body>
+</html>

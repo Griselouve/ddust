@@ -21,6 +21,7 @@
       ["experience", "Expérience"],
       ["press", "Presse"],
       ["legal", "Légal"],
+      ["releases", "Releases"],
       ["betas", "Betas"]
     ],
     en: [
@@ -30,6 +31,7 @@
       ["experience", "Experience"],
       ["press", "Press"],
       ["legal", "Legal"],
+      ["releases", "Releases"],
       ["betas", "Betas"]
     ],
     es: [
@@ -39,6 +41,7 @@
       ["experience", "Experiencia"],
       ["press", "Prensa"],
       ["legal", "Legal"],
+      ["releases", "Releases"],
       ["betas", "Betas"]
     ],
     it: [
@@ -48,6 +51,7 @@
       ["experience", "Esperienza"],
       ["press", "Stampa"],
       ["legal", "Legale"],
+      ["releases", "Releases"],
       ["betas", "Beta"]
     ],
     de: [
@@ -57,6 +61,7 @@
       ["experience", "Erlebnis"],
       ["press", "Presse"],
       ["legal", "Rechtliches"],
+      ["releases", "Releases"],
       ["betas", "Betas"]
     ],
     pt: [
@@ -66,6 +71,7 @@
       ["experience", "Experiência"],
       ["press", "Imprensa"],
       ["legal", "Legal"],
+      ["releases", "Releases"],
       ["betas", "Betas"]
     ],
     br: [
@@ -75,6 +81,7 @@
       ["experience", "Experiência"],
       ["press", "Imprensa"],
       ["legal", "Jurídico"],
+      ["releases", "Releases"],
       ["betas", "Betas"]
     ],
     nl: [
@@ -84,6 +91,7 @@
       ["experience", "Ervaring"],
       ["press", "Pers"],
       ["legal", "Juridisch"],
+      ["releases", "Releases"],
       ["betas", "Beta's"]
     ]
   };
