@@ -1,0 +1,110 @@
+# =============================================================================
+# LA PAGE « RELEASES » DU SITE VITRINE, en huit langues.
+#
+# Rédigé à la main, JAMAIS réécrit par le builder. Ce qu'il écrit, lui, c'est
+# `releases.yml` (la liste des versions publiées) juste à côté ; les deux se
+# rejoignent dans `template.html` au moment de la génération.
+#
+# ⚠ LES HUIT LANGUES SE MODIFIENT ENSEMBLE. Une langue absente d'ici ne fait pas
+#   échouer la génération : elle produit une page au titre vide, ce qui est pire
+#   qu'une erreur, parce que personne ne la voit avant un visiteur.
+#
+# ⚠ `br` EST LE PORTUGAIS DU BRÉSIL, et `pt` celui du Portugal : deux langues,
+#   deux corpus. Le répertoire s'appelle `/br/`, mais la page s'annonce `pt-BR`,
+#   parce que `br` seul désigne le breton pour un moteur de recherche.
+#
+# Les mois servent à dater une version sur la timeline. Date COMPLÈTE volontai-
+# rement évitée : « 18 septembre 2026 » s'écrit de huit façons différentes, dont
+# trois avec une préposition, alors que le mois et l'année se rendent avec une
+# seule table.
+# =============================================================================
+
+html_langs:
+  fr: fr
+  en: en
+  es: es
+  it: it
+  de: de
+  pt: pt
+  br: pt-BR
+  nl: nl
+
+fr:
+  title: "Releases | Donjons & Savons"
+  meta: "Tout ce qui est arrivé dans Donjons & Savons, version après version : ce que chaque mise à jour a apporté aux clans."
+  h1: "Releases"
+  sub: "Ce qui est arrivé dans le donjon, version après version."
+  empty: "La première version arrive bientôt. Inscrivez-vous aux betas pour la voir naître !"
+  cta_roadmap: "Voir la suite du programme"
+  cta_experience: "Voir le jeu en images"
+  months: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
+
+en:
+  title: "Releases | Donjons & Savons"
+  meta: "Everything that has landed in Donjons & Savons, version after version: what each update brought to the clans."
+  h1: "Releases"
+  sub: "What has happened in the dungeon, version after version."
+  empty: "The first version is coming soon. Sign up for the betas to watch it hatch!"
+  cta_roadmap: "See what comes next"
+  cta_experience: "See the game in pictures"
+  months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+es:
+  title: "Releases | Donjons & Savons"
+  meta: "Todo lo que ha llegado a Donjons & Savons, versión tras versión: lo que cada actualización ha aportado a los clanes."
+  h1: "Releases"
+  sub: "Lo que ha pasado en la mazmorra, versión tras versión."
+  empty: "La primera versión llegará pronto. ¡Apúntate a las betas para verla nacer!"
+  cta_roadmap: "Ver lo que viene después"
+  cta_experience: "Ver el juego en imágenes"
+  months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+
+it:
+  title: "Releases | Donjons & Savons"
+  meta: "Tutto quello che è arrivato in Donjons & Savons, versione dopo versione: ciò che ogni aggiornamento ha portato ai clan."
+  h1: "Releases"
+  sub: "Quello che è successo nel dungeon, versione dopo versione."
+  empty: "La prima versione arriva presto. Iscriviti alle beta per vederla nascere!"
+  cta_roadmap: "Vedere il seguito del programma"
+  cta_experience: "Vedere il gioco in immagini"
+  months: ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"]
+
+de:
+  title: "Releases | Donjons & Savons"
+  meta: "Alles, was in Donjons & Savons angekommen ist, Version für Version: was jedes Update den Clans gebracht hat."
+  h1: "Releases"
+  sub: "Was im Verlies passiert ist, Version für Version."
+  empty: "Die erste Version kommt bald. Melden Sie sich für die Betas an, um sie entstehen zu sehen!"
+  cta_roadmap: "Sehen, was als Nächstes kommt"
+  cta_experience: "Das Spiel in Bildern ansehen"
+  months: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+
+pt:
+  title: "Releases | Donjons & Savons"
+  meta: "Tudo o que chegou a Donjons & Savons, versão após versão: o que cada atualização trouxe aos clãs."
+  h1: "Releases"
+  sub: "O que aconteceu na masmorra, versão após versão."
+  empty: "A primeira versão chega em breve. Inscreva-se nas betas para a ver nascer!"
+  cta_roadmap: "Ver a continuação do programa"
+  cta_experience: "Ver o jogo em imagens"
+  months: ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+
+br:
+  title: "Releases | Donjons & Savons"
+  meta: "Tudo o que chegou ao Donjons & Savons, versão após versão: o que cada atualização trouxe para os clãs."
+  h1: "Releases"
+  sub: "O que aconteceu na masmorra, versão após versão."
+  empty: "A primeira versão chega logo. Inscreva-se nas betas para ver ela nascer!"
+  cta_roadmap: "Ver o que vem por aí"
+  cta_experience: "Ver o jogo em imagens"
+  months: ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+
+nl:
+  title: "Releases | Donjons & Savons"
+  meta: "Alles wat er in Donjons & Savons is gebeurd, versie na versie: wat elke update de clans heeft gebracht."
+  h1: "Releases"
+  sub: "Wat er in de kerker is gebeurd, versie na versie."
+  empty: "De eerste versie komt binnenkort. Schrijf u in voor de beta's om haar te zien ontstaan!"
+  cta_roadmap: "Bekijken wat er nog komt"
+  cta_experience: "Het spel in beeld bekijken"
+  months: ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"]
