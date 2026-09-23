@@ -915,7 +915,7 @@ extension Worker_celebrations on worker {
                                 await _waitInterludesIdle();
                                 deva_log("info", "[tuto] fin de bienvenue → dvtuto.enter (seen.dashboard_intro="
                                     "${await deva_get("dvtuto.seen.dashboard_intro", false)})");
-                                await deva_do("dvtuto.enter");
+                                await _enterTuto();
     }
 
     // Déclare la musique de fond correspondant à l'état de vie : le mort a la sienne.

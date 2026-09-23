@@ -11,6 +11,13 @@ conf:
   # attendable : celui qui l'appelle reprend la main à la fin de la leçon).
   # Textes = tokens @@@T:...@@@ (traductions dans
   # le bloc lang.translations ci-dessus) ; le motor les résout via TranslationRegistry.processLabel.
+  #
+  # ⚠ LES RÔLES : `worker.is_chief` et `worker.player_is_adult`, JAMAIS `worker.player_last_is_admin`.
+  #   Les deux premières sont des clés de SESSION, publiées par _ensureIsAdmin / _ensureIsAdult juste
+  #   avant chaque `dvtuto.enter` (worker._enterTuto), et jamais écrites sur disque. La troisième est
+  #   la mémoire de l'animation de promotion : persistée, jamais remise à zéro, et héritable d'un autre
+  #   compte du même appareil. Les gardes chef la lisaient jusqu'au 2026-09-22, et un joueur neuf
+  #   voyait le contenu des chefs dès sa première ouverture.
   dvtuto:
     defaults:
       veil: "#000000B3"     # voile ~70 % : contraste marqué sans noircir tout l'écran (pas de cadre)
@@ -71,16 +78,16 @@ conf:
             text: "@@@T:tuto_dash_clan@@@"
             overrides:
               admin:
-                when: { worker.player_last_is_admin: "true" }
+                when: { worker.is_chief: "true" }
                 text: "@@@T:tuto_dash_clan_admin@@@"
           combat:
             order: 30
             target: combat_open
-            # Texte par défaut = joueur ; l'override si worker.player_last_is_admin == "true" (chef/admin).
+            # Texte par défaut = joueur ; l'override si worker.is_chief == "true" (chef/admin).
             text: "@@@T:tuto_dash_combat@@@"
             overrides:
               admin:
-                when: { worker.player_last_is_admin: "true" }
+                when: { worker.is_chief: "true" }
                 text: "@@@T:tuto_dash_combat_admin@@@"
           perso:  { order: 40, target: personnage_open, text: "@@@T:tuto_dash_perso@@@" }
           inv:
@@ -90,7 +97,7 @@ conf:
             text: "@@@T:tuto_dash_inv@@@"
             overrides:
               admin:
-                when: { worker.player_last_is_admin: "true" }
+                when: { worker.is_chief: "true" }
                 text: "@@@T:tuto_dash_inv_admin@@@"
 
       # ---------------------------------------------------------------------------------------
@@ -108,7 +115,7 @@ conf:
       # aucun téléchargement) ; seule l'illustration est un asset, et son absence dégrade
       # proprement en panneau sans image.
       #
-      # Le partage se fait sur `worker.player_is_adult` et NON sur `player_last_is_admin` : le
+      # Le partage se fait sur `worker.player_is_adult` et NON sur `worker.is_chief` : le
       # sujet est la parentalité, pas les droits de chef. Un adulte non chef reçoit les mêmes
       # conseils ; un aîné promu chef reste un enfant et reçoit le guide de l'aventurier.
       #
@@ -321,7 +328,7 @@ conf:
           # Un raccourci qui engage de l'argent réel ne doit pas se découvrir par accident.
           roster_purse:
             order: 55
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             text: "@@@T:tuto_clan_roster_purse@@@"
           roster_kebab:  { order: 56, target: "clan_page/roster#kebab",  text: "@@@T:tuto_clan_roster_kebab@@@" }
           # Cadre le panneau qui suit. Il liste TOUTES les actions qui existent, alors que
@@ -330,7 +337,7 @@ conf:
           # options qu'il vient de lire et qui n'y sont pas.
           roster_options_intro:
             order: 57
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             text: "@@@T:tuto_clan_options_intro@@@"
           # Panneau (admins) : actions du menu roster, lues depuis clan_page/roster_menu. `menu:` →
           # les 16 options réelles avec leur `desc` ; « Prendre sa place », « Déclarer hors ligne »,
@@ -338,7 +345,7 @@ conf:
           # pouce » y sont documentées par leur description, qui est la seule chose à tenir à jour.
           roster_options:
             order: 58
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             panel:
               title: "@@@T:tuto_clan_options_title@@@"
               menu: clan_page/roster_menu
@@ -349,12 +356,9 @@ conf:
           # listait donc « QR Code du clan », « Inviter à distance » et « Créer un joueur » — trois
           # commandes de gestion que le selector réserve aux chefs — à n'importe quel enfant du clan.
           #
-          # D'où deux panneaux à `rows:` explicites, et pas une garde sur le panneau auto-synchronisé :
-          # la garde du second devrait s'écrire `player_last_is_admin: "false"`, or cette clé n'est PAS
-          # amorcée avant le premier passage de _checkChiefPromotion (son absence y signifie « jamais
-          # vue », ce qui lui interdit un amorçage à "false" — il rejouerait l'animation de promotion
-          # à chaque connexion d'un chef). Une garde négative sur une clé qui peut être nulle aurait
-          # privé les enfants des DEUX panneaux. Ici, seul le second est gardé, en positif.
+          # D'où deux panneaux à `rows:` explicites : le commun, sans garde, et celui des chefs, gardé
+          # EN POSITIF (`worker.is_chief: "true"`). Une garde positive échoue fermée : si le rôle n'est
+          # pas connu, le panneau des chefs ne s'affiche pas, et c'est le seul sens d'erreur acceptable.
           #
           # Prix à payer : les deux listes sont écrites à la main. Les LIBELLÉS, eux, ne peuvent pas
           # diverger — ce sont les tokens du menu lui-même. Seul l'ensemble des options peut dériver :
@@ -369,10 +373,11 @@ conf:
                 tutorials: { image: "images/medium/nope.png",       name: "@@@T:clan_menu_tutorials@@@", desc: "@@@T:clan_menu_tutorials_desc@@@" }
           menu_options_admin:
             order: 63
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             panel:
               title: "@@@T:tuto_clan_menu_admin_title@@@"
               rows:
+                welcome_child:      { icon: "face",                      name: "@@@T:clan_menu_welcome_child@@@", desc: "@@@T:clan_menu_welcome_child_desc@@@" }
                 clan_qr:            { image: "images/small/qr-code.png", name: "@@@T:clan_menu_qr@@@",            desc: "@@@T:clan_menu_qr_desc@@@" }
                 clan_invite_remote: { icon: "share",                     name: "@@@T:clan_menu_invite_remote@@@", desc: "@@@T:clan_menu_invite_remote_desc@@@" }
                 create_player:      { icon: "group_add",                 name: "@@@T:clan_menu_create_player@@@", desc: "@@@T:clan_menu_create_player_desc@@@" }
@@ -390,10 +395,18 @@ conf:
           # ⚠ DEUX PAVES ET NON UN TEXTE FUSIONNE : ce sont deux cas distincts, le nominal
           #   et le rare. Les couler dans un seul bloc de dix lignes les melangerait, et un
           #   pave de dix lignes se saute la ou deux paves de cinq se lisent.
+          #
+          # ⚠ TROIS PAVES DEPUIS LE 2026-09-22, et l'enfant en tete. « QR Code du clan » ne fait
+          #   plus entrer qu'un adulte : un enfant n'entre qu'avec son accord, qu'il donne d'abord
+          #   sur son propre telephone et que le chef scanne avec « Accueillir un enfant ». Dire
+          #   encore « montre le QR code a ton enfant » enverrait les parents droit sur la seule
+          #   porte qui ne s'ouvre plus pour lui. L'ordre reste celui de la regle : le cas normal
+          #   d'une famille (l'enfant qui a un telephone), puis l'adulte, puis l'exception.
           recrutement:
             order: 64
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             text:
+              - "@@@T:tuto_clan_welcome_child@@@"
               - "@@@T:tuto_clan_qr@@@"
               - "@@@T:tuto_clan_create_player@@@"
 
@@ -422,7 +435,7 @@ conf:
           # Un mineur pouvait donc s'y faire expliquer la création d'un joueur et la prise de relais.
           what:
             order: 10
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             text:
               - "@@@T:tuto_create_player_what@@@"
               - "@@@T:tuto_create_player_switch@@@"
@@ -430,7 +443,7 @@ conf:
           # du menu d'un membre).
           icons:
             order: 30
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             panel:
               title: "@@@T:tuto_create_player_icons_title@@@"
               rows:
@@ -456,7 +469,7 @@ conf:
           # Visible des seuls chefs vivants → étape réservée aux admins.
           switch:
             order: 30
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             target: "commons/mode_game+commons/mode_admin"
             text: "@@@T:tuto_combat_switch@@@"
           # Mode jeu : texte adapté joueur (défaut) / admin (override).
@@ -474,7 +487,7 @@ conf:
               - "@@@T:tuto_combat_domains_grey@@@"
             overrides:
               admin:
-                when: { worker.player_last_is_admin: "true" }
+                when: { worker.is_chief: "true" }
                 text: "@@@T:tuto_combat_domains_play_admin@@@"
           # ⚠ L'INTRO EST PASSEE DANS LE PANNEAU. Une etape panneau accepte un `text` : il
           #   s'affiche entre le titre et les lignes, en mise en situation. L'annoncer sur
@@ -494,7 +507,7 @@ conf:
           # Cf. les reperes : l'intro passe dans le panneau qu'elle annonce.
           admin_options:
             order: 90
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             text: "@@@T:tuto_combat_domains_admin_intro@@@"
             panel:
               title: "@@@T:tuto_combat_admin_title@@@"
@@ -514,7 +527,7 @@ conf:
           # Cf. `combat_domains` : l'etape de surlignage muet a ete retiree le 2026-09-15.
           switch:
             order: 30
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             target: "commons/mode_game+commons/mode_admin"
             text: "@@@T:tuto_combat_switch@@@"
           # ⚠ LE GRISE EST UNE PRECISION DU MODE JEU, pas une etape a lui. Il repondait a la
@@ -531,7 +544,7 @@ conf:
               - "@@@T:tuto_combat_tasks_grey@@@"
             overrides:
               admin:
-                when: { worker.player_last_is_admin: "true" }
+                when: { worker.is_chief: "true" }
                 text: "@@@T:tuto_combat_tasks_play_admin@@@"
           # ⚠ L'INTRO EST PASSEE DANS LE PANNEAU. Une etape panneau accepte un `text` : il
           #   s'affiche entre le titre et les lignes, en mise en situation. L'annoncer sur
@@ -551,7 +564,7 @@ conf:
           # Cf. les reperes : l'intro passe dans le panneau qu'elle annonce.
           admin_options:
             order: 90
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             text: "@@@T:tuto_combat_tasks_admin_intro@@@"
             panel:
               title: "@@@T:tuto_combat_admin_title@@@"
@@ -563,7 +576,7 @@ conf:
           # de la leçon `combat_domains` : un chef ne crée jamais de domaine.
           admin_add:
             order: 95
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             text: "@@@T:tuto_combat_tasks_admin_add@@@"
 
       # Combat — leçon 3 : une TÂCHE EN COURS (page combat, `session.active_task` renseignée → widgets
@@ -656,7 +669,7 @@ conf:
       recruit_dashboard:
         screen: dashboard
         order: 15                     # juste après dashboard_intro (order 10)
-        requires: { worker.player_last_is_admin: "true", worker.clan_alone: "true" }
+        requires: { worker.is_chief: "true", worker.clan_alone: "true" }
         reminder:
           every:  3
           max:    5
@@ -669,7 +682,7 @@ conf:
         # `manual` (donc jamais enfilée par enter()), mais autant ne pas semer la confusion.
         screen: clan_page
         order: 32
-        requires: { worker.player_last_is_admin: "true", worker.clan_alone: "true" }
+        requires: { worker.is_chief: "true", worker.clan_alone: "true" }
         reminder:
           every:  3
           max:    5
@@ -726,7 +739,7 @@ conf:
           #   pas sur un pave.
           chest:
             order: 30
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             target: "items/explorer#type:butin"
             text: "@@@T:tuto_items_chest@@@"
 
@@ -781,6 +794,6 @@ conf:
           # Le levier, lui, existe — mais seul un chef peut curer la liste des tâches.
           curate:
             order: 20
-            requires: { worker.player_last_is_admin: "true" }
+            requires: { worker.is_chief: "true" }
             target: combat_open
             text: "@@@T:reminder_safety_curate@@@"

@@ -504,6 +504,24 @@ extension Worker_verdict on worker {
                         deva_log("info", "[combat] _applyVerdict: $taskId non 'validating' (=$st) → ignoré (déjà tranché ?)");
                         return;
                     }
+                    // L'assignee fait foi DANS LE DOCUMENT, pas dans l'appelant : le chemin de la
+                    // notification le lit dans la charge du message, qui peut être vide ou périmée.
+                    final docAssignee = taskDoc?.get("assignee")?.toString() ?? "";
+                    if (docAssignee.isNotEmpty) assignee = docAssignee;
+
+                    // ⚠ LA VALIDATION CROISÉE SE GARDE ICI, AU CŒUR, ET PAS SEULEMENT À L'ÉCRAN.
+                    //   La garde de worker_tasks (branche A) ne couvre que le tap sur une tuile. Le
+                    //   verdict par notification arrivait droit ici sans vérifier ni que celui qui
+                    //   tranche est chef, ni qu'il n'est pas l'auteur : un chef relancé sur SA
+                    //   tâche validait son propre travail d'un tap. Le serveur n'envoie plus cette
+                    //   relance à l'auteur, mais une notification ancienne, ou un message rejoué,
+                    //   ne doit rien pouvoir y changer.
+                    final refusal = await _verdictRefusal(clanId, clanSecret, region, assignee);
+                    if (refusal.isNotEmpty) {
+                        deva_log("info", "[combat] _applyVerdict: refusé ($refusal) task=$taskId assignee=$assignee");
+                        return;
+                    }
+
                     final rec = taskDoc?.get("recommended")?.toString() ?? "";
                     await deva_set("tasks.$taskId.recommended", rec);
 
@@ -581,6 +599,44 @@ extension Worker_verdict on worker {
                                              DateTime.now().toUtc().toIso8601String());
                         deva_log("info", "[combat] last_task recalé pour l'admin $_userId (verdict '$verdict' sur $taskId)");
                     }
+    }
+
+    // Qui a le droit de trancher la tâche de <assignee> ? "" = oui ; sinon le motif du refus.
+    //   - "not_admin"       : celui qui tranche n'est pas (ou plus) chef du clan ;
+    //   - "self_validation" : il est l'auteur, et le clan compte au moins DEUX chefs adultes.
+    //
+    // ⚠ DEUX CHEFS ADULTES, PAS DEUX CHEFS. La liste `admins` est une liste de rôle : elle peut
+    //   contenir un enfant (liste héritée d'un binaire antérieur). Un adulte dont le seul autre
+    //   chef est un mineur est seul à pouvoir juger en adulte : il garde le droit de l'admin
+    //   solo. Le statut se lit sur `clans_players.legal_state`, comme _ensureIsAdult.
+    //
+    // ⚠ LECTURE EN ÉCHEC = REFUS. Sur un verdict qui crédite de l'XP, le doute profite à
+    //   l'attente : la tâche reste en validation, un autre chef la tranchera.
+    //
+    // Le chef SEUL n'arrive jamais ici pour sa propre tâche : il s'auto-valide dans
+    // on_combat_ok (worker_combat), sans passer par _applyVerdict.
+    Future<String> _verdictRefusal(String clanId, String clanSecret, String region, String assignee) async {
+
+                                try {
+                                    final clanDoc = await _cloud?.read("workers", "clans", clanId,
+                                        ownerId: clanSecret, region: region);
+                                    final admins  = List<dynamic>.from(clanDoc?.get("admins") as List? ?? [])
+                                        .map((e) => e.toString()).toList();
+                                    if (_userId.isEmpty || !admins.contains(_userId)) return "not_admin";
+                                    if (assignee.isEmpty || assignee != _userId) return "";
+
+                                    var adults = 0;
+                                    for (final id in admins) {
+                                        final p = await _cloud?.read("workers", "clans_players/$clanId/players", id,
+                                            ownerId: clanSecret, region: region);
+                                        if (p?.get("legal_state")?.toString() == "a") adults++;
+                                        if (adults >= 2) return "self_validation";
+                                    }
+                                    return "";
+                                } catch (e) {
+                                    deva_log("warning", "[combat] _verdictRefusal: lecture impossible ($e) → refus");
+                                    return "read_failed";
+                                }
     }
 
     // Lecture ciblée UNIQUE d'un doc de tâche (statut + recommended dans le même read).

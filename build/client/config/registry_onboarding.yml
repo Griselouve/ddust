@@ -460,6 +460,10 @@ conf:
         - documents/region_confirm
         - documents/region_button
         - documents/region_menu
+        # La case des serveurs d'essai : n'apparaît QUE dans un build snapshot, et
+        # dvdocuments la cache de lui-même partout ailleurs (documents.arm_test_servers).
+        # Elle ne change pas le pays, donc pas les CGU : seulement le datacenter.
+        - documents/test_servers
         # ⚠ EN DERNIER, ET C'EST TOUT L'INTÉRÊT. L'ordre de cette liste est celui d'ajout
         #   des shapes : déclaré en tête, le rideau se peignait SOUS le décor, les
         #   libellés et les boutons — il tombait bien, mais derrière l'écran.
@@ -487,6 +491,15 @@ conf:
         - commons/intro_text
       shape:
         label: "@@@T:game_intro_text@@@"
+
+    # Entre le bouton des royaumes (64 %) et le bouton de confirmation (85 %) : la bande
+    # est libre, et la case n'existe de toute façon que dans un build de test.
+    documents/test_servers:
+      masks:
+        - commons/nobordershape
+      shape:
+        y: 74%
+        text_align: LEFT
 
     documents/region_label:
       masks:
@@ -859,8 +872,16 @@ conf:
         - commons/dark_button
 
     #//------------------------------- KID ASSENT SCREEN --------------------------------------
-    # L'avis du mineur, recueilli AVANT toute écriture en base (session encore anonyme).
-    # Cf. le commentaire du pas `kid_assent_screen` dans steps.yml pour le fondement juridique.
+    # L'avis du mineur, recueilli AVANT toute écriture (session encore anonyme, rien sur le
+    # disque) et AVANT la décision de son parent : c'est l'enfant qui parle le premier, sa
+    # réponse voyage ensuite jusqu'au parent (kid_assent_share). Cf. le commentaire du pas
+    # `kid_assent_screen` dans steps.yml pour le fondement juridique.
+    #
+    # UNE SEULE QUESTION : « as-tu envie de jouer ? ». La seconde (« c'est toujours ce que tu
+    # veux ? »), posée quand une invitation attendait déjà (lien ouvert application fermée), a
+    # disparu le 2026-09-22 : chaque oui crée une demande à code neuf (worker.kid_assent_route),
+    # et une invitation reçue avant ce oui ne peut pas y répondre. Elle est refusée, et l'écran
+    # de partage dit pourquoi.
     #
     # L'écran POSE UNE QUESTION. Un simple « Continuer » ne rendrait compte de rien : le texte
     # doit interroger l'enfant et le bouton doit être sa réponse, pas un accusé de lecture.
@@ -876,11 +897,13 @@ conf:
         - page_onboarding
       show_appbar: true
       title: "@@@T:kid_assent_title@@@"
-      # Decor d'arrivee + replique du conteur (worker_onboarding). Purement decoratif :
-      # ni garde, ni verrou, ni attente — un asset manquant se tait, et l'etape se
-      # comporte exactement pareil.
+      # La question d'abord (le metier), la replique du conteur ensuite (le decor) : une liste
+      # d'actions n'est pas attendue une par une, et ce qui remplit l'ecran ne doit pas courir
+      # derriere ce qui l'habille.
       actions:
-        appear: worker.on_onboarding_appear
+        appear:
+          - worker.on_kid_assent_appear
+          - worker.on_onboarding_appear
       registry:
         - kid_assent_screen/banner
         - commons/icon_background
@@ -940,12 +963,236 @@ conf:
         freezing_actions:
           tap: dvinterlude.play.passage_assent
 
+    #//------------------------------- JOIN WAIT ---------------------------------------------
+    # L'ADHÉSION EN ATTENTE (2026-09-22). Le candidat, enfant ou adulte, est connecté et a
+    # accepté l'invitation ; c'est au chef de confirmer son arrivée, en publiant le secret du
+    # clan, et le jeu du chef peut être fermé. L'attente vit en base (users.pending_join) : le
+    # joueur peut fermer le jeu, on_login le ramène ici, et worker.on_join_wait_appear reprend
+    # la vigilance du secret. L'admission se fait d'elle-même, sans rien toucher.
+    #
+    # « J'abandonne » vide l'attente : l'enfant repart de sa question (kid_assent_screen),
+    # l'adulte du choix du clan. Pas de flèche retour : la page est posée en `reset`, et le
+    # seul autre chemin de sortie est ce bouton.
+    join_wait:
+      masks:
+        - page
+      show_appbar: true
+      title: "@@@T:join_wait_title@@@"
+      # ⚠ `actions` A LA RACINE : c'est de la racine que l'appear d'une PAGE est tire.
+      actions:
+        appear: worker.on_join_wait_appear
+      registry:
+        - commons/icon_background
+        - join_wait/text
+        - join_wait/giveup
+
+    join_wait/text:
+      masks:
+        - commons/intro_text
+      shape:
+        y: 22%
+        h: 34%
+        font_size: 17.0
+        label: "@@@T:join_wait_text@@@"
+
+    join_wait/giveup:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 72%
+        h: 10%
+        text_align: CENTER
+        label: "@@@T:join_wait_giveup@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_join_wait_giveup
+
+    #//------------------------------- KID ASSENT SHARE -------------------------------------
+    # La réponse de l'enfant, À TRANSMETTRE. Le oui vient d'être donné ; c'est au parent de
+    # décider, et il ne peut le faire que s'il le reçoit. Deux façons :
+    #   * le QR code, que le parent scanne avec « Accueillir un enfant » (menu du clan) quand
+    #     il est à côté ;
+    #   * le même lien, envoyé par le partage du téléphone quand il est loin.
+    # Puis l'invitation du parent revient ICI : QR code du clan à scanner, ou lien et code.
+    #
+    # ⚠ RIEN N'EST ÉCRIT SUR CET ÉCRAN, ni en base ni sur le disque. Le QR code ne porte aucune
+    #   donnée personnelle (date, langue, royaume, texte montré, version des conditions, et un
+    #   code tiré au hasard : cf. worker._buildKidAssentLink), et une invitation valide ne fait
+    #   que mener à la connexion Google. On ne rejoint le clan qu'après, sous le compte définitif.
+    #
+    # UNE INVITATION VALIDE, c'est une invitation « enfant » qui porte le code affiché ici
+    # (worker._inviteKindRefusal). Une invitation « adulte », ou faite pour une autre demande,
+    # est refusée sur place, avec un message sous le bouton d'envoi.
+    #
+    # Pas de flèche retour : le oui est donné, revenir sur la question n'a pas de sens, et
+    # fermer l'application suffit à tout oublier.
+    kid_assent_share:
+      masks:
+        - page_onboarding
+      show_appbar: true
+      title: "@@@T:kid_assent_share_title@@@"
+      # ⚠ `actions` A LA RACINE : c'est de la racine que l'appear d'une PAGE est tire.
+      actions:
+        appear: worker.on_kid_assent_share_appear
+      registry:
+        - kid_assent_share/banner
+        - kid_assent_share/intro
+        - kid_assent_share/qrcode
+        - kid_assent_share/code
+        - kid_assent_share/send
+        - kid_assent_share/error
+        - kid_assent_share/scan
+        - kid_assent_share/pin
+        - kid_assent_share/notice
+
+    kid_assent_share/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_kid_assent_share@@@"
+
+    kid_assent_share/intro:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 6%
+        w: 90%
+        h: 11%
+        font_size: 13.0
+        text_align: CENTER
+        label: "@@@T:kid_assent_share_intro@@@"
+
+    # Contenu posé à l'exécution (worker.on_kid_assent_share_appear) : le lien du oui n'existe
+    # qu'une fois l'enfant ayant répondu.
+    # Hauteur ramenée de 34 % à 28 % (2026-09-22) pour loger le code dessous. Le QR code est
+    # carré et c'est sa largeur (60 %) qui le borne sur un téléphone en portrait : il ne
+    # rapetisse pas.
+    kid_assent_share/qrcode:
+      class: DvQrCode
+      layer: content
+      shape:
+        x: 20%
+        y: 18%
+        w: 60%
+        h: 28%
+        content: ""
+
+    # Le code de la demande, EN GRAND (« Ton code : K7F2QX »), posé par
+    # worker.on_kid_assent_share_appear. Le parent le retrouve en tête de sa déclaration
+    # (invite_consent_screen/assent) et compare d'un coup d'œil : c'est ce code que son
+    # invitation portera, et l'appareil de l'enfant refuse toute invitation qui ne le porte pas.
+    # Entre le QR code (18 % → 46 %) et le bouton d'envoi (53 %).
+    kid_assent_share/code:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 46%
+        w: 90%
+        h: 6.5%
+        font_size: 22.0
+        text_align: CENTER
+        label: ""
+
+    kid_assent_share/send:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 15%
+        y: 53%
+        w: 70%
+        h: 7%
+        label: "@@@T:kid_assent_share_send@@@"
+        events:
+          tap: true
+        # Par le worker, et non share.kid_assent en direct : le lien porte le code de la
+        # demande, qui n'est posé dans le dictionnaire que le temps du partage.
+        freezing_actions:
+          tap: worker.on_kid_assent_send
+
+    # Message d'erreur (code scanné qui n'est pas une invitation, invitation d'une autre
+    # contrée, faite pour un adulte, ou qui ne porte pas le code de cette demande). Invisible
+    # par défaut, révélé par le worker : jamais de fenêtre modale.
+    kid_assent_share/error:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 61%
+        w: 90%
+        h: 8%
+        label: ""
+        text_align: CENTER
+        font_size: 12.0
+        font_color: "0xFFCC4444"
+        visible: false
+
+    kid_assent_share/scan:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 70%
+        h: 9%
+        text_align: CENTER
+        label: "@@@T:kid_assent_share_scan@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_kid_scan_invite
+
+    # Invitation à distance : lien reçu + code dicté par le parent (même écran de saisie que
+    # « Je n'ai pas le QR code » de l'adulte).
+    kid_assent_share/pin:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 15%
+        y: 80%
+        w: 70%
+        h: 5%
+        text_align: CENTER
+        label: "@@@T:kid_assent_share_pin@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_no_qr
+
+    # Ce qui attend l'enfant juste après : la connexion Google, et l'autorisation d'un parent
+    # si le compte est supervisé. Le dire ICI, pendant que le parent est peut-être encore à
+    # côté, plutôt que de le découvrir devant un bouton qui ne peut pas marcher.
+    kid_assent_share/notice:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 86%
+        w: 90%
+        h: 12%
+        font_size: 11.0
+        text_align: CENTER
+        label: "@@@T:join_clan_google_notice@@@"
+
     #//------------------------------- LINK ACCOUNT SCREEN ------------------------------------
     # Dernière étape de l'onboarding et PREMIÈRE écriture en base : jusqu'ici tout s'est passé
-    # en session anonyme. Écran bloquant — pas d'appbar, donc pas de retour, et aucun bouton
-    # « plus tard » : sans compte lié, le héros ne survivrait ni à une réinstallation ni à un
-    # changement d'appareil. L'adulte y arrive après les CGU, le mineur après son admission
-    # dans un clan.
+    # en session anonyme, en mémoire. Écran bloquant (pas d'appbar, donc pas de retour, et aucun
+    # bouton « plus tard ») : sans compte lié, le héros ne survivrait ni à une réinstallation ni
+    # à un changement d'appareil. L'adulte y arrive après les CGU, le mineur une fois
+    # l'invitation de son parent en main (QR du clan scanné, ou lien et code), et AVANT d'entrer
+    # dans le clan : l'acceptation part ensuite, sous le compte définitif (worker.on_login).
 
     link_account_screen:
       masks:
@@ -999,10 +1246,10 @@ conf:
         h: 8%
         label: "@@@T:link_account_title@@@"
 
-    # L'écran est bloquant, mais il est REPRENABLE : l'admission dans le clan est déjà écrite
-    # en base, et worker.on_login renvoie ici après un kill (cf. worker_session `if (_anon)`).
-    # Un enfant dont le parent n'est pas là peut donc fermer l'app et revenir sans rien perdre
-    # — encore faut-il le lui dire, sinon il s'acharne sur un bouton qui ne peut pas marcher.
+    # L'écran est bloquant, et il N'EST PLUS REPRENABLE : rien n'est écrit avant la connexion,
+    # un kill ramène donc au tout premier écran. Le dire, et dire aussi ce qui peut bloquer un
+    # enfant (compte supervisé Family Link), sinon il s'acharne sur un bouton qui ne peut pas
+    # marcher.
     link_account/notice:
       masks:
         - commons/nobordershape
@@ -1058,9 +1305,10 @@ conf:
         visible: false
 
     #//---- Conflit : le compte Google porte déjà un héros ----------------------------------
-    # Overlay de widgets invisibles→visibles, idiome commons/death_* — jamais de showDialog.
-    # Adulte : adoption possible (rien n'a encore été écrit sous l'uid anonyme). Mineur déjà
-    # dans un clan : blocage pur, seul conflict_cancel est révélé.
+    # Overlay de widgets invisibles→visibles, idiome commons/death_* : jamais de showDialog.
+    # Adoption possible, pour l'adulte comme pour le mineur : rien n'a encore été écrit sous
+    # l'uid anonyme. (Le blocage pur, seul conflict_cancel révélé, ne sert plus que de filet :
+    # il protégeait un mineur admis dans un clan avant de se connecter, cas disparu.)
 
     link_account/conflict_scrim:
       class: DvLabel

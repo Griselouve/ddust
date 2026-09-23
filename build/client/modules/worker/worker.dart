@@ -191,6 +191,8 @@ class worker extends DvBeing {
     bool    _isAdult       = false;
     String  _isAdultClanId = "";
     String  _isAdultUserId = "";
+    // Les anciennes valeurs de rôle persistées ont-elles été vidées dans ce lancement ? (_publishRole)
+    bool    _legacyRolesPurged = false;
     // Menu roster (écran Clan) : cooldowns de l'utilisateur courant (lus sur son doc `users` à
     // l'appear clan) + plus petit XP du clan (calculé au montage du roster). Servent au
     // clan_selector pour griser « coup de pouce »/« guérir » et restreindre le boost.
@@ -352,6 +354,109 @@ class worker extends DvBeing {
     //   retrouve alors la règle habituelle (un royaume résiduel ramène à l'accueil, d'où l'on
     //   peut aussi bien recommencer que réclamer un compte existant).
     bool _onboardingLive = false;
+
+    // --- L'accord de l'enfant (le mineur parle d'abord, le parent décide ensuite) ---------
+    // Côté ENFANT : le lien « je veux jouer » (ddust://assent?d=…), construit une seule fois,
+    // au moment exact où l'enfant a dit oui (kid_assent_route). L'écran de partage le relit à
+    // chaque apparition : le dater de nouveau serait mentir sur le moment de la réponse.
+    // Et le message à afficher sur ce même écran quand une invitation n'a pas pu être
+    // retenue (faite pour un adulte, pour un autre enfant, ou reçue avant ce oui).
+    //
+    // Côté CHEF : l'accord scanné ou reçu par lien, en attente de la déclaration du chef
+    // (_pendingAssent), puis, une fois la déclaration scellée, celui qui voyage avec
+    // l'invitation à distance (_inviteAssent, consommé par on_management_created).
+    //
+    // ⚠ DES CHAMPS DART, ET NON LE DICTIONNAIRE DEVA. Un `deva_set` finit dans le layer du
+    //   compte au prochain store() : l'accord d'un enfant resterait sur le disque du chef,
+    //   invitation faite ou non. Ici il meurt avec le processus, et c'est tout ce qu'on veut
+    //   d'une donnée qui ne sert qu'à UNE invitation.
+    String                _kidAssentLink   = "";
+    String                _kidAssentNotice = "";
+    Map<String, dynamic>? _pendingAssent;
+    Map<String, dynamic>? _inviteAssent;
+    // Le chef a scanné quelque chose qui n'était pas un accord d'enfant : l'écran de
+    // déclaration s'ouvre quand même (cas adulte seul) et le dit en tête, faute de fenêtre.
+    bool                  _assentRejected  = false;
+
+    // --- Le code de l'accord (côté ENFANT, puis côté CHEF) ---------------------------------
+    // Six caractères tirés au hasard (Random.secure) au moment du oui, portés par l'accord
+    // (`n`), affichés en grand sur kid_assent_share et recopiés par le chef dans l'invitation
+    // qu'il fait pour CET enfant. L'appareil de l'enfant n'accepte une invitation « enfant »
+    // que si elle porte SON code : sans lui, le premier enfant à scanner le QR code affiché
+    // par le parent (un frère, un voisin) entrait à la place de celui qui avait demandé.
+    //
+    // ⚠ UN CHAMP DART, JAMAIS `deva_set`. Avant le login rien ne doit toucher le disque, et
+    //   le code ne sert qu'à une demande : il meurt avec le processus. Application tuée en
+    //   attendant l'invitation = plus de code = toute invitation refusée, et l'enfant envoie
+    //   une nouvelle demande. C'est la règle choisie : pas de repli par reconfirmation.
+    String                _kidAssentCode   = "";
+    // L'invitation mise de côté avant le login (QR scanné, lien ouvert, code saisi) garde ici
+    // sa nature (`child` / `adult`) et le code qu'elle porte : on_login la revérifie avant de
+    // l'accepter. Les clefs deva `worker.pending_*` ne portent que le clan et le lobby.
+    String                _pendingInviteKind = "";
+    String                _pendingInviteCode = "";
+    // Côté CHEF : ce que le lien d'invitation par QR code ajoute après `region=`
+    // (`&k=child&n=<code>` ou `&k=adult`). Posé par on_management_created, lu par le QR code
+    // et par le partage (on_share_clan_invite), jamais écrit dans le dictionnaire au-delà
+    // du partage lui-même : le code d'un enfant n'a rien à faire sur le disque du chef.
+    String                _inviteLinkParams  = "";
+    // Côté CHEF : le clan, le lobby et la région de l'invitation qu'il vient d'OUVRIR (QR code
+    // ou partage). Posés par on_management_created, lus par le partage (on_share_clan_invite).
+    //
+    // ⚠ JAMAIS DANS `worker.pending_group_id` / `worker.pending_lobby_id` : ces clefs-là sont
+    //   l'invitation REÇUE, mise de côté avant le login (on_invite_clan_link, on_confirm_pin).
+    //   Le chef y écrivait la sienne ; le store() suivant la mettait sur le disque, et au
+    //   lancement d'après on_login la trouvait et la « consommait » (_consumePendingInvite) :
+    //   le chef posait sa candidature dans son propre lobby. L'invitation sortante vit ici,
+    //   en mémoire, et meurt avec le processus, comme le lobby qu'elle désigne.
+    String                _outgoingGroupId   = "";
+    String                _outgoingLobbyId   = "";
+    String                _outgoingRegion    = "";
+    // Côté CHEF, invitation à distance : le jeton scellé qu'il vient de produire. Même règle que
+    // ci-dessus : en mémoire, et dans le dictionnaire le seul temps du partage
+    // (on_share_clan_invite_pin). Il vivait dans `worker.pending_invite_token`, et restait sur
+    // le disque du chef bien après que le lobby qu'il désigne eut disparu.
+    String                _outgoingPinToken  = "";
+    // Une invitation REÇUE a-t-elle été mise de côté PAR CE PROCESSUS (QR scanné, lien ouvert,
+    // code saisi) ? Les clefs `worker.pending_*` passent par le dictionnaire, donc par le disque
+    // une fois le compte chargé : sans ce témoin, un reste d'une version antérieure (ou d'une
+    // session tuée) passait pour une invitation fraîche, quel que soit l'état du joueur.
+    // on_login jette toute invitation en attente qu'il n'a pas vue naître.
+    bool                  _pendingInviteFresh = false;
+
+    // --- L'adhésion en attente (côté CANDIDAT, enfant ou adulte, après le login) -----------
+    // L'invitation acceptée attend que le chef publie le secret du clan. Cette attente vit en
+    // base (`users.pending_join`, cf. worker_clan._acceptAndWait), pas ici : elle survit à la
+    // fermeture de l'application, et on_login ramène le joueur sur l'écran join_wait. Ici, il
+    // n'y a que la vigilance du secret (virtuallobbysecret/{lobbyId}), sa minuterie
+    // d'expiration, et la garde de ré-entrance : la lecture initiale, le watch et un nouvel
+    // essai après échec d'écriture peuvent tomber ensemble, et une adhésion ne s'écrit qu'une fois.
+    DvVigilance?          _joinVigilance;
+    String                _joinLobbyId      = "";
+    Timer?                _joinExpiryTimer;
+    Timer?                _joinRetryTimer;
+    bool                  _joinInFlight     = false;
+    // Copie en mémoire du pending_join qu'on vient d'écrire : si l'écriture a échoué, l'attente
+    // tient au moins jusqu'à la fermeture du jeu.
+    Map<String, dynamic>? _joinPendingMem;
+    // Message à afficher sur new_or_pick_clan (adulte) après une attente abandonnée ou expirée.
+    // L'enfant, lui, a déjà le sien : _kidAssentNotice, lu par kid_assent_share.
+    String                _joinNotice       = "";
+
+    // --- Reprise des invitations (côté CHEF) ------------------------------------------------
+    // La surveillance du lobby (virtuallobby.watch_management) ne vit qu'en mémoire : une
+    // invitation acceptée pendant que l'application du chef était fermée n'a prévenu personne.
+    // _resumeInvites relit les records acceptés à chaque login et à chaque passage sur
+    // l'écran du clan. Garde de ré-entrance, et un répit d'une minute quand la dernière
+    // reprise n'a rien trouvé : l'écran du clan s'ouvre souvent, et chaque reprise est une
+    // requête facturée.
+    bool                  _invitesResuming  = false;
+    DateTime?             _invitesQuietAt;
+
+    // Jour (UTC, AAAA-MM-JJ) de la dernière écriture de `users.last_seen` par CET appareil. En
+    // mémoire seulement : rien n'est écrit sur le disque avant le login, et le document lui-même
+    // dit déjà si la date du jour y est (cf. worker_session._touchLastSeen).
+    String                _lastSeenDay      = "";
 
     // --- Cérémonie d'ouverture du butin ---------------------------------------------------
     // Rôle de CET appareil dans la cérémonie en cours : "" (aucune), "master" (le chef qui tient le

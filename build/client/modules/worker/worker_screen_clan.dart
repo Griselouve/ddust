@@ -164,6 +164,17 @@ extension Worker_screen_clan on worker {
                                 } catch (e) {
                                     deva_log("error", "[clan] on_clan_appear FAILED: $e");
                                 }
+                                // Invitations acceptées pendant que le jeu du chef était fermé (chef
+                                // seulement, cf. _resumeInvites). Ici, un clan plein ouvre la page des
+                                // paliers, comme au chemin vivant : c'est l'écran où le chef s'attend à
+                                // gérer son clan, et le login, lui, n'a rien affiché. Si l'on est parti vers
+                                // les paliers, pas de leçon derrière.
+                                if (await _resumeInvites(navigate: true)) return;
+                                // La leçon APRÈS l'appear, et non en parallèle depuis la liste `appear:`
+                                // (non attendue) : elle lisait un rôle pas encore établi (celui d'un autre
+                                // compte, parfois) et montrait les étapes des chefs à un joueur. Le roster
+                                // est aussi monté à cet instant, ce que ses sous-cibles attendaient.
+                                await _enterTuto();
     }
 
     // Écran Clan : calcule niveau/prog (barème clan) + barre butin, puis synchronise vers les shapes

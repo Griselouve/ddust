@@ -218,24 +218,24 @@ conf:
         br: "O baú do clã fica sempre no topo da sua grade, seja qual for a aba. Toque nele para abri-lo e distribuir o conteúdo."
         nl: "De kist van de clan staat altijd bovenaan je raster, op welk tabblad je ook bent. Tik erop om hem te openen en de inhoud te verdelen."
       tuto_items_wallet:
-        fr: "Ta bourse affiche ton or en pastille. Repère son icône de pièces parmi tes objets."
-        en: "Your purse shows your gold as a badge. Look for its coin icon among your objects."
-        es: "Tu bolsa muestra tu oro en una insignia. Busca su icono de monedas entre tus objetos."
-        de: "Dein Geldbeutel zeigt dein Gold als Plakette. Such sein Münzsymbol unter deinen Gegenständen."
-        it: "Il tuo borsellino mostra il tuo oro in un bollino. Cerca la sua icona con le monete tra i tuoi oggetti."
-        pt: "A tua bolsa mostra o teu ouro num distintivo. Procura o ícone das moedas entre os teus objetos."
-        br: "Sua bolsa mostra seu ouro em um selo. Procure o ícone das moedas entre seus objetos."
-        nl: "Je buidel toont je goud in een badge. Zoek het muntjespictogram tussen je voorwerpen."
+        fr: "Ta bourse affiche ton or en pastille : il représente l'argent de poche promis par tes chefs de clan. Repère son icône de pièces parmi tes objets."
+        en: "Your purse shows your gold as a badge: it stands for the pocket money your clan chiefs have promised. Look for its coin icon among your objects."
+        es: "Tu bolsa muestra tu oro en una insignia: representa el dinero de bolsillo que te han prometido tus jefes de clan. Busca su icono de monedas entre tus objetos."
+        de: "Dein Geldbeutel zeigt dein Gold als Plakette: Es steht für das Taschengeld, das dir deine Clanchefs versprochen haben. Such sein Münzsymbol unter deinen Gegenständen."
+        it: "Il tuo borsellino mostra il tuo oro in un bollino: rappresenta la paghetta che ti hanno promesso i tuoi capi clan. Cerca la sua icona con le monete tra i tuoi oggetti."
+        pt: "A tua bolsa mostra o teu ouro num distintivo: representa a semanada que os teus chefes de clã te prometeram. Procura o ícone das moedas entre os teus objetos."
+        br: "Sua bolsa mostra seu ouro em um selo: ele representa a mesada que seus chefes de clã prometeram a você. Procure o ícone das moedas entre seus objetos."
+        nl: "Je buidel toont je goud in een badge: het staat voor het zakgeld dat je clanhoofden je hebben beloofd. Zoek het muntjespictogram tussen je voorwerpen."
       # Le tribut, vu du joueur. AU CONDITIONNEL : le versement est une décision du foyer, le jeu
       # ne le constate pas et ne doit donc rien promettre à un enfant.
       tuto_items_tribute:
-        fr: "Si ton clan l'a décidé, un chef peut te remettre cet or pour de vrai : c'est le tribut. Ta bourse baisse alors du montant versé."
-        en: "If your clan has decided so, a chief can hand you that gold for real: that is the tribute. Your purse then drops by the amount paid."
-        es: "Si tu clan lo ha decidido, un jefe puede entregarte ese oro de verdad: es el tributo. Entonces tu bolsa baja el importe pagado."
+        fr: "Si ton clan l'a décidé, un chef de clan peut te remettre cet or pour de vrai : c'est le tribut. Ta bourse baisse alors du montant versé."
+        en: "If your clan has decided so, a clan chief can hand you that gold for real: that is the tribute. Your purse then drops by the amount paid."
+        es: "Si tu clan lo ha decidido, un jefe de clan puede entregarte ese oro de verdad: es el tributo. Entonces tu bolsa baja el importe pagado."
         de: "Wenn dein Clan es so beschlossen hat, kann ein Clanchef dir dieses Gold wirklich geben: Das ist der Tribut. Dein Geldbeutel sinkt dann um den ausgezahlten Betrag."
-        it: "Se il tuo clan l'ha deciso, un capo può consegnarti quest'oro per davvero: è il tributo. Il tuo borsellino cala allora dell'importo versato."
-        pt: "Se o teu clã assim o tiver decidido, um chefe pode entregar-te esse ouro a sério: é o tributo. A tua bolsa baixa então o valor pago."
-        br: "Se o seu clã tiver decidido assim, um chefe pode entregar esse ouro de verdade para você: é o tributo. Sua bolsa então diminui no valor pago."
+        it: "Se il tuo clan l'ha deciso, un capo clan può consegnarti quest'oro per davvero: è il tributo. Il tuo borsellino cala allora dell'importo versato."
+        pt: "Se o teu clã assim o tiver decidido, um chefe de clã pode entregar-te esse ouro a sério: é o tributo. A tua bolsa baixa então o valor pago."
+        br: "Se o seu clã tiver decidido assim, um chefe de clã pode entregar esse ouro de verdade para você: é o tributo. Sua bolsa então diminui no valor pago."
         nl: "Als je clan dat heeft besloten, kan een clanhoofd je dat goud echt geven: dat is het tribuut. Je buidel daalt dan met het betaalde bedrag."
       tuto_perso_title:
         fr: "Ton personnage"
@@ -361,9 +361,9 @@ conf:
       # la jauge de butin du clan ; les autres au prorata. D'où « ce qu'il a apporté », et pas « son
       # niveau » - c'est la confusion que faisait l'ancienne formulation.
       tuto_clan_roster_name:
-        fr: "Son nom — une couronne désigne les chefs de clan — et sa barre de contribution : ce qu'il a apporté au butin du cycle en cours, et donc la part qui lui reviendra au partage."
-        en: "Their name — a crown marks the clan chiefs — and their contribution bar: what they have brought to the current cycle's loot, and therefore the share they will get when it is split."
-        es: "Su nombre — una corona indica a los jefes del clan — y su barra de contribución: lo que ha aportado al botín del ciclo actual y, por tanto, la parte que le tocará en el reparto."
+        fr: "Son nom (une couronne désigne les chefs de clan) et sa barre de contribution : ce qu'il a apporté au butin du cycle en cours, et donc la part qui lui reviendra au partage."
+        en: "Their name (a crown marks the clan chiefs) and their contribution bar: what they have brought to the current cycle's loot, and therefore the share they will get when it is split."
+        es: "Su nombre (una corona indica a los jefes del clan) y su barra de contribución: lo que ha aportado al botín del ciclo actual y, por tanto, la parte que le tocará en el reparto."
         de: "Sein Name (eine Krone kennzeichnet die Clanchefs) und seine Beitragsleiste: was er zur Beute des laufenden Zyklus beigetragen hat, und damit der Anteil, der ihm bei der Aufteilung zusteht."
         it: "Il suo nome (una corona indica i capi clan) e la sua barra di contributo: ciò che ha portato al bottino del ciclo in corso, e quindi la parte che gli spetterà nella spartizione."
         pt: "O seu nome (uma coroa assinala os chefes de clã) e a sua barra de contribuição: o que trouxe para o espólio do ciclo em curso e, portanto, a parte que lhe caberá na partilha."
@@ -420,25 +420,25 @@ conf:
       # Proposée sur un joueur MORT uniquement, et une fois tous les 3 jours par chef
       # (cooldown _myLastCure) : grisée entre-temps, d'où la mention.
       roster_menu_revive_desc:
-        fr: "Le remettre en jeu s'il est tombé à zéro point de vie. Une guérison tous les trois jours par chef."
-        en: "Bring them back if they have dropped to zero hit points. One healing every three days per chief."
-        es: "Devolverlo al juego si ha caído a cero puntos de vida. Una curación cada tres días por jefe."
+        fr: "Le remettre en jeu s'il est tombé à zéro point de vie. Une guérison tous les trois jours par chef de clan."
+        en: "Bring them back if they have dropped to zero hit points. One healing every three days per clan chief."
+        es: "Devolverlo al juego si ha caído a cero puntos de vida. Una curación cada tres días por jefe de clan."
         de: "Ihn wieder ins Spiel holen, wenn er auf null Lebenspunkte gefallen ist. Eine Heilung alle drei Tage pro Clanchef."
-        it: "Rimetterlo in gioco se è sceso a zero punti vita. Una guarigione ogni tre giorni per capo."
-        pt: "Voltar a pô-lo em jogo se tiver caído a zero pontos de vida. Uma cura a cada três dias por chefe."
-        br: "Colocá-lo de volta no jogo se ele tiver caído a zero pontos de vida. Uma cura a cada três dias por chefe."
+        it: "Rimetterlo in gioco se è sceso a zero punti vita. Una guarigione ogni tre giorni per capo clan."
+        pt: "Voltar a pô-lo em jogo se tiver caído a zero pontos de vida. Uma cura a cada três dias por chefe de clã."
+        br: "Colocá-lo de volta no jogo se ele tiver caído a zero pontos de vida. Uma cura a cada três dias por chefe de clã."
         nl: "Hem weer in het spel brengen als hij op nul levenspunten is gevallen. Eén genezing per drie dagen per clanhoofd."
       # +50 XP, offerte au SEUL joueur non-chef le plus bas en XP du clan, une fois tous les
       # 3 jours par chef (clan_selector + _myLastBoost). Ces trois bornes expliquent à elles
       # seules pourquoi l'option n'apparaît pas sur la plupart des tuiles.
       roster_menu_support_desc:
-        fr: "Offrir de l'expérience à celui qui est le plus en retard dans le clan — lui seul y a droit, et une fois tous les trois jours par chef."
-        en: "Give experience to whoever is furthest behind in the clan — only they are eligible, and once every three days per chief."
-        es: "Dar experiencia a quien más atrasado va en el clan — solo él puede recibirlo, y una vez cada tres días por jefe."
+        fr: "Offrir de l'expérience à celui qui est le plus en retard dans le clan : lui seul y a droit, et une fois tous les trois jours par chef de clan."
+        en: "Give experience to whoever is furthest behind in the clan: only they are eligible, and once every three days per clan chief."
+        es: "Dar experiencia a quien más atrasado va en el clan: solo él puede recibirlo, y una vez cada tres días por jefe de clan."
         de: "Dem Spieler, der im Clan am weitesten zurückliegt, Erfahrung schenken: Nur er hat Anspruch darauf, und das einmal alle drei Tage pro Clanchef."
-        it: "Regalare esperienza a chi è più indietro nel clan: solo lui ne ha diritto, e una volta ogni tre giorni per capo."
-        pt: "Oferecer experiência a quem está mais atrasado no clã: só ele tem direito, e uma vez a cada três dias por chefe."
-        br: "Dar experiência a quem está mais atrasado no clã: só ele tem direito, e uma vez a cada três dias por chefe."
+        it: "Regalare esperienza a chi è più indietro nel clan: solo lui ne ha diritto, e una volta ogni tre giorni per capo clan."
+        pt: "Oferecer experiência a quem está mais atrasado no clã: só ele tem direito, e uma vez a cada três dias por chefe de clã."
+        br: "Dar experiência a quem está mais atrasado no clã: só ele tem direito, e uma vez a cada três dias por chefe de clã."
         nl: "Ervaring geven aan wie het verst achterloopt in de clan: alleen hij heeft er recht op, en één keer per drie dagen per clanhoofd."
       # has_device=false : sorti du partage d'XP/butin, grisé sans crâne, ne peut plus mourir.
       # Se défait TOUT SEUL à sa prochaine connexion (_writeClanPlayer) - à dire, sinon le chef
@@ -473,13 +473,13 @@ conf:
         br: "Nomeá-lo chefe de clã."
         nl: "Hem tot clanhoofd benoemen."
       roster_menu_nomore_chief_desc:
-        fr: "Lui retirer son rôle de chef."
-        en: "Remove their chief role."
-        es: "Quitarle su rol de jefe."
+        fr: "Lui retirer son rôle de chef de clan."
+        en: "Remove their clan chief role."
+        es: "Quitarle su rol de jefe de clan."
         de: "Ihm die Rolle als Clanchef entziehen."
-        it: "Togliergli il ruolo di capo."
-        pt: "Retirar-lhe o papel de chefe."
-        br: "Tirar dele o papel de chefe."
+        it: "Togliergli il ruolo di capo clan."
+        pt: "Retirar-lhe o papel de chefe de clã."
+        br: "Tirar dele o papel de chefe de clã."
         nl: "Hem zijn rol als clanhoofd afnemen."
       # Bascule k -> t -> a : le tuteur ne pose que « t ». Le statut n'est acquis qu'à
       # l'acceptation des CGU adulte PAR L'INTÉRESSÉ, qui écrit « a ». Le dire, sinon le chef
@@ -537,13 +537,13 @@ conf:
       # ⚠ La nuance avec la ligne ci-dessus est TOUT le sujet : « A quitté le clan » retire du
       # clan et ne supprime rien ; ceci cesse de traiter les données. Les deux restent offerts.
       roster_menu_withdraw_consent_desc:
-        fr: "Cesser de traiter ses données. Il quitte le jeu ; un chef peut revenir sur cette décision pendant 3 jours."
-        en: "Stop processing their data. They leave the game; a chief can reverse this for 3 days."
-        es: "Dejar de tratar sus datos. Sale del juego; un jefe puede revocarlo durante 3 días."
+        fr: "Cesser de traiter ses données. Il quitte le jeu ; un chef de clan peut revenir sur cette décision pendant 3 jours."
+        en: "Stop processing their data. They leave the game; a clan chief can reverse this for 3 days."
+        es: "Dejar de tratar sus datos. Sale del juego; un jefe de clan puede revocarlo durante 3 días."
         de: "Die Verarbeitung seiner Daten beenden. Er verlässt das Spiel; ein Clanchef kann diese Entscheidung 3 Tage lang rückgängig machen."
-        it: "Smettere di trattare i suoi dati. Lascia il gioco; un capo può annullare questa decisione per 3 giorni."
-        pt: "Deixar de tratar os seus dados. Sai do jogo; um chefe pode reverter esta decisão durante 3 dias."
-        br: "Deixar de tratar os dados dele. Ele sai do jogo; um chefe pode reverter esta decisão durante 3 dias."
+        it: "Smettere di trattare i suoi dati. Lascia il gioco; un capo clan può annullare questa decisione per 3 giorni."
+        pt: "Deixar de tratar os seus dados. Sai do jogo; um chefe de clã pode reverter esta decisão durante 3 dias."
+        br: "Deixar de tratar os dados dele. Ele sai do jogo; um chefe de clã pode reverter esta decisão durante 3 dias."
         nl: "Stoppen met het verwerken van zijn gegevens. Hij verlaat het spel; een clanhoofd kan dit besluit 3 dagen lang terugdraaien."
       roster_menu_restore_consent_desc:
         fr: "Annuler le retrait : il retrouve sa place et son personnage, intacts."
@@ -564,13 +564,13 @@ conf:
         br: "As opções do clã"
         nl: "Clanopties"
       tuto_clan_menu_admin_title:
-        fr: "Les options réservées aux chefs"
-        en: "Chief-only options"
-        es: "Opciones reservadas a los jefes"
+        fr: "Les options réservées aux chefs de clan"
+        en: "Options for clan chiefs only"
+        es: "Opciones reservadas a los jefes de clan"
         de: "Optionen nur für Clanchefs"
-        it: "Opzioni riservate ai capi"
-        pt: "Opções reservadas aos chefes"
-        br: "Opções reservadas aos chefes"
+        it: "Opzioni riservate ai capi clan"
+        pt: "Opções reservadas aos chefes de clã"
+        br: "Opções reservadas aos chefes de clã"
         nl: "Opties voor clanhoofden"
       tuto_perso_menu_title:
         fr: "Les options du personnage"
@@ -609,15 +609,17 @@ conf:
         pt: "Ver o diário de todo o clã."
         br: "Ver o diário de todo o clã."
         nl: "Het dagboek van de hele clan bekijken."
+      # « Un adulte » depuis le 2026-09-22 : sans accord d'enfant joint, ce QR code ne propose
+      # plus que le cas adulte. Un enfant entre par « Accueillir un enfant ».
       clan_menu_qr_desc:
-        fr: "Inviter un joueur par QR code."
-        en: "Invite a player via QR code."
-        es: "Invitar a un jugador con un código QR."
-        de: "Einen Spieler per QR-Code einladen."
-        it: "Invitare un giocatore con un codice QR."
-        pt: "Convidar um jogador por código QR."
-        br: "Convidar um jogador por QR Code."
-        nl: "Een speler uitnodigen via QR-code."
+        fr: "Inviter un adulte par QR code."
+        en: "Invite an adult via QR code."
+        es: "Invitar a un adulto con un código QR."
+        de: "Einen Erwachsenen per QR-Code einladen."
+        it: "Invitare un adulto con un codice QR."
+        pt: "Convidar um adulto por código QR."
+        br: "Convidar um adulto por QR Code."
+        nl: "Een volwassene uitnodigen via QR-code."
       clan_menu_tutorials_desc:
         fr: "Revoir les tutoriels du jeu."
         en: "Replay the game tutorials."
@@ -711,13 +713,13 @@ conf:
         nl: "Kies in adminmodus een groep taken om hem te beheren: er verschijnt een reeks opties."
       # Switch Jeu | Admin — partagé domaines + tâches.
       tuto_combat_switch:
-        fr: "Réservé aux chefs : bascule entre Jeu et Admin. En mode Admin, toucher une tuile n'engage plus le combat — cela ouvre ses réglages : la rendre active, la désactiver, la cacher aux joueurs."
-        en: "Chiefs only: switches between Play and Admin. In Admin mode, tapping a tile no longer starts the fight — it opens its settings: make it active, disable it, hide it from players."
-        es: "Solo para jefes: alterna entre Juego y Admin. En modo Admin, tocar una casilla ya no inicia el combate — abre sus ajustes: activarla, desactivarla, ocultarla a los jugadores."
+        fr: "Réservé aux chefs de clan : bascule entre Jeu et Admin. En mode Admin, toucher une tuile n'engage plus le combat, mais ouvre ses réglages : la rendre active, la désactiver, la cacher aux joueurs."
+        en: "Clan chiefs only: switches between Play and Admin. In Admin mode, tapping a tile no longer starts the fight but opens its settings: make it active, disable it, hide it from players."
+        es: "Solo para jefes de clan: alterna entre Juego y Admin. En modo Admin, tocar una casilla ya no inicia el combate, sino que abre sus ajustes: activarla, desactivarla, ocultarla a los jugadores."
         de: "Nur für Clanchefs: wechselt zwischen Spiel und Admin. Im Admin-Modus startet ein Tippen auf eine Kachel keinen Kampf mehr, sondern öffnet ihre Einstellungen: aktivieren, deaktivieren, vor den Spielern verbergen."
-        it: "Riservato ai capi: alterna tra Gioco e Admin. In modalità Admin, toccare una casella non avvia più il combattimento, ma apre le sue impostazioni: renderla attiva, disattivarla, nasconderla ai giocatori."
-        pt: "Reservado aos chefes: alterna entre Jogo e Admin. No modo Admin, tocar num quadrado já não inicia o combate, abre as suas definições: ativá-lo, desativá-lo, escondê-lo dos jogadores."
-        br: "Reservado aos chefes: alterna entre Jogo e Admin. No modo Admin, tocar em um quadrado não inicia mais o combate, abre as configurações dele: ativar, desativar, esconder dos jogadores."
+        it: "Riservato ai capi clan: alterna tra Gioco e Admin. In modalità Admin, toccare una casella non avvia più il combattimento, ma apre le sue impostazioni: renderla attiva, disattivarla, nasconderla ai giocatori."
+        pt: "Reservado aos chefes de clã: alterna entre Jogo e Admin. No modo Admin, tocar num quadrado já não inicia o combate, abre as suas definições: ativá-lo, desativá-lo, escondê-lo dos jogadores."
+        br: "Reservado aos chefes de clã: alterna entre Jogo e Admin. No modo Admin, tocar em um quadrado não inicia mais o combate, abre as configurações dele: ativar, desativar, esconder dos jogadores."
         nl: "Alleen voor clanhoofden: schakelt tussen Spel en Admin. In Admin-modus start een tik op een tegel geen gevecht meer, maar opent die de instellingen: activeren, uitschakelen, verbergen voor spelers."
       # Tuile « + » : uniquement sur les écrans de tâches, uniquement en mode admin.
       tuto_combat_tasks_admin_add:
@@ -777,13 +779,13 @@ conf:
         br: "No modo jogo, escolha uma tarefa para combatê-la e ganhar XP."
         nl: "Kies in speelmodus een taak om ertegen te vechten en XP te verdienen."
       tuto_combat_tasks_grey:
-        fr: "Une tâche grisée n'est pas disponible pour l'instant : elle est déjà prise, en repos, ou réservée aux chefs."
-        en: "A greyed-out task isn't available right now: it's already taken, resting, or reserved for chiefs."
-        es: "Una tarea en gris no está disponible por ahora: ya está tomada, en reposo, o reservada a los jefes."
+        fr: "Une tâche grisée n'est pas disponible pour l'instant : elle est déjà prise, en repos, ou réservée aux chefs de clan."
+        en: "A greyed-out task isn't available right now: it's already taken, resting, or reserved for clan chiefs."
+        es: "Una tarea en gris no está disponible por ahora: ya está tomada, en reposo, o reservada a los jefes de clan."
         de: "Eine ausgegraute Aufgabe ist gerade nicht verfügbar: Sie ist schon vergeben, ruht oder ist den Clanchefs vorbehalten."
-        it: "Un compito in grigio non è disponibile per ora: è già preso, a riposo, o riservato ai capi."
-        pt: "Uma tarefa a cinzento não está disponível de momento: já está ocupada, em repouso ou reservada aos chefes."
-        br: "Uma tarefa em cinza não está disponível no momento: já está ocupada, em repouso ou reservada aos chefes."
+        it: "Un compito in grigio non è disponibile per ora: è già preso, a riposo, o riservato ai capi clan."
+        pt: "Uma tarefa a cinzento não está disponível de momento: já está ocupada, em repouso ou reservada aos chefes de clã."
+        br: "Uma tarefa em cinza não está disponível no momento: já está ocupada, em repouso ou reservada aos chefes de clã."
         nl: "Een grijze taak is nu niet beschikbaar: hij is al bezet, rust uit of is voorbehouden aan clanhoofden."
       tuto_combat_tasks_reperes_intro:
         fr: "Les tâches peuvent porter de petits repères qui donnent des informations supplémentaires."
@@ -841,13 +843,13 @@ conf:
         br: "Exclamação: a validar"
         nl: "Uitroepteken: te valideren"
       tuto_badge_hand_desc:
-        fr: "La tâche est terminée et attend qu'un chef la valide."
-        en: "The task is done and waiting for a chief to validate it."
-        es: "La tarea está terminada y espera que un jefe la valide."
+        fr: "La tâche est terminée et attend qu'un chef de clan la valide."
+        en: "The task is done and waiting for a clan chief to validate it."
+        es: "La tarea está terminada y espera que un jefe de clan la valide."
         de: "Die Aufgabe ist erledigt und wartet darauf, dass ein Clanchef sie bestätigt."
-        it: "Il compito è finito e aspetta che un capo lo convalidi."
-        pt: "A tarefa está terminada e espera que um chefe a valide."
-        br: "A tarefa está terminada e espera que um chefe a valide."
+        it: "Il compito è finito e aspetta che un capo clan lo convalidi."
+        pt: "A tarefa está terminada e espera que um chefe de clã a valide."
+        br: "A tarefa está terminada e espera que um chefe de clã a valide."
         nl: "De taak is klaar en wacht tot een clanhoofd hem valideert."
       tuto_badge_xp:
         fr: "XP — recommandée"
@@ -859,13 +861,13 @@ conf:
         br: "XP: recomendada"
         nl: "XP: aanbevolen"
       tuto_badge_xp_desc:
-        fr: "Un chef la met en avant : elle rapporte un bonus d'XP."
-        en: "A chief is highlighting it: it grants bonus XP."
-        es: "Un jefe la destaca: otorga XP extra."
+        fr: "Un chef de clan la met en avant : elle rapporte un bonus d'XP."
+        en: "A clan chief is highlighting it: it grants bonus XP."
+        es: "Un jefe de clan la destaca: otorga XP extra."
         de: "Ein Clanchef hebt sie hervor: Sie bringt einen XP-Bonus."
-        it: "Un capo lo mette in evidenza: dà un bonus di XP."
-        pt: "Um chefe destaca-a: dá um bónus de XP."
-        br: "Um chefe a destacou: ela dá um bônus de XP."
+        it: "Un capo clan lo mette in evidenza: dà un bonus di XP."
+        pt: "Um chefe de clã destaca-a: dá um bónus de XP."
+        br: "Um chefe de clã a destacou: ela dá um bônus de XP."
         nl: "Een clanhoofd zet hem in de kijker: hij levert extra XP op."
       tuto_badge_skull:
         fr: "Crâne — au repos"
@@ -1108,18 +1110,29 @@ conf:
         pt: "O menu Clã: várias opções para gerir o clã."
         br: "O menu Clã: várias opções para gerenciar o clã."
         nl: "Het menu Clan: diverse opties om de clan te beheren."
-      # Les deux étapes (chefs) qui suivent le panneau des options du clan. Elles se lisent comme une
-      # PAIRE : le QR code d'abord — c'est le cas normal, l'enfant a un téléphone — puis « Créer un
-      # joueur » présenté comme l'exception. Séparées, la seconde se fait passer pour la voie normale.
+      # Les trois étapes (chefs) qui suivent le panneau des options du clan, en un seul écran de
+      # tutoriel. L'ENFANT D'ABORD : c'est le cas normal d'une famille, et depuis le 2026-09-22
+      # sa seule porte (il dit oui sur son téléphone, le parent scanne cet accord). Puis le QR
+      # code du clan, qui ne fait plus entrer qu'un adulte. Puis « Créer un joueur », présenté
+      # comme l'exception : séparé, il se ferait passer pour la voie normale.
+      tuto_clan_welcome_child:
+        fr: "Pour faire entrer ton enfant, c'est lui qui commence : il installe Donjons & Savons sur son téléphone, dit qu'il a envie de jouer, et son écran affiche un QR code. Choisis « Accueillir un enfant », scanne ce code, déclare que tu en es responsable, puis montre-lui le QR code du clan. S'il n'est pas à côté de toi, il peut t'envoyer sa réponse, et tu l'invites à distance."
+        en: "To bring your child in, they go first: they install Donjons & Savons on their phone, say they want to play, and their screen shows a QR code. Choose « Welcome a child », scan that code, declare that you are responsible for them, then show them the clan QR code. If they are not next to you, they can send you their answer, and you invite them remotely."
+        es: "Para que entre tu hijo, empieza él: instala Donjons & Savons en su teléfono, dice que tiene ganas de jugar y su pantalla muestra un código QR. Elige « Acoger a un niño », escanea ese código, declara que eres su responsable y luego enséñale el código QR del clan. Si no está a tu lado, puede enviarte su respuesta y tú lo invitas a distancia."
+        de: "Damit dein Kind beitritt, fängt es selbst an: Es installiert Donjons & Savons auf seinem Handy, sagt, dass es spielen möchte, und sein Bildschirm zeigt einen QR-Code. Wähle „Ein Kind aufnehmen“, scanne diesen Code, erkläre, dass du für es verantwortlich bist, und zeig ihm dann den QR-Code des Clans. Ist es nicht bei dir, kann es dir seine Antwort schicken, und du lädst es aus der Ferne ein."
+        it: "Per far entrare tuo figlio, comincia lui: installa Donjons & Savons sul suo telefono, dice che ha voglia di giocare e il suo schermo mostra un codice QR. Scegli «Accogli un bambino», scansiona quel codice, dichiara di esserne responsabile, poi mostragli il codice QR del clan. Se non è accanto a te, può inviarti la sua risposta e tu lo inviti a distanza."
+        pt: "Para o teu filho entrar, é ele que começa: instala Donjons & Savons no telemóvel, diz que tem vontade de jogar e o ecrã dele mostra um código QR. Escolhe «Acolher uma criança», digitaliza esse código, declara que és responsável por ele e depois mostra-lhe o código QR do clã. Se ele não estiver ao teu lado, pode enviar-te a resposta dele e tu convida-lo à distância."
+        br: "Para seu filho entrar, é ele quem começa: instala Donjons & Savons no celular, diz que está com vontade de jogar e a tela dele mostra um QR Code. Escolha \"Acolher uma criança\", escaneie esse código, declare que você é responsável por ele e depois mostre o QR Code do clã. Se ele não estiver ao seu lado, pode enviar a resposta dele para você, e você o convida a distância."
+        nl: "Om je kind erbij te halen, begint het zelf: het installeert Donjons & Savons op zijn telefoon, zegt dat het zin heeft om te spelen, en zijn scherm toont een QR-code. Kies ‘Een kind verwelkomen’, scan die code, verklaar dat je verantwoordelijk bent voor het kind en laat het daarna de QR-code van de clan zien. Is het niet bij je, dan kan het je zijn antwoord sturen en nodig jij het op afstand uit."
       tuto_clan_qr:
-        fr: "Parmi ces options, « QR Code du clan » est celle qui fait entrer quelqu'un : ton enfant installe Donjons & Savons sur son téléphone, tu lui montres le QR code, il le scanne — et il est dans le clan. C'est la façon normale de recruter."
-        en: "Among these options, « Clan QR Code » is the one that brings someone in: your child installs Donjons & Savons on their phone, you show them the QR code, they scan it — and they are in the clan. That is the normal way to recruit."
-        es: "Entre estas opciones, « Código QR del clan » es la que hace entrar a alguien: tu hijo instala Donjons & Savons en su teléfono, le enseñas el código QR, lo escanea — y ya está en el clan. Es la forma normal de reclutar."
-        de: "Unter diesen Optionen ist „Clan-QR-Code“ diejenige, mit der jemand beitritt: Dein Kind installiert Donjons & Savons auf seinem Handy, du zeigst ihm den QR-Code, es scannt ihn, und schon ist es im Clan. So rekrutiert man normalerweise."
-        it: "Tra queste opzioni, «Codice QR del clan» è quella che fa entrare qualcuno: tuo figlio installa Donjons & Savons sul suo telefono, tu gli mostri il codice QR, lui lo scansiona, ed eccolo nel clan. È il modo normale di reclutare."
-        pt: "Entre estas opções, «Código QR do clã» é a que faz entrar alguém: o teu filho instala Donjons & Savons no telemóvel, mostras-lhe o código QR, ele digitaliza-o e já está no clã. É a forma normal de recrutar."
-        br: "Entre essas opções, \"QR Code do clã\" é a que faz alguém entrar: seu filho instala Donjons & Savons no celular, você mostra o QR Code, ele escaneia e já está no clã. É a forma normal de recrutar."
-        nl: "Van deze opties is ‘QR-code van de clan’ degene waarmee iemand erbij komt: je kind installeert Donjons & Savons op zijn telefoon, jij laat de QR-code zien, hij scant hem en hij zit in de clan. Zo werf je normaal gesproken."
+        fr: "« QR Code du clan », lui, fait entrer un adulte : l'autre parent, un grand frère majeur. Il installe le jeu, tu lui montres le QR code, il le scanne, et il est dans le clan."
+        en: "« Clan QR Code », for its part, brings in an adult: the other parent, a grown-up older brother or sister. They install the game, you show them the QR code, they scan it, and they are in the clan."
+        es: "« Código QR del clan », en cambio, hace entrar a un adulto: el otro progenitor, un hermano mayor de edad. Instala el juego, le enseñas el código QR, lo escanea y ya está en el clan."
+        de: "„Clan-QR-Code“ dagegen bringt einen Erwachsenen herein: den anderen Elternteil, ein volljähriges älteres Geschwister. Er installiert das Spiel, du zeigst ihm den QR-Code, er scannt ihn, und schon ist er im Clan."
+        it: "«Codice QR del clan», invece, fa entrare un adulto: l'altro genitore, un fratello maggiorenne. Installa il gioco, gli mostri il codice QR, lo scansiona ed è nel clan."
+        pt: "«Código QR do clã», por sua vez, faz entrar um adulto: o outro pai ou mãe, um irmão mais velho maior de idade. Instala o jogo, mostras-lhe o código QR, ele digitaliza-o e já está no clã."
+        br: "\"QR Code do clã\", por sua vez, faz entrar um adulto: o outro pai ou mãe, um irmão mais velho maior de idade. Ele instala o jogo, você mostra o QR Code, ele escaneia e já está no clã."
+        nl: "‘QR-code van de clan’ haalt daarentegen een volwassene binnen: de andere ouder, een meerderjarige oudere broer of zus. Die installeert het spel, jij laat de QR-code zien, hij scant hem en zit in de clan."
       tuto_clan_create_player:
         fr: "« Créer un joueur », en revanche, ne sert que si l'enfant n'a pas de téléphone, ou est trop jeune pour avoir un compte : tu crées son personnage et tu joues à sa place."
         en: "« Create a player », on the other hand, is only for a child who has no phone, or is too young to have an account: you create their character and play in their place."
@@ -1152,15 +1165,17 @@ conf:
         br: "Parabéns, você acabou de fundar seu clã! Agora você precisa de uma equipe de aventureiros. Vá até a aba \"Clã\" e recrute seus heróis."
         nl: "Goed gedaan, je hebt net je clan opgericht! Nu heb je een team avonturiers nodig. Ga naar het tabblad ‘Clan’ en werf je helden."
       # Après clan_intro, flèche sur le kebab doré de l'en-tête.
+      # ⚠ DEUX PORTES DEPUIS LE 2026-09-22 : « QR Code du clan » ne fait plus entrer qu'un adulte,
+      #   un enfant entre par « Accueillir un enfant » (il dit d'abord oui sur son téléphone).
       reminder_recruit_clan:
-        fr: "Ton clan a besoin de héros ! Ouvre ce menu, puis « QR Code du clan » : ta famille installe le jeu sur son téléphone et scanne le code pour te rejoindre."
-        en: "Your clan needs heroes! Open this menu, then « Clan QR Code »: your family installs the game on their phone and scans the code to join you."
-        es: "¡Tu clan necesita héroes! Abre este menú y luego « Código QR del clan »: tu familia instala el juego en su teléfono y escanea el código para unirse."
-        de: "Dein Clan braucht Helden! Öffne dieses Menü und dann „Clan-QR-Code“: Deine Familie installiert das Spiel auf dem Handy und scannt den Code, um sich dir anzuschließen."
-        it: "Il tuo clan ha bisogno di eroi! Apri questo menu, poi «Codice QR del clan»: la tua famiglia installa il gioco sul telefono e scansiona il codice per unirsi a te."
-        pt: "O teu clã precisa de heróis! Abre este menu e depois «Código QR do clã»: a tua família instala o jogo no telemóvel e digitaliza o código para se juntar a ti."
-        br: "Seu clã precisa de heróis! Abra este menu e depois \"QR Code do clã\": sua família instala o jogo no celular e escaneia o código para se juntar a você."
-        nl: "Je clan heeft helden nodig! Open dit menu en dan ‘QR-code van de clan’: je familie installeert het spel op de telefoon en scant de code om zich bij je aan te sluiten."
+        fr: "Ton clan a besoin de héros ! Ouvre ce menu : « Accueillir un enfant » pour ton enfant, qui dit d'abord oui sur son téléphone, et « QR Code du clan » pour un adulte."
+        en: "Your clan needs heroes! Open this menu: « Welcome a child » for your child, who first says yes on their phone, and « Clan QR Code » for an adult."
+        es: "¡Tu clan necesita héroes! Abre este menú: « Acoger a un niño » para tu hijo, que primero dice que sí en su teléfono, y « Código QR del clan » para un adulto."
+        de: "Dein Clan braucht Helden! Öffne dieses Menü: „Ein Kind aufnehmen“ für dein Kind, das zuerst auf seinem Handy Ja sagt, und „Clan-QR-Code“ für einen Erwachsenen."
+        it: "Il tuo clan ha bisogno di eroi! Apri questo menu: «Accogli un bambino» per tuo figlio, che prima dice di sì sul suo telefono, e «Codice QR del clan» per un adulto."
+        pt: "O teu clã precisa de heróis! Abre este menu: «Acolher uma criança» para o teu filho, que primeiro diz que sim no telemóvel dele, e «Código QR do clã» para um adulto."
+        br: "Seu clã precisa de heróis! Abra este menu: \"Acolher uma criança\" para seu filho, que primeiro diz sim no celular dele, e \"QR Code do clã\" para um adulto."
+        nl: "Je clan heeft helden nodig! Open dit menu: ‘Een kind verwelkomen’ voor je kind, dat eerst ja zegt op zijn telefoon, en ‘QR-code van de clan’ voor een volwassene."
       # --- Relances de PRUDENCE (dvtuto.yml → safety_child / safety_adult) ---
       # Le jeu ne classe aucune tâche par danger : il ne peut pas savoir ce qui convient à CET
       # enfant-là. Ces rappels portent ce que l'application ne peut pas garantir elle-même, et

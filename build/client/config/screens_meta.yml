@@ -10,6 +10,10 @@ conf:
     # les documents de TOUTES les régions (pudocuments l'écrit à l'identique dans chaque
     # bucket), et les documents eux-mêmes sont ensuite lus à leur URL régionale. Un joueur
     # américain fait donc un seul aller-retour vers l'Europe, au tout premier lancement.
+    #
+    # Ce bucket reste celui de la cible de RÉFÉRENCE, y compris pour une build bâtie sur
+    # la cible d'essai : les textes légaux sont publics et identiques mot pour mot, et les
+    # servir depuis `eut` obligerait à y publier un corpus complet pour rien.
     bucket_base_url: "https://storage.googleapis.com/dvddust-eu-documents-storage"
     # ⚠ RÉGION = MARCHÉ, PAS DATACENTER. Ce que le joueur choisit ici décide des
     #   documents légaux qu'on lui présente, et de rien d'autre. Le datacenter — la
@@ -53,26 +57,41 @@ conf:
       cgu:
         mode: "checkbox"
         title: "@@@T:documents_acceptance_title@@@"
-    # Déclaration du chef de clan au moment d'ouvrir un recrutement (overlay clan_page/invite_*).
+    # Déclaration du chef de clan au moment d'ouvrir un recrutement (invite_consent_screen).
     # Elle voyage avec l'invitation et se colle à la preuve d'acceptation des CGU de celui qui
-    # entre — c'est le couplage qui manquait entre l'acte du chef et la personne du nouveau venu.
+    # entre : c'est le couplage qui manquait entre l'acte du chef et la personne du nouveau venu.
     #
-    # ⚠ CES TROIS CAS SONT CEUX DE invite_consent_notice, et ils doivent le rester : la mention
-    #   les énonce, les cases les font déclarer. En changer un ici sans changer l'autre ferait
+    # ⚠ DEUX ACQUITTEMENTS, ET PLUS UN SEUL À TROIS CASES (2026-09-22). Un enfant n'entre
+    #   qu'avec un accord : il dit d'abord qu'il veut jouer, et son accord est joint (QR code
+    #   ou lien, « Accueillir un enfant »). D'où :
+    #   * `guardian` : les deux cas « enfant », proposés SEULEMENT quand un accord d'enfant est
+    #     joint ; le scellé embarque alors cet accord (documents.seal_ack avec `assent`), qui
+    #     voyage jusqu'au dossier de l'enfant et s'enregistre aussi sous le compte du parent
+    #     (documents.record_guardian_decision) ;
+    #   * `adult` : le seul cas « adulte », pour « QR Code du clan » et « Inviter à distance »
+    #     sans accord joint.
+    #   documents.show_ack pousse TOUTES les options d'un acquittement, sans filtre : la règle
+    #   se lit donc ici, dans la découpe, et le worker n'a qu'à choisir lequel montrer.
+    # ⚠ CES CAS SONT CEUX DE invite_consent_notice, et ils doivent le rester : la mention
+    #   les annonce, les cases les font déclarer. En changer un ici sans changer l'autre ferait
     #   déclarer au chef quelque chose qu'il n'a pas lu.
-    # ⚠ Le chef déclare AVANT de savoir qui viendra (un QR affiché une fois peut servir à
-    #   plusieurs candidats) : la déclaration vaut pour l'invitation, et se recopie dans la
-    #   preuve de chaque entrant.
     # ⚠ `guardian: true` pose `accepted_as_parental_guardian` sur la preuve. « Il s'agit d'un
-    #   adulte » ne le pose PAS — un adulte n'a pas de responsable légal.
+    #   adulte » ne le pose PAS : un adulte n'a pas de responsable légal. Et c'est ce drapeau
+    #   que l'appareil de l'enfant vérifie avant d'entrer (worker._handleClanJoin) : un mineur
+    #   venu avec une invitation « adulte » n'est pas admis.
+    # ⚠ UNE DÉCLARATION PAR INVITATION : le worker la vide après la première admission.
     acknowledgements:
-      guardian:
+      adult:
         doc: "cgu"
         choice: "one"
         items:
           - id: "adult"
             label: "@@@T:invite_ack_adult@@@"
             guardian: false
+      guardian:
+        doc: "cgu"
+        choice: "one"
+        items:
           - id: "child_reads"
             label: "@@@T:invite_ack_child_reads@@@"
             guardian: true
@@ -110,22 +129,22 @@ conf:
       on_delete_complete: ""
       on_region_confirmed: "worker.on_region_screen_done"
     # Tant que la session Firebase est anonyme, dvdocuments n'écrit rien : la session légale
-    # reste locale et l'acceptation des CGU attend en mémoire. Tout part en base d'un coup au
-    # flush (worker._flushOnboarding), l'acceptation étant rejouée avec son horodatage réel.
+    # reste locale (en mémoire : couche `prelogin`, jamais sur le disque) et l'acceptation des
+    # CGU attend en mémoire. Tout part en base d'un coup au flush (worker._flushOnboarding),
+    # à la liaison du compte, pour l'adulte comme pour le mineur, l'acceptation étant rejouée
+    # avec son horodatage réel.
     deferred:
       when_action: "worker.is_anonymous"
 
-  # DUPLIQUÉ de build/backend/config.yml — les deux doivent rester synchrones. Le client
-  # lit ce bloc pour balayer les régions au login (worker_session : _resolveUserId,
-  # _findBestSession) et retrouver seul la région d'un joueur qui réinstalle l'app.
+  # `regions:` N'EST PLUS ÉCRIT ICI, ET C'ÉTAIT UN DUPLICATA. Le builder l'injecte
+  # depuis la cible d'infrastructure visée par le build (build.yml de la suite,
+  # `build.targets.<cible>.regions`). Le client lit ce bloc pour balayer les régions
+  # au login (worker_session : _resolveUserId, _findBestSession) et retrouver seul la
+  # région d'un joueur qui réinstalle l'app.
   #
-  # ⚠ `US` RETIRÉ LE 2026-09-08, en même temps que côté backend. Le client balayait une
-  #   région qui n'héberge plus rien : un aller-retour réseau par login, pour une base
-  #   qui n'existe plus. Motif complet dans build/backend/config.yml.
-  regions:
-    EU:
-      label: "Europe"
-      backend: "europe-west9"
+  # Conséquence directe et voulue : une app de production ne connaît que `EU`, une app
+  # d'essai ne connaît que `EUT`. Aucune des deux ne peut balayer la base de l'autre,
+  # et le balayage ne fait plus qu'un aller-retour.
 
   settings:
     configurations:
@@ -169,9 +188,14 @@ conf:
   deeplink:
     routes:
       "ddust://invite": "worker.on_invite_clan_link"
-      "ddust://request": "worker.on_request_link"
+      # ⚠ `ddust://request` RETIRÉ le 2026-09-22, avec tout le parcours « demande d'entrée » : il
+      #   faisait entrer un candidat sans passer par la déclaration du chef, en réutilisant la
+      #   dernière déclaration scellée. Un vieux lien de ce type n'ouvre plus rien.
       # Invitation à distance : le couple {group_id, lobby_id} est chiffré par un PIN (vive voix).
       "ddust://invitepin": "worker.on_invite_pin_link"
+      # L'accord de l'enfant (« je veux jouer »), envoyé à son parent depuis kid_assent_share.
+      # Ouvert par le parent : sa déclaration s'ouvre, en mode enfant (worker.on_assent_link).
+      "ddust://assent": "worker.on_assent_link"
 
   share:
     testmessage:
@@ -179,22 +203,34 @@ conf:
     # region= : un clan ne vit que dans sa région de stockage. Sans elle, un joueur d'une autre
     # région suivrait le lien et tomberait sur un « clan introuvable » sans explication.
     #
-    # ⚠️ Les TROIS partages d'invitation portent `share_site_link` en dernière ligne, comme le
+    # ⚠️ Les partages d'invitation (et celui de l'accord de l'enfant) portent `share_site_link` en dernière ligne, comme le
     # partage de journal. Ce n'est pas de la décoration : le destinataire d'une invitation est,
     # par définition, quelqu'un qui n'a PAS encore le jeu. Un lien `ddust://` seul ne fait
     # strictement rien sur un téléphone sans l'app — et le parent qui l'envoie croit avoir tout
     # dit. C'est le seul endroit du partage qui indique où trouver le jeu, et c'est ici qu'il
     # compte le plus. Le logo accompagne le message pour qu'il soit identifiable dans un fil.
+    # `worker.pending_invite_type` : `&k=child&n=<code>` ou `&k=adult`, la nature de
+    # l'invitation et le code de la demande de l'enfant. Posé par worker.on_share_clan_invite le
+    # temps du partage seulement (le code d'un enfant n'a rien à faire sur le disque du chef).
+    # ⚠ `worker.invite_out_*` (clan, lobby, région), posés eux aussi le temps du partage : c'est
+    # l'invitation SORTANTE du chef. Jamais `worker.pending_group_id` / `pending_lobby_id`, qui
+    # sont l'invitation REÇUE : au lancement suivant, on_login rejouait celle du chef comme une
+    # candidature dans son propre lobby.
     clan_invite:
-      text: "@@@T:share_clan_invite_text@@@\n\n@@@T:share_clan_invite_link@@@\nddust://invite?group_id=@@@worker.pending_group_id@@@&lobby_id=@@@worker.pending_lobby_id@@@&region=@@@worker.pending_region@@@\n\n@@@T:share_site_link@@@"
+      text: "@@@T:share_clan_invite_text@@@\n\n@@@T:share_clan_invite_link@@@\nddust://invite?group_id=@@@worker.invite_out_group_id@@@&lobby_id=@@@worker.invite_out_lobby_id@@@&region=@@@worker.invite_out_region@@@@@@worker.pending_invite_type@@@\n\n@@@T:share_site_link@@@"
       image: "images/big/logo.png"
-    clan_request:
-      text: "@@@T:share_clan_request_text@@@\nddust://request?lobby_id=@@@worker.pending_lobby_id@@@\n\n@@@T:share_site_link@@@"
+    # L'accord de l'enfant, envoyé à son parent (kid_assent_share). Même lien que le QR code
+    # de l'écran, posé par worker.on_kid_assent_share_appear. Sans donnée personnelle : il peut
+    # traverser n'importe quelle messagerie. Le lien du site en dernière ligne, comme partout :
+    # un parent qui n'a pas encore le jeu doit savoir où le trouver.
+    kid_assent:
+      text: "@@@T:share_kid_assent_text@@@\n@@@worker.kid_assent_link@@@\n\n@@@T:share_site_link@@@"
       image: "images/big/logo.png"
-    # Invitation à distance : token chiffré posé au runtime dans worker.pending_invite_token.
+    # Invitation à distance : token chiffré posé dans worker.invite_out_pin_token le seul temps du
+    # partage (worker.on_share_clan_invite_pin), jamais au-delà : il n'a rien à faire sur le disque du chef.
     # Le PIN est dicté de vive voix, jamais dans le lien.
     clan_invite_pin:
-      text: "@@@T:share_clan_invite_pin_text@@@\n\n@@@T:share_clan_invite_link@@@\nddust://invitepin?token=@@@worker.pending_invite_token@@@\n\n@@@T:share_site_link@@@"
+      text: "@@@T:share_clan_invite_pin_text@@@\n\n@@@T:share_clan_invite_link@@@\nddust://invitepin?token=@@@worker.invite_out_pin_token@@@\n\n@@@T:share_site_link@@@"
       image: "images/big/logo.png"
     # Journal (joueur, clan, ou récit IA du conte du butin) : logo (image) + accroche + corps, tous
     # deux posés au runtime par worker.on_log_appear dans log.share_intro / log.share_text.

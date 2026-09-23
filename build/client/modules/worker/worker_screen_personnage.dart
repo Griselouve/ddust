@@ -153,6 +153,12 @@ extension Worker_screen_personnage on worker {
                                 } catch (e) {
                                     deva_log("error", "[personnage] on_personnage_appear FAILED: $e");
                                 }
+                                // La leçon APRÈS l'appear, et non en parallèle depuis la liste `appear:`
+                                // (non attendue) : elle lisait un rôle pas encore établi. Le drainage
+                                // laisse finir la montée de niveau ou le soin qui viennent peut-être de
+                                // partir : `dvtuto.enter` renonce en silence pendant un interlude.
+                                await _waitInterludesIdle();
+                                await _enterTuto();
     }
 
     // ---- Sync d'une prop de shape vers l'instance vive ET la config registry (born-filled) ----

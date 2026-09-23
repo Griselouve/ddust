@@ -10,7 +10,7 @@ une autorité étrangère le demande.
 | Responsable du traitement | Grisloup, nom commercial de MARCHAL DE GREEF Guillaume, entrepreneur individuel, 20 rue Lavoisier, 95300 Pontoise, France. SIREN 109354092, RCS Pontoise |
 | Contact | donjons@grisloup.com |
 | Délégué à la protection des données | Aucun, la désignation n'est pas obligatoire (registre des traitements, § 1) |
-| Version | 0 (projet), 16 septembre 2026 |
+| Version | 0 (projet), 22 septembre 2026 |
 | Statut | **Non close.** Deux garanties décrites ici ne sont pas encore livrées (section 7) ; l'avis des personnes concernées n'est pas encore recueilli (section 8) |
 | Fondements | RGPD, article 35 ; lignes directrices du CEPD sur l'AIPD (WP248 rév. 01) ; méthode PIA de la CNIL |
 | Documents sources | `docs/child_interest.md` (analyse de l'intérêt supérieur de l'enfant) ; registre des traitements (`grisloup/docs/registre_traitements.md`) ; politique de confidentialité `fr-a-fr-privacy` ; `build/readme.md` |
@@ -104,7 +104,9 @@ ans de consentir seul en France (politique `fr`, § 4).
 - **Enfants et adolescents**, avec ou sans téléphone (un chef peut créer un profil sans compte pour
   un enfant sans appareil) ;
 - **adultes** du clan, chefs ou simples membres ;
-- **enfant pré-inscrit** qui a installé l'application mais n'a pas encore été admis par un adulte.
+- **enfant qui a dit vouloir jouer** mais n'a pas encore été invité par un adulte : rien n'est
+  enregistré à son sujet tant qu'il ne s'est pas connecté ; sa réponse, sans donnée personnelle,
+  n'est enregistrée qu'avec la décision de l'adulte.
 
 ### 2.4 Données traitées
 
@@ -118,7 +120,7 @@ Tableau complet : `child_interest.md`, section 6.1, et registre, fiches T1 à T7
 | Identité de jeu | Nom de personnage **libre**, description, avatar ; nom public de substitution | Le nom libre **peut contenir un prénom réel** |
 | Progression et vie du clan | Expérience, niveau, points de vie, objets, rôle, clan d'origine | |
 | Journal du clan | Tâches jugées, niveaux, coffres, cadeaux, datés | Lisible par toute la famille |
-| Preuves d'acceptation | Versions acceptées, dates, déclaration du chef | Conservées 5 ans après clôture |
+| Preuves d'acceptation | Versions acceptées, dates, déclaration du chef, réponse de l'enfant (date, langue, région, version du texte montré, code de la demande tiré au hasard) | Conservées 5 ans après clôture |
 | Notifications | Jeton d'envoi, texte (peut contenir un nom de personnage) | |
 | Achats | Référence Play, produit, dates | **Adultes seuls** |
 
@@ -178,13 +180,13 @@ historique d'achat 2 ans ; historique des connexions 90 jours.
 | Principe | Comment il est respecté | Référence |
 |---|---|---|
 | **Finalité déterminée** | Une finalité unique, sans publicité, profilage ni revente | `child_interest.md`, 2 et 3.2 |
-| **Base légale** | Contrat pour l'adulte ; consentement du tuteur pour le mineur, donné **au moment de l'acte** (inviter, accepter, créer un profil) et scellé dans la preuve d'acceptation | `child_interest.md`, 5.8 ; politique `fr`, § 3 et 4 |
+| **Base légale** | Contrat pour l'adulte ; consentement du tuteur pour le mineur, donné **au moment de l'acte** (inviter, après avoir lu le souhait de jouer de l'enfant ; créer un profil) et scellé dans la preuve d'acceptation | `child_interest.md`, 5.8 ; politique `fr`, § 3 et 4 |
 | **Minimisation** | Nom de personnage plutôt que prénom ; date de naissance oubliée ; aucune localisation ; aucune photo envoyée ; nom et photo Google exclus ; statistiques et identifiant publicitaire désactivés | `child_interest.md`, 6.1 |
 | **Exactitude** | Le statut d'enfant reste acquis jusqu'à ce qu'un chef du clan d'origine déclare l'enfant majeur, qui doit alors accepter les conditions adultes : l'erreur possible va dans le sens de la protection | `child_interest.md`, 6.1 |
 | **Durées limitées** | Calendrier en trois temps ; durées longues pour les clans justifiées dans l'intérêt de l'enfant (son histoire ne se reconstitue pas) | `child_interest.md`, 6.3 |
 | **Information** | Conditions et politique rédigées pour l'enfant ; politique adulte par marché ; guide parent intégré | `child_interest.md`, 5.8 |
 | **Droits des personnes** | Suppression depuis l'application ou le site, **y compris par un mineur seul** ; retrait du consentement pour un seul enfant ; autres droits par courriel sous un mois | `child_interest.md`, 5.10 ; politique `fr`, § 9 |
-| **Avis de l'enfant** | L'enfant est interrogé sur son envie de jouer **avant toute écriture en base** | `child_interest.md`, 5.8 |
+| **Avis de l'enfant** | L'enfant dit s'il veut jouer **avant la décision de l'adulte**, et avant toute écriture, sur son téléphone comme en base ; sa réponse, sans donnée personnelle, est transmise à l'adulte (code QR ou lien) et enregistrée avec sa décision ; son code, tiré au hasard, lie l'invitation de l'adulte à cette réponse et à nulle autre | `child_interest.md`, 5.8 |
 | **Sous-traitance** | Google, sous contrat de traitement ; engagement contractuel de non-entraînement des modèles | Registre, annexe A |
 | **Transferts** | Garanties par marché | Registre, annexe B |
 
@@ -232,7 +234,8 @@ vie domestique (qui fait quoi, quand).
 | Mesure | Statut |
 |---|---|
 | Aucun annuaire, aucune recherche de clan ou de joueur, aucune messagerie, aucune interaction entre clans | Livrée |
-| Entrée dans un clan uniquement par un chef (QR code, lien protégé par un code à six chiffres, demande acceptée) ; invitation expirée à 72 heures, secret effacé à la première utilisation | Livrée |
+| Entrée dans un clan uniquement par un chef (QR code, lien protégé par un code à six chiffres) ; invitation expirée à 72 heures, secret effacé à la première utilisation | Livrée |
+| Invitation marquée « enfant » (avec le code de la demande de l'enfant) ou « adulte » : le téléphone d'un enfant refuse, avant toute connexion, une invitation d'adulte ou faite pour la demande d'un autre enfant, et revérifie le code scellé avec la déclaration à l'entrée ; celui d'un adulte refuse une invitation d'enfant. Le code ne vit qu'en mémoire : application fermée pendant l'attente = nouvelle demande | Livrée (code du 2026-09-22, à vérifier au build) |
 | Cloisonnement par clan dans les règles d'accès (secret d'appartenance) ; collections sensibles en lecture seule pour les clients | Livrée |
 | Hors du clan, seul un nom public de substitution existe ; aucun écran ne montre un autre clan | Livrée |
 | Aucune adresse, photo, localisation ni contact n'est détenu : « il y a peu à obtenir » | Livrée |
@@ -459,8 +462,8 @@ Mesures qui servent plusieurs risques à la fois.
 
 | Mesure | Statut |
 |---|---|
-| Aucune donnée de jeu avant l'avis de l'enfant et l'autorisation de l'adulte ; pré-inscription technique effacée à 30 jours | Livrée |
-| Onboarding en session anonyme, sans écriture en base avant acceptation des conditions | Livrée |
+| Aucune donnée de jeu avant l'avis de l'enfant et l'autorisation de l'adulte ; l'avis précède la décision et lui est transmis ; rien n'est enregistré avant la connexion de l'enfant, seule subsiste une entrée d'authentification anonyme vide, effacée par la plateforme à 30 jours | Livrée (code du 2026-09-22, à vérifier au build) |
+| Onboarding en session anonyme tenue en mémoire : ni écriture en base ni fichier sur l'appareil avant la connexion à un compte, langue comprise ; la déconnexion vide la mémoire de tout ce qui appartient au compte | Livrée (code du 2026-09-22, à vérifier au build) |
 | Comptes de service distincts par usage, aux droits limités | Livrée |
 | Alertes de budget | Livrée |
 | Registre des incidents ; notification à la CNIL sous 72 heures en cas de risque, aux personnes si le risque est élevé | Livrée (procédure, registre annexe D) |
@@ -542,6 +545,7 @@ Réexaminer cette AIPD, et en changer la version, dès que :
 | Version | Date | Changement |
 |---|---|---|
 | 0 | 16 septembre 2026 | Première rédaction, à partir de `docs/child_interest.md` et du registre des traitements |
+| 0 | 22 septembre 2026 | Parcours du mineur réordonné : l'enfant dit d'abord s'il veut jouer, sa réponse (sans donnée personnelle) est transmise à l'adulte et enregistrée avec sa décision ; plus d'enregistrement avant la connexion, ni en base ni sur l'appareil ; mémoire vidée à la déconnexion (sections 2.3, 2.4, 3 et 6). Le même jour : la réponse porte un code tiré au hasard, et l'invitation est marquée « enfant » (avec ce code) ou « adulte » (sections 2.4, 3 et 5.1) |
 
 ---
 

@@ -114,6 +114,22 @@ extension Worker_session on worker {
 
                                 _userId = await _resolveUserId();
                                 if (_userId.isEmpty) return;
+                                // ⚠ UNE INVITATION EN ATTENTE QUE CE PROCESSUS N'A PAS VUE NAÎTRE EST UN
+                                //   RESTE, JAMAIS UNE INVITATION. Les clefs `worker.pending_*` passent par
+                                //   le dictionnaire, donc par le disque du compte : celle d'une version
+                                //   antérieure (le chef y rangeait sa PROPRE invitation) ou d'une session
+                                //   tuée resurgissait ici, et on_login la « consommait », clan ou pas.
+                                //   Une vraie invitation reçue (QR, lien, code) arme _pendingInviteFresh
+                                //   dans ce même processus. Le jeton sortant d'avant le correctif
+                                //   (`worker.pending_invite_token`) part avec.
+                                if (!_pendingInviteFresh) {
+                                    await _clearPendingInvite();
+                                    await deva_set("worker.pending_invite_token", "");
+                                }
+                                // Reste d'avant le 2026-09-22 : la déclaration scellée du chef vivait dans
+                                // cette clef, donc sur son disque. Elle voyage désormais dans l'invitation
+                                // privée de chaque lobby (workers/clans_invites) ; la clef n'a plus d'usage.
+                                await deva_set("worker.pending_ack", "");
                                 // Ancre l'identité authentifiée (doc `users/`). Toute divergence ultérieure
                                 // = impersonation explicite (take_place). Un vrai login repart toujours net :
                                 // on force le bandeau d'impersonation masqué (au cas où un store() l'aurait
@@ -130,16 +146,11 @@ extension Worker_session on worker {
                                 await _applyImpersonation(false, "");
 
                                 final best = await _findBestSession();
-                                // Onboarding anonyme pas encore flushé : la base est vide, il n'y a donc
-                                // RIEN à reprendre. Le tampon d'acceptation ne survit pas à un kill, par
-                                // choix — une preuve de consentement à demi-écrite n'en est pas une. On
-                                // efface l'état local résiduel et on repart du seuil, d'où le parcours
-                                // ramène à `home` — seul endroit où l'on peut aussi choisir « Retrouver
-                                // mon héros ». (C'était `home` directement jusqu'au 2026-09-13, ce qui
-                                // faisait sauter l'accueil à quiconque avait interrompu une première
-                                // tentative.) Une fois le flush passé
-                                // (mineur admis dans son clan avant d'avoir lié son compte), la session
-                                // existe et le routage nominal ci-dessous reprend la main.
+                                // Session anonyme : la base est vide, TOUJOURS. Rien ne s'y écrit avant
+                                // le login, pas plus pour le mineur que pour l'adulte (le mineur se
+                                // connecte désormais avant d'entrer dans un clan), et la session anonyme
+                                // elle-même ne survit plus à un kill (dvcloud la garde en mémoire). Il n'y
+                                // a donc jamais rien à reprendre : au pire, on repart du seuil.
                                 if (best == null && _anon) {
                                     // La session vient de s'ouvrir, à la seconde, parce que le joueur a
                                     // confirmé son royaume (on_region_screen_done). Il n'y a évidemment
@@ -179,6 +190,11 @@ extension Worker_session on worker {
                                     if (realName.isNotEmpty) {
                                         await Deva.instance.set("session.user.name", realName);
                                     }
+                                    // Date d'activité (users.last_seen), pour TOUT compte connecté, clan ou
+                                    // pas : c'est elle qui dit au balayage serveur qu'un compte jamais admis
+                                    // dans un clan est encore vivant. Avant tout le reste de la reprise, et
+                                    // attendue : les écritures qui suivent relisent le document.
+                                    if (!_anon) await _touchLastSeen(session, sessionRegion);
                                     // Activate Vertex AI now — cloud.aimodel_regions is available at this point
                                     final _ai = Deva.instance.module("dvvertexai");
                                     if (_ai != null) try { await (_ai as dynamic).startVertexMotor(); } catch (_) {}
@@ -230,9 +246,10 @@ extension Worker_session on worker {
                                         // Placé après la bascule légale (un joueur devenu majeur n'est plus visé)
                                         // et avant tout le reste — il n'a plus rien à faire dans le jeu.
                                         if (await _checkConsentClosed(ensureScreen: true)) return;
-                                        // Compte pas encore lié : mineur admis dans son clan avant la liaison,
-                                        // ou reprise après un kill sur l'écran de liaison. Bloquant, sans
-                                        // « plus tard » — c'est ce qui rend l'étape reprise-après-kill.
+                                        // Filet : un membre de clan encore anonyme ne peut plus exister (le
+                                        // mineur se connecte AVANT d'entrer, et rien ne s'écrit sous un
+                                        // identifiant anonyme). S'il se présentait quand même, la liaison
+                                        // passe avant tout le reste.
                                         if (_anon) { await _requireAccountLink(); return; }
                                         // EMPRUNT DE COMPTE, repris AVANT la vigilance : celle-ci est keyée sur
                                         // _userId, et l'armer sur l'adulte pour la rebasculer ensuite ferait un
@@ -258,6 +275,11 @@ extension Worker_session on worker {
                                         // a pu être appelée pendant que l'app était fermée, et rien n'émet de
                                         // changement pour ce qui était déjà là avant l'abonnement.
                                         _checkPendingCeremony();   // fire-and-forget : le démarrage n'attend personne
+                                        // Invitations acceptées pendant que le jeu du chef était fermé : le
+                                        // secret du clan est publié maintenant (chef seulement, cf.
+                                        // _resumeInvites). Sans navigation : un clan plein ne détourne pas le
+                                        // démarrage, la page des paliers attendra l'écran du clan.
+                                        _resumeInvites(navigate: false);   // fire-and-forget
                                         // Restaure le contexte de la tâche en cours dans la session locale, sans
                                         // rediriger vers combat : on démarre toujours sur le dashboard. L'écran
                                         // combat (on_combat_appear) lira session.active_task quand l'utilisateur
@@ -286,29 +308,8 @@ extension Worker_session on worker {
                                         // orphelin. Fire-and-forget : le démarrage n'attend pas des accès disque.
                                         _reconcileProofs(session.get("active_proof")?.toString() ?? "");
                                         // Lien d'invitation reçu avant l'authentification (cold start).
-                                        final pendingGroup = (await deva_get("worker.pending_group_id"))?.toString() ?? "";
-                                        if (pendingGroup.isNotEmpty) {
-                                            final pendingLobby = (await deva_get("worker.pending_lobby_id"))?.toString() ?? "";
-                                            // Consommé : sans ce reset, une adhésion déjà acceptée est rejouée à
-                                            // chaque démarrage à froid (la submission n'accepte plus l'écriture).
-                                            await deva_set("worker.pending_group_id", "");
-                                            await deva_set("worker.pending_lobby_id", "");
-                                            ActionRegistry.get("virtuallobby.accept_invitation")?.call(null, {
-                                                "group_id": pendingGroup,
-                                                "lobby_id": pendingLobby,
-                                            });
-                                        } else {
-                                            // Lien PIN reçu avant l'auth (cold start) : écran de saisie, token pré-rempli.
-                                            final pendingToken = (await deva_get("worker.pending_invite_token_in"))?.toString() ?? "";
-                                            if (pendingToken.isNotEmpty) {
-                                                DvOrb.navigate_new("enter_invite_pin");
-                                                final tokenShape = await DvOrb.wait_for_shape("enter_invite_pin/token");
-                                                tokenShape
-                                                    ?..set("shape.value", pendingToken)
-                                                    ..refreshUI();
-                                                return;
-                                            }
-                                        }
+                                        if (await _consumePendingInvite(caller, event, hasClan: true,
+                                                ownClanId: session.get("steps.clan.clanId")?.toString() ?? "")) return;
                                         // Nom pas encore choisi : il est demandé APRÈS la liaison du compte,
                                         // pour tout le monde. Placé ici, tout en fin de branche, pour que la
                                         // vigilance du joueur et les cérémonies en attente soient déjà armées
@@ -319,6 +320,9 @@ extension Worker_session on worker {
                                             return;
                                         }
                                         await ActionRegistry.get("steps.navigate.dashboard")?.call(caller, event);
+                                        // Accord d'enfant reçu par lien, application fermée (on_assent_link) :
+                                        // le chef est maintenant connecté, sa déclaration peut s'ouvrir.
+                                        await _openPendingAssent();
                                         return;
                                     }
                                     if (!cguDone) {
@@ -329,18 +333,48 @@ extension Worker_session on worker {
                                     final legalState = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "";
                                     await Deva.instance.set("worker.session.create_clan_disabled",
                                         _gameplayLegal(legalState) == "k" ? "true" : "");
+                                    // Filet : une session anonyme n'a plus rien en base (rien ne s'écrit
+                                    // avant le login), ce cas ne devrait donc jamais se présenter. S'il se
+                                    // présente, la seule issue sûre est la liaison du compte.
+                                    // ⚠ LA BRANCHE « MINEUR ANONYME DÉJÀ INSCRIT » A DISPARU (2026-09-22) :
+                                    //   elle renvoyait vers la demande d'entrée un enfant dont l'onboarding
+                                    //   avait été écrit en base avant la décision de son parent. Le mineur se
+                                    //   connecte désormais AVANT d'entrer dans un clan.
                                     if (_anon) {
-                                        // Mineur déjà flushé mais pas encore admis (il a quitté l'app en
-                                        // attendant que le chef accepte) : il reprend sa demande d'entrée.
-                                        // Le link ne lui est réclamé qu'APRÈS l'admission — avant, il n'a
-                                        // rien à protéger et l'écran de liaison le bloquerait pour rien.
-                                        if (_gameplayLegal(legalState) == "k") {
-                                            await ActionRegistry.get("steps.navigate.join")?.call(caller, event);
-                                            return;
-                                        }
                                         await _requireAccountLink();
                                         return;
                                     }
+                                    // ADHÉSION EN ATTENTE (users.pending_join) : invitation acceptée lors
+                                    // d'un lancement précédent, le chef n'avait pas encore publié le secret
+                                    // du clan. Encore valable : retour sur join_wait, où l'attente reprend.
+                                    // Expirée : vidée, et le joueur repart de sa demande (enfant) ou du
+                                    // choix du clan (adulte), avec le message join_expired.
+                                    // Une invitation FRAÎCHE (reçue par ce processus) passe devant : elle
+                                    // est plus récente, et son acceptation remplacera l'attente.
+                                    final pendingJoin = _pendingJoinOf(session);
+                                    final freshInvite = ((await deva_get("worker.pending_group_id"))?.toString() ?? "").isNotEmpty
+                                        || ((await deva_get("worker.pending_invite_token_in"))?.toString() ?? "").isNotEmpty;
+                                    if (pendingJoin != null && !freshInvite) {
+                                        if (_pendingJoinExpired(pendingJoin)) {
+                                            deva_log("info", "[worker] on_login: adhésion en attente expirée");
+                                            await _leaveJoin(sessionRegion, notice: "join_expired");
+                                            return;
+                                        }
+                                        deva_log("info", "[worker] on_login: adhésion en attente, retour sur join_wait");
+                                        // Déjà dessus (login rejoué) : ne pas reconstruire l'écran.
+                                        if (DvOrb.get_current_page()?.dvid != "join_wait") {
+                                            await ActionRegistry.get("steps.navigate.join_wait")?.call(caller, event);
+                                        }
+                                        return;
+                                    }
+                                    // Invitation gardée en mémoire avant le login : l'enfant qui vient de
+                                    // se connecter (QR du parent scanné, ou code saisi), l'adulte qui a
+                                    // ouvert un lien d'invitation application fermée. Acceptée ICI, sous le
+                                    // compte définitif, puis attente du chef sur join_wait (_acceptAndWait) :
+                                    // l'admission arrive quand il publie le secret du clan, application
+                                    // ouverte ou non. Une invitation refusée (faite pour un enfant, ouverte
+                                    // par un adulte) laisse la suite ordinaire reprendre ci-dessous.
+                                    if (await _consumePendingInvite(caller, event)) return;
                                     if (session.get("steps.name") == null) {
                                         await ActionRegistry.get("steps.navigate.player_name")?.call(caller, event);
                                         return;
@@ -477,9 +511,10 @@ extension Worker_session on worker {
                                 // viennent d'être acceptées. Tout ce qui précède — royaume, âge, état
                                 // légal — n'a vécu jusqu'ici que dans la session locale.
                                 //
-                                // Anonyme : rien encore. Son flush viendra à la liaison du compte
-                                // (adulte) ou à l'entrée dans le flux de clan (mineur), parce qu'il
-                                // n'a pas encore d'identité durable à qui rattacher tout cela.
+                                // Anonyme : rien encore. Son flush viendra à la liaison du compte,
+                                // pour l'adulte comme pour le mineur (qui ne se connecte qu'une fois
+                                // l'invitation de son parent en main), parce qu'il n'a pas encore
+                                // d'identité durable à qui rattacher tout cela.
                                 //
                                 // Déjà authentifié — un compte Google dont la session en base a
                                 // disparu, et qui refait donc tout le parcours : le bloc part
@@ -599,6 +634,10 @@ extension Worker_session on worker {
                                             // interrompue. On le renvoie la finir plutôt qu'au dashboard.
                                             return session?.get("steps.name") == null ? "player_name" : "dashboard";
                                         }
+                                        // Adhésion en attente (nouvelle version des conditions reposée pendant
+                                        // l'attente) : retour sur join_wait, pas au début du parcours de jointure.
+                                        final pj = _pendingJoinOf(session);
+                                        if (pj != null && !_pendingJoinExpired(pj)) return "join_wait";
                                     }
                                 } catch (e) {
                                     deva_log("error", "[worker] legalstate: lecture session FAILED: $e");
@@ -629,6 +668,13 @@ extension Worker_session on worker {
                                 deva_log("info","logged out");
                                 _stopValidationPolling();
                                 _stopPlayerVigilance();
+                                // L'attente d'une adhésion (join_wait) appartient au compte qui s'en va :
+                                // elle reste en base (pending_join) et reprendra à sa prochaine connexion.
+                                _stopJoinWatch();
+                                _joinPendingMem  = null;
+                                _joinNotice      = "";
+                                _invitesQuietAt  = null;
+                                _lastSeenDay     = "";
                                 _resetOpening();
                                 _userId      = "";
                                 _authUserId  = "";
@@ -637,6 +683,8 @@ extension Worker_session on worker {
                                 // hériterait du statut admin du précédent utilisateur).
                                 _isAdmin = false; _adminCount = 0; _isAdminClanId = ""; _isAdminUserId = "";
                                 _isAdult = false; _isAdultClanId = ""; _isAdultUserId = "";
+                                // Et leurs miroirs pour dvtuto : le compte suivant ne doit pas lire nos rôles.
+                                await _unpublishRoles();
                                 // Même repli pour le mode chef. Le vocabulaire du tiroir est STATIQUE au framework :
                                 // sans cette remise à zéro, le joueur suivant sur l'appareil hériterait du
                                 // vocabulaire admin (ni assigned ni dead ne griseraient, tout serait cliquable).
@@ -645,6 +693,18 @@ extension Worker_session on worker {
                                 _declareTiroirVocabulary();
                                 await _syncChiefUi();
                                 await Deva.instance.set("worker.session.clan_done", "");
+                                // Demande d'enfant et invitations en cours, des deux côtés : le code de la
+                                // demande, l'accord scanné par le chef, l'invitation mise de côté. Rien de
+                                // cela n'appartient au compte suivant.
+                                await _forgetKidAssent();
+                                _pendingAssent    = null;
+                                _inviteAssent     = null;
+                                _assentRejected   = false;
+                                _inviteLinkParams = "";
+                                _outgoingGroupId  = "";
+                                _outgoingLobbyId  = "";
+                                _outgoingRegion   = "";
+                                _outgoingPinToken = "";
 
                                 // ⚠ AU SEUIL, ET NON SUR `home`. Se deconnecter, c'est revenir au
                                 //   tout debut : l'ecran noir qui demande « le donjon vous attend,
@@ -845,11 +905,13 @@ extension Worker_session on worker {
 
     // Conflit : le compte Google visé porte déjà un héros.
     //
-    // ADULTE — rien n'a été écrit sous l'uid anonyme (on est avant le flush), donc on peut
-    // proposer d'adopter le compte existant : c'est sans perte et sans migration.
-    // MINEUR — il est déjà dans un clan, des documents existent sous son uid anonyme. On
-    // BLOQUE. Surtout pas de suppression : s'il était seul chef de son clan, la cascade
-    // dissoudrait le clan et mettrait tous ses membres en tombstone — des données de tiers.
+    // Rien n'a été écrit sous l'uid anonyme (on est avant le flush), donc on peut proposer
+    // d'adopter le compte existant : c'est sans perte et sans migration. Vrai pour l'adulte, et
+    // désormais pour le mineur aussi, qui se connecte AVANT d'entrer dans un clan ; son
+    // invitation en attente suit alors le compte adopté.
+    // La branche « clan_done » (blocage pur) ne sert plus que de filet : elle protégeait un
+    // mineur admis dans un clan sous son uid anonyme, cas qui ne peut plus se produire. Surtout
+    // pas de suppression dans ce cas : la cascade toucherait des données de tiers.
     Future<void> on_link_conflict(DvShape? caller, dynamic event) async {
 
                                 final clanDone = (await Deva.instance.get("worker.session.clan_done"))?.toString() ?? "";
@@ -886,11 +948,13 @@ extension Worker_session on worker {
     // Première écriture réelle du joueur en base : index, doc `users` et preuve de
     // consentement, d'un seul tenant. Idempotente : rejouable telle quelle.
     //
-    // TROIS appelants, un par façon d'arriver au bout du parcours :
-    //   * la liaison du compte Google — l'adulte anonyme, qui vient d'acquérir une
-    //     identité durable à qui rattacher tout cela ;
-    //   * l'entrée dans le flux de jointure de clan — le mineur, qui a besoin d'un uid
-    //     pour dialoguer avec le lobby, et qui liera son compte après son admission ;
+    // DEUX appelants, un par façon d'arriver au bout du parcours :
+    //   * la liaison du compte Google : l'adulte comme le mineur, qui vient d'acquérir une
+    //     identité durable à qui rattacher tout cela. Le mineur n'a plus de flush à lui :
+    //     il écrivait autrefois son onboarding en entrant dans le flux de clan, sous son
+    //     identifiant anonyme et avant toute décision de son parent. Il se connecte
+    //     désormais une fois l'invitation du parent en main, et passe par ici comme tout
+    //     le monde ;
     //   * l'acceptation des conditions — le compte Google déjà authentifié dont la
     //     session en base a disparu, et qui refait donc tout le parcours
     //     (`proofAlreadyWritten`, dvdocuments n'étant pas différé pour lui).
@@ -1011,16 +1075,18 @@ extension Worker_session on worker {
                                 return true;
     }
 
-    // Efface tout l'état local d'un onboarding anonyme qui n'a pas abouti.
+    // Remise au premier écran d'un onboarding anonyme qui n'a pas abouti.
     //
-    // La destination dépend de ce qu'on trouve : un RÉSIDU (un royaume déjà choisi) signe
-    // une session interrompue puis restaurée — on renvoie à l'accueil, d'où le joueur peut
-    // aussi bien recommencer que se raviser et revendiquer un compte existant. Rien du
-    // tout, c'est le tap qui vient d'ouvrir la session : on entre directement dans
-    // l'onboarding, sans renvoyer l'utilisateur sur le bouton qu'il vient de presser.
+    // ⚠ PLUS RIEN À RÉPARER, SEULEMENT DE LA MÉMOIRE À VIDER. Avant le login, rien ne touche
+    //   ni le disque (couche `prelogin`, en mémoire) ni la base, et la session anonyme ne
+    //   survit plus à un kill. Cette méthode effaçait autrefois un RÉSIDU persisté (royaume,
+    //   acceptation en attente) puis l'enregistrait vide ; il n'y a plus de résidu, donc plus
+    //   de store() non plus.
     //
     // [navigate] false quand l'appelant enchaîne sur sa propre destination (adoption d'un
-    // compte existant, qui se termine par son on_login).
+    // compte existant, qui se termine par son on_login) : le tampon local doit être jeté pour
+    // ne pas être versé sur le compte adopté, mais l'invitation éventuellement en attente, elle,
+    // reste : c'est bien ce compte-là qui la recevra.
     Future<void> _restartAnonymousOnboarding({bool navigate = true}) async {
 
                                 final dvdocs = ModuleRegistry.create("documents");
@@ -1031,32 +1097,11 @@ extension Worker_session on worker {
                                 await Deva.instance.set("worker.session.create_clan_disabled", "");
                                 await Deva.instance.set("worker.pending_member_joined",        null);
                                 await Deva.instance.set("worker.pending_clan_welcome",         "");
-                                // Revue armée par une notification et jamais consommée (chef mort au
-                                // moment du tap, app jamais rouverte) : elle désigne une tâche d'un clan
-                                // qu'on vient de quitter. La laisser ferait ouvrir une revue étrangère à
-                                // la première arrivée sur le dashboard du clan suivant.
                                 await Deva.instance.set("worker.pending_review_task",          "");
                                 await Deva.instance.set("session.user.name",                   "");
-                                await Deva.instance.store();
                                 if (!navigate) return;
 
-                                // ⚠ LE SEUIL, TOUJOURS — ET LA BRANCHE QUI A DISPARU D'ICI ETAIT LA
-                                //   CAUSE DE L'ACCUEIL SAUTE. Il y avait un `else` qui appelait
-                                //   `_enterOnboarding()` : « c'est le tap qui vient d'ouvrir la
-                                //   session, on entre directement dans le tunnel ». Ce raisonnement
-                                //   est mort le jour où `_onboardingLive` est apparu — ce cas-là est
-                                //   désormais intercepté par `on_login` AVANT d'arriver ici. Tout ce
-                                //   qui parvient jusqu'à cette méthode est une REPRISE.
-                                //
-                                //   Et cette branche ne se contentait pas d'être inutile : elle
-                                //   nuisait. `_enterOnboarding` tire `steps.navigate.region` alors
-                                //   que la page courante est `awake`, dont le pas ne déclare aucune
-                                //   route `region` — dvsteps retombait donc sur `default`,
-                                //   c'est-à-dire `lang_choice`. Une seconde et demie après le
-                                //   lancement, l'application sautait par-dessus son propre accueil,
-                                //   et la boucle du seuil cherchait en vain une shape déjà détruite
-                                //   (« awake/question jamais montée » dans le journal).
-                                //
+                                await _forgetKidAssent();
                                 // ⚠ PAS DE `navigate_reset` SI L'ON Y EST DEJA : au démarrage l'orb
                                 //   ouvre `awake` (home_page) et la boucle des sept langues tient
                                 //   une référence sur `awake/question`. Reconstruire la page à
@@ -1160,6 +1205,39 @@ extension Worker_session on worker {
                                 } catch (e) {
                                     deva_log("error", "[worker] session step '$stepName' FAILED: $e");
                                 }
+    }
+
+    // Date d'activité du compte : `users.last_seen`, chaîne ISO-8601 UTC (comme `date`, et
+    // JAMAIS un timestamp : la requête du balayage serveur compare des chaînes). Posée à la
+    // reprise d'un compte connecté, clan ou pas, au plus une fois par jour : le document dit
+    // lui-même si la date du jour y est déjà, et _lastSeenDay évite de le relire au login
+    // suivant du même processus. Rien sur le disque : avant le login, on n'écrit nulle part.
+    //
+    // Sert au balayage des comptes jamais admis dans un clan (pulse_sweeper, piste orphans) :
+    // 30 jours sans last_seen (repli users.date, puis steps.cgu.date) et un compte qui n'a
+    // jamais eu de clan est effacé. Un échec d'écriture est sans conséquence immédiate : on
+    // réessaiera au prochain login.
+    Future<void> _touchLastSeen(Dvidle session, String region) async {
+
+                                final docId = _sessionDocId();
+                                if (docId.isEmpty || region.isEmpty) return;
+                                final now   = DateTime.now().toUtc();
+                                final today = now.toIso8601String().substring(0, 10);
+                                if (_lastSeenDay == today) return;
+                                if ((session.get("last_seen")?.toString() ?? "").startsWith(today)) {
+                                    _lastSeenDay = today;
+                                    return;
+                                }
+                                try {
+                                    await _cloud?.write("workers", "users", docId,
+                                        Dvidle({"last_seen": now.toIso8601String()}), region: region);
+                                    _lastSeenDay = today;
+                                } catch (e) {
+                                    deva_log("warning", "[worker] last_seen non écrit: $e");
+                                }
+                                // La session lue par _findBestSession est en cache : la relire après
+                                // l'écriture, sinon un read-modify-write qui suit réécrirait l'ancienne date.
+                                _invalidateSessionCache();
     }
 
     //-----------------------------------------------------------------------
@@ -1289,6 +1367,9 @@ extension Worker_session on worker {
                                         wipe.set("last_clan",    "");
                                         wipe.set("active_task",  "");
                                         wipe.set("active_proof", "");
+                                        // Une adhésion en attente d'avant la suppression ne doit pas ramener
+                                        // le compte réactivé sur join_wait.
+                                        wipe.set("pending_join", "");
                                         await _cloud?.write("workers", "users", docId, wipe, region: region);
                                         _invalidateSessionCache();
                                         deva_log("info", "[worker] compte réactivé : session '$region' remise à zéro");

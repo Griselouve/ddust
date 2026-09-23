@@ -52,28 +52,20 @@ conf:
     essential_contacts:
       - categories: [LEGAL]
 
-  # Chaque region declaree ici produit sa propre pile complete : 7 bases Firestore
-  # prefixees (eu-workers, eu-store...), un bucket d'assets, un bucket de documents
-  # et un jeu de Cloud Functions. Le choix du joueur est definitif (cf. CGU) et aucune
-  # donnee ne circule d'une region a l'autre.
-  # Ce bloc est DUPLIQUE dans build/client/config/screens_meta.yml : les deux doivent
-  # rester synchrones, le client lit le sien pour balayer les regions au login.
+  # `regions:` N'EST PLUS DECLARE ICI. Il vit dans le build.yml de la suite, sous
+  # `build.targets.<cible>.regions`, et le builder l'ecrit dans le layer `conf` des
+  # DEUX apps apres tous les ingests (_apply_target_conf).
   #
-  # /!\ `US` (us-central1) A ETE RETIRE LE 2026-09-08, et c'est un retrait d'INFRA,
-  #     pas de discours. Une region declaree ici est PROVISIONNEE ; plus aucun marche
-  #     ne consommait celle-la. `documents.regions` du build.yml de la suite ne liste
-  #     que `fr`, qui vit dans le cloud `eu`. Les cinq marches rattaches au cloud `us`
-  #     — us, ca, oceanie, bresil, hispam — ont un corpus redige mais ne sont pas
-  #     ouverts : leurs documents restent des souches de derivation, servies a
-  #     personne. Payer six bases Firestore, un bucket et un jeu de Cloud Functions
-  #     pour zero utilisateur n'avait plus d'objet.
-  # /!\ LA ROUVRIR N'EST PAS GRATUIT : les bases sont detruites au `pulumi up` qui a
-  #     suivi ce retrait. Rajouter la cle ici les recree VIDES. C'est sans consequence
-  #     tant qu'aucun joueur n'y vit — et c'etait le cas au moment du retrait.
-  regions:
-    EU:
-      label: "Europe"
-      backend: "europe-west9"
+  # Motif : ce bloc decidait a lui seul quelle pile est deployee, et il etait
+  # recopie a la main dans build/client/config/screens_meta.yml. Deux copies d'une
+  # decision pareille, c'est deux occasions de deployer une region que le client ne
+  # balaye pas, ou l'inverse. La cible est desormais la seule a le dire, et elle le
+  # dit aux deux.
+  #
+  # ⚠ NE PAS LE REINTRODUIRE ICI. `_apply_target_conf` REMPLACE la clef (par `set`,
+  #   pas par `mask`, qui fusionne en profondeur), mais une valeur ecrite ici
+  #   resterait visible de tout ce qui relit la conf du projet avant l'assemblage
+  #   des layers, et donnerait a croire qu'elle agit.
   apis:
     list:
       - iap.googleapis.com
@@ -395,6 +387,52 @@ conf:
               allow get: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
               allow create, update, delete: if false;
+          # Invitation ouverte par un chef : doc-id = lobbyId (généré par le chef lui-même,
+          # AVANT `virtuallobby.create_management`). Champs : ownerId (UID Firebase du chef
+          # qui invite), clanId, ack (la déclaration scellée), kind, created_at, expires_at
+          # (72 h, comme le lobby), published_at (posé quand le secret a été publié au
+          # candidat), expiration (cf. TTL ci-dessous).
+          #
+          # POURQUOI UN DOCUMENT À PART. Un enregistrement de lobby `virtuallobby` peut être
+          # créé et accepté par N'IMPORTE QUEL compte connecté qui connaît l'identifiant du
+          # clan, et cet identifiant figure dans chaque QR code. La reprise des invitations
+          # au redémarrage du chef ne publie donc le secret du clan que pour un lobby qui a
+          # SON document ici, écrit par un chef : c'est ce document, et non l'enregistrement
+          # de lobby, qui prouve qu'une invitation a réellement été ouverte.
+          #
+          # Règle explicite plutôt que `isolation: strict` nue, et pour la même raison que
+          # `userindexes` : le `get` généré par strict (`request.auth != null`) laisserait
+          # n'importe quel compte connecté lire la déclaration scellée d'autrui à partir du
+          # seul lobbyId. On garde l'ÉCRITURE de strict (ownerId == UID de l'auteur, seul
+          # l'auteur modifie ou supprime), et on resserre la LECTURE à l'auteur et aux
+          # membres du clan visé (un second chef doit pouvoir reprendre l'invitation).
+          #
+          # ⚠ UN SECOND CHEF LIT, IL N'ÉCRIT PAS. S'il publie à la reprise, son écriture de
+          #   `published_at` est refusée : la publication suivante se rejouera, ce qui est
+          #   sans conséquence (le secret est réécrit à l'identique).
+          #
+          # ⚠ LE TTL PORTE SUR `expiration`, PAS SUR `expires_at`. pufirestore fige le nom
+          #   du champ TTL (cf. pufirestore/brick.py), et Firestore n'efface que sur un
+          #   champ de type TIMESTAMP. Le client doit donc écrire `expiration` (un DateTime,
+          #   que dvcloud sérialise en timestamp) au même instant que `expires_at` (chaîne
+          #   ISO, que le code relit). Sans lui, la politique serait posée et n'effacerait
+          #   rien, sans que rien ne le signale.
+          clans_invites:
+            ttl: true
+            rule: |
+              allow list: if request.auth != null && resource.data.ownerId == request.auth.uid;
+              allow get: if request.auth != null
+                && (resource == null
+                    || resource.data.ownerId == request.auth.uid
+                    || get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[resource.data.clanId].clanSecret != null);
+              allow create: if request.auth != null
+                && request.resource.data.ownerId == request.auth.uid
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[request.resource.data.clanId].clanSecret != null;
+              allow update: if request.auth != null
+                && resource.data.ownerId == request.auth.uid
+                && request.resource.data.ownerId == request.auth.uid
+                && request.resource.data.clanId == resource.data.clanId;
+              allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
 
   svcaccounts:
     enabled: true
@@ -419,6 +457,10 @@ conf:
           # firebase.admin : envoyer les relances par FCM (le balayage n'a pas de jeton
           #                  utilisateur, il ne peut donc pas passer par la fonction
           #                  `messaging` — cf. le helper notify() de pustore).
+          #                  Aussi : effacer le compte Firebase Auth d'un compte
+          #                  jamais admis dans un clan (piste ORPHELINS de
+          #                  `pulse_sweeper`, getAuth().deleteUser) ; firebase.admin
+          #                  porte firebaseauth.users.delete, rien à ajouter.
           # run.invoker    : Cloud Scheduler l'appelle en OIDC sous cette identité.
           - roles/datastore.user
           - roles/firebase.admin
@@ -533,6 +575,25 @@ conf:
       # ⚠ IL N'EXPOSE PAS LE JEU. C'est précisément pourquoi il existe : ouvrir le
       #   bucket `assets` en lecture publique aurait exposé ses 550 Mo pour en servir
       #   les trente premiers.
+      # LES BINAIRES DE TEST, lus par le builder SEUL, jamais par l'application.
+      #
+      # Chaque `make-apk` y depose l'APK et en signe une URL de trois heures, envoyee
+      # sur le canal Telegram du developpeur (cf. python/modules/dvtelegram). Le
+      # builder ne garde que les cinq derniers ; la peremption ci-dessous est le
+      # filet, pas la regle de menage.
+      #
+      # ⚠ `firebase: false` : ce bucket n'a rien a faire dans Firebase Storage. La
+      #   liaison lui imposerait des regles de securite, une release de ruleset et une
+      #   dependance a `firebasestorage.googleapis.com` pour un contenu auquel seul le
+      #   builder accede, par URL signee.
+      # ⚠ JAMAIS PUBLIC : un APK telechargeable par tous, c'est une version de test
+      #   qui circule hors du Store, sans mise a jour et sans Play Protect.
+      apk:
+        public_read: false
+        firebase: false
+        force_destroy: true
+        lifecycle_days: 30
+
       preload:
         public_read: true
         force_destroy: true
@@ -770,6 +831,9 @@ conf:
       # Sans ça, un même code serait réclamable une fois en EU et une fois en US.
       # C'est `eu` parce que c'est la région d'origine ; la fonction américaine y va
       # aussi, exactement comme store_rtdn balaye les deux bases depuis l'Europe.
+      # ⚠ `CODES_REGION` ci-dessous DECRIT LA PRODUCTION. La cible d'essai le
+      #   surcharge dans le build.yml de la suite (build.targets.test.conf) : sans
+      #   cette surcharge, `eut-store-claim` consommerait de vrais codes dans eu-store.
       store_claim:
         environment:
           SCOPE_DATABASE: "workers"
@@ -793,6 +857,7 @@ conf:
       # Elle s'appelle depuis l'app, en mode test, sous le compte éditeur : une
       # fonction callable exige un jeton d'UTILISATEUR authentifié, elle ne se joint
       # donc ni en curl avec un compte de service, ni depuis un script.
+      # Surcharge par cible : cf. build.targets.test.conf dans le build.yml de la suite.
       store_mint:
         environment:
           CODES_REGION: "eu"
@@ -803,6 +868,7 @@ conf:
       # sans passer par la console Firestore, c'est-à-dire au pire moment et sous
       # pression. Ne supprime rien — pose `revoked`, et ce qui a déjà été donné reste
       # donné.
+      # Surcharge par cible : cf. build.targets.test.conf dans le build.yml de la suite.
       store_revoke:
         environment:
           CODES_REGION: "eu"
@@ -822,6 +888,7 @@ conf:
           PROJECTION_COLLECTION: "clans_store"
           # Play n'accepte qu'un topic : seul eu-play-rtdn est renseigné en console,
           # la fonction européenne traite donc aussi les données américaines.
+          # Surcharge par cible : cf. build.targets.test.conf dans le build.yml de la suite.
           STORE_REGIONS: "eu,us"
       store_sweeper:
         environment:
@@ -1287,6 +1354,8 @@ conf:
             // `enabled: false` est ce que la reprise de session relit pour ne PAS restaurer
             // accepted_versions : sans lui, un utilisateur qui revient sauterait l'écran CGU
             // (hasNewDocuments === false). Cf. _restoreSessionFromFirestore côté client.
+            // ⚠ BLOC RECOPIÉ dans `pulse_sweeper` (piste ORPHELINS, `sweepOrphans`) : toute
+            //   correction ici doit y être portée, et inversement.
             const docsDb = getFirestore(admin.app(), '@@@region@@@_documents');
             // Le consentement peut etre keye par UID Firebase OU par userId metier : on traite
             // l'union des deux ensembles (un id inexistant = simple no-op).
@@ -1669,6 +1738,27 @@ conf:
           # Pour couper les relances sans redéployer, c'est `PULSE_ENABLED` qu'il faut —
           # lui arrête la passe et le DIT dans sa réponse (`{skipped: 'disabled'}`).
           PULSE_DRY_RUN: "true"
+          # Piste ORPHELINS : effacement des comptes connectés qui ne sont JAMAIS entrés
+          # dans un clan, après `orphans.after_days` sans connexion (cf. le code).
+          #
+          # ⚠ SON PROPRE INTERRUPTEUR, ET IL EST FERMÉ. C'est la seule piste de cette
+          #   fonction qui EFFACE pour de bon (compte de connexion compris), là où les
+          #   autres envoient ou posent un drapeau. Elle suit en plus le mode simulation
+          #   ci-dessus : l'ouvrir ici ne suffit pas tant que `PULSE_DRY_RUN` vaut "true".
+          #   On l'éprouve d'abord à la demande (`?orphans=1`, simulation forcée tant que
+          #   cet interrupteur est fermé), on l'ouvre ensuite.
+          #
+          # Absente, la variable vaut "false" dans le code aussi. Ce n'est PAS le second
+          # verrou invisible dénoncé plus haut : la réponse de chaque passe le DIT
+          # (`orphans: 'disabled'`), et se tromper dans ce sens retarde un effacement au
+          # lieu d'en provoquer un.
+          PULSE_ORPHANS_ENABLED: "false"
+          # Heure UTC (celle du planificateur, cf. puscheduler) de l'UNIQUE passe
+          # quotidienne de la piste orphelins. La fonction tourne toutes les heures ; un
+          # effacement n'a aucune raison d'être tenté vingt-quatre fois par jour, et la
+          # nuit européenne est l'heure où le moins de monde se connecte pendant qu'on
+          # efface. Valeur illisible ou hors 0-23 : repli sur 3.
+          PULSE_ORPHANS_HOUR: "3"
           # Calendrier entièrement déclaratif, sur le modèle de STORE_LIFECYCLE.
           #   silent_after_hours — en-deçà, le clan est vivant : silence total
           #   forget_days        — au-delà, le joueur est parti : on cesse de le relire.
@@ -1711,6 +1801,15 @@ conf:
           #                        locales, borne haute exclue
           #   tz_default_minutes — décalage de repli quand `tz_offset` manque sur le
           #                        document membre (compte antérieur au champ)
+          #   orphans            — COMPTE JAMAIS ADMIS, piste à part (décision du
+          #                        2026-09-22) :
+          #                          after_days    — jours sans connexion avant effacement.
+          #                                          C'est une PROMESSE des politiques de
+          #                                          confidentialité (« après 30 jours sans
+          #                                          connexion ») : ne pas la changer ici
+          #                                          sans changer les documents légaux
+          #                          lookback_days — largeur de la fenêtre de la requête
+          #                                          principale, au-delà de `after_days`
           #
           # Les textes qui peuvent atteindre un enfant — le boss et le retour du clan —
           # obéissent à deux interdits, dans les sept langues : ne JAMAIS nommer ni
@@ -1753,6 +1852,7 @@ conf:
              "windows":{"minor":{"days":[6],"from":9,"to":10},
                         "adult":{"days":[0,1,2,3,4,5,6],"from":17,"to":18}},
              "tz_default_minutes":60,
+             "orphans":{"after_days":30,"lookback_days":30},
              "default_lang":"fr",
              "title":"Donjons & Savons",
              "notify":{"database":"messaging","collection":"msgregistry","match_field":"ownerId",
@@ -1859,6 +1959,7 @@ conf:
           import * as admin from 'firebase-admin';
           import { getFirestore, FieldValue } from 'firebase-admin/firestore';
           import { getMessaging } from 'firebase-admin/messaging';
+          import { getAuth } from 'firebase-admin/auth';
 
           admin.initializeApp();
 
@@ -1886,6 +1987,22 @@ conf:
           // endormi traité sort de la requête (effacé) ou n'a plus rien à recevoir avant
           // six mois. Le rattrapage d'un stock ancien s'étale simplement sur plusieurs jours.
           const MAX_SLEEP   = 300;
+          // Comptes jamais admis EFFACÉS (ou, en simulation, qui l'auraient été) par
+          // passe. Même raisonnement que MAX_SLEEP : un stock ancien s'écoule en quelques
+          // nuits, et c'est préférable à une passe qui dépasse son délai au milieu d'une
+          // suite d'effacements.
+          const MAX_ORPHANS     = 300;
+          // Documents `users` LUS par requête d'énumération des orphelins. Distinct du
+          // plafond d'effacement : la requête de rattrapage ramène aussi des comptes qui
+          // ont un clan (ils ne sont jamais effacés), et c'est elle qu'il faut borner.
+          const MAX_ORPHAN_SCAN = 2000;
+
+          // Piste ORPHELINS : interrupteur et heure (UTC). Cf. `sweepOrphans`.
+          const ORPHANS_ENABLED = String(process.env.PULSE_ORPHANS_ENABLED || 'false') === 'true';
+          const ORPHANS_HOUR    = (() => {
+              const h = parseInt(String(process.env.PULSE_ORPHANS_HOUR ?? '3'), 10);
+              return (Number.isInteger(h) && h >= 0 && h <= 23) ? h : 3;
+          })();
 
           const iso = (ms: number) => new Date(ms).toISOString();
           const num = (v: any) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
@@ -1928,6 +2045,18 @@ conf:
           //   tromper vers l'enfant décale un rappel au samedi, se tromper vers l'adulte
           //   le réveille un soir de semaine.
           const kindOf = (p: any) => (p.minor ? 'minor' : 'adult');
+
+          // ⚠ VALIDATION CROISÉE : LA RELANCE « VALIDATION » NE VA PAS À L'AUTEUR DE LA TÂCHE
+          //   dès que le clan compte DEUX chefs adultes. Elle porte, pour un clan abonné, les
+          //   boutons Valider / À moitié / Refuser : l'envoyer à l'auteur lui faisait juger son
+          //   propre travail d'un tap, ce que l'écran lui interdit. Un chef adulte SEUL la
+          //   reçoit, lui : c'est la règle de l'admin solo, il reste le seul à pouvoir trancher.
+          //   Même filtre en passe réelle et au banc. Le client refuse aussi ce verdict
+          //   (worker_verdict, _verdictRefusal) : une notification ancienne ne passe pas non plus.
+          const recipientsFor = (chiefs: any[], key: string, extra: any, adultChiefs: number) =>
+              (key === 'validation' && extra && extra.assignee && adultChiefs >= 2)
+                  ? chiefs.filter((p) => p.id !== String(extra.assignee))
+                  : chiefs;
 
           // Identifiants MÉTIER (ceux que portent `clans.admins` et `clans_players.id`)
           // → UID d'AUTHENTIFICATION (la clef du registre d'appareils). Sans cette
@@ -2041,6 +2170,22 @@ conf:
               const force  = String(q.force || '');
               const forced = String(q.clan  || '');
               const dry    = q.dry !== undefined ? String(q.dry) !== '0' : DRY_ENV;
+
+              // ?orphans=1[&dry=0] : la piste ORPHELINS SEULE, tout de suite, quelle que
+              // soit l'heure. Les pistes de clan ne tournent pas : un essai d'effacement
+              // n'a pas à envoyer au passage les relances de l'heure.
+              //
+              // ⚠ INTERRUPTEUR FERMÉ = SIMULATION FORCÉE, même avec `dry=0`. L'essai à la
+              //   demande sert justement à voir ce que la piste FERAIT avant de l'ouvrir ;
+              //   il ne doit pas devenir une porte dérobée qui efface sans elle.
+              if (String(q.orphans || '') === '1') {
+                  const out: any = { orphans: 'forced', dry: dry || !ORPHANS_ENABLED,
+                                     orphans_switch: ORPHANS_ENABLED };
+                  await sweepOrphans(W, now, dry || !ORPHANS_ENABLED, out);
+                  console.log('[pulse_sweeper] orphans', JSON.stringify(out));
+                  res.status(200).json(out);
+                  return;
+              }
 
               if (force) {
                   if (!forced) { res.status(400).json({ error: 'clan requis avec force' }); return; }
@@ -2176,10 +2321,14 @@ conf:
                   // ceux qui ont coupé les rappels. Un enfant créé par le chef (has_device: false)
                   // n'est pas joignable, mais c'est un recrutement — le clan n'est plus seul.
                   let enrolled = 0;
+                  // Chefs ADULTES du clan, joignables ou non : c'est le rôle qui compte pour la
+                  // validation croisée, pas l'appareil (cf. recipientsFor).
+                  let adultChiefs = 0;
                   for (const m of members.docs) {
                       const d = m.data() || {};
                       if (d.enabled === false || d.status === 'deleted') continue;
                       enrolled++;
+                      if (admins.indexOf(m.id) >= 0 && String(d.legal_state ?? '') === 'a') adultChiefs++;
                       const at = Date.parse(String(d.last_connected || '')) || 0;
                       if (at > lastSeen) lastSeen = at;
                       if (d.has_device === false) continue;
@@ -2356,7 +2505,8 @@ conf:
                           //   LÉGAL. Un chef mineur — la liste `admins` est une liste de
                           //   rôle, elle peut en contenir — est joint le samedi matin
                           //   comme n'importe quel enfant, pas à 17 h un mardi.
-                          const chiefs  = live.filter((p) => p.admin);
+                          const chiefs  = recipientsFor(live.filter((p) => p.admin),
+                                                        motive.key, motive.extra, adultChiefs);
                           const targets = chiefs.filter((p) => !served.has(p.id)
                                               && inWindow(now, p.tz, kindOf(p)));
                           const sent    = targets.length
@@ -2480,6 +2630,24 @@ conf:
                   await flush();
               }
 
+              // --- 3. Piste ORPHELINS (une passe par jour) --------------------------
+              // Après les clans, et dans un try : un incident d'effacement ne doit ni
+              // priver les familles de leurs relances de l'heure, ni faire perdre le
+              // rapport de la passe.
+              if (!ORPHANS_ENABLED) {
+                  report.orphans = 'disabled';
+              } else if (new Date(now).getUTCHours() !== ORPHANS_HOUR) {
+                  report.orphans = 'off_hour';
+              } else {
+                  report.orphans = 'ran';
+                  try {
+                      await sweepOrphans(W, now, dry, report);
+                  } catch (e) {
+                      report.orphans = 'error';
+                      console.error('[pulse] orphelins : passe interrompue', e);
+                  }
+              }
+
               console.log('[pulse_sweeper]', JSON.stringify(report));
               res.status(200).json(report);
 
@@ -2571,6 +2739,302 @@ conf:
               }
           }
 
+          // ==========================================================================
+          // Piste ORPHELINS : le compte connecté qui n'est JAMAIS entré dans un clan.
+          // ==========================================================================
+          // Depuis le 2026-09-22 on se connecte avec Google AVANT d'être admis : l'enfant
+          // qui scanne un QR code, l'adulte qui hésite entre créer et rejoindre. Celui qui
+          // s'arrête là laisse un document `users`, un `userindexes`, un compte Firebase
+          // Auth et une preuve d'acceptation, et AUCUNE donnée de jeu. Aucune autre piste
+          // ne le voit : toutes partent d'un clan, et il n'en a pas. Sans celle-ci, ces
+          // comptes restaient en base pour toujours.
+          //
+          // ⚠ ON EFFACE, ON NE MARQUE PAS. Il n'y a rien à conserver « hors du service »
+          //   pour quelqu'un qui n'a jamais joué : pas de clan à protéger, pas d'historique
+          //   à rendre, pas de pierre tombale à poser. La politique de confidentialité
+          //   l'annonce ainsi (« effacé, compte de connexion compris, après 30 jours sans
+          //   connexion »).
+          //
+          // ⚠ ON NE TOUCHE JAMAIS À UN COMPTE QUI A EU UN CLAN, même quitté, même dissous.
+          //   Sa pierre tombale suit ses propres règles (delete_user_data, clan_purge), et
+          //   c'est la présence de CES traces qui l'y rattache. D'où cinq signaux, dont un
+          //   seul suffit à épargner le compte : `clans`, `first_clan`, `last_clan`,
+          //   `steps.clan.clanId` sur `users`, et `clans` sur chacun de ses `userindexes`.
+          //   Un compte qui n'en porte aucun n'a jamais été admis nulle part.
+          //
+          // ⚠ LA PREUVE D'ACCEPTATION EST CLOSE, PAS EFFACÉE. Ce qu'un compte a accepté,
+          //   et quand, doit survivre au compte : c'est toute la raison d'être de la
+          //   preuve, que la politique conserve 5 ans. Même geste, recopié, que le bloc de
+          //   clôture de `delete_user_data` (pucloudfunction déploie un `index.ts` par
+          //   fonction, sans bibliothèque partagée : toute correction de l'un doit être
+          //   portée dans l'autre).
+          //
+          // ⚠ LE COMPTE FIREBASE AUTH EST EFFACÉ AUSSI. Il détient l'email, le nom et la
+          //   photo Google : l'effacement de `users` sans lui laisserait précisément les
+          //   données personnelles qu'on prétend effacer. Et c'est sans perte pour la
+          //   personne : si elle revient, elle se reconnecte avec Google et repart d'un
+          //   compte neuf, exactement comme un premier lancement. La purge native de
+          //   Firebase (`anonymous.autodelete`) ne couvre que les comptes ANONYMES.
+          //
+          // DATE D'ACTIVITÉ : `last_seen` (posé par le client à chaque login, au plus une
+          // fois par jour), à défaut `date`, à défaut `steps.cgu.date`. Les deux replis
+          // servent les comptes antérieurs à `last_seen`, et eux seuls.
+          //
+          // DEUX REQUÊTES, toutes deux bornées (index automatiques à un champ, rien à
+          // déclarer) :
+          //   - la PRINCIPALE, sur `last_seen`, bornée DES DEUX CÔTÉS : entre `after_days`
+          //     et `after_days + lookback_days`. Un compte y entre le jour où il franchit le
+          //     seuil et y reste `lookback_days` jours : assez pour survivre à une panne,
+          //     à une passe manquée ou au plafond. Et la borne basse l'empêche d'être
+          //     ENGORGÉE par les membres de clan partis depuis longtemps, qui sont
+          //     candidats pour toujours et ne sont jamais effacés ;
+          //   - le RATTRAPAGE, sur `date` seul, bornée d'un côté : les comptes antérieurs
+          //     à `last_seen`, et ceux qui ont glissé hors de la fenêtre (piste fermée plus
+          //     de `lookback_days`). Elle, elle PEUT s'engorger : les plus vieux comptes
+          //     avec clan y occupent la tête pour toujours. D'où `MAX_ORPHAN_SCAN`, et
+          //     `orphans_scan_capped` dans le rapport le jour où il est atteint.
+          //
+          // ⚠ `last_seen` DOIT ÊTRE UNE CHAÎNE ISO UTC, comme `date`. Firestore ordonne par
+          //   TYPE avant d'ordonner par valeur : un `last_seen` écrit en timestamp ne
+          //   tomberait jamais dans une borne exprimée en chaîne, et la requête
+          //   principale ne ramènerait plus rien, en silence.
+          //
+          // `dry` est PASSÉ, jamais lu dans une variable de module (cf. `push`). En
+          // simulation tout est lu, compté et journalisé, et rien n'est écrit.
+          //
+          // Le compte `pulse` qui porte cette fonction avait déjà `datastore.user` (lire,
+          // effacer `users`/`userindexes`, clore la preuve) et `firebase.admin` (effacer
+          // le compte Auth) : aucun droit n'a été ajouté pour cette piste.
+          async function sweepOrphans(W: any, now: number, dry: boolean, out: any): Promise<void> {
+
+              // Replis ÉCRITS EN DUR et jamais à 0 : un seuil nul effacerait des comptes
+              // qui viennent de se connecter.
+              const O        = LIFE.orphans || {};
+              const afterD   = num(O.after_days)    || 30;
+              const lookback = num(O.lookback_days) || 30;
+              const cutoffMs = now - afterD * DAY;
+              const cutoff   = iso(cutoffMs);
+              const floor    = iso(now - (afterD + lookback) * DAY);
+
+              const users   = W.collection('users');
+              const indexes = W.collection('userindexes');
+              const docsDb  = db(RP + 'documents');
+
+              const count = (key: string, n = 1) => { out[key] = (out[key] || 0) + n; };
+              for (const k of ['orphans_candidates', 'orphans_eligible', 'orphans_erased',
+                               'orphans_skipped_has_clan', 'orphans_skipped_active',
+                               'orphans_skipped_pending', 'orphans_skipped_no_date',
+                               'orphans_skipped_raced', 'orphans_auth_deleted',
+                               'orphans_auth_kept_shared', 'orphans_proofs_closed',
+                               'orphans_errors']) out[k] = out[k] || 0;
+              out.orphans_after_days = afterD;
+
+              // Une valeur « posée » : chaîne non vide, tableau ou objet non vide, tout
+              // nombre ou booléen. `clans: {X: {enabled: false}}` est une trace de clan,
+              // et c'est voulu : un clan quitté reste un clan eu.
+              const filled = (v: any): boolean => {
+                  if (v === null || v === undefined) return false;
+                  if (typeof v === 'string') return v.trim() !== '';
+                  if (Array.isArray(v)) return v.length > 0;
+                  if (typeof v === 'object') return Object.keys(v).length > 0;
+                  return true;
+              };
+              // Chaîne ISO ou Timestamp Firestore → millisecondes ; illisible → 0.
+              const msOf = (v: any): number => {
+                  if (!v) return 0;
+                  if (typeof v === 'object' && typeof v.toMillis === 'function') return v.toMillis();
+                  const t = Date.parse(String(v));
+                  return Number.isFinite(t) ? t : 0;
+              };
+
+              // Verdict porté par le SEUL document `users`. '' = candidat à poursuivre.
+              const verdict = (u: any): string => {
+                  const steps = u.steps || {};
+                  if (filled(u.clans) || filled(u.first_clan) || filled(u.last_clan)
+                      || filled(((steps.clan || {}) as any).clanId)) return 'orphans_skipped_has_clan';
+
+                  const seen = msOf(u.last_seen) || msOf(u.date)
+                            || msOf(((steps.cgu || {}) as any).date);
+                  // Aucune date lisible : on ne sait pas depuis quand le compte dort, on
+                  // n'efface pas. Sur un effacement irréversible, le doute profite à
+                  // l'attente.
+                  if (!seen) return 'orphans_skipped_no_date';
+                  if (seen >= cutoffMs) return 'orphans_skipped_active';
+
+                  // Adhésion en attente : l'invitation est acceptée, le chef n'a pas
+                  // encore confirmé. Seul un OBJET compte ("" ou autre = absent) ; une
+                  // échéance illisible vaut « encore valide » (même règle du doute).
+                  const pj = u.pending_join;
+                  if (pj && typeof pj === 'object' && !Array.isArray(pj)) {
+                      const exp = msOf(pj.expires_at);
+                      if (!exp || exp > now) return 'orphans_skipped_pending';
+                  }
+                  return '';
+              };
+
+              // --- Énumération ------------------------------------------------------
+              const byId = new Map<string, any>();
+              const recent = await users.where('last_seen', '>=', floor)
+                  .where('last_seen', '<', cutoff).limit(MAX_ORPHAN_SCAN).get();
+              for (const d of recent.docs) byId.set(d.id, d);
+              const legacy = await users.where('date', '<', cutoff).limit(MAX_ORPHAN_SCAN).get();
+              for (const d of legacy.docs) if (!byId.has(d.id)) byId.set(d.id, d);
+
+              out.orphans_scanned_recent = recent.size;
+              out.orphans_scanned_legacy = legacy.size;
+              out.orphans_scan_capped    = recent.size >= MAX_ORPHAN_SCAN
+                                        || legacy.size >= MAX_ORPHAN_SCAN;
+              out.orphans_candidates     = byId.size;
+
+              for (const [id, snap] of byId) {
+
+                  if (out.orphans_eligible >= MAX_ORPHANS) { out.orphans_capped = true; break; }
+
+                  const first = verdict(snap.data() || {});
+                  if (first) { count(first); continue; }
+
+                  try {
+                      // Relecture FRAÎCHE : la requête a pu ramener un état vieux de
+                      // plusieurs minutes, et c'est aussi sa `updateTime` qui servira de
+                      // précondition à l'effacement.
+                      const fresh = await users.doc(id).get();
+                      if (!fresh.exists) continue;
+                      const u: any = fresh.data() || {};
+                      const again = verdict(u);
+                      if (again) { count(again); continue; }
+
+                      // Index du compte, lus AVANT tout effacement : ce sont eux qui
+                      // donnent l'UID Firebase. Effacés d'abord, on perdrait la seule
+                      // correspondance vers le compte Auth.
+                      const ix = await indexes.where('userId', '==', id).get();
+                      if (ix.docs.some((d: any) => filled((d.data() || {}).clans))) {
+                          count('orphans_skipped_has_clan');
+                          continue;
+                      }
+
+                      // UID Firebase : ceux des index, plus `ownerId` du document (c'est
+                      // l'UID de son auteur, cf. la règle `users`). Mais on n'efface un
+                      // compte Auth QUE s'il n'appartient à personne d'autre : un UID
+                      // dont l'index pointe vers un AUTRE userId, ou qui possède un autre
+                      // document `users`, est celui d'un compte vivant.
+                      const ixRefs: any[] = ix.docs.map((d: any) => d.ref);
+                      const fbUids = new Set<string>(ix.docs.map((d: any) => String(d.id)));
+                      const ownerUid = String(u.ownerId || '');
+                      if (ownerUid) fbUids.add(ownerUid);
+                      const mine: string[] = [];
+                      const shared = new Set<string>();
+                      let ixClan = false;
+                      for (const fb of fbUids) {
+                          const [ixSnap, owned] = await Promise.all([
+                              indexes.doc(fb).get(),
+                              users.where('ownerId', '==', fb).limit(5).get(),
+                          ]);
+                          const ixData: any = ixSnap.exists ? (ixSnap.data() || {}) : {};
+                          const ixUser = String(ixData.userId || '');
+                          const other  = (ixUser !== '' && ixUser !== id)
+                                      || owned.docs.some((d: any) => d.id !== id);
+                          if (other) { shared.add(fb); continue; }
+                          // Index trouvé par l'UID (et non par le userId) qui porte un clan :
+                          // le compte a été admis quelque part, on n'efface rien.
+                          if (filled(ixData.clans)) { ixClan = true; break; }
+                          if (ixSnap.exists && !ixRefs.some((r: any) => r.id === fb)) ixRefs.push(ixSnap.ref);
+                          mine.push(fb);
+                      }
+                      if (ixClan) { count('orphans_skipped_has_clan'); continue; }
+                      // L'index d'un UID partagé reste en place : il n'est pas à nous.
+                      const ixToDelete = ixRefs.filter((r: any) => !shared.has(String(r.id)));
+
+                      out.orphans_eligible += 1;
+                      if (shared.size) count('orphans_auth_kept_shared', shared.size);
+
+                      if (dry) {
+                          console.log('[pulse] DRY orphelin ' + id + ' (auth : '
+                                      + (mine.join(',') || 'aucun') + ')');
+                          continue;
+                      }
+
+                      // 1. LE POINT DE NON-RETOUR : `users`, sous précondition. Si le
+                      //    compte a bougé depuis la relecture (une connexion à 3 h du
+                      //    matin, un chef qui confirme l'adhésion), l'effacement échoue
+                      //    et RIEN d'autre n'est touché : on n'efface jamais quelqu'un
+                      //    qui vient de revenir.
+                      try {
+                          await users.doc(id).delete({ lastUpdateTime: fresh.updateTime });
+                      } catch (e) {
+                          count('orphans_skipped_raced');
+                          console.warn('[pulse] orphelin ' + id + ' modifié pendant la passe : épargné', String(e));
+                          continue;
+                      }
+
+                      // 2. Les index. `users` n'existant plus, aucune passe ne les
+                      //    retrouverait : un échec d'ici à la fin est journalisé avec les
+                      //    UID, pour être fini à la main.
+                      try {
+                          const batch = W.batch();
+                          for (const r of ixToDelete) batch.delete(r);
+                          if (ixToDelete.length) await batch.commit();
+                      } catch (e) {
+                          count('orphans_errors');
+                          console.error('[pulse] orphelin ' + id + ' : index non effacés ' + ixToDelete.map((r: any) => r.id).join(','), e);
+                      }
+
+                      // 3. Le compte de connexion. Déjà absent = déjà fait.
+                      for (const fb of mine) {
+                          try {
+                              await getAuth().deleteUser(fb);
+                              count('orphans_auth_deleted');
+                          } catch (e: any) {
+                              if (String((e && e.code) || '') === 'auth/user-not-found') continue;
+                              count('orphans_errors');
+                              console.error('[pulse] orphelin ' + id + ' : compte Auth ' + fb + ' non effacé', e);
+                          }
+                      }
+
+                      // 4. La preuve d'acceptation : CLOSE, datée, conservée. Recopie du
+                      //    bloc de `delete_user_data`, garde « existe » comprise.
+                      try {
+                          const endAt = iso(now);
+                          const consentIds = new Set<string>([id, ...mine]);
+                          const consentWrites: any[] = [];
+                          for (const cid of consentIds) {
+                              // JAMAIS en aveugle : `set(..., {merge:true})` CRÉE le document
+                              // absent, et inventerait une trace de consentement là où il
+                              // n'y en a jamais eu.
+                              const sref = docsDb.collection('documents_sessions').doc(cid);
+                              if ((await sref.get()).exists) {
+                                  consentWrites.push({ ref: sref, data: { enabled: false, date_end: endAt } });
+                              }
+                              const acc = await docsDb.collection('documents_acceptance').where('ownerId', '==', cid).get();
+                              acc.forEach((d: any) => {
+                                  // Ne jamais réécrire une date_end déjà posée : une acceptation
+                                  // close par une version plus récente garde la date de SA fin.
+                                  const already = String((d.data() || {}).date_end || '');
+                                  consentWrites.push({
+                                      ref:  d.ref,
+                                      data: already ? { enabled: false } : { enabled: false, date_end: endAt },
+                                  });
+                              });
+                          }
+                          for (let i = 0; i < consentWrites.length; i += 450) {
+                              const batch = docsDb.batch();
+                              for (const w of consentWrites.slice(i, i + 450)) batch.set(w.ref, w.data, { merge: true });
+                              await batch.commit();
+                          }
+                          count('orphans_proofs_closed', consentWrites.length);
+                      } catch (e) {
+                          count('orphans_errors');
+                          console.error('[pulse] orphelin ' + id + ' : preuve non close', e);
+                      }
+
+                      count('orphans_erased');
+                      console.log('[pulse] orphelin effacé ' + id + ' (auth : ' + (mine.join(',') || 'aucun') + ')');
+                  } catch (e) {
+                      count('orphans_errors');
+                      console.error('[pulse] orphelin ' + id + ' : examen interrompu', e);
+                  }
+              }
+          }
+
           // Banc d'essai : envoie UN motif à UN clan, tout de suite, par le chemin réel.
           // Aucune écriture d'état (ni palier de relance, ni `boss_at`) — le banc ne doit
           // pas consommer ce que la passe du soir aura à dire. Seule exception assumée :
@@ -2588,9 +3052,11 @@ conf:
               const members = await W.collection('clans_players').doc(clanId)
                   .collection('players').get();
               const live: any[] = [];
+              let adultChiefs = 0;
               for (const m of members.docs) {
                   const d = m.data() || {};
                   if (d.enabled === false || d.status === 'deleted') continue;
+                  if (admins.indexOf(m.id) >= 0 && String(d.legal_state ?? '') === 'a') adultChiefs++;
                   if (d.has_device === false || d.nudges === false) continue;
                   live.push({ id: m.id, lang: String(d.lang || LIFE.default_lang || 'fr'),
                               admin: admins.indexOf(m.id) >= 0 });
@@ -2601,7 +3067,7 @@ conf:
               // TOUT LE MONDE. Un banc qui enverrait à tout le monde quel que soit le
               // motif ne prouverait rien du cloisonnement — c'est justement la chose la
               // plus facile à casser et la plus difficile à voir.
-              const targets = motive === 'boss'   ? live
+              let targets = motive === 'boss'   ? live
                             : motive === 'comeback' ? live.filter((p) => !p.admin)
                             :                         live.filter((p) => p.admin);
 
@@ -2621,6 +3087,9 @@ conf:
                   task  = stuck.docs[0].id;
                   extra = { clanId, taskId: task,
                             assignee: String((stuck.docs[0].data() || {}).assignee || '') };
+                  // Même exclusion de l'auteur qu'en passe réelle : un banc qui la sauterait
+                  // ne prouverait rien de la validation croisée.
+                  targets = recipientsFor(targets, 'validation', extra, adultChiefs);
               }
               if (motive === 'boss') {
                   task = await summonBoss(W, clanId, ownerId, now, dry);

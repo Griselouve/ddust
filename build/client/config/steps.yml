@@ -31,9 +31,11 @@ conf:
         player_name: player_name_screen
         age: age_screen
         link: link_account_screen
-        join: kid_assent_screen
         clan: new_or_pick_clan
         dashboard: dashboard
+        # Adhésion en attente (users.pending_join) : le joueur a fermé le jeu pendant
+        # que son chef devait confirmer son arrivée. on_login l'y ramène.
+        join_wait: join_wait
 
     # Le choix de la langue. L'interlude se joue SUR cet écran, une fois la langue
     # connue ; c'est sa fin (worker.on_intro_finished) qui mène aux deux portes.
@@ -58,9 +60,9 @@ conf:
         player_name: player_name_screen
         age: age_screen
         link: link_account_screen
-        join: kid_assent_screen
         clan: new_or_pick_clan
         dashboard: dashboard
+        join_wait: join_wait
 
     home:
       navigate: reset
@@ -69,19 +71,15 @@ conf:
         player_name: player_name_screen
         age: age_screen
         link: link_account_screen
-        # Reprise à froid d'un mineur anonyme déjà passé par les CGU mais pas encore admis
-        # (worker_session.on_login → steps.navigate.join, gardé par legalstate == "k").
-        # Passe par l'écran d'avis et NON directement par kid_wants_clan : l'assentiment
-        # n'est persisté nulle part — le persister reviendrait à enregistrer la réponse d'un
-        # enfant qui n'a pas encore consenti, et un « non » n'a par principe rien à écrire.
-        # La question est donc reposée à chaque reprise tant qu'il n'est pas admis. Un tap de
-        # plus dans un état rare, contre un invariant qui se défend sans condition : le funnel
-        # de jointure ne s'ouvre JAMAIS sans que l'enfant ait été interrogé.
-        # L'homonyme `join` de new_or_pick_clan est une AUTRE table de routes (adulte qui
-        # renonce à créer son clan, worker_clan.on_create_clan_goto_join) et n'est pas concerné.
-        join: kid_assent_screen
+        # ⚠ PLUS DE ROUTE `join` DE REPRISE (retirée le 2026-09-22, ici comme sur `awake` et
+        #   `lang_choice`). Elle ramenait à l'écran d'avis un mineur anonyme dont l'onboarding
+        #   avait déjà été écrit en base, en attendant son admission. Ce mineur n'existe plus :
+        #   rien ne s'écrit avant le login, et un enfant qui ferme l'application repart du seuil.
+        #   L'homonyme `join` de new_or_pick_clan est une AUTRE table de routes (adulte qui
+        #   renonce à créer son clan, worker_clan.on_create_clan_goto_join), toujours en service.
         clan: new_or_pick_clan
         dashboard: dashboard
+        join_wait: join_wait
 
     region_screen:
       navigate: reset
@@ -118,10 +116,10 @@ conf:
         #   faisait jouer les deux ensemble a partir d'ici.
         routed: worker.on_ambiance_relais
 
-    # Trois issues : le mineur va demander son entrée dans un clan (il liera son compte
-    # après l'admission), l'adulte encore anonyme doit lier son compte tout de suite, et
-    # l'adulte déjà authentifié — compte supprimé qui refait son onboarding — enchaîne
-    # directement sur le nom.
+    # Trois issues : le mineur va dire s'il veut jouer (écran d'avis, puis transmission de sa
+    # réponse au parent ; il ne liera son compte qu'une fois l'invitation du parent en main),
+    # l'adulte encore anonyme doit lier son compte tout de suite, et l'adulte déjà authentifié
+    # (compte supprimé qui refait son onboarding) enchaîne directement sur le nom.
     # Les trois premières routes sont celles de l'ONBOARDING. Les deux dernières servent la
     # RÉ-acceptation : une nouvelle version de document repose cet écran à tout le monde, et un
     # joueur déjà enrôlé doit retrouver son dashboard (ou finir la saisie de son nom) au lieu
@@ -155,27 +153,64 @@ conf:
         a_linked: player_name_screen
         dashboard: dashboard
         player_name: player_name_screen
+        # Adhésion en attente quand une nouvelle version des conditions est reposée.
+        join_wait: join_wait
 
-    # AVIS DU MINEUR — condition n° 3 de l'article 2.2.2.25.2.9 du Decreto 1074 de 2015
+    # AVIS DU MINEUR : condition n° 3 de l'article 2.2.2.25.2.9 du Decreto 1074 de 2015
     # (qui compile l'art. 12 du Decreto 1377 de 2013) : l'autorisation du représentant légal
-    # n'est valable qu'« previo ejercicio del menor de su derecho a ser escuchado ». Les deux
-    # autres conditions sont remplies par la CGU de l'écran précédent ; celle-ci ne l'était pas.
+    # n'est valable qu'« previo ejercicio del menor de su derecho a ser escuchado ». L'enfant
+    # s'exprime donc AVANT la décision de son parent, et sa réponse voyage jusqu'à lui.
     #
-    # PLACEMENT NON NÉGOCIABLE — entre la route "k" des documents et kid_wants_clan. À ce
-    # stade la session est encore ANONYME : rien n'a été écrit en base, et un enfant qui ne
-    # valide pas ne laisse aucune trace. C'est ce qui rend l'engagement publié dans les
-    # documents français (« l'avis du mineur est recueilli avant toute collecte ») littéralement
-    # vrai — aucun traitement ne commence avant que l'enfant ait répondu. Déplacer ce pas d'un
-    # cran vers l'aval le rendrait faux.
+    # PLACEMENT NON NÉGOCIABLE : entre la route "k" des documents et tout ce qui touche à un
+    # clan. À ce stade la session est encore ANONYME et rien n'a été écrit, ni en base ni sur
+    # le disque : un enfant qui ne valide pas ne laisse aucune trace. Et rien ne s'écrira
+    # avant que le parent n'ait décidé (RGPD art. 8) : l'enfant ne se connecte qu'une fois
+    # l'invitation du parent en main.
     #
-    # Deux sorties et pas de `default` : « oui » avance, la flèche renvoie aux documents. Un
-    # enfant qui ne veut pas ne valide simplement pas — il n'y a rien à décliner, donc aucune
-    # trace d'un refus, et il peut revenir quand il veut.
+    # Pas de `default` : « oui » avance, la flèche renvoie aux documents. Un enfant qui ne veut
+    # pas ne valide simplement pas : il n'y a rien à décliner, donc aucune trace d'un refus, et
+    # il peut revenir quand il veut.
+    #
+    # ⚠ UN ROUTEUR, parce que le « oui » a quelque chose à faire avant de naviguer : c'est lui
+    #   qui crée la demande (son code tiré au hasard, et le lien qui le porte). Il reçoit la
+    #   route demandée (`go` par l'interlude passage_assent, `back` par la flèche).
+    #   * `go`   : l'écran qui transmet la réponse et son code au parent ;
+    #   * `back` : retour aux documents.
+    # ⚠ LES ROUTES `pin` ET `link` ONT DISPARU (2026-09-22). Elles servaient à l'enfant arrivé
+    #   par un lien d'invitation application fermée : l'écran d'avis servait de nouvelle
+    #   confirmation, puis l'on allait droit à la saisie du code ou à la connexion. Une
+    #   invitation porte désormais le code de la demande à laquelle elle répond, et ce code ne
+    #   survit pas à la fermeture de l'application : une invitation reçue avant le oui est
+    #   refusée, l'enfant envoie une nouvelle demande.
     kid_assent_screen:
+      routeur: worker.kid_assent_route
       navigate: reset
       routes:
-        go: kid_wants_clan
+        go: kid_assent_share
         back: documents_acceptance_screen
+
+    # La réponse de l'enfant, à transmettre : QR code à montrer, lien à envoyer. C'est aussi
+    # d'ici qu'il reçoit l'invitation de son parent (scan du QR du clan, ou lien et code).
+    # Une invitation valide mène à la connexion Google (route `link`), et à rien d'autre :
+    # l'acceptation elle-même attend le compte définitif (worker.on_login).
+    # `default` ne sert qu'au mineur DÉJÀ connecté et sans clan (ramené ici après un refus
+    # d'admission, ou depuis kid_wants_clan) : son invitation est acceptée sur-le-champ, et il
+    # attend son admission sur join_wait (worker._acceptAndWait y navigue lui-même ; la route
+    # est là pour qu'un `steps.navigate` égaré ne mène pas au tableau de bord sans clan).
+    kid_assent_share:
+      navigate: reset
+      routes:
+        link: link_account_screen
+        default: join_wait
+
+    # Saisie du lien et du code d'une invitation à distance. Deux sorties : l'enfant encore
+    # anonyme part se connecter (`link`), le joueur déjà connecté attend son admission sur
+    # join_wait (`default`), comme après un scan de QR code.
+    enter_invite_pin:
+      navigate: reset
+      routes:
+        link: link_account_screen
+        default: join_wait
 
     # Écran bloquant : aucune route de sortie « plus tard ». La navigation qui en part est
     # décidée par worker.on_account_linked, qui rejoue on_login une fois le flush réussi.
@@ -185,7 +220,23 @@ conf:
         player_name: player_name_screen
         clan: new_or_pick_clan
         dashboard: dashboard
+        # « Retrouver mon héros » d'un compte dont l'adhésion attendait encore son chef.
+        join_wait: join_wait
         default: link_account_screen
+
+    # L'ADHÉSION EN ATTENTE (2026-09-22). Le candidat, enfant ou adulte, est connecté et a
+    # accepté l'invitation : c'est maintenant au chef de publier le secret du clan, et son jeu
+    # peut être fermé. L'attente vit en base (users.pending_join) : le joueur peut fermer le
+    # jeu, on_login le ramène ici (routes `join_wait` de awake, lang_choice, home,
+    # documents_acceptance_screen et link_account_screen). Aucune leçon de tutoriel ne vise
+    # cet écran.
+    # Deux sorties, toutes deux décidées par le worker : l'admission (`default`, le tableau de
+    # bord, ou l'écran du nom s'il manque), et l'abandon ou l'expiration (retour à la demande
+    # de l'enfant, ou au choix du clan pour l'adulte, cf. worker._leaveJoin).
+    join_wait:
+      navigate: reset
+      routes:
+        default: dashboard
 
     new_or_pick_clan:
       navigate: new
@@ -219,12 +270,7 @@ conf:
     kid_wants_clan:
       navigate: reset
       routes:
-        default: dashboard
-
-    accept_request_clan:
-      navigate: reset
-      routes:
-        default: dashboard
+        default: join_wait
 
     shop:
       navigate: new

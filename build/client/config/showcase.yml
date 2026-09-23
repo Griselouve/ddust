@@ -96,7 +96,7 @@ conf:
       # (« ce guide est pour les parents ») sur des écrans qui ne les montraient pas.
       worker:
         player_is_adult: ""
-        player_last_is_admin: ""
+        is_chief: ""
 
     # LES ÉCRANS DÉCLARÉS. Tous les autres écrans du registre sont photographiés nus.
     screens:
@@ -114,7 +114,7 @@ conf:
         variants:
           - tuto: true
             feed:
-              - store: { worker: { player_is_adult: "true", player_last_is_admin: "true" } }
+              - store: { worker: { player_is_adult: "true", is_chief: "true" } }
               - wait: 300
 
       clan_page:

@@ -205,7 +205,7 @@ extension Worker_screen_tiroir on worker {
                                 await _waitInterludesIdle();
                                 deva_log("info", "[tuto] entrée dashboard : seen.dashboard_intro="
                                     "${await deva_get("dvtuto.seen.dashboard_intro", false)}");
-                                await deva_do("dvtuto.enter");
+                                await _enterTuto();
     }
 
     // Ids des 20 tiroirs (celui des domaines + les 19 de tâches).
@@ -418,7 +418,7 @@ extension Worker_screen_tiroir on worker {
                                 // on_tiroir_appear ne tourne QUE sur les 19 écrans de tâches.
                                 DvOrb.get_current_page()?.set("back_target", "combat");
                                 await _syncChiefUi();
-                                await deva_do("dvtuto.enter");   // déclenche les leçons de tutoriel des écrans de tâches
+                                await _enterTuto();   // déclenche les leçons de tutoriel des écrans de tâches
     }
 
     // Sélecteurs des tiroirs domaines/tâches — même règle pour les deux (l'id de l'icône suffit).
@@ -462,16 +462,24 @@ extension Worker_screen_tiroir on worker {
                                 final st = tap.startsWith("seltask.")
                                     ? ((await deva_get("tasks.$id.status"))?.toString() ?? "alive")
                                     : "";
-                                // « Laisser tomber » : la tâche est TENUE par un joueur — "assigned" (combat
-                                // en cours) ou "validating" (preuve déposée, verdict en attente). Le chef la
-                                // relâche : elle redevient libre pour tout le clan. Porte de sortie quand le
-                                // porteur a disparu (app désinstallée, joueur parti du clan) et laisse la
-                                // tâche orpheline jusqu'au respawn.
-                                if (st == "assigned" || st == "validating") options.add("adm_release");
-                                // « Ressusciter » : remise à neuf immédiate — feuilles de tâche uniquement
+                                // « Laisser tomber » : la tâche est TENUE par un joueur, combat en cours
+                                // ("assigned"). Le chef la relâche : elle redevient libre pour tout le clan.
+                                // Porte de sortie quand le porteur a disparu (app désinstallée, joueur parti
+                                // du clan) et laisse la tâche orpheline jusqu'au respawn.
+                                //
+                                // ⚠ JAMAIS SUR UNE TÂCHE "validating". Le joueur a rendu son travail : le
+                                //   relâcher sans verdict, c'était le refuser en silence, sans point, sans
+                                //   ligne au journal, sans que personne l'ait jugé. Une tâche à valider le
+                                //   reste tant qu'aucun adulte ne l'a jugée ; c'est le JOUEUR qui, s'il le
+                                //   veut, la laisse tomber (« Retraite ! »). adm_release refait le contrôle
+                                //   sur le statut lu en base.
+                                if (st == "assigned") options.add("adm_release");
+                                // « Ressusciter » : remise à neuf immédiate, feuilles de tâche uniquement
                                 // (jamais un domaine, dont l'état de combat n'a pas de sens), et seulement
                                 // si la tâche n'est PAS déjà vivante (inutile de ressusciter un vivant).
-                                if (st.isNotEmpty && st != "alive") {
+                                // ⚠ Pas sur une tâche "validating" non plus : remettre à neuf efface
+                                //   l'assignation et la preuve, c'est le même refus invisible que ci-dessus.
+                                if (st.isNotEmpty && st != "alive" && st != "validating") {
                                     options.add("adm_revive");
                                 }
                                 // « Recommander » / « Ne plus recommander » (boss) : feuilles de tâche

@@ -215,13 +215,13 @@ data:
         br: "Título de clã"
         nl: "Clantitel"
       it_d_titre_clan:
-        fr: "Un titre gagné par le clan tout entier. Seul un chef décide de l'arborer."
-        en: "A title earned by the whole clan. Only a chief decides to bear it."
-        es: "Un título ganado por todo el clan. Solo un jefe decide lucirlo."
+        fr: "Un titre gagné par le clan tout entier. Seul un chef de clan décide de l'arborer."
+        en: "A title earned by the whole clan. Only a clan chief decides to bear it."
+        es: "Un título ganado por todo el clan. Solo un jefe de clan decide lucirlo."
         de: "Ein Titel, verdient vom ganzen Clan. Nur ein Clanchef entscheidet, ihn zu tragen."
-        it: "Un titolo guadagnato da tutto il clan. Solo un capo decide di sfoggiarlo."
-        pt: "Um título ganho pelo clã inteiro. Só um chefe decide ostentá-lo."
-        br: "Um título ganho pelo clã inteiro. Só um chefe decide exibi-lo."
+        it: "Un titolo guadagnato da tutto il clan. Solo un capo clan decide di sfoggiarlo."
+        pt: "Um título ganho pelo clã inteiro. Só um chefe de clã decide ostentá-lo."
+        br: "Um título ganho pelo clã inteiro. Só um chefe de clã decide exibi-lo."
         nl: "Een titel verdiend door de hele clan. Alleen een clanhoofd beslist of hij gedragen wordt."
 
       it_t_butin:
@@ -252,16 +252,19 @@ data:
         pt: "Semanada"
         br: "Mesada"
         nl: "Zakgeld"
-      # en/es pas encore resynchronisés avec le fr (2026-07-28) : à retraduire si besoin.
+      # Même sens dans les huit langues (2026-09-22) : cet argent représente l'argent RÉEL que les
+      # chefs de clan ont promis (ils l'ont eux-mêmes mis dans le coffre) ; un chef peut le remettre
+      # pour de vrai (le tribut, worker.pay_tribute) et la bourse baisse du montant versé. Jamais
+      # d'objectif financier imposé, et l'app ne promet rien à la place des parents.
       it_d_argent:
-        fr: "Argent obtenu à troquer contre de l'argent réel avec tes chefs de clan."
-        en: "The loot's purse: the money promised to the adventurers."
-        es: "La bolsa del botín: el dinero prometido a los aventureros."
-        de: "Erbeutetes Geld, das du bei deinen Clanchefs gegen echtes Geld eintauschen kannst."
-        it: "Soldi ottenuti da scambiare con soldi veri con i tuoi capi clan."
-        pt: "Dinheiro ganho para trocar por dinheiro a sério com os teus chefes de clã."
-        br: "Dinheiro ganho para trocar por dinheiro de verdade com seus chefes de clã."
-        nl: "Verdiend geld dat je bij je clanhoofden kunt ruilen voor echt geld."
+        fr: "L'argent de poche que tes chefs de clan ont promis de te remettre pour de vrai. Quand l'un d'eux te le remet, c'est le tribut : ta bourse baisse alors du montant versé."
+        en: "The pocket money your clan chiefs have promised to hand over to you for real. When one of them does, that is the tribute: your purse then drops by the amount paid."
+        es: "El dinero de bolsillo que tus jefes de clan han prometido entregarte de verdad. Cuando uno de ellos te lo entrega, es el tributo: tu bolsa baja entonces el importe pagado."
+        de: "Das Taschengeld, das deine Clanchefs dir wirklich zu geben versprochen haben. Gibt es dir einer von ihnen, ist das der Tribut: Dein Geldbeutel sinkt dann um den ausgezahlten Betrag."
+        it: "La paghetta che i tuoi capi clan hanno promesso di consegnarti per davvero. Quando uno di loro te la consegna, è il tributo: il tuo borsellino cala allora dell'importo versato."
+        pt: "A semanada que os teus chefes de clã prometeram entregar-te a sério. Quando um deles ta entrega, é o tributo: a tua bolsa baixa então o valor pago."
+        br: "A mesada que seus chefes de clã prometeram entregar a você de verdade. Quando um deles a entrega, é o tributo: sua bolsa então diminui no valor pago."
+        nl: "Het zakgeld dat je clanhoofden hebben beloofd je echt te geven. Als een van hen het je geeft, is dat het tribuut: je buidel daalt dan met het betaalde bedrag."
 
       #------------- Familles d'items (onglets) ------------------------
 
@@ -481,13 +484,13 @@ data:
         br: "Uma nota no baú"
         nl: "Een briefje in de kist"
       butin_note_hint:
-        fr: "Cette note sera lue par tout le clan à l'ouverture du coffre — personne ne la voit avant, pas même les autres chefs. C'est l'endroit rêvé pour une annonce ou une surprise : « on va tous à un super parc d'attractions, vous l'avez mérité »."
-        en: "This note will be read by the whole clan when the chest is opened — nobody sees it before then, not even the other chiefs. It's the perfect place for an announcement or a surprise: “we're all going to an amazing amusement park, you've earned it.”"
-        es: "Esta nota será leída por todo el clan al abrir el cofre — nadie la ve antes, ni siquiera los demás jefes. Es el lugar perfecto para un anuncio o una sorpresa: «vamos todos a un parque de atracciones increíble, os lo habéis ganado»."
+        fr: "Cette note sera lue par tout le clan à l'ouverture du coffre. Personne ne la voit avant, pas même les autres chefs de clan. C'est l'endroit rêvé pour une annonce ou une surprise : « on va tous à un super parc d'attractions, vous l'avez mérité »."
+        en: "This note will be read by the whole clan when the chest is opened. Nobody sees it before then, not even the other clan chiefs. It's the perfect place for an announcement or a surprise: “we're all going to an amazing amusement park, you've earned it.”"
+        es: "Esta nota será leída por todo el clan al abrir el cofre. Nadie la ve antes, ni siquiera los demás jefes de clan. Es el lugar perfecto para un anuncio o una sorpresa: «vamos todos a un parque de atracciones increíble, os lo habéis ganado»."
         de: "Diese Notiz wird vom ganzen Clan gelesen, wenn die Truhe geöffnet wird. Vorher sieht sie niemand, nicht einmal die anderen Clanchefs. Der perfekte Ort für eine Ankündigung oder eine Überraschung: „Wir fahren alle in einen super Freizeitpark, ihr habt es euch verdient.“"
-        it: "Questo biglietto sarà letto da tutto il clan all'apertura dello scrigno. Nessuno lo vede prima, nemmeno gli altri capi. È il posto perfetto per un annuncio o una sorpresa: «andiamo tutti in un fantastico parco divertimenti, ve lo siete meritato»."
-        pt: "Esta nota será lida pelo clã inteiro quando o baú for aberto. Ninguém a vê antes, nem sequer os outros chefes. É o sítio ideal para um anúncio ou uma surpresa: «vamos todos a um parque de diversões espetacular, vocês merecem»."
-        br: "Esta nota será lida pelo clã inteiro quando o baú for aberto. Ninguém a vê antes, nem mesmo os outros chefes. É o lugar ideal para um anúncio ou uma surpresa: \"vamos todos a um parque de diversões incrível, vocês merecem\"."
+        it: "Questo biglietto sarà letto da tutto il clan all'apertura dello scrigno. Nessuno lo vede prima, nemmeno gli altri capi clan. È il posto perfetto per un annuncio o una sorpresa: «andiamo tutti in un fantastico parco divertimenti, ve lo siete meritato»."
+        pt: "Esta nota será lida pelo clã inteiro quando o baú for aberto. Ninguém a vê antes, nem sequer os outros chefes de clã. É o sítio ideal para um anúncio ou uma surpresa: «vamos todos a um parque de diversões espetacular, vocês merecem»."
+        br: "Esta nota será lida pelo clã inteiro quando o baú for aberto. Ninguém a vê antes, nem mesmo os outros chefes de clã. É o lugar ideal para um anúncio ou uma surpresa: \"vamos todos a um parque de diversões incrível, vocês merecem\"."
         nl: "Dit briefje wordt door de hele clan gelezen als de kist opengaat. Niemand ziet het eerder, zelfs de andere clanhoofden niet. De perfecte plek voor een aankondiging of een verrassing: ‘we gaan allemaal naar een supergaaf pretpark, jullie hebben het verdiend’."
       butin_note_ok:
         fr: "Valider"

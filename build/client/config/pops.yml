@@ -14,7 +14,6 @@ conf:
       screens:
         - accept_invitation_clan
         #- kid_wants_clan
-        - accept_request_clan
 
     age:
       duration: 6
