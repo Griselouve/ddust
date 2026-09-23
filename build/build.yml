@@ -306,6 +306,137 @@ build:
   sequence:
   - backend
   - client
+
+  # ===========================================================================
+  # LES DEUX CIBLES D'INFRASTRUCTURE
+  # ===========================================================================
+  # Une cible = un jeu de régions + un stack Pulumi + un document d'état, dans le
+  # MÊME projet GCP. Les deux jeux de ressources sont disjoints par le préfixe
+  # régional : `eu-workers` d'un côté, `eut-workers` de l'autre.
+  #
+  # `prod` possède le projet, Firebase, le catalogue Play, le site, les clients
+  # OAuth et le budget. `test` est GREFFÉE : elle ne provisionne que du régional
+  # et lit tout le reste (cf. `deploy.scope` dans le build.yml de chaque module
+  # pulumi, et builder._strip_owner_scoped).
+  #
+  # ⚠ LA BASCULE EST AUTOMATIQUE ET SANS ÉCHAPPATOIRE : mode snapshot → `test`,
+  #   patch/minor/major → `prod`. Déployer l'infra de production exige donc une
+  #   release d'application, et c'est voulu : rien ne part vers le projet qui sert
+  #   les joueurs sans que quelqu'un ait décidé de publier.
+  #
+  # ⚠ NE JAMAIS RENOMMER NI RÉORDONNER `prod`. Ses valeurs sont exactement celles
+  #   d'avant l'introduction des cibles : c'est ce qui fait qu'il n'y a aucune
+  #   migration d'état Pulumi à prévoir. Et `EU` doit rester la PREMIÈRE clé de
+  #   `regions` : puhosting et pucatalog font pointer le glob nu `/api/...` et le
+  #   topic Play sur la première région déclarée.
+  targets:
+
+    prod:
+      # Chaque région déclarée ici produit sa propre pile complète : 7 bases
+      # Firestore préfixées (eu-workers, eu-store...), un bucket d'assets, un
+      # bucket de documents et un jeu de Cloud Functions. Le choix du joueur est
+      # définitif (cf. CGU) et aucune donnée ne circule d'une région à l'autre.
+      #
+      # /!\ `US` (us-central1) A ÉTÉ RETIRÉ LE 2026-09-08, et c'est un retrait
+      #     d'INFRA, pas de discours. Une région déclarée ici est PROVISIONNÉE ;
+      #     plus aucun marché ne consommait celle-là. `documents.regions` ne liste
+      #     que `fr`, qui vit dans le cloud `eu`. Les cinq marchés rattachés au
+      #     cloud `us` (us, ca, oceanie, bresil, hispam) ont un corpus rédigé mais
+      #     ne sont pas ouverts : leurs documents restent des souches de
+      #     dérivation, servies à personne. Payer six bases Firestore, un bucket et
+      #     un jeu de Cloud Functions pour zéro utilisateur n'avait plus d'objet.
+      # /!\ LA ROUVRIR N'EST PAS GRATUIT : les bases ont été détruites au
+      #     `pulumi up` qui a suivi ce retrait. Rajouter la clé ici les recrée
+      #     VIDES. C'était sans conséquence tant qu'aucun joueur n'y vivait.
+      regions:
+        EU:
+          label: "Europe"
+          backend: "europe-west9"
+
+      # ===================================================================
+      # LES SERVEURS D'ESSAI, OFFERTS AU JOUEUR D'UN BUILD DE TEST
+      # ===================================================================
+      # Ce bloc ne concerne QUE le client, QUE les builds snapshot, et QUE la
+      # cible où il est déclaré. Il ajoute `EUT` aux régions que l'app connaît
+      # et arme, sur l'écran du choix du pays, une case « serveurs de test »
+      # cochée par défaut.
+      #
+      # ⚠ IL EST SOUS `prod`, ET C'EST LE POINT. La forme de la bêta fermée est
+      #   `target=prod` avec un mode snapshot : le client connaît alors les DEUX
+      #   datacenters et le testeur tranche. Un snapshot ordinaire (sans
+      #   `target=`) vise la cible `test`, ne voit qu'`EUT`, et n'a donc aucune
+      #   case à montrer : c'est la boucle de développement, inchangée.
+      #
+      # ⚠ LE PAYS RESTE LE PAYS. Le joueur choisit son marché, donc ses CGU,
+      #   sa langue et son droit ; la case ne déplace que le DATACENTER. Un
+      #   testeur français coché « serveurs de test » lit les CGU françaises
+      #   et vit dans `eut-*`.
+      #
+      # ⚠ UN BUILD PUBLIANT N'EN VOIT RIEN. `_apply_target_conf` ne pose ce
+      #   bloc qu'en mode snapshot : l'app publiée ne connaît ni la région
+      #   ni son existence, et `cloud.region` y est figée sur `eu` comme
+      #   avant. C'est ce qui rend la case impossible à activer chez un
+      #   joueur ordinaire, sans rien avoir à verrouiller.
+      #
+      # ⚠ COCHÉE PAR DÉFAUT, ET C'EST ASSUMÉ : une bêta fermée sert d'abord
+      #   à éprouver l'infrastructure d'essai. Les données des testeurs
+      #   vivent donc dans `eut-*` et devront être recopiées le jour de la
+      #   bascule en production. Passer `default: false` inverse le choix
+      #   sans rien changer d'autre.
+      test_servers:
+        cloud:      eut
+        region_key: EUT
+        label:      "Europe (essai)"
+        default:    true
+
+    test:
+      graft: true          # ne possède rien de global
+      suffix: "_t"         # alias d'état : backend -> backend_t
+      doc: "ddust_t"       # deva_builds/ddust_t : le régional, jamais l'identité
+      regions:
+        EUT:
+          label: "Europe (essai)"
+          backend: "europe-west9"
+
+      # Le marché `fr` est servi par le datacenter `eut` sur cette cible. Le builder
+      # écrit cette table sous ses DEUX orthographes : `documents.region_overrides`
+      # pour pudocuments, `documents.region.overrides` pour dvdocuments.
+      # Le joueur, lui, ne voit rien : il choisit un PAYS, et la liste reste celle
+      # des marchés ouverts. Une clé de `regions` n'apparaît jamais dans l'écran.
+      market_cloud:
+        fr: eut
+
+      # Des surcharges de conf, par CHEMIN pointé, appliquées après tous les ingests.
+      conf:
+        # ⚠ SANS CES TROIS LIGNES, LA CIBLE D'ESSAI FABRIQUE, CONSOMME ET RÉVOQUE
+        #   DE VRAIS CODES CADEAUX dans `eu-store`. Le registre des codes vit dans
+        #   UNE base, désignée par CODES_REGION, et le backend la fixe sur `eu`.
+        cloudfunctions.functions.store_claim.environment.CODES_REGION:  "eut"
+        cloudfunctions.functions.store_mint.environment.CODES_REGION:   "eut"
+        cloudfunctions.functions.store_revoke.environment.CODES_REGION: "eut"
+        # Le balayage RTDN ne doit voir que sa propre région. Il ne recevra de toute
+        # façon rien : Play n'accepte qu'un topic par package, et c'est celui de la
+        # production.
+        cloudfunctions.functions.store_rtdn.environment.STORE_REGIONS:  "eut"
+
+        # ⚠ UNE CLÉ ABSENTE DE `aimodel.location` RETOMBE EN SILENCE sur la région
+        #   GCP du datacenter, ici europe-west9, qui sature à deux joueurs
+        #   simultanés (429 Resource exhausted). La cible d'essai se comporterait
+        #   alors moins bien que la production, et pour une raison invisible.
+        aimodel.location.EUT: ["eu", "europe-west4"]
+
+        # RESSOURCES DE PROJET, non régionalisables : un seul stack a le droit de
+        # les tenir, et c'est la production. Les déclarer ici aussi ferait que les
+        # deux stacks se les disputent à chaque `up`.
+        aimodel.rpm_limit: 0
+        aimodel.require_app_check: false
+        firestore.require_app_check: false
+        cloudfunctions.require_app_check: false
+
+        # Le nom d'un job Cloud Scheduler est plat dans le projet : sans préfixe les
+        # deux stacks se disputeraient `store-sweeper`. La production, elle, garde
+        # ses noms nus (la préfixer détruirait et recréerait ses trois jobs).
+        scheduler.region_prefix: true
   # Verrou de production : a passer a true le jour ou l'app sert de vrais clans. Le mot-clef
   # reset reste tapable mais ne supprime plus rien (ni Firestore, ni GCS, ni Auth, ni les
   # caches locaux ci-dessous). Cle optionnelle : absente, le reset fonctionne normalement.
@@ -343,6 +474,9 @@ build:
           # précédent : état payant, crédits de mois et timers de défaut de paiement
           # ressuscités sur des données de jeu vides.
           - clans_store
+          # Invitations privées des chefs (worker._publishInvite). Absentes de cette
+          # liste, elles survivraient au reset, avec la déclaration scellée que chacune porte.
+          - clans_invites
           - userindexes
           - users
       # Registre PERSONNEL des achats (base dédiée du module pustore) : un document par

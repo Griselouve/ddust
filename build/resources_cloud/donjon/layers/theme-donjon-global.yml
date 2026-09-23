@@ -310,7 +310,7 @@ data:
       # dans le même paragraphe que la consigne « Faire un défi en famille : … ».
       gage_heal:
         fr: "Seulement si tes chefs de clan considèrent que tu as réussi, alors ils pourront te soigner."
-        en: "Only if your clan leaders consider that you succeeded will they be able to heal you."
+        en: "Only if your clan chiefs consider that you succeeded will they be able to heal you."
         es: "Solo si tus jefes de clan consideran que lo has conseguido podrán curarte."
         de: "Nur wenn deine Clanchefs finden, dass du es geschafft hast, können sie dich heilen."
         it: "Solo se i tuoi capi clan riterranno che ce l'hai fatta, potranno curarti."
@@ -585,15 +585,38 @@ data:
         pt: "Convidar à distância"
         br: "Convidar a distância"
         nl: "Op afstand uitnodigen"
+      # « Un adulte » depuis le 2026-09-22 : sans accord d'enfant joint, l'invitation à distance
+      # ne propose plus que le cas adulte. Un enfant éloigné envoie sa réponse, et le parent qui
+      # l'ouvre peut alors l'inviter à distance depuis sa déclaration.
       clan_menu_invite_remote_desc:
-        fr: "Envoyer un lien d'invitation protégé par un code dicté de vive voix"
-        en: "Send an invite link protected by a spoken code"
-        es: "Enviar un enlace de invitación protegido por un código dictado de viva voz"
-        de: "Einen Einladungslink senden, geschützt durch einen mündlich durchgegebenen Code"
-        it: "Invia un link d'invito protetto da un codice detto a voce"
-        pt: "Enviar um link de convite protegido por um código ditado de viva voz"
-        br: "Enviar um link de convite protegido por um código dito em voz alta"
-        nl: "Een uitnodigingslink sturen, beveiligd met een mondeling doorgegeven code"
+        fr: "Inviter un adulte avec un lien protégé par un code dicté de vive voix"
+        en: "Invite an adult with a link protected by a spoken code"
+        es: "Invitar a un adulto con un enlace protegido por un código dictado de viva voz"
+        de: "Einen Erwachsenen mit einem Link einladen, geschützt durch einen mündlich durchgegebenen Code"
+        it: "Invita un adulto con un link protetto da un codice detto a voce"
+        pt: "Convidar um adulto com um link protegido por um código ditado de viva voz"
+        br: "Convidar um adulto com um link protegido por um código dito em voz alta"
+        nl: "Een volwassene uitnodigen met een link, beveiligd met een mondeling doorgegeven code"
+      # « Accueillir un enfant » (menu clan, chef) : la seule porte d'un enfant. Il a dit oui sur
+      # son téléphone, qui affiche un QR code ; le chef le scanne et déclare.
+      clan_menu_welcome_child:
+        fr: "Accueillir un enfant"
+        en: "Welcome a child"
+        es: "Acoger a un niño"
+        de: "Ein Kind aufnehmen"
+        it: "Accogli un bambino"
+        pt: "Acolher uma criança"
+        br: "Acolher uma criança"
+        nl: "Een kind verwelkomen"
+      clan_menu_welcome_child_desc:
+        fr: "Scanner le QR code que ton enfant affiche après avoir dit qu'il voulait jouer, puis l'inviter"
+        en: "Scan the QR code your child displays after saying they want to play, then invite them"
+        es: "Escanear el código QR que muestra tu hijo después de decir que quiere jugar, y luego invitarlo"
+        de: "Den QR-Code scannen, den dein Kind anzeigt, nachdem es gesagt hat, dass es spielen will, und es dann einladen"
+        it: "Scansionare il codice QR che tuo figlio mostra dopo aver detto che vuole giocare, poi invitarlo"
+        pt: "Digitalizar o código QR que o teu filho mostra depois de dizer que quer jogar e, a seguir, convidá-lo"
+        br: "Escanear o QR Code que seu filho mostra depois de dizer que quer jogar e, em seguida, convidá-lo"
+        nl: "De QR-code scannen die je kind toont nadat het heeft gezegd dat het wil spelen, en het daarna uitnodigen"
       # « Créer un joueur » (menu clan, chef) : enfant sans téléphone ni compte Google.
       clan_menu_create_player:
         fr: "Créer un joueur"
@@ -702,23 +725,91 @@ data:
         br: "É um adulto"
         nl: "Het gaat om een volwassene"
       invite_ack_child_reads:
-        fr: "Mon enfant sait lire — je lui présente ses conditions d'utilisation"
-        en: "My child can read — I am showing them their terms of use"
-        es: "Mi hijo sabe leer — le presento sus condiciones de uso"
+        fr: "Mon enfant sait lire : je lui présente ses conditions d'utilisation"
+        en: "My child can read: I am showing them their terms of use"
+        es: "Mi hijo sabe leer: le presento sus condiciones de uso"
         de: "Mein Kind kann lesen: Ich zeige ihm seine Nutzungsbedingungen"
         it: "Mio figlio sa leggere: gli mostro le sue condizioni d'uso"
         pt: "O meu filho sabe ler: apresento-lhe os seus termos de utilização"
         br: "Meu filho sabe ler: vou mostrar a ele os termos de uso dele"
         nl: "Mijn kind kan lezen: ik laat het zijn gebruiksvoorwaarden zien"
       invite_ack_child_read_aloud:
-        fr: "Mon enfant ne sait pas encore lire — je viens de lui lire ses conditions d'utilisation"
-        en: "My child cannot read yet — I have just read them their terms of use"
-        es: "Mi hijo aún no sabe leer — acabo de leerle sus condiciones de uso"
+        fr: "Mon enfant ne sait pas encore lire : je viens de lui lire ses conditions d'utilisation"
+        en: "My child cannot read yet: I have just read them their terms of use"
+        es: "Mi hijo aún no sabe leer: acabo de leerle sus condiciones de uso"
         de: "Mein Kind kann noch nicht lesen: Ich habe ihm gerade seine Nutzungsbedingungen vorgelesen"
         it: "Mio figlio non sa ancora leggere: gli ho appena letto le sue condizioni d'uso"
         pt: "O meu filho ainda não sabe ler: acabei de lhe ler os seus termos de utilização"
         br: "Meu filho ainda não sabe ler: acabei de ler para ele os termos de uso dele"
         nl: "Mijn kind kan nog niet lezen: ik heb het net zijn gebruiksvoorwaarden voorgelezen"
+      # Panneau de tête de l'écran de déclaration (invite_consent_screen/assent), posé par
+      # worker.on_invite_consent_appear. Même registre que invite_consent_notice (« vous » en
+      # français, tutoiement ailleurs).
+      #   * invite_consent_assent : un accord d'enfant est joint. {date} et {text} sont remplacés
+      #     par le worker : la date du oui, et le texte montré à l'enfant (kid_assent_question),
+      #     rendu dans la langue du chef ;
+      #   * invite_consent_child_hint : pas d'accord joint (QR Code du clan, Inviter à distance) ;
+      #   * invite_consent_not_assent : « Accueillir un enfant » a scanné autre chose qu'un accord.
+      invite_consent_assent:
+        fr: "Votre enfant a dit qu'il voulait jouer, le {date}. Voici le texte qui lui a été montré :\n\n« {text} »"
+        en: "Your child said they wanted to play, on {date}. Here is the text they were shown:\n\n“{text}”"
+        es: "Tu hijo dijo que quería jugar, el {date}. Este es el texto que se le mostró:\n\n«{text}»"
+        de: "Dein Kind hat am {date} gesagt, dass es spielen möchte. Dieser Text wurde ihm gezeigt:\n\n„{text}“"
+        it: "Tuo figlio ha detto di voler giocare, il {date}. Ecco il testo che gli è stato mostrato:\n\n«{text}»"
+        pt: "O teu filho disse que queria jogar, em {date}. Eis o texto que lhe foi mostrado:\n\n«{text}»"
+        br: "Seu filho disse que queria jogar, em {date}. Este é o texto que foi mostrado a ele:\n\n“{text}”"
+        nl: "Je kind heeft op {date} gezegd dat het wil spelen. Dit is de tekst die het te zien kreeg:\n\n‘{text}’"
+      #   * invite_consent_assent_code : première ligne du même panneau, en mode enfant. {code}
+      #     est le code de la demande, que l'enfant affiche en grand (kid_assent_share_code) ;
+      #     les marqueurs [[ ]] le font ressortir. L'invitation portera ce code, et l'appareil de
+      #     l'enfant refusera toute invitation qui ne le porte pas.
+      invite_consent_assent_code:
+        fr: "Code de sa demande : [[{code}]]. Vérifiez que c'est le même que sur son écran."
+        en: "Code of their request: [[{code}]]. Check that it is the same as on their screen."
+        es: "Código de su solicitud: [[{code}]]. Comprueba que es el mismo que en su pantalla."
+        de: "Code seiner Anfrage: [[{code}]]. Prüfe, ob er derselbe ist wie auf seinem Bildschirm."
+        it: "Codice della sua richiesta: [[{code}]]. Controlla che sia lo stesso del suo schermo."
+        pt: "Código do pedido: [[{code}]]. Verifica se é o mesmo que aparece no ecrã da criança."
+        br: "Código do pedido: [[{code}]]. Confira se é o mesmo que aparece na tela da criança."
+        nl: "Code van de aanvraag: [[{code}]]. Controleer of het dezelfde is als op het scherm van je kind."
+      invite_consent_child_hint:
+        fr: "Pour inviter un enfant, c'est lui qui commence : il installe le jeu et dit qu'il veut jouer. Scannez ensuite le QR code qu'il affiche avec « Accueillir un enfant », dans le menu du clan. Ici, vous invitez un adulte."
+        en: "To invite a child, they go first: they install the game and say they want to play. Then scan the QR code they display with “Welcome a child”, in the clan menu. Here, you are inviting an adult."
+        es: "Para invitar a un niño, empieza él: instala el juego y dice que quiere jugar. Después escanea el código QR que muestra con «Acoger a un niño», en el menú del clan. Aquí invitas a un adulto."
+        de: "Um ein Kind einzuladen, fängt es selbst an: Es installiert das Spiel und sagt, dass es spielen will. Scanne danach den QR-Code, den es anzeigt, mit „Ein Kind aufnehmen“ im Clan-Menü. Hier lädst du einen Erwachsenen ein."
+        it: "Per invitare un bambino, comincia lui: installa il gioco e dice che vuole giocare. Poi scansiona il codice QR che mostra con «Accogli un bambino», nel menu del clan. Qui inviti un adulto."
+        pt: "Para convidar uma criança, é ela que começa: instala o jogo e diz que quer jogar. Depois digitaliza o código QR que ela mostra com «Acolher uma criança», no menu do clã. Aqui, convidas um adulto."
+        br: "Para convidar uma criança, é ela quem começa: instala o jogo e diz que quer jogar. Depois, escaneie o QR Code que ela mostra com “Acolher uma criança”, no menu do clã. Aqui, você está convidando um adulto."
+        nl: "Om een kind uit te nodigen, begint het zelf: het installeert het spel en zegt dat het wil spelen. Scan daarna de QR-code die het toont met ‘Een kind verwelkomen’ in het clanmenu. Hier nodig je een volwassene uit."
+      invite_consent_not_assent:
+        fr: "Ce QR code n'est pas une demande d'enfant. Pour accueillir un enfant, scannez le QR code que son téléphone affiche après qu'il a dit oui. Ici, seul un adulte peut être invité."
+        en: "This QR code is not a child's request. To welcome a child, scan the QR code their phone displays after they have said yes. Here, only an adult can be invited."
+        es: "Este código QR no es una solicitud de un niño. Para acoger a un niño, escanea el código QR que muestra su teléfono después de que haya dicho que sí. Aquí solo se puede invitar a un adulto."
+        de: "Dieser QR-Code ist keine Anfrage eines Kindes. Um ein Kind aufzunehmen, scanne den QR-Code, den sein Handy anzeigt, nachdem es Ja gesagt hat. Hier kann nur ein Erwachsener eingeladen werden."
+        it: "Questo codice QR non è una richiesta di un bambino. Per accogliere un bambino, scansiona il codice QR che il suo telefono mostra dopo che ha detto di sì. Qui si può invitare solo un adulto."
+        pt: "Este código QR não é um pedido de uma criança. Para acolher uma criança, digitaliza o código QR que o telemóvel dela mostra depois de ela dizer que sim. Aqui, só um adulto pode ser convidado."
+        br: "Este QR Code não é um pedido de uma criança. Para acolher uma criança, escaneie o QR Code que o celular dela mostra depois que ela disse sim. Aqui, só um adulto pode ser convidado."
+        nl: "Deze QR-code is geen verzoek van een kind. Om een kind te verwelkomen, scan je de QR-code die zijn telefoon toont nadat het ja heeft gezegd. Hier kan alleen een volwassene worden uitgenodigd."
+      # Bascule QR code / invitation à distance (invite_consent_screen/kind), en mode enfant. Le
+      # libellé dit le mode courant ET qu'on peut en changer.
+      invite_consent_kind_qr:
+        fr: "Mon enfant est à côté de moi : QR code (toucher pour changer)"
+        en: "My child is next to me: QR code (tap to change)"
+        es: "Mi hijo está a mi lado: código QR (toca para cambiar)"
+        de: "Mein Kind ist bei mir: QR-Code (tippen zum Ändern)"
+        it: "Mio figlio è accanto a me: codice QR (tocca per cambiare)"
+        pt: "O meu filho está ao meu lado: código QR (toca para mudar)"
+        br: "Meu filho está ao meu lado: QR Code (toque para mudar)"
+        nl: "Mijn kind is bij mij: QR-code (tik om te wijzigen)"
+      invite_consent_kind_pin:
+        fr: "Mon enfant est loin : lien et code (toucher pour changer)"
+        en: "My child is far away: link and code (tap to change)"
+        es: "Mi hijo está lejos: enlace y código (toca para cambiar)"
+        de: "Mein Kind ist weit weg: Link und Code (tippen zum Ändern)"
+        it: "Mio figlio è lontano: link e codice (tocca per cambiare)"
+        pt: "O meu filho está longe: ligação e código (toca para mudar)"
+        br: "Meu filho está longe: link e código (toque para mudar)"
+        nl: "Mijn kind is ver weg: link en code (tik om te wijzigen)"
       # Boutons de l'overlay de consentement, révélé au chef quand il demande à recruter
       # (QR ou invitation à distance), AVANT que le lobby ne soit créé — cf. worker.on_invite_clan.
       # Le libellé n'assume AUCUNE responsabilité : la mention ci-dessus est conditionnelle, le
@@ -799,23 +890,23 @@ data:
         br: "Jogar no seu lugar"
         nl: "In zijn plaats spelen"
       roster_menu_promote_chief:
-        fr: "Promouvoir chef"
-        en: "Promote to chief"
-        es: "Promover a jefe"
-        de: "Zum Chef ernennen"
-        it: "Promuovi a capo"
-        pt: "Promover a chefe"
-        br: "Promover a chefe"
+        fr: "Promouvoir chef de clan"
+        en: "Promote to clan chief"
+        es: "Promover a jefe de clan"
+        de: "Zum Clanchef ernennen"
+        it: "Promuovi a capo clan"
+        pt: "Promover a chefe de clã"
+        br: "Promover a chefe de clã"
         nl: "Tot clanhoofd benoemen"
       roster_menu_nomore_chief:
-        fr: "Plus chef"
-        en: "No longer chief"
-        es: "Ya no es jefe"
-        de: "Kein Chef mehr"
-        it: "Non più capo"
-        pt: "Deixar de ser chefe"
-        br: "Deixar de ser chefe"
-        nl: "Geen hoofd meer"
+        fr: "Plus chef de clan"
+        en: "No longer clan chief"
+        es: "Ya no es jefe de clan"
+        de: "Kein Clanchef mehr"
+        it: "Non più capo clan"
+        pt: "Deixar de ser chefe de clã"
+        br: "Deixar de ser chefe de clã"
+        nl: "Geen clanhoofd meer"
       roster_menu_promote_adult:
         fr: "Déclarer majeur"
         en: "Declare adult"
@@ -1223,6 +1314,16 @@ data:
         br: "Capítulo III: Sua palavra"
         nl: "Hoofdstuk III: Jouw woord"
 
+      chapter_kid_assent_share:
+        fr: "Chapitre III : Le message"
+        en: "Chapter III: The message"
+        es: "Capítulo III: El mensaje"
+        de: "Kapitel III: Die Nachricht"
+        it: "Capitolo III: Il messaggio"
+        pt: "Capítulo III: A mensagem"
+        br: "Capítulo III: A mensagem"
+        nl: "Hoofdstuk III: Het bericht"
+
       chapter_link_account_screen:
         fr: "Chapitre III — Le pacte"
         en: "Chapter III — The pact"
@@ -1342,17 +1443,18 @@ data:
         br: "Não foi possível começar sua aventura agora. Verifique sua conexão e tente de novo."
         nl: "Je avontuur kan nu niet worden gestart. Controleer je verbinding en probeer het opnieuw."
 
-      # Écran de liaison, toujours visible : l'étape est bloquante mais reprenable, et un enfant
-      # dont le parent n'est pas là doit savoir qu'il peut partir sans rien perdre.
+      # Écran de liaison, toujours visible. L'étape est bloquante et, depuis le 2026-09-22, PLUS
+      # REPRENABLE : rien n'est enregistré avant la connexion, un enfant qui ferme le jeu repart
+      # du début. Il doit le savoir, et savoir ce qui peut le bloquer (Family Link).
       link_account_notice:
-        fr: "Ta place dans le clan est déjà gardée. Si tu as besoin d'un parent pour te connecter, tu peux fermer le jeu et revenir ici plus tard."
-        en: "Your place in the clan is already saved. If you need a parent to sign in, you can close the game and come back here later."
-        es: "Tu lugar en el clan ya está guardado. Si necesitas a un padre para conectarte, puedes cerrar el juego y volver aquí más tarde."
-        de: "Dein Platz im Clan ist schon reserviert. Wenn du einen Elternteil zum Anmelden brauchst, kannst du das Spiel schließen und später hierher zurückkommen."
-        it: "Il tuo posto nel clan è già tenuto da parte. Se hai bisogno di un genitore per accedere, puoi chiudere il gioco e tornare qui più tardi."
-        pt: "O teu lugar no clã já está guardado. Se precisares de um dos pais para iniciar sessão, podes fechar o jogo e voltar aqui mais tarde."
-        br: "Seu lugar no clã já está salvo. Se precisar de um dos pais para fazer login, você pode fechar o jogo e voltar aqui mais tarde."
-        nl: "Je plek in de clan is al gereserveerd. Heb je een ouder nodig om in te loggen, dan kun je het spel sluiten en hier later terugkomen."
+        fr: "Rien n'est enregistré tant que tu n'es pas connecté : si tu fermes le jeu maintenant, tu recommenceras depuis le début. Si un parent veille sur ton compte Google (Family Link), il devra autoriser la connexion."
+        en: "Nothing is saved until you sign in: if you close the game now, you will start again from the beginning. If a parent supervises your Google account (Family Link), they will have to allow the sign-in."
+        es: "No se guarda nada hasta que te conectes: si cierras el juego ahora, empezarás de nuevo desde el principio. Si un adulto supervisa tu cuenta de Google (Family Link), tendrá que autorizar la conexión."
+        de: "Nichts wird gespeichert, bevor du angemeldet bist: Wenn du das Spiel jetzt schließt, fängst du wieder von vorne an. Wenn ein Elternteil dein Google-Konto beaufsichtigt (Family Link), muss er die Anmeldung erlauben."
+        it: "Non viene salvato nulla finché non accedi: se chiudi il gioco ora, ricomincerai dall'inizio. Se un genitore controlla il tuo account Google (Family Link), dovrà autorizzare l'accesso."
+        pt: "Nada fica guardado enquanto não iniciares sessão: se fechares o jogo agora, vais recomeçar do início. Se um dos pais supervisiona a tua conta Google (Family Link), terá de autorizar o início de sessão."
+        br: "Nada é salvo enquanto você não fizer login: se fechar o jogo agora, vai recomeçar do início. Se um dos pais supervisiona sua conta Google (Family Link), ele vai precisar autorizar o login."
+        nl: "Er wordt niets bewaard zolang je niet bent ingelogd: als je het spel nu sluit, begin je weer bij het begin. Als een ouder toezicht houdt op je Google-account (Family Link), moet die het inloggen toestaan."
 
       link_flush_failed:
         fr: "Impossible d'inscrire ton aventure dans les registres. Vérifie ta connexion et réessaie."
@@ -1514,6 +1616,29 @@ data:
         pt: "Começo aqui"
         br: "Começo aqui"
         nl: "Ik begin hier"
+
+      # LA CASE DES SERVEURS DE TEST, dans les versions de test seulement. Elle ne
+      # s'adresse qu'aux testeurs de la bêta : une version publiée ne la montre jamais.
+      # Le ton reste celui du jeu, mais l'avertissement doit être clair — ce qui vit sur
+      # ces serveurs peut être effacé entre deux versions.
+      documents_test_servers_unchecked:
+        fr: "☐ Royaume d'essai (le donjon peut être rasé)"
+        en: "☐ Test realm (the dungeon may be razed)"
+        es: "☐ Reino de prueba (la mazmorra puede ser arrasada)"
+        de: "☐ Testreich (der Kerker kann eingerissen werden)"
+        it: "☐ Regno di prova (il dungeon può essere raso al suolo)"
+        pt: "☐ Reino de ensaio (a masmorra pode ser arrasada)"
+        br: "☐ Reino de teste (a masmorra pode ser arrasada)"
+        nl: "☐ Testrijk (de kerker kan worden gesloopt)"
+      documents_test_servers_checked:
+        fr: "☑ Royaume d'essai (le donjon peut être rasé)"
+        en: "☑ Test realm (the dungeon may be razed)"
+        es: "☑ Reino de prueba (la mazmorra puede ser arrasada)"
+        de: "☑ Testreich (der Kerker kann eingerissen werden)"
+        it: "☑ Regno di prova (il dungeon può essere raso al suolo)"
+        pt: "☑ Reino de ensaio (a masmorra pode ser arrasada)"
+        br: "☑ Reino de teste (a masmorra pode ser arrasada)"
+        nl: "☑ Testrijk (de kerker kan worden gesloopt)"
 
       # Libellés des PAYS proposés à l'ouverture de session. Ils vivent ici et non
       # dans dvdocuments : le module fournit la mécanique, le catalogue juridique et
@@ -1795,13 +1920,13 @@ data:
       # surtout il indique le bon geste : le second parent ne crée rien, il rejoint et se fait
       # nommer chef — il a alors exactement les mêmes droits.
       confirm_create_clan_msg:
-        fr: "Un seul clan par famille !\n\nSi un autre adulte de ton foyer a déjà créé le clan, ne crée pas le tien : rejoins le sien avec son QR code, il te nommera chef et tu auras exactement les mêmes pouvoirs.\n\nOn ne peut pas changer de clan par la suite."
-        en: "One clan per family!\n\nIf another adult in your household has already created the clan, do not create yours: join theirs with their QR code and they will make you a chief, with exactly the same powers.\n\nYou cannot switch clans afterwards."
-        es: "¡Un solo clan por familia!\n\nSi otro adulto de tu hogar ya ha creado el clan, no crees el tuyo: únete al suyo con su código QR y te nombrará jefe, con exactamente los mismos poderes.\n\nDespués no se puede cambiar de clan."
-        de: "Nur ein Clan pro Familie!\n\nWenn ein anderer Erwachsener aus deinem Haushalt den Clan schon erstellt hat, erstelle nicht deinen eigenen: Tritt seinem mit seinem QR-Code bei, er ernennt dich zum Chef und du hast genau dieselben Befugnisse.\n\nDer Clan kann später nicht gewechselt werden."
-        it: "Un solo clan per famiglia!\n\nSe un altro adulto di casa tua ha già creato il clan, non creare il tuo: unisciti al suo con il suo codice QR, ti nominerà capo e avrai esattamente gli stessi poteri.\n\nIn seguito non si può cambiare clan."
-        pt: "Um só clã por família!\n\nSe outro adulto da tua casa já criou o clã, não cries o teu: junta-te ao dele com o código QR dele, ele nomeia-te chefe e terás exatamente os mesmos poderes.\n\nDepois não é possível mudar de clã."
-        br: "Um só clã por família!\n\nSe outro adulto da sua casa já criou o clã, não crie o seu: entre no dele com o QR Code dele, ele nomeia você chefe e você terá exatamente os mesmos poderes.\n\nDepois não é possível mudar de clã."
+        fr: "Un seul clan par famille !\n\nSi un autre adulte de ton foyer a déjà créé le clan, ne crée pas le tien : rejoins le sien avec son QR code, il te nommera chef de clan et tu auras exactement les mêmes pouvoirs.\n\nOn ne peut pas changer de clan par la suite."
+        en: "One clan per family!\n\nIf another adult in your household has already created the clan, do not create yours: join theirs with their QR code and they will make you a clan chief, with exactly the same powers.\n\nYou cannot switch clans afterwards."
+        es: "¡Un solo clan por familia!\n\nSi otro adulto de tu hogar ya ha creado el clan, no crees el tuyo: únete al suyo con su código QR y te nombrará jefe de clan, con exactamente los mismos poderes.\n\nDespués no se puede cambiar de clan."
+        de: "Nur ein Clan pro Familie!\n\nWenn ein anderer Erwachsener aus deinem Haushalt den Clan schon erstellt hat, erstelle nicht deinen eigenen: Tritt seinem mit seinem QR-Code bei, er ernennt dich zum Clanchef und du hast genau dieselben Befugnisse.\n\nDer Clan kann später nicht gewechselt werden."
+        it: "Un solo clan per famiglia!\n\nSe un altro adulto di casa tua ha già creato il clan, non creare il tuo: unisciti al suo con il suo codice QR, ti nominerà capo clan e avrai esattamente gli stessi poteri.\n\nIn seguito non si può cambiare clan."
+        pt: "Um só clã por família!\n\nSe outro adulto da tua casa já criou o clã, não cries o teu: junta-te ao dele com o código QR dele, ele nomeia-te chefe de clã e terás exatamente os mesmos poderes.\n\nDepois não é possível mudar de clã."
+        br: "Um só clã por família!\n\nSe outro adulto da sua casa já criou o clã, não crie o seu: entre no dele com o QR Code dele, ele nomeia você chefe de clã e você terá exatamente os mesmos poderes.\n\nDepois não é possível mudar de clã."
         nl: "Maar één clan per gezin!\n\nAls een andere volwassene in je huishouden de clan al heeft opgericht, maak dan geen eigen clan: word lid van de zijne met zijn QR-code, hij benoemt je tot clanhoofd en je krijgt precies dezelfde rechten.\n\nJe kunt later niet meer van clan wisselen."
       # Vient EN PREMIER dans l'overlay : c'est la sortie, et elle doit se voir avant le « oui ».
       confirm_create_scan:
@@ -2355,31 +2480,40 @@ data:
         nl: "Sterfelijk (schedel)"
 
       #------------- Avis du mineur (kid_assent_screen) ------------
-      # La question est POSÉE, et le bouton est la réponse de l'enfant — pas un « Continuer ».
-      # Le texte dit d'abord ce que les parents ont fait, puis rend la main à l'enfant : c'est
-      # l'ordre exact de la condition n° 3 du Decreto 1074 de 2015 (autorisation du représentant
-      # légal, PUIS exercice du droit de l'enfant à être entendu). Formulations sans accord de
-      # genre : l'application ne connaît pas celui du joueur.
+      # La question est POSÉE, et le bouton est la réponse de l'enfant, pas un « Continuer ».
+      # ⚠ L'ENFANT PARLE LE PREMIER (2026-09-22). Le texte disait « tes parents ont accepté,
+      #   et toi ? » : il suivait l'ordre inverse de celui du Decreto 1377 de 2013 (art. 12),
+      #   qui veut que l'enfant s'exprime AVANT la décision de son représentant. Sa réponse
+      #   voyage désormais jusqu'au parent (kid_assent_share), qui décide ensuite. Le texte le
+      #   dit, pour que l'enfant sache à quoi sert son oui.
+      # ⚠ `kid_assent_question_again` A DISPARU (2026-09-22), avec la reconfirmation qu'il
+      #   posait (« c'est toujours ce que tu veux ? ») à l'enfant arrivé par un lien d'invitation
+      #   application fermée. Une invitation porte désormais le code de la demande à laquelle
+      #   elle répond, et ce code ne survit pas à la fermeture de l'application : l'enfant
+      #   envoie une nouvelle demande.
+      # Formulations sans accord de genre : l'application ne connaît pas celui du joueur.
+      # ⚠ CE TEXTE EST CELUI QUE LE CHEF VOIT citer dans sa déclaration (text_key de l'accord,
+      #   invite_consent_assent) : le reformuler, c'est changer ce qu'on lui montre.
 
       kid_assent_title:
-        fr: "Et toi ?"
-        en: "And you?"
-        es: "¿Y tú?"
-        de: "Und du?"
-        it: "E tu?"
-        pt: "E tu?"
-        br: "E você?"
-        nl: "En jij?"
+        fr: "À toi la parole"
+        en: "Your say"
+        es: "Tú tienes la palabra"
+        de: "Du hast das Wort"
+        it: "A te la parola"
+        pt: "A palavra é tua"
+        br: "A palavra é sua"
+        nl: "Jij hebt het woord"
 
       kid_assent_question:
-        fr: "Tes parents ont accepté que tu joues.\n\nEt toi, tu as envie de jouer ?"
-        en: "Your parents have agreed to let you play.\n\nAnd you - do you want to play?"
-        es: "Tus padres han aceptado que juegues.\n\nY tú, ¿tienes ganas de jugar?"
-        de: "Deine Eltern sind einverstanden, dass du spielst.\n\nUnd du, hast du Lust zu spielen?"
-        it: "I tuoi genitori hanno accettato che tu giochi.\n\nE tu, hai voglia di giocare?"
-        pt: "Os teus pais aceitaram que jogues.\n\nE tu, tens vontade de jogar?"
-        br: "Seus pais aceitaram que você jogue.\n\nE você, está com vontade de jogar?"
-        nl: "Je ouders vinden het goed dat je speelt.\n\nEn jij, heb je zin om te spelen?"
+        fr: "Ici, c'est d'abord à toi qu'on demande.\n\nAs-tu envie de jouer à Donjons & Savons avec ta famille ?\n\nSi tu dis oui, ton téléphone préparera un message pour tes parents. Ce sont eux qui décideront ensuite."
+        en: "Here, we ask you first.\n\nDo you want to play Donjons & Savons with your family?\n\nIf you say yes, your phone will prepare a message for your parents. They will decide after that."
+        es: "Aquí te lo preguntamos primero a ti.\n\n¿Tienes ganas de jugar a Donjons & Savons con tu familia?\n\nSi dices que sí, tu teléfono preparará un mensaje para tus padres. Después, decidirán ellos."
+        de: "Hier fragen wir zuerst dich.\n\nHast du Lust, mit deiner Familie Donjons & Savons zu spielen?\n\nWenn du Ja sagst, bereitet dein Handy eine Nachricht für deine Eltern vor. Danach entscheiden sie."
+        it: "Qui lo chiediamo prima a te.\n\nHai voglia di giocare a Donjons & Savons con la tua famiglia?\n\nSe dici di sì, il tuo telefono preparerà un messaggio per i tuoi genitori. Poi decideranno loro."
+        pt: "Aqui, perguntamos primeiro a ti.\n\nTens vontade de jogar Donjons & Savons com a tua família?\n\nSe disseres que sim, o teu telemóvel vai preparar uma mensagem para os teus pais. Depois, são eles que decidem."
+        br: "Aqui, a pergunta é primeiro para você.\n\nVocê está com vontade de jogar Donjons & Savons com a sua família?\n\nSe disser que sim, seu celular vai preparar uma mensagem para seus pais. Depois, são eles que decidem."
+        nl: "Hier vragen we het eerst aan jou.\n\nHeb je zin om Donjons & Savons te spelen met je familie?\n\nAls je ja zegt, maakt je telefoon een bericht klaar voor je ouders. Daarna beslissen zij."
 
       kid_assent_go:
         fr: "Oui, je pars à l'aventure !"
@@ -2400,6 +2534,99 @@ data:
         pt: "← Voltar"
         br: "← Voltar"
         nl: "← Terug"
+
+
+      #------------- Réponse de l'enfant (kid_assent_share) ------------
+      # L'écran qui TRANSMET le oui au parent (QR code ou lien), et d'où l'enfant reçoit
+      # l'invitation en retour. Les libellés entre guillemets sont ceux du menu du chef
+      # (clan_menu_welcome_child) : l'enfant doit pouvoir dire à son parent où appuyer.
+
+      kid_assent_share_title:
+        fr: "Ta réponse"
+        en: "Your answer"
+        es: "Tu respuesta"
+        de: "Deine Antwort"
+        it: "La tua risposta"
+        pt: "A tua resposta"
+        br: "Sua resposta"
+        nl: "Jouw antwoord"
+
+      kid_assent_share_intro:
+        fr: "Montre ce code à tes parents : ils le scanneront dans le menu de leur clan (« Accueillir un enfant »). S'ils ne sont pas à côté de toi, envoie-leur ta réponse."
+        en: "Show this code to your parents: they will scan it from their clan menu (“Welcome a child”). If they are not next to you, send them your answer."
+        es: "Enseña este código a tus padres: lo escanearán desde el menú de su clan («Acoger a un niño»). Si no están a tu lado, envíales tu respuesta."
+        de: "Zeig diesen Code deinen Eltern: Sie scannen ihn im Menü ihres Clans („Ein Kind aufnehmen“). Sind sie nicht bei dir, schick ihnen deine Antwort."
+        it: "Mostra questo codice ai tuoi genitori: lo scansioneranno dal menu del loro clan («Accogli un bambino»). Se non sono accanto a te, mandagli la tua risposta."
+        pt: "Mostra este código aos teus pais: vão digitalizá-lo no menu do clã deles («Acolher uma criança»). Se não estiverem ao teu lado, envia-lhes a tua resposta."
+        br: "Mostre este código para seus pais: eles vão escaneá-lo no menu do clã deles (“Acolher uma criança”). Se não estiverem ao seu lado, envie sua resposta para eles."
+        nl: "Laat deze code aan je ouders zien: zij scannen hem in het menu van hun clan (‘Een kind verwelkomen’). Zijn ze niet bij je, stuur ze dan je antwoord."
+
+      # Le code de la demande, en grand sous le QR code (kid_assent_share/code). {code} est
+      # remplacé par le worker (six caractères tirés au hasard). Le parent retrouve le même code
+      # en tête de sa déclaration (invite_consent_assent_code) et compare d'un coup d'œil.
+      kid_assent_share_code:
+        fr: "Ton code : {code}"
+        en: "Your code: {code}"
+        es: "Tu código: {code}"
+        de: "Dein Code: {code}"
+        it: "Il tuo codice: {code}"
+        pt: "O teu código: {code}"
+        br: "Seu código: {code}"
+        nl: "Jouw code: {code}"
+
+      kid_assent_share_send:
+        fr: "Envoyer ma réponse"
+        en: "Send my answer"
+        es: "Enviar mi respuesta"
+        de: "Meine Antwort senden"
+        it: "Invia la mia risposta"
+        pt: "Enviar a minha resposta"
+        br: "Enviar minha resposta"
+        nl: "Mijn antwoord sturen"
+
+      kid_assent_share_scan:
+        fr: "Scanner l'invitation de mes parents"
+        en: "Scan my parents' invitation"
+        es: "Escanear la invitación de mis padres"
+        de: "Die Einladung meiner Eltern scannen"
+        it: "Scansiona l'invito dei miei genitori"
+        pt: "Digitalizar o convite dos meus pais"
+        br: "Escanear o convite dos meus pais"
+        nl: "De uitnodiging van mijn ouders scannen"
+
+      kid_assent_share_pin:
+        fr: "J'ai reçu un lien et un code"
+        en: "I got a link and a code"
+        es: "He recibido un enlace y un código"
+        de: "Ich habe einen Link und einen Code bekommen"
+        it: "Ho ricevuto un link e un codice"
+        pt: "Recebi uma ligação e um código"
+        br: "Recebi um link e um código"
+        nl: "Ik heb een link en een code gekregen"
+
+      # L'enfant n'accepte QUE le QR code d'invitation du clan : scanné à côté de son parent, le
+      # seul autre QR code du jeu qu'il puisse croiser est le sien.
+      kid_assent_share_not_invite:
+        fr: "Ce QR code n'est pas une invitation de clan. Demande à tes parents d'afficher le QR code de leur clan."
+        en: "This QR code is not a clan invitation. Ask your parents to display their clan's QR code."
+        es: "Este código QR no es una invitación de clan. Pide a tus padres que muestren el código QR de su clan."
+        de: "Dieser QR-Code ist keine Clan-Einladung. Bitte deine Eltern, den QR-Code ihres Clans anzuzeigen."
+        it: "Questo codice QR non è un invito di clan. Chiedi ai tuoi genitori di mostrare il codice QR del loro clan."
+        pt: "Este código QR não é um convite de clã. Pede aos teus pais que mostrem o código QR do clã deles."
+        br: "Este QR Code não é um convite de clã. Peça para seus pais mostrarem o QR Code do clã deles."
+        nl: "Deze QR-code is geen claninvitatie. Vraag je ouders om de QR-code van hun clan te tonen."
+
+      # Partage de la réponse de l'enfant (share.kid_assent, screens_meta.yml) : le lien suit sur
+      # la ligne d'après, puis le lien du site. Aucune donnée personnelle, ni ici ni dans le lien.
+      share_kid_assent_text:
+        fr: "J'ai envie de jouer à Donjons & Savons avec toi ! Si tu es d'accord, ouvre ce lien sur le téléphone où le jeu est installé :"
+        en: "I want to play Donjons & Savons with you! If you agree, open this link on the phone where the game is installed:"
+        es: "¡Tengo ganas de jugar a Donjons & Savons contigo! Si estás de acuerdo, abre este enlace en el teléfono donde está instalado el juego:"
+        de: "Ich möchte mit dir Donjons & Savons spielen! Wenn du einverstanden bist, öffne diesen Link auf dem Handy, auf dem das Spiel installiert ist:"
+        it: "Ho voglia di giocare a Donjons & Savons con te! Se sei d'accordo, apri questo link sul telefono dove è installato il gioco:"
+        pt: "Tenho vontade de jogar Donjons & Savons contigo! Se concordares, abre esta ligação no telemóvel onde o jogo está instalado:"
+        br: "Estou com vontade de jogar Donjons & Savons com você! Se você concordar, abra este link no celular onde o jogo está instalado:"
+        nl: "Ik wil Donjons & Savons met je spelen! Als je het goedvindt, open dan deze link op de telefoon waarop het spel staat:"
 
       #------------- Prompts IA (dvvertexai) ----------------------
       # Corps des trois prompts, DÉPLACÉS ICI depuis client/config/lang.yml le 2026-09-09.
@@ -3273,17 +3500,18 @@ data:
         br: "Por pombo-correio"
         nl: "Per postduif"
 
-      # Révélé au MINEUR seulement. La connexion Google est la toute dernière étape, après
-      # l'admission : autant l'annoncer pendant que le chef de clan est encore là.
+      # Écran de partage de la réponse de l'enfant (kid_assent_share/notice). La connexion Google
+      # vient juste APRÈS l'invitation du parent, et avant l'entrée dans le clan : autant
+      # l'annoncer pendant que le parent est peut-être encore là.
       join_clan_google_notice:
-        fr: "Une fois accepté dans le clan, tu te connecteras avec ton compte Google. Si un parent veille sur ce compte, demande-lui d'être là — ou d'autoriser le jeu à l'avance dans Family Link."
-        en: "Once you are accepted into the clan, you will sign in with your Google account. If a parent supervises that account, ask them to be there — or to allow the game in advance in Family Link."
-        es: "Cuando te acepten en el clan, te conectarás con tu cuenta de Google. Si un padre supervisa esa cuenta, pídele que esté presente, o que autorice el juego por adelantado en Family Link."
-        de: "Sobald du in den Clan aufgenommen bist, meldest du dich mit deinem Google-Konto an. Wenn ein Elternteil dieses Konto beaufsichtigt, bitte ihn, dabei zu sein, oder das Spiel vorher in Family Link zu erlauben."
-        it: "Una volta accettato nel clan, accederai con il tuo account Google. Se un genitore controlla questo account, chiedigli di essere presente, oppure di autorizzare il gioco in anticipo in Family Link."
-        pt: "Depois de seres aceite no clã, vais iniciar sessão com a tua conta Google. Se um pai ou uma mãe supervisiona essa conta, pede-lhe que esteja presente, ou que autorize o jogo antecipadamente no Family Link."
-        br: "Depois de ser aceito no clã, você vai entrar com sua conta Google. Se um pai ou uma mãe supervisiona essa conta, peça que ele ou ela esteja presente, ou que autorize o jogo com antecedência no Family Link."
-        nl: "Zodra je in de clan bent toegelaten, log je in met je Google-account. Als een ouder toezicht houdt op dat account, vraag dan of die erbij is, of het spel vooraf toestaat in Family Link."
+        fr: "Quand tu auras l'invitation de tes parents, tu te connecteras avec ton compte Google. Si un parent veille sur ce compte (Family Link), il devra autoriser le jeu : demande-lui d'être là, ou de le faire à l'avance."
+        en: "Once you have your parents' invitation, you will sign in with your Google account. If a parent supervises that account (Family Link), they will have to allow the game: ask them to be there, or to do it in advance."
+        es: "Cuando tengas la invitación de tus padres, te conectarás con tu cuenta de Google. Si un adulto supervisa esa cuenta (Family Link), tendrá que autorizar el juego: pídele que esté presente, o que lo haga por adelantado."
+        de: "Sobald du die Einladung deiner Eltern hast, meldest du dich mit deinem Google-Konto an. Wenn ein Elternteil dieses Konto beaufsichtigt (Family Link), muss er das Spiel erlauben: Bitte ihn, dabei zu sein oder es vorher zu tun."
+        it: "Quando avrai l'invito dei tuoi genitori, accederai con il tuo account Google. Se un genitore controlla questo account (Family Link), dovrà autorizzare il gioco: chiedigli di essere presente, o di farlo in anticipo."
+        pt: "Quando tiveres o convite dos teus pais, vais iniciar sessão com a tua conta Google. Se um dos pais supervisiona essa conta (Family Link), terá de autorizar o jogo: pede-lhe que esteja presente, ou que o faça antecipadamente."
+        br: "Quando você tiver o convite dos seus pais, vai entrar com sua conta Google. Se um dos pais supervisiona essa conta (Family Link), ele vai precisar autorizar o jogo: peça que ele esteja presente, ou que faça isso com antecedência."
+        nl: "Zodra je de uitnodiging van je ouders hebt, log je in met je Google-account. Als een ouder toezicht houdt op dat account (Family Link), moet die het spel toestaan: vraag of die erbij is, of het vooraf regelt."
 
       accept_invitation_clan_title:
         fr: "Tu es attendu !"
@@ -3315,17 +3543,91 @@ data:
         br: "Não tenho o QR Code"
         nl: "Ik heb de QR-code niet"
 
-      share_clan_request_text:
-        fr: "Je voudrais rejoindre ton clan !"
-        en: "I'd like to join your clan!"
-        es: "¡Me gustaría unirme a tu clan!"
-        de: "Ich möchte deinem Clan beitreten!"
-        it: "Vorrei unirmi al tuo clan!"
-        pt: "Gostava de me juntar ao teu clã!"
-        br: "Eu gostaria de entrar no seu clã!"
-        nl: "Ik wil graag bij je clan!"
-
       #------------- Accept Invite Clan ------------------------------------
+      # Un mineur a rejoint avec une invitation faite pour un adulte (aucun accord d'enfant
+      # joint) : son appareil refuse l'entrée (worker._handleClanJoin) et le ramène à sa réponse.
+      invite_needs_child_ack:
+        fr: "Cette invitation a été faite pour un adulte. Pour entrer, montre ta réponse à tes parents : ils t'accueilleront avec « Accueillir un enfant »."
+        en: "This invitation was made for an adult. To get in, show your answer to your parents: they will welcome you with “Welcome a child”."
+        es: "Esta invitación se hizo para un adulto. Para entrar, enseña tu respuesta a tus padres: te acogerán con «Acoger a un niño»."
+        de: "Diese Einladung war für einen Erwachsenen gedacht. Um beizutreten, zeig deinen Eltern deine Antwort: Sie nehmen dich mit „Ein Kind aufnehmen“ auf."
+        it: "Questo invito era per un adulto. Per entrare, mostra la tua risposta ai tuoi genitori: ti accoglieranno con «Accogli un bambino»."
+        pt: "Este convite foi feito para um adulto. Para entrares, mostra a tua resposta aos teus pais: vão acolher-te com «Acolher uma criança»."
+        br: "Este convite foi feito para um adulto. Para entrar, mostre sua resposta para seus pais: eles vão acolher você com “Acolher uma criança”."
+        nl: "Deze uitnodiging was bedoeld voor een volwassene. Om erbij te komen, laat je je antwoord aan je ouders zien: zij verwelkomen je met ‘Een kind verwelkomen’."
+
+      # Invitation « enfant » qui ne porte pas le code de la demande de CET enfant : faite pour
+      # un autre enfant, pour une demande plus ancienne, ou reçue alors que l'application avait
+      # été fermée (le code ne survit pas à la fermeture). worker._inviteKindRefusal. L'enfant
+      # reste sur son écran de partage, avec sa demande à renvoyer.
+      kid_invite_not_mine:
+        fr: "Cette invitation ne correspond pas à ta demande. Elle est peut-être pour un autre enfant. Envoie une nouvelle demande à tes parents."
+        en: "This invitation doesn't match your request. Maybe it is for another child. Send a new request to your parents."
+        es: "Esta invitación no corresponde a tu solicitud. Quizás sea para otro niño. Envía una nueva solicitud a tus padres."
+        de: "Diese Einladung passt nicht zu deiner Anfrage. Vielleicht ist sie für ein anderes Kind. Schick deinen Eltern eine neue Anfrage."
+        it: "Questo invito non corrisponde alla tua richiesta. Forse è per un altro bambino. Manda una nuova richiesta ai tuoi genitori."
+        pt: "Este convite não corresponde ao teu pedido. Talvez seja para outra criança. Envia um novo pedido aos teus pais."
+        br: "Este convite não corresponde ao seu pedido. Talvez seja para outra criança. Envie um novo pedido para seus pais."
+        nl: "Deze uitnodiging past niet bij jouw aanvraag. Misschien is ze voor een ander kind. Stuur je ouders een nieuwe aanvraag."
+
+      # Un adulte (état légal "a") scanne ou ouvre une invitation « enfant » : elle a été faite
+      # pour la demande d'un enfant précis, elle ne le fait pas entrer. worker._inviteKindRefusal.
+      invite_for_child:
+        fr: "Cette invitation a été faite pour un enfant. Demande au chef du clan une invitation pour un adulte."
+        en: "This invitation was made for a child. Ask the clan chief for an invitation for an adult."
+        es: "Esta invitación se hizo para un niño. Pide al jefe del clan una invitación para un adulto."
+        de: "Diese Einladung war für ein Kind gedacht. Bitte den Clanchef um eine Einladung für einen Erwachsenen."
+        it: "Questo invito era per un bambino. Chiedi al capo clan un invito per un adulto."
+        pt: "Este convite foi feito para uma criança. Pede ao chefe do clã um convite para um adulto."
+        br: "Este convite foi feito para uma criança. Peça ao chefe do clã um convite para um adulto."
+        nl: "Deze uitnodiging was bedoeld voor een kind. Vraag het clanhoofd om een uitnodiging voor een volwassene."
+
+      # L'adhésion en attente (écran join_wait, 2026-09-22) : le candidat, enfant ou adulte, a
+      # accepté l'invitation ; le chef doit maintenant confirmer son arrivée, jeu ouvert ou non.
+      # L'attente survit à la fermeture du jeu. Tutoiement pour tous, comme partout dans le jeu.
+      join_wait_title:
+        fr: "Aux portes du clan"
+        en: "At the clan's gates"
+        es: "A las puertas del clan"
+        de: "Vor den Toren des Clans"
+        it: "Alle porte del clan"
+        pt: "Às portas do clã"
+        br: "Nas portas do clã"
+        nl: "Aan de poorten van de clan"
+
+      join_wait_text:
+        fr: "Ton chef de clan doit maintenant confirmer ton arrivée. Tu peux fermer le jeu : tu reviendras ici."
+        en: "Your clan chief must now confirm your arrival. You can close the game: you will come back here."
+        es: "Ahora tu jefe de clan debe confirmar tu llegada. Puedes cerrar el juego: volverás aquí."
+        de: "Dein Clanchef muss jetzt deine Ankunft bestätigen. Du kannst das Spiel schließen: Du kommst hierher zurück."
+        it: "Ora il tuo capo clan deve confermare il tuo arrivo. Puoi chiudere il gioco: tornerai qui."
+        pt: "Agora o teu chefe de clã tem de confirmar a tua chegada. Podes fechar o jogo: voltarás aqui."
+        br: "Agora seu chefe de clã precisa confirmar sua chegada. Você pode fechar o jogo: vai voltar para cá."
+        nl: "Je clanhoofd moet nu je komst bevestigen. Je mag het spel sluiten: je komt hier terug."
+
+      join_wait_giveup:
+        fr: "J'abandonne"
+        en: "I give up"
+        es: "Me rindo"
+        de: "Ich gebe auf"
+        it: "Mi arrendo"
+        pt: "Desisto"
+        br: "Desisto"
+        nl: "Ik geef het op"
+
+      # L'invitation a expiré avant que le chef ne confirme (72 h), ou ne pouvait plus être
+      # acceptée. Affiché sur l'écran de partage de l'enfant (qui envoie alors une nouvelle
+      # demande), ou sur le choix du clan de l'adulte.
+      join_expired:
+        fr: "Ton invitation a expiré : demande-en une nouvelle à ton chef de clan."
+        en: "Your invitation has expired: ask your clan chief for a new one."
+        es: "Tu invitación ha caducado: pide una nueva a tu jefe de clan."
+        de: "Deine Einladung ist abgelaufen: Bitte deinen Clanchef um eine neue."
+        it: "Il tuo invito è scaduto: chiedine uno nuovo al tuo capo clan."
+        pt: "O teu convite expirou: pede um novo ao teu chefe de clã."
+        br: "Seu convite expirou: peça um novo ao seu chefe de clã."
+        nl: "Je uitnodiging is verlopen: vraag je clanhoofd om een nieuwe."
+
 
       accept_invitation_title:
         fr: "Un clan t'ouvre ses portes !"
@@ -3467,16 +3769,17 @@ data:
         nl: "Word lid van mijn clan in Donjons & Savons! We maken van de klusjes in huis monsters om te verslaan. Je hebt de 6-cijferige code nodig die ik je heb verteld."
 
       # Écran d'invitation à distance, côté chef. Avec le QR il est dans la pièce ; ici non, et
-      # personne d'autre ne peut prévenir l'invité que la connexion Google l'attend au bout.
+      # personne d'autre ne peut prévenir l'invité que la connexion Google l'attend, juste avant
+      # d'entrer (le mineur se connecte avant d'être admis, depuis le 2026-09-22).
       invite_pin_family_notice:
-        fr: "Si tu invites un enfant, préviens son parent : à la fin, l'enfant se connectera avec son compte Google, et un compte surveillé par Family Link demande l'accord d'un parent."
-        en: "If you are inviting a child, warn their parent: at the end, the child signs in with their Google account, and an account supervised by Family Link needs a parent's approval."
-        es: "Si invitas a un niño, avisa a su padre o madre: al final, el niño se conectará con su cuenta de Google, y una cuenta supervisada por Family Link necesita la aprobación de un adulto."
-        de: "Wenn du ein Kind einlädst, sag seinen Eltern Bescheid: Am Ende meldet sich das Kind mit seinem Google-Konto an, und ein von Family Link beaufsichtigtes Konto braucht die Zustimmung eines Elternteils."
-        it: "Se inviti un bambino, avvisa un suo genitore: alla fine il bambino accederà con il suo account Google, e un account controllato da Family Link richiede l'approvazione di un genitore."
-        pt: "Se convidares uma criança, avisa os pais dela: no fim, a criança vai iniciar sessão com a sua conta Google, e uma conta supervisionada pelo Family Link precisa da autorização de um dos pais."
-        br: "Se você convidar uma criança, avise os pais dela: no final, a criança vai entrar com a conta Google dela, e uma conta supervisionada pelo Family Link precisa da autorização de um dos pais."
-        nl: "Als je een kind uitnodigt, waarschuw dan een ouder: aan het eind logt het kind in met zijn Google-account, en een account onder toezicht van Family Link heeft toestemming van een ouder nodig."
+        fr: "Si tu invites un enfant, préviens son parent : pour entrer, l'enfant se connectera avec son compte Google, et un compte surveillé par Family Link demande l'accord d'un parent."
+        en: "If you are inviting a child, warn their parent: to get in, the child signs in with their Google account, and an account supervised by Family Link needs a parent's approval."
+        es: "Si invitas a un niño, avisa a su padre o madre: para entrar, el niño se conectará con su cuenta de Google, y una cuenta supervisada por Family Link necesita la aprobación de un adulto."
+        de: "Wenn du ein Kind einlädst, sag seinen Eltern Bescheid: Zum Beitreten meldet sich das Kind mit seinem Google-Konto an, und ein von Family Link beaufsichtigtes Konto braucht die Zustimmung eines Elternteils."
+        it: "Se inviti un bambino, avvisa un suo genitore: per entrare il bambino accederà con il suo account Google, e un account controllato da Family Link richiede l'approvazione di un genitore."
+        pt: "Se convidares uma criança, avisa os pais dela: para entrar, a criança vai iniciar sessão com a sua conta Google, e uma conta supervisionada pelo Family Link precisa da autorização de um dos pais."
+        br: "Se você convidar uma criança, avise os pais dela: para entrar no clã, a criança vai fazer login com a conta Google dela, e uma conta supervisionada pelo Family Link precisa da autorização de um dos pais."
+        nl: "Als je een kind uitnodigt, waarschuw dan een ouder: om erbij te komen logt het kind in met zijn Google-account, en een account onder toezicht van Family Link heeft toestemming van een ouder nodig."
 
       enter_invite_pin_title:
         fr: "Rejoindre avec un code"
@@ -3539,48 +3842,6 @@ data:
         pt: "Este clã está guardado noutra terra do mundo. Para te juntares a ele, tens de ter escolhido a mesma terra logo no início da aventura."
         br: "Este clã está guardado em outra terra do mundo. Para entrar nele, você precisa ter escolhido a mesma terra logo no início da aventura."
         nl: "Deze clan wordt bewaard in een ander land van de wereld. Om je erbij aan te sluiten, moet je helemaal aan het begin van het avontuur hetzelfde land hebben gekozen."
-
-      #------------- Accept Join Clan ------------------------------------
-
-      accept_request_clan_title:
-        fr: "Toc toc !"
-        en: "Knock knock!"
-        es: "¡Toc toc!"
-        de: "Klopf, klopf!"
-        it: "Toc toc!"
-        pt: "Toc, toc!"
-        br: "Toc, toc!"
-        nl: "Klop klop!"
-
-      accept_request_title:
-        fr: "Un aventurier frappe à ta porte !"
-        en: "An adventurer is knocking at your door!"
-        es: "¡Un aventurero llama a tu puerta!"
-        de: "Ein Abenteurer klopft an deine Tür!"
-        it: "Un avventuriero bussa alla tua porta!"
-        pt: "Um aventureiro bate à tua porta!"
-        br: "Um aventureiro está batendo à sua porta!"
-        nl: "Er klopt een avonturier aan je deur!"
-
-      accept_request_confirm:
-        fr: "Qu'il entre, il est des nôtres !"
-        en: "Let them in, they are one of us!"
-        es: "¡Que entre, es uno de los nuestros!"
-        de: "Herein, einer von uns!"
-        it: "Che entri, è uno dei nostri!"
-        pt: "Que entre, é um dos nossos!"
-        br: "Que entre, é um dos nossos!"
-        nl: "Laat binnen, die hoort bij ons!"
-
-      accept_request_reject:
-        fr: "Qu'il retourne d'où il vient ce gueux !"
-        en: "Send this wretch back where they came from!"
-        es: "¡Que vuelva de donde vino este pordiosero!"
-        de: "Schickt den Lumpen zurück, wo er herkam!"
-        it: "Che torni da dove è venuto, quel pezzente!"
-        pt: "Que volte para onde veio, esse maltrapilho!"
-        br: "Que volte para onde veio, esse maltrapilho!"
-        nl: "Laat die schooier maar teruggaan waar hij vandaan kwam!"
 
       #------------- Dashboard (écran "home") ------------------------------------
 
@@ -3680,7 +3941,7 @@ data:
       boss_notif:
         fr: "Un boss vient d'apparaître ! Celui qui le vaincra aura des XP extra !"
         en: "A boss has appeared! Whoever defeats it will earn extra XP!"
-        es: "¡Ha aparecido un jefe! ¡Quien lo derrote ganará XP extra!"
+        es: "¡Ha aparecido un jefe final! ¡Quien lo derrote ganará XP extra!"
         de: "Ein Boss ist gerade aufgetaucht! Wer ihn besiegt, bekommt extra XP!"
         it: "È appena apparso un boss! Chi lo sconfiggerà otterrà XP extra!"
         pt: "Acabou de aparecer um boss! Quem o vencer ganha XP extra!"
@@ -3696,7 +3957,7 @@ data:
       chest_notif:
         fr: "Le Big Boss du niveau a encore fait des ravages, j'entends d'ici l'argent sonnant et trébuchant qu'il ajoute dans son coffre !"
         en: "The level's Big Boss has been wreaking havoc again — I can hear the coins jingling as he drops them into his chest!"
-        es: "¡El Gran Jefe del nivel ha vuelto a hacer estragos, ya oigo desde aquí el dinero contante y sonante que echa en su cofre!"
+        es: "¡El Gran Jefe Final del nivel ha vuelto a hacer estragos, ya oigo desde aquí el dinero contante y sonante que echa en su cofre!"
         de: "Der große Boss dieser Stufe hat wieder gewütet, ich höre bis hierher die klingenden Münzen, die er in seine Truhe wirft!"
         it: "Il Grande Capo del livello ha di nuovo seminato scompiglio, sento da qui il tintinnio delle monete che getta nel suo scrigno!"
         pt: "O Grande Chefe do nível voltou a fazer estragos, já daqui ouço o tilintar das moedas que ele deita no seu baú!"
@@ -3850,13 +4111,13 @@ data:
       # Intercalé entre « ta part du butin » et le conte, seulement si un chef a écrit. Le bouton
       # ne paraît qu'après 10 s de lecture forcée (worker.on_butin_notes_appear).
       butin_notes_title:
-        fr: "Un mot de vos chefs"
-        en: "A word from your chiefs"
-        es: "Unas palabras de vuestros jefes"
+        fr: "Un mot de vos chefs de clan"
+        en: "A word from your clan chiefs"
+        es: "Unas palabras de vuestros jefes de clan"
         de: "Ein Wort eurer Clanchefs"
-        it: "Una parola dai vostri capi"
-        pt: "Uma palavra dos vossos chefes"
-        br: "Uma palavra dos seus chefes"
+        it: "Una parola dai vostri capi clan"
+        pt: "Uma palavra dos vossos chefes de clã"
+        br: "Uma palavra dos seus chefes de clã"
         nl: "Een woordje van jullie clanhoofden"
       butin_notes_ok:
         fr: "ok"
@@ -3947,7 +4208,7 @@ data:
       opening_player_text:
         fr: "Le clan s'est bien battu contre la saleté, le désordre et le méchant linge sale. Après une épique bataille, il a vaincu le boss et remporté la victoire — et avec elle... un coffre rempli de pièces et de bijoux !"
         en: "The clan fought well against filth, chaos and the wicked dirty laundry. After an epic battle, it defeated the boss and won the day — and with it... a chest full of coins and jewels!"
-        es: "El clan luchó bien contra la suciedad, el desorden y la malvada ropa sucia. Tras una batalla épica, venció al jefe y se llevó la victoria... ¡y con ella un cofre lleno de monedas y joyas!"
+        es: "El clan luchó bien contra la suciedad, el desorden y la malvada ropa sucia. Tras una batalla épica, venció al jefe final y se llevó la victoria... ¡y con ella un cofre lleno de monedas y joyas!"
         de: "Der Clan hat tapfer gegen Dreck, Unordnung und die fiese Schmutzwäsche gekämpft. Nach einer epischen Schlacht hat er den Boss besiegt und den Sieg errungen, und mit ihm... eine Truhe voller Münzen und Juwelen!"
         it: "Il clan ha combattuto bene contro lo sporco, il disordine e il perfido bucato sporco. Dopo un'epica battaglia ha sconfitto il boss e conquistato la vittoria, e con essa... uno scrigno pieno di monete e gioielli!"
         pt: "O clã lutou bem contra a sujidade, a desarrumação e a malvada roupa suja. Depois de uma batalha épica, derrotou o boss e conquistou a vitória, e com ela... um baú cheio de moedas e joias!"
@@ -4176,7 +4437,7 @@ data:
       log_task_boss:
         fr: "({xp} XP, dont {bonus} de boss !)"
         en: "({xp} XP, including {bonus} boss bonus!)"
-        es: "(¡{xp} XP, de los cuales {bonus} de jefe!)"
+        es: "(¡{xp} XP, de los cuales {bonus} por el jefe final!)"
         de: "({xp} XP, davon {bonus} vom Boss!)"
         it: "({xp} XP, di cui {bonus} dal boss!)"
         pt: "({xp} XP, dos quais {bonus} do boss!)"
@@ -4312,7 +4573,7 @@ data:
       fairy_gift_boss:
         fr: "Réveiller\nun boss"
         en: "Wake\na boss"
-        es: "Despertar\na un jefe"
+        es: "Despertar\na un jefe final"
         de: "Einen Boss\nwecken"
         it: "Svegliare\nun boss"
         pt: "Acordar\num boss"
@@ -5172,50 +5433,50 @@ data:
 
       #------------- Titres de joueur (1 nouveau titre toutes les 5 niveaux) ----------
       player_title_0:
-        fr: "Mange-poussière"
-        en: "Dust Muncher"
-        es: "Tragapolvo"
-        de: "Staubfresser"
-        it: "Mangiapolvere"
-        pt: "Come-Pó"
-        br: "Come-Poeira"
-        nl: "Stofhapper"
+        fr: "Apprenti Dépoussiéreur"
+        en: "Apprentice Dust-Sweeper"
+        es: "Aprendiz Quitapolvo"
+        de: "Staubwisch-Lehrling"
+        it: "Apprendista Spolveratore"
+        pt: "Aprendiz de Tira-Pó"
+        br: "Aprendiz de Tira-Poeira"
+        nl: "Leerling-Stofveger"
       player_title_1:
-        fr: "Renifleur de Chaussettes Sales"
-        en: "Sniffer of Dirty Socks"
-        es: "Olfateador de Calcetines Sucios"
-        de: "Schnüffler der Stinkesocken"
-        it: "Annusatore di Calzini Sporchi"
-        pt: "Farejador de Meias Sujas"
-        br: "Farejador de Meias Sujas"
-        nl: "Snuffelaar van Vieze Sokken"
+        fr: "Ramasseur de Chaussettes Perdues"
+        en: "Collector of Lost Socks"
+        es: "Recolector de Calcetines Perdidos"
+        de: "Sammler der Verlorenen Socken"
+        it: "Raccoglitore di Calzini Perduti"
+        pt: "Apanhador de Meias Perdidas"
+        br: "Coletor de Meias Perdidas"
+        nl: "Verzamelaar van Verloren Sokken"
       player_title_2:
-        fr: "Lécheur de Cuillères"
-        en: "Spoon Licker"
-        es: "Lamedor de Cucharas"
-        de: "Löffelschlecker"
-        it: "Leccacucchiai"
-        pt: "Lambe-Colheres"
-        br: "Lambe-Colheres"
-        nl: "Lepelaflikker"
+        fr: "Repêcheur de Cuillères"
+        en: "Spoon Fisher"
+        es: "Pescador de Cucharas"
+        de: "Löffelfischer"
+        it: "Pescatore di Cucchiai"
+        pt: "Pescador de Colheres"
+        br: "Pescador de Colheres"
+        nl: "Lepelvisser"
       player_title_3:
-        fr: "Tâcheron des Fonds de Casserole"
-        en: "Drudge of the Pot Bottoms"
-        es: "Peón de los Fondos de Cacerola"
-        de: "Knecht der Topfböden"
-        it: "Sgobbone dei Fondi di Pentola"
-        pt: "Moço dos Fundos de Tacho"
-        br: "Moleque do Fundo da Panela"
-        nl: "Sloof van de Pannenbodems"
+        fr: "Apprenti des Fonds de Casserole"
+        en: "Apprentice of the Pot Bottoms"
+        es: "Aprendiz de los Fondos de Cacerola"
+        de: "Lehrling der Topfböden"
+        it: "Apprendista dei Fondi di Pentola"
+        pt: "Aprendiz dos Fundos de Tacho"
+        br: "Aprendiz do Fundo da Panela"
+        nl: "Leerling van de Pannenbodems"
       player_title_4:
-        fr: "Esclave de l'Éponge Trouée"
-        en: "Slave of the Holey Sponge"
-        es: "Esclavo de la Esponja Agujereada"
-        de: "Sklave des Löchrigen Schwamms"
-        it: "Schiavo della Spugna Bucata"
-        pt: "Escravo da Esponja Furada"
-        br: "Servo da Esponja Furada"
-        nl: "Slaaf van de Gatenspons"
+        fr: "Dompteur de l'Éponge Trouée"
+        en: "Tamer of the Holey Sponge"
+        es: "Domador de la Esponja Agujereada"
+        de: "Bändiger des Löchrigen Schwamms"
+        it: "Domatore della Spugna Bucata"
+        pt: "Domador da Esponja Furada"
+        br: "Domador da Esponja Furada"
+        nl: "Temmer van de Gatenspons"
       player_title_5:
         fr: "Porte-Poubelle de Service"
         en: "Bin-Bearer on Duty"
@@ -5235,23 +5496,23 @@ data:
         br: "Raspador de Chiclete debaixo da Mesa"
         nl: "Kauwgomschraper onder de Tafel"
       player_title_7:
-        fr: "Apprenti-Chiffon de Dernière Catégorie"
-        en: "Lowest-Class Rag Apprentice"
-        es: "Aprendiz de Trapo de Última Categoría"
-        de: "Lappenlehrling der Untersten Klasse"
-        it: "Apprendista Straccio di Ultima Categoria"
-        pt: "Aprendiz de Trapo de Última Categoria"
-        br: "Aprendiz de Pano de Chão de Última Categoria"
-        nl: "Leerling-Vaatdoek van de Laagste Klasse"
+        fr: "Apprenti-Chiffon Prometteur"
+        en: "Promising Rag Apprentice"
+        es: "Aprendiz de Trapo Prometedor"
+        de: "Vielversprechender Lappenlehrling"
+        it: "Promettente Apprendista Straccio"
+        pt: "Aprendiz de Trapo Promissor"
+        br: "Aprendiz de Pano de Chão Promissor"
+        nl: "Veelbelovende Leerling-Vaatdoek"
       player_title_8:
-        fr: "Frotteur de Troisième Classe"
-        en: "Third-Class Scrubber"
-        es: "Fregador de Tercera Clase"
-        de: "Schrubber Dritter Klasse"
-        it: "Strofinatore di Terza Classe"
-        pt: "Esfregador de Terceira Classe"
-        br: "Esfregador de Terceira Classe"
-        nl: "Schrobber Derde Klasse"
+        fr: "Apprenti Astiqueur"
+        en: "Apprentice Polisher"
+        es: "Aprendiz de Pulidor"
+        de: "Polierlehrling"
+        it: "Apprendista Lucidatore"
+        pt: "Aprendiz de Polidor"
+        br: "Aprendiz de Polidor"
+        nl: "Leerling-Poetser"
       player_title_9:
         fr: "Compagnon du Balai Usé"
         en: "Companion of the Worn Broom"
@@ -5363,11 +5624,11 @@ data:
         br: "Ninhada dos Arrasta-Chinelos"
         nl: "Nest van de Pantoffelslepers"
       clan_title_1:
-        fr: "Ramassis des Miettes"
+        fr: "Bande des Miettes"
         en: "Ragtag of the Crumbs"
         es: "Pandilla de las Migas"
-        de: "Krümelgesindel"
-        it: "Accozzaglia delle Briciole"
+        de: "Krümeltruppe"
+        it: "Ciurma delle Briciole"
         pt: "Bando das Migalhas"
         br: "Bando das Migalhas"
         nl: "Kruimelzootje"
@@ -5382,7 +5643,7 @@ data:
         nl: "Troep van de Vuilschuivers"
       clan_title_3:
         fr: "Tribu des Doigts Collants"
-        en: "Tribe of the Sticky Fingers"
+        en: "Tribe of the Gooey Fingers"
         es: "Tribu de los Dedos Pegajosos"
         de: "Stamm der Klebefinger"
         it: "Tribù delle Dita Appiccicose"
@@ -5435,7 +5696,7 @@ data:
         br: "Brigada do Pano Passado às Pressas"
         nl: "Brigade van de Snelle Veeg"
       clan_title_9:
-        fr: "Guilde des Frotteurs Assidus"
+        fr: "Guilde des Astiqueurs Assidus"
         en: "Guild of the Diligent Scrubbers"
         es: "Gremio de los Fregadores Aplicados"
         de: "Gilde der Fleißigen Schrubber"
@@ -5585,7 +5846,9 @@ data:
     #   cet etat — et c'est exactement ce qui produisait des navigations fantomes quand le
     #   worker s'en chargeait.
 
-    # L'avis du mineur donne : on passe a la recherche de son clan.
+    # L'avis du mineur donne : on passe a la transmission de sa reponse au parent. La route
+    # demandee est `go`, mais c'est le routeur du pas (worker.kid_assent_route) qui tranche : une
+    # invitation deja recue mene droit a la saisie du code ou a la connexion.
     passage_assent:
       scene: depart
       music: keep

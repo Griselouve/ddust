@@ -14,11 +14,16 @@ conf:
       # Decor d'arrivee + replique du conteur (worker_onboarding). Purement decoratif :
       # ni garde, ni verrou, ni attente — un asset manquant se tait, et l'etape se
       # comporte exactement pareil.
+      # Le metier D'ABORD (message d'une attente abandonnee ou expiree), le decor ensuite :
+      # une liste d'actions n'est pas attendue une par une.
       actions:
-        appear: worker.on_onboarding_appear
+        appear:
+          - worker.on_new_or_pick_clan_appear
+          - worker.on_onboarding_appear
       registry:
         - new_or_pick_clan/banner
         - new_or_pick_clan/icon_background
+        - new_or_pick_clan/notice
         - new_or_pick_clan/join
         - new_or_pick_clan/create
         - new_or_pick_clan/confirm_scrim
@@ -39,6 +44,26 @@ conf:
         - commons/icon_background
       shape:
         y: 18%
+
+    # Message d'une adhésion qui n'a pas abouti (invitation expirée, attente abandonnée), côté
+    # adulte : worker._leaveJoin le pose, worker.on_new_or_pick_clan_appear le révèle une fois.
+    # Invisible par défaut, jamais de fenêtre modale. Sous le bandeau de chapitre (0,5 → 5 %),
+    # au-dessus de l'icône de fond (18 %) et hors de la zone des illustrations dvpops (35 → 59 %).
+    new_or_pick_clan/notice:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 6%
+        w: 90%
+        h: 11%
+        label: ""
+        text_align: CENTER
+        font_size: 13.0
+        font_color: "0xFFCC4444"
+        visible: false
 
     new_or_pick_clan/join:
       masks:
@@ -335,8 +360,11 @@ conf:
         label: "@@@T:share_invite_btn@@@"
         events:
           tap: true
+        # Par le worker, et non share.clan_invite en direct : la fin du lien (`&k=…&n=…`, la
+        # nature de l'invitation et le code de l'enfant) vit en mémoire du worker et n'est
+        # posée dans le dictionnaire que le temps du partage.
         freezing_actions:
-          tap: share.clan_invite
+          tap: worker.on_share_clan_invite
 
     #//------------------------------- Invite clan (à distance, PIN) — côté admin -----------
     # Variante « sans QR » : au lieu du QR, on affiche un PIN à dicter de vive voix et un bouton
@@ -397,7 +425,7 @@ conf:
         events:
           tap: true
         freezing_actions:
-          tap: share.clan_invite_pin
+          tap: worker.on_share_clan_invite_pin
 
     # Écran de l'invitation À DISTANCE, et lui seul : c'est le cas où le chef ne sera PAS à côté
     # de l'invité au moment où celui-ci se connectera à Google. Avec le QR, le chef est dans la
@@ -420,13 +448,20 @@ conf:
     #//------------------------------- Enter invite PIN — côté candidat ---------------------
     # Saisie manuelle : coller le lien reçu (pré-rempli si arrivé via deeplink) + taper le PIN
     # dicté de vive voix. worker.on_confirm_pin déchiffre via dvvirtuallobby.openInvite puis
-    # rejoint le clan par le chemin d'acceptation habituel.
+    # rejoint le clan par le chemin d'acceptation habituel. Un enfant encore anonyme, lui, ne
+    # rejoint rien ici : l'invitation déchiffrée attend en mémoire, il part se connecter
+    # (pas `enter_invite_pin`, route `link`) et on_login l'accepte sous son compte définitif.
 
     enter_invite_pin:
       masks:
         - page
       show_appbar: true
       title: "@@@T:enter_invite_pin_title@@@"
+      # Pré-remplit le lien reçu, d'où qu'on arrive (lien ouvert, reprise après login).
+      # `actions` A LA RACINE : c'est là que l'appear
+      # d'une PAGE est lu.
+      actions:
+        appear: worker.on_enter_invite_pin_appear
       registry:
         - enter_invite_pin/token
         - enter_invite_pin/pin
@@ -551,7 +586,6 @@ conf:
           - worker.on_screen_voice
       registry:
         - commons/icon_background
-        - kid_wants_clan/notice
         - kid_wants_clan/scan_qr
         - kid_wants_clan/send_request
         - kid_wants_clan/back
@@ -574,25 +608,10 @@ conf:
         actions:
           tap: worker.on_back_to_choice
 
-    # Annonce de l'étape d'après — révélée pour le MINEUR seulement (worker.on_kid_wants_clan_appear),
-    # dans la même bande que le bouton « marche arrière » de l'adulte, dont elle est donc
-    # exclusive par construction. Une fois admis, l'enfant devra se connecter avec son compte
-    # Google : si ce compte est supervisé (Family Link), un parent doit l'autoriser. Le dire ICI,
-    # pendant que le chef de clan est encore là avec son QR code, plutôt que de le découvrir
-    # deux écrans plus loin devant un bouton qui ne peut pas marcher.
-    kid_wants_clan/notice:
-      masks:
-        - commons/nobordershape
-      class: DvLabel
-      layer: content
-      shape:
-        x: 5%
-        y: 8%
-        w: 90%
-        h: 13%
-        font_size: 12.0
-        label: "@@@T:join_clan_google_notice@@@"
-        visible: false
+    # ⚠ L'ANNONCE DE LA CONNEXION GOOGLE A QUITTÉ CET ÉCRAN (kid_wants_clan/notice, 2026-09-22).
+    #   Elle prévenait le mineur ANONYME qu'il se connecterait après son admission. Le mineur ne
+    #   passe plus par ici pendant son inscription : il se connecte AVANT d'entrer, depuis
+    #   kid_assent_share, qui porte désormais l'annonce (même texte, join_clan_google_notice).
 
     kid_wants_clan/scan_qr:
       masks:
@@ -609,6 +628,8 @@ conf:
     # Invitation venue d'une autre région de stockage : le clan n'existe pas dans la base du
     # candidat, la jointure échouerait sans rien dire. Révélé par worker._inviteRegionMismatch,
     # sur le même modèle que enter_invite_pin/error (jamais de fenêtre modale).
+    # (Un mineur ne reste jamais sur cet écran : worker.on_kid_wants_clan_appear le ramène à sa
+    # question, kid_assent_screen, seule porte qui lui soit ouverte.)
     kid_wants_clan/region_error:
       masks:
         - commons/nobordershape
@@ -625,9 +646,10 @@ conf:
         font_color: "0xFFCC4444"
         visible: false
 
-    # « Je n'ai pas le QR code » — le candidat a reçu un lien chiffré par PIN sur les réseaux
-    # sociaux : ce label ouvre l'écran de saisie manuelle (coller le lien + taper le PIN),
-    # utile quand le deeplink ne s'ouvre pas tout seul. (Remplace l'ancien flux « demande ».)
+    # « Je n'ai pas le QR code » : le candidat a reçu un lien chiffré par PIN sur les réseaux
+    # sociaux ; ce label ouvre l'écran de saisie manuelle (coller le lien + taper le PIN),
+    # utile quand le deeplink ne s'ouvre pas tout seul. (L'ancien flux « demande d'entrée »,
+    # ddust://request, a été supprimé le 2026-09-22 : il contournait la déclaration du chef.)
     kid_wants_clan/send_request:
       masks:
         - commons/nobordershape
@@ -644,60 +666,6 @@ conf:
           tap: true
         freezing_actions:
           tap: worker.on_no_qr
-
-    #//------------------------------- Accept request clan screen (admin) -------------------
-
-    accept_request_clan:
-      masks:
-        - page
-      show_appbar: true
-      title: "@@@T:accept_request_clan_title@@@"
-      registry:
-        - accept_request_clan/title
-        - accept_request_clan/confirm
-        - accept_request_clan/reject
-
-    accept_request_clan/title:
-      masks:
-        - commons/nobordershape
-      class: DvLabel
-      layer: content
-      shape:
-        x: 5%
-        y: 30%
-        w: 90%
-        h: 10%
-        label: "@@@T:accept_request_title@@@"
-        text_align: CENTER
-
-    accept_request_clan/confirm:
-      masks:
-        - commons/btn_medium
-      shape:
-        y: 65%
-        label: "@@@T:accept_request_confirm@@@"
-        events:
-          tap: true
-        freezing_actions:
-          tap: worker.on_accept_request_clan
-
-    accept_request_clan/reject:
-      masks:
-        - commons/nobordershape
-      class: DvLabel
-      layer: content
-      shape:
-        x: 10%
-        y: 78%
-        w: 80%
-        h: 10%
-        label: "@@@T:accept_request_reject@@@"
-        events:
-          tap: true
-        freezing_actions:
-          # Refuser une demande d'admission n'appartient pas au tunnel d'accueil : pas de
-          # rideau, on revient simplement d'ou l'on vient.
-          tap: steps.navigate
 
     new_or_pick_clan/depart_view:
       masks:

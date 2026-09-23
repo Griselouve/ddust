@@ -124,7 +124,7 @@ extension Worker_combat on worker {
                                     // tranché, les `requires` des leçons (session.active_task vide / non vide)
                                     // sont donc évalués sur l'écran réellement affiché. Une des 4 branches de
                                     // ce handler, et une seule, appelle dvtuto.enter (patron on_tiroir_appear).
-                                    await deva_do("dvtuto.enter");
+                                    await _enterTuto();
                                     return;
                                 }
 
@@ -145,7 +145,7 @@ extension Worker_combat on worker {
                                     setVisible(valKoBtn, false);
                                     _stopCombatSiege();   // tiroir seul (aucune tâche active) : pas de combat
                                     await _refreshTaskStatuses();
-                                    await deva_do("dvtuto.enter");   // état tranché = tiroir → leçon « domaines »
+                                    await _enterTuto();   // état tranché = tiroir → leçon « domaines »
                                     return;
                                 }
 
@@ -226,7 +226,7 @@ extension Worker_combat on worker {
                                                 await _refreshTaskStatuses(force: true);
                                                 // Tuto AVANT la célébration : l'affichage (tiroir) est déjà tranché,
                                                 // alors que _celebrateAfterAccept peut attendre l'XP jusqu'à ~10 s.
-                                                await deva_do("dvtuto.enter");
+                                                await _enterTuto();
                                                 // Verdict ACCEPTÉ réconcilié ici (app rouverte / réveil : ni watch ni
                                                 // notif n'ont célébré) → célébration + consommation boss. PAS pour une
                                                 // tâche reprise par un autre (takenAway) ni disparue.
@@ -289,7 +289,7 @@ extension Worker_combat on worker {
                                 // Rafraîchit la PAGE (pas seulement les shapes) pour qu'elle re-balaye ses
                                 // calques et peigne les shapes rendues visibles à l'appear.
                                 caller?.refreshUI();
-                                await deva_do("dvtuto.enter");   // état tranché = tâche en cours → leçon « combat_active »
+                                await _enterTuto();   // état tranché = tâche en cours → leçon « combat_active »
     }
 
     // Bouton "J'ai vaincu le monstre !".

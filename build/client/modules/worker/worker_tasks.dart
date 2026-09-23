@@ -87,13 +87,22 @@ extension Worker_tasks on worker {
                                 // « région » désignait le datacenter ; les garder distincts ici évite
                                 // que ce raccourci de développement fabrique une session qu'aucun
                                 // parcours réel ne produit.
+                                //
+                                // ⚠ ET LE DATACENTER N'EST PLUS UNE CONSTANTE. Codé en dur sur "eu",
+                                //   ce raccourci écrivait un clan complet dans la base de PRODUCTION,
+                                //   y compris depuis une application bâtie sur la cible d'essai. On le
+                                //   demande donc au marché, qui le résout sur la cible de ce build.
                                 const market       = "fr";
-                                const region       = "eu";
                                 const legalState   = "a";
                                 const internalName = "TestClan";
                                 const playerName   = "TestPlayer";
 
                                 await ActionRegistry.get("documents.on_region_selected")?.call(null, market);
+                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                if (region.isEmpty) {
+                                    deva_log("error", "[worker] on_fast_test_skip: datacenter inconnu pour le marché $market");
+                                    return;
+                                }
                                 _cloud?.configure("region", region);
                                 final _ai = Deva.instance.module("dvvertexai");
                                 if (_ai != null) try { await (_ai as dynamic).startVertexMotor(); } catch (_) {}

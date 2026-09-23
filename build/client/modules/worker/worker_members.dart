@@ -716,6 +716,7 @@ extension Worker_members on worker {
                                     // place d'un enfant laisserait _isAdult=true derrière lui, et une lecture
                                     // en échec ouvrirait la boutique sur le compte de l'enfant.
                                     _isAdult = false; _isAdultClanId = ""; _isAdultUserId = "";
+                                    await _unpublishRoles();   // republiés pour la cible par _ensureIsAdmin
                                     _adminMode = false;
                                     _gameDomains.clear();
                                     // État de jeu local (propre à la session/device) : repart neuf.
@@ -790,6 +791,7 @@ extension Worker_members on worker {
                                     // place d'un enfant laisserait _isAdult=true derrière lui, et une lecture
                                     // en échec ouvrirait la boutique sur le compte de l'enfant.
                                     _isAdult = false; _isAdultClanId = ""; _isAdultUserId = "";
+                                    await _unpublishRoles();   // republiés pour l'adulte par _ensureIsAdmin
                                     _adminMode = false;
                                     _gameDomains.clear();
                                     await Deva.instance.set("session.active_task",  "");
@@ -1645,6 +1647,11 @@ extension Worker_members on worker {
                                 }
                                 _stopPlayerVigilance();
                                 _resetOpening();
+                                // Plus de clan → plus de rôle. Le cache est purgé avec ses miroirs : un
+                                // chef qui quitte son clan pour en rejoindre un autre y arrive joueur.
+                                _isAdmin = false; _adminCount = 0; _isAdminClanId = ""; _isAdminUserId = "";
+                                _isAdult = false; _isAdultClanId = ""; _isAdultUserId = "";
+                                await _unpublishRoles();
                                 // Plus de clan → plus aucune tâche en validation, donc plus aucune preuve
                                 // atteignable : on vide le répertoire au lieu d'effacer un uuid, parce que
                                 // la révocation à distance peut avoir eu lieu app fermée et qu'on ne sait

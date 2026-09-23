@@ -112,7 +112,7 @@ extension Worker_items on worker {
                                 // Après le chargement (coffre/bourse poussés) : comme on_dashboard_appear,
                                 // dvtuto.enter est appelé ici plutôt que via appear: (non attendue), pour ne
                                 // pas spotlighter la grille avant que ses tuiles ne soient en place.
-                                await deva_do("dvtuto.enter");
+                                await _enterTuto();
     }
 
     Future<void> _refreshTitleState(String clanId, String clanSecret, String region) async {

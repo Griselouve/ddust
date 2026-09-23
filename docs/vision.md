@@ -1,9 +1,29 @@
-
 # Donjons et Savons
 
 --------------------------------------------------------------------------------------------------
 
-## Concept
+## table des matières
+
+1. [vision](#1-vision)
+3. [architecture](#3-architecture)
+6. [mécaniques](#6-mecaniques)
+    - [6.1 Focus Clan](#61-focus-clan)
+    - [6.2 Focus Joueur](#62-focus-joueur)
+    - [6.3 Switch de profil](#63-switch-de-profil)
+    - [6.4 Les taches](#64-les-taches)
+    - [6.5 A anticiper dans le design : les taches](#65-a-anticiper-dans-le-design--les-taches)
+    - [6.6 Focus faveurs](#66-focus-faveurs)
+    - [6.7 Focus boutique](#67-focus-boutique)
+    - [6.8 Les butins](#68-les-butins)
+    - [6.9 Multitenancy](#69-multitenancy)
+    - [6.10 Les notifications](#610-les-notifications)
+    - [6.11 Préférences](#611-preferences)
+    - [6.12 Monetisation (modèle retenu 2026-07-07, grille refondue 2026-08-20)](#612-monetisation-modele-retenu-2026-07-07-grille-refondue-2026-08-20)
+    - [6.13 Pistes pour la promotion](#613-pistes-pour-la-promotion)
+8. [aspects légaux](#8-aspects-legaux)
+10. [stratégie](#10-strategie)
+
+## 1. vision
 
 ### MVP
 
@@ -103,7 +123,7 @@ Pour des raisons culturelles et religieuses, le choix d'activer une saison est l
 
 --------------------------------------------------------------------------------------------------
 
-## Architecture
+## 3. architecture
 
 Application flutter avec un backend firebase/firestore
 utilisation de gemini flash, très exceptionnelle
@@ -115,9 +135,10 @@ Toutes les briques sont déjà présentes dans le framework Deva à part :
 
 --------------------------------------------------------------------------------------------------
 
-## Focus Clan
+## 6. mécaniques
 
-### constitution du clan
+### 6.1 Focus Clan
+#### constitution du clan
 
 Tout joueur se connecte une fois authentifié auprès de google (authent PKCE)
 
@@ -148,34 +169,33 @@ Au clan peut être ajouté :
 - un nom de clan
 - un titre obtenu difficilement en jouant
 
-### nom interne vs nom externe
+#### nom interne vs nom externe
 
 Pour éviter toute dérive et la diffusion d'éventuelle donnée sensible, chaque nom (joueur, clan) possède sa version interne (choisie par les utilisateurs) et sa version externe (générée par l'application).
 Entre joueurs du même clan, l'affichage montre la version interne.
 Par contre les joueurs exterieurs au clan voient des noms générés par l'application.
 
-### experience de clan
+#### experience de clan
 
 Pour chaque tache effectuée par l'un des membres, le clan gagne également de l'experience.
 L'experience gagnée est divisée par le nombre de joueurs dans le clan (une famille de 2 membres gagnera donc la même experience qu'une famille de 5 dont tous les membres travaillent autant).
 
-### évolution du clan 
+#### évolution du clan 
 
 L'experience accumulée permet de monter de niveau.
 Chaque niveau est materialisé par un monstre spécifique (le boss de niveau) que le clan doit vaincre.
 Gagner un niveau permet d'obtenir un titre et des récompenses spéciales !
 Parmi tous les titres obtenus, un adulte peut choisir à tout moment quel titre correspond au clan.
 
-### Journal (IA)
+#### Journal (IA)
 
 Journal du Clan : Un log généré automatiquement à chaque niveau qui résume les exploits de la famille avec un ton épique ou humoristique.
 Pour éviter tout envoi de données personnelles à l'IA, seuls les noms externes sont communiqués à l'IA. L'app se charge ensuite du remplacement par les noms internes avant affichage.
 
 --------------------------------------------------------------------------------------------------
 
-## Focus Joueur
-
-### Profil utilisateur
+### 6.2 Focus Joueur
+#### Profil utilisateur
 
 Le profil contient :
 - une petite icone pour rendre le jeu plus ludique.
@@ -184,11 +204,11 @@ Le profil contient :
 
 La règle "nom interne vs nom externe" s'applique également pour le nom du personnage.
 
-### Les enfants
+#### Les enfants
 
 Les enfants sont les principaux joueurs. Ils peuvent être légalement mineurs ou majeurs.
 
-### Les adultes
+#### Les adultes
 
 Les adultes sont necessairement majeurs.
 Les adultes ont les mêmes fonctionnalités que les enfants et peuvent jouer s'ils le désirent.
@@ -204,14 +224,13 @@ En plus des fonctionnalités "enfants", les adultes ont accès à
 - l'audit de l'application
 - une section "aide aux parents" qui donne quelques conseils
 
-### passage à l'age adulte
+#### passage à l'age adulte
 
 Légalement, un joueur mineur est lié à l'adulte qui a approuvé l'adhésion à son tout premier clan (écran de consentement).
 L'adulte majeur peut a tout moment sélectionner le joueur mineur et le déclarer adulte.
 A la prochaine connexion, le joueur devenu adulte, devra cliquer "En continuant, vous acceptez nos [CGU] et avez pris connaissance de notre [Politique de Confidentialité]" pour continuer de jouer.
 
-## Switch de profil
-
+### 6.3 Switch de profil
 A la discretion des parents, l'age requis pour utiliser un téléphone est variable.
 Pour les enfants jugés trop petits, les parents peuvent ajouter un profil "sans téléphone".
 
@@ -229,14 +248,14 @@ Une fois avec le profil de l'enfant il peut selectionner les taches, les execute
 
 Au bout de trois tentative de code PIN incorrect, le "parentalGate" doit être résolue pour permettre de recréer un code PIN et revenir sur le compte adulte.
 
-### Evolution du joueur
+#### Evolution du joueur
 
 L'experience accumulée permet de monter de niveau.
 Le niveau permet d'obtenir un titre.
 Parmi tous les titres obtenus, le joueur peut choisir à tout moment quel titre lui correspond. 
 Le niveau determine la puissance maximumdes artefacts que l'on peut acheter dans la boutique.
 
-### Les classes
+#### Les classes
 
 Chaque joueur peut choisir un stéréotype de personnage.
 Le type de personnage implique des avantages et des inconvénients, donne accès à des taches spécifiques et titres spécifiques
@@ -245,9 +264,8 @@ Certaines classes jouées ensemble peuvent offrir un petit bonus de synergie.
 
 --------------------------------------------------------------------------------------------------
 
-## Les taches
-
-### gestion des taches
+### 6.4 Les taches
+#### gestion des taches
 
 Le jeu dispose d'une liste de taches par défaut.
 Lorsqu'un donjon est créé, des questions successives sont posées. 
@@ -264,7 +282,7 @@ Les taches sont regroupées par lots logiques (chambres, salle de bain...)
 
 A chaque tache pourrait être associée une petite icone pour rendre le jeu plus ludique.
 
-### Selection d'une tache
+#### Selection d'une tache
 
 Un écran montre toutes les taches disponibles, regroupées par lots logiques (chambres, salle de bain...)
 Les taches désactivées par les parents n'apparaissent pas.
@@ -280,7 +298,7 @@ Une fois validé, la tache passe au status "in progress" et n'est plus selection
 
 Le joueur s'il le désire peut relacher la tache qui redevient alors selectionnable par les autres joueurs. Aucun XP n'est gagné.
 
-### Execution et Validation des taches
+#### Execution et Validation des taches
 
 Lorsqu'un joueur termine une tache, le joueur peut prendre une photo (la photo est stockée sur le téléphone, pas dans le cloud pour éviter tout souci de PII), mais ce n'est pas obligatoire.
 La tache passe au status "validating".
@@ -295,22 +313,21 @@ Pour chaque tache ils ont 3 choix :
 L'application affiche un petit texte pour récompenser la fin d'une tâche : 
 "Tu as escorté le le Chariot Pestilentiel" (Sortir les poubelles), "Tu as vaincu l'Hydre de Céramique" (Nettoyer les WC).
 
-### Taches mortelles
+#### Taches mortelles
 
 Une fois executée la tache est morte = non selectionnable.
 Un délai indique le temps à partir duquel la tache est respawn.
 Le gain en experience est constant.
 Ce type de tache convient pour des taches qu'on ne peut pas faire deux fois de suite immédiatement, par exemple "mettre la table", ou bien des taches que les parents ne veulent pas voir repétées en permanence.
 
-### Taches immortelles
+#### Taches immortelles
 
 La tache ne disparait pas, elle a juste "0 PV".
 Un délai indique le temps que met la tache à regénérer completement.
 Le gain en experience est proportionnel à la santé de la tache. Par exemple une tache à moitié régenérée ne fera gagner que la moitié des points.
 Ce type de tache convient pour des taches que les enfants peuvent répéter sans cesse et sans risque.
 
-## A anticiper dans le design : les taches
-
+### 6.5 A anticiper dans le design : les taches
 Pour chaque tache il faut donc :
 - un nom
 - une icone
@@ -319,14 +336,13 @@ Pour chaque tache il faut donc :
 
 --------------------------------------------------------------------------------------------------
 
-## Focus faveurs
-
-### Concept
+### 6.6 Focus faveurs
+#### Concept
 
 Les faveurs sont des petites récompenses que le joueur peut obtenir en utilisant de l'or en via le loot.
 Cela peut être par exemple : un petit temps d'écran supplémentaire, un bonbon, prendre un bain, etc.
 
-### Mécanique
+#### Mécanique
 
 Le jeu dispose d'une liste de faveurs par défaut (pour donner quelques idées).
 Les parents peuvent ajouter des nouvelles faveurs, selectionner/deselectionner...
@@ -342,9 +358,8 @@ A la fin de cette periode la faveur est désactivée et non selectionnable.
 
 --------------------------------------------------------------------------------------------------
 
-## Focus boutique
-
-### Concept
+### 6.7 Focus boutique
+#### Concept
 
 La boutique propose d'échanger de l'or contre un nombre limité:
 - d'objets
@@ -358,15 +373,14 @@ Voir des articles incoyables, mais de haut niveau, motivera le joueur à monter 
 
 --------------------------------------------------------------------------------------------------
 
-## Les butins
-
-### Concept
+### 6.8 Les butins
+#### Concept
 
 C'est la méta du jeu. La grosse récompense à partager entre tous les joueurs.
 Il peut contenir plusieurs choses à la fois, par exemple : de l'argent de poche, une sortie en famille, etc.
 Il s'ouvre lorsque le clan monte un niveau.
 
-### gestion des butins
+#### gestion des butins
 
 Une fois distribué, le butin est vidé et une nouvelle periode de jeu commence.
 Les parents doivent alors penser à remplir le butin.
@@ -374,7 +388,7 @@ Pour cela ils ont un écran (invisible des autres joueurs) qui montre le contenu
 L'ajout est un texte libre.
 L'application propose des idées de butin (pour éviter les pannes d'inspi et les maux de tête des parents)
 
-### ouverture du butin
+#### ouverture du butin
 
 Le butin apparait tous les 10000 XP
 Lorsque le montant d'experience est atteint, alors le butin est sur le point de s'ouvrir.
@@ -384,7 +398,7 @@ Les membres du clan élus doivent cliquer sur ce bouton à peu près en même te
 Un écran récompense avec des pieces d'or et des confetis dévoile alors le vrai contenu du butin.
 Aux parents de tenir leurs promesses :)
 
-### Affiliations
+#### Affiliations
 
 Stratégie à définir : local vs global.
 
@@ -401,14 +415,13 @@ Quand le parent valide ce butin, le lien l'envoie sur Amazon (géo-localisé aut
 
 --------------------------------------------------------------------------------------------------
 
-## Multitenancy
-
+### 6.9 Multitenancy
 Tristement il existe des familles recomposées, décomposées, ou simplement certaines personnes auront besoin de jouer dans plusieurs clans à la fois, ou changer de clan pour les vacances
 
 Un joueur qui joue pour la première fois, à le choix entre la création d'un clan ou demander l'adhésion à un clan existant.
 Une fois le clan créé ou rejoint, l'UI ne montre rien de particulier.
 
-### changement de clan
+#### changement de clan
 
 Un joueur peut passer d'un clan A à un clan B
 Deux possibilités :
@@ -448,7 +461,7 @@ Lorsqu'un joueur est présent dans plusieurs clans, alors l'UI ajoute une icone 
 
 Les titres ne sont pas affectés par le changement de clan, le joueur les conserve avec lui.
 
-### création de clan multiple
+#### création de clan multiple
 
 Dans les paramètres, accessible par tous les joueurs, il y a une option "créer un clan supplémentaire".
 Si le joueur choisi cette option:
@@ -457,16 +470,15 @@ Si le joueur choisi cette option:
 
 A partir de ce moment, l'UI ajoute une icone supplémentaire pour permettre au joueur de switcher rapidement entre les clans sans avoir à repasser par les paramètres.
 
-### fin d'un clan
+#### fin d'un clan
 
 Dans les paramètres, accessible seulement par les admins du clan, il y a une option "supprimer le clan", ça arrive.
 Dans ce cas, toutes les informations relatives au clan sont supprimées de firestore, l'abonnement est révoqué.
 
 --------------------------------------------------------------------------------------------------
 
-## Les notifications
-
-### Pour les parents
+### 6.10 Les notifications
+#### Pour les parents
 
 Les notifications suivantes doivent être validable en un tap depuis la notif pour fluidifier le role parent :
 
@@ -479,7 +491,7 @@ La notification suivante peut envoyer le parent directement vers l'écran de but
 
 - si le butin est vide, un petit rappel
 
-### Pour les enfants
+#### Pour les enfants
 
 - lorsqu'un parent a validé l'entrée dans le donjon
 - lorsqu'un parent a validé une tache
@@ -487,7 +499,7 @@ La notification suivante peut envoyer le parent directement vers l'écran de but
 - lorsqu'un loot est parvenu à sa fin de vie
 - lorsqu'une tache a été respawn ou arrive à 100% de ses points de vie
 
-### Les relances d'engagement (livré)
+#### Les relances d'engagement (livré)
 
 Les listes ci-dessus sont des notifications d'ÉVÉNEMENT : il s'est passé quelque chose,
 on le dit. Elles supposent toutes une famille qui joue. Celles-ci répondent au problème
@@ -536,15 +548,13 @@ faut chercher n'est pas un refus.
 
 --------------------------------------------------------------------------------------------------
 
-## Préférences
-
+### 6.11 Préférences
 Selection du language (module existant dvlang)
 
 --------------------------------------------------------------------------------------------------
 
-## Monetisation (modèle retenu 2026-07-07, grille refondue 2026-08-20)
-
-### Jeu de Base
+### 6.12 Monetisation (modèle retenu 2026-07-07, grille refondue 2026-08-20)
+#### Jeu de Base
 
 Gratuit les 14 premiers jours, quelque soit la taille du clan.
 (Un mois complet laissait passer le pic d'enthousiasme avant le premier paiement.)
@@ -590,7 +600,7 @@ A tout moment, un chef de clan peut upgrader ou downgrader l'abonnement de son (
 CHARGE_PRORATED_PRICE pour upgrade
 DEFERRED pour downgrade
 
-### Où se choisit le palier
+#### Où se choisit le palier
 
 **Pas dans la boutique.** La boutique est un étal : on y vendra des packs de contenu et des
 thèmes, à l'unité, et on la parcourt quand on veut. Une grille tarifaire n'est pas un étal,
@@ -610,7 +620,7 @@ L'écran présente les cinq paliers ensemble et n'en surligne que deux : **le pa
 celui qui ouvre réellement la place manquante, pas simplement le suivant dans l'ordre. Rien
 n'est bloquant : la page s'empile par-dessus le jeu et se quitte par la flèche arrière.
 
-### Extensions
+#### Extensions
 
 **Le catalogue complet, aligné sur le plan le 2026-08-24.** Cette section et la
 roadmap se contredisaient : trois packs de tâches n'existaient que dans la roadmap, quatre
@@ -621,7 +631,7 @@ Une extension s'applique à **un seul clan** : celui avec lequel l'adulte est co
 de l'achat. S'il possède plusieurs clans, un écran de confirmation précise qu'il s'agit d'un
 « achat pour le clan XXX ».
 
-#### Ce qui s'achète
+##### Ce qui s'achète
 
 **Quinze produits**, de 1.99 € à 7.99 €.
 
@@ -670,7 +680,7 @@ distincts. C'est aussi ce que coûte leur fabrication : **144rsp pour le premier
 les plâtres du système de thèmes, puis **55rsp chacun** pour les deux suivants, qui n'ont plus
 que leur contenu à produire — soit 254rsp au total, et non une seule cotation pour les trois.
 
-#### Ce qui arrive sans achat
+##### Ce qui arrive sans achat
 
 Le premier pack de chaque famille sort dans la foulée de la **mécanique** qui le fait
 tourner — celle-ci vit dans `ddust/loots`, publié avant lui — pour qu'une boutique qui
@@ -706,30 +716,30 @@ portefeuille réserve l'achat unique au contenu et proscrit la vente de tours de
 et les classes ne sont pas des tours vendus à la pièce, ce sont des extensions achetées une
 fois et possédées pour toujours. Le mur — payer pour continuer à jouer — n'existe pas ici.
 
-### Renommer
+#### Renommer
 
 Renommer un clan ou un joueur est gratuit la première fois, puis coute 0.49 euros.
 -> annulé, les noms ne seront plus affichés à l'exterieur.
 
-### Parrainage
+#### Parrainage
 
 Le clan peut inviter un nouveau clan
 Passé 1 mois, si le nouveau clan s'abonne, alors cela offre 1 mois gratuit au clan "parrain". Les mois gratuits sont cumulables.
 
-### dashboard
+#### dashboard
 
 Dans la section "profil" "mes achats" un dashboard présente les abonnements et achats réalisés pour chaque clan.
 
-### Les défauts de paiement
+#### Les défauts de paiement
 
 C'est un jeu familial pour aider les parents, et le design le rend particulièrement rentable.
 On montrera donc de la compréhension et on sera flexibles dans le cas de paiments non reçus.
 
-#### Periode de grace
+##### Periode de grace
 
 10 jours
 
-#### Account Hold
+##### Account Hold
 
 Passé 10 jours de grace on rentre dans account hold.
 
@@ -772,18 +782,18 @@ Phase 3: pour les 10 jours qui suivent (jour 40 à 50)
 "Votre place à la table de la guilde reste au chaud. Merci pour l'aventure, revenez quand vous voulez !"
 "Les bulles éclatent, la partie s'arrête. On s'est bien amusés, le donjon vous accueillera toujours à bras ouverts."
 
-#### Account locked
+##### Account locked
 
 A partir du jour 50, le clan est freezé. Les joueurs qui tentent d'accéder au clan voient l'image d'un groupe tipique de JDR blessés, fatigués au repos et un texte : "Votre clan s'est bien battu. C'était très chouette de jouer avec vous, Revenez lancer les dés quand vous voulez"
 Les chefs de clan ont les boutons supplémentaires :
 - revivre le clan -> dirige vers le paiement
 - supprimer mes données -> déclence la suppression immédiate du clan et toutes ses données (celles des joueurs) de firestore
 
-#### Account deleted
+##### Account deleted
 
 A partir du jour 90, le clan est supprimé de firestore.
 
-### page web
+#### page web
 
 Il faut une page web qui permette à un utilisateur de s'authentifier et demander la suppression du clan
 
@@ -801,40 +811,39 @@ Section Sécurité des données (Data Safety)
 
 --------------------------------------------------------------------------------------------------
 
-## Pistes pour la promotion
-
-### Flyers
+### 6.13 Pistes pour la promotion
+#### Flyers
 
 Coup de pouce local :
 Flyers très simples avec un QR Code géant et un slogan accrocheur : "Vos enfants ne rangent pas leur chambre ? Transformez votre maison en jeu de rôle."
 Où : proximité des écoles, boulangeries, pharmacies
 
-### Subreddits
+#### Subreddits
 
 Par exemple: r/Parenting, r/daddit, r/Mommit ou r/ADHD
 Le post : "J'en avais marre de crier pour que mes enfants fassent la vaisselle, alors j'ai codé un RPG où les corvées sont des monstres et mon fils vient de me demander s'il pouvait passer la serpillière pour monter niveau 4. Des gens veulent tester ?"
 
-### Réseaux sociaux
+#### Réseaux sociaux
 
 Avec des comptes dédiés.
 
-### Partages de Profil utilisateur et profil de clan
+#### Partages de Profil utilisateur et profil de clan
 
 Un profil contient une icone, un nom, un titre choisi, un niveau, une liste de succès
 Depuis l'app, le parent peut partager. Le partage contient un lien pour télécharger l'app
 
-### Partages du journal
+#### Partages du journal
 
 Depuis l'app, le parent peut générer une image "Bilan de la semaine" partageable sur ses stories Instagram/WhatsApp : "Le clan [Nom] a vaincu 45 monstres de poussière cette semaine sur Donjons & Savons !" auquel s'ajoute le log du journal du clan
 Ce résumé peut être partagé. Le partage contient un lien pour télécharger l'app et un petit descriptif de ce qu'est l'application
 
-### Voter l'app dans le store
+#### Voter l'app dans le store
 
 Après avoir vaincu le boss: "tu as aimé : va voter !" et on croise les doigts pour avoir un vote 5 étoiles.
 
 --------------------------------------------------------------------------------------------------
 
-## aspects légaux
+## 8. aspects légaux
 
 ### CGV, CGU, Confidentialité
 
@@ -945,7 +954,7 @@ Toutefois, une simple passe avec "Google Accessibility Scanner" permet d'éviter
 
 ---
 
-## Stratégie
+## 10. stratégie
 
 **Le lancement est payant d'emblée.** Pas de beta gratuite préalable : elle produit de la
 rétention, jamais de la conversion, et demander à des familles déjà installées de commencer

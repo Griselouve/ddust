@@ -80,6 +80,13 @@ extension Worker_admin on worker {
                                         deva_log("warning", "[combat] détection admin échec: $e");
                                     }
                                 }
+                                // Miroir pour dvtuto, posé à CHAQUE passage (cache compris). Seul un
+                                // résultat établi pour CE clan et CET utilisateur vaut "true" : une
+                                // lecture en échec laisse _isAdmin à sa valeur d'avant, qui peut être
+                                // celle d'une autre identité.
+                                await _publishRole("worker.is_chief",
+                                    _isAdmin && _isAdminClanId == clanId && _isAdminUserId == _userId
+                                             && clanId.isNotEmpty);
                                 return _isAdmin;
     }
 
@@ -131,17 +138,74 @@ extension Worker_admin on worker {
                                     } catch (e) {
                                         deva_log("warning", "[store] détection adulte échec: $e");
                                     }
-                                    // Miroir au store, pour dvtuto : les relances de prudence n'ont
-                                    // aucun autre moyen de distinguer un adulte d'un mineur —
-                                    // `worker.player_last_is_admin` ne dit que « chef », et un adulte
-                                    // non chef ne doit jamais lire « préviens tes parents ». Écrit
-                                    // aussi sur échec de lecture : le repli vers "false" y montre le
-                                    // message de prudence, qui est le bon sens de l'erreur ici (à
-                                    // l'inverse des surfaces commerciales, où il masque).
-                                    await deva_set("worker.player_is_adult", _isAdult ? "true" : "false");
+                                }
+                                // Miroir pour dvtuto : les relances de prudence et les deux guides
+                                // n'ont aucun autre moyen de distinguer un adulte d'un mineur :
+                                // `worker.is_chief` ne dit que « chef », et un adulte non chef ne doit
+                                // jamais lire « préviens tes parents ». Posé à CHAQUE passage, cache
+                                // compris, et "false" sur échec de lecture : le message de prudence
+                                // est le bon sens de l'erreur ici (à l'inverse des surfaces
+                                // commerciales, où le repli masque).
+                                await _publishRole("worker.player_is_adult",
+                                    _isAdult && _isAdultClanId == clanId && _isAdultUserId == _userId
+                                             && clanId.isNotEmpty);
+                                return _isAdult;
+    }
+
+    // Publie un rôle dans le store, pour les `requires` de dvtuto.
+    //
+    // ⚠ EN SESSION, JAMAIS SUR DISQUE. Un rôle persisté vit dans le layer runtime de l'owner, et
+    //   l'owner n'est pas toujours celui qu'on croit : une écriture sans owner atterrit dans
+    //   runtime-global (commun à tous les comptes de l'appareil), et une session perdue laisse le
+    //   compte suivant hériter du runtime du précédent. C'est ainsi qu'un joueur neuf lisait
+    //   l'ancien `worker.player_last_is_admin` d'un chef, et que le tutoriel lui montrait le
+    //   contenu des chefs. Un rôle se recalcule à chaque lancement ; il ne se souvient pas.
+    //
+    // Les anciennes valeurs persistées de `worker.player_is_adult` sont vidées une fois par
+    // lancement : la session les masque, mais seulement une fois posée.
+    //
+    // En vitrine, le worker ne touche à rien : c'est la prise qui pose les rôles qu'elle photographie.
+    Future<void> _publishRole(String key, bool value) async {
+
+                                if ((await deva_get("deva.active_mode"))?.toString() == "showcase") return;
+                                if (!_legacyRolesPurged) {
+                                    _legacyRolesPurged = true;
+                                    await deva_set("worker.player_is_adult", "");
                                     await Deva.instance.store();
                                 }
-                                return _isAdult;
+                                await Deva.instance.setSession(key, value ? "true" : "false");
+    }
+
+    // Retire les deux rôles publiés : déconnexion, départ du clan, bascule d'identité. Le rôle
+    // réel sera republié par le prochain _ensureIsAdmin / _ensureIsAdult.
+    Future<void> _unpublishRoles() async {
+
+                                await _publishRole("worker.is_chief",       false);
+                                await _publishRole("worker.player_is_adult", false);
+    }
+
+    // Seule porte d'entrée du worker vers `dvtuto.enter`.
+    //
+    // ⚠ LE RÔLE D'ABORD, LA LEÇON ENSUITE. Les gardes des leçons lisent `worker.is_chief` et
+    //   `worker.player_is_adult` à l'instant où elles sont évaluées : un rôle pas encore publié
+    //   privait un chef de ses étapes (et la leçon était marquée vue), un rôle d'une autre
+    //   identité montrait les étapes des chefs à un joueur. Les deux lectures sont en cache
+    //   après le premier passage : rien ne coûte au-delà du premier écran.
+    Future<void> _enterTuto() async {
+
+                                try {
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                    final session    = await _readSession(region);
+                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    await _ensureIsAdmin(clanId, clanSecret, region);
+                                    await _ensureIsAdult(clanId, clanSecret, region);
+                                } catch (e) {
+                                    // Rôle inconnu → aucun contenu réservé : on repart des replis stricts.
+                                    deva_log("warning", "[tuto] rôles illisibles avant la leçon ($e)");
+                                    await _unpublishRoles();
+                                }
+                                await deva_do("dvtuto.enter");
     }
 
     // Options du menu d'administration. Chacune persiste un drapeau (visible OU enabled) sur 3
@@ -238,14 +302,26 @@ extension Worker_admin on worker {
 
                                 final now = DateTime.now().toUtc().toIso8601String();
 
-                                // 1) Firestore (doc partagé du clan). PATCH complet : reconstruire l'état frais +
-                                //    préserver l'identité (domain + champs de clone). Vider dead/revive/proof
-                                //    EXPLICITEMENT ("") → le deep-merge dvcloud efface le champ (fenêtre absente).
-                                //    ownerId == clanSecret requis par les règles.
                                 final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final session    = await _readSession(region) ?? Dvidle({});
                                 final clanId     = session.get("steps.clan.clanId")?.toString()     ?? "";
                                 final clanSecret = session.get("steps.clan.clanSecret")?.toString() ?? "";
+
+                                // ⚠ UNE TÂCHE À VALIDER NE SE RESSUSCITE PAS. La remise à neuf efface
+                                //   l'assignation et la preuve : sur un travail rendu, c'est un refus sans
+                                //   verdict ni journal. Le menu ne propose plus l'option (worker_screen_tiroir),
+                                //   mais le statut fait foi EN BASE, sur l'instance tapée (un clone porte sa
+                                //   propre validation). Lecture en échec = refus : le doute profite à l'attente.
+                                if (clanId.isNotEmpty && clanSecret.isNotEmpty
+                                    && !await _admCanOverrideTask(clanId, clanSecret, region, rawId, "revive")) {
+                                    await _refreshTaskStatuses(force: true);
+                                    return;
+                                }
+
+                                // 1) Firestore (doc partagé du clan). PATCH complet : reconstruire l'état frais +
+                                //    préserver l'identité (domain + champs de clone). Vider dead/revive/proof
+                                //    EXPLICITEMENT ("") → le deep-merge dvcloud efface le champ (fenêtre absente).
+                                //    ownerId == clanSecret requis par les règles.
                                 if (clanId.isNotEmpty && clanSecret.isNotEmpty) {
                                     try {
                                         final doc = Dvidle({});
@@ -307,6 +383,15 @@ extension Worker_admin on worker {
                                     return;
                                 }
 
+                                // ⚠ JAMAIS UNE TÂCHE À VALIDER (cf. le selector du tiroir) : relâcher un
+                                //   travail rendu, c'est le refuser sans verdict. Contrôlé sur le statut lu
+                                //   EN BASE : le miroir local peut retarder, et le menu a pu s'ouvrir juste
+                                //   avant que le joueur ne dépose sa preuve.
+                                if (!await _admCanOverrideTask(clanId, clanSecret, region, id, "release")) {
+                                    await _refreshTaskStatuses(force: true);
+                                    return;
+                                }
+
                                 // Firestore + miroir local (assignee, status, last, proof) en une passe.
                                 try {
                                     await _releaseTask(clanId, clanSecret, id, region);
@@ -319,6 +404,24 @@ extension Worker_admin on worker {
                                 // Rafraîchit l'UI : la flamme (busy) ou la main (review) disparaît, la tuile
                                 // redevient prenable.
                                 await _refreshTaskStatuses(force: true);
+    }
+
+    // Un chef peut-il défaire l'état de la tâche <id> (relâcher, ressusciter) ? Non si elle attend
+    // une validation : ce serait juger un travail rendu sans verdict. Lecture fraîche du document
+    // d'instance ; lecture en échec = non (la tâche reste à valider, rien n'est perdu).
+    Future<bool> _admCanOverrideTask(String clanId, String clanSecret, String region,
+                                     String id, String what) async {
+
+                                final doc = await _readTaskDoc(clanId, clanSecret, region, id);
+                                if (doc == null) {
+                                    deva_log("warning", "[admin] $what tasks/$id : statut illisible → refusé");
+                                    return false;
+                                }
+                                if (doc.get("status")?.toString() == "validating") {
+                                    deva_log("info", "[admin] $what tasks/$id refusé : la tâche attend une validation");
+                                    return false;
+                                }
+                                return true;
     }
 
     // « Recommander » (menu admin du tiroir) : marque une FEUILLE de tâche comme « boss ». Pose

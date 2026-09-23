@@ -13,9 +13,11 @@ conf:
       show_back: false
       title: "@@@T:Personnage@@@"
       actions:
+        # PAS de `- dvtuto.enter` ici (même raison que `dashboard` et `combat`) : une liste d'actions
+        # n'est pas awaitée, la leçon tournait EN PARALLÈLE de on_personnage_appear et évaluait ses
+        # gardes sur un rôle pas encore établi. C'est on_personnage_appear qui l'appelle, en dernier.
         appear:
           - worker.on_personnage_appear
-          - dvtuto.enter
       registry:
         - commons/splash_background
         - personnage/icon

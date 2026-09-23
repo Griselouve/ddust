@@ -7,7 +7,7 @@
 | Application | Donjons & Savons (Android, Google Play) |
 | Responsable du traitement | Grisloup, nom commercial de MARCHAL DE GREEF Guillaume, entrepreneur individuel, 20 rue Lavoisier, 95300 Pontoise, France. SIREN 109354092, RCS Pontoise |
 | Contact | donjons@grisloup.com |
-| Version | 1, 16 septembre 2026 |
+| Version | 1, 22 septembre 2026 |
 
 ---
 
@@ -32,10 +32,20 @@ distribuée. La version espagnole est la version de référence pour les utilisa
 ## 2. Le jeu et sa finalité
 
 Donjons & Savons transforme les tâches du foyer en aventure de famille. La famille forme un **clan**,
-administré par des adultes appelés « chefs ». L'enfant choisit une tâche de la vie courante
-(« mettre la table », « ranger sa chambre »), la réalise dans la maison, puis la soumet ; un adulte la
-juge. Le travail validé fait progresser son personnage et remplit un coffre commun, que la famille
-ouvre ensemble et dont les parents définissent le contenu.
+administré par des adultes appelés « chefs de clan » (« chefs » dans la suite de ce document). Ils
+invitent les membres, choisissent les tâches proposées, jugent le travail et définissent les
+récompenses. L'enfant choisit une tâche de la vie courante (« mettre la table », « ranger sa
+chambre »), la réalise dans la maison, puis la soumet ; un adulte la juge. Le travail validé fait
+progresser son personnage et remplit un coffre commun, que la famille ouvre ensemble et dont les
+parents définissent le contenu : sorties, activités, petits plaisirs, et de l'argent de poche fictif,
+partagé entre les membres.
+
+**L'argent de poche du jeu représente de l'argent réel promis par les parents.** Il ne s'achète pas
+et l'éditeur n'en verse jamais : ce sont les chefs de clan qui le mettent dans le coffre, en
+promettant la somme correspondante. Un chef peut ensuite remettre pour de vrai à l'enfant tout ou
+partie de sa bourse (le « tribut ») ; il déclare le montant versé et la bourse baisse d'autant.
+L'application ne constate aucun versement et ne promet rien à la place des parents : échanger cet
+argent contre un vrai argent de poche reste une décision familiale.
 
 **La finalité du traitement est unique** : permettre à un enfant de participer, sous la responsabilité
 de ses parents, à un jeu familial dont l'objet est la contribution aux tâches du foyer. Les données de
@@ -110,10 +120,15 @@ Le jeu porte sur la participation de l'enfant à la vie de son propre foyer, pas
 règles de contenu y veillent :
 
 - **aucune tâche n'est liée à une activité professionnelle** ;
-- **aucune tâche n'est un travail pour un tiers** ;
+- **aucune tâche n'est un travail pour un tiers** : toutes concernent le logement et la famille de
+  l'enfant ;
 - **aucun objectif financier n'est imposé** : l'éditeur ne verse jamais d'argent, et l'argent de poche
-  du jeu est fictif ;
-- **un adulte peut retirer immédiatement n'importe quelle tâche.**
+  du jeu est fictif et ne s'achète pas. Il représente l'argent réel promis par les chefs de clan, qui
+  peuvent choisir de le remettre pour de vrai (section 2) ; c'est une décision familiale ;
+- **le parent peut retirer immédiatement n'importe quelle tâche.** Dans le jeu, ce parent est le
+  **chef de clan** : depuis le menu d'administration du tiroir des tâches, il désactive la tâche
+  (option `adm_disable`) ou la cache aux joueurs (option `adm_hide`), avec effet immédiat et
+  réversible. L'enfant, lui, choisit celles qu'il entreprend.
 
 L'application ne désigne aucune tâche comme dangereuse : ce qui est prudent pour un enfant ne l'est
 pas pour un autre. L'adulte reste juge de ce qui convient à son enfant, désactive ou masque en un geste
@@ -147,15 +162,28 @@ Tout verdict est inscrit au journal, que l'enfant peut consulter. Un travail sou
 *Decreto 1074 de 2015, article 2.2.2.25.2.9 ; Convention, articles 5, 12 et 18.*
 
 1. **L'enfant est entendu d'abord.** Après avoir lu des conditions d'utilisation rédigées pour lui,
-   l'enfant apprend qu'un adulte de sa famille devra l'accepter, et l'application lui demande s'il a
-   envie de jouer. Tant qu'il n'a pas répondu, rien n'est enregistré.
-2. **Avant l'accord de l'adulte, seule existe une pré-inscription technique** : un identifiant
-   anonyme, le statut de mineur et l'acceptation des conditions, rien d'autre. Elle est effacée au bout
-   de trente jours si aucun adulte n'admet l'enfant.
-3. **L'adulte autorise au moment de l'acte.** Aucune donnée de jeu n'existe avant qu'un chef fasse
-   entrer l'enfant dans le clan. Il déclare alors qu'il s'agit de son enfant et consent, en tant que
-   responsable légal, à la collecte de ses données de jeu. Cette déclaration est datée et conservée
-   comme preuve. Un mineur ne peut ni s'inscrire seul dans un clan, ni en créer un.
+   l'enfant dit, sur son propre téléphone, s'il a envie de jouer : l'application lui explique que
+   c'est lui qui commence et qu'un adulte de sa famille décidera ensuite. Sa réponse ne contient
+   aucune donnée personnelle : la date, la langue, la région, la version du texte qui lui a été
+   montré et un code de six caractères tiré au hasard, rien d'autre. Ce code, affiché en grand sur
+   son téléphone et repris sur celui de l'adulte, relie la réponse à l'invitation qui lui répondra.
+2. **Sa réponse voyage jusqu'à l'adulte, et rien n'est enregistré avant.** L'enfant la montre à
+   l'adulte sous forme de code QR, ou la lui envoie par un lien. Tant que l'enfant ne s'est pas
+   connecté à un compte, tout reste dans la mémoire de son téléphone : rien n'est écrit sur
+   l'appareil ni en base, pas même la langue choisie, et une application refermée repart du premier
+   écran. La seule trace hors du téléphone est une entrée d'authentification anonyme, sans aucune
+   donnée, que la plateforme efface d'elle-même au bout de trente jours.
+3. **L'adulte décide après avoir lu la réponse de l'enfant.** Un chef, connecté à son propre compte,
+   lit la réponse de l'enfant, puis déclare qu'il s'agit de son enfant et consent, en tant que
+   responsable légal, à la collecte de ses données de jeu. Sa décision et la réponse de l'enfant
+   sont enregistrées ensemble, sous le compte de l'adulte, et conservées comme preuve. L'enfant lit
+   ensuite l'invitation de l'adulte (code QR, ou lien protégé par un code), se connecte et entre
+   dans le clan ; la preuve est alors jointe à son dossier. Son téléphone refuse, avant toute
+   connexion, une invitation faite pour un adulte ou pour la demande d'un autre enfant (elle ne
+   porte pas le même code) ; si l'application a été fermée avant qu'il ait lu l'invitation, l'enfant
+   envoie une nouvelle demande ; une fois connecté, son attente de la confirmation du chef est
+   gardée sur son compte et reprend à la réouverture, jusqu'à l'expiration de l'invitation (72 h). Aucune donnée de jeu n'existe avant cette entrée. Un mineur ne peut ni
+   s'inscrire seul dans un clan, ni en créer un.
 4. **La responsabilité ne se transfère pas.** Elle reste attachée au clan d'origine de l'enfant, qui
    ne peut pas l'en exclure, sauf s'il s'agit d'un profil sans téléphone créé par l'adulte lui-même.
 5. **La majorité est déclarée, pas calculée.** La date de naissance n'est jamais conservée :
@@ -183,10 +211,10 @@ localisation, ni moyen de le contacter.
 |---|---|---|
 | Identification | identifiant technique du compte, identifiant de l'appareil | se connecter, recevoir les notifications |
 | Statut légal | enfant, en transition, adulte (jamais la date de naissance) | appliquer les protections des mineurs |
-| Pays et langue | pays déclaré, région de stockage, langue | appliquer le droit du pays, héberger les données |
+| Pays et langue | pays déclaré, région de stockage, langue (enregistrés seulement après la connexion) | appliquer le droit du pays, héberger les données |
 | Jeu | pseudonyme, avatar, niveau, titres, tâches, argent de poche fictif, journal du clan | le jeu lui-même, visible du seul clan |
 | Technique | jeton de notification, version, dernière connexion, décalage horaire | notifier à une heure adaptée |
-| Preuves | conditions acceptées, date, déclaration de l'adulte | prouver le consentement |
+| Preuves | conditions acceptées, date, déclaration de l'adulte, réponse de l'enfant | prouver le consentement |
 | Achats (adultes) | référence d'achat, produit, dates | faire fonctionner l'abonnement |
 
 **Ne sont pas collectés** : nom et prénom réels, date de naissance, adresse, contacts, localisation,
@@ -207,6 +235,8 @@ entraîner ses modèles sans son autorisation ; l'éditeur n'a donné aucune aut
 
 - **Suppression** : immédiate pour le service, puis trente jours de conservation restreinte, puis
   effacement définitif.
+- **Compte connecté mais jamais admis dans un clan** : effacé après trente jours sans connexion,
+  compte de connexion compris ; la preuve d'acceptation est close et conservée cinq ans.
 - **Preuves d'acceptation** : cinq ans.
 - **Clan inactif ou bloqué pour défaut de paiement** : deux ans, avec rappels et préavis, pour
   préserver l'histoire d'une famille qui s'interrompt sans avoir renoncé.

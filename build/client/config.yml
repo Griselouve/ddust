@@ -5,8 +5,8 @@ conf:
   application:
     org: com.grisloup
     display_name: "Donjons & Savons"
-    version: "1.0.6"
-    build: 7
+    version: "1.0.14"
+    build: 2006
 
   deva:
     modes:
@@ -97,6 +97,11 @@ conf:
       # Le joueur démarre en session anonyme et ne lie son compte Google qu'à la fin de
       # l'onboarding : ni email, ni nom, ni photo dans l'annuaire Firebase Auth avant que
       # les CGU ne soient acceptées et l'état légal connu.
+      # ⚠ RIEN NE S'ÉCRIT SOUS CETTE SESSION, pour personne (2026-09-22). Le mineur, qui y
+      #   faisait autrefois inscrire son onboarding et sa demande d'entrée dans un clan,
+      #   donne son accord, le transmet à son parent, puis se connecte AVANT d'entrer. La
+      #   session anonyme elle-même ne vit plus qu'en mémoire (dvcloud) : un kill la perd, et
+      #   l'application repart du premier écran.
       anonymous:
         enabled: true
         # Jamais automatiquement : la session n'est ouverte que par un tap explicite sur

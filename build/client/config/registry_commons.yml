@@ -21,14 +21,25 @@ conf:
         - parentalgate_screen
         - documents_acceptance_screen
         - kid_assent_screen
+        # La réponse de l'enfant, transmise au parent (QR code, lien), et le point d'où il
+        # reçoit l'invitation en retour. Sans cette ligne, le « oui » ne mènerait nulle part.
+        - kid_assent_share
         - link_account_screen
+        # L'adhésion en attente : invitation acceptée, le chef doit encore confirmer. L'attente
+        # survit à la fermeture du jeu (users.pending_join, worker.on_join_wait_appear).
+        - join_wait
         - new_or_pick_clan
         - create_clan
         - decisiontree
         - invite_clan
+        # L'invitation à distance, côté chef (code + lien) et côté invité (saisie). Absentes
+        # de cette liste jusqu'au 2026-09-22 : tout le parcours à distance était inatteignable,
+        # navigate_new compris.
+        - invite_clan_pin
+        - enter_invite_pin
         - accept_invitation_clan
         - kid_wants_clan
-        - accept_request_clan
+        # `accept_request_clan` RETIRÉ le 2026-09-22 avec tout le parcours « demande d'entrée ».
         - dashboard
         - testme
         #- burn_page

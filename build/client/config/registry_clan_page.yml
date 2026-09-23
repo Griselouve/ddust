@@ -13,9 +13,11 @@ conf:
       show_back: false
       title: "@@@T:Clan@@@"
       actions:
+        # PAS de `- dvtuto.enter` ici (même raison que `dashboard` et `combat`) : une liste d'actions
+        # n'est pas awaitée, la leçon tournait EN PARALLÈLE de on_clan_appear et évaluait ses gardes
+        # chef sur un rôle pas encore établi. C'est on_clan_appear qui l'appelle, en dernier.
         appear:
           - worker.on_clan_appear
-          - dvtuto.enter
       registry:
         - commons/splash_background
         - clan_page/icon
@@ -316,10 +318,12 @@ conf:
         h: 5%
         border: false
 
-    # Menu du bouton settings de l'écran Clan (Journal, QR, invitation, tutoriels + « Créer un
-    # joueur »). Le selector clan_settings_selector filtre les options réservées au chef : recruter
-    # (QR, invitation à distance) et « Créer un joueur » n'apparaissent que pour un admin ; seuls le
-    # journal et les tutoriels sont visibles par tous.
+    # Menu du bouton settings de l'écran Clan (Journal, accueil d'un enfant, QR, invitation,
+    # tutoriels + « Créer un joueur »). Le selector clan_settings_selector filtre les options
+    # réservées au chef : recruter (enfant, QR, invitation à distance) et « Créer un joueur »
+    # n'apparaissent que pour un admin ; seuls le journal et les tutoriels sont visibles par tous.
+    # ⚠ Une option ajoutée ici est à reporter dans le panneau du tutoriel qui lui correspond
+    #   (dvtuto.yml, menu_options ou menu_options_admin) : ils sont écrits à la main.
     clan_page/settings_menu:
       class: DvMenu
       layer: popup
@@ -341,8 +345,22 @@ conf:
             label: "@@@T:clan_menu_log@@@"
           actions:
             tap: worker.open_clan_log
-        # Fait entrer un joueur dans le clan par QR code. Réservé au chef (clan_settings_selector),
-        # avec double garde dans worker.on_invite_clan.
+        # Accueillir un enfant : l'enfant a dit qu'il voulait jouer, son téléphone affiche un QR
+        # code ; le chef le scanne, voit cet accord, déclare, puis invite (QR ou à distance).
+        # C'est la SEULE porte d'un enfant : « QR Code du clan » et « Inviter à distance » ne
+        # proposent plus que le cas adulte. Réservé au chef (clan_settings_selector), double
+        # garde dans worker.on_welcome_child. Icône Material `face` (un visage, pas d'asset) :
+        # elle est dans la liste blanche de DvHelper, que `child_care` n'est pas.
+        welcome_child:
+          icon: "face"
+          desc: "@@@T:clan_menu_welcome_child_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_welcome_child@@@"
+          actions:
+            tap: worker.on_welcome_child
+        # Fait entrer un ADULTE dans le clan par QR code (sans accord d'enfant joint, seul le cas
+        # adulte est proposé). Réservé au chef (clan_settings_selector), avec double garde dans
+        # worker.on_invite_clan.
         clan_qr:
           image: "images/small/qr-code.png"
           desc: "@@@T:clan_menu_qr_desc@@@"
@@ -383,7 +401,8 @@ conf:
         # sous un menu qui parle de recrutement et de tutoriels.
 
     #//------------------------------- ECRAN de CONSENTEMENT du chef (recrutement) -------
-    # Ouvert par worker.on_invite_clan / on_invite_clan_remote AVANT que le lobby ne soit cree :
+    # Ouvert par worker.on_invite_clan / on_invite_clan_remote / on_welcome_child / on_assent_link
+    # AVANT que le lobby ne soit cree :
     # le chef qui recrute fait potentiellement entrer un enfant dans son clan, il doit avoir la
     # mention de responsabilite legale et le lien vers les CGU adulte sous les yeux A CET INSTANT
     # (RGPD art. 8 : le consentement doit etre eclaire au moment de l'acte, pas seulement a
@@ -399,6 +418,14 @@ conf:
     # ⚠ LE RETOUR EST LIBRE (`show_back: true`). Renoncer a inviter ne demande aucune confirmation,
     #   et `worker.pending_invite_kind` est repose a chaque ouverture : un retour sans passer par
     #   « Pas maintenant » ne laisse donc rien derriere lui.
+    #
+    # DEUX MODES (worker.on_invite_consent_appear) :
+    #   * ENFANT, quand un accord d'enfant est joint (« Accueillir un enfant », lien ddust://assent) :
+    #     le panneau de tete montre ce que l'enfant a accepte, quand, et le texte qui lui a ete
+    #     montre ; les cases se limitent aux deux cas « enfant » ; le chef choisit ensuite QR code
+    #     ou invitation a distance (invite_consent_screen/kind) ;
+    #   * ADULTE, sinon : une seule case, « il s'agit d'un adulte », et le panneau de tete dit
+    #     comment faire entrer un enfant (ou, apres un scan rate, que ce n'etait pas un accord).
     invite_consent_screen:
       masks:
         - page
@@ -414,8 +441,10 @@ conf:
       registry:
         - commons/splash_background
         - invite_consent_screen/panel
+        - invite_consent_screen/assent
         - invite_consent_screen/notice
         - documents/ack_options
+        - invite_consent_screen/kind
         - invite_consent_screen/yes
         - invite_consent_screen/no
 
@@ -437,6 +466,31 @@ conf:
         border_radius: 8.0
         label: ""
 
+    # En tete, ce qui a PRECEDE la decision du chef. En mode enfant : l'accord de l'enfant, sa
+    # date et le texte qu'on lui a montre (dans la langue du chef, qui doit le comprendre). En
+    # mode adulte : comment faire entrer un enfant, ou pourquoi le code scanne n'a pas suffi.
+    # Toujours rempli par le worker (on_invite_consent_appear), jamais vide a l'ecran.
+    # En mode enfant, la premiere ligne est le CODE de la demande (invite_consent_assent_code),
+    # en blanc (marqueurs [[ ]] + highlight_color) : le chef le compare a celui que l'enfant
+    # affiche en grand. Deux lignes de plus dans une case qui n'a pas grandi : `scrollable`,
+    # pour qu'une langue longue ne coupe jamais la fin du texte montre a l'enfant.
+    invite_consent_screen/assent:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 7%
+        y: 3%
+        w: 86%
+        h: 24%
+        font_size: 11.0
+        font_color: "amber_200"
+        highlight_color: "0xFFFFFFFF"
+        scrollable: true
+        text_align: LEFT
+        label: ""
+
     # Le masque commons/parental_consent fournit la mise en page (JUSTIFY, link_color, lien inline
     # vers les CGU adulte) ; le LIBELLE, lui, est surcharge. Son texte par defaut est
     # inconditionnel (« vous declarez etre son responsable legal »), ce qui n'est vrai que sur
@@ -444,20 +498,23 @@ conf:
     # adulte, un enfant sans clan, ou un enfant deja pris en charge par le chef d'un autre clan.
     # invite_consent_notice enonce les trois cas et ne fait declarer que celui qui s'applique.
     # ⚠️ Aucun events.tap ici : le GestureDetector de la shape capterait le tap avant le lien.
+    # Descendue sous le panneau de l'accord (2026-09-22), et resserree : les cases, elles, n'ont
+    # plus que deux lignes au plus.
     invite_consent_screen/notice:
       masks:
         - commons/parental_consent
       layer: content
       shape:
         x: 7%
-        y: 5%
+        y: 28%
         w: 86%
-        h: 30%
-        font_size: 13.0
+        h: 20%
+        font_size: 12.0
         font_color: "amber_200"
         label: "@@@T:invite_consent_notice@@@"
 
-    # Les trois cas enonces par la mention ci-dessus, mais A COCHER : le chef ne se contente
+    # Les cas annonces par la mention ci-dessus (deux « enfant » avec un accord joint, « adulte »
+    # seul sinon : cf. les deux acquittements de screens_meta.yml), mais A COCHER : le chef ne se contente
     # plus d'accuser reception, il declare CELUI qui s'applique — et cette declaration part avec
     # l'invitation pour se coller a la preuve d'acceptation de celui qui entrera (cf.
     # documents.acknowledgements dans screens_meta.yml).
@@ -467,9 +524,9 @@ conf:
       layer: content
       shape:
         x: 7%
-        y: 37%
+        y: 49%
         w: 86%
-        h: 31%
+        h: 12%
         font_color: "amber_200"
         font_size: 12.0
         row_height: 28.0
@@ -477,6 +534,28 @@ conf:
           change: true
         actions:
           change: worker.on_invite_ack_changed
+
+    # QR code ou invitation a distance, en mode ENFANT seulement : invisible ailleurs, ou
+    # l'option du menu a deja choisi. Un tap bascule (worker.on_invite_kind_toggle) ; le libelle
+    # dit le mode courant ET qu'on peut le changer. Le mode de depart suit la facon dont
+    # l'accord est arrive : scanne sur place → QR code, lien recu → a distance.
+    invite_consent_screen/kind:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        x: 7%
+        y: 62%
+        w: 86%
+        h: 7%
+        text_align: CENTER
+        font_size: 12.0
+        label: ""
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_invite_kind_toggle
 
     # Le bouton est ETEINT ET SOURD a l'ouverture de l'ecran, et ne s'allume qu'une fois une
     # case cochee (worker._setInviteYesReady) : une invitation sans declaration ne part pas.

@@ -539,15 +539,17 @@ assets:
           kind: voice
           langs: [fr, en, es, de, it, pt, br, nl]
           out: "voices/kid_assent_screen_@@@lang@@@.mp3"
+          # ⚠ L'ENFANT PARLE LE PREMIER (2026-09-22) : la réplique disait « tes parents ont dit
+          #   oui », ce qui n'est plus vrai à cet instant. Ses parents décident APRÈS lui.
           text:
-            fr: "Tes parents ont dit oui. À toi de jouer !"
-            en: "Your parents said yes. Your turn now!"
-            es: "Tus padres han dicho que sí. ¡Te toca a ti!"
-            de: "Deine Eltern haben Ja gesagt. Jetzt bist du dran!"
-            it: "I tuoi genitori hanno detto sì. Tocca a te!"
-            pt: "Os teus pais disseram que sim. É a tua vez!"
-            br: "Seus pais disseram que sim. É a sua vez!"
-            nl: "Je ouders hebben ja gezegd. Nu is het jouw beurt!"
+            fr: "C'est à toi qu'on demande d'abord. As-tu envie de jouer ?"
+            en: "We are asking you first. Do you want to play?"
+            es: "Te lo preguntamos primero a ti. ¿Tienes ganas de jugar?"
+            de: "Wir fragen zuerst dich. Hast du Lust zu spielen?"
+            it: "Lo chiediamo prima a te. Hai voglia di giocare?"
+            pt: "Perguntamos primeiro a ti. Tens vontade de jogar?"
+            br: "A pergunta é primeiro para você. Está com vontade de jogar?"
+            nl: "We vragen het eerst aan jou. Heb je zin om te spelen?"
 
         intro_v_player_name_screen:
           kind: voice
