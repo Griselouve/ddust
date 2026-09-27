@@ -636,6 +636,43 @@ data:
         pt: "Para uma criança demasiado pequena ou sem telemóvel: crias a sua personagem e jogas no seu lugar"
         br: "Para uma criança pequena demais ou sem celular: você cria o personagem dela e joga no lugar dela"
         nl: "Voor een kind dat te jong is of geen telefoon heeft: jij maakt zijn personage aan en speelt in zijn plaats"
+      # Couper / rallumer l'IA pour TOUT le clan (chef seulement, clan_settings_selector).
+      clan_menu_ai_off:
+        fr: "Couper l'IA"
+        en: "Turn off AI"
+        es: "Desactivar la IA"
+        de: "KI ausschalten"
+        it: "Disattiva l'IA"
+        pt: "Desligar a IA"
+        br: "Desligar a IA"
+        nl: "AI uitschakelen"
+      clan_menu_ai_off_desc:
+        fr: "Pour tout le clan : « Inspire moi » propose des idées toutes faites, et le conte du butin laisse place au journal"
+        en: "For the whole clan: \"Inspire me\" offers ready-made ideas, and the loot tale gives way to the log"
+        es: "Para todo el clan: «Inspírame» propone ideas ya hechas y el cuento del botín deja paso al registro"
+        de: "Für den ganzen Clan: „Inspiriere mich“ schlägt fertige Ideen vor, und statt der Beute-Erzählung erscheint das Tagebuch"
+        it: "Per tutto il clan: «Ispirami» propone idee già pronte e il racconto del bottino lascia il posto al diario"
+        pt: "Para todo o clã: «Inspira-me» propõe ideias já feitas e o conto do espólio dá lugar ao diário"
+        br: "Para todo o clã: \"Me inspire\" sugere ideias prontas e o conto do tesouro dá lugar ao diário"
+        nl: "Voor de hele clan: 'Inspireer me' stelt kant-en-klare ideeën voor en het buitverhaal maakt plaats voor het dagboek"
+      clan_menu_ai_on:
+        fr: "Rallumer l'IA"
+        en: "Turn AI back on"
+        es: "Reactivar la IA"
+        de: "KI wieder einschalten"
+        it: "Riattiva l'IA"
+        pt: "Voltar a ligar a IA"
+        br: "Religar a IA"
+        nl: "AI weer inschakelen"
+      clan_menu_ai_on_desc:
+        fr: "Pour tout le clan : « Inspire moi » et le conte du butin font de nouveau appel à l'IA"
+        en: "For the whole clan: \"Inspire me\" and the loot tale use AI again"
+        es: "Para todo el clan: «Inspírame» y el cuento del botín vuelven a usar la IA"
+        de: "Für den ganzen Clan: „Inspiriere mich“ und die Beute-Erzählung nutzen wieder die KI"
+        it: "Per tutto il clan: «Ispirami» e il racconto del bottino tornano a usare l'IA"
+        pt: "Para todo o clã: «Inspira-me» e o conto do espólio voltam a usar a IA"
+        br: "Para todo o clã: \"Me inspire\" e o conto do tesouro voltam a usar a IA"
+        nl: "Voor de hele clan: 'Inspireer me' en het buitverhaal gebruiken weer AI"
       # Écran de saisie du nom du nouveau joueur enfant.
       create_player_title:
         fr: "Nouveau joueur"
@@ -772,6 +809,38 @@ data:
         pt: "Código do pedido: [[{code}]]. Verifica se é o mesmo que aparece no ecrã da criança."
         br: "Código do pedido: [[{code}]]. Confira se é o mesmo que aparece na tela da criança."
         nl: "Code van de aanvraag: [[{code}]]. Controleer of het dezelfde is als op het scherm van je kind."
+      #   * invite_consent_claim : derniere ligne du meme panneau, quand le parent vient de designer
+      #     le joueur sans telephone que l'enfant reprend (claim_pick_page). {name} = son nom.
+      invite_consent_claim:
+        fr: "Il retrouvera son joueur : [[{name}]]."
+        en: "They will get back their player: [[{name}]]."
+        es: "Recuperará su jugador: [[{name}]]."
+        de: "Es bekommt seinen Spieler zurück: [[{name}]]."
+        it: "Ritroverà il suo giocatore: [[{name}]]."
+        pt: "Vai recuperar o seu jogador: [[{name}]]."
+        br: "Vai recuperar o seu jogador: [[{name}]]."
+        nl: "Het krijgt zijn speler terug: [[{name}]]."
+      # Reprise d'un joueur sans telephone (claim_pick_page) : le chef accueille un enfant qui
+      # jouait deja sur le telephone d'un parent. La derniere ligne de la liste garde le
+      # parcours d'un nouveau joueur.
+      claim_pick_hint:
+        fr: "Cet enfant jouait-il déjà sur votre téléphone ? Choisissez son joueur : il le retrouvera sur son propre téléphone, avec son expérience, ses objets et son histoire. Sinon, choisissez « C'est un nouveau joueur »."
+        en: "Was this child already playing on your phone? Choose their player: they will find it on their own phone, with their experience, items and story. Otherwise, choose “This is a new player”."
+        es: "¿Este niño ya jugaba en tu teléfono? Elige su jugador: lo encontrará en su propio teléfono, con su experiencia, sus objetos y su historia. Si no, elige «Es un jugador nuevo»."
+        de: "Hat dieses Kind schon auf deinem Handy gespielt? Wähle seinen Spieler: Es findet ihn auf seinem eigenen Handy wieder, mit seiner Erfahrung, seinen Gegenständen und seiner Geschichte. Sonst wähle „Das ist ein neuer Spieler“."
+        it: "Questo bambino giocava già sul tuo telefono? Scegli il suo giocatore: lo ritroverà sul suo telefono, con la sua esperienza, i suoi oggetti e la sua storia. Altrimenti, scegli «È un nuovo giocatore»."
+        pt: "Esta criança já jogava no teu telemóvel? Escolhe o jogador dela: vai encontrá-lo no seu próprio telemóvel, com a experiência, os objetos e a história. Se não, escolhe «É um jogador novo»."
+        br: "Essa criança já jogava no seu celular? Escolha o jogador dela: ela vai encontrá-lo no próprio celular, com a experiência, os objetos e a história. Se não, escolha “É um jogador novo”."
+        nl: "Speelde dit kind al op jouw telefoon? Kies zijn speler: het vindt hem terug op zijn eigen telefoon, met zijn ervaring, voorwerpen en verhaal. Zo niet, kies dan ‘Dit is een nieuwe speler’."
+      claim_pick_new:
+        fr: "C'est un nouveau joueur"
+        en: "This is a new player"
+        es: "Es un jugador nuevo"
+        de: "Das ist ein neuer Spieler"
+        it: "È un nuovo giocatore"
+        pt: "É um jogador novo"
+        br: "É um jogador novo"
+        nl: "Dit is een nieuwe speler"
       invite_consent_child_hint:
         fr: "Pour inviter un enfant, c'est lui qui commence : il installe le jeu et dit qu'il veut jouer. Scannez ensuite le QR code qu'il affiche avec « Accueillir un enfant », dans le menu du clan. Ici, vous invitez un adulte."
         en: "To invite a child, they go first: they install the game and say they want to play. Then scan the QR code they display with “Welcome a child”, in the clan menu. Here, you are inviting an adult."
@@ -810,6 +879,25 @@ data:
         pt: "O meu filho está longe: ligação e código (toca para mudar)"
         br: "Meu filho está longe: link e código (toque para mudar)"
         nl: "Mijn kind is ver weg: link en code (tik om te wijzigen)"
+      # Bascule « simple membre / aussi chef » (invite_consent_screen/chief), en mode adulte.
+      invite_consent_chief_no:
+        fr: "Il sera simple membre (toucher pour changer)"
+        en: "They will be a regular member (tap to change)"
+        es: "Será un miembro normal (toca para cambiar)"
+        de: "Er wird einfaches Mitglied (tippen zum Ändern)"
+        it: "Sarà un semplice membro (tocca per cambiare)"
+        pt: "Será um membro normal (toca para mudar)"
+        br: "Será um membro comum (toque para mudar)"
+        nl: "Wordt een gewoon lid (tik om te wijzigen)"
+      invite_consent_chief_yes:
+        fr: "Il sera aussi chef de clan (toucher pour changer)"
+        en: "They will also be a clan chief (tap to change)"
+        es: "También será jefe del clan (toca para cambiar)"
+        de: "Er wird auch Clanchef (tippen zum Ändern)"
+        it: "Sarà anche capo del clan (tocca per cambiare)"
+        pt: "Também será chefe do clã (toca para mudar)"
+        br: "Também será chefe do clã (toque para mudar)"
+        nl: "Wordt ook clanhoofd (tik om te wijzigen)"
       # Boutons de l'overlay de consentement, révélé au chef quand il demande à recruter
       # (QR ou invitation à distance), AVANT que le lobby ne soit créé — cf. worker.on_invite_clan.
       # Le libellé n'assume AUCUNE responsabilité : la mention ci-dessus est conditionnelle, le
@@ -1202,6 +1290,54 @@ data:
         pt: "Descobre o jogo: https://donjons.grisloup.com/pt/"
         br: "Descubra o jogo: https://donjons.grisloup.com/pt/"
         nl: "Ontdek het spel: https://donjons.grisloup.com/nl/"
+      # « Noter et partager » (kebabs Clan et Personnage, adultes) : l'option, sa description, la
+      # phrase du panneau, le merci affiché tant que l'app n'a pas de fiche publique, et le
+      # message envoyé avec le lien (share.app_site / share.app_store).
+      menu_rate_share:
+        fr: "Noter et partager"
+        en: "Rate and share"
+        es: "Valorar y compartir"
+        de: "Bewerten und teilen"
+        it: "Valuta e condividi"
+        pt: "Avaliar e partilhar"
+        br: "Avaliar e compartilhar"
+        nl: "Beoordelen en delen"
+      menu_rate_share_desc:
+        fr: "Grave ton verdict et fais connaître le donjon"
+        en: "Carve your verdict and spread the word about the dungeon"
+        es: "Graba tu veredicto y da a conocer el calabozo"
+        de: "Meißle dein Urteil ein und mach das Verlies bekannt"
+        it: "Incidi il tuo verdetto e fai conoscere il dungeon"
+        pt: "Grava o teu veredicto e dá a conhecer a masmorra"
+        br: "Grave seu veredito e divulgue a masmorra"
+        nl: "Kerf je oordeel in en maak de kerker bekend"
+      rate_phrase:
+        fr: "Le donjon t'a plu, aventurier ? Grave ton verdict dans la pierre !"
+        en: "Enjoying the dungeon, adventurer? Carve your verdict in stone!"
+        es: "¿Te ha gustado el calabozo, aventurero? ¡Graba tu veredicto en la piedra!"
+        de: "Gefällt dir das Verlies, Abenteurer? Meißle dein Urteil in Stein!"
+        it: "Ti è piaciuto il dungeon, avventuriero? Incidi il tuo verdetto nella pietra!"
+        pt: "Gostaste da masmorra, aventureiro? Grava o teu veredicto na pedra!"
+        br: "Curtiu a masmorra, aventureiro? Grave seu veredito na pedra!"
+        nl: "Bevalt de kerker, avonturier? Kerf je oordeel in steen!"
+      rate_thanks_soon:
+        fr: "Merci, aventurier ! La taverne ouvre bientôt ses portes : ton verdict y sera gravé."
+        en: "Thank you, adventurer! The tavern opens its doors soon: your verdict will be carved there."
+        es: "¡Gracias, aventurero! La taberna abrirá pronto sus puertas: allí se grabará tu veredicto."
+        de: "Danke, Abenteurer! Die Taverne öffnet bald ihre Tore: Dort wird dein Urteil eingemeißelt."
+        it: "Grazie, avventuriero! La taverna aprirà presto le sue porte: lì verrà inciso il tuo verdetto."
+        pt: "Obrigado, aventureiro! A taberna abre em breve as suas portas: o teu veredicto será lá gravado."
+        br: "Obrigado, aventureiro! A taverna abre suas portas em breve: seu veredito será gravado lá."
+        nl: "Dank je, avonturier! De herberg opent binnenkort haar deuren: daar wordt je oordeel ingekerfd."
+      share_app_text:
+        fr: "Je joue à Donjons & Savons en famille : les tâches de la maison deviennent des quêtes. Rejoins l'aventure !"
+        en: "I play Dungeons & Dusting with my family: household chores become quests. Join the adventure!"
+        es: "Juego a Calabozos & Jabones en familia: las tareas de casa se convierten en misiones. ¡Únete a la aventura!"
+        de: "Ich spiele Donjons & Savons mit meiner Familie: Hausarbeiten werden zu Quests. Schließ dich dem Abenteuer an!"
+        it: "Gioco a Donjons & Savons in famiglia: le faccende di casa diventano missioni. Unisciti all'avventura!"
+        pt: "Jogo Donjons & Savons em família: as tarefas de casa tornam-se missões. Junta-te à aventura!"
+        br: "Jogo Donjons & Savons em família: as tarefas de casa viram missões. Venha para a aventura!"
+        nl: "Ik speel Donjons & Savons met het gezin: huishoudelijke klusjes worden queestes. Doe mee met het avontuur!"
       # Attente affichée pendant que le modèle rédige le conte (aller-retour réseau, jusqu'à 30 s).
       log_narrating:
         fr: "Le conteur rassemble ses mots…"
@@ -1223,6 +1359,16 @@ data:
         pt: "O contador de histórias não pôde vir hoje. Aqui está o diário tal como está:"
         br: "O contador de histórias não pôde vir hoje. Aqui está o diário do jeito que está:"
         nl: "De verteller kon vandaag niet komen. Hier is het dagboek zoals het is:"
+      # Le chef a coupé l'IA du clan : le conte n'est même pas demandé, on montre le journal.
+      log_narrate_ai_off:
+        fr: "Le conteur est en congé : l'IA est coupée pour le clan. Voici le journal tel quel :"
+        en: "The storyteller is on leave: AI is turned off for the clan. Here's the log as it stands:"
+        es: "El narrador está de vacaciones: la IA está desactivada para el clan. Aquí está el registro tal cual:"
+        de: "Der Erzähler hat frei: Die KI ist für den Clan ausgeschaltet. Hier ist das Tagebuch, wie es ist:"
+        it: "Il cantastorie è in ferie: l'IA è disattivata per il clan. Ecco il diario così com'è:"
+        pt: "O contador de histórias está de folga: a IA está desligada para o clã. Aqui está o diário tal como está:"
+        br: "O contador de histórias está de folga: a IA está desligada para o clã. Aqui está o diário do jeito que está:"
+        nl: "De verteller heeft vrij: AI staat uit voor de clan. Hier is het dagboek zoals het is:"
 
       # ⚠ `awake_question` N'EST PAS ICI, et ne doit pas y revenir : la phrase du seuil
       #   est peinte a la premiere frame, avant qu'un seul layer cloud ne soit arrive.
@@ -2015,6 +2161,37 @@ data:
         pt: "Ler a política de privacidade: o que o jogo sabe sobre ti e tudo o que ignora."
         br: "Ler a política de privacidade: o que o jogo sabe sobre você e tudo o que ele não sabe."
         nl: "Het privacybeleid lezen: wat het spel over jou weet, en alles wat het niet weet."
+      # Conditions d'utilisation, lues dans l'app (kebab Personnage, menu de mort) : la version
+      # que le joueur a ACCEPTÉE, en lecture seule.
+      perso_menu_cgu:
+        fr: "Conditions"
+        en: "Terms"
+        es: "Condiciones"
+        de: "Bedingungen"
+        it: "Condizioni"
+        pt: "Termos"
+        br: "Termos"
+        nl: "Voorwaarden"
+      perso_menu_cgu_desc:
+        fr: "Relire les conditions d'utilisation que tu as acceptées, dans ta langue."
+        en: "Read again the terms of use you accepted, in your language."
+        es: "Volver a leer las condiciones de uso que aceptaste, en tu idioma."
+        de: "Die Nutzungsbedingungen, die du akzeptiert hast, noch einmal in deiner Sprache lesen."
+        it: "Rileggi le condizioni d'uso che hai accettato, nella tua lingua."
+        pt: "Reler os termos de utilização que aceitaste, na tua língua."
+        br: "Reler os termos de uso que você aceitou, no seu idioma."
+        nl: "De gebruiksvoorwaarden die je hebt aanvaard opnieuw lezen, in jouw taal."
+      # Titre de la barre de l'écran de consultation (documents_view_screen) : générique, chaque
+      # document portant déjà son propre titre en tête.
+      documents_view_title:
+        fr: "Documents légaux"
+        en: "Legal documents"
+        es: "Documentos legales"
+        de: "Rechtliche Dokumente"
+        it: "Documenti legali"
+        pt: "Documentos legais"
+        br: "Documentos legais"
+        nl: "Juridische documenten"
 
       # Suppression de compte (option kebab Personnage + overlay d'avertissements répétés)
       perso_menu_delete:
@@ -2220,7 +2397,7 @@ data:
         nl: "De Veroveraars van de Dageraad"
       inspire_fallback_1_desc:
         fr: "Chaque aube est une nouvelle victoire. Ce clan affronte les monstres du quotidien avec courage et détermination, car pour eux, capituler n'est pas une option."
-        en: "Every dawn heralds a new victory. This clan faces the monsters of daily life with courage and relentless determination — surrendering is simply not in their nature."
+        en: "Every dawn heralds a new victory. This clan faces the monsters of daily life with courage and relentless determination: surrendering is simply not in their nature."
         es: "Cada amanecer anuncia una nueva victoria. Este clan enfrenta los monstruos del día a día con valentía y determinación, pues rendirse no es una opción para ellos."
         de: "Jede Morgendämmerung ist ein neuer Sieg. Dieser Clan stellt sich den Monstern des Alltags mit Mut und Entschlossenheit, denn Aufgeben kommt für ihn nicht infrage."
         it: "Ogni alba è una nuova vittoria. Questo clan affronta i mostri di tutti i giorni con coraggio e determinazione, perché per loro arrendersi non è un'opzione."
@@ -2245,9 +2422,101 @@ data:
         pt: "Guardiões de uma sabedoria ancestral, transmitem a arte de vencer as tarefas com graça e eficácia. A sua chama nunca se apaga e guia o clã rumo à vitória."
         br: "Guardiões de uma sabedoria ancestral, eles transmitem a arte de vencer as tarefas com graça e eficiência. Sua chama nunca se apaga e guia o clã rumo à vitória."
         nl: "Als hoeders van eeuwenoude wijsheid geven zij de kunst door om klusjes met gratie en doeltreffendheid te verslaan. Hun vlam dooft nooit, zij leidt de clan naar de overwinning."
+      # 3 à 7 : la réserve élargie pour l'IA coupée (2026-09-25). Le tirage compte les
+      # variantes présentes (worker._fallbackCount) : en ajouter une ici suffit.
+      inspire_fallback_3_name:
+        fr: "Les Chevaliers du Balai"
+        en: "The Broom Knights"
+        es: "Los Caballeros de la Escoba"
+        de: "Die Ritter des Besens"
+        it: "I Cavalieri della Scopa"
+        pt: "Os Cavaleiros da Vassoura"
+        br: "Os Cavaleiros da Vassoura"
+        nl: "De Ridders van de Bezem"
+      inspire_fallback_3_desc:
+        fr: "Armés de balais et de bonne humeur, ils chassent la poussière de royaume en royaume. Aucune toile d'araignée ne leur échappe."
+        en: "Armed with brooms and good cheer, they chase dust from kingdom to kingdom. No cobweb escapes them."
+        es: "Armados con escobas y buen humor, persiguen el polvo de reino en reino. Ninguna telaraña se les escapa."
+        de: "Mit Besen und guter Laune bewaffnet, jagen sie den Staub von Königreich zu Königreich. Kein Spinnennetz entkommt ihnen."
+        it: "Armati di scope e di buonumore, danno la caccia alla polvere di regno in regno. Nessuna ragnatela sfugge loro."
+        pt: "Armados de vassouras e de bom humor, perseguem o pó de reino em reino. Nenhuma teia de aranha lhes escapa."
+        br: "Armados de vassouras e de bom humor, eles caçam a poeira de reino em reino. Nenhuma teia de aranha escapa deles."
+        nl: "Gewapend met bezems en een goed humeur jagen zij het stof van koninkrijk naar koninkrijk. Geen spinnenweb ontsnapt aan hen."
+      inspire_fallback_4_name:
+        fr: "La Confrérie de l'Éponge"
+        en: "The Fellowship of the Sponge"
+        es: "La Hermandad de la Esponja"
+        de: "Die Bruderschaft des Schwamms"
+        it: "La Confraternita della Spugna"
+        pt: "A Irmandade da Esponja"
+        br: "A Irmandade da Esponja"
+        nl: "De Broederschap van de Spons"
+      inspire_fallback_4_desc:
+        fr: "Leur serment : ne jamais laisser une assiette seule dans l'évier. Ensemble, ils font de la vaisselle un champ de victoire."
+        en: "Their oath: never leave a plate alone in the sink. Together, they turn the dishes into a field of victory."
+        es: "Su juramento: no dejar nunca un plato solo en el fregadero. Juntos, convierten los platos en un campo de victoria."
+        de: "Ihr Schwur: Niemals einen Teller allein in der Spüle lassen. Gemeinsam machen sie den Abwasch zum Siegesfeld."
+        it: "Il loro giuramento: mai lasciare un piatto da solo nel lavello. Insieme, trasformano i piatti in un campo di vittoria."
+        pt: "O seu juramento: nunca deixar um prato sozinho no lava-loiça. Juntos, fazem da loiça um campo de vitória."
+        br: "O juramento deles: nunca deixar um prato sozinho na pia. Juntos, eles transformam a louça em um campo de vitória."
+        nl: "Hun eed: laat nooit een bord alleen in de gootsteen. Samen maken ze van de afwas een slagveld vol overwinningen."
+      inspire_fallback_5_name:
+        fr: "Les Veilleurs du Donjon"
+        en: "The Dungeon Watch"
+        es: "Los Vigías de la Mazmorra"
+        de: "Die Wächter des Verlieses"
+        it: "Le Sentinelle del Dungeon"
+        pt: "Os Vigias da Masmorra"
+        br: "Os Vigias da Masmorra"
+        nl: "De Wachters van de Kerker"
+      inspire_fallback_5_desc:
+        fr: "Rien ne traîne sous leur garde. Ils patrouillent chaque pièce et repoussent le désordre avant qu'il ne s'installe."
+        en: "Nothing lies around on their watch. They patrol every room and drive back the mess before it settles in."
+        es: "Nada queda tirado bajo su guardia. Patrullan cada habitación y rechazan el desorden antes de que se instale."
+        de: "Unter ihrer Wacht bleibt nichts herumliegen. Sie patrouillieren durch jedes Zimmer und vertreiben die Unordnung, bevor sie sich breitmacht."
+        it: "Sotto la loro guardia non resta niente in giro. Pattugliano ogni stanza e respingono il disordine prima che si installi."
+        pt: "Nada fica fora do lugar sob a sua guarda. Patrulham cada divisão e afastam a desarrumação antes que ela se instale."
+        br: "Nada fica jogado sob a guarda deles. Eles patrulham cada cômodo e expulsam a bagunça antes que ela se instale."
+        nl: "Onder hun wacht blijft niets rondslingeren. Ze patrouilleren door elke kamer en verdrijven de rommel voordat die zich nestelt."
+      inspire_fallback_6_name:
+        fr: "Les Héritiers du Grand Rangement"
+        en: "The Heirs of the Great Tidy-Up"
+        es: "Los Herederos del Gran Orden"
+        de: "Die Erben der Großen Ordnung"
+        it: "Gli Eredi del Grande Riordino"
+        pt: "Os Herdeiros da Grande Arrumação"
+        br: "Os Herdeiros da Grande Arrumação"
+        nl: "De Erfgenamen van de Grote Opruiming"
+      inspire_fallback_6_desc:
+        fr: "Une lignée de héros qui a juré de rendre à chaque objet sa place. Leur légende grandit à chaque tiroir fermé."
+        en: "A line of heroes sworn to return every object to its place. Their legend grows with every drawer they close."
+        es: "Un linaje de héroes que juró devolver cada objeto a su sitio. Su leyenda crece con cada cajón cerrado."
+        de: "Ein Geschlecht von Helden, das geschworen hat, jedem Ding seinen Platz zurückzugeben. Ihre Legende wächst mit jeder geschlossenen Schublade."
+        it: "Una stirpe di eroi che ha giurato di rimettere ogni oggetto al suo posto. La loro leggenda cresce a ogni cassetto chiuso."
+        pt: "Uma linhagem de heróis que jurou devolver cada objeto ao seu lugar. A sua lenda cresce a cada gaveta fechada."
+        br: "Uma linhagem de heróis que jurou devolver cada objeto ao seu lugar. A lenda deles cresce a cada gaveta fechada."
+        nl: "Een geslacht van helden dat zwoer elk voorwerp zijn plek terug te geven. Hun legende groeit met elke gesloten la."
+      inspire_fallback_7_name:
+        fr: "La Horde des Lève-Tôt"
+        en: "The Early Risers Horde"
+        es: "La Horda de los Madrugadores"
+        de: "Die Horde der Frühaufsteher"
+        it: "L'Orda dei Mattinieri"
+        pt: "A Horda dos Madrugadores"
+        br: "A Horda dos Madrugadores"
+        nl: "De Horde van de Vroege Vogels"
+      inspire_fallback_7_desc:
+        fr: "Debout avant le soleil, ils ont déjà vaincu trois corvées quand le reste du monde se réveille. Leur cri de guerre : « Au travail, et en riant ! »"
+        en: "Up before the sun, they have already defeated three chores when the rest of the world wakes up. Their battle cry: 'To work, and laughing!'"
+        es: "En pie antes que el sol, ya han vencido tres tareas cuando el resto del mundo despierta. Su grito de guerra: '¡A trabajar, y riendo!'"
+        de: "Vor der Sonne auf den Beinen, haben sie schon drei Pflichten besiegt, wenn der Rest der Welt erwacht. Ihr Schlachtruf: „An die Arbeit, und zwar lachend!“"
+        it: "In piedi prima del sole, hanno già sconfitto tre faccende quando il resto del mondo si sveglia. Il loro grido di battaglia: «Al lavoro, ridendo!»"
+        pt: "De pé antes do sol, já venceram três tarefas quando o resto do mundo acorda. O seu grito de guerra: «Ao trabalho, e a rir!»"
+        br: "De pé antes do sol, eles já venceram três tarefas quando o resto do mundo acorda. O grito de guerra deles: \"Ao trabalho, e rindo!\""
+        nl: "Al op voor de zon, hebben ze al drie klusjes verslagen als de rest van de wereld wakker wordt. Hun strijdkreet: 'Aan het werk, en lachend!'"
       # Replis statiques du bouton « Inspire moi » sur les écrans de PERSONNAGE (les
       # inspire_fallback_* ci-dessus parlent d'un clan : ils n'y conviennent pas). Servis quand
-      # l'IA dépasse les 3 secondes ou refuse de répondre.
+      # l'IA dépasse les 3 secondes, refuse de répondre, ou que le chef l'a coupée pour le clan.
       inspire_player_fallback_0_name:
         fr: "Sasha"
         en: "Sasha"
@@ -2277,8 +2546,8 @@ data:
         nl: "Camille"
       inspire_player_fallback_1_desc:
         fr: "Calme, patient, et redoutablement organisé. Là où les autres foncent, il range — et il gagne."
-        en: "Calm, patient, and formidably organised. Where others charge in, they tidy up — and they win."
-        es: "Tranquilo, paciente y temiblemente organizado. Donde otros se lanzan, ordena — y gana."
+        en: "Calm, patient, and formidably organised. Where others charge in, they tidy up, and they win."
+        es: "Tranquilo, paciente y temiblemente organizado. Donde otros se lanzan, ordena, y gana."
         de: "Ruhig, geduldig und furchtbar gut organisiert. Wo andere losstürmen, wird erst mal aufgeräumt, und dann gewonnen."
         it: "Calmo, paziente e tremendamente organizzato. Dove gli altri si lanciano, mette in ordine, e vince."
         pt: "Calmo, paciente e temivelmente organizado. Onde os outros se atiram de cabeça, arruma, e ganha."
@@ -2302,6 +2571,98 @@ data:
         pt: "Pequeno no tamanho, imenso na coragem. Nenhum monstro de pó alguma vez o viu recuar."
         br: "Pequeno no tamanho, imenso na coragem. Nenhum monstro de poeira jamais o viu recuar."
         nl: "Klein van stuk, reusachtig van moed. Nog nooit heeft een stofmonster hier iemand zien terugdeinzen."
+      # 3 à 7 : la réserve élargie pour l'IA coupée (2026-09-25). Prénoms qui se lisent dans
+      # les huit langues, comme les trois premiers.
+      inspire_player_fallback_3_name:
+        fr: "Alex"
+        en: "Alex"
+        es: "Alex"
+        de: "Alex"
+        it: "Alex"
+        pt: "Alex"
+        br: "Alex"
+        nl: "Alex"
+      inspire_player_fallback_3_desc:
+        fr: "Rapide comme l'éclair. Capable de ranger une chambre entière avant la fin d'une chanson."
+        en: "Quick as lightning. Able to tidy a whole bedroom before the end of a song."
+        es: "Rápido como un rayo. Capaz de ordenar una habitación entera antes de que acabe una canción."
+        de: "Schnell wie der Blitz. Schafft ein ganzes Zimmer, bevor ein Lied zu Ende ist."
+        it: "Veloce come un fulmine. Capace di riordinare un'intera camera prima della fine di una canzone."
+        pt: "Rápido como um relâmpago. Capaz de arrumar um quarto inteiro antes do fim de uma canção."
+        br: "Rápido como um raio. Capaz de arrumar um quarto inteiro antes do fim de uma música."
+        nl: "Snel als de bliksem. Ruimt een hele kamer op voordat een liedje afgelopen is."
+      inspire_player_fallback_4_name:
+        fr: "Robin"
+        en: "Robin"
+        es: "Robin"
+        de: "Robin"
+        it: "Robin"
+        pt: "Robin"
+        br: "Robin"
+        nl: "Robin"
+      inspire_player_fallback_4_desc:
+        fr: "Un cœur d'or et des mains habiles. Toujours prêt à tendre la main à un compagnon en difficulté."
+        en: "A heart of gold and skilful hands. Always ready to help a companion in trouble."
+        es: "Un corazón de oro y unas manos hábiles. Siempre dispuesto a ayudar a un compañero en apuros."
+        de: "Ein Herz aus Gold und geschickte Hände. Immer bereit, einem Gefährten in Not zu helfen."
+        it: "Un cuore d'oro e mani abili. Sempre pronto ad aiutare un compagno in difficoltà."
+        pt: "Um coração de ouro e mãos habilidosas. Sempre pronto a ajudar um companheiro em apuros."
+        br: "Um coração de ouro e mãos habilidosas. Sempre pronto para ajudar um companheiro em apuros."
+        nl: "Een hart van goud en handige handen. Altijd klaar om een makker in nood te helpen."
+      inspire_player_fallback_5_name:
+        fr: "Sam"
+        en: "Sam"
+        es: "Sam"
+        de: "Sam"
+        it: "Sam"
+        pt: "Sam"
+        br: "Sam"
+        nl: "Sam"
+      inspire_player_fallback_5_desc:
+        fr: "Ne recule devant aucune corvée, même la plus redoutable. Le linge sale tremble à son approche."
+        en: "Never backs down from a chore, not even the most fearsome. Dirty laundry trembles at their approach."
+        es: "No retrocede ante ninguna tarea, ni siquiera la más temible. La ropa sucia tiembla a su paso."
+        de: "Weicht vor keiner Pflicht zurück, nicht einmal vor der gefürchtetsten. Die Schmutzwäsche zittert, wenn sie naht."
+        it: "Non si tira indietro davanti a nessuna faccenda, nemmeno la più temibile. I panni sporchi tremano al suo arrivo."
+        pt: "Não recua perante nenhuma tarefa, nem a mais temível. A roupa suja treme quando se aproxima."
+        br: "Não recua diante de nenhuma tarefa, nem da mais temível. A roupa suja treme quando se aproxima."
+        nl: "Deinst voor geen enkel klusje terug, zelfs niet voor het engste. De vuile was beeft bij elke stap."
+      inspire_player_fallback_6_name:
+        fr: "Lou"
+        en: "Lou"
+        es: "Lou"
+        de: "Lou"
+        it: "Lou"
+        pt: "Lou"
+        br: "Lou"
+        nl: "Lou"
+      inspire_player_fallback_6_desc:
+        fr: "Esprit malin et sourire en coin. Trouve toujours l'astuce pour finir plus vite que prévu."
+        en: "A clever mind and a sly smile. Always finds the trick to finish sooner than planned."
+        es: "Mente astuta y sonrisa pícara. Siempre encuentra el truco para terminar antes de lo previsto."
+        de: "Ein schlauer Kopf und ein verschmitztes Lächeln. Findet immer den Trick, um früher fertig zu sein als geplant."
+        it: "Mente furba e sorriso sornione. Trova sempre il trucco per finire prima del previsto."
+        pt: "Espírito astuto e sorriso maroto. Encontra sempre o truque para acabar mais cedo do que o previsto."
+        br: "Mente esperta e sorriso maroto. Sempre acha o truque para terminar mais cedo do que o previsto."
+        nl: "Een slimme geest en een sluwe glimlach. Vindt altijd de truc om sneller klaar te zijn dan gepland."
+      inspire_player_fallback_7_name:
+        fr: "Eden"
+        en: "Eden"
+        es: "Eden"
+        de: "Eden"
+        it: "Eden"
+        pt: "Eden"
+        br: "Eden"
+        nl: "Eden"
+      inspire_player_fallback_7_desc:
+        fr: "Discrétion absolue, efficacité redoutable. Personne ne l'entend arriver, mais la cuisine brille après son passage."
+        en: "Utterly discreet, fearsomely efficient. Nobody hears them coming, but the kitchen shines once they have passed."
+        es: "Discreción absoluta, eficacia temible. Nadie lo oye llegar, pero la cocina brilla después de su paso."
+        de: "Absolut unauffällig, gefürchtet gründlich. Niemand hört es kommen, aber danach glänzt die Küche."
+        it: "Discrezione assoluta, efficacia temibile. Nessuno lo sente arrivare, ma la cucina brilla dopo il suo passaggio."
+        pt: "Discrição absoluta, eficácia temível. Ninguém o ouve chegar, mas a cozinha brilha depois da sua passagem."
+        br: "Discrição absoluta, eficiência temível. Ninguém ouve chegar, mas a cozinha brilha depois que passa."
+        nl: "Volkomen onopvallend, angstaanjagend efficiënt. Niemand hoort het aankomen, maar daarna glanst de keuken."
 
       # BANQUE DE SUBSTITUTION — repli quand l'IA échoue ou dépasse le délai. Le worker tire une
       # entrée au hasard et, pour un joueur, lui accole cinq chiffres (« Benji12312 ») ; pour un
@@ -3569,6 +3930,17 @@ data:
         pt: "Este convite não corresponde ao teu pedido. Talvez seja para outra criança. Envia um novo pedido aos teus pais."
         br: "Este convite não corresponde ao seu pedido. Talvez seja para outra criança. Envie um novo pedido para seus pais."
         nl: "Deze uitnodiging past niet bij jouw aanvraag. Misschien is ze voor een ander kind. Stuur je ouders een nieuwe aanvraag."
+      # Le joueur sans telephone que le parent avait designe n'est plus disponible au moment de
+      # l'admission (deja repris, retire du clan) : cf. _claimNoAccountPlayer.
+      kid_claim_gone:
+        fr: "Le héros que tes parents avaient choisi pour toi n'est plus disponible. Envoie une nouvelle demande à tes parents."
+        en: "The hero your parents chose for you is no longer available. Send a new request to your parents."
+        es: "El héroe que tus padres eligieron para ti ya no está disponible. Envía una nueva solicitud a tus padres."
+        de: "Der Held, den deine Eltern für dich ausgewählt haben, ist nicht mehr verfügbar. Schick deinen Eltern eine neue Anfrage."
+        it: "L'eroe che i tuoi genitori avevano scelto per te non è più disponibile. Manda una nuova richiesta ai tuoi genitori."
+        pt: "O herói que os teus pais escolheram para ti já não está disponível. Envia um novo pedido aos teus pais."
+        br: "O herói que seus pais escolheram para você não está mais disponível. Envie um novo pedido para seus pais."
+        nl: "De held die je ouders voor je hadden gekozen, is niet meer beschikbaar. Stuur je ouders een nieuwe aanvraag."
 
       # Un adulte (état légal "a") scanne ou ouvre une invitation « enfant » : elle a été faite
       # pour la demande d'un enfant précis, elle ne le fait pas entrer. worker._inviteKindRefusal.
@@ -3926,6 +4298,26 @@ data:
         pt: "Bem-vindo a\n@@@session.clan.name@@@!!!"
         br: "Bem-vindo a\n@@@session.clan.name@@@!!!"
         nl: "Welkom bij\n@@@session.clan.name@@@!!!"
+      # Passage à l'âge adulte (interlude `adulthood`), juste avant la CGU adulte. [[ ]] = surbrillance.
+      adulthood_anim:
+        fr: "Te voilà [[adulte]] !\nDe nouvelles règles t'attendent."
+        en: "You are now an [[adult]]!\nNew rules await you."
+        es: "¡Ya eres [[adulto]]!\nTe esperan nuevas reglas."
+        de: "Du bist jetzt [[erwachsen]]!\nNeue Regeln erwarten dich."
+        it: "Ora sei [[adulto]]!\nTi aspettano nuove regole."
+        pt: "Agora és [[adulto]]!\nEsperam-te novas regras."
+        br: "Agora você é [[adulto]]!\nNovas regras esperam por você."
+        nl: "Je bent nu [[volwassen]]!\nEr wachten nieuwe regels op je."
+      # Bienvenue d'un adulte invité comme chef de clan (pending_clan_welcome = joined_chief).
+      joined_chief_clan_splash:
+        fr: "Bienvenue chez\n@@@session.clan.name@@@ !!!\nTu en es aussi chef !"
+        en: "Welcome to\n@@@session.clan.name@@@ !!!\nYou are also a chief!"
+        es: "¡Bienvenido a\n@@@session.clan.name@@@ !!!\n¡También eres jefe!"
+        de: "Willkommen bei\n@@@session.clan.name@@@!!!\nDu bist auch Chef!"
+        it: "Benvenuto tra\n@@@session.clan.name@@@!!!\nSei anche capo!"
+        pt: "Bem-vindo a\n@@@session.clan.name@@@!!!\nTambém és chefe!"
+        br: "Bem-vindo a\n@@@session.clan.name@@@!!!\nVocê também é chefe!"
+        nl: "Welkom bij\n@@@session.clan.name@@@!!!\nJe bent ook clanhoofd!"
 
       new_member_notif:
         fr: "Un nouvel aventurier a rejoint l'aventure ! Faites place à {name} ! La poussière tremble déjà."
@@ -4159,9 +4551,13 @@ data:
         pt: "Mais tarde"
         br: "Mais tarde"
         nl: "Later"
-      # L'attaque de bisous. Le jeton @@@name@@@ est substitué par le worker (_prepareButinKiss) et
-      # NON résolu par le moteur de traduction : le nom vient de la base, pas de la conf. Le message
-      # n'est jamais affiché à celui qu'il nomme.
+      # L'attaque de bisous. Les jetons @@@name@@@, @@@name1@@@ et @@@name2@@@ sont substitués par le
+      # worker (_prepareButinKiss) et NON résolus par le moteur de traduction : les noms viennent de
+      # la base, pas de la conf. Le message n'est jamais affiché à AUCUN de ceux qu'il nomme.
+      # ⚠ DEUX NOMS DEPUIS LE 2026-09-24 (_kissTargets) : le joueur qui a le moins contribué et un
+      #   autre tiré au sort, dans un ordre tiré au sort. Un seul nom désigné à chaque coffre se
+      #   lisait comme une dernière place. `butin_kiss` ne sert plus qu'au clan qui ne compte qu'un
+      #   joueur éligible. Les deux textes parlent de difficultés, jamais de perdants.
       butin_kiss:
         fr: "@@@name@@@ était en difficulté. Montrez-lui que vous l'aimez : Attaque de bisous !!!!"
         en: "@@@name@@@ was having a hard time. Show them some love: Kiss attack!!!!"
@@ -4171,6 +4567,15 @@ data:
         pt: "@@@name@@@ estava a passar um mau bocado. Mostrem todo o vosso carinho: ataque de beijinhos!!!!"
         br: "@@@name@@@ estava passando por um momento difícil. Mostrem todo o carinho de vocês: ataque de beijinhos!!!!"
         nl: "@@@name@@@ had het moeilijk. Laat jullie liefde zien: kusjesaanval!!!!"
+      butin_kiss_two:
+        fr: "@@@name1@@@ et @@@name2@@@ étaient en difficulté. Montrez-leur que vous les aimez : Attaque de bisous !!!!"
+        en: "@@@name1@@@ and @@@name2@@@ were having a hard time. Show them some love: Kiss attack!!!!"
+        es: "@@@name1@@@ y @@@name2@@@ lo estaban pasando mal. ¡Demostradles que les queréis: ataque de besos!!!!"
+        de: "@@@name1@@@ und @@@name2@@@ hatten es schwer. Zeigt ihnen eure ganze Liebe: Kussattacke!!!!"
+        it: "@@@name1@@@ e @@@name2@@@ erano in difficoltà. Mostrate loro tutto il vostro affetto: attacco di baci!!!!"
+        pt: "@@@name1@@@ e @@@name2@@@ estavam a passar um mau bocado. Mostrem-lhes todo o vosso carinho: ataque de beijinhos!!!!"
+        br: "@@@name1@@@ e @@@name2@@@ estavam passando por um momento difícil. Mostrem todo o carinho de vocês: ataque de beijinhos!!!!"
+        nl: "@@@name1@@@ en @@@name2@@@ hadden het moeilijk. Laat ze jullie liefde zien: kusjesaanval!!!!"
 
       #------------- Cérémonie d'ouverture du butin (butin_open_page) ----------
       # Un seul écran, deux rôles. Le MAÎTRE (le chef qui a touché le coffre plein) lit le rituel ;
@@ -4338,6 +4743,15 @@ data:
         pt: "@@@session.user.name@@@ saiu do clã."
         br: "@@@session.user.name@@@ saiu do clã."
         nl: "@@@session.user.name@@@ heeft de clan verlaten."
+      log_member_claimed:
+        fr: "@@@session.user.name@@@ a maintenant son propre téléphone."
+        en: "@@@session.user.name@@@ now has their own phone."
+        es: "@@@session.user.name@@@ ya tiene su propio teléfono."
+        de: "@@@session.user.name@@@ hat jetzt ein eigenes Handy."
+        it: "@@@session.user.name@@@ ora ha il suo telefono."
+        pt: "@@@session.user.name@@@ já tem o seu próprio telemóvel."
+        br: "@@@session.user.name@@@ agora tem o próprio celular."
+        nl: "@@@session.user.name@@@ heeft nu een eigen telefoon."
       # --- Vie de la cotisation, racontée au journal du clan ------------------
       # (worker_log._logLine, événements Store* écrits par worker_store._logStoreEvent).
       # Ces lignes ont remplacé l'écran « Mes achats » : le clan lit son histoire
@@ -4606,6 +5020,163 @@ data:
         pt: "Uma fada apareceu a meio de uma tarefa, e @@@session.user.name@@@ tocou-lhe. O seu presente: {gift}."
         br: "Uma fada apareceu no meio de uma tarefa, e @@@session.user.name@@@ tocou nela. O presente dela: {gift}."
         nl: "Midden in een klusje verscheen een fee, en @@@session.user.name@@@ raakte haar aan. Haar geschenk: {gift}."
+
+      # --- Événements aléatoires (layers/events-base-global.yml, worker_events.dart) -------
+      # Ton drôle, jamais culpabilisant. Aucun montant dans le journal ni dans les notifications :
+      # le récit raconte une rencontre, pas un score (même règle que la fée).
+      evt_ok:
+        fr: "Merci !"
+        en: "Thanks!"
+        es: "¡Gracias!"
+        de: "Danke!"
+        it: "Grazie!"
+        pt: "Obrigado!"
+        br: "Valeu!"
+        nl: "Bedankt!"
+      evt_chase:
+        fr: "Chasser"
+        en: "Chase away"
+        es: "Echar"
+        de: "Verjagen"
+        it: "Scaccia"
+        pt: "Expulsar"
+        br: "Expulsar"
+        nl: "Wegjagen"
+      evt_chase_desc:
+        fr: "Mettre l'intrus à la porte du clan"
+        en: "Kick the intruder out of the clan"
+        es: "Echar al intruso del clan"
+        de: "Den Eindringling aus dem Clan werfen"
+        it: "Cacciare l'intruso dal clan"
+        pt: "Pôr o intruso fora do clã"
+        br: "Colocar o intruso para fora do clã"
+        nl: "De indringer de clan uit zetten"
+      evt_souris:
+        fr: "Une petite souris passe la tête : « Merci aventurier, c'est bien plus propre maintenant ! Voici une petite récompense. »"
+        en: "A little mouse pokes its head out: \"Thank you, adventurer, it's so much cleaner now! Here's a small reward.\""
+        es: "Un ratoncito asoma la cabeza: «¡Gracias, aventurero, ahora está mucho más limpio! Aquí tienes una pequeña recompensa.»"
+        de: "Eine kleine Maus steckt den Kopf heraus: „Danke, Abenteurer, jetzt ist es viel sauberer! Hier ist eine kleine Belohnung.“"
+        it: "Un topolino fa capolino: «Grazie, avventuriero, ora è molto più pulito! Ecco una piccola ricompensa.»"
+        pt: "Um ratinho espreita: «Obrigado, aventureiro, agora está muito mais limpo! Aqui tens uma pequena recompensa.»"
+        br: "Um ratinho coloca a cabeça para fora: \"Valeu, aventureiro, agora está bem mais limpo! Aqui vai uma pequena recompensa.\""
+        nl: "Een muisje steekt zijn kopje naar buiten: \"Dank je, avonturier, het is nu veel schoner! Hier is een kleine beloning.\""
+      evt_souris_notif:
+        fr: "{name} a reçu les remerciements d'une petite souris !"
+        en: "{name} was thanked by a little mouse!"
+        es: "¡Un ratoncito le ha dado las gracias a {name}!"
+        de: "{name} hat sich den Dank einer kleinen Maus verdient!"
+        it: "Un topolino ha ringraziato {name}!"
+        pt: "Um ratinho agradeceu a {name}!"
+        br: "Um ratinho agradeceu {name}!"
+        nl: "Een muisje heeft {name} bedankt!"
+      evt_piege:
+        fr: "Clac ! Les vilains monstres t'avaient tendu un piège. Tu perds 1 point de vie… mais tu le récupéreras dès que cette quête sera validée !"
+        en: "Snap! The nasty monsters had set a trap for you. You lose 1 health point… but you'll get it back as soon as this quest is validated!"
+        es: "¡Clac! Los monstruos malvados te habían tendido una trampa. Pierdes 1 punto de vida… ¡pero lo recuperarás en cuanto se valide esta misión!"
+        de: "Schnapp! Die fiesen Monster haben dir eine Falle gestellt. Du verlierst 1 Lebenspunkt … aber du bekommst ihn zurück, sobald diese Quest bestätigt ist!"
+        it: "Clac! I mostri cattivi ti avevano teso una trappola. Perdi 1 punto vita… ma lo recupererai appena questa missione sarà convalidata!"
+        pt: "Zás! Os monstros malvados montaram-te uma armadilha. Perdes 1 ponto de vida… mas recuperas-o assim que esta missão for validada!"
+        br: "Clac! Os monstros malvados armaram uma armadilha para você. Você perde 1 ponto de vida… mas recupera assim que esta missão for validada!"
+        nl: "Klap! De gemene monsters hadden een val voor je gezet. Je verliest 1 levenspunt… maar je krijgt het terug zodra deze queeste is goedgekeurd!"
+      evt_gobelin_name:
+        fr: "Gobelin espion"
+        en: "Spy goblin"
+        es: "Duende espía"
+        de: "Spionkobold"
+        it: "Goblin spia"
+        pt: "Goblin espião"
+        br: "Goblin espião"
+        nl: "Spionnerende goblin"
+      evt_gobelin:
+        fr: "Ouste ! Le gobelin espion détale sans demander son reste. Le clan est à l'abri, et tu gagnes un peu d'expérience."
+        en: "Shoo! The spy goblin scurries off without a word. The clan is safe, and you earn a little experience."
+        es: "¡Fuera! El duende espía sale corriendo sin rechistar. El clan está a salvo y ganas un poco de experiencia."
+        de: "Husch! Der Spionkobold ergreift wortlos die Flucht. Der Clan ist in Sicherheit, und du bekommst ein wenig Erfahrung."
+        it: "Sciò! Il goblin spia se la dà a gambe senza fiatare. Il clan è al sicuro e guadagni un po' di esperienza."
+        pt: "Xô! O goblin espião foge sem dizer palavra. O clã está a salvo e ganhas um pouco de experiência."
+        br: "Xô! O goblin espião foge sem dizer nada. O clã está protegido, e você ganha um pouco de experiência."
+        nl: "Wegwezen! De spionnerende goblin gaat er zonder een woord vandoor. De clan is veilig en je krijgt wat ervaring."
+      evt_gobelin_notif:
+        fr: "{name} a chassé un gobelin espion du clan !"
+        en: "{name} chased a spy goblin out of the clan!"
+        es: "¡{name} ha echado a un duende espía del clan!"
+        de: "{name} hat einen Spionkobold aus dem Clan gejagt!"
+        it: "{name} ha cacciato un goblin spia dal clan!"
+        pt: "{name} expulsou um goblin espião do clã!"
+        br: "{name} expulsou um goblin espião do clã!"
+        nl: "{name} heeft een spionnerende goblin uit de clan verjaagd!"
+      evt_changelin:
+        fr: "Démasqué ! Ce n'était pas {name} mais un changelin, qui s'enfuit en ricanant. {name} et toi gagnez un peu d'expérience."
+        en: "Unmasked! That wasn't {name} but a changeling, who runs off sniggering. You and {name} both earn a little experience."
+        es: "¡Desenmascarado! No era {name} sino un trasgo cambiante, que huye riéndose. {name} y tú ganáis un poco de experiencia."
+        de: "Entlarvt! Das war nicht {name}, sondern ein Wechselbalg, der kichernd davonläuft. {name} und du bekommt ein wenig Erfahrung."
+        it: "Smascherato! Non era {name} ma un mutaforma, che scappa sghignazzando. Tu e {name} guadagnate un po' di esperienza."
+        pt: "Desmascarado! Não era {name} mas um changeling, que foge a rir-se. Tu e {name} ganham um pouco de experiência."
+        br: "Desmascarado! Não era {name}, e sim um changeling, que foge dando risada. Você e {name} ganham um pouco de experiência."
+        nl: "Ontmaskerd! Dat was niet {name} maar een wisselkind, dat grinnikend wegrent. Jij en {name} krijgen allebei wat ervaring."
+      evt_changelin_miss:
+        fr: "Oups, c'était le vrai {name} ! Profitant de la confusion, le changelin s'est enfui en ricanant. Il reviendra peut-être…"
+        en: "Oops, that was the real {name}! Taking advantage of the confusion, the changeling ran off sniggering. Maybe it will be back…"
+        es: "¡Uy, era el verdadero {name}! Aprovechando la confusión, el trasgo cambiante huyó riéndose. Quizá vuelva…"
+        de: "Hoppla, das war der echte {name}! Im Durcheinander ist der Wechselbalg kichernd entwischt. Vielleicht kommt er wieder …"
+        it: "Ops, era il vero {name}! Approfittando della confusione, il mutaforma è scappato sghignazzando. Forse tornerà…"
+        pt: "Ups, era o verdadeiro {name}! Aproveitando a confusão, o changeling fugiu a rir-se. Talvez volte…"
+        br: "Opa, era o verdadeiro {name}! Aproveitando a confusão, o changeling fugiu dando risada. Talvez ele volte…"
+        nl: "Oeps, dat was de echte {name}! Het wisselkind maakte van de verwarring gebruik en rende grinnikend weg. Misschien komt het terug…"
+      evt_changelin_notif:
+        fr: "{name} a démasqué un changelin dans le clan !"
+        en: "{name} unmasked a changeling in the clan!"
+        es: "¡{name} ha desenmascarado a un trasgo cambiante en el clan!"
+        de: "{name} hat einen Wechselbalg im Clan entlarvt!"
+        it: "{name} ha smascherato un mutaforma nel clan!"
+        pt: "{name} desmascarou um changeling no clã!"
+        br: "{name} desmascarou um changeling no clã!"
+        nl: "{name} heeft een wisselkind in de clan ontmaskerd!"
+      evt_bienfaiteur:
+        fr: "Tiens ? Un bienfaiteur anonyme a glissé une potion de soin dans ton sac. Bois-la quand tu veux !"
+        en: "Oh? An anonymous benefactor slipped a healing potion into your bag. Drink it whenever you like!"
+        es: "¿Y esto? Un benefactor anónimo ha metido una poción de curación en tu bolsa. ¡Bébela cuando quieras!"
+        de: "Nanu? Ein anonymer Wohltäter hat dir einen Heiltrank in die Tasche gesteckt. Trink ihn, wann du willst!"
+        it: "Toh? Un benefattore anonimo ha infilato una pozione curativa nella tua borsa. Bevila quando vuoi!"
+        pt: "Então? Um benfeitor anónimo meteu uma poção de cura no teu saco. Bebe-a quando quiseres!"
+        br: "Ué? Um benfeitor anônimo colocou uma poção de cura na sua bolsa. Beba quando quiser!"
+        nl: "Hé? Een anonieme weldoener heeft een genezingsdrankje in je tas gestopt. Drink het wanneer je wilt!"
+      log_event_souris:
+        fr: "Une petite souris est venue remercier @@@session.user.name@@@ pour son ménage."
+        en: "A little mouse came to thank @@@session.user.name@@@ for the cleaning."
+        es: "Un ratoncito vino a dar las gracias a @@@session.user.name@@@ por la limpieza."
+        de: "Eine kleine Maus hat sich bei @@@session.user.name@@@ fürs Putzen bedankt."
+        it: "Un topolino è venuto a ringraziare @@@session.user.name@@@ per le pulizie."
+        pt: "Um ratinho veio agradecer a @@@session.user.name@@@ pela limpeza."
+        br: "Um ratinho veio agradecer @@@session.user.name@@@ pela limpeza."
+        nl: "Een muisje kwam @@@session.user.name@@@ bedanken voor het schoonmaken."
+      log_event_piege:
+        fr: "@@@session.user.name@@@ est tombé dans un piège tendu par les monstres."
+        en: "@@@session.user.name@@@ fell into a trap set by the monsters."
+        es: "@@@session.user.name@@@ cayó en una trampa de los monstruos."
+        de: "@@@session.user.name@@@ ist in eine Falle der Monster getappt."
+        it: "@@@session.user.name@@@ è caduto in una trappola dei mostri."
+        pt: "@@@session.user.name@@@ caiu numa armadilha dos monstros."
+        br: "@@@session.user.name@@@ caiu em uma armadilha dos monstros."
+        nl: "@@@session.user.name@@@ trapte in een val van de monsters."
+      log_event_gobelin:
+        fr: "@@@session.user.name@@@ a chassé un gobelin espion du clan."
+        en: "@@@session.user.name@@@ chased a spy goblin out of the clan."
+        es: "@@@session.user.name@@@ echó a un duende espía del clan."
+        de: "@@@session.user.name@@@ hat einen Spionkobold aus dem Clan gejagt."
+        it: "@@@session.user.name@@@ ha cacciato un goblin spia dal clan."
+        pt: "@@@session.user.name@@@ expulsou um goblin espião do clã."
+        br: "@@@session.user.name@@@ expulsou um goblin espião do clã."
+        nl: "@@@session.user.name@@@ heeft een spionnerende goblin uit de clan verjaagd."
+      log_event_changelin:
+        fr: "@@@session.user.name@@@ a démasqué un changelin caché dans le clan."
+        en: "@@@session.user.name@@@ unmasked a changeling hiding in the clan."
+        es: "@@@session.user.name@@@ desenmascaró a un trasgo cambiante escondido en el clan."
+        de: "@@@session.user.name@@@ hat einen im Clan versteckten Wechselbalg entlarvt."
+        it: "@@@session.user.name@@@ ha smascherato un mutaforma nascosto nel clan."
+        pt: "@@@session.user.name@@@ desmascarou um changeling escondido no clã."
+        br: "@@@session.user.name@@@ desmascarou um changeling escondido no clã."
+        nl: "@@@session.user.name@@@ heeft een wisselkind ontmaskerd dat zich in de clan verstopte."
 
 
       #------------- Soin (célébration de guérison) ------------------
@@ -5926,6 +6497,26 @@ data:
       scene: burn
       sound: anim_burn
       vibration: cue_burn
+    # Passage à l'âge adulte : la célébration (même scène que le level-up), puis le rideau
+    # sous lequel la CGU adulte s'ouvre. Même idiome que les passages de l'onboarding.
+    adulthood:
+      scene: burn
+      sound: anim_burn
+      vibration: cue_burn
+    passage_adulthood:
+      scene: depart
+      music: keep
+      guard: 6
+      on_covered:
+        nav: { order: 1, action: "worker.on_adulthood_covered" }
+    # Multiclan : le changement de clan, depuis « Mes clans ». La bascule (lectures, écritures,
+    # entrée dans l'autre clan) a lieu sous le noir, puis le tableau de bord de l'autre clan.
+    passage_switch:
+      scene: depart
+      music: keep
+      guard: 8
+      on_covered:
+        nav: { order: 1, action: "worker.on_switch_covered" }
     giftxp:
       scene: giftxp
       sound: anim_gift
@@ -6013,6 +6604,13 @@ data:
         mode: linear
         sounds:
           - music/ambiant_dead.mp3
+
+    # Niveaux declares (0-200 %). La musique du theme joue a 50 % partout (arbitrage du
+    # 2026-09-25) ; seul le seuil de l'onboarding commence plus bas (40 %, puis 50 % sur
+    # l'ecran des deux portes), et lui est regle par le worker (`_musiqueDuSeuil`).
+    volumes:
+      ambiant: 50
+      ambiant_dead: 50
 
   # --- Vibrations dvvibrations ------------------------------------------------------
   # Ce que les célébrations font SENTIR. Chaque composite est tiré par un hook `on_end` posé sur un
@@ -7953,6 +8551,8 @@ data:
       image: images/big/chest_item_nobg.png
     argent_poche:
       image: images/big/argent_poche_nobg.png
+    potion_pv:
+      image: images/medium/evt_potion.png
 
   registry:
     orb:

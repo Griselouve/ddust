@@ -111,6 +111,15 @@ conf:
             label: "@@@T:it_o_title_unapply@@@"
           actions:
             tap: worker.title_unapply_clan
+        # « Utiliser » un consommable (potion) : applique le `use` de son type (items-base-global.yml)
+        # puis le supprime (worker.item_use, moteur d'événements). Propriétaire seulement, arbitré
+        # par worker.items_selector.
+        item_use:
+          image: "images/medium/evt_potion.png"
+          shape:
+            label: "@@@T:it_o_use@@@"
+          actions:
+            tap: worker.item_use
         # Jeter un item. Sans confirmation (aucune popup dans ce jeu) : le document est SUPPRIMÉ
         # (pas de sentinelle « corbeille », il n'y a pas de rattrapage qui pourrait le ressusciter).
         item_trash:
@@ -119,10 +128,10 @@ conf:
             label: "@@@T:it_o_trash@@@"
           actions:
             tap: worker.item_trash
-        # Le COFFRE DU BUTIN n'a qu'une seule option : ouvrir son contenu. Une seule option déclarée
-        # (cf. items-base-global.yml) → worker.items_selector la renvoie en « option seule » et le
-        # tap exécute directement cette action, sans passer par ce menu. « Ajouter une note » vit
-        # DANS le coffre (butin_page/list), pas ici.
+        # Le COFFRE DU BUTIN n'a qu'une seule option : ouvrir son contenu. Son type est marqué
+        # `direct: true` (items-base-global.yml) : le tap exécute cette option sans ouvrir ce menu
+        # (DvExplorer → runSelectorMenu → DvMenu.runOption). « Ajouter une note » vit DANS le
+        # coffre (butin_page/list), pas ici.
         item_open:
           image: "images/big/chest_item_nobg.png"
           shape:

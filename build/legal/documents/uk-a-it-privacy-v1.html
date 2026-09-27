@@ -38,14 +38,15 @@ che è strettamente necessario al suo funzionamento.</p>
   <tr><td>Stato legale</td><td>La sola distinzione minore / adulto. <strong>La vostra data di nascita non viene
   mai conservata</strong>: serve unicamente, alla prima connessione, a calcolare questo stato, poi viene
   dimenticata.</td></tr>
-  <tr><td>Soprannomi</td><td>Il soprannome del vostro personaggio e il nome del vostro clan, scelti da voi, nonché le descrizioni che ne date. Sono visibili soltanto ai membri del vostro clan. Sia il
+  <tr><td>Soprannomi</td><td>Il soprannome del vostro personaggio e il nome del vostro clan, scelti da voi, nonché le descrizioni che ne date. Sono visibili soltanto ai membri del vostro clan. Se appartenete a più clan, il soprannome del vostro personaggio, il vostro avatar e il titolo che portate sono visti anche dai membri dei vostri altri clan, e soltanto da loro: nessun altro clan vede alcunché. Sia il
   soprannome del personaggio sia il nome del clan possiedono inoltre una versione esterna generata
   dall'applicazione, senza alcun rapporto con quella che avete scelto: è la sola che l'applicazione userebbe
   per designarvi fuori dal vostro clan.</td></tr>
   <tr><td>Dati di gioco</td><td>Avatar, esperienza, livelli, punti vita, oro, oggetti, compiti svolti, diario di
   attività del clan, data dell'ultima connessione, lingua dell'interfaccia, registrazioni di accettazione delle
   condizioni di utilizzo.</td></tr>
-  <tr><td>Notifiche</td><td>Un token tecnico di invio delle notifiche, associato al vostro dispositivo.</td></tr>
+  <tr><td>Tracce degli atti che impegnano</td><td>Quando un atto impegna una persona, ne viene registrata una traccia insieme alle prove di accettazione delle condizioni, con l'account di chi agisce: ingresso in un clan, uscita da un clan (da sé, o ritiro di un minore da parte del suo responsabile legale), scioglimento di un clan da parte del suo fondatore, ogni gesto di un responsabile legale (autorizzazione di un clan, ritiro da un clan, riconoscimento di un altro responsabile legale e sua dichiarazione, revoca o ripristino del consenso, dichiarazione di maggiore età) e creazione della rappresentanza di un minore al suo primo clan. Contiene solo l'autore, il minore o il clan interessato, la data e il contesto della sessione (regione, lingua, stato legale).</td></tr>
+  <tr><td>Notifiche</td><td>Un token tecnico di invio delle notifiche, associato al vostro dispositivo. Dal vostro telefono potete disattivare le notifiche del clan corrente o di tutti i vostri clan: i nostri server non inviano allora più nulla a quel telefono. Questa impostazione è registrata con la sua iscrizione alle notifiche, senza alcun altro dato.</td></tr>
   <tr><td>Impostazioni tecniche</td><td>La versione dell'applicazione installata e lo scarto orario del
   dispositivo. Quest'ultimo serve a una cosa sola: inviare i promemoria destinati a un bambino a un'ora
   ragionevole dove vive, e non nel mezzo della sua notte. <strong>Non è un dato di localizzazione</strong>:
@@ -53,9 +54,9 @@ che è strettamente necessario al suo funzionamento.</p>
 </table>
 <p>E soprattutto, ciò che l'applicazione <strong>non raccoglie</strong>:</p>
 <ul>
-  <li><strong>Le foto dei compiti non vengono mai salvate online</strong>: sono registrate nello spazio privato
+  <li><strong>Le foto e i video dei compiti non vengono mai salvati online</strong>: sono registrati nello spazio privato
   dell'applicazione sul vostro dispositivo. Solo un identificativo tecnico è trasmesso ai nostri server per
-  segnalare che esiste una prova; l'immagine, invece, non viene mai trasmessa: resta sul dispositivo del giocatore, che è il solo a poterla rivedere e il solo a decidere di mostrarla, di persona, all'adulto che valuta il suo lavoro.</li>
+  segnalare che esiste una prova; la foto o il video, invece, non vengono mai trasmessi: restano sul dispositivo del giocatore, che è il solo a poterli rivedere e il solo a decidere di mostrarli, di persona, all'adulto che valuta il suo lavoro. I video (15 secondi al massimo) sono registrati senza audio: l'applicazione non ha accesso al microfono.</li>
   <li><strong>Nessuna misurazione del pubblico (analytics)</strong>: la raccolta Google Analytics è
   disattivata.</li>
   <li><strong>Nessun identificativo pubblicitario (AD_ID)</strong> e nessuna pubblicità, conformemente alla
@@ -96,11 +97,12 @@ Utilizzo</a> (il cui articolo 6 enuncia precisamente questo impegno) e si eserci
 minore nel suo clan o crea un profilo di giocatore per lui. L'accettazione delle
 condizioni è marcata temporalmente e conservata.</p>
 <p><strong>Nel momento stesso di tale atto</strong> (invito di un membro, creazione di un profilo di giocatore) l'applicazione ricorda all'adulto che dichiara di essere il responsabile legale del
-minore, o di agire con il consenso di quest'ultimo quando il minore è già membro di un altro clan, e che
+minore, o, quando il minore è già membro di un altro clan, di aver ricevuto l'autorizzazione preventiva di quest'ultimo, che l'applicazione verifica, e che
 acconsente alla raccolta dei suoi dati, e gli dà accesso alle condizioni generali. Questa dichiarazione ricade
 sotto la sua sola responsabilità: l'applicazione non procede ad alcuna verifica del legame di tutela.</p>
 <p><strong>Il desiderio del minore.</strong> Prima della decisione dell'adulto, il minore indica, sul proprio dispositivo, se desidera giocare. Questo desiderio non contiene alcun dato personale: solo la data in cui è stato espresso, la lingua, la regione, la versione del testo mostrato al minore e un codice di verifica casuale di sei caratteri. Viene presentato all'adulto sotto forma di codice QR, oppure gli viene inviato tramite un link, e l'adulto ne prende visione prima di decidere. Viene registrato insieme alla decisione dell'adulto, nell'account di quest'ultimo, poi collegato al profilo del minore quando questi entra nel clan; è conservato come le registrazioni di accettazione delle condizioni. Finché il minore non ha effettuato l'accesso al proprio account, nessuna informazione che lo riguarda viene registrata, né sul suo dispositivo né sui nostri server, nemmeno la lingua scelta.</p>
-<p><strong>Dati di un minore.</strong> I dati di un minore sono quelli di qualsiasi giocatore, descritti all'articolo 2, e nulla di più. Un minore il cui profilo di giocatore è stato creato da un adulto non ha un account Google: per lui non esiste alcun indirizzo email. Se accede con un proprio account Google, nessun indirizzo email viene conservato nei dati di gioco; l'indirizzo di tale account è detenuto dal servizio di autenticazione Firebase, nostro responsabile del trattamento, per verificare il suo accesso (articolo 7).</p>
+<p><strong>Dati di un minore.</strong> I dati di un minore sono quelli di qualsiasi giocatore, descritti all'articolo 2, e nulla di più. Un minore il cui profilo di giocatore è stato creato da un adulto non ha un account Google: per lui non esiste alcun indirizzo email. Se accede con un proprio account Google, nessun indirizzo email viene conservato nei dati di gioco; l'indirizzo di tale account è detenuto dal servizio di autenticazione Firebase, nostro responsabile del trattamento, ai soli fini dell'autenticazione (articolo 7). Quando in seguito questo minore riceve un proprio telefono, l'adulto che lo accoglie nel clan può indicare il profilo di giocatore che aveva creato per lui: il minore ritrova allora questo profilo e i suoi dati di gioco con il proprio account, dopo aver espresso il desiderio di giocare e secondo la stessa decisione dell'adulto prevista per ogni ingresso nel clan.</p>
+<p><strong>Rappresentanza di un minore.</strong> Per ogni minore che gioca sul proprio telefono, l'applicazione tiene un fascicolo di rappresentanza: chi sono i suoi responsabili legali, l'elenco dei suoi clan (nome del clan, nome del suo capo, adulto che ve lo ha fatto entrare, data), le autorizzazioni date ad altri clan e la cronologia dei gesti di ciascun responsabile legale (revoca o ripristino del consenso, dichiarazione di maggiore età, autorizzazione di un clan o ritiro da esso, aggiunta di un responsabile legale e sua dichiarazione). Questo fascicolo è visibile solo al minore e ai suoi responsabili legali: questi vedono così il nome di ciascuno dei clan del minore e quello del suo capo, e nient'altro di quei clan. Il soprannome, l'avatar e il titolo portato dal minore sono gli stessi in tutti i suoi clan: i membri di ciascuno di quei clan li vedono. Il resto dei suoi dati di gioco (esperienza, livello, oggetti, compiti, diario) resta proprio di ciascun clan. Questo fascicolo è una prova, conservata alle condizioni dell'articolo 8.</p>
 <p>Un minore non può creare un clan né entrare nel gioco da solo: l'ingresso in un clan avviene unicamente su
 invito di un adulto, tramite codice QR o link cifrato protetto da un codice riservato. La soglia adottata è
 <strong>18 anni</strong>: ogni giocatore che non abbia 18 anni ricade sotto il consenso del suo tutore legale,
@@ -119,7 +121,7 @@ informativa redatta in linguaggio accessibile</a> è presentata ai giocatori min
   una descrizione di compito, e redigere il racconto d'avventura del clan proposto alla condivisione dopo
   l'apertura di un bottino. Per quest'ultimo uso, <strong>il nome del clan, la sua descrizione e il diario degli
   eventi del clan (che contiene i soprannomi scelti dai giocatori) sono trasmessi al modello</strong>. Nessun
-  altro dato personale viene inviato: né identificativo dell'account, né data di nascita, né foto, né statistica
+  altro dato personale viene inviato: né identificativo dell'account, né data di nascita, né foto, né video, né statistica
   individuale. Il trattamento è effettuato su un'infrastruttura Google situata nell'Unione Europea, e i dati
   trasmessi non sono utilizzati per addestrare i modelli.</li>
 </ul>
@@ -166,6 +168,8 @@ conservazione limitato</strong> fuori dal servizio, poi la <strong>cancellazione
   consenso valido (in particolare il consenso parentale dell'articolo 8 del UK GDPR) è stato effettivamente
   raccolto. Queste prove sono conservate chiuse e disattivate: non sono più utilizzate per far funzionare il
   servizio.</li>
+  <li><strong>Fascicolo di rappresentanza di un minore</strong>: è una prova. Viene chiuso quando il minore diventa adulto o quando il suo account viene eliminato, poi conservato <strong>5 anni</strong>, in sola lettura, come le prove di accettazione delle condizioni, prima di essere cancellato.</li>
+  <li><strong>Tracce degli atti che impegnano</strong>: conservate con le prove di accettazione delle condizioni e secondo le stesse regole: chiuse all'eliminazione dell'account del loro autore, poi conservate <strong>5 anni</strong>.</li>
   <li><strong>Dati di un clan bloccato (mancato pagamento, disdetta o fine dei mesi offerti)</strong>: conservati <strong>due anni</strong> a decorrere dal blocco del clan, poi definitivamente eliminati. Questa durata è volutamente lunga: ciò che costa ricostituire non è il clan ma la sua storia (i compiti svolti, i livelli raggiunti, il diario di ciascuno) e una famiglia che si ferma non ha sempre rinunciato. Un mese prima della scadenza avvisiamo gli adulti del clan.</li>
   <li><strong>Clan inattivo</strong>: un clan senza abbonamento in corso di cui nessun membro si è connesso da <strong>due anni</strong> viene sciolto; i suoi dati seguono allora la regola del clan sciolto indicata sotto. Gli adulti del clan ricevono un promemoria ogni sei mesi, salvo che abbiano disattivato i promemoria, e in ogni caso un preavviso un mese prima. Basta un solo accesso di un membro per annullarlo.</li>
   <li><strong>Giocatore che lascia un clan</strong>: la sua scheda in quel clan è cancellata <strong>30 giorni</strong> dopo la sua uscita.</li>
@@ -173,7 +177,7 @@ conservazione limitato</strong> fuori dal servizio, poi la <strong>cancellazione
   <li><strong>Abbonamento e acquisti</strong>: lo storico degli acquisti del clan è conservato <strong>due anni</strong> dopo la fine dell'abbonamento, o dopo la fine dell'ultimo mese offerto, per poter rispondere a un reclamo. Il riferimento d'acquisto trasmesso da Google Play è cancellato non appena l'abbonamento termina.</li>
   <li><strong>Codici regalo</strong>: la traccia del loro utilizzo è cancellata <strong>30 giorni</strong> dopo la fine della validità del codice.</li>
   <li><strong>Dati tecnici</strong>: cronologia degli accessi <strong>90 giorni</strong>; token di invio delle notifiche <strong>30 giorni</strong> dopo l'ultimo accesso del dispositivo; contatore di utilizzo dei suggerimenti <strong>48 ore</strong>; registri tecnici dei server <strong>30 giorni</strong>.</li>
-  <li><strong>Foto dei compiti</strong>: restano sul dispositivo del giocatore e sono cancellate non appena il compito è valutato, al più tardi alla successiva apertura dell'applicazione, quando il verdetto è stato emesso mentre era chiusa. Eliminare il proprio account dall'applicazione cancella anche quelle rimaste.</li>
+  <li><strong>Foto e video dei compiti</strong>: restano sul dispositivo del giocatore e sono cancellati non appena il compito è valutato, al più tardi alla successiva apertura dell'applicazione, quando il verdetto è stato emesso mentre era chiusa. Eliminare il proprio account dall'applicazione cancella anche quelli rimasti.</li>
 </ul>
 
 <p><strong>Lista d'attesa delle beta</strong>: eliminata integralmente alla fine della fase di beta, o prima su
@@ -193,12 +197,7 @@ portabilità sui vostri dati, nonché su quelli dei minori dei quali siete il tu
 <h3>Revoca del consenso</h3>
 <p>Potete <strong>revocare il vostro consenso in qualsiasi momento</strong>, tanto il vostro quanto quello che
 avete dato in qualità di responsabile legale per un minore che fate giocare.</p>
-<p><strong>Per un bambino che fate giocare, la revoca si esercita dall'applicazione</strong>, nel menu di gestione
-del suo personaggio: l'opzione «Revocare il mio consenso e cancellare i dati di questo bambino» è proposta ai capi
-del suo clan d'origine. Ha effetto immediato (il bambino non gioca più e i suoi dati non sono più esposti nel gioco)
-poi, dopo un termine di riflessione di 3 giorni durante il quale un capo del clan d'origine può tornare
-  sulla propria decisione, i suoi dati di gioco sono soppressi, quindi conservati 30 giorni alle condizioni
-  dell'articolo 8 prima della loro cancellazione definitiva.</p>
+<p><strong>Per un bambino che fate giocare, la revoca si esercita dall'applicazione</strong>, nel menu di gestione del suo personaggio: l'opzione «Revocare il mio consenso e cancellare i dati di questo bambino» è proposta, per un bambino che gioca sul proprio telefono, solo ai suoi responsabili legali, e non agli altri capi del suo clan d'origine; per un bambino che gioca sul telefono di un adulto, ai capi del suo clan. La revoca vale per tutti i clan del bambino. Ha effetto immediato (il bambino non gioca più e i suoi dati non sono più esposti nel gioco) poi, dopo un termine di riflessione di 3 giorni durante il quale un adulto a cui l'opzione è proposta può tornare sulla decisione, i suoi dati di gioco sono soppressi in tutti i suoi clan, quindi conservati 30 giorni alle condizioni dell'articolo 8 prima della loro cancellazione definitiva. Al termine del periodo, i nostri server eseguono questa soppressione, anche se il bambino non riapre mai l'applicazione. Un responsabile legale può anche ritirare il bambino da uno solo dei suoi clan, tranne il suo clan d'origine: i suoi dati in quel clan vengono allora cancellati come quelli di qualsiasi giocatore che lo lascia.</p>
 <p><strong>Per il vostro consenso personale, la revoca si esercita mediante l'eliminazione del vostro
 account</strong>, dall'applicazione o tramite <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>.</p>
 <p>Revocare il vostro consenso pone fine al trattamento dei dati del bambino. Ciò non impedisce che un altro adulto
@@ -209,7 +208,7 @@ l'invito di un adulto che dichiari di rispondere di lui.</p>
 <p>Per un minore, l'eliminazione dell'account del capo clan comporta lo scioglimento di tale clan e, a cascata,
 quello dei profili dei minori il cui clan d'origine era quello, nonché di ogni profilo che non appartiene più ad
 alcun clan attivo, compresi i bambini senza account proprio, i cui dati di gioco esistono soltanto all'interno
-del clan. La revoca produce allora i suoi effetti per loro come per voi.</p>
+del clan. La revoca produce allora i suoi effetti per loro come per voi. Tuttavia l'unico responsabile legale di un minore non può eliminare il proprio account: deve prima far riconoscere un altro responsabile legale, oppure eliminare l'account del minore. Un minore che conserva un altro responsabile legale non viene eliminato quando uno dei suoi responsabili legali elimina il proprio account.</p>
 <p>La revoca vale soltanto per il futuro: conformemente all'articolo 7(3) del UK GDPR, essa <strong>non rimette in
 discussione la liceità dei trattamenti effettuati prima che intervenisse</strong>. È la ragione per cui la prova
 del consenso raccolto, e della data in cui è stato revocato, è conservata alle condizioni dell'articolo 8.</p>

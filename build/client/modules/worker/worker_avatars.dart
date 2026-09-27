@@ -54,6 +54,9 @@ extension Worker_avatars on worker {
 
                                 ActionRegistry.register("worker.on_clan_avatar_selected",   on_clan_avatar_selected);
 
+                                // Ordre des deux explorateurs d'avatars (clé `sort` de DvExplorer).
+                                ActionRegistry.register("worker.sort_avatars",              sort_avatars);
+
     }
 
     //-----------------------------------------------------------------------
@@ -100,9 +103,12 @@ extension Worker_avatars on worker {
                                 DvOrb.navigate_new("player_rename_screen");
     }
 
-    // Ouvre l'écran explorateur d'avatars (grille DvExplorer filtrée sur icon_XX_P_XX.png).
+    // Ouvre l'écran explorateur d'avatars (grille DvExplorer filtrée sur icon_[thème_]<groupe>_P_NN.png).
+    // Le contexte du tri (groupe du clan, thème) est posé AVANT la navigation : sort_avatars est
+    // synchrone, il ne peut rien relire.
     Future<void> open_avatar_explorer(DvShape? caller, dynamic event) async {
 
+                                await _prepareAvatarSort(withClanGroup: true);
                                 DvOrb.navigate_new("avatar_explorer");
     }
 
@@ -158,6 +164,8 @@ extension Worker_avatars on worker {
                                     await _cloud?.write("workers", "clans_players/$clanId/players", _userId,
                                         doc, region: region, ownerId: clanSecret);
                                     deva_log("info", "[avatar] clans_players.avatar → $path");
+                                    // MULTICLAN : l'avatar est partagé entre les clans (profil, D2).
+                                    await _profileTouch(avatar: path);
                                 } catch (e) {
                                     deva_log("error", "[avatar] clans_players.avatar write FAILED: $e");
                                 }
@@ -245,7 +253,100 @@ extension Worker_avatars on worker {
 
     Future<void> open_clan_avatar_explorer(DvShape? caller, dynamic event) async {
 
+                                await _prepareAvatarSort(withClanGroup: false);
                                 DvOrb.navigate_new("clan_avatar_explorer");
+    }
+
+    //-----------------------------------------------------------------------
+    //-- Ordre des avatars ----------------------------------------------------
+    //
+    // TOUT EST DANS LE NOM : icon_[thème_]<groupe>_<P|C>_<numéro>.png
+    //   - thème  : absent = donjon (les icônes d'origine n'en portent pas) ;
+    //   - groupe : un numéro de clan (« 01 ») ou un nom de classe (« Assassin ») ;
+    //   - P = avatar de personnage, C = avatar de clan.
+    //
+    // Rangs, dans l'ordre (alphabétique à l'intérieur d'un rang) :
+    //   0. groupe du clan ET thème en cours
+    //   1. classe du joueur ET thème en cours
+    //   2. reste du thème en cours
+    //   3. classe du joueur, autres thèmes
+    //   4. tout le reste
+    // Pour l'explorateur de clan, groupe et classe sont vides : thème en cours, puis le reste.
+
+    // Relit le thème actif et, pour l'explorateur de personnage, le groupe de l'avatar du clan.
+    // Avatar du clan relu dans `clans` (un autre appareil a pu le changer), à défaut le miroir
+    // local de l'écran Clan, à défaut l'avatar par défaut.
+    Future<void> _prepareAvatarSort({required bool withClanGroup}) async {
+
+                                final active = (await Deva.instance.get("theme.active"))?.toString()  ?? "";
+                                final deflt  = (await Deva.instance.get("theme.default"))?.toString() ?? "";
+                                final theme  = active.isNotEmpty ? active : deflt;
+                                _avatarSortTheme = theme.startsWith("theme-") ? theme.substring(6) : theme;
+                                if (_avatarSortTheme.isEmpty) _avatarSortTheme = "donjon";
+
+                                // Pas encore de classe de personnage : le lot « classes » posera ici
+                                // celle du joueur, et les rangs 1 et 3 se rempliront d'eux-mêmes.
+                                _avatarSortClass = "";
+
+                                _avatarSortGroup = "";
+                                if (!withClanGroup) return;
+                                String clanAvatar = "";
+                                try {
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                    final session    = await _readSession(region);
+                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (region.isNotEmpty && clanId.isNotEmpty && clanSecret.isNotEmpty) {
+                                        final clan = await _cloud?.read("workers", "clans", clanId,
+                                            ownerId: clanSecret, region: region);
+                                        clanAvatar = clan?.get("avatar")?.toString() ?? "";
+                                    }
+                                } catch (e) {
+                                    deva_log("warning", "[avatar] avatar du clan illisible ($e) : repli local");
+                                }
+                                if (clanAvatar.isEmpty) {
+                                    clanAvatar = (await Deva.instance.get("registry.clan_page/icon.shape.image"))?.toString() ?? "";
+                                }
+                                if (clanAvatar.isEmpty) clanAvatar = _defaultClanAvatar;
+                                _avatarSortGroup = _parseAvatarName(clanAvatar)?.group ?? "";
+    }
+
+    // Découpe un nom d'avatar EN PARTANT DE LA FIN (le thème est facultatif, en tête). Null si
+    // le nom ne suit pas la convention.
+    ({String theme, String group})? _parseAvatarName(String path) {
+
+                                final base = path.replaceAll('\\', '/').split('/').last;
+                                final m = RegExp(r'^icon_(?:([A-Za-z0-9]+)_)?([A-Za-z0-9]+)_[PC]_[0-9]+\.png$').firstMatch(base);
+                                if (m == null) return null;
+                                return (theme: m.group(1) ?? "donjon", group: m.group(2) ?? "");
+    }
+
+    int _avatarRank(String path) {
+
+                                final a = _parseAvatarName(path);
+                                if (a == null) return 4;
+                                final sameTheme = a.theme.toLowerCase() == _avatarSortTheme.toLowerCase();
+                                final isClan    = _avatarSortGroup.isNotEmpty && a.group == _avatarSortGroup;
+                                final isClass   = _avatarSortClass.isNotEmpty
+                                    && a.group.toLowerCase() == _avatarSortClass.toLowerCase();
+                                if (sameTheme && isClan)  return 0;
+                                if (sameTheme && isClass) return 1;
+                                if (sameTheme)            return 2;
+                                if (isClass)              return 3;
+                                return 4;
+    }
+
+    // Action `sort` des deux explorateurs : reçoit les chemins en ordre alphabétique, renvoie
+    // la même liste rangée par rang. Répartition en seaux plutôt que List.sort (instable) :
+    // l'ordre alphabétique est conservé à l'intérieur d'un rang.
+    List<String> sort_avatars(dynamic caller, dynamic data) {
+
+                                final names  = (data is List) ? data.map((e) => e.toString()).toList() : <String>[];
+                                final ranked = <List<String>>[for (var i = 0; i < 5; i++) <String>[]];
+                                for (final n in names) {
+                                    ranked[_avatarRank(n)].add(n);
+                                }
+                                return [for (final r in ranked) ...r];
     }
 
     Future<void> on_clan_avatar_selected(dynamic caller, dynamic data) async {

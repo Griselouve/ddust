@@ -186,18 +186,65 @@ extension Worker_forms on worker {
                                 _applyDraftTo(prefix, _draft, nameEntry, descEntry);
     }
 
-    // Repli statique (timeout IA) : tire une des 3 variantes <fallbackPrefix>{0..2}_name/_desc.
+    // Combien de variantes <fallbackPrefix>{0..n}_name le thème déclare. COMPTÉES, et non
+    // plus un 3 écrit en dur : la réserve a grandi pour l'IA coupée, et une variante ajoutée
+    // au thème doit être tirée sans toucher au code. Au moins 1, pour que le tirage tienne.
+    int _fallbackCount(String fallbackPrefix) {
+
+                            var n = 0;
+                            while (n < 50 && _trOrEmpty("$fallbackPrefix${n}_name").isNotEmpty) {
+                                n++;
+                            }
+                            return n == 0 ? 1 : n;
+    }
+
+    // Repli statique (IA coupée, timeout, échec) : tire une des variantes
+    // <fallbackPrefix>{n}_name/_desc, jamais deux fois de suite la même quand il y en a plusieurs.
     // `kind` non vide → le brouillon repart AUSSI avec un substitut de la banque : un joueur qui
     // subit le timeout puis confirme a déjà son identité externe, sans second appel.
     Future<void> _showStaticFallbackTo(String prefix, String fallbackPrefix,
         DvShape? nameEntry, DvShape? descEntry, {String kind = ""}) async {
 
-                            final idx = Random().nextInt(3);
+                            final n = _fallbackCount(fallbackPrefix);
+                            var idx = Random().nextInt(n);
+                            if (n > 1 && idx == _dernierRepli[fallbackPrefix]) idx = (idx + 1) % n;
+                            _dernierRepli[fallbackPrefix] = idx;
                             final d   = kind.isEmpty ? _AiDraft() : _bankSubstitute(kind);
                             d.name    = _trOrEmpty("$fallbackPrefix${idx}_name");
                             d.desc    = _trOrEmpty("$fallbackPrefix${idx}_desc");
                             _draft    = d;
                             _applyDraftTo(prefix, d, nameEntry, descEntry);
+    }
+
+    // L'IA est-elle permise pour le clan ? Champ `ai_enabled` du doc `clans`, que le chef
+    // coupe quand les coûts d'inférence débordent (clan_ai_off / clan_ai_on).
+    //
+    // ⚠ RELU À CHAQUE USAGE, comme `butin_xp_factor` : le doc du clan n'est pas surveillé, et
+    //   le réglage doit valoir pour tous les joueurs dès que le chef l'a changé, sans relancer
+    //   l'app. Une lecture de plus par appel à l'IA, qui en coûte beaucoup plus.
+    // ⚠ PAS ENCORE DE CLAN (onboarding, création du clan) : l'IA est permise, il n'y a
+    //   personne pour l'avoir coupée.
+    // ⚠ LECTURE EN ÉCHEC : la dernière valeur connue. Un clan qui a coupé l'IA ne la voit pas
+    //   se rallumer parce que le réseau a eu un raté.
+    // ⚠ ABSENT = PERMISE : les clans d'avant ce réglage n'ont pas le champ.
+    Future<bool> _iaDuClan() async {
+
+                                try {
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                    final session    = await _readSession(region);
+                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (clanId.isEmpty || clanSecret.isEmpty) return true;
+                                    final clan = await _cloud?.read("workers", "clans", clanId,
+                                        ownerId: clanSecret, region: region);
+                                    if (clan != null) {
+                                        _iaClanCoupee = clan.get("ai_enabled")?.toString() == "false";
+                                    }
+                                } catch (e) {
+                                    deva_log("warning", "[ia] lecture du réglage du clan en échec "
+                                        "(dernière valeur : ${_iaClanCoupee ? "coupée" : "permise"}) : $e");
+                                }
+                                return !_iaClanCoupee;
     }
 
     // Moteur « Inspire moi » partagé (create_clan / rename_task / écrans joueur). `prefix` = id
@@ -229,8 +276,28 @@ extension Worker_forms on worker {
                                 final inputName = _originalName!.isEmpty ? "(vide)" : _originalName!;
                                 await deva_set("worker.inspire_input", "nom: $inputName, description: $inputDesc");
 
+                                Future<void> repli() async {
+                                    if (fallbackPrefix != null) {
+                                        await _showStaticFallbackTo(prefix, fallbackPrefix, nameEntry, descEntry, kind: kind);
+                                    }
+                                }
+
+                                // L'IA COUPÉE PAR LE CHEF : aucun appel, la proposition toute faite
+                                // tout de suite (pas au bout des 3 secondes d'attente).
+                                if (!await _iaDuClan()) {
+                                    deva_log("info", "[$prefix] IA coupée pour le clan → proposition toute faite");
+                                    await repli();
+                                    return;
+                                }
+
+                                // ⚠ MODULE ABSENT = REPLI, et non plus un retour muet : le bouton ne
+                                //   produisait alors rien du tout, sans une ligne de journal.
                                 final ai = Deva.instance.module("dvvertexai");
-                                if (ai == null) return;
+                                if (ai == null) {
+                                    deva_log("warning", "[$prefix] module dvvertexai absent → repli");
+                                    await repli();
+                                    return;
+                                }
                                 try { await (ai as dynamic).startVertexMotor(); } catch (_) {}
 
                                 final prompts = Deva.instance.module("dvprompts");
@@ -251,7 +318,15 @@ extension Worker_forms on worker {
                                 final aiFuture = ((ai as dynamic).sendMessage(prompt)) as Future<String?>;
                                 try {
                                     final result = await aiFuture.timeout(const Duration(seconds: 3));
-                                    if (result != null) _applyAiResultTo(prefix, result, nameEntry, descEntry);
+                                    // ⚠ UNE RÉPONSE SANS NOM EST UN ÉCHEC. Moteur pas prêt, dvvertexai
+                                    //   rend la CHAÎNE « Erreur: Vertex AI non initialisé » au lieu de
+                                    //   lever : aucun bloc NOM:, champs inchangés, et pas de repli.
+                                    if (result == null || (_parseAiBlocks(result)['name'] ?? "").isEmpty) {
+                                        deva_log("warning", "[$prefix] réponse IA inexploitable → repli");
+                                        await repli();
+                                        return;
+                                    }
+                                    _applyAiResultTo(prefix, result, nameEntry, descEntry);
                                 } on TimeoutException {
                                     if (fallbackPrefix != null) {
                                         await _showStaticFallbackTo(prefix, fallbackPrefix, nameEntry, descEntry, kind: kind);
@@ -393,6 +468,15 @@ extension Worker_forms on worker {
                                 confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
+
+                                // L'IA COUPÉE PAR LE CHEF : pas de bouton « Inspire moi » sur une tâche.
+                                // Une proposition toute faite ne connaît pas la tâche qu'on édite ; le
+                                // chef l'écrit lui-même (arbitrage du 2026-09-25). La dernière valeur
+                                // connue d'abord, pour que le bouton ne clignote pas, puis la relue.
+                                final inspire = DvOrb.get_shape_by_id("rename_task/inspire");
+                                inspire?.set("shape.visible", !_iaClanCoupee); inspire?.refreshUI();
+                                final permise = await _iaDuClan();
+                                inspire?.set("shape.visible", permise); inspire?.refreshUI();
     }
 
     Future<void> on_rename_task_name_changed(DvShape caller, dynamic event) async {
@@ -840,6 +924,8 @@ extension Worker_forms on worker {
                                                 final device = await _cloud?.deviceId() ?? "";
                                                 await _writeClanPlayer(clanId, clanSecret, _userId, device, region,
                                                     nameOverride: name, internalDesc: description, ext: ext);
+                                                // MULTICLAN : le nom est partagé entre les clans (profil, D2).
+                                                await _profileTouch(name: name);
                                             }
                                         }
                                     } catch (e) {

@@ -40,6 +40,7 @@ conf:
         - clan_page/roster_menu
         - clan_page/settings
         - clan_page/settings_menu
+        - clan_page/switch
         - clan_page/edit_toggle
         - clan_page/edit_avatar_big
         - clan_page/edit_name_big
@@ -318,6 +319,23 @@ conf:
         h: 5%
         border: false
 
+    # MULTICLAN : le bouton de changement de clan (D3), deux flèches en sens contraire, dans le
+    # même cadre doré que le kebab. À GAUCHE de l'avatar du clan (35 à 65 %), dans la zone
+    # symétrique du kebab (67 à 77 %) : sous la barre de niveau (y 4 à 6,4 %), au-dessus du nom
+    # du clan (y 16 %). Ouvre « Mes clans » (changer de clan, en rejoindre un autre).
+    clan_page/switch:
+      class: DvMenuButton
+      layer: content
+      glyph: swap_horiz
+      action: worker.open_my_clans
+      button_style: commons/donjon_button
+      shape:
+        x: 23%
+        y: 9%
+        w: 10%
+        h: 5%
+        border: false
+
     # Menu du bouton settings de l'écran Clan (Journal, accueil d'un enfant, QR, invitation,
     # tutoriels + « Créer un joueur »). Le selector clan_settings_selector filtre les options
     # réservées au chef : recruter (enfant, QR, invitation à distance) et « Créer un joueur »
@@ -358,6 +376,27 @@ conf:
             label: "@@@T:clan_menu_welcome_child@@@"
           actions:
             tap: worker.on_welcome_child
+        # MULTICLAN. Accueillir un enfant qui a DÉJÀ un clan : le chef montre un QR code (ou un
+        # lien + code) au représentant légal de l'enfant, qui autorise ce clan pour 7 jours.
+        # Réservé au chef adulte (clan_settings_selector), double garde dans
+        # worker.on_welcome_guest_child.
+        welcome_guest_child:
+          icon: "face"
+          desc: "@@@T:clan_menu_welcome_guest_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_welcome_guest@@@"
+          actions:
+            tap: worker.on_welcome_guest_child
+        # MULTICLAN. « Mes enfants » : les gestes d'un représentant légal (autoriser un clan,
+        # voir les clans d'un enfant et l'en retirer, ajouter un co-représentant, le devenir).
+        # Pour tout adulte (clan_settings_selector).
+        guardian_hub:
+          icon: "face"
+          desc: "@@@T:clan_menu_guardian_hub_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_guardian_hub@@@"
+          actions:
+            tap: worker.open_guardian_hub
         # Fait entrer un ADULTE dans le clan par QR code (sans accord d'enfant joint, seul le cas
         # adulte est proposé). Réservé au chef (clan_settings_selector), avec double garde dans
         # worker.on_invite_clan.
@@ -395,6 +434,33 @@ conf:
             label: "@@@T:clan_menu_create_player@@@"
           actions:
             tap: worker.create_player
+        # L'IA DU CLAN : couper / rallumer, pour tous les joueurs (champ `ai_enabled` du doc
+        # `clans`). Deux options EXCLUSIVES arbitrées par clan_settings_selector, réservées au
+        # chef, double garde dans worker._setClanAi. Icônes Material : c'est un réglage.
+        clan_ai_off:
+          icon: "block"
+          desc: "@@@T:clan_menu_ai_off_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_ai_off@@@"
+          actions:
+            tap: worker.clan_ai_off
+        clan_ai_on:
+          icon: "auto_awesome"
+          desc: "@@@T:clan_menu_ai_on_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_ai_on@@@"
+          actions:
+            tap: worker.clan_ai_on
+        # « Noter et partager » : ouvre le panneau commons/rate_* (étoiles + partage de l'app).
+        # RÉSERVÉ AUX ADULTES (clan_settings_selector, sur legal_state), double garde dans
+        # worker.open_rate_panel. En dernier : ce n'est ni un geste de jeu, ni un réglage.
+        rate_share:
+          icon: "star"
+          desc: "@@@T:menu_rate_share_desc@@@"
+          shape:
+            label: "@@@T:menu_rate_share@@@"
+          actions:
+            tap: worker.open_rate_panel
         # « Mes achats » a DÉMÉNAGÉ dans le kebab de la boutique (shop/settings_menu).
         # Tout ce qui touche à l'argent se regroupe sur l'écran qui le vend : l'écran
         # Clan n'a plus à en parler, et l'on ne cherche plus son relevé de cotisation
@@ -445,6 +511,7 @@ conf:
         - invite_consent_screen/notice
         - documents/ack_options
         - invite_consent_screen/kind
+        - invite_consent_screen/chief
         - invite_consent_screen/yes
         - invite_consent_screen/no
 
@@ -557,6 +624,27 @@ conf:
         actions:
           tap: worker.on_invite_kind_toggle
 
+    # « Simple membre » ou « aussi chef de clan », en mode ADULTE seulement : meme emplacement que
+    # la bascule QR / a distance, qui n'existe qu'en mode enfant. Un tap bascule
+    # (worker.on_invite_chief_toggle) ; repart a « simple membre » a chaque ouverture.
+    invite_consent_screen/chief:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        x: 7%
+        y: 62%
+        w: 86%
+        h: 7%
+        text_align: CENTER
+        font_size: 12.0
+        label: ""
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_invite_chief_toggle
+
     # Le bouton est ETEINT ET SOURD a l'ouverture de l'ecran, et ne s'allume qu'une fois une
     # case cochee (worker._setInviteYesReady) : une invitation sans declaration ne part pas.
     # `events.tap` est declare a true ici — c'est le worker qui le coupe et le retablit.
@@ -587,6 +675,69 @@ conf:
           tap: true
         actions:
           tap: worker.on_cancel_invite_consent
+
+    #//------------------ Reprise d'un joueur sans telephone (claim_pick_page) -------------
+    # Ecran AUTONOME (hors dvsteps, comme give_page), empile par worker._openClaimOrConsent
+    # quand un chef accueille un enfant (accord scanne ou recu par lien) ET que le clan compte
+    # des joueurs sans telephone (no_account). La question : cet enfant est-il l'un d'eux ? Il
+    # reprendra alors ce joueur sur son propre telephone (XP, butin, journal, avatar). C'est le
+    # PARENT qui designe le joueur, jamais l'enfant. Un tap sur une ligne mene a la declaration
+    # (invite_consent_screen) ; la derniere ligne, « C'est un nouveau joueur », garde le
+    # parcours d'avant. La fleche retour abandonne l'accueil, comme « Pas maintenant ».
+    claim_pick_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:claim_pick_title@@@"
+      # `actions` A LA RACINE : c'est de la que l'appear d'une PAGE est tire.
+      actions:
+        appear: worker.on_claim_pick_appear
+      registry:
+        - commons/splash_background
+        - claim_pick_page/hint
+        - claim_pick_page/list
+
+    claim_pick_page/hint:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 4%
+        y: 2%
+        w: 92%
+        h: 16%
+        background_color: "0x99000000"
+        border: true
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 8.0
+        font_size: 12.0
+        font_color: "amber_200"
+        label: "@@@T:claim_pick_hint@@@"
+
+    # Une ligne = l'avatar du joueur + son nom ; alimentee par worker.on_claim_pick_appear
+    # (dvlist.set_rows, action GLOBALE : aucune autre DvList ne vit a cote, on vient de l'ecran
+    # du clan). Meme livree que give_page/list.
+    claim_pick_page/list:
+      class: DvList
+      layer: content
+      action: worker.on_claim_pick
+      shape:
+        x: 4%
+        y: 20%
+        w: 92%
+        h: 76%
+        row_height: 64.0
+        icon_size: 48.0
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
 
     #//------------------ Retrait du consentement parental (art. 7(3) RGPD) -------------
     # Overlay de confirmation du retrait, et de sa rétractation. Idiome maison — layer overlay
@@ -738,6 +889,9 @@ conf:
       class: DvExplorer
       layer: content
       selector: worker.on_clan_avatar_selected
+      # Ordre : icon_[thème_]<groupe>_C_NN, rangé par worker.sort_avatars (groupe du clan,
+      # classe, thème en cours, puis le reste). Contexte posé à l'ouverture de l'écran.
+      sort: worker.sort_avatars
       shape:
         x: 3%
         y: 3%
@@ -747,7 +901,8 @@ conf:
         show_miniature: true
         selection: single
         folder: "images/medium"
-        regex_filter: "icon_[0-9]+_C_[0-9]+[.]png"
+        # Thème facultatif en tête (absent = donjon), groupe = numéro de clan ou nom de classe.
+        regex_filter: "icon_([A-Za-z0-9]+_)?[A-Za-z0-9]+_C_[0-9]+[.]png"
         border_color: "0xFFEAD9A6"
 
     # Liste scrollable des membres du clan (une tuile par joueur). Peuplée à chaud
@@ -864,6 +1019,16 @@ conf:
       # de son label (repli mode menu) et de son action de tap. L'ordre d'affichage effectif est
       # décidé par le selector (worker.clan_selector) ; l'ordre ci-dessous n'est qu'indicatif.
       options:
+        # « Chasser » l'intrus d'un événement (gobelin, changelin) : moteur d'événements. Proposée
+        # à TOUS, chefs ou non, par worker.clan_selector (_evtRosterSelector), seulement sur la
+        # tuile de l'intrus et, pour un changelin, sur celle du membre imité.
+        evt_chase:
+          image: "images/medium/evt_gobelin.png"
+          desc: "@@@T:evt_chase_desc@@@"
+          shape:
+            label: "@@@T:evt_chase@@@"
+          actions:
+            tap: worker.on_event_chase
         player_log:
           image: "images/small/scroll_nobg.png"
           desc: "@@@T:roster_menu_log_desc@@@"

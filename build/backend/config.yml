@@ -150,6 +150,22 @@ conf:
         isolation: strict
       workers:
         isolation: strict
+        # LE VERROU DE MISE À JOUR D'UN CLAN (dvautover). La fonction `ddust_autover` pose
+        # `locked_until` sur le doc clan le temps d'appliquer les étapes : tant qu'il est
+        # dans le futur, AUCUNE écriture client ne passe sur les données du clan. C'est la
+        # seule garantie qui ne dépende d'aucune application.
+        #
+        # ⚠ UN CLAN ABSENT N'EST PAS VERROUILLÉ. Un batch qui supprime le clan puis ses
+        #   tâches (worker_session._deleteSession) évalue les tâches APRÈS la suppression :
+        #   sans `!exists`, le `get` échouerait et le batch serait refusé.
+        # ⚠ UN SECOND GET PAR ÉCRITURE (userindexes + clans). Firestore met en cache les
+        #   accès au même document dans une requête : un batch sur UN clan n'en coûte que
+        #   deux, loin de la limite de 20.
+        functions: |
+          function clanUnlocked(clanId) {
+            let p = /databases/{database}/documents/clans/$(clanId);
+            return !exists(p) || get(p).data.get('locked_until', timestamp.value(0)) < request.time;
+          }
         collections:
           users:
             rule: |
@@ -176,6 +192,41 @@ conf:
               allow create: if request.auth != null && request.auth.uid == docId
                 && request.resource.data.ownerId == request.auth.uid;
               allow update, delete: if request.auth != null && request.auth.uid == docId;
+          # guardianship/{childId} : la REPRÉSENTATION d'un enfant (multiclan). Qui est son
+          # représentant (`guardian_id`), ses co-représentants, les clans qu'il fréquente, les
+          # autorisations d'y entrer et les gestes des représentants (consentement, majorité),
+          # tracés dans `history`. Protégé COMME UN CLAN, par un secret : `ownerId` est le
+          # secret de représentation, rangé dans l'index de chaque détenteur (l'enfant, son
+          # représentant, ses co-représentants) sous `guardianships.{childId}.secret`. Même
+          # forme de règle que les clans, donc aucun uid dans le document, et un représentant
+          # d'une autre région y a accès par son index de CETTE région.
+          # ⚠ JAMAIS SUPPRIMÉ PAR UN CLIENT : c'est une preuve (5 ans), seul delete_user_data
+          #   l'efface à terme. Et plus aucune écriture client dès la majorité (`closed_at`).
+          guardianship:
+            rule: |
+              allow list: if false;
+              allow create: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.guardianships[docId].secret == request.resource.data.ownerId;
+              allow get: if request.auth != null
+                && (resource == null
+                    || get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.guardianships[docId].secret == resource.data.ownerId);
+              allow update: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.guardianships[docId].secret == resource.data.ownerId
+                && request.resource.data.ownerId == resource.data.ownerId
+                && resource.data.get('closed_at', '') == '';
+              allow delete: if false;
+          # guardian_drops/{dropId} : la BOÎTE DE DÉPÔT d'un candidat co-représentant (multiclan).
+          # Le candidat tire un identifiant (uuid) et une clef, les montre au représentant (QR
+          # code, ou lien + code à distance) ; le représentant y dépose le secret de
+          # représentation CHIFFRÉ par cette clef (sealInvite) ; le candidat le relit, puis
+          # efface la boîte. L'identifiant ne se devine pas et le contenu est illisible sans la
+          # clef : tout compte connecté peut créer, lire ou effacer, personne ne peut lister ni
+          # réécrire. TTL sur `expiration` : une boîte oubliée disparaît seule.
+          guardian_drops:
+            ttl: true
+            rule: |
+              allow list, update: if false;
+              allow get, create, delete: if request.auth != null;
           # Liste d'attente beta saisie sur le site vitrine (bouton « S'inscrire aux betas »
           # des pages accueil/concept/roadmap). Écrite UNIQUEMENT par la fonction beta_signup,
           # qui passe par l'admin SDK et ignore donc ces règles : le client n'y a aucun accès,
@@ -186,20 +237,40 @@ conf:
           beta_signups:
             rule: |
               allow read, write: if false;
+          # ⚠ `locked_until` ET `data_version` N'APPARTIENENT PAS AU CLIENT. Le premier est le
+          #   verrou de la fonction `ddust_autover` ; le second dit quelles étapes le clan a
+          #   subies. Un client ne peut donc NI poser `locked_until` NI le modifier, et ne
+          #   pose `data_version` qu'à la création ou tant qu'il est absent (clan né avant
+          #   dvautover). Les réécritures de document complet (read-modify-write) restent
+          #   acceptées : elles renvoient les deux champs à l'identique.
           clans:
             rule: |
               allow list: if false;
               allow create: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId;
-              allow get, update, delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId
+                && !('locked_until' in request.resource.data);
+              allow get: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
+              allow update: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId
+                && resource.data.get('locked_until', timestamp.value(0)) < request.time
+                && request.resource.data.get('locked_until', null) == resource.data.get('locked_until', null)
+                && (resource.data.get('data_version', null) == null
+                    || request.resource.data.get('data_version', null) == resource.data.get('data_version', null));
+              allow delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId
+                && resource.data.get('locked_until', timestamp.value(0)) < request.time;
           clans_tasks:
             rule: |
               allow list: if false;
               allow create: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId;
-              allow get, update, delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId
+                && clanUnlocked(docId);
+              allow get: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
+              allow update, delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId
+                && clanUnlocked(docId);
           clans_tasks/{clanId}/tasks:
             # Index composite pour `pulse_sweeper` : les taches en attente de verdict depuis
             # plus de deux jours (status == "validating" ET last < seuil). Portee COLLECTION,
@@ -214,9 +285,11 @@ conf:
               allow list: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
               allow create, update: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId
+                && clanUnlocked(clanId);
               allow delete: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId
+                && clanUnlocked(clanId);
           clans_tasks/{clanId}/domains:
             rule: |
               allow get: if request.auth != null
@@ -224,16 +297,22 @@ conf:
               allow list: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
               allow create, update: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId
+                && clanUnlocked(clanId);
               allow delete: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId
+                && clanUnlocked(clanId);
           clans_items:
             rule: |
               allow list: if false;
               allow create: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId;
-              allow get, update, delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == request.resource.data.ownerId
+                && clanUnlocked(docId);
+              allow get: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
+              allow update, delete: if request.auth != null
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId
+                && clanUnlocked(docId);
           clans_items/{clanId}/items:
             rule: |
               allow get: if request.auth != null
@@ -241,9 +320,11 @@ conf:
               allow list: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
               allow create, update: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId
+                && clanUnlocked(clanId);
               allow delete: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId
+                && clanUnlocked(clanId);
           clans_logs:
             rule: |
               allow list, get, create, update, delete: if false;
@@ -254,7 +335,8 @@ conf:
               allow get: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
               allow create: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId
+                && clanUnlocked(clanId);
               allow update, delete: if false;
           # Historique des ouvertures du butin : une ligne par coffre ouvert (montant du
           # portefeuille, or, valeur des objets, nombre de joueurs, part du meilleur
@@ -274,7 +356,8 @@ conf:
               allow get: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
               allow create: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId
+                && clanUnlocked(clanId);
               allow update, delete: if false;
           clans_players/{clanId}/players:
             # `last_connected` (pose au login, cf. worker_clan._writeClanPlayer) est la SEULE
@@ -296,9 +379,11 @@ conf:
               allow list: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
               allow create, update: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == request.resource.data.ownerId
+                && clanUnlocked(clanId);
               allow delete: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId
+                && clanUnlocked(clanId);
           # Ce dont LE CLAN bénéficie : doc-id = clanId. C'est la PROJECTION métier des
           # achats, pas le registre des achats eux-mêmes — celui-là est personnel et vit
           # dans la base dédiée `store` (module pustore), rangé par compte payeur.
@@ -427,11 +512,13 @@ conf:
                     || get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[resource.data.clanId].clanSecret != null);
               allow create: if request.auth != null
                 && request.resource.data.ownerId == request.auth.uid
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[request.resource.data.clanId].clanSecret != null;
+                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[request.resource.data.clanId].clanSecret != null
+                && clanUnlocked(request.resource.data.clanId);
               allow update: if request.auth != null
                 && resource.data.ownerId == request.auth.uid
                 && request.resource.data.ownerId == request.auth.uid
-                && request.resource.data.clanId == resource.data.clanId;
+                && request.resource.data.clanId == resource.data.clanId
+                && clanUnlocked(resource.data.clanId);
               allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
 
   svcaccounts:
@@ -890,11 +977,47 @@ conf:
           # la fonction européenne traite donc aussi les données américaines.
           # Surcharge par cible : cf. build.targets.test.conf dans le build.yml de la suite.
           STORE_REGIONS: "eu,us"
+      # Règle du payeur à la demande : appelée par le client après revoke_player,
+      # nomore_chief et la suppression de compte (worker_members, worker_session). Le
+      # balayage quotidien applique la même règle en filet.
+      store_payer_check:
+        environment:
+          PACKAGE_NAME: "@@@C:store.play.package@@@"
+          PROJECTION_DATABASE: "workers"
+          PROJECTION_COLLECTION: "clans_store"
+          # Règle du payeur (pustore, 2026-09-24) : l'abonnement est RÉSILIÉ (renouvellement
+          # arrêté, rien de remboursé) dès que son payeur n'est plus chef actif du clan ou
+          # que le clan est dissous. Couvre la dissolution (delete_user_data, clan_purge :
+          # clans.enabled=false), le compte supprimé (userindexes.enabled=false, alors que
+          # delete_user_data laisse l'identifiant dans clans.admins) et le chef qui quitte
+          # le clan ou perd son rôle (retiré de clans.admins).
+          PAYER_RULE: "on"
+          SCOPE_DATABASE: "workers"
+          SCOPE_COLLECTION: "clans"
+          SCOPE_ADMIN_FIELD: "admins"
+          SCOPE_ENABLED_FIELD: "enabled"
+          IDENTITY_COLLECTION: "userindexes"
+          IDENTITY_FIELD: "userId"
+          IDENTITY_ENABLED_FIELD: "enabled"
       store_sweeper:
         environment:
           PACKAGE_NAME: "@@@C:store.play.package@@@"
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"
+          # Règle du payeur (pustore, 2026-09-24) : l'abonnement est RÉSILIÉ (renouvellement
+          # arrêté, rien de remboursé) dès que son payeur n'est plus chef actif du clan ou
+          # que le clan est dissous. Couvre la dissolution (delete_user_data, clan_purge :
+          # clans.enabled=false), le compte supprimé (userindexes.enabled=false, alors que
+          # delete_user_data laisse l'identifiant dans clans.admins) et le chef qui quitte
+          # le clan ou perd son rôle (retiré de clans.admins).
+          PAYER_RULE: "on"
+          SCOPE_DATABASE: "workers"
+          SCOPE_COLLECTION: "clans"
+          SCOPE_ADMIN_FIELD: "admins"
+          SCOPE_ENABLED_FIELD: "enabled"
+          IDENTITY_COLLECTION: "userindexes"
+          IDENTITY_FIELD: "userId"
+          IDENTITY_ENABLED_FIELD: "enabled"
           # Cycle de défaut de paiement (vision.md § « Les défauts de paiement »).
           # C'est un jeu familial et le design le rend rentable : on montre de la
           # compréhension. Le jeu ne se ferme JAMAIS pendant les 50 premiers jours —
@@ -975,6 +1098,392 @@ conf:
                      "firm":"Laat een klein probleempje met de buidel het avontuur niet stoppen: de kerker wacht nog altijd op jullie.",
                      "last":"Het toverboek gaat bijna dicht. We vonden het geweldig om met jullie te spelen! De deur van de kerker blijft altijd open voor jullie terugkeer.",
                      "farewell":"Jullie clan wacht al twee jaar. Zijn gegevens worden over een maand gewist: hervat het abonnement voor die datum en jullie vinden hem ongeschonden terug."}}}
+      # --- dvautover : la mise à jour des données d'un clan ----------------------------
+      # Appelée UNIQUEMENT par la fonction générique `autover` (brique puautover), qui a
+      # vérifié la connexion et transmet l'UID Firebase. Fermée par IAM : `trigger: http`,
+      # `invoker: autover`. Jamais `callable`, qui l'ouvrirait à tout Internet.
+      #
+      # Ce qu'elle fait, dans cet ordre :
+      #   1. revérifie TOUT côté serveur : le secret du clan, l'appartenance (userindexes)
+      #      et le statut de chef (`admins`, en identifiant MÉTIER) — le « chef ? » de
+      #      l'application n'est qu'un aiguillage d'écran ;
+      #   2. borne la cible par `target`, lu dans `<région>-autover` : on n'applique jamais
+      #      une étape que le Store ne sert pas encore à tous ;
+      #   3. prend le verrou `locked_until` par transaction (bail de 3 minutes, repoussé à
+      #      chaque étape) : les règles de `workers` refusent alors toute écriture client
+      #      sur le clan ;
+      #   4. applique les étapes une à une, `data_version` écrite après CHACUNE ;
+      #   5. libère le verrou.
+      #
+      # ⚠ SUR UNE PANNE EN COURS D'ÉTAPE, LE VERROU RESTE : les données peuvent être à
+      #   moitié transformées. Il tombe seul à l'échéance du bail, et le chef suivant
+      #   reprend à la dernière `data_version` écrite. Une étape doit donc pouvoir être
+      #   rejouée sur des données qu'elle a déjà en partie traitées.
+      # ⚠ UNE ÉTAPE PUBLIÉE EST GELÉE. Des clans l'ont peut-être déjà subie : une
+      #   correction est une NOUVELLE étape, jamais une modification de celle-ci.
+      # ⚠ LA TABLE `STEPS` ET `autover.steps` (build.yml de la suite) DOIVENT DIRE LA MÊME
+      #   CHOSE : le builder refuse le déploiement sinon, dans les deux sens.
+      ddust_autover:
+        entry_point: ddust_autover
+        trigger: http
+        invoker: autover
+        memory: 512
+        service_account: backend
+        timeout: 540
+        environment:
+          # Les régions vers lesquelles un clan peut déménager (op `migrate`). Les
+          # mêmes pour les deux cibles : la production comme la beta (EUT).
+          MIGRATION_REGIONS: "eu,eut"
+          # La région de beta : la seule qu'on rejoint sans condition de pays.
+          BETA_REGION: "eut"
+          # Pays -> région de production (retour de beta). Aligné sur le catalogue des
+          # marchés du client (dvdocuments, documents.regions_catalog : `fr` -> `eu`).
+          COUNTRY_REGIONS: "FR:eu"
+        code: |
+          import { onRequest } from 'firebase-functions/v2/https';
+          import * as admin from 'firebase-admin';
+          import { getFirestore, Timestamp, FieldValue, Firestore, DocumentReference, BulkWriter } from 'firebase-admin/firestore';
+          admin.initializeApp();
+
+          const LEASE_MS = 3 * 60 * 1000;
+          const REGION   = '@@@region@@@';
+          const ALLOWED  = String(process.env.MIGRATION_REGIONS || '').split(',')
+                             .map((s) => s.trim().toLowerCase()).filter((s) => !!s);
+          const dbOf     = (region: string, name: string) => getFirestore(admin.app(), region + '-' + name);
+          const autover  = () => dbOf(REGION, 'autover');
+
+          type Step = (db: Firestore, clanId: string, secret: string) => Promise<void>;
+
+          // Les étapes, indexées par le BUILD qui les exige. Chacune transforme les
+          // données d'UN clan, du format de l'étape précédente au sien.
+          const STEPS: Record<number, Step> = {
+          };
+
+          function lease(): Timestamp { return Timestamp.fromMillis(Date.now() + LEASE_MS); }
+
+          // ---------------------------------------------------------------- droits
+
+          // Revérifie TOUT côté serveur : le secret du clan, l'appartenance de l'appelant
+          // (son index porte le même secret), puis son statut de chef (identifiant MÉTIER).
+          // `region` : la région où vivent les données du clan (par défaut, celle de cette
+          // fonction). Une migration peut être demandée à la fonction de PRODUCTION pour un
+          // clan qui vit en beta : c'est la seule que toutes les applications savent appeler.
+          async function authorize(msg: Record<string, any>, region: string = REGION): Promise<Record<string, any>> {
+            const uid    = String(msg.uid    || '');
+            const clanId = String(msg.scope  || '');
+            const secret = String(msg.secret || '');
+            const build  = Number(msg.build  || 0);
+            if (!uid || !clanId || !secret || !(build > 0)) return { status: 'bad_request' };
+
+            const db      = dbOf(region, 'workers');
+            const clanRef = db.collection('clans').doc(clanId);
+            const clan    = await clanRef.get();
+            if (!clan.exists) return { status: 'not_found' };
+            const c = clan.data() || {};
+            if (String(c.ownerId || '') !== secret || c.enabled === false) return { status: 'forbidden' };
+
+            const ix  = await db.collection('userindexes').doc(uid).get();
+            const ixd = ix.data() || {};
+            if (String(((ixd.clans || {})[clanId] || {}).clanSecret || '') !== secret) {
+              return { status: 'forbidden' };
+            }
+            const userId = String(ixd.userId || '');
+            const admins = Array.isArray(c.admins) ? c.admins : [];
+            if (!userId || !admins.includes(userId)) return { status: 'not_chief' };
+            return { db, clanRef, c, clanId, secret, build, admins };
+          }
+
+          // Le verrou, pris par transaction. Un bail échu (fonction morte en route) se
+          // reprend : c'est ce qui fait qu'aucun clan ne reste bloqué.
+          async function lock(db: Firestore, clanRef: DocumentReference): Promise<boolean> {
+            const now = Date.now();
+            return db.runTransaction(async (tx) => {
+              const s  = await tx.get(clanRef);
+              const lu = (s.data() || {}).locked_until;
+              if (lu && typeof lu.toMillis === 'function' && lu.toMillis() > now) return false;
+              tx.update(clanRef, { locked_until: lease() });
+              return true;
+            });
+          }
+
+          // ------------------------------------------------------- mise à jour (étapes)
+
+          async function update(msg: Record<string, any>): Promise<Record<string, any>> {
+            const a = await authorize(msg);
+            if (a.status) return a;
+            const { db, clanRef, clanId, secret, build } = a;
+
+            const vdoc    = await autover().collection('autover').doc('version').get();
+            const target  = Number((vdoc.data() || {}).target || 0);
+            const plafond = Math.min(build, target);
+
+            if (!(await lock(db, clanRef))) return { status: 'busy' };
+
+            // Relu SOUS verrou : un autre chef a pu avancer le clan entre-temps.
+            let current = Number(((await clanRef.get()).data() || {}).data_version || 0);
+            const todo = Object.keys(STEPS).map(Number)
+                               .filter((s) => s > current && s <= plafond)
+                               .sort((a, b) => a - b);
+            try {
+              for (const s of todo) {
+                await STEPS[s](db, clanId, secret);
+                current = s;
+                await clanRef.update({ data_version: s, locked_until: lease() });
+              }
+            } catch (e: any) {
+              console.error('ddust_autover: clan ' + clanId + ', étape en échec après ' + current
+                            + ' : ' + (e && e.message ? e.message : e));
+              return { status: 'failed', data_version: current };
+            }
+            await clanRef.update({ locked_until: FieldValue.delete() });
+            return { status: todo.length ? 'ok' : 'up_to_date', data_version: current };
+          }
+
+          // ------------------------------------------------------------ migration
+
+          // Copie un document et TOUT ce qu'il porte en dessous, sous-collections comprises.
+          // ⚠ LES PARENTS FANTÔMES : `clans_tasks/{clanId}` n'est jamais écrit, seules ses
+          //   sous-collections existent. `listCollections()` et `listDocuments()` les voient
+          //   quand même ; une requête sur la collection racine, non.
+          async function copyTree(src: DocumentReference, dst: DocumentReference, w: BulkWriter,
+                                  omit: string[] = []): Promise<number> {
+            let n = 0;
+            const snap = await src.get();
+            if (snap.exists) {
+              const d: Record<string, any> = Object.assign({}, snap.data());
+              for (const k of omit) delete d[k];
+              w.set(dst, d);
+              n++;
+            }
+            for (const col of await src.listCollections()) {
+              for (const ref of await col.listDocuments()) {
+                n += await copyTree(ref, dst.collection(col.id).doc(ref.id), w);
+              }
+            }
+            return n;
+          }
+
+          async function copyDoc(src: DocumentReference, dst: DocumentReference, w: BulkWriter): Promise<void> {
+            const snap = await src.get();
+            if (snap.exists) w.set(dst, snap.data() || {});
+          }
+
+          // Les membres du clan : identifiant métier, et UID Firebase pour ceux qui ont un
+          // compte. Un enfant sans compte n'existe que dans clans_players.
+          async function membersOf(db: Firestore, clanId: string): Promise<Array<{ userId: string, uid: string }>> {
+            const out: Array<{ userId: string, uid: string }> = [];
+            const players = await db.collection('clans_players').doc(clanId).collection('players').get();
+            for (const p of players.docs) {
+              const d = p.data() || {};
+              if (d.no_account === true) { out.push({ userId: p.id, uid: '' }); continue; }
+              const u = await db.collection('users').doc(p.id).get();
+              out.push({ userId: p.id, uid: u.exists ? String((u.data() || {}).ownerId || '') : '' });
+            }
+            return out;
+          }
+
+          function chunks<T>(xs: T[], n: number): T[][] {
+            const out: T[][] = [];
+            for (let i = 0; i < xs.length; i += n) out.push(xs.slice(i, i + n));
+            return out;
+          }
+
+          const CLAN_COLLECTIONS = ['clans_tasks', 'clans_items', 'clans_logs', 'clans_chest_history',
+                                    'clans_players', 'clans_store', 'clans_pulse'];
+
+          // La région de production d'un pays (`COUNTRY_REGIONS`, ex. "FR:eu"). La même table
+          // que le catalogue des marchés du client (documents.regions_catalog) : à garder
+          // alignée avec lui.
+          const COUNTRY_REGIONS: Record<string, string> = {};
+          for (const part of String(process.env.COUNTRY_REGIONS || '').split(',')) {
+            const [pays, region] = part.split(':').map((s) => (s || '').trim());
+            if (pays && region) COUNTRY_REGIONS[pays.toUpperCase()] = region.toLowerCase();
+          }
+          const BETA_REGION = String(process.env.BETA_REGION || '').toLowerCase();
+
+          // Déménage un clan ENTIER de `from` (défaut : la région de cette fonction) vers `to`,
+          // en trois phases rejouables :
+          //   copy    : tout est copié vers l'arrivée (écrasant d'anciennes pierres tombales) ;
+          //   switch  : les sessions de départ deviennent des pierres tombales, chef(s) en dernier ;
+          //   cleanup : tout le reste est supprimé au départ, le verrou d'arrivée est levé.
+          // L'état vit dans `<départ>-autover/migrations/{clanId}` : l'application le lit
+          // (règle 0), la fonction reprend à la phase notée.
+          //
+          // ⚠ UN RETOUR EN PRODUCTION VA DANS LA RÉGION DU PAYS DU CHEF, relu ici dans sa
+          //   session légale : l'application ne choisit pas où envoyer un clan. Seule la
+          //   région de beta échappe à la règle (c'est elle qu'on rejoint en beta).
+          async function migrate(msg: Record<string, any>): Promise<Record<string, any>> {
+            const from = String(msg.from || REGION).toLowerCase();
+            const to   = String(msg.to   || '').toLowerCase();
+            if (!to || from === to || !ALLOWED.includes(to) || !ALLOWED.includes(from)) {
+              return { status: 'bad_region' };
+            }
+            const a = await authorize(msg, from);
+            if (a.status) return a;
+            const { db, clanRef, clanId, c, admins } = a;
+
+            if (to !== BETA_REGION) {
+              const ds   = await dbOf(from, 'documents').collection('documents_sessions').doc(String(msg.uid)).get();
+              const pays = String((ds.data() || {}).country || '').toUpperCase();
+              if (!pays || COUNTRY_REGIONS[pays] !== to) return { status: 'bad_region' };
+            }
+
+            // L'arrivée doit savoir lire ces données : aucune étape déjà appliquée au clan ne
+            // doit dépasser ce que son Store sert (`target`).
+            const d        = Number(c.data_version || 0);
+            const dversion = await dbOf(to, 'autover').collection('autover').doc('version').get();
+            const dtarget  = Number((dversion.data() || {}).target || 0);
+            if (Object.keys(STEPS).map(Number).some((s) => s > dtarget && s <= d)) return { status: 'dest_too_old' };
+
+            const migRef = dbOf(from, 'autover').collection('migrations').doc(clanId);
+            const mig    = (await migRef.get()).data() || {};
+            if (mig.phase && mig.phase !== 'done' && mig.to && mig.to !== to) return { status: 'busy' };
+            if (!(await lock(db, clanRef))) return { status: 'busy' };
+
+            let phase = (mig.phase && mig.phase !== 'done' && mig.to === to) ? String(mig.phase) : 'copy';
+            const now = new Date().toISOString();
+            await migRef.set({ clanId, from, to, phase, updated_at: now,
+                               started_at: (mig.phase && mig.phase !== 'done') ? (mig.started_at || now) : now });
+            const setPhase = async (p: string) => {
+              phase = p;
+              await migRef.set({ phase: p, updated_at: new Date().toISOString() }, { merge: true });
+            };
+
+            const dw    = dbOf(to, 'workers');
+            const srcD  = dbOf(from, 'documents'), dstD = dbOf(to, 'documents');
+            const srcS  = dbOf(from, 'store'),     dstS = dbOf(to, 'store');
+            const srcM  = dbOf(from, 'messaging'), dstM = dbOf(to, 'messaging');
+
+            try {
+              // Les membres se lisent au départ tant qu'il existe, à l'arrivée ensuite.
+              const members = await membersOf(phase === 'copy' ? db : dw, clanId);
+              const uids    = members.map((m) => m.uid).filter((u) => !!u);
+
+              if (phase === 'copy') {
+                const ww = dw.bulkWriter();
+                await copyTree(db.collection('clans').doc(clanId), dw.collection('clans').doc(clanId), ww, ['locked_until']);
+                for (const col of CLAN_COLLECTIONS) {
+                  await copyTree(db.collection(col).doc(clanId), dw.collection(col).doc(clanId), ww);
+                  await clanRef.update({ locked_until: lease() });
+                }
+                for (const m of members) {
+                  if (!m.uid) continue;
+                  await copyDoc(db.collection('users').doc(m.userId), dw.collection('users').doc(m.userId), ww);
+                  await copyDoc(db.collection('userindexes').doc(m.uid), dw.collection('userindexes').doc(m.uid), ww);
+                }
+                await ww.close();
+                // Le clan d'arrivée naît VERROUILLÉ : personne n'y écrit avant la fin.
+                await dw.collection('clans').doc(clanId).set({ locked_until: lease() }, { merge: true });
+
+                const wd = dstD.bulkWriter();
+                for (const uid of uids) {
+                  // La session légale suit le compte : son `cloud_region` est du ROUTAGE, pas une
+                  // preuve. Recopié tel quel, il renvoyait l'application vers la région de
+                  // départ, où l'écriture suivante était refusée (relevé le 2026-09-26).
+                  const sess = await srcD.collection('documents_sessions').doc(uid).get();
+                  if (sess.exists) {
+                    wd.set(dstD.collection('documents_sessions').doc(uid),
+                           Object.assign({}, sess.data(), { cloud_region: to }));
+                  }
+                  // Les preuves d'acceptation sont copiées TELLES QUELLES : ce sont des preuves.
+                  const acc = await srcD.collection('documents_acceptance').where('ownerId', '==', uid).get();
+                  for (const x of acc.docs) wd.set(dstD.collection('documents_acceptance').doc(x.id), x.data() || {});
+                }
+                await wd.close();
+
+                // Facturation : les deux registres qui rattachent un achat au clan.
+                const wsx = dstS.bulkWriter();
+                for (const coll of ['store_tokens', 'store_purchases']) {
+                  const q = await srcS.collection(coll).where('scope', '==', clanId).get();
+                  for (const x of q.docs) wsx.set(dstS.collection(coll).doc(x.id), x.data() || {});
+                }
+                await wsx.close();
+
+                // Les appareils des membres, sinon plus aucune relance à l'arrivée.
+                const wm = dstM.bulkWriter();
+                for (const part of chunks(uids, 30)) {
+                  const q = await srcM.collection('msgregistry').where('ownerId', 'in', part).get();
+                  for (const x of q.docs) wm.set(dstM.collection('msgregistry').doc(x.id), x.data() || {});
+                }
+                await wm.close();
+
+                await setPhase('switch');
+                await clanRef.update({ locked_until: lease() });
+              }
+
+              if (phase === 'switch') {
+                // Pierres tombales SANS donnée personnelle : juste de quoi dire où est le joueur.
+                // Les membres d'abord, les chefs en dernier : tant que la session d'un chef est
+                // au départ, c'est lui qui peut reprendre la migration.
+                const ordre = members.filter((m) => !admins.includes(m.userId))
+                                     .concat(members.filter((m) => admins.includes(m.userId)));
+                for (const m of ordre) {
+                  if (!m.uid) continue;
+                  await db.collection('users').doc(m.userId).set({
+                    userId: m.userId, ownerId: m.uid, enabled: false, moved_to: to, moved_at: new Date().toISOString(),
+                  });
+                  await db.collection('userindexes').doc(m.uid).set({
+                    userId: m.userId, ownerId: m.uid, enabled: false, moved_to: to,
+                  });
+                }
+                await setPhase('cleanup');
+              }
+
+              if (phase === 'cleanup') {
+                await db.recursiveDelete(db.collection('clans').doc(clanId));
+                for (const col of CLAN_COLLECTIONS) await db.recursiveDelete(db.collection(col).doc(clanId));
+                for (const uid of uids) {
+                  await srcD.collection('documents_sessions').doc(uid).delete();
+                  const acc = await srcD.collection('documents_acceptance').where('ownerId', '==', uid).get();
+                  for (const x of acc.docs) await x.ref.delete();
+                }
+                for (const coll of ['store_tokens', 'store_purchases']) {
+                  const q = await srcS.collection(coll).where('scope', '==', clanId).get();
+                  for (const x of q.docs) await x.ref.delete();
+                }
+                for (const part of chunks(uids, 30)) {
+                  const q = await srcM.collection('msgregistry').where('ownerId', 'in', part).get();
+                  for (const x of q.docs) await x.ref.delete();
+                }
+                // Éphémères : purgés au départ, jamais déménagés (le secret du clan y circule).
+                const inv = await db.collection('clans_invites').where('clanId', '==', clanId).get();
+                for (const x of inv.docs) await x.ref.delete();
+                try {
+                  const vl = dbOf(from, 'virtuallobby');
+                  const recs = await vl.collection('virtuallobbymanagement').doc(clanId).collection('records').get();
+                  for (const r of recs.docs) await vl.collection('virtuallobbysecret').doc(r.id).delete();
+                  await vl.recursiveDelete(vl.collection('virtuallobbymanagement').doc(clanId));
+                } catch (e: any) {
+                  console.warn('ddust_autover: purge virtuallobby incomplète : ' + (e && e.message ? e.message : e));
+                }
+
+                await dw.collection('clans').doc(clanId).update({ locked_until: FieldValue.delete() });
+                await setPhase('done');
+              }
+            } catch (e: any) {
+              // Verrou gardé : il tombe seul, et le chef reprend à la phase notée.
+              console.error('ddust_autover: migration du clan ' + clanId + ' vers ' + to + ' en échec (phase '
+                            + phase + ') : ' + (e && e.message ? e.message : e));
+              return { status: 'failed', phase };
+            }
+            return { status: 'ok', to };
+          }
+
+          export const ddust_autover = onRequest(async (req, res) => {
+            try {
+              // Enveloppe `{data: ...}` posée par la fonction générique `autover`.
+              const corps = req.body || {};
+              const cles  = Object.keys(corps);
+              const msg   = (cles.length === 1 && cles[0] === 'data' && corps.data
+                             && typeof corps.data === 'object') ? corps.data : corps;
+              const op    = String(msg.op || 'update');
+              res.status(200).json(op === 'migrate' ? await migrate(msg) : await update(msg));
+            } catch (e: any) {
+              console.error('ddust_autover: ' + (e && e.message ? e.message : e));
+              res.status(500).json({ status: 'error', message: String(e && e.message ? e.message : e) });
+            }
+          });
+
       count_sessions:
         entry_point: countSessions
         trigger: callable
@@ -1103,12 +1612,20 @@ conf:
           //
           // DEUX PORTES D'ENTRÉE, UNE SEULE CASCADE.
           //   1. `ownerId`       — suppression de son PROPRE compte (in-app ou page web). Self-delete.
-          //   2. `consentTarget` + `clanId` — RETRAIT DU CONSENTEMENT PARENTAL (art. 7(3) RGPD) : un
-          //      chef du clan d'origine a retiré son consentement pour un enfant, le délai de
-          //      rétractation de 3 jours est écoulé, et un membre quelconque du clan réclame
-          //      l'exécution depuis son appareil. L'appelant n'est PAS la cible : l'autorisation ne
-          //      peut donc pas venir de lui, elle est reconstruite ici à partir de faits vérifiables
-          //      en base (voir la branche plus bas).
+          //   2. `consentTarget` : RETRAIT DU CONSENTEMENT PARENTAL (art. 7(3) RGPD) : un représentant
+          //      a retiré son consentement pour un enfant, le délai de rétractation de 3 jours est
+          //      écoulé, et l'exécution est réclamée depuis un appareil. L'appelant n'est PAS la
+          //      cible : l'autorisation ne peut donc pas venir de lui, elle est reconstruite ici à
+          //      partir de faits vérifiables en base (voir la branche plus bas). Deux variantes :
+          //        - enfant AVEC `guardianship` (multiclan) : la preuve est dans guardianship ;
+          //        - enfant SANS téléphone (`clanId` fourni, pas de guardianship) : la preuve est
+          //          `consent_due` sur sa fiche du clan d'origine, comme avant le multiclan.
+          //
+          // MULTICLAN. Un joueur a des fiches dans plusieurs clans, éventuellement dans plusieurs
+          // régions (`users.clans.{id}.region`) : chaque fiche est traitée dans la base de SA
+          // région. Et le SEUL représentant d'un enfant ne peut pas supprimer son compte (porte 1
+          // refusée) : il doit d'abord ajouter un co-représentant ou supprimer le compte de
+          // l'enfant. Un enfant qui garde un co-représentant n'est jamais emporté par la cascade.
           // La cascade, les pierres tombales et la clôture du consentement sont RIGOUREUSEMENT les
           // mêmes dans les deux cas — il n'y a qu'une implémentation de la suppression, et c'est le
           // point : elle est déjà dupliquée dans `clan_purge`, une troisième copie serait un danger.
@@ -1149,8 +1666,34 @@ conf:
 
             const usersCol   = db.collection('users');
             const indexesCol = db.collection('userindexes');
-            const playerRef  = (clanId: string, uid: string) =>
-              db.collection('clans_players').doc(clanId).collection('players').doc(uid);
+            const gshipCol   = db.collection('guardianship');
+
+            // Base `workers` d'une AUTRE région (fiche d'un clan situé ailleurs que la maison du
+            // joueur). Mono-région (RP vide) : tout est dans la même base.
+            const RP = '@@@region@@@-';
+            const HOME = RP ? RP.slice(0, -1) : '';
+            const regionDbs = new Map<string, any>();
+            const dbFor = (region: string): any => {
+              if (!RP || !region || region === HOME) { return db; }
+              if (!regionDbs.has(region)) { regionDbs.set(region, getFirestore(admin.app(), `${region}-workers`)); }
+              return regionDbs.get(region);
+            };
+            // Région de la fiche `clanId` d'un joueur, lue dans son users (repli : maison).
+            const clanRegion = (userData: any, clanId: string): string =>
+              String((((userData || {}).clans || {})[clanId] || {}).region || HOME);
+            const playerRef  = (clanId: string, uid: string, region: string = HOME) =>
+              dbFor(region).collection('clans_players').doc(clanId).collection('players').doc(uid);
+
+            // Représentants d'un enfant (guardian_id + co-représentants), lus dans guardianship.
+            // Document absent ou clos (majeur) : aucun.
+            const guardiansOf = async (childId: string): Promise<string[]> => {
+              const g = await gshipCol.doc(childId).get();
+              if (!g.exists) { return []; }
+              const d: any = g.data() || {};
+              if (String(d.closed_at || '')) { return []; }
+              const all = [String(d.guardian_id || ''), ...(Array.isArray(d.guardians) ? d.guardians.map(String) : [])];
+              return Array.from(new Set(all.filter((x) => !!x)));
+            };
 
             // UID Firebase -> userId metier (via userindexes/{firebaseUid}.userId), repli sur
             // l'UID Firebase si aucun index (vieux comptes ou userId == firebaseUid).
@@ -1173,83 +1716,143 @@ conf:
             };
 
             // Tombstone d'un membre (userId metier) dans un clan + desactivation du clan dans users.clans.
-            const tombstone = (uid: string, clanId: string) => {
-              stage(playerRef(clanId, uid), { id: uid, enabled: false, status: 'deleted', last_connected: now });
+            // `region` = région du CLAN (sa fiche vit dans la base de cette région).
+            const tombstone = (uid: string, clanId: string, region: string = HOME) => {
+              stage(playerRef(clanId, uid, region), { id: uid, enabled: false, status: 'deleted', last_connected: now });
               stage(usersCol.doc(uid), { clans: { [clanId]: { enabled: false } } });
+            };
+
+            // La représentation d'un enfant supprimé est une PREUVE (5 ans) : on la clôt, jamais on
+            // ne l'efface ici. `erase_after` dit quand elle pourra l'être.
+            const closeGuardianship = async (childId: string) => {
+              const ref = gshipCol.doc(childId);
+              const g = await ref.get();
+              if (!g.exists) { return; }
+              const d: any = g.data() || {};
+              const eraseAfter = new Date(Date.now() + 5 * 365 * 24 * 3600 * 1000).toISOString();
+              stage(ref, String(d.closed_at || '')
+                ? { deleted_at: now, erase_after: eraseAfter }
+                : { closed_at: now, deleted_at: now, erase_after: eraseAfter });
             };
 
             const visited = new Set<string>();
             const queue: string[] = [];
+            let rootSelfId = '';   // porte 1 : le compte qui se supprime lui-même
+
+            // Un enfant garde-t-il un représentant après cette passe ? (représentant dont le
+            // compte n'est pas en train d'être supprimé.) Si oui, la dissolution de son clan
+            // d'origine ne l'emporte pas.
+            const keepsGuardian = async (childId: string): Promise<boolean> => {
+              const gs = await guardiansOf(childId);
+              return gs.some((g) => !visited.has(g) && !queue.includes(g));
+            };
 
             if (consentTarget) {
               // ==========================================================================
-              // PORTE 2 — RETRAIT DU CONSENTEMENT PARENTAL, SUR UNE CIBLE UNIQUE.
+              // PORTE 2 : RETRAIT DU CONSENTEMENT PARENTAL, SUR UNE CIBLE UNIQUE.
               // ==========================================================================
               // L'appelant n'est pas la cible : son UID ne prouve rien. L'autorisation est
-              // donc RECONSTRUITE ici, a partir de quatre faits lus en base, et aucun
-              // n'est fourni par le client :
-              //   1. l'appelant est bien membre actif de ce clan ;
-              //   2. un retrait est reellement en cours sur la cible, et son delai de
-              //      retractation est ECHU (le client ne fait que le signaler) ;
-              //   3. ce clan est bien le clan d'ORIGINE de la cible — le seul dont le
-              //      consentement soit en cause ;
-              //   4. la cible n'est pas majeure : un adulte donne son propre consentement.
-              // Aucun de ces faits n'est falsifiable depuis un appareil : l'etat de retrait
-              // ne peut etre pose que par un chef du clan d'origine, il est visible et
-              // reversible pendant trois jours, et l'echeance est relue ici.
-              if (!consentClanId) {
-                throw new HttpsError('invalid-argument', 'clanId required with consentTarget');
-              }
+              // donc RECONSTRUITE ici, a partir de faits lus en base, et aucun n'est fourni
+              // par le client. Deux variantes selon que l'enfant a une `guardianship`.
+              const CONSENT_GRACE_DAYS = 3;   // miroir de _kConsentGraceDays (worker_members.dart)
               const callerIx = await indexesCol.doc(request.auth.uid).get();
-              const callerClans: any = (callerIx.data() || {}).clans || {};
-              const callerEntry: any = callerClans[consentClanId];
-              if (!callerIx.exists || !callerEntry || callerEntry.enabled === false) {
-                throw new HttpsError('permission-denied', 'Not a member of this clan');
-              }
+              const callerData: any = callerIx.data() || {};
+              const gSnap = await gshipCol.doc(consentTarget).get();
 
-              const tSnap = await playerRef(consentClanId, consentTarget).get();
-              // Region etrangere (ou cible deja purgee) : meme sortie muette que le
-              // garde-fou multi-region ci-dessous, et pour la meme raison.
-              if (!tSnap.exists) {
-                return { ok: true, deleted: [], firebaseUids: [], skipped: 'not-in-region' };
-              }
-              const tdata: any = tSnap.data() || {};
-              const due = String(tdata.consent_due || '');
-              if (!due) {
-                throw new HttpsError('failed-precondition', 'No consent withdrawal pending');
-              }
-              const dueAt = Date.parse(due);
-              // Date illisible = on ne supprime PAS. Sur un effacement irreversible, le
-              // doute profite toujours a l'attente.
-              if (!Number.isFinite(dueAt) || dueAt > Date.now()) {
-                throw new HttpsError('failed-precondition', 'Reflection period not elapsed');
-              }
-              if (String(tdata.original_clan || '') !== consentClanId) {
-                throw new HttpsError('permission-denied', 'Not the clan of origin');
-              }
-              if (String(tdata.legal_state || '') === 'a') {
-                throw new HttpsError('permission-denied', 'Target is an adult');
-              }
-
-              // ENFANT AVEC COMPTE : cascade ordinaire depuis lui — tombstone dans TOUS ses
-              // clans (le retrait vaut partout, pas seulement dans celui d'origine),
-              // desactivation de son compte et de ses index. Aucun clan ne peut etre dissous
-              // au passage : un mineur n'est jamais chef (promote_chief exige legal_state
-              // 'a'), donc jamais seul admin.
-              //
-              // ENFANT SANS COMPTE (`no_account`) : ni doc `users`, ni `userindexes`, ni
-              // session de consentement. Ses donnees de jeu n'existent QU'au sein du clan. On
-              // pose donc la pierre tombale a la main, sans passer par `tombstone()` qui
-              // ecrirait aussi dans `users` — et `set(..., {merge:true})` CREERAIT le
-              // document absent, fabriquant un compte a un enfant qui n'en a jamais eu.
-              const tUserSnap = await usersCol.doc(consentTarget).get();
-              if (tUserSnap.exists) {
+              if (gSnap.exists) {
+                // ENFANT AVEC GUARDIANSHIP (multiclan). Quatre faits :
+                //   1. l'appelant detient le secret de representation ET son userId est le
+                //      representant ou un co-representant (le secret seul ne suffit pas :
+                //      l'enfant le detient aussi) ;
+                //   2. un retrait est pose (`consent.withdrawn_at`), non suivi d'un
+                //      retablissement, et son delai de reflexion est ECHU ;
+                //   3. l'enfant n'est pas majeur (`closed_at` vide) ;
+                //   4. la date est lisible : sur un effacement irreversible, le doute
+                //      profite toujours a l'attente.
+                // Le retrait n'a PAS besoin d'avoir ete applique sur les fiches par l'app de
+                // l'enfant : c'est tout l'objet de ce filet (l'enfant peut ne plus jamais
+                // rouvrir le jeu).
+                const g: any = gSnap.data() || {};
+                const secret = String((((callerData.guardianships || {})[consentTarget]) || {}).secret || '');
+                if (!callerIx.exists || callerData.enabled === false || !secret || secret !== String(g.ownerId || '')) {
+                  throw new HttpsError('permission-denied', 'Not a guardian of this child');
+                }
+                const callerUserId = String(callerData.userId || '');
+                const reps = [String(g.guardian_id || ''), ...(Array.isArray(g.guardians) ? g.guardians.map(String) : [])];
+                if (!callerUserId || !reps.includes(callerUserId)) {
+                  throw new HttpsError('permission-denied', 'Not a guardian of this child');
+                }
+                if (String(g.closed_at || '')) {
+                  throw new HttpsError('permission-denied', 'Target is an adult');
+                }
+                const consent: any = g.consent || {};
+                const withdrawnAt = Date.parse(String(consent.withdrawn_at || ''));
+                const restoredAt  = Date.parse(String(consent.restored_at || '')) || 0;
+                if (!Number.isFinite(withdrawnAt) || restoredAt >= withdrawnAt) {
+                  throw new HttpsError('failed-precondition', 'No consent withdrawal pending');
+                }
+                if (withdrawnAt + CONSENT_GRACE_DAYS * 24 * 3600 * 1000 > Date.now()) {
+                  throw new HttpsError('failed-precondition', 'Reflection period not elapsed');
+                }
+                // Le compte de l'enfant vit dans la region maison, celle de guardianship.
+                const tUserSnap = await usersCol.doc(consentTarget).get();
+                if (!tUserSnap.exists) {
+                  return { ok: true, deleted: [], firebaseUids: [], skipped: 'not-in-region' };
+                }
                 queue.push(consentTarget);
               } else {
-                stage(playerRef(consentClanId, consentTarget),
-                      { id: consentTarget, enabled: false, status: 'deleted', last_connected: now });
-                visited.add(consentTarget);
-                await disableAccountIndexes(consentTarget);
+                // ENFANT SANS TELEPHONE (pas de guardianship, mono-clan) : la preuve reste
+                // celle d'avant le multiclan, sur sa fiche du clan d'origine :
+                //   1. l'appelant est bien membre actif de ce clan ;
+                //   2. un retrait est reellement en cours sur la cible, et son delai de
+                //      retractation est ECHU (le client ne fait que le signaler) ;
+                //   3. ce clan est bien le clan d'ORIGINE de la cible ;
+                //   4. la cible n'est pas majeure.
+                if (!consentClanId) {
+                  throw new HttpsError('invalid-argument', 'clanId required with consentTarget');
+                }
+                const callerClans: any = callerData.clans || {};
+                const callerEntry: any = callerClans[consentClanId];
+                if (!callerIx.exists || !callerEntry || callerEntry.enabled === false) {
+                  throw new HttpsError('permission-denied', 'Not a member of this clan');
+                }
+
+                const tSnap = await playerRef(consentClanId, consentTarget).get();
+                // Region etrangere (ou cible deja purgee) : meme sortie muette que le
+                // garde-fou multi-region ci-dessous, et pour la meme raison.
+                if (!tSnap.exists) {
+                  return { ok: true, deleted: [], firebaseUids: [], skipped: 'not-in-region' };
+                }
+                const tdata: any = tSnap.data() || {};
+                const due = String(tdata.consent_due || '');
+                if (!due) {
+                  throw new HttpsError('failed-precondition', 'No consent withdrawal pending');
+                }
+                const dueAt = Date.parse(due);
+                if (!Number.isFinite(dueAt) || dueAt > Date.now()) {
+                  throw new HttpsError('failed-precondition', 'Reflection period not elapsed');
+                }
+                if (String(tdata.original_clan || '') !== consentClanId) {
+                  throw new HttpsError('permission-denied', 'Not the clan of origin');
+                }
+                if (String(tdata.legal_state || '') === 'a') {
+                  throw new HttpsError('permission-denied', 'Target is an adult');
+                }
+
+                // ENFANT SANS COMPTE (`no_account`) : ni doc `users`, ni `userindexes`, ni
+                // session de consentement. Ses donnees de jeu n'existent QU'au sein du clan. On
+                // pose donc la pierre tombale a la main, sans passer par `tombstone()` qui
+                // ecrirait aussi dans `users` : `set(..., {merge:true})` CREERAIT le document
+                // absent, fabriquant un compte a un enfant qui n'en a jamais eu.
+                const tUserSnap = await usersCol.doc(consentTarget).get();
+                if (tUserSnap.exists) {
+                  queue.push(consentTarget);
+                } else {
+                  stage(playerRef(consentClanId, consentTarget),
+                        { id: consentTarget, enabled: false, status: 'deleted', last_connected: now });
+                  visited.add(consentTarget);
+                  await disableAccountIndexes(consentTarget);
+                }
               }
             } else {
               const rootUserId = await resolveUserId(ownerId);
@@ -1269,7 +1872,25 @@ conf:
                 return { ok: true, deleted: [], firebaseUids: [], skipped: 'not-in-region' };
               }
 
+              // SEUL REPRÉSENTANT D'UN ENFANT : suppression REFUSÉE. On ne désigne jamais un
+              // représentant à la place de quelqu'un ; celui-ci doit d'abord ajouter un
+              // co-représentant (échange en présence ou à distance) ou supprimer le compte de
+              // l'enfant. L'app le dit avant ; ceci est la garde qui ne dépend d'aucune app.
+              // Les enfants représentés sont ceux dont le secret est dans SON index (de cette
+              // région : la page web interroge chaque région, chacune vérifie les siens).
+              const ixData: any = rootIndexSnap.exists ? (rootIndexSnap.data() || {}) : {};
+              const soleFor: string[] = [];
+              for (const childId of Object.keys(ixData.guardianships || {})) {
+                if (childId === rootUserId) { continue; }   // sa propre représentation d'enfant
+                const gs = await guardiansOf(childId);
+                if (gs.includes(rootUserId) && gs.every((x) => x === rootUserId)) { soleFor.push(childId); }
+              }
+              if (soleFor.length) {
+                throw new HttpsError('failed-precondition', 'Sole guardian', { children: soleFor });
+              }
+
               fbUids.add(ownerId);
+              rootSelfId = rootUserId;
               queue.push(rootUserId);
             }
 
@@ -1279,17 +1900,29 @@ conf:
               visited.add(uid);
 
               const userSnap = await usersCol.doc(uid).get();
-              const clans = Object.keys((userSnap.data() || {}).clans || {});
+              const userData: any = userSnap.data() || {};
+              const clans = Object.keys(userData.clans || {});
+
+              // MULTICLAN, MULTI-RÉGION : un membre d'un clan d'ici peut avoir sa maison (son
+              // `users`) dans une autre région. Son compte n'est pas dans cette base : on
+              // n'y écrit RIEN (`set(..., {merge:true})` créerait un faux compte), le
+              // tombstone de sa fiche d'ici suffit. Seule exception : la racine de la porte 1,
+              // dont l'absence de `users` est déjà filtrée par le garde-fou multi-région.
+              if (!userSnap.exists && uid !== rootSelfId) { continue; }
 
               // Désactive le compte lui-même (users + ses userindexes retrouves par requete).
               stage(usersCol.doc(uid), { enabled: false });
               await disableAccountIndexes(uid);
+              // Enfant représenté : sa représentation est close et gardée comme preuve.
+              await closeGuardianship(uid);
 
               for (const clanId of clans) {
-                tombstone(uid, clanId);
+                const region = clanRegion(userData, clanId);
+                const cdb = dbFor(region);
+                tombstone(uid, clanId, region);
 
                 // Chef unique ? Le fondateur est admin à vie → seul admin ⇔ dissolution du clan.
-                const clanSnap = await db.collection('clans').doc(clanId).get();
+                const clanSnap = await cdb.collection('clans').doc(clanId).get();
                 const cdata: any = clanSnap.data() || {};
                 const admins: any[] = Array.isArray(cdata.admins) ? cdata.admins : [];
                 if (!(admins.includes(uid) && admins.length <= 1)) { continue; }
@@ -1300,23 +1933,25 @@ conf:
                 // vider. Le readme (section 16) dit pourtant `false` + `dissolved_at` = clan
                 // dissous, et `pulse_sweeper` ecarte les clans sur ce booleen : sans cette
                 // ecriture il reprend a chaque passe un clan dont plus personne n'est membre.
-                stage(db.collection('clans').doc(clanId), { enabled: false, dissolved_at: now });
+                stage(cdb.collection('clans').doc(clanId), { enabled: false, dissolved_at: now });
 
                 // Dissolution : tombstone de TOUS les membres encore actifs, cascade si besoin.
-                const players = await db.collection('clans_players').doc(clanId).collection('players').get();
+                const players = await cdb.collection('clans_players').doc(clanId).collection('players').get();
                 for (const p of players.docs) {
                   const pid = p.id;
                   if (pid === uid) { continue; }
                   const pdata = p.data() || {};
                   if (pdata.enabled === false) { continue; }
 
-                  tombstone(pid, clanId);
+                  tombstone(pid, clanId, region);
 
                   // Cascade de suppression du membre si : mineur dont le clan d'origine est
-                  // dissous (plus de responsable légal), OU plus aucun autre clan actif.
+                  // dissous et qui n'a plus aucun représentant (MULTICLAN : un co-représentant
+                  // le garde, son app fera du clan de celui-ci son clan d'origine), OU plus
+                  // aucun autre clan actif.
                   const isMinor      = String(pdata.legal_state ?? '') !== 'a';
                   const originalClan = String(pdata.original_clan ?? '');
-                  let cascade = isMinor && originalClan === clanId;
+                  let cascade = isMinor && originalClan === clanId && !(await keepsGuardian(pid));
                   if (!cascade) {
                     const pUser  = (await usersCol.doc(pid).get()).data() || {};
                     const pClans = pUser.clans || {};
@@ -1523,6 +2158,31 @@ conf:
               snapIx.forEach((d) => { fbUids.add(d.id); stage(d.ref, { enabled: false }); });
             };
 
+            // MULTICLAN (miroir de delete_user_data) : un enfant dont le clan d'origine est
+            // dissous n'est PAS supprimé s'il garde un représentant (guardianship non close,
+            // représentant dont le compte n'est pas supprimé par cette passe). Sa représentation,
+            // si l'enfant est supprimé, est close et gardée comme preuve (5 ans).
+            const gshipCol = db.collection('guardianship');
+            const keepsGuardian = async (childId: string): Promise<boolean> => {
+              const g = await gshipCol.doc(childId).get();
+              if (!g.exists) { return false; }
+              const d: any = g.data() || {};
+              if (String(d.closed_at || '')) { return false; }
+              const gs = [String(d.guardian_id || ''), ...(Array.isArray(d.guardians) ? d.guardians.map(String) : [])]
+                .filter((x) => !!x);
+              return gs.some((x) => !deleted.has(x));
+            };
+            const closeGuardianship = async (childId: string) => {
+              const ref = gshipCol.doc(childId);
+              const g = await ref.get();
+              if (!g.exists) { return; }
+              const d: any = g.data() || {};
+              const eraseAfter = new Date(Date.now() + 5 * 365 * 24 * 3600 * 1000).toISOString();
+              stage(ref, String(d.closed_at || '')
+                ? { deleted_at: now, erase_after: eraseAfter }
+                : { closed_at: now, deleted_at: now, erase_after: eraseAfter });
+            };
+
             // Dissout un clan : tous ses membres actifs sont tombstonés, et ceux qui
             // perdent leur responsable légal (mineur dont le clan d'origine est celui
             // qu'on dissout) ou leur dernier clan actif sont eux-mêmes supprimés — ce
@@ -1558,9 +2218,13 @@ conf:
                   // d'autre que ce clan : le tombstone ci-dessus suffit.
                   const isMinor      = String(pdata.legal_state ?? '') !== 'a';
                   const originalClan = String(pdata.original_clan ?? '');
-                  let cascade = isMinor && originalClan === clanId;
+                  // Compte d'une autre région (multiclan) : rien à supprimer ici, le
+                  // tombstone de sa fiche suffit (`merge` créerait un faux compte).
+                  const pUserSnap = await usersCol.doc(pid).get();
+                  if (!pUserSnap.exists) { continue; }
+                  let cascade = isMinor && originalClan === clanId && !(await keepsGuardian(pid));
                   if (!cascade) {
-                    const pUser  = (await usersCol.doc(pid).get()).data() || {};
+                    const pUser  = pUserSnap.data() || {};
                     const pClans = pUser.clans || {};
                     const stagedEntry = buffer.get(usersCol.doc(pid).path);
                     const stagedClans = (stagedEntry && stagedEntry.data.clans) || {};
@@ -1576,6 +2240,7 @@ conf:
                   deleted.add(pid);
                   stage(usersCol.doc(pid), { enabled: false });
                   await disableAccountIndexes(pid);
+                  await closeGuardianship(pid);
 
                   // Chef unique d'un autre clan ? Le fondateur est admin à vie, donc
                   // seul admin ⇔ dissolution de ce clan-là aussi.
@@ -2850,6 +3515,10 @@ conf:
               // Verdict porté par le SEUL document `users`. '' = candidat à poursuivre.
               const verdict = (u: any): string => {
                   const steps = u.steps || {};
+                  // PIERRE TOMBALE DE DÉMÉNAGEMENT (dvautover, ddust_autover) : le joueur vit
+                  // dans une AUTRE région, invisible d'ici. Le prendre pour un orphelin ferait
+                  // supprimer son compte Firebase Auth, qui est global.
+                  if (u.moved_to) return 'orphans_skipped_moved';
                   if (filled(u.clans) || filled(u.first_clan) || filled(u.last_clan)
                       || filled(((steps.clan || {}) as any).clanId)) return 'orphans_skipped_has_clan';
 

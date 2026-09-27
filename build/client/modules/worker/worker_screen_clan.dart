@@ -160,7 +160,12 @@ extension Worker_screen_clan on worker {
 
                                     // Roster des membres : une tuile par joueur. set_members ignore un re-push
                                     // identique (diff dans DvRoster) → pas de vidage/re-remplissage sans delta.
+                                    // L'intrus d'une visite précédente (gobelin, changelin) est parti : un
+                                    // événement de roster ne survit pas à l'écran qui l'a vu naître.
+                                    _evtActive = null;
                                     await _refreshRoster(clanId, clanSecret, region);
+                                    // Moment d'événement « écran du clan » : un tirage par jour et par joueur.
+                                    await _evtClanScreen(clanId, clanSecret, region);
                                 } catch (e) {
                                     deva_log("error", "[clan] on_clan_appear FAILED: $e");
                                 }
@@ -328,7 +333,10 @@ extension Worker_screen_clan on worker {
                                     // côtés (la date est écrite en UTC par _doWithdrawConsent) ; une date
                                     // illisible ne déclenche RIEN — sur une suppression irréversible, le doute
                                     // profite toujours à l'attente.
-                                    if (pconsentPending) {
+                                    // MULTICLAN : seul l'enfant SANS téléphone se balaie ici ; les autres ont
+                                    // une représentation, dont les représentants réclament l'échéance
+                                    // (_sweepGuardianConsents), que l'app de l'enfant ait tourné ou non.
+                                    if (pconsentPending && p.get("no_account") == true) {
                                         final dueAt = DateTime.tryParse(pconsentDue);
                                         if (dueAt != null && dueAt.isBefore(DateTime.now().toUtc())) {
                                             consentExpired.add(pid);
@@ -423,6 +431,9 @@ extension Worker_screen_clan on worker {
                                 }
                                 // Push au DvRoster : l'action ignore un re-push identique (diff) et remplace
                                 // intégralement sinon (un membre supprimé disparaît de la liste fraîche).
+                                // Intrus d'un événement (gobelin, double d'un changelin) : ajouté en dernier,
+                                // après le calcul des barres de progrès qu'il ne doit pas fausser.
+                                _evtInjectRoster(members);
                                 ActionRegistry.get("dvroster.set_members")?.call(null, members);
                                 deva_log("info", "[clan] roster: ${members.length} membre(s) poussé(s), minXp=$_clanMinXp");
 
@@ -435,7 +446,8 @@ extension Worker_screen_clan on worker {
                                 // joue plus. Un chef resté seul avec un enfant qu'il vient de retirer EST seul,
                                 // et doit revoir l'appel au recrutement.
                                 final bool alone =
-                                    members.where((m) => m["consent_pending"] != true).length <= 1;
+                                    members.where((m) => m["consent_pending"] != true
+                                        && !(m["id"]?.toString() ?? "").startsWith(_kEvtFakePrefix)).length <= 1;
                                 await _setClanAlone(alone);
 
                                 // Appel au recrutement en bas du roster : seul un CHEF peut inviter, et seul un
@@ -449,6 +461,10 @@ extension Worker_screen_clan on worker {
                                 // du passage d'un chef la retarderait sans rien protéger. Le roster est déjà
                                 // affiché à cet instant ; l'appel cloud ne fait attendre personne.
                                 await _sweepExpiredConsent(clanId, clanSecret, region, consentExpired);
+
+                                // MULTICLAN : le parent qui a accueilli un enfant rattache le secret de sa
+                                // représentation dès que l'enfant apparaît dans le clan.
+                                await _reconcileGuardianPending(clanId, players.whereType<Dvidle>().toList());
     }
 
     // Drapeau `worker.clan_alone` ("true"/"false", convention des autres drapeaux du worker) : condition
@@ -495,6 +511,10 @@ extension Worker_screen_clan on worker {
     Future<Map<String, dynamic>> clan_selector(dynamic caller, dynamic data) async {
 
                                 final empty = <String, dynamic>{"selectable": [], "disabled": [], "single": ""};
+                                // Événement de roster en cours : « Chasser », pour tout le monde, AVANT le
+                                // contrôle de chef (un enfant doit pouvoir chasser le gobelin).
+                                final evtSel = _evtRosterSelector(data);
+                                if (evtSel != null) return evtSel;
                                 try {
                                     final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
@@ -502,10 +522,15 @@ extension Worker_screen_clan on worker {
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
 
                                     final isAdmin = await _ensureIsAdmin(clanId, clanSecret, region);
-                                    if (!isAdmin) return empty;
-
                                     final m = (data is Map) ? data : <String, dynamic>{};
                                     final isSelf = (m["id"]?.toString() ?? "") == _userId;
+                                    // MULTICLAN (D16) : les gestes d'un REPRÉSENTANT sur la tuile de l'enfant
+                                    // qu'il représente (consentement, majorité), chef de ce clan ou non.
+                                    final ward = isSelf ? null : await _wardRosterOptions(m);
+                                    if (!isAdmin) {
+                                        if (ward == null) return empty;
+                                        return {"selectable": ward["selectable"], "disabled": [], "single": ""};
+                                    }
 
                                     // RETRAIT DE CONSENTEMENT EN COURS : court-circuit avant toute autre option. Le
                                     // joueur est hors du jeu pour la durée de la rétractation ; lui proposer un « coup
@@ -514,6 +539,11 @@ extension Worker_screen_clan on worker {
                                     // RÉTABLIR, et elle est réservée — comme le retrait lui-même — aux chefs de son CLAN
                                     // D'ORIGINE : c'est le seul clan dont le consentement est en cause.
                                     if (m["consent_pending"] == true) {
+                                        if (m["no_account"] != true) {
+                                            // Enfant représenté : « Rétablir » à ses seuls représentants.
+                                            final sel = ward == null ? <dynamic>[] : List<dynamic>.from(ward["selectable"] as List);
+                                            return {"selectable": sel.where((o) => o == "restore_consent").toList(), "disabled": [], "single": ""};
+                                        }
                                         final pendingOrigin = m["original_clan"]?.toString() ?? "";
                                         if (isSelf || pendingOrigin != clanId) return empty;
                                         return {"selectable": ["restore_consent"], "disabled": [], "single": ""};
@@ -573,8 +603,10 @@ extension Worker_screen_clan on worker {
 
                                         // Déclarer majeur : réservé aux TUTEURS = admins du clan d'origine du joueur
                                         // (clanId == original_clan). Caché si déjà adulte ("a") ou déjà en transition ("t").
+                                        // MULTICLAN (D16, D19) : pour un enfant représenté, réservé à ses
+                                        // représentants (ward) ; jamais pour un enfant sans téléphone.
                                         final poriginalClan = m["original_clan"]?.toString() ?? "";
-                                        if (poriginalClan == clanId && plegal != "a" && plegal != "t") {
+                                        if (ward != null && (ward["selectable"] as List).contains("promote_adult")) {
                                             selectable.add("promote_adult");
                                         }
 
@@ -591,7 +623,11 @@ extension Worker_screen_clan on worker {
                                         // clan et cesser de traiter les données sont deux gestes distincts, et les deux
                                         // restent offerts. Rien à faire pour la tenir hors de la tuile — le roster porte
                                         // `buttons_collapsed: true`, tout est déjà derrière le « … ».
-                                        if (poriginalClan == clanId && plegal != "a") {
+                                        // MULTICLAN (D16) : enfant représenté → ses représentants ; enfant sans
+                                        // téléphone → règle d'avant (chefs du clan d'origine).
+                                        if (m["no_account"] == true) {
+                                            if (poriginalClan == clanId && plegal != "a") selectable.add("withdraw_consent");
+                                        } else if (ward != null && (ward["selectable"] as List).contains("withdraw_consent")) {
                                             selectable.add("withdraw_consent");
                                         }
                                     }
@@ -640,6 +676,11 @@ extension Worker_screen_clan on worker {
                                     // d'où le placement HORS du bloc !isSelf. Jamais sur le fondateur (admin à vie).
                                     // Grisé si le joueur est un mineur encore dans son clan d'origine (protection) ;
                                     // actif sinon (adulte, ou mineur dont original_clan ≠ clan courant).
+                                    // MULTICLAN : le fondateur SEUL membre peut quitter (et dissoudre) son clan.
+                                    if (m["founder"] == true && isSelf
+                                        && (await deva_get("worker.clan_alone"))?.toString() == "true") {
+                                        selectable.add("revoke_player");
+                                    }
                                     if (m["founder"] != true) {
                                         // "t" (transition) est traité comme mineur : protection maintenue jusqu'à "a".
                                         final isMinor      = (m["legal_state"]?.toString() ?? "") != "a";

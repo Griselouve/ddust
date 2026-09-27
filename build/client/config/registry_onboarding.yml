@@ -25,6 +25,9 @@ conf:
       masks:
         - page
       title: "@@@T:application_name@@@"
+      # La musique du seuil monte à 50 % en arrivant ici (worker_onboarding).
+      actions:
+        appear: worker.on_home_appear
       registry:
         - home/icon_background
         - home/connect
@@ -458,12 +461,15 @@ conf:
         # region_confirm avant le bouton : à la reprise de session le bouton rejoue le choix
         # dès son appear, et ce rejeu allume la confirmation — qui doit donc déjà exister.
         - documents/region_confirm
-        - documents/region_button
-        - documents/region_menu
         # La case des serveurs d'essai : n'apparaît QUE dans un build snapshot, et
         # dvdocuments la cache de lui-même partout ailleurs (documents.arm_test_servers).
         # Elle ne change pas le pays, donc pas les CGU : seulement le datacenter.
+        # ⚠ AVANT LE BOUTON, POUR LA MÊME RAISON QUE region_confirm : c'est l'appear du
+        #   bouton qui l'arme, et une case déclarée après lui n'existe pas encore à cet
+        #   instant. Elle restait alors invisible dans tous les snapshots (2026-09-23).
         - documents/test_servers
+        - documents/region_button
+        - documents/region_menu
         # ⚠ EN DERNIER, ET C'EST TOUT L'INTÉRÊT. L'ordre de cette liste est celui d'ajout
         #   des shapes : déclaré en tête, le rideau se peignait SOUS le décor, les
         #   libellés et les boutons — il tombait bien, mais derrière l'écran.
@@ -871,6 +877,23 @@ conf:
       masks:
         - commons/dark_button
 
+    #//------------------------------- DOCUMENTS VIEW SCREEN ----------------------------------
+    # Consultation d'un document légal (documents.view_doc), empilée comme log_page : même fond,
+    # même retour. Ce n'est PAS un écran du tunnel d'accueil : il est rangé ici, à côté de
+    # l'écran d'acceptation, parce qu'il habille la même shape de module.
+
+    documents_view_screen:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:documents_view_title@@@"
+      actions:
+        appear: documents.on_view_appear
+      registry:
+        - commons/splash_background
+        - documents/view_content
+
     #//------------------------------- KID ASSENT SCREEN --------------------------------------
     # L'avis du mineur, recueilli AVANT toute écriture (session encore anonyme, rien sur le
     # disque) et AVANT la décision de son parent : c'est l'enfant qui parle le premier, sa
@@ -1045,6 +1068,7 @@ conf:
         - kid_assent_share/scan
         - kid_assent_share/pin
         - kid_assent_share/notice
+        - kid_assent_share/leave
 
     kid_assent_share/banner:
       masks:
@@ -1185,6 +1209,28 @@ conf:
         font_size: 11.0
         text_align: CENTER
         label: "@@@T:join_clan_google_notice@@@"
+
+    # MULTICLAN : un enfant DÉJÀ membre d'un clan qui en demande un autre (« Mes clans ») arrive
+    # ici sans parcours d'inscription derrière lui. Il gagne une sortie vers son clan, à la place
+    # de l'annonce de la connexion Google (il est déjà connecté). Révélé par
+    # worker._syncKidAssentLeave.
+    kid_assent_share/leave:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 15%
+        y: 88%
+        w: 70%
+        h: 6%
+        text_align: CENTER
+        label: "@@@T:kid_assent_share_leave@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_kid_assent_leave
 
     #//------------------------------- LINK ACCOUNT SCREEN ------------------------------------
     # Dernière étape de l'onboarding et PREMIÈRE écriture en base : jusqu'ici tout s'est passé

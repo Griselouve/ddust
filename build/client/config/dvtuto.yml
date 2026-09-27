@@ -21,7 +21,10 @@ conf:
   dvtuto:
     defaults:
       veil: "#000000B3"     # voile ~70 % : contraste marqué sans noircir tout l'écran (pas de cadre)
-      hold: 0.8             # s inerte avant de pouvoir avancer (anti-tap accidentel)
+      # s inerte avant de pouvoir avancer (anti-tap accidentel). 0,8 s se sentait comme un gel
+      # (retour joueur du 2026-09-25) : 0,3 s absorbe encore le tap qui arrive en même temps que
+      # la bulle, et le double tap est déjà coupé par l'overlay (`_handleTap`).
+      hold: 0.3
     lessons:
       # Leçon d'impersonation : jouée à l'atterrissage sur le dashboard quand un admin vient de
       # « prendre la place » d'un joueur (flag worker.impersonating posé par take_place, remis à
@@ -196,13 +199,13 @@ conf:
               rows:
                 hors_concours: { icon: "shield",     name: "@@@T:guide_p4_a@@@", desc: "@@@T:guide_p4_a_desc@@@" }
                 coup_de_pouce: { icon: "trending_up",name: "@@@T:guide_p4_b@@@", desc: "@@@T:guide_p4_b_desc@@@" }
-                # `photos` retiree le 2026-09-15 : la preuve photo ne quitte pas le
-                # telephone de l'enfant, ce qui est vrai mais ne dit rien de « jouer sans
+                # `photos` retiree le 2026-09-15 : la preuve (photo ou video sans son) n'est jamais
+                # envoyee, ce qui est vrai mais ne dit rien de « jouer sans
                 # les ecraser ». Le sujet appartient aux conditions, pas a ce guide.
 
       # Même mécanique, adressée à l'enfant. Deux règles de rédaction : tutoiement, et jamais une
       # consigne d'obéissance — ces écrans disent ce à quoi l'enfant a DROIT (recommencer, refuser
-      # un gage, garder sa photo), pas ce qu'on attend de lui.
+      # un gage, garder sa preuve), pas ce qu'on attend de lui.
       guide_enfant:
         screen: dashboard
         order: 13
@@ -255,7 +258,7 @@ conf:
               #   alors. L'ordre inverse commencait par une regle.
               #
               # `photo` a ete retiree le 2026-09-15, en meme temps que son equivalent du
-              # guide du parent : la preuve photo ne quitte pas le telephone, c'est vrai et
+              # guide du parent : la preuve (photo ou video) n'est jamais envoyee, c'est vrai et
               # c'est important, mais cela appartient aux conditions et non a l'ecran qui
               # parle de la recompense. L'ecran s'appelle desormais « Le butin » tout court.
               rows:
@@ -381,6 +384,10 @@ conf:
                 clan_qr:            { image: "images/small/qr-code.png", name: "@@@T:clan_menu_qr@@@",            desc: "@@@T:clan_menu_qr_desc@@@" }
                 clan_invite_remote: { icon: "share",                     name: "@@@T:clan_menu_invite_remote@@@", desc: "@@@T:clan_menu_invite_remote_desc@@@" }
                 create_player:      { icon: "group_add",                 name: "@@@T:clan_menu_create_player@@@", desc: "@@@T:clan_menu_create_player_desc@@@" }
+                welcome_guest_child: { icon: "face",                     name: "@@@T:clan_menu_welcome_guest@@@", desc: "@@@T:clan_menu_welcome_guest_desc@@@" }
+                guardian_hub:       { icon: "face",                      name: "@@@T:clan_menu_guardian_hub@@@",  desc: "@@@T:clan_menu_guardian_hub_desc@@@" }
+                # Une seule ligne pour le couple couper / rallumer : le menu n'en montre qu'une à la fois.
+                clan_ai_off:        { icon: "block",                     name: "@@@T:clan_menu_ai_off@@@",        desc: "@@@T:clan_menu_ai_off_desc@@@" }
           # Le couple « QR Code du clan » / « Créer un joueur », dans cet ordre : la RÈGLE d'abord,
           # l'exception ensuite. C'est le geste que les parents ratent le plus. Le tutoriel détaillait
           # « Créer un joueur » (l'enfant sans téléphone, le cas rare) et taisait le QR code, qui est

@@ -150,12 +150,12 @@ extension Worker_store on worker {
 
     // L'ÉTAT COMMERCIAL DU CLAN, normalisé — et c'est le seul point d'où on le lit.
     //
-    // `store.subscription.state` peut être TOTALEMENT ABSENT du dictionnaire, et pas
-    // seulement vide : dvstore ne publie que depuis `_applyEntitlement(doc)`, qui sort
-    // sans rien écrire quand le document n'existe pas. Or un clan qui n'a jamais
-    // souscrit n'a justement pas de document `clans_store/<clanId>` — le cas le plus
-    // fréquent n'est donc pas « la clef vaut none », c'est « la clef n'a jamais été
-    // écrite ». Une lecture naïve rend `null` et casse toute comparaison.
+    // `store.subscription.state` pouvait être TOTALEMENT ABSENT du dictionnaire : dvstore
+    // ne publiait rien quand le document `clans_store/<clanId>` n'existait pas, soit pour
+    // tout clan qui n'a jamais souscrit. Depuis le 2026-09-24, dvstore publie `none` dans
+    // ce cas, et publie aussi en fin de démarrage quand la lecture échoue. La clef peut
+    // encore manquer avant le tout premier démarrage de dvstore sur l'appareil : la
+    // normalisation reste, par précaution. Une lecture naïve rendrait `null`.
     //
     // Il n'existe AUCUN état « je ne sais pas encore » dans l'énumération de dvstore
     // (none|trial|active|canceled|grace|hold|locked|expired). « Absent », « vide » et
@@ -165,6 +165,33 @@ extension Worker_store on worker {
 
                                 final s = (await deva_get("store.subscription.state"))?.toString() ?? "";
                                 return s.isEmpty ? "none" : s;
+    }
+
+    // RÈGLE DU PAYEUR (2026-09-24) : un abonnement s'arrête dès que son payeur n'est plus
+    // chef actif du clan, ou que le clan est dissous. Le client ne DÉCIDE rien : il demande
+    // à `store_payer_check` (pustore) de relire le clan et de résilier si la règle, vérifiée
+    // côté serveur, le dit. Appelé juste après ce qui peut la rendre vraie :
+    //   - revoke_player / nomore_chief d'un CHEF (scopeId = le clan : le payeur peut être
+    //     un autre que l'appelant) ;
+    //   - la suppression de compte (scopeId vide : chaque clan dont l'appelant a payé).
+    // Ne lève jamais, et ne remonte aucune erreur : le geste de l'utilisateur est déjà fait,
+    // et le balayage quotidien de pustore applique la même règle en filet si cet appel se
+    // perd. Les gestes du roster ne l'attendent pas (unawaited) ; la suppression de compte,
+    // si, parce que la déconnexion qui suit retire le jeton d'authentification.
+    Future<void> _storePayerCheck({String clanId = "", String region = ""}) async {
+
+                                final payload = Dvidle({});
+                                if (clanId.isNotEmpty) payload.set("scopeId", clanId);
+                                try {
+                                    final res = await _cloud?.call("store_payer_check", payload,
+                                        region: region.isEmpty ? null : region,
+                                        timeout: const Duration(seconds: 20));
+                                    deva_log("info", "[store] règle du payeur : "
+                                        "${res?.get("status")} résilié(s)=${res?.get("canceled")}");
+                                } catch (e) {
+                                    deva_log("warning", "[store] règle du payeur injoignable "
+                                        "(le balayage quotidien repassera) : $e");
+                                }
     }
 
     // Le clan a-t-il une cotisation VIVANTE ?

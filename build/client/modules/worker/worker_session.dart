@@ -62,16 +62,20 @@ extension Worker_session on worker {
                                 // Suppression de compte (option kebab Personnage) : selector conditionnel
                                 // (masquée en impersonation) + overlay d'avertissements répétés → delete_user_data.
                                 ActionRegistry.register("worker.perso_settings_selector",   perso_settings_selector);
+                                ActionRegistry.register("worker.death_settings_selector",   death_settings_selector);
+                                ActionRegistry.register("worker.death_open_delete",         death_open_delete);
 
                                 // Changement de langue (option kebab Personnage) : ouvre le picker
                                 // drapeau+nom du module dvlang, ancré sous le bouton kebab.
                                 ActionRegistry.register("worker.open_lang_menu",            open_lang_menu);
 
-                                // Politique de confidentialité (option kebab Personnage) : le document est
-                                // publié par pudocuments au même titre que les CGU, mais il ne passe par
-                                // aucun flux d'acceptation — sans cette option il resterait injoignable
-                                // depuis l'app, alors que le site vitrine annonce le contraire.
+                                // Documents légaux (options kebab Personnage et menu de mort, bouton du
+                                // profil) : consultables À TOUT MOMENT, DANS l'application, en lecture
+                                // seule. Les stores et le droit exigent que l'utilisateur retrouve ce qu'il
+                                // a accepté sans chercher sur un site : documents.view_doc sert la version
+                                // acceptée, dans la langue, la région et l'état légal de sa session.
                                 ActionRegistry.register("worker.open_privacy",              open_privacy);
+                                ActionRegistry.register("worker.open_cgu",                  open_cgu);
 
                                 ActionRegistry.register("worker.open_delete_account",       open_delete_account);
 
@@ -105,12 +109,33 @@ extension Worker_session on worker {
 
                                 ActionRegistry.register("worker.on_link_account_appear",    on_link_account_appear);
 
+                                // dvautover : le rappel (état du clan) et la reprise du démarrage.
+                                ActionRegistry.register("worker.autover_state",             autover_state);
+
+                                ActionRegistry.register("worker.autover_resume",            autover_resume);
+
     }
 
     Future<void> on_login(DvShape? caller, dynamic event) async {
 
                                 final user = event is DvCloudUser ? event : null;
                                 if (user == null) return;
+
+                                // CHANGEMENT DE VERSION (snapshot → release, ou l'inverse) : le compte est
+                                // resté connecté, mais on ne l'emmène pas tout de suite dans le jeu. Il
+                                // revoit l'intro depuis l'accueil ; sa fin (on_intro_reveal) rejoue ce
+                                // login au lieu d'ouvrir les deux portes.
+                                // ⚠ SEULEMENT DEPUIS L'ACCUEIL, c'est-à-dire la reprise silencieuse du
+                                //   démarrage. Un joueur qui se connecte lui-même depuis les deux portes a
+                                //   déjà vu l'intro : le renvoyer au début le coincerait sur place.
+                                final switched = !user.isAnonymous
+                                    && (await ActionRegistry.get("dvcloud.region_switched")?.call(caller, null))?.toString() == "true";
+                                final page = DvOrb.get_current_page()?.dvid?.toString();
+                                if (switched && (page == null || page == "awake")) {
+                                    _introReplay = true;
+                                    deva_log("info", "[worker] changement de version : l'intro est rejouée avant d'entrer");
+                                    return;
+                                }
 
                                 _userId = await _resolveUserId();
                                 if (_userId.isEmpty) return;
@@ -166,9 +191,32 @@ extension Worker_session on worker {
                                     await _restartAnonymousOnboarding();
                                     return;
                                 }
+                                // COMPTE DÉMÉNAGÉ DANS UNE RÉGION QUE CETTE APPLICATION NE CONNAÎT PAS
+                                // (son clan est passé en beta, EUT, et l'app est une release qui ne
+                                // connaît que la production). Sans ce garde, on repartait en onboarding
+                                // et un compte neuf écrasait la pierre tombale : le joueur perdait son
+                                // clan. dvautover affiche la mise à jour vers la bonne version.
+                                if (best == null && !_anon) {
+                                    final moved = await _movedElsewhere();
+                                    if (moved.isNotEmpty) {
+                                        await ActionRegistry.get("autover.moved")?.call(caller, {"region": moved});
+                                        return;
+                                    }
+                                }
                                 if (best != null) {
                                     final (sessionRegion, session) = best;
                                     _cloud?.configure("region", sessionRegion);
+                                    // La session légale suit le compte : si son clan a déménagé, le
+                                    // datacenter mémorisé par dvdocuments est celui d'AVANT, et la plupart
+                                    // des écritures le relisent. Réaligné ici, localement (rien en base).
+                                    await ActionRegistry.get("documents.relocate")?.call(caller, {"region": sessionRegion});
+                                    // MISE À JOUR FORCÉE (dvautover), au point « région connue, rien
+                                    // d'écrit » : la région des données est connue, et la première
+                                    // écriture (_touchLastSeen) n'a pas encore eu lieu. Une application
+                                    // plus ancienne que le `min` de ce backend s'arrête ici, sur l'écran
+                                    // de mise à jour, sans avoir rien écrit.
+                                    final blocked = await ActionRegistry.get("autover.check")?.call(caller, {"region": sessionRegion});
+                                    if (blocked == true) return;
                                     // dvsession s'est hydraté à l'init des modules AVANT que la région soit
                                     // connue (premier lancement sur un nouveau device : auth Google et région
                                     // pas encore disponibles) → session.user.name etc. restaient vides. Maintenant
@@ -198,7 +246,16 @@ extension Worker_session on worker {
                                     // Activate Vertex AI now — cloud.aimodel_regions is available at this point
                                     final _ai = Deva.instance.module("dvvertexai");
                                     if (_ai != null) try { await (_ai as dynamic).startVertexMotor(); } catch (_) {}
-                                    await ActionRegistry.get("documents._sync_session")?.call(null, null);
+                                    // ⚠ UN ÉCHEC ICI NE DOIT PAS TUER LE DÉMARRAGE. Une écriture refusée de
+                                    //   la session légale levait jusqu'ici, et on_login s'arrêtait sans
+                                    //   naviguer : le joueur restait sur l'accueil, déjà connecté, sans
+                                    //   pouvoir rien toucher (relevé le 2026-09-26, après une migration).
+                                    //   La session se resynchronise à la connexion suivante.
+                                    try {
+                                        await ActionRegistry.get("documents._sync_session")?.call(null, null);
+                                    } catch (e) {
+                                        deva_log("warning", "[worker] session légale non synchronisée : $e");
+                                    }
                                     final dvdocs = ModuleRegistry.create("documents");
                                     final hasNew = dvdocs != null ? await (dvdocs as dynamic).hasNewDocuments() as bool? ?? false : false;
                                     if (hasNew) {
@@ -211,118 +268,7 @@ extension Worker_session on worker {
                                     final clanDone = (session.get("steps.clan.clanId")?.toString() ?? "").isNotEmpty;
                                     if (DvOrb.get_current_page()?.dvid == "dashboard") return;
                                     if (clanDone) {
-                                        // Démarre la musique de thème pour tout utilisateur déjà enrôlé qui (re)lance
-                                        // l'app — dashboard ou reprise de tâche. Un joueur mort voit son crâne dès la
-                                        // 1re frame (mutation registry persistée) : sa musique doit l'être aussi, d'où
-                                        // l'état de vie mémorisé (worker.player_dead) plutôt que `ambiant` en dur.
-                                        await _setAmbiance((await deva_get("worker.player_dead")) == true);
-                                        await _loadClanTasks(session, sessionRegion);
-                                        // Enregistre ce device dans le doc membre clans_players (cible
-                                        // FCM) — idempotent : couvre le démarrage de l'app sur un nouveau
-                                        // device pour un joueur déjà membre.
-                                        await _writeClanPlayer(
-                                            session.get("steps.clan.clanId")?.toString()     ?? "",
-                                            session.get("steps.clan.clanSecret")?.toString() ?? "",
-                                            _userId,
-                                            await _cloud?.deviceId() ?? "",
-                                            sessionRegion,
-                                            // Rétro-remplit original_clan (init-si-null) pour les membres d'avant
-                                            // cette feature : miroir de users.first_clan (déjà backfillé en base).
-                                            firstClan: session.get("first_clan")?.toString() ?? "",
-                                        );
-                                        // Rattrapage des identités de substitution d'avant le correctif
-                                        // (external y valait internal). Sans await : le démarrage ne doit
-                                        // rien à une écriture de confort, et un échec se retentera au
-                                        // prochain login.
-                                        _backfillExternalIdentity(session, sessionRegion);
-                                        // Bascule légale en cours (tuteur a déclaré le joueur majeur) : le doc porte
-                                        // legal_state="t" → on impose la CGU adulte et on saute le dashboard. C'est ce
-                                        // qui « relance sur l'étape CGU » après un kill (routage re-dérivé à chaque login).
-                                        if (await _checkAdultTransition()) return;
-                                        // Retrait du consentement parental en cours sur CE joueur : la porte est
-                                        // close et le démarrage s'arrête ici. Indispensable EN PLUS de la vigilance
-                                        // temps réel, qui ne réagit qu'aux CHANGEMENTS du document : un enfant qui
-                                        // relance l'application le lendemain du retrait n'en verrait aucun.
-                                        // Placé après la bascule légale (un joueur devenu majeur n'est plus visé)
-                                        // et avant tout le reste — il n'a plus rien à faire dans le jeu.
-                                        if (await _checkConsentClosed(ensureScreen: true)) return;
-                                        // Filet : un membre de clan encore anonyme ne peut plus exister (le
-                                        // mineur se connecte AVANT d'entrer, et rien ne s'écrit sous un
-                                        // identifiant anonyme). S'il se présentait quand même, la liaison
-                                        // passe avant tout le reste.
-                                        if (_anon) { await _requireAccountLink(); return; }
-                                        // EMPRUNT DE COMPTE, repris AVANT la vigilance : celle-ci est keyée sur
-                                        // _userId, et l'armer sur l'adulte pour la rebasculer ensuite ferait un
-                                        // watch de trop sur le mauvais joueur. Rend true si _userId n'est plus
-                                        // l'utilisateur authentifié — le reste du démarrage suit alors le point de
-                                        // vue de l'enfant, ce qui est exactement l'effet recherché.
-                                        // C'est aussi ici que le verrouillage échu rend la main : _impRestore
-                                        // refuse de reprendre et efface, l'adulte redémarre chez lui.
-                                        await _impRestore(
-                                            session.get("steps.clan.clanId")?.toString()     ?? "",
-                                            session.get("steps.clan.clanSecret")?.toString() ?? "",
-                                            sessionRegion,
-                                        );
-
-                                        // Arme la vigilance temps réel du doc joueur dès la reprise à froid (avant
-                                        // même le dashboard) : la montée de niveau sera détectée où que soit le joueur.
-                                        _startPlayerVigilance(
-                                            session.get("steps.clan.clanId")?.toString()     ?? "",
-                                            session.get("steps.clan.clanSecret")?.toString() ?? "",
-                                            sessionRegion,
-                                        );
-                                        // Et on regarde tout de suite si le clan attendait ce joueur : la cérémonie
-                                        // a pu être appelée pendant que l'app était fermée, et rien n'émet de
-                                        // changement pour ce qui était déjà là avant l'abonnement.
-                                        _checkPendingCeremony();   // fire-and-forget : le démarrage n'attend personne
-                                        // Invitations acceptées pendant que le jeu du chef était fermé : le
-                                        // secret du clan est publié maintenant (chef seulement, cf.
-                                        // _resumeInvites). Sans navigation : un clan plein ne détourne pas le
-                                        // démarrage, la page des paliers attendra l'écran du clan.
-                                        _resumeInvites(navigate: false);   // fire-and-forget
-                                        // Restaure le contexte de la tâche en cours dans la session locale, sans
-                                        // rediriger vers combat : on démarre toujours sur le dashboard. L'écran
-                                        // combat (on_combat_appear) lira session.active_task quand l'utilisateur
-                                        // l'ouvrira via la taskbar.
-                                        final activeTask = session.get("active_task")?.toString() ?? "";
-                                        if (activeTask.isNotEmpty) {
-                                            final clanId = session.get("steps.clan.clanId")?.toString() ?? "";
-                                            if (clanId.isNotEmpty) await Deva.instance.set("session.clan.id", clanId);
-                                            await Deva.instance.set("session.active_task", activeTask);
-                                            // Tâche en attente de validation au redémarrage (preuve déposée) → on
-                                            // relance la vigilance : le watch en mémoire a été perdu au kill.
-                                            final activeProof = session.get("active_proof")?.toString() ?? "";
-                                            final clanSecret  = session.get("steps.clan.clanSecret")?.toString() ?? "";
-                                            if (activeProof.isNotEmpty && clanId.isNotEmpty && clanSecret.isNotEmpty) {
-                                                await Deva.instance.set("session.active_proof", activeProof);
-                                                _startValidationPolling(clanId, clanSecret, sessionRegion,
-                                                    _taskIdFromActive(activeTask, clanId));
-                                            }
-                                        }
-                                        // Réconciliation des photos de preuve — HORS du bloc ci-dessus, et c'est
-                                        // tout l'intérêt : le cas à rattraper est justement celui où il n'y a plus
-                                        // de tâche active. La preuve vit sur l'appareil du joueur alors que le
-                                        // verdict est écrit par l'appareil qui tranche : un effacement « au
-                                        // verdict » ne l'atteint pas quand l'admin décide à distance. Ici, la
-                                        // session fait autorité — tout fichier qui n'est pas active_proof est un
-                                        // orphelin. Fire-and-forget : le démarrage n'attend pas des accès disque.
-                                        _reconcileProofs(session.get("active_proof")?.toString() ?? "");
-                                        // Lien d'invitation reçu avant l'authentification (cold start).
-                                        if (await _consumePendingInvite(caller, event, hasClan: true,
-                                                ownClanId: session.get("steps.clan.clanId")?.toString() ?? "")) return;
-                                        // Nom pas encore choisi : il est demandé APRÈS la liaison du compte,
-                                        // pour tout le monde. Placé ici, tout en fin de branche, pour que la
-                                        // vigilance du joueur et les cérémonies en attente soient déjà armées
-                                        // quand on détourne vers l'écran de nom. C'est aussi ce passage qui
-                                        // libère l'annonce d'arrivée dans le clan (cf. _flushPendingMemberJoined).
-                                        if (session.get("steps.name") == null) {
-                                            await ActionRegistry.get("steps.navigate.player_name")?.call(caller, event);
-                                            return;
-                                        }
-                                        await ActionRegistry.get("steps.navigate.dashboard")?.call(caller, event);
-                                        // Accord d'enfant reçu par lien, application fermée (on_assent_link) :
-                                        // le chef est maintenant connecté, sa déclaration peut s'ouvrir.
-                                        await _openPendingAssent();
+                                        await _enterClan(caller, event, session, sessionRegion);
                                         return;
                                     }
                                     if (!cguDone) {
@@ -415,6 +361,167 @@ extension Worker_session on worker {
                                 await _enterOnboarding(caller, event);
     }
 
+    // L'ENTRÉE DANS LE CLAN COURANT (`users.steps.clan`) : tout ce que fait un démarrage pour un
+    // joueur déjà membre. Appelée par on_login (branche « a un clan ») et par la bascule d'un clan
+    // à l'autre (_switchToClan, [fromSwitch] vrai) : une bascule EST un démarrage dans un autre
+    // clan, l'état mémoire du précédent ayant été vidé juste avant (_resetClanState).
+    Future<void> _enterClan(DvShape? caller, dynamic event, Dvidle session, String region,
+                            {bool fromSwitch = false}) async {
+
+                                // Démarre la musique de thème pour tout utilisateur déjà enrôlé qui (re)lance
+                                // l'app — dashboard ou reprise de tâche. Un joueur mort voit son crâne dès la
+                                // 1re frame (mutation registry persistée) : sa musique doit l'être aussi, d'où
+                                // l'état de vie mémorisé (worker.player_dead) plutôt que `ambiant` en dur.
+                                await _setAmbiance((await deva_get("worker.player_dead")) == true);
+                                await _loadClanTasks(session, region);
+                                // Enregistre ce device dans le doc membre clans_players (cible
+                                // FCM) — idempotent : couvre le démarrage de l'app sur un nouveau
+                                // device pour un joueur déjà membre.
+                                await _writeClanPlayer(
+                                    session.get("steps.clan.clanId")?.toString()     ?? "",
+                                    session.get("steps.clan.clanSecret")?.toString() ?? "",
+                                    _userId,
+                                    await _cloud?.deviceId() ?? "",
+                                    region,
+                                    // Rétro-remplit original_clan (init-si-null) pour les membres d'avant
+                                    // cette feature : miroir de users.first_clan (déjà backfillé en base).
+                                    firstClan: session.get("first_clan")?.toString() ?? "",
+                                );
+                                // PROFIL PARTAGÉ (multiclan) : nom, avatar et titres recopiés sur la fiche
+                                // de ce clan (ou nés d'elle, au premier passage).
+                                await _profileSyncOnEntry(
+                                    session.get("steps.clan.clanId")?.toString()     ?? "",
+                                    session.get("steps.clan.clanSecret")?.toString() ?? "",
+                                    region);
+                                // Un événement interrompu (app tuée entre l'inscription de ses
+                                // effets et leur application) reprend ici, sans doublon.
+                                await _evtReplayPending(
+                                    session.get("steps.clan.clanId")?.toString()     ?? "",
+                                    session.get("steps.clan.clanSecret")?.toString() ?? "",
+                                    region);
+                                // Rattrapage des identités de substitution d'avant le correctif
+                                // (external y valait internal). Sans await : le démarrage ne doit
+                                // rien à une écriture de confort, et un échec se retentera au
+                                // prochain login.
+                                _backfillExternalIdentity(session, region);
+                                // ENFANT REPRÉSENTÉ (multiclan) : les gestes de ses représentants
+                                // (retrait d'un clan, consentement, majorité) sont appliqués sur toutes
+                                // ses fiches AVANT le reste : c'est eux que les deux gardes suivantes
+                                // lisent. Rend true si le clan courant vient d'être quitté.
+                                if (await _gshipOnEnter()) return;
+                                // Bascule légale en cours (tuteur a déclaré le joueur majeur) : le doc porte
+                                // legal_state="t" → on impose la CGU adulte et on saute le dashboard. C'est ce
+                                // qui « relance sur l'étape CGU » après un kill (routage re-dérivé à chaque login).
+                                if (await _checkAdultTransition()) return;
+                                // Retrait du consentement parental en cours sur CE joueur : la porte est
+                                // close et le démarrage s'arrête ici. Indispensable EN PLUS de la vigilance
+                                // temps réel, qui ne réagit qu'aux CHANGEMENTS du document : un enfant qui
+                                // relance l'application le lendemain du retrait n'en verrait aucun.
+                                // Placé après la bascule légale (un joueur devenu majeur n'est plus visé)
+                                // et avant tout le reste — il n'a plus rien à faire dans le jeu.
+                                if (await _checkConsentClosed(ensureScreen: true)) return;
+                                // Filet : un membre de clan encore anonyme ne peut plus exister (le
+                                // mineur se connecte AVANT d'entrer, et rien ne s'écrit sous un
+                                // identifiant anonyme). S'il se présentait quand même, la liaison
+                                // passe avant tout le reste.
+                                if (_anon) { await _requireAccountLink(); return; }
+                                // EMPRUNT DE COMPTE, repris AVANT la vigilance : celle-ci est keyée sur
+                                // _userId, et l'armer sur l'adulte pour la rebasculer ensuite ferait un
+                                // watch de trop sur le mauvais joueur. Rend true si _userId n'est plus
+                                // l'utilisateur authentifié — le reste du démarrage suit alors le point de
+                                // vue de l'enfant, ce qui est exactement l'effet recherché.
+                                // C'est aussi ici que le verrouillage échu rend la main : _impRestore
+                                // refuse de reprendre et efface, l'adulte redémarre chez lui.
+                                await _impRestore(
+                                    session.get("steps.clan.clanId")?.toString()     ?? "",
+                                    session.get("steps.clan.clanSecret")?.toString() ?? "",
+                                    region,
+                                );
+
+                                // Arme la vigilance temps réel du doc joueur dès la reprise à froid (avant
+                                // même le dashboard) : la montée de niveau sera détectée où que soit le joueur.
+                                _startPlayerVigilance(
+                                    session.get("steps.clan.clanId")?.toString()     ?? "",
+                                    session.get("steps.clan.clanSecret")?.toString() ?? "",
+                                    region,
+                                );
+                                // Et on regarde tout de suite si le clan attendait ce joueur : la cérémonie
+                                // a pu être appelée pendant que l'app était fermée, et rien n'émet de
+                                // changement pour ce qui était déjà là avant l'abonnement.
+                                _checkPendingCeremony();   // fire-and-forget : le démarrage n'attend personne
+                                // Invitations acceptées pendant que le jeu du chef était fermé : le
+                                // secret du clan est publié maintenant (chef seulement, cf.
+                                // _resumeInvites). Sans navigation : un clan plein ne détourne pas le
+                                // démarrage, la page des paliers attendra l'écran du clan.
+                                _resumeInvites(navigate: false);   // fire-and-forget
+                                // REPRÉSENTANT : un retrait du consentement dont l'échéance est passée
+                                // est exécuté par le serveur, que l'app de l'enfant ait tourné ou non.
+                                _sweepGuardianConsents();          // fire-and-forget
+                                // Restaure le contexte de la tâche en cours dans la session locale, sans
+                                // rediriger vers combat : on démarre toujours sur le dashboard. L'écran
+                                // combat (on_combat_appear) lira session.active_task quand l'utilisateur
+                                // l'ouvrira via la taskbar.
+                                // MULTICLAN : la tâche active (« <clanId>_<tâche> ») peut appartenir à un
+                                // autre clan que le courant ; elle n'est alors pas restaurée ici.
+                                final activeTask = session.get("active_task")?.toString() ?? "";
+                                final activeClan = session.get("steps.clan.clanId")?.toString() ?? "";
+                                if (activeTask.isNotEmpty && activeClan.isNotEmpty && activeTask.startsWith("${activeClan}_")) {
+                                    final clanId = activeClan;
+                                    if (clanId.isNotEmpty) await Deva.instance.set("session.clan.id", clanId);
+                                    await Deva.instance.set("session.active_task", activeTask);
+                                    // Tâche en attente de validation au redémarrage (preuve déposée) → on
+                                    // relance la vigilance : le watch en mémoire a été perdu au kill.
+                                    final activeProof = session.get("active_proof")?.toString() ?? "";
+                                    final clanSecret  = session.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (activeProof.isNotEmpty && clanId.isNotEmpty && clanSecret.isNotEmpty) {
+                                        await Deva.instance.set("session.active_proof", activeProof);
+                                        _startValidationPolling(clanId, clanSecret, region,
+                                            _taskIdFromActive(activeTask, clanId));
+                                    }
+                                }
+                                // Réconciliation des photos de preuve — HORS du bloc ci-dessus, et c'est
+                                // tout l'intérêt : le cas à rattraper est justement celui où il n'y a plus
+                                // de tâche active. La preuve vit sur l'appareil du joueur alors que le
+                                // verdict est écrit par l'appareil qui tranche : un effacement « au
+                                // verdict » ne l'atteint pas quand l'admin décide à distance. Ici, la
+                                // session fait autorité — tout fichier qui n'est pas active_proof est un
+                                // orphelin. Fire-and-forget : le démarrage n'attend pas des accès disque.
+                                _reconcileProofs(session.get("active_proof")?.toString() ?? "");
+                                // Lien d'invitation reçu avant l'authentification (cold start).
+                                if (!fromSwitch && await _consumePendingInvite(caller, event, hasClan: true,
+                                        ownClanId: session.get("steps.clan.clanId")?.toString() ?? "")) return;
+                                // Nom pas encore choisi : il est demandé APRÈS la liaison du compte,
+                                // pour tout le monde. Placé ici, tout en fin de branche, pour que la
+                                // vigilance du joueur et les cérémonies en attente soient déjà armées
+                                // quand on détourne vers l'écran de nom. C'est aussi ce passage qui
+                                // libère l'annonce d'arrivée dans le clan (cf. _flushPendingMemberJoined).
+                                if (session.get("steps.name") == null) {
+                                    await ActionRegistry.get("steps.navigate.player_name")?.call(caller, event);
+                                    return;
+                                }
+                                // ADHÉSION À UN AUTRE CLAN EN ATTENTE (multiclan) : le joueur a déjà un
+                                // clan, et une invitation acceptée attend que son chef publie le secret.
+                                // Même règle que la branche sans clan : retour sur join_wait.
+                                final pendingJoin = _pendingJoinOf(session);
+                                if (pendingJoin != null && !fromSwitch) {
+                                    if (_pendingJoinExpired(pendingJoin)) {
+                                        await _leaveJoin(region, notice: "join_expired");
+                                    } else if (DvOrb.get_current_page()?.dvid != "join_wait") {
+                                        DvOrb.navigate_reset("join_wait");
+                                        return;
+                                    }
+                                }
+                                if (fromSwitch) {
+                                    DvOrb.navigate_reset("dashboard");
+                                    return;
+                                }
+                                await ActionRegistry.get("steps.navigate.dashboard")?.call(caller, event);
+                                // Accord d'enfant reçu par lien, application fermée (on_assent_link) :
+                                // le chef est maintenant connecté, sa déclaration peut s'ouvrir.
+                                await _openPendingAssent();
+                                return;
+    }
+
     // Entrée dans l'onboarding. Le premier écran est le ROYAUME — toujours, pour
     // ddust : depuis le 2026-09-12 dvdocuments ne déduit plus jamais la région, et
     // seule une application qui coupe la question (`region.enabled: false`, que
@@ -492,6 +599,9 @@ extension Worker_session on worker {
                                             // prochain démarrage — la garde ne doit pas survivre à sa raison d'être.
                                             _isAdultClanId = "";
                                         }
+                                        // MULTICLAN : `a` sur TOUTES ses fiches et la représentation se
+                                        // ferme, seulement si un représentant a déclaré la majorité.
+                                        await _gshipMajorityDone(region);
                                     }
                                     // Commit définitif de l'état légal de session (mémoire + clé deva gameplay +
                                     // documents_sessions) → ré-hydraté "a" aux prochains logins.
@@ -666,38 +776,37 @@ extension Worker_session on worker {
     Future<void> on_logout(DvShape? caller, dynamic event) async {
 
                                 deva_log("info","logged out");
-                                _stopValidationPolling();
-                                _stopPlayerVigilance();
+                                // État du clan courant (partagé avec la bascule d'un clan à l'autre).
+                                await _resetClanState();
+                                _stopGshipVigilance();
+                                _stopDropWatch();
                                 // L'attente d'une adhésion (join_wait) appartient au compte qui s'en va :
                                 // elle reste en base (pending_join) et reprendra à sa prochaine connexion.
                                 _stopJoinWatch();
                                 _joinPendingMem  = null;
                                 _joinNotice      = "";
-                                _invitesQuietAt  = null;
                                 _lastSeenDay     = "";
-                                _resetOpening();
                                 _userId      = "";
                                 _authUserId  = "";
                                 _impersonating = false;
-                                // Repli sûr : purge le cache admin (sinon un compte réouvert sur le même appareil
-                                // hériterait du statut admin du précédent utilisateur).
-                                _isAdmin = false; _adminCount = 0; _isAdminClanId = ""; _isAdminUserId = "";
-                                _isAdult = false; _isAdultClanId = ""; _isAdultUserId = "";
-                                // Et leurs miroirs pour dvtuto : le compte suivant ne doit pas lire nos rôles.
-                                await _unpublishRoles();
-                                // Même repli pour le mode chef. Le vocabulaire du tiroir est STATIQUE au framework :
-                                // sans cette remise à zéro, le joueur suivant sur l'appareil hériterait du
-                                // vocabulaire admin (ni assigned ni dead ne griseraient, tout serait cliquable).
-                                _adminMode = false;
-                                _gameDomains.clear();   // l'arbre de décision du compte suivant n'est pas le nôtre
-                                _declareTiroirVocabulary();
-                                await _syncChiefUi();
-                                await Deva.instance.set("worker.session.clan_done", "");
+                                // (Rôles, mode chef, vocabulaire du tiroir, clan_done : _resetClanState, plus
+                                // haut. Un compte réouvert sur le même appareil n'hérite de rien.)
+                                // Copie locale de la représentation (filtre des notifications) : elle
+                                // appartient au compte qui s'en va.
+                                await deva_set("worker.gship_blocked", "");
+                                await deva_set("worker.gship_withdrawn", "false");
                                 // Demande d'enfant et invitations en cours, des deux côtés : le code de la
                                 // demande, l'accord scanné par le chef, l'invitation mise de côté. Rien de
                                 // cela n'appartient au compte suivant.
                                 await _forgetKidAssent();
                                 _pendingAssent    = null;
+                                _pendingClaimId   = "";
+                                _pendingClaimName = "";
+                                _claimRows        = [];
+                                _inviteAsChief    = false;
+                                // Passage à l'âge adulte : la célébration appartient au compte qui la vivait.
+                                _adulthoodPlaying    = false;
+                                _adulthoodCelebrated = false;
                                 _inviteAssent     = null;
                                 _assentRejected   = false;
                                 _inviteLinkParams = "";
@@ -1170,6 +1279,72 @@ extension Worker_session on worker {
                                 return doc;
     }
 
+    //-----------------------------------------------------------------------
+    //-- dvautover : version des données du clan -----------------------------
+    //-----------------------------------------------------------------------
+
+    /// Le build de l'application (versionCode), 0 s'il est inconnu.
+    Future<int> _appBuild() async =>
+            int.tryParse((await deva_get("application.build"))?.toString() ?? "") ?? 0;
+
+    /// Rappel de dvautover (conf `autover.provider`) : l'état de la PORTÉE du joueur,
+    /// c'est-à-dire de son clan. `{}` pour un joueur sans clan : rien à contrôler.
+    ///
+    /// ⚠ LE STATUT DE CHEF N'EST ICI QU'UN AIGUILLAGE D'ÉCRAN. La fonction cloud le
+    ///   revérifie côté serveur avant de toucher au clan : un client modifié qui se dirait
+    ///   chef n'obtiendrait qu'un refus.
+    ///
+    /// ⚠ UN CLAN SANS `data_version` (né avant dvautover) RECOIT LE BUILD DE L'APPLICATION
+    ///   QUI LE VOIT LA PREMIÈRE (design §3). Les règles Firestore n'autorisent ce geste
+    ///   que tant que le champ est absent.
+    Future<Map<String, dynamic>> autover_state(DvShape? caller, dynamic event) async {
+
+                                final region = event is Map ? (event["region"]?.toString() ?? "") : "";
+                                final build  = event is Map ? (int.tryParse(event["build"]?.toString() ?? "") ?? 0) : 0;
+                                if (region.isEmpty || _cloud == null) return {};
+                                final session    = await _readSession(region);
+                                final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                if (clanId.isEmpty || clanSecret.isEmpty) return {};
+
+                                final clanDoc = await _cloud?.read("workers", "clans", clanId,
+                                    ownerId: clanSecret, region: region);
+                                if (clanDoc == null) return {};
+
+                                var dataVersion = int.tryParse(clanDoc.get("data_version")?.toString() ?? "") ?? 0;
+                                if (dataVersion <= 0 && build > 0) {
+                                    try {
+                                        await _cloud?.write("workers", "clans", clanId,
+                                            Dvidle({"data_version": build}), region: region, ownerId: clanSecret);
+                                        dataVersion = build;
+                                        deva_log("info", "[worker] autover : data_version du clan posée à $build");
+                                    } catch (e) {
+                                        deva_log("warning", "[worker] autover : data_version non posée : $e");
+                                    }
+                                }
+                                final admins = List<dynamic>.from(clanDoc.get("admins") as List? ?? []);
+                                // La région de production du pays du joueur (retour de beta).
+                                final home = (await ActionRegistry.get("documents.home_cloud")?.call(caller, null))
+                                                 ?.toString() ?? "";
+                                return {
+                                    "scope":        clanId,
+                                    "secret":       clanSecret,
+                                    "data_version": dataVersion,
+                                    "chief":        admins.contains(_userId),
+                                    "locked_until": clanDoc.get("locked_until"),
+                                    "home_region":  home,
+                                };
+    }
+
+    /// Reprise du démarrage après un écran d'attente de dvautover (conf
+    /// `autover.resume_action`) : on rejoue le login, qui refait le contrôle puis reprend
+    /// exactement là où il s'était arrêté.
+    Future<void> autover_resume(DvShape? caller, dynamic event) async {
+
+                                _invalidateSessionCache();
+                                await on_login(caller, _cloud?.currentUser());
+    }
+
     // À appeler après CHAQUE écriture du doc users (read-modify-write oblige).
     void _invalidateSessionCache() {
 
@@ -1347,6 +1522,26 @@ extension Worker_session on worker {
     // de routage/état du doc users pour repartir de zéro. L'onboarding merge dans le doc existant :
     // sans ce reset, l'ancien steps.clan re-router le joueur vers son clan mort dès que _writeStep
     // remet enabled=true. On garde userindexes.clans (clanSecret) intact pour un futur clan recovery.
+    /// La région vers laquelle le compte a déménagé, si ce n'est PAS une région que
+    /// cette application connaît ; "" sinon. Lit la pierre tombale laissée au départ
+    /// par la migration du clan (`users.moved_to`, ddust_autover).
+    Future<String> _movedElsewhere() async {
+
+                                final docId = _sessionDocId();
+                                if (docId.isEmpty) return "";
+                                final regionsData = await deva_get("regions");
+                                final regionKeys  = (regionsData is Dvidle ? regionsData.keys : <String>[])
+                                                    .map((k) => k.toLowerCase()).toList();
+                                for (final region in regionKeys) {
+                                    try {
+                                        final session = await _readSession(region);
+                                        final moved   = session?.get("moved_to")?.toString().toLowerCase() ?? "";
+                                        if (moved.isNotEmpty && !regionKeys.contains(moved)) return moved;
+                                    } catch (_) {}
+                                }
+                                return "";
+    }
+
     Future<void> _resetDisabledSession() async {
 
                                 final docId = _sessionDocId();
@@ -1359,6 +1554,10 @@ extension Worker_session on worker {
                                         final session = await _readSession(region);
                                         if (session == null) continue;
                                         if (session.get("enabled") != false) continue;
+                                        // Une pierre tombale de DÉMÉNAGEMENT n'est pas un compte supprimé : le
+                                        // joueur vit dans une autre région. La réactiver ici créerait un
+                                        // second compte, vide, qui masquerait le vrai.
+                                        if ((session.get("moved_to")?.toString() ?? "").isNotEmpty) continue;
                                         // Effacement deep-merge : poser le champ à "" (convention dvcloud).
                                         final wipe = Dvidle({});
                                         wipe.set("steps",        "");
@@ -1511,17 +1710,71 @@ extension Worker_session on worker {
 
     // Selector du kebab Personnage : masque l'option de suppression pendant l'impersonation
     // (providerUid = admin → on ne veut pas supprimer le compte admin depuis la fiche d'un autre).
-    // Ouvre la politique de confidentialité dans le navigateur du système. Aucun suffixe
+    // Ouvre la politique de confidentialité DANS l'application, en lecture seule. Aucun suffixe
     // @<legalstate> : l'état légal de la session s'applique, un mineur reçoit donc la version
-    // enfant et un adulte la version adulte, dans la région et la langue de sa session.
+    // enfant et un adulte la version adulte, dans la région et la langue de sa session. La
+    // politique ne s'accepte pas : c'est sa version courante qui s'applique, et qui s'affiche.
     Future<void> open_privacy(dynamic caller, dynamic event) async {
 
-                                await ActionRegistry.get("documents.open_doc")?.call(null, "privacy");
+                                await ActionRegistry.get("documents.view_doc")?.call(null, "privacy");
+    }
+
+    // Ouvre les conditions d'utilisation DANS l'application, en lecture seule : la version que le
+    // joueur a ACCEPTÉE (documents.acceptance.cgu.version), dans sa langue, sa région et son état
+    // légal. Aucune ré-acceptation possible d'ici : une nouvelle version passe par le flux
+    // d'acceptation du lancement (hasNewDocuments), jamais par cet écran.
+    Future<void> open_cgu(dynamic caller, dynamic event) async {
+
+                                await ActionRegistry.get("documents.view_doc")?.call(null, "cgu");
     }
 
     Future<List<String>> perso_settings_selector(dynamic caller, dynamic data) async {
 
-                                final options = <String>["my_log", "tutorials", "change_lang"];
+                                final options = ["my_log", "tutorials", "change_lang", ...await _vitalSettingsOptions()];
+                                // MULTICLAN : couper les notifications de ce téléphone, pour ce clan ou pour
+                                // tous (silence à la source). Juste après les rappels ; une option de
+                                // chaque paire, selon l'état relu sur la fiche de l'appareil.
+                                final notif = await _notifMenuOptions();
+                                final afterNudges = options.indexWhere((o) => o == "nudges_on" || o == "nudges_off");
+                                options.insertAll(afterNudges < 0 ? 3 : afterNudges + 1, notif);
+                                // « Noter et partager », adultes seulement, JUSTE AVANT la déconnexion :
+                                // la suppression du compte reste la dernière ligne. Hors de
+                                // _vitalSettingsOptions : le menu de mort n'a pas à le proposer.
+                                final bool isAdult =
+                                    (await Deva.instance.get("worker.player_is_adult"))?.toString() == "true";
+                                if (isAdult) {
+                                    final at = options.indexOf("logout");
+                                    options.insert(at < 0 ? options.length : at, "rate_share");
+                                }
+                                return options;
+    }
+
+    // Menu du kebab posé au-dessus du voile de mort (commons/death_settings_menu) : les seules
+    // fonctions VITALES, avec exactement les règles du menu Personnage (même helper).
+    Future<List<String>> death_settings_selector(dynamic caller, dynamic data) async {
+
+                                return _vitalSettingsOptions();
+    }
+
+    // Depuis le menu de mort : le panneau de suppression vit sur l'écran Personnage. On s'y rend
+    // d'abord (même navigation que la taskbar), puis on l'ouvre. Mêmes gardes qu'open_delete_account.
+    Future<void> death_open_delete(dynamic caller, dynamic event) async {
+
+                                if (_impersonating) return;
+                                if (DvOrb.get_current_page()?.dvid != "personnage") {
+                                    DvOrb.navigate_new("personnage");
+                                    if (await DvOrb.wait_for_shape("personnage/delete_panel") == null) return;
+                                }
+                                await open_delete_account(caller, event);
+    }
+
+    // Les options VITALES, communes au menu Personnage et au menu de mort : le guide, les
+    // rappels, la politique de confidentialité, la déconnexion et la suppression du compte. Ce
+    // sont les droits que le dossier « intérêt supérieur de l'enfant » présente comme toujours
+    // accessibles : une seule liste, pour que les deux menus ne divergent jamais.
+    Future<List<String>> _vitalSettingsOptions() async {
+
+                                final options = <String>[];
 
                                 // LE GUIDE, dans la version qui s'adresse à celui qui ouvre le menu.
                                 // Le partage se fait sur l'âge et NON sur le rôle de chef : le guide
@@ -1557,6 +1810,9 @@ extension Worker_session on worker {
                                     deva_log("warning", "[pulse] perso_settings_selector : rappels illisibles ($e)");
                                 }
 
+                                // Les deux documents légaux, côte à côte : ce qu'on a accepté, puis ce
+                                // que le jeu fait de nos données.
+                                options.add("cgu");
                                 options.add("privacy");
                                 // ⚠ LA SUPPRESSION DU COMPTE EN DERNIER, APRES la deconnexion. Elle
                                 //   etait avant-derniere, donc collee au-dessus d'une option
@@ -1672,11 +1928,23 @@ extension Worker_session on worker {
                                     await _cloud?.call("delete_user_data", Dvidle({"ownerId": ownerId}));
                                 } catch (e) {
                                     deva_log("error", "[delete_account] appel cloud échoué: $e");
+                                    // SEUL REPRÉSENTANT D'UN ENFANT : refus du serveur, et un message qui dit
+                                    // quoi faire (ajouter un co-représentant, ou supprimer le compte de l'enfant).
+                                    final names = await _soleGuardianNames(e);
+                                    if (names.isNotEmpty) {
+                                        await _deleteAccountError(key: "delete_account_sole_guardian", name: names);
+                                        return;
+                                    }
                                     await _deleteAccountError();
                                     return;
                                 }
 
                                 deva_log("info", "[delete_account] compte supprimé → déconnexion");
+                                // Règle du payeur : l'abonnement payé par ce compte est résilié (son
+                                // index vient de passer à enabled=false). ATTENDU, et avant le logout :
+                                // la déconnexion retire le jeton dont l'appel a besoin. Ne lève jamais ;
+                                // le balayage quotidien rattrape un appel perdu.
+                                await _storePayerCheck();
                                 // Photos de preuve : delete_user_data ne peut rien sur le disque de l'appareil.
                                 // C'est ici, et seulement ici, qu'on a la main dessus — d'où la purge totale
                                 // AVANT le logout, pendant que l'app tourne encore. Une suppression demandée
@@ -1692,10 +1960,18 @@ extension Worker_session on worker {
                                 await ActionRegistry.get("dvcloud.do_logout")?.call(null, null);
     }
 
-    Future<void> _deleteAccountError() async {
+    Future<void> _deleteAccountError({String key = "delete_account_error", String name = ""}) async {
 
                                 final no    = DvOrb.get_shape_by_id("personnage/delete_no");
-                                await _setDeleteLabel("personnage/delete_panel", "delete_account_error");
+                                await _setDeleteLabel("personnage/delete_panel", key);
+                                if (name.isNotEmpty) {
+                                    final panel = DvOrb.get_shape_by_id("personnage/delete_panel");
+                                    if (panel is DvLabel) {
+                                        panel.set("shape.label", TranslationRegistry.translate(key).replaceAll("{name}", name));
+                                        await panel.computeDisplay();
+                                        panel.refreshUI();
+                                    }
+                                }
                                 await _setDeleteLabel("personnage/delete_no", "delete_account_cancel");
                                 no?.set("shape.visible", true); no?.set("shape.events.tap", true); no?.refreshUI();
                                 _deleteStep = 0;   // "Annuler" referme proprement l'overlay

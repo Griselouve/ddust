@@ -331,10 +331,11 @@ conf:
         row_color: "0xB3000000"
         row_border_color: "0xFFB07328"
 
-    # L'attaque de bisous : le clan apprend qui a le moins rapporté d'XP et va lui sauter dessus.
-    # Posée à chaud par worker.on_butin_rewards_appear (texte + visibilité), et CACHÉE chez celui
-    # qu'elle nomme — on le dit aux autres, pas à lui. Elle reste invisible quand le clan n'a que
-    # des chefs (personne à encourager).
+    # L'attaque de bisous : le clan apprend quels joueurs étaient en difficulté (deux noms, dont un
+    # tiré au sort, cf. worker._kissTargets) et va leur sauter dessus. Posée à chaud par
+    # worker.on_butin_rewards_appear (texte + visibilité), et CACHÉE chez chacun de ceux qu'elle
+    # nomme : on le dit aux autres, pas à eux. Elle reste invisible quand le clan n'a que des chefs
+    # (personne à encourager).
     # Même parchemin ambre que butin_open_page/text : c'est le ton du rituel, pas celui d'une alerte.
     butin_rewards_page/kiss:
       masks:

@@ -189,7 +189,12 @@ extension Worker_log on worker {
 
                                     // Le conte remplace la liste par le récit qu'un modèle en tire. Journal vide
                                     // → rien à raconter : on retombe sur le message habituel sans déranger l'IA.
-                                    if (narrative && plain.isNotEmpty) {
+                                    // L'IA COUPÉE PAR LE CHEF : le conte n'est même pas demandé. Le journal
+                                    // brut, avec une ligne qui dit pourquoi, et son partage déjà armé.
+                                    if (narrative && plain.isNotEmpty && !await _iaDuClan()) {
+                                        final off = await _resolveDesc("log_narrate_ai_off");
+                                        if (off.isNotEmpty) text = "$off\n\n$text";
+                                    } else if (narrative && plain.isNotEmpty) {
                                         final tale = await _narrateClanStory(plain, clanId, clanSecret, region);
                                         if (tale.isNotEmpty) {
                                             // Le conte IA ne parle jamais d'argent (interdit par le prompt) : cette
@@ -465,6 +470,12 @@ extension Worker_log on worker {
                                     return await _resolveDesc("log_member_left");
                                 }
 
+                                // Un joueur sans téléphone repris par l'enfant sur son propre téléphone
+                                // (cf. _claimNoAccountPlayer) : « <nom> a maintenant son propre téléphone. »
+                                if (ev == "MemberClaimed") {
+                                    return await _resolveDesc("log_member_claimed");
+                                }
+
                                 // Retrait / rétablissement du consentement parental : AUCUNE ligne de récit,
                                 // et c'est délibéré. Ces deux événements existent pour l'audit — ils tracent
                                 // qui a décidé quoi, et quand — pas pour la mémoire familiale. Le journal est
@@ -472,7 +483,11 @@ extension Worker_log on worker {
                                 // reprend : « ton tuteur a demandé ton effacement » n'a sa place ni dans l'un
                                 // ni dans l'autre. Le comportement par défaut ("" sur événement inconnu) y
                                 // suffirait ; on l'écrit pour que personne n'ajoute la ligne « manquante ».
-                                if (ev == "ConsentWithdrawn" || ev == "ConsentRestored") {
+                                // Même règle pour les gestes des représentants (multiclan) : majorité
+                                // déclarée, clan autorisé ou retiré, co-représentant ajouté. De l'audit.
+                                if (ev == "ConsentWithdrawn" || ev == "ConsentRestored"
+                                    || ev == "MajorityDeclared" || ev == "GuestAuthorized"
+                                    || ev == "GuestRevoked" || ev == "GuardianAdded") {
                                     return "";
                                 }
 
@@ -638,6 +653,16 @@ extension Worker_log on worker {
                                     // `flat` : les libellés de cadeaux portent un saut de ligne (ils tiennent
                                     // dans une main, sur deux lignes). Une ligne de récit ne se coupe pas.
                                     return line.replaceAll("{gift}", await _fairyGiftLabel(gift, flat: true));
+                                }
+
+                                // Un ÉVÉNEMENT aléatoire (moteur d'événements), écrit seulement quand le
+                                // joueur l'a découvert ET cliqué. Une ligne par événement, `log_event_<id>` ;
+                                // un événement sans ligne dans le thème ne laisse pas de trace. Jamais de
+                                // montant, comme pour la fée.
+                                if (ev == "EventFound") {
+                                    final id = l.get("data.event")?.toString() ?? "";
+                                    if (id.isEmpty) return "";
+                                    return await _resolveDesc("log_event_$id");
                                 }
 
                                 return "";

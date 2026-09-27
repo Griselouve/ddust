@@ -199,6 +199,8 @@ extension Worker_tasks on worker {
                                 clanDoc.set("external.date",        now);
                                 clanDoc.set("description",          "Fast test clan");
                                 clanDoc.set("avatar",         _defaultClanAvatar);
+                                // Version des données (dvautover) : cf. worker_clan.on_create_clan_complete.
+                                clanDoc.set("data_version",   await _appBuild());
                                 try {
                                     await _cloud?.write("workers", "clans", clanId, clanDoc, region: region, ownerId: clanSecret);
                                     deva_log("info", "[worker] on_fast_test_skip: clan OK");
@@ -1289,6 +1291,9 @@ extension Worker_tasks on worker {
                                 // réconcilier (cf. _freshlySelected) — évite la course avec l'assignation ci-dessous.
                                 _freshlySelected = resourceId;
                                 DvOrb.navigate_reset("combat");
+                                // Moment d'événement « tâche ouverte » (piège...). Non attendu : la prise
+                                // de la tâche ne doit jamais attendre un tirage.
+                                unawaited(_evtAt("task_opened"));
 
                                 // Persistance Firestore en arrière-plan (n'empêche pas l'affichage immédiat).
                                 userDoc.rem("docId");

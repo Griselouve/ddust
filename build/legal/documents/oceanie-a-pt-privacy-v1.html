@@ -38,13 +38,14 @@ estritamente necessário para funcionar.</p>
   <tr><td>Estatuto legal</td><td>Apenas a distinção menor / adulto. <strong>A sua data de nascimento nunca é
   conservada</strong>: é apenas utilizada, na primeira ligação, para calcular esse estatuto, sendo depois
   esquecida.</td></tr>
-  <tr><td>Alcunhas</td><td>A alcunha da sua personagem e o nome do seu clã, escolhidos por si, bem como as descrições que lhes der. Só são visíveis para os membros do seu clã. Tanto a
+  <tr><td>Alcunhas</td><td>A alcunha da sua personagem e o nome do seu clã, escolhidos por si, bem como as descrições que lhes der. Só são visíveis para os membros do seu clã. Se pertencer a vários clãs, a alcunha da sua personagem, o seu avatar e o título que usa são também vistos pelos membros dos seus outros clãs, e apenas por eles: nenhum outro clã vê o que quer que seja. Tanto a
   alcunha da personagem como o nome do clã têm também uma versão externa gerada pela aplicação, sem relação
   com a que escolheu: é a única que a aplicação usaria para o designar fora do seu clã.</td></tr>
   <tr><td>Dados de jogo</td><td>Avatar, experiência, níveis, pontos de vida, ouro, objetos, tarefas concluídas,
   registo de atividade do clã, data da última ligação, língua da interface, registos de aceitação das condições de
   utilização.</td></tr>
-  <tr><td>Notificações</td><td>Um token técnico para o envio de notificações, associado ao seu aparelho.</td></tr>
+  <tr><td>Registos dos atos que vinculam</td><td>Quando um ato vincula uma pessoa, é guardado um registo dele juntamente com as provas de aceitação das condições, na conta de quem age: entrada num clã, saída de um clã (por si próprio, ou retirada de uma criança pelo seu pai, mãe ou tutor legal), dissolução de um clã pelo seu fundador, cada ato de um pai, mãe ou tutor legal (autorização de um clã, retirada de um clã, reconhecimento de outro pai, mãe ou tutor legal e declaração deste, retirada ou restabelecimento do consentimento, declaração de maioridade) e criação da representação de uma criança no seu primeiro clã. Contém apenas o autor, a criança ou o clã em causa, a data e o contexto da sessão (região, língua, estatuto legal).</td></tr>
+  <tr><td>Notificações</td><td>Um token técnico para o envio de notificações, associado ao seu aparelho. A partir do seu telemóvel, pode desativar as notificações do clã atual ou de todos os seus clãs: os nossos servidores deixam então de enviar o que quer que seja para esse telemóvel. Esta definição é guardada com a inscrição do telemóvel nas notificações, sem qualquer outro dado.</td></tr>
   <tr><td>Definições técnicas</td><td>A versão da aplicação instalada e o desfasamento horário do aparelho.
   Este último serve apenas para uma coisa: enviar os lembretes destinados a uma criança a uma hora razoável onde
   ela vive, e não a meio da sua noite. <strong>Não é um dado de localização</strong>: a aplicação nunca mede nem
@@ -52,8 +53,8 @@ estritamente necessário para funcionar.</p>
 </table>
 <p>Sobretudo, o que a aplicação <strong>não recolhe</strong>:</p>
 <ul>
-  <li><strong>As fotografias de tarefas nunca são guardadas em linha</strong>: são guardadas no espaço privado da aplicação no seu aparelho, e a cópia de segurança automática do Android está desativada para a aplicação; nenhuma cópia segue para um armazenamento em linha. Podem, no entanto, ser conservadas pela transferência direta de um telemóvel antigo para um novo, se utilizar essa função do Android ao mudar de aparelho. Apenas um identificador técnico é enviado aos nossos servidores para indicar que
-  existe uma prova; a própria imagem nunca é transmitida: fica no aparelho do jogador, que é o único que a pode rever e o único que decide mostrá-la, presencialmente, ao adulto que aprecia o seu trabalho.</li>
+  <li><strong>As fotografias e os vídeos de tarefas nunca são guardados em linha</strong>: são guardados no espaço privado da aplicação no seu aparelho, e a cópia de segurança automática do Android está desativada para a aplicação; nenhuma cópia segue para um armazenamento em linha. Podem, no entanto, ser conservados pela transferência direta de um telemóvel antigo para um novo, se utilizar essa função do Android ao mudar de aparelho. Apenas um identificador técnico é enviado aos nossos servidores para indicar que
+  existe uma prova; o próprio ficheiro (imagem ou vídeo) nunca é transmitido: fica no aparelho do jogador, que é o único que o pode rever e o único que decide mostrá-lo, presencialmente, ao adulto que aprecia o seu trabalho. Os vídeos (15 segundos no máximo) são gravados sem som: a aplicação não tem acesso ao microfone.</li>
   <li><strong>Nenhuma análise (analytics)</strong>: a recolha Google Analytics está desativada.</li>
   <li><strong>Nenhum identificador publicitário (AD_ID)</strong> e nenhuma publicidade, em conformidade com a
   política Famílias da Google Play.</li>
@@ -89,20 +90,20 @@ as utilizamos para treinar modelos de inteligência artificial.</strong></p>
 
 <h2>4. Menores: Privacy Act 1988 (Austrália) e Privacy Act 2020 (Nova Zelândia)</h2>
 <p>Donjons &amp; Savons é uma aplicação familiar destinada a ser utilizada por crianças sob a supervisão dos
-adultos do seu clã. As informações que recolhemos junto de uma criança são as mesmas que para qualquer jogador, descritas na secção 2, e nada mais, nomeadamente: uma <strong>alcunha, um avatar, a progressão de jogo e o facto de o jogador ser menor</strong>, bem como, se utilizar a sua própria conta e o seu próprio aparelho, o <strong>identificador técnico da sua conta</strong> e o <strong>token de envio de notificações</strong>. Não recolhemos o nome verdadeiro de uma criança, a sua data de nascimento, a sua morada, o seu número de telefone, a sua fotografia ou a sua localização, e a aplicação não tem mensagens, nem conversação, nem perfil público.</p>
-<p><strong>Endereço de correio eletrónico.</strong> Uma criança cujo perfil de jogador foi criado por um adulto não tem conta Google: não existe nenhum endereço de correio eletrónico para ela. Se iniciar sessão com a sua própria conta Google, nenhum endereço de correio eletrónico é guardado nos dados de jogo; o endereço dessa conta é detido pelo serviço de autenticação Firebase, o nosso subcontratante, para verificar a sua ligação (secção 7).</p>
+adultos do seu clã. As informações que recolhemos junto de uma criança são as mesmas que para qualquer jogador, descritas na secção 2, e nada mais, nomeadamente: uma <strong>alcunha, um avatar, a progressão de jogo e o facto de o jogador ser menor</strong>, bem como, se utilizar a sua própria conta e o seu próprio aparelho, o <strong>identificador técnico da sua conta</strong> e o <strong>token de envio de notificações</strong>. Não recolhemos o nome verdadeiro de uma criança, a sua data de nascimento, a sua morada, o seu número de telefone, a sua fotografia, os seus vídeos ou a sua localização, e a aplicação não tem mensagens, nem conversação, nem perfil público.</p>
 <p><strong>Como é obtido o consentimento parental.</strong> Uma criança não pode entrar sozinha no jogo: não há
 inscrição de crianças, nem diretório de clãs, nem pesquisa. Uma criança só entra num clã através de um convite
 emitido por um adulto desse clã, ou através de um perfil de jogador que esse adulto cria para ela. O adulto aceita
 as <a href="https://storage.googleapis.com/dvddust-us-documents-storage/oceanie-a-pt-cgu-v1.html">Condições de
 Utilização</a> (cuja secção 6 estabelece esse compromisso com precisão) e, <strong>no momento exato do
 ato</strong> (convidar um membro, criar um perfil de jogador), a aplicação reafirma
-que ele declara ser o pai, a mãe ou o tutor legal da criança, ou que age com o acordo desse pai, mãe ou tutor
-quando a criança já pertence a outro clã, e que consente na recolha dos dados de jogo dessa criança. A aceitação é
+que ele declara ser o pai, a mãe ou o tutor legal da criança, ou, quando a criança já pertence a outro clã, que recebeu a autorização prévia desse pai, mãe ou tutor, que a aplicação verifica, e que consente na recolha dos dados de jogo dessa criança. A aceitação é
 datada e conservada. O consentimento precede, portanto, sempre a recolha.</p>
 <p><strong>O desejo da criança.</strong> Antes da decisão do adulto, a criança indica, no seu próprio aparelho, se deseja jogar. Esse desejo não contém qualquer dado pessoal: apenas a data em que foi expresso, a língua, a região, a versão do texto mostrado à criança e um código de verificação aleatório de seis caracteres. É apresentado ao adulto sob a forma de código QR, ou enviado por uma ligação, e o adulto toma conhecimento dele antes de decidir. É registado juntamente com a decisão do adulto, na conta deste, e depois associado ao perfil da criança quando esta entra no clã; é conservado tal como os registos de aceitação das condições. Enquanto a criança não tiver iniciado sessão na sua conta, nenhuma informação que lhe diga respeito é registada, nem no seu aparelho nem nos nossos servidores, nem sequer a língua escolhida.</p>
 <p>Essa declaração é da exclusiva responsabilidade do adulto: a aplicação não efetua qualquer verificação da
 relação entre progenitor e filho (secção 3 das Condições de Utilização).</p>
+<p><strong>Dados de uma criança.</strong> Uma criança cujo perfil de jogador foi criado por um adulto não tem conta Google: não existe nenhum endereço de correio eletrónico para ela. Se iniciar sessão com a sua própria conta Google, nenhum endereço de correio eletrónico é guardado nos dados de jogo; o endereço dessa conta é detido pelo serviço de autenticação Firebase, o nosso subcontratante, apenas para fins de autenticação (secção 7). Quando esta criança receber mais tarde o seu próprio telemóvel, o adulto que a acolhe no clã pode designar o perfil de jogador que tinha criado para ela: a criança recupera então esse perfil e os seus dados de jogo na sua própria conta, depois de ter expressado o desejo de jogar e segundo a mesma decisão do adulto que para qualquer entrada no clã.</p>
+<p><strong>Representação de uma criança.</strong> Para cada criança que joga no seu próprio telemóvel, a aplicação mantém um processo de representação: quem são os seus pais ou tutores legais, a lista dos seus clãs (nome do clã, nome do seu chefe, adulto que a fez entrar, data), as autorizações dadas a outros clãs e o histórico dos atos de cada um dos seus pais ou tutores legais (retirada ou restabelecimento do consentimento, declaração de maioridade, autorização de um clã ou retirada dele, inclusão de um pai, mãe ou tutor legal e declaração deste). Este processo só é visível para a criança e para os seus pais ou tutores legais: estes veem assim o nome de cada um dos clãs da criança e o do seu chefe, e nada mais desses clãs. A alcunha, o avatar e o título usado pela criança são os mesmos em todos os seus clãs: os membros de cada um desses clãs veem-nos. Os restantes dados de jogo (experiência, nível, objetos, tarefas, diário de atividade) são próprios de cada clã. Este processo é uma prova, conservada nas condições do artigo 8.</p>
 <p><strong>Os seus direitos enquanto progenitor.</strong> A qualquer momento pode:</p>
 <ul>
   <li><strong>consultar</strong> as informações pessoais que recolhemos junto do seu filho: estão visíveis na
@@ -134,7 +135,7 @@ escreva para <a href="mailto:donjons@grisloup.com">donjons@grisloup.com</a>: ire
   uma descrição de tarefa, e redigir o relato de aventura do clã proposto para partilha após a abertura de um baú
   de espólio. Para esta última utilização, <strong>o nome do clã, a sua descrição e o registo de acontecimentos do
   clã (que contém as alcunhas escolhidas pelos jogadores) são transmitidos ao modelo</strong>. Nenhuma outra
-  informação pessoal é enviada: nem identificador de conta, nem data de nascimento, nem fotografia, nem
+  informação pessoal é enviada: nem identificador de conta, nem data de nascimento, nem fotografia, nem vídeo, nem
   estatística individual. O tratamento é realizado numa infraestrutura Google situada nos Estados Unidos, e os
   dados transmitidos não são utilizados para treinar os modelos.</li>
 </ul>
@@ -184,6 +185,8 @@ limitado</strong> fora do serviço, depois o <strong>apagamento definitivo</stro
   do consentimento ou da eliminação da conta. Este registo existe para podermos demonstrar que foi efetivamente
   obtido um consentimento válido (em particular o consentimento parental exigido a um adulto responsável) e em que data foi
   retirado. É conservado fechado e desativado: já não é utilizado para fazer funcionar o serviço.</li>
+  <li><strong>Processo de representação de uma criança</strong>: é uma prova. É encerrado quando a criança se torna adulta ou quando a sua conta é eliminada, e depois conservado durante <strong>5 anos</strong>, apenas para leitura, como as provas de aceitação das condições, antes de ser apagado.</li>
+  <li><strong>Registos dos atos que vinculam</strong>: conservados com as provas de aceitação das condições e segundo as mesmas regras: encerrados na eliminação da conta do seu autor e depois conservados durante <strong>5 anos</strong>.</li>
   <li><strong>Dados de um clã bloqueado (incumprimento de pagamento, cancelamento ou fim dos meses oferecidos)</strong>: conservados <strong>dois anos</strong> a contar do bloqueio do clã, e depois definitivamente suprimidos. Este prazo é deliberadamente longo: o que custa reconstituir não é o clã mas a sua história (as tarefas resolvidas, os níveis alcançados, o diário de cada um) e uma família que para nem sempre desistiu. Um mês antes do prazo, avisamos os adultos do clã.</li>
   <li><strong>Clã inativo</strong>: um clã sem subscrição em curso do qual nenhum membro se ligou há <strong>dois anos</strong> é dissolvido; os seus dados seguem então a regra do clã dissolvido indicada abaixo. Os adultos do clã recebem um lembrete a cada seis meses, salvo se tiverem desativado os lembretes, e em todos os casos um pré-aviso um mês antes. Basta uma única ligação de um membro para o anular.</li>
   <li><strong>Jogador que sai de um clã</strong>: a sua ficha nesse clã é apagada <strong>30 dias</strong> após a sua saída.</li>
@@ -191,7 +194,7 @@ limitado</strong> fora do serviço, depois o <strong>apagamento definitivo</stro
   <li><strong>Subscrição e compras</strong>: o histórico de compras do clã é conservado <strong>dois anos</strong> após o fim da subscrição, ou após o fim do último mês oferecido, para podermos responder a uma reclamação. A referência de compra transmitida pelo Google Play é apagada logo que a subscrição termina.</li>
   <li><strong>Códigos de oferta</strong>: o registo da sua utilização é apagado <strong>30 dias</strong> após o fim da validade do código.</li>
   <li><strong>Dados técnicos</strong>: histórico de ligações <strong>90 dias</strong>; token de envio de notificações <strong>30 dias</strong> após a última ligação do aparelho; contador de utilização das sugestões <strong>48 horas</strong>; registos técnicos dos servidores <strong>30 dias</strong>.</li>
-  <li><strong>Fotografias de tarefas</strong>: permanecem no aparelho do jogador e são apagadas assim que a tarefa é avaliada, o mais tardar na abertura seguinte da aplicação, quando o veredicto foi dado enquanto estava fechada. Eliminar a conta a partir da aplicação apaga também as que restarem.</li>
+  <li><strong>Fotografias e vídeos de tarefas</strong>: permanecem no aparelho do jogador e são apagados assim que a tarefa é avaliada, o mais tardar na abertura seguinte da aplicação, quando o veredicto foi dado enquanto estava fechada. Eliminar a conta a partir da aplicação apaga também os que restarem.</li>
 </ul>
 
 <p><strong>Lista de espera das betas</strong>: eliminada na totalidade no final da fase de beta, ou mais cedo
@@ -217,11 +220,7 @@ confirmado por ela. Se não a pudermos verificar, di-lo-emos em vez de lhe dar s
 <h3>Retirada do consentimento</h3>
 <p>Pode <strong>retirar o seu consentimento a qualquer momento</strong>: tanto o seu como o consentimento que deu
 enquanto pai, mãe ou tutor legal por uma criança que faz jogar.</p>
-<p><strong>Para uma criança que faz jogar, a retirada exerce-se a partir da aplicação</strong>, no menu de gestão da
-sua personagem: a opção «Retirar o meu consentimento e apagar os dados desta criança» é proposta aos chefes do seu
-clã de origem. Produz efeito imediato (a criança deixa de jogar e os seus dados já não são mostrados no jogo) e depois, decorrido um prazo de reflexão de 3 dias durante o qual um chefe do clã de origem pode voltar
-  atrás na sua decisão, os seus dados de jogo são suprimidos e, em seguida, conservados 30 dias nas condições
-  do artigo 8 antes do seu apagamento definitivo.</p>
+<p><strong>Para uma criança que faz jogar, a retirada exerce-se a partir da aplicação</strong>, no menu de gestão da sua personagem: a opção «Retirar o meu consentimento e apagar os dados desta criança» é proposta, para uma criança que joga no seu próprio telemóvel, apenas aos seus pais ou tutores legais, e não aos outros chefes do seu clã de origem; para uma criança que joga no telemóvel de um adulto, aos chefes do seu clã. A retirada vale para todos os clãs da criança. Produz efeito imediato (a criança deixa de jogar e os seus dados já não são mostrados no jogo) e depois, decorrido um prazo de reflexão de 3 dias durante o qual um adulto a quem a opção é proposta pode voltar atrás na decisão, os seus dados de jogo são suprimidos em todos os seus clãs e, em seguida, conservados 30 dias nas condições do artigo 8 antes do seu apagamento definitivo. No termo do prazo, os nossos servidores executam essa supressão, mesmo que a criança nunca volte a abrir a aplicação. Um pai, mãe ou tutor legal pode também retirar a criança de um só dos seus clãs, exceto do seu clã de origem: os seus dados nesse clã são então apagados como os de qualquer jogador que o deixa.</p>
 <p><strong>Para o seu próprio consentimento, a retirada exerce-se pela eliminação da sua conta</strong>, a partir da
 aplicação ou através de <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>.</p>
 <p>Retirar o seu consentimento põe fim ao tratamento dos dados da criança. Isso não impede que outro adulto
@@ -232,7 +231,7 @@ necessário o convite de um adulto que declare responder por ela.</p>
 <p>No caso de uma criança, eliminar a conta do chefe de clã dissolve esse clã e, em cascata, os perfis das
 crianças cujo clã de origem era esse, bem como qualquer perfil que já não pertença a um clã ativo, incluindo as
 crianças sem conta própria, cujos dados de jogo só existem dentro do clã. A retirada produz então efeitos para
-elas tal como para si.</p>
+elas tal como para si. No entanto, o único pai, mãe ou tutor legal reconhecido de uma criança não pode eliminar a sua própria conta: tem primeiro de fazer reconhecer outro, ou eliminar a conta da criança. Uma criança que mantém outro pai, mãe ou tutor legal reconhecido não é eliminada quando um deles elimina a sua conta.</p>
 <p>A retirada só vale para o futuro: não torna ilícito o que foi recolhido enquanto o consentimento era válido. É
 precisamente por isso que a prova do consentimento obtido, e da data em que foi retirado, é conservada nas
 condições da secção 8.</p>

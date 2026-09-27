@@ -40,13 +40,14 @@ strictement nécessaire à son fonctionnement.</p>
   conservée</strong> : elle ne sert, à la première connexion, qu'à calculer ce statut, puis elle est
   oubliée.</td></tr>
   <tr><td>Pseudonymes</td><td>Le pseudonyme de votre personnage et le nom de votre clan, choisis par vous, ainsi que les descriptions que vous leur donnez. Ils ne sont visibles que par les membres
-  de votre clan. Le pseudonyme du personnage comme le nom du clan possèdent en outre une version externe
+  de votre clan. Si vous appartenez à plusieurs clans, le pseudonyme de votre personnage, votre avatar et le titre que vous portez sont aussi vus par les membres de vos autres clans, et par eux seuls : aucun autre clan ne voit quoi que ce soit. Le pseudonyme du personnage comme le nom du clan possèdent en outre une version externe
   générée par l'application, sans rapport avec celle que vous avez choisie : c'est la seule que l'application
   emploierait pour vous désigner hors de votre clan.</td></tr>
   <tr><td>Données de jeu</td><td>Avatar, expérience, niveaux, points de vie, or, objets, tâches accomplies, journal
   d'activité du clan, date de dernière connexion, langue d'interface, preuves d'acceptation des conditions
   d'utilisation.</td></tr>
-  <tr><td>Notifications</td><td>Un jeton technique d'envoi de notifications, associé à votre appareil.</td></tr>
+  <tr><td>Traces des actes qui engagent</td><td>Lorsqu'un acte engage une personne, une trace en est enregistrée avec les preuves d'acceptation des conditions, sous le compte de celui qui agit : entrée dans un clan, départ d'un clan (de soi-même, ou retrait d'un enfant par son parent ou tuteur légal), dissolution d'un clan par son fondateur, chaque geste d'un parent ou tuteur légal (autorisation d'un clan, retrait d'un clan, reconnaissance d'un autre parent ou tuteur légal et déclaration de celui-ci, retrait ou rétablissement du consentement, déclaration de majorité), et création de la représentation d'un enfant à son premier clan. Elle ne contient que l'auteur, l'enfant ou le clan concerné, la date et le contexte de la session (région, langue, statut légal).</td></tr>
+  <tr><td>Notifications</td><td>Un jeton technique d'envoi de notifications, associé à votre appareil. Depuis votre téléphone, vous pouvez couper les notifications du clan en cours ou de tous vos clans : nos serveurs n'envoient alors plus rien à ce téléphone. Ce réglage est enregistré avec son inscription aux notifications, sans aucune autre donnée.</td></tr>
   <tr><td>Réglages techniques</td><td>La version de l'application installée, et le décalage horaire de
   l'appareil. Ce dernier ne sert qu'à une chose : envoyer les rappels destinés à un enfant à une heure raisonnable
   chez lui, et non au milieu de sa nuit. <strong>Ce n'est pas une donnée de localisation</strong> : l'application
@@ -54,9 +55,9 @@ strictement nécessaire à son fonctionnement.</p>
 </table>
 <p>Surtout, ce que l'application <strong>ne collecte pas</strong> :</p>
 <ul>
-  <li><strong>Les photos de tâches ne sont jamais sauvegardées en ligne</strong> : elles sont enregistrées dans l'espace privé de l'application sur votre appareil, et la sauvegarde automatique d'Android est désactivée pour l'application ; aucune copie ne part vers un espace de stockage en ligne. Elles peuvent en revanche être reprises par le transfert direct d'un ancien téléphone vers un nouveau, si vous utilisez cette fonction d'Android au moment d'en changer. Seul un identifiant technique est envoyé à nos serveurs pour indiquer
-  qu'une preuve existe ; l'image, elle, n'est jamais transmise : elle reste sur l'appareil du joueur, qui est le seul à
-  pouvoir la revoir et le seul à décider de la montrer, en personne, à l'adulte qui apprécie son travail.</li>
+  <li><strong>Les photos et vidéos de tâches ne sont jamais sauvegardées en ligne</strong> : elles sont enregistrées dans l'espace privé de l'application sur votre appareil, et la sauvegarde automatique d'Android est désactivée pour l'application ; aucune copie ne part vers un espace de stockage en ligne. Elles peuvent en revanche être reprises par le transfert direct d'un ancien téléphone vers un nouveau, si vous utilisez cette fonction d'Android au moment d'en changer. Seul un identifiant technique est envoyé à nos serveurs pour indiquer
+  qu'une preuve existe ; la photo ou la vidéo, elle, n'est jamais transmise : elle reste sur l'appareil du joueur, qui est le seul à
+  pouvoir la revoir et le seul à décider de la montrer, en personne, à l'adulte qui apprécie son travail. Les vidéos, de quinze secondes au plus, sont enregistrées sans son : l'application n'a pas accès au micro.</li>
   <li><strong>Aucune mesure d'audience</strong> : la collecte Google Analytics est désactivée.</li>
   <li><strong>Aucun identifiant publicitaire (AD_ID)</strong> et aucune publicité, conformément à la politique
   Google Play Families.</li>
@@ -93,7 +94,6 @@ automatisée, et nous ne nous en servons pas pour entraîner des modèles d'inte
 <h2>4. Mineurs : LFPDPPP (Mexique) et loi 1581 de 2012 (Colombie)</h2>
 <p>Donjons &amp; Savons est une application familiale destinée à être utilisée par des enfants sous la supervision
 des adultes de leur clan. Les informations que nous collectons auprès d'un enfant sont les mêmes que pour tout joueur, décrites à l'article 2, et pas davantage, notamment : un <strong>pseudonyme, un avatar, une progression de jeu, et le fait que le joueur est mineur</strong>, ainsi que, s'il utilise son propre compte et son propre appareil, l'<strong>identifiant technique de son compte</strong> et le <strong>jeton d'envoi des notifications</strong>. Nous ne collectons ni le vrai nom de l'enfant, ni sa date de naissance, ni son adresse postale, ni son numéro de téléphone, ni sa photographie, ni sa localisation ; l'application ne comporte ni messagerie, ni discussion, ni profil public.</p>
-<p><strong>Adresse électronique.</strong> Un enfant dont l'adulte a créé le profil de joueur n'a pas de compte Google : aucune adresse électronique n'existe pour lui. S'il se connecte avec son propre compte Google, aucune adresse électronique n'est stockée dans les données de jeu ; l'adresse de ce compte est détenue par le service d'authentification Firebase, notre sous-traitant, pour vérifier sa connexion (article 7).</p>
 <p><strong>Comment le consentement parental est recueilli.</strong> Un enfant ne peut pas entrer seul dans le
 jeu : il n'existe aucune inscription enfant, aucun annuaire de clans et aucune recherche. Un enfant n'entre dans
 un clan que par une invitation émise par un adulte de ce clan, ou par un profil de joueur que cet adulte crée pour
@@ -101,12 +101,13 @@ lui. L'adulte accepte les
 <a href="https://storage.googleapis.com/dvddust-us-documents-storage/hispam-a-fr-cgu-v1.html">Conditions Générales
 d'Utilisation</a> (dont l'article 6 énonce précisément cet engagement) et, <strong>au moment même de
 l'acte</strong> (invitation d'un membre, création d'un profil de joueur),
-l'application lui rappelle qu'il déclare être le parent ou le tuteur légal de l'enfant, ou agir avec l'accord de
-celui-ci lorsque l'enfant est déjà membre d'un autre clan, et qu'il consent à la collecte de ses données de jeu.
+l'application lui rappelle qu'il déclare être le parent ou le tuteur légal de l'enfant, ou, lorsque l'enfant est déjà membre d'un autre clan, avoir reçu l'autorisation préalable de celui-ci, que l'application vérifie, et qu'il consent à la collecte de ses données de jeu.
 L'acceptation est horodatée et conservée. Le consentement précède donc toujours la collecte.</p>
 <p><strong>Le souhait de l'enfant.</strong> Avant la décision de l'adulte, l'enfant indique, sur son propre appareil, s'il souhaite jouer. Ce souhait ne contient aucune donnée personnelle : seulement la date à laquelle il a été exprimé, la langue, la région, la version du texte montré à l'enfant et un code de vérification de six caractères, tiré au hasard. Il est présenté à l'adulte sous forme de QR code, ou lui est transmis par un lien, et l'adulte en prend connaissance avant de décider. Il est enregistré avec la décision de l'adulte, sous le compte de celui-ci, puis rattaché au profil de l'enfant lorsque celui-ci rejoint le clan ; il est conservé comme les preuves d'acceptation des conditions. Tant que l'enfant ne s'est pas connecté à son compte, aucune information le concernant n'est enregistrée, ni sur son appareil ni sur nos serveurs, pas même la langue choisie. En Colombie, cet ordre répond à l'article 2.2.2.25.2.9 du décret 1074 de 2015, qui ne tient l'autorisation du représentant légal pour valable qu'après que le mineur a exercé son droit d'être entendu.</p>
 <p>Cette déclaration engage la seule responsabilité de l'adulte : l'application ne procède à aucune vérification
 du lien de parenté (article 3 des Conditions Générales d'Utilisation).</p>
+<p><strong>Données d'un enfant.</strong> Un enfant dont l'adulte a créé le profil de joueur n'a pas de compte Google : aucune adresse électronique n'existe pour lui. S'il se connecte avec son propre compte Google, aucune adresse électronique n'est stockée dans les données de jeu ; l'adresse de ce compte est détenue par le service d'authentification Firebase, notre sous-traitant, aux seules fins d'authentification (article 7). Lorsque cet enfant reçoit plus tard son propre téléphone, l'adulte qui l'accueille dans le clan peut désigner le profil de joueur qu'il avait créé pour lui : l'enfant retrouve alors ce profil et ses données de jeu sous son propre compte, après avoir exprimé son souhait de jouer et selon la même décision de l'adulte que pour toute entrée dans le clan.</p>
+<p><strong>Représentation d'un enfant.</strong> Pour chaque enfant qui joue sur son propre téléphone, l'application tient un dossier de représentation : qui sont ses parents ou tuteurs légaux, la liste de ses clans (nom du clan, nom de son chef, adulte qui l'y a fait entrer, date), les autorisations données à d'autres clans, et l'historique des gestes de chacun de ses parents ou tuteurs légaux (retrait ou rétablissement du consentement, déclaration de majorité, autorisation ou retrait d'un clan, ajout d'un parent ou tuteur légal et déclaration de celui-ci). Ce dossier n'est visible que de l'enfant et de ses parents ou tuteurs légaux : ceux-ci voient ainsi le nom de chacun des clans de l'enfant et celui de son chef, et rien d'autre de ces clans. Le pseudonyme, l'avatar et le titre porté par l'enfant sont les mêmes dans tous ses clans : les membres de chacun de ces clans les voient. Le reste de ses données de jeu (expérience, niveau, objets, tâches, journal) reste propre à chaque clan. Ce dossier est une preuve, conservée dans les conditions de l'article 8.</p>
 <p><strong>Vos droits en tant que parent.</strong> À tout moment, vous pouvez :</p>
 <ul>
   <li><strong>consulter</strong> les informations personnelles que nous avons collectées auprès de votre enfant :
@@ -138,7 +139,7 @@ ou tuteur, écrivez à <a href="mailto:donjons@grisloup.com">donjons@grisloup.co
   et une description de tâche, et rédiger le récit d'aventure du clan proposé au partage après l'ouverture d'un
   butin. Pour ce dernier usage, <strong>le nom du clan, sa description et le journal des événements du clan
 (lequel contient les pseudonymes choisis par les joueurs) sont transmis au modèle</strong>. Aucune autre
-  information personnelle n'est envoyée : ni identifiant de compte, ni date de naissance, ni photo, ni
+  information personnelle n'est envoyée : ni identifiant de compte, ni date de naissance, ni photo, ni vidéo, ni
   statistique individuelle. Le traitement est réalisé sur une infrastructure Google située aux États-Unis, et les
   données transmises ne servent pas à entraîner les modèles.</li>
 </ul>
@@ -189,6 +190,8 @@ limitée</strong> hors du service, puis l'<strong>effacement définitif</strong>
   qu'un consentement valable (en particulier le consentement parental exigé du représentant légal) a bien été obtenu, et à
   quelle date il a été retiré. Elle est conservée close et désactivée : elle ne sert plus à faire fonctionner le
   service.</li>
+  <li><strong>Dossier de représentation d'un enfant</strong> : c'est une preuve. Il est clos lorsque l'enfant devient adulte ou lorsque son compte est supprimé, puis conservé <strong>5 ans</strong>, en lecture seule, comme les preuves d'acceptation des conditions, avant d'être effacé.</li>
+  <li><strong>Traces des actes qui engagent</strong> : conservées avec les preuves d'acceptation des conditions et selon les mêmes règles : closes à la suppression du compte de leur auteur, puis conservées <strong>5 ans</strong>.</li>
   <li><strong>Données d'un clan bloqué (impayé, résiliation ou fin des mois offerts)</strong> : conservées
   <strong>deux ans</strong> à compter du blocage du clan, puis définitivement supprimées. Cette durée est
   volontairement longue : ce qui coûte à reconstituer n'est pas le clan mais son histoire (les tâches
@@ -200,7 +203,7 @@ limitée</strong> hors du service, puis l'<strong>effacement définitif</strong>
   <li><strong>Abonnement et achats</strong> : l'historique des achats du clan est conservé <strong>deux ans</strong> après la fin de l'abonnement, ou après la fin du dernier mois offert, pour pouvoir répondre à une réclamation. La référence d'achat transmise par Google Play est effacée dès la fin de l'abonnement.</li>
   <li><strong>Codes cadeaux</strong> : la trace de leur utilisation est effacée <strong>30 jours</strong> après la fin de validité du code.</li>
   <li><strong>Données techniques</strong> : historique des connexions <strong>90 jours</strong> ; jeton d'envoi des notifications <strong>30 jours</strong> après la dernière connexion de l'appareil ; compteur d'utilisation des suggestions <strong>48 heures</strong> ; journaux techniques des serveurs <strong>30 jours</strong>.</li>
-  <li><strong>Photos de tâches</strong> : elles restent sur l'appareil du joueur et sont effacées dès que la tâche est jugée, au plus tard à l'ouverture suivante de l'application, lorsque le verdict a été rendu pendant qu'elle était fermée. Supprimer son compte depuis l'application efface également celles qui resteraient.</li>
+  <li><strong>Photos et vidéos de tâches</strong> : elles restent sur l'appareil du joueur et sont effacées dès que la tâche est jugée, au plus tard à l'ouverture suivante de l'application, lorsque le verdict a été rendu pendant qu'elle était fermée. Supprimer son compte depuis l'application efface également celles qui resteraient.</li>
 </ul>
 
 <p><strong>Liste d'attente des betas</strong> : supprimée en totalité à la fin de la phase de beta, ou
@@ -233,12 +236,7 @@ plutôt que d'y donner suite.</p>
 <h3>Retrait du consentement</h3>
 <p>Vous pouvez <strong>retirer votre consentement à tout moment</strong> : le vôtre comme celui que vous avez donné
 en qualité de parent ou tuteur légal pour un enfant que vous faites jouer.</p>
-<p><strong>Pour un enfant que vous faites jouer, le retrait s'exerce depuis l'application</strong>, dans le menu de
-gestion de son personnage : l'option « Retirer mon consentement et effacer les données de cet enfant » est proposée
-aux chefs de son clan d'origine. Elle prend effet immédiatement (l'enfant ne joue plus et ses données ne sont plus
-exposées dans le jeu) puis, après un délai de réflexion de 3 jours pendant lequel un chef du clan d'origine peut revenir sur sa
-  décision, ses données de jeu sont supprimées, puis conservées 30 jours dans les conditions de l'article 8
-  avant leur effacement définitif.</p>
+<p><strong>Pour un enfant que vous faites jouer, le retrait s'exerce depuis l'application</strong>, dans le menu de gestion de son personnage : l'option « Retirer mon consentement et effacer les données de cet enfant » est proposée, pour un enfant qui joue sur son propre téléphone, à ses seuls parents ou tuteurs légaux, et non aux autres chefs de son clan d'origine ; pour un enfant qui joue sur le téléphone d'un adulte, aux chefs de son clan. Le retrait vaut pour tous les clans de l'enfant. Il prend effet immédiatement (l'enfant ne joue plus et ses données ne sont plus exposées dans le jeu) puis, après un délai de réflexion de 3 jours pendant lequel un adulte à qui l'option est proposée peut revenir sur la décision, ses données de jeu sont supprimées dans tous ses clans, puis conservées 30 jours dans les conditions de l'article 8 avant leur effacement définitif. Au terme du délai, nos serveurs exécutent cette suppression, même si l'enfant ne rouvre jamais l'application. Un parent ou un tuteur légal peut aussi retirer l'enfant d'un seul de ses clans, sauf son clan d'origine : ses données dans ce clan sont alors effacées comme celles de tout joueur qui le quitte.</p>
 <p><strong>Pour votre propre consentement, le retrait s'exerce par la suppression de votre compte</strong>, depuis
 l'application ou via <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>.</p>
 <p>Retirer votre consentement met fin au traitement des données de l'enfant. Cela n'empêche pas qu'un autre adulte
@@ -250,7 +248,7 @@ l'invitation d'un adulte qui déclare en répondre.</p>
 celle des profils des enfants dont c'était le clan d'origine, ainsi que de tout profil qui n'appartient plus à
 aucun clan actif, y compris
 les enfants sans compte propre, dont les données de jeu n'existent qu'au sein du clan. Le retrait prend alors
-effet pour eux comme pour vous.</p>
+effet pour eux comme pour vous. Toutefois, le seul parent ou tuteur légal reconnu d'un enfant ne peut pas supprimer son propre compte : il doit d'abord en faire reconnaître un autre, ou supprimer le compte de l'enfant. Un enfant qui garde un autre parent ou tuteur légal reconnu n'est pas supprimé lorsque l'un d'eux supprime son compte.</p>
 <p>Le retrait ne vaut que pour l'avenir : il ne rend pas illicite ce qui a été collecté alors que le consentement
 était valable. C'est précisément pour cela que la preuve du consentement obtenu, et de la date de son retrait, est
 conservée dans les conditions de l'article 8.</p>

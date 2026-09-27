@@ -365,6 +365,8 @@ extension Worker_combat on worker {
                                         await _creditClanXp(clanId, clanSecret, region, playerXp);   // CLAN = part de l'XP RÉELLE (bonus boss compris, plafond appliqué)
                                     } else {
                                         await _touchLastTask(clanId, clanSecret, region, _userId, nowIso);
+                                        // Auto-validation sans XP : le piège s'efface quand même.
+                                        await _clearEventDamage(clanId, clanSecret, region, _userId);
                                     }
 
                                     // Journal : l'admin a fait ET validé sa propre tâche en un coup.
@@ -414,10 +416,10 @@ extension Worker_combat on worker {
                                     return;
                                 }
 
-                                // 3) Non-admin : capture photo via le module dvcamera (caméra OS, stockage local
-                                //    sous uuid). Trois issues :
+                                // 3) Non-admin : capture de la preuve via le module dvcamera (écran de prise de vue interne :
+                                //    photo, ou vidéo sans son ; stockage local sous uuid). Trois issues :
                                 //    - cancelled   : l'utilisateur a annulé → on ne change rien.
-                                //    - captured    : preuve prise → validation avec photo (flux historique).
+                                //    - captured    : preuve prise → validation avec preuve (flux historique).
                                 //    - unavailable : caméra indispo (desktop/pas de caméra/permission refusée)
                                 //                    OU module absent (_camera null) → preuve zappée, la tâche
                                 //                    part quand même en validation (proof vide, sentinelle locale).
@@ -457,7 +459,7 @@ extension Worker_combat on worker {
                                 await Deva.instance.set("session.active_proof", uuid);
 
                                 // 6) Échange des boutons : ok/cancel masqués. "Voir ma preuve" affiché
-                                //    seulement si une photo existe (pas dans le cas preuve zappée).
+                                //    seulement si une preuve existe (pas dans le cas preuve zappée).
                                 final okBtn     = await DvOrb.wait_for_shape("combat/ok");
                                 final cancelBtn = await DvOrb.wait_for_shape("combat/cancel");
                                 final proofBtn  = await DvOrb.wait_for_shape("combat/proof");
@@ -467,7 +469,7 @@ extension Worker_combat on worker {
                                 setVisible(proofBtn, withProof);
     }
 
-    // Bouton "Voir ma preuve" : réaffiche la photo prise (uuid géré par dvsession).
+    // Bouton "Voir ma preuve" : réaffiche la photo ou la vidéo prise (uuid géré par dvsession).
     Future<void> on_combat_proof(DvShape? caller, dynamic event) async {
 
                                 final uuid = (await Deva.instance.get("session.active_proof"))?.toString() ?? "";
@@ -478,7 +480,7 @@ extension Worker_combat on worker {
     }
 
     // --- Cycle de vie du FICHIER de preuve ------------------------------------------------
-    // La photo vit sur l'appareil de celui qui l'a prise ; le verdict est écrit par l'appareil
+    // La preuve (photo ou vidéo) vit sur l'appareil de celui qui l'a prise ; le verdict est écrit par l'appareil
     // qui TRANCHE. Un effacement « au verdict » n'atteint donc pas le fichier quand l'admin
     // décide à distance. Les deux helpers ci-dessous sont un couple, pas un doublon :
     //  - _forgetProof     : immédiat, sur l'appareil du joueur, partout où la preuve est
@@ -511,6 +513,11 @@ extension Worker_combat on worker {
                                 final keep = <String>{};
                                 if (keepUuid.isNotEmpty && keepUuid != _kNoProof) keep.add(keepUuid);
                                 await _camera?.purge(keep);
+                                // Et les originaux d'image_picker restés dans le cache : ceux d'avant
+                                // l'effacement systématique de dvcamera.capture() (beta), ou d'une
+                                // capture interrompue. Une capture en cours (éjection reçue pendant la
+                                // prise de vue) est protégée par dvcamera, qui reporte alors la purge.
+                                await _camera?.purgeCache();
     }
 
     // Bouton "Retraite !" : abandon de la tâche → retour à l'état initial (tiroir).

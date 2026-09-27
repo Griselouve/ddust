@@ -168,6 +168,40 @@ documents:
     - fr      # France — corpus de référence
 
 # =============================================================================
+# AUTOVER : versions et mise à jour forcée (modules dvautover / puautover)
+# =============================================================================
+# Le builder écrit, dans chaque région de chaque cible, le document de version du
+# backend (`<région>-autover`, autover/version) : `target` (ce que Play sert à tous),
+# `min`, `type` et les liens. L'app en dessous de `min` est forcée de se mettre à jour.
+#
+# ⚠ `min` EST DE LA PURE CONF, par cible (`prod`, `test`) : seul l'auteur sait quand
+#   l'infra déployée cesse d'accepter les anciennes versions. C'est un NUMÉRO DE BUILD
+#   (versionCode, `application.build`), jamais une version lisible. 0 = personne n'est
+#   forcé.
+# ⚠ LE BUILDER REFUSE `min` AU-DESSUS DE CE QUE PLAY SERT À TOUS : les joueurs seraient
+#   forcés vers une version introuvable. Correctif critique qui casse les vieilles
+#   apps : `min_force=true`, en connaissance de cause.
+# Design : E:\Deva\tmp\design_dvautover.md
+# =============================================================================
+autover:
+  # Seule la liste des étapes part au client (layer autover-global.yml, publié dans le
+  # bucket : l'application suit ses changements sans nouvelle version).
+  layer:
+    path: resources_cloud/general/layers/autover-global.yml
+    publish:
+      - steps
+  min:
+    prod: 0
+    test: 0
+  # Les builds qui portent une mise à jour de la base. Chacun DOIT avoir son entrée
+  # dans la table STEPS de la fonction métier (backend/config.yml, ddust_autover), et
+  # réciproquement : le builder refuse le déploiement sinon. Une étape publiée est
+  # gelée : une correction se fait par une nouvelle étape.
+  steps: []
+  # La fonction métier vers laquelle la fonction générique `autover` aiguille.
+  function: ddust_autover
+
+# =============================================================================
 # PRÉREQUIS — lus par prompt_roadmap.py
 # =============================================================================
 # ⚠ CE DONT CE PROJET A BESOIN, et qui est construit AILLEURS. Chaque entrée dit
@@ -302,6 +336,16 @@ requis:
     - ddust/loots
   premier pas:
     - grisloup/micro
+  facturation:
+    - deva/dvstore
+    - deva/pustore
+  lancement et acquisition:
+    - ddust/premierpas
+  pre-beta:
+    - ddust/pub
+    - ddust/légal
+  multitenant:
+    - ddust/premierpas
 build:
   sequence:
   - backend
@@ -319,10 +363,14 @@ build:
   # et lit tout le reste (cf. `deploy.scope` dans le build.yml de chaque module
   # pulumi, et builder._strip_owner_scoped).
   #
-  # ⚠ LA BASCULE EST AUTOMATIQUE ET SANS ÉCHAPPATOIRE : mode snapshot → `test`,
-  #   patch/minor/major → `prod`. Déployer l'infra de production exige donc une
-  #   release d'application, et c'est voulu : rien ne part vers le projet qui sert
-  #   les joueurs sans que quelqu'un ait décidé de publier.
+  # ⚠ LA BASCULE EST AUTOMATIQUE POUR L'INFRA : mode snapshot → `test`,
+  #   replace/patch/minor/major → `prod`. Rien ne part vers le projet qui sert les
+  #   joueurs sans que quelqu'un ait choisi un mode qui le vise.
+  #
+  # ⚠ LE CLIENT, LUI, NE SUIT PAS LA CIBLE (2026-09-23). Un client SNAPSHOT connaît
+  #   TOUJOURS les deux : les régions de `prod` ET celles de `test`, avec la case
+  #   « serveurs de test » (cf. `test.test_servers`). Un client de RELEASE ne connaît
+  #   que `prod`. C'est vrai quelle que soit la piste Play où atterrit le binaire.
   #
   # ⚠ NE JAMAIS RENOMMER NI RÉORDONNER `prod`. Ses valeurs sont exactement celles
   #   d'avant l'introduction des cibles : c'est ce qui fait qu'il n'y a aucune
@@ -353,42 +401,6 @@ build:
           label: "Europe"
           backend: "europe-west9"
 
-      # ===================================================================
-      # LES SERVEURS D'ESSAI, OFFERTS AU JOUEUR D'UN BUILD DE TEST
-      # ===================================================================
-      # Ce bloc ne concerne QUE le client, QUE les builds snapshot, et QUE la
-      # cible où il est déclaré. Il ajoute `EUT` aux régions que l'app connaît
-      # et arme, sur l'écran du choix du pays, une case « serveurs de test »
-      # cochée par défaut.
-      #
-      # ⚠ IL EST SOUS `prod`, ET C'EST LE POINT. La forme de la bêta fermée est
-      #   `target=prod` avec un mode snapshot : le client connaît alors les DEUX
-      #   datacenters et le testeur tranche. Un snapshot ordinaire (sans
-      #   `target=`) vise la cible `test`, ne voit qu'`EUT`, et n'a donc aucune
-      #   case à montrer : c'est la boucle de développement, inchangée.
-      #
-      # ⚠ LE PAYS RESTE LE PAYS. Le joueur choisit son marché, donc ses CGU,
-      #   sa langue et son droit ; la case ne déplace que le DATACENTER. Un
-      #   testeur français coché « serveurs de test » lit les CGU françaises
-      #   et vit dans `eut-*`.
-      #
-      # ⚠ UN BUILD PUBLIANT N'EN VOIT RIEN. `_apply_target_conf` ne pose ce
-      #   bloc qu'en mode snapshot : l'app publiée ne connaît ni la région
-      #   ni son existence, et `cloud.region` y est figée sur `eu` comme
-      #   avant. C'est ce qui rend la case impossible à activer chez un
-      #   joueur ordinaire, sans rien avoir à verrouiller.
-      #
-      # ⚠ COCHÉE PAR DÉFAUT, ET C'EST ASSUMÉ : une bêta fermée sert d'abord
-      #   à éprouver l'infrastructure d'essai. Les données des testeurs
-      #   vivent donc dans `eut-*` et devront être recopiées le jour de la
-      #   bascule en production. Passer `default: false` inverse le choix
-      #   sans rien changer d'autre.
-      test_servers:
-        cloud:      eut
-        region_key: EUT
-        label:      "Europe (essai)"
-        default:    true
-
     test:
       graft: true          # ne possède rien de global
       suffix: "_t"         # alias d'état : backend -> backend_t
@@ -398,9 +410,37 @@ build:
           label: "Europe (essai)"
           backend: "europe-west9"
 
+      # ===================================================================
+      # LES SERVEURS D'ESSAI, OFFERTS À TOUT CLIENT SNAPSHOT
+      # ===================================================================
+      # Tout client construit en SNAPSHOT (piste interne, bêta fermée), quelle
+      # que soit la cible du run, connaît les régions de `prod` ET celles
+      # déclarées ci-dessus, et montre sur l'écran du pays une case « serveurs
+      # de test ». Cochée : l'app vit dans `eut-*`. Décochée : dans le
+      # datacenter du pays (`eu-*` pour la France). Un client de RELEASE (bêta
+      # ouverte, production) ne connaît ni la région ni la case.
+      #
+      # ⚠ LE PAYS RESTE LE PAYS. Le joueur choisit son marché, donc ses CGU,
+      #   sa langue et son droit ; la case ne déplace que le DATACENTER.
+      #
+      # ⚠ DÉCOCHÉE, UN SNAPSHOT TOURNE CONTRE LA PRODUCTION : bases, fonctions
+      #   et assets EU tels qu'au dernier replace. C'est ce que la case sert à
+      #   éprouver, et ce qui casse si le snapshot attend du neuf.
+      #
+      # ⚠ COCHÉE PAR DÉFAUT : les données des testeurs vivent dans `eut-*` et
+      #   devront être recopiées le jour venu. `default: false` inverse le choix.
+      #
+      # La clé de région et le cloud se déduisent de `regions` ci-dessus (`EUT`,
+      # `eut`) : les redire ici, c'était deux vérités à tenir d'accord.
+      test_servers:
+        label:      "Europe (essai)"
+        default:    true
+
       # Le marché `fr` est servi par le datacenter `eut` sur cette cible. Le builder
       # écrit cette table sous ses DEUX orthographes : `documents.region_overrides`
       # pour pudocuments, `documents.region.overrides` pour dvdocuments.
+      # ⚠ POUR LE BACKEND SEULEMENT depuis le 2026-09-23 : un client snapshot n'est
+      #   plus routé d'office vers `eut`, c'est la case qui décide.
       # Le joueur, lui, ne voit rien : il choisit un PAYS, et la liste reste celle
       # des marchés ouverts. Une clé de `regions` n'apparaît jamais dans l'écran.
       market_cloud:
@@ -477,6 +517,10 @@ build:
           # Invitations privées des chefs (worker._publishInvite). Absentes de cette
           # liste, elles survivraient au reset, avec la déclaration scellée que chacune porte.
           - clans_invites
+          # Représentation des enfants (multiclan). Absente, un enfant recréé après un reset
+          # hériterait des représentants et des gestes d'un enfant qui n'existe plus.
+          - guardianship
+          - guardian_drops
           - userindexes
           - users
       # Registre PERSONNEL des achats (base dédiée du module pustore) : un document par
@@ -828,7 +872,7 @@ listing:
   # ⚠ Copie COMMERCIALE, pas de la conf technique : elle se relit avant d'être
   # collée. Les six versions étrangères sont des ADAPTATIONS : la chute joue sur
   # épées/éponges, qui ne se traduit pas mot à mot. Les arguments de conformité
-  # (pas de pub, pas de traceur, photos qui restent sur l'appareil, données en
+  # (pas de pub, pas de traceur, photos et vidéos jamais envoyées, données en
   # Europe) sont conservés tels quels dans les sept : ce sont eux qui portent la
   # promesse, et ils doivent rester vrais.
   long_fr: |
@@ -840,13 +884,13 @@ listing:
     • Un parent fonde le clan et invite la famille (QR code ou lien sécurisé).
     • Chacun choisit son avatar et son nom d'aventurier.
     • Ranger sa chambre, sortir les poubelles, mettre la table : 19 domaines et plus de 150 tâches, ajustés à votre foyer — et vos propres tâches en plus.
-    • Les parents valident les exploits (preuve photo possible — elle reste sur le téléphone).
+    • Les parents valident les exploits (preuve possible en photo ou courte vidéo muette, jamais envoyée).
     • XP, niveaux, titres, points de vie, journal du clan et cérémonies d'ouverture du butin.
 
     👨‍👩‍👧‍👦 Pensé pour les familles
     • Aucune publicité, aucun traceur, aucun achat surprise.
     • Les mineurs ne rejoignent un clan qu'avec le consentement d'un adulte responsable.
-    • Les photos ne quittent jamais l'appareil ; les données restent hébergées en Europe.
+    • Photos et vidéos restent sur le téléphone, jamais envoyées à nos serveurs ; les données sont hébergées en Europe.
     • Suppression de compte autonome, dans l'app ou sur le site.
 
     Le butin est la promesse tenue. À vos épées — et à vos éponges !
@@ -860,13 +904,13 @@ listing:
     • A parent founds the clan and invites the family (QR code or secure link).
     • Everyone picks an avatar and an adventurer name.
     • Tidying a bedroom, taking out the bins, setting the table: 19 areas and more than 150 tasks, tuned to your household — plus any you add yourself.
-    • Parents validate each feat (photo proof optional — it never leaves the phone).
+    • Parents validate each feat (optional proof: a photo or a short silent video, never uploaded).
     • XP, levels, titles, hit points, clan log and loot-opening ceremonies.
 
     👨‍👩‍👧‍👦 Built for families
     • No ads, no trackers, no surprise purchases.
     • Minors only join a clan with the consent of a responsible adult.
-    • Photos never leave the device; data stays hosted in Europe.
+    • Photos and videos stay on the phone, never sent to our servers; data stays hosted in Europe.
     • Delete your account yourself, in the app or on the website.
 
     The loot is the promise kept. Grab your swords — and your sponges!
@@ -880,13 +924,13 @@ listing:
     • Un adulto funda el clan e invita a la familia (código QR o enlace seguro).
     • Cada cual elige su avatar y su nombre de aventurero.
     • Ordenar la habitación, sacar la basura, poner la mesa: 19 ámbitos y más de 150 tareas, ajustadas a vuestro hogar, además de las que añadáis vosotros.
-    • Los padres validan las hazañas (con foto opcional, que nunca sale del teléfono).
+    • Los padres validan las hazañas (con foto o vídeo corto sin sonido opcional, que nunca se envía).
     • XP, niveles, títulos, puntos de vida, diario del clan y ceremonias de apertura del botín.
 
     👨‍👩‍👧‍👦 Pensado para familias
     • Sin publicidad, sin rastreadores, sin compras sorpresa.
     • Los menores solo entran en un clan con el consentimiento de un adulto responsable.
-    • Las fotos nunca salen del dispositivo; los datos se alojan en Europa.
+    • Fotos y vídeos se quedan en el teléfono, nunca se envían a nuestros servidores; los datos se alojan en Europa.
     • Puedes eliminar tu cuenta tú mismo, en la app o en la web.
 
     El botín es la promesa cumplida. ¡A por vuestras espadas... y vuestras esponjas!
@@ -900,13 +944,13 @@ listing:
     • Ein Elternteil gründet den Clan und lädt die Familie ein (QR-Code oder sicherer Link).
     • Jeder wählt seinen Avatar und seinen Abenteurernamen.
     • Zimmer aufräumen, Müll rausbringen, Tisch decken: 19 Bereiche und über 150 Aufgaben, auf euren Haushalt abgestimmt, dazu eure eigenen Aufgaben.
-    • Die Eltern bestätigen die Heldentaten (Fotobeweis möglich, das Foto bleibt auf dem Handy).
+    • Die Eltern bestätigen die Heldentaten (Beweis per Foto oder kurzem Video ohne Ton möglich, nie hochgeladen).
     • XP, Stufen, Titel, Lebenspunkte, Clantagebuch und Zeremonien zum Öffnen der Beute.
 
     👨‍👩‍👧‍👦 Für Familien gemacht
     • Keine Werbung, keine Tracker, keine überraschenden Käufe.
     • Minderjährige treten einem Clan nur mit Zustimmung eines verantwortlichen Erwachsenen bei.
-    • Fotos verlassen nie das Gerät; die Daten bleiben in Europa gespeichert.
+    • Fotos und Videos bleiben auf dem Handy und werden nie an unsere Server gesendet; die Daten bleiben in Europa gespeichert.
     • Konto selbst löschen, in der App oder auf der Website.
 
     Die Beute ist das gehaltene Versprechen. Zu den Schwertern… und zu den Schwämmen!
@@ -920,13 +964,13 @@ listing:
     • Un genitore fonda il clan e invita la famiglia (codice QR o link sicuro).
     • Ognuno sceglie il suo avatar e il suo nome da avventuriero.
     • Riordinare la camera, portare fuori la spazzatura, apparecchiare la tavola: 19 ambiti e più di 150 compiti, adattati alla vostra casa, più i compiti che aggiungete voi.
-    • I genitori convalidano le imprese (prova fotografica possibile, la foto resta sul telefono).
+    • I genitori convalidano le imprese (prova possibile con foto o breve video muto, mai inviati).
     • XP, livelli, titoli, punti vita, diario del clan e cerimonie di apertura del bottino.
 
     👨‍👩‍👧‍👦 Pensato per le famiglie
     • Nessuna pubblicità, nessun tracciamento, nessun acquisto a sorpresa.
     • I minori entrano in un clan solo con il consenso di un adulto responsabile.
-    • Le foto non lasciano mai il dispositivo; i dati restano ospitati in Europa.
+    • Foto e video restano sul telefono e non vengono mai inviati ai nostri server; i dati restano ospitati in Europa.
     • Eliminazione dell'account in autonomia, nell'app o sul sito.
 
     Il bottino è la promessa mantenuta. Alle spade… e alle spugne!
@@ -940,13 +984,13 @@ listing:
     • Um dos pais funda o clã e convida a família (código QR ou link seguro).
     • Cada um escolhe o seu avatar e o seu nome de aventureiro.
     • Arrumar o quarto, levar o lixo, pôr a mesa: 19 áreas e mais de 150 tarefas, ajustadas ao vosso lar, além das que vocês acrescentarem.
-    • Os pais validam as proezas (prova fotográfica opcional, a foto nunca sai do telemóvel).
+    • Os pais validam as proezas (prova opcional com fotografia ou vídeo curto sem som, nunca enviados).
     • XP, níveis, títulos, pontos de vida, diário do clã e cerimónias de abertura do espólio.
 
     👨‍👩‍👧‍👦 Pensado para famílias
     • Sem publicidade, sem rastreadores, sem compras surpresa.
     • Os menores só entram num clã com o consentimento de um adulto responsável.
-    • As fotos nunca saem do dispositivo; os dados ficam alojados na Europa.
+    • Fotos e vídeos ficam no telemóvel e nunca são enviados para os nossos servidores; os dados ficam alojados na Europa.
     • Podes eliminar a tua conta sozinho, na app ou no site.
 
     O espólio é a promessa cumprida. Às espadas… e às esponjas!
@@ -960,13 +1004,13 @@ listing:
     • Um dos pais cria o clã e convida a família (QR Code ou link seguro).
     • Cada um escolhe seu avatar e seu nome de aventureiro.
     • Arrumar o quarto, levar o lixo, pôr a mesa: 19 áreas e mais de 150 tarefas, ajustadas à casa de vocês, além das que vocês criarem.
-    • Os pais validam as façanhas (prova com foto opcional, a foto nunca sai do celular).
+    • Os pais validam as façanhas (prova opcional com foto ou vídeo curto sem som, nunca enviados).
     • XP, níveis, títulos, pontos de vida, diário do clã e cerimônias de abertura do tesouro.
 
     👨‍👩‍👧‍👦 Feito para famílias
     • Sem anúncios, sem rastreadores, sem compras surpresa.
     • Menores só entram num clã com o consentimento de um adulto responsável.
-    • As fotos nunca saem do aparelho; os dados ficam hospedados na Europa.
+    • Fotos e vídeos ficam no celular e nunca são enviados para nossos servidores; os dados ficam hospedados na Europa.
     • Você mesmo pode excluir sua conta, no app ou no site.
 
     O tesouro é a promessa cumprida. Às espadas… e às esponjas!
@@ -980,13 +1024,13 @@ listing:
     • Een ouder sticht de clan en nodigt het gezin uit (QR-code of beveiligde link).
     • Iedereen kiest een avatar en een avonturiersnaam.
     • Je kamer opruimen, het vuilnis buitenzetten, de tafel dekken: 19 domeinen en meer dan 150 taken, afgestemd op jullie huishouden, plus de taken die jullie zelf toevoegen.
-    • De ouders valideren de heldendaden (fotobewijs mogelijk, de foto blijft op de telefoon).
+    • De ouders valideren de heldendaden (bewijs mogelijk met een foto of korte video zonder geluid, nooit verstuurd).
     • XP, niveaus, titels, levenspunten, clandagboek en ceremonies om de buit te openen.
 
     👨‍👩‍👧‍👦 Gemaakt voor gezinnen
     • Geen reclame, geen trackers, geen verrassingsaankopen.
     • Minderjarigen komen alleen in een clan met toestemming van een verantwoordelijke volwassene.
-    • Foto's verlaten nooit het toestel; de gegevens blijven in Europa gehost.
+    • Foto's en video's blijven op de telefoon en worden nooit naar onze servers verstuurd; de gegevens blijven in Europa gehost.
     • Je account zelf verwijderen, in de app of op de website.
 
     De buit is de gehouden belofte. Naar de zwaarden… en naar de sponzen!
@@ -1094,6 +1138,19 @@ store:
   play:
 
     package: com.grisloup.ddust_client
+
+    # Le CLONE de développement. Tout APK (canal Telegram dev) sort sous
+    # `<package><suffix>`, signé par la clé du framework, à côté de la version du
+    # Store, re-signée par Google : deux certificats pour un même package, Android
+    # refuserait de passer de l'un à l'autre sans désinstaller. L'AAB garde le vrai
+    # package. Bloc absent = aucun clone, l'APK porte le package du Store.
+    #
+    # La variante ne vit que dans la ligne de commande de l'APK (-P dvclone=dev et
+    # --dart-define=DV_CLONE=dev) : rien sur disque, aucun résidu pour l'AAB.
+    # Pas d'achat sur le clone : store_verify attend le package du Store.
+    clone:
+      suffix: .dev
+      label: ' dev'       # ajouté au display_name de l'application
 
     # Référentiel des régions Play. Le figer évite qu'une mise à jour du
     # référentiel chez Google ne déplace des pays sous nos pieds au prochain build.
@@ -3177,7 +3234,7 @@ revenus:
     # contenu offert : aucune vente, uniquement de la rétention
     'a6728b19f4b1':
       # --- roadmap (console deva) ---
-      rank: 115
+      rank: 170
       store: true
       rsp: 233
       nom: 'defis'
@@ -3187,12 +3244,29 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**mise à jour gratuite** — défis hebdomadaires, succès et titres, POKEDEX et objets de collection. Ce que le site annonce sous « Plus de contenu ». Premier update après le lancement : il n''a pas à se vendre, il a à ramener les familles'
-      last_modification: '2026-09-17T02:01:24'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       churn_facteur: 0.9875
       duree_contenu_mois: 2
       perte_evitee: 45
       gratuit: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3297,7 +3371,7 @@ revenus:
     #   qui ferme le bloc des onze — « dernier livré l'emporte ».
     '0877dd1dcfb0':
       # --- roadmap (console deva) ---
-      rank: 180
+      rank: 200
       store: true
       rsp: 610
       nom: 'loots'
@@ -3306,7 +3380,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — « Extension Butin », 7.99 €, le produit le plus cher du catalogue** — or, boutique des héros, loot aléatoire, objets et équipement, faveurs, saisons et affiliation. ⚠ **CE LOT PORTE LES MOTEURS DE QUÊTES ET DE POTIONS**, pas seulement l''économie : c''est lui qui ouvre la boutique et rend vendables les dix lots de contenu qui le suivent. Ses six packs sont partis vivre dans leurs propres lots. *Éclaté le 2026-09-04 : il agrégeait six produits vendus séparément.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
@@ -3406,9 +3480,26 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '1c1703f9c5bd':
       # --- roadmap (console deva) ---
-      rank: 280
+      rank: 300
       store: true
       rsp: 377
       nom: 'minijeux'
@@ -3418,7 +3509,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**mise à jour gratuite** — mini-jeux pour vaincre les monstres aléatoires (énigme, réflexe, memory, question piège). **Code assumé**, bâti sur le moteur d''événements livré au MVP'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       churn_facteur: 0.95
       duree_contenu_mois: 2
@@ -3520,9 +3611,26 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '5b617e0e5480':
       # --- roadmap (console deva) ---
-      rank: 370
+      rank: 390
       store: true
       rsp: 233
       nom: 'classes'
@@ -3532,7 +3640,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante à 6.99 €** (décision 2026-08-24), deuxième prix du catalogue derrière « Butin » — classes de personnage : voies, avantages et inconvénients, synergies de clan. Ce n''est pas un pack de contenu mais une **extension majeure du jeu** : un thème rhabille l''aventure, une classe la rejoue autrement'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       churn_facteur: 0.9375
       revenu_direct: 18
@@ -3633,9 +3741,26 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '0b7c8f278959':
       # --- roadmap (console deva) ---
-      rank: 455
+      rank: 458
       store: true
       rsp: 144
       nom: 'theme_pirates'
@@ -3645,10 +3770,27 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er thème, 5.99 €** — rejouer l''aventure en univers pirate. ⚠ **CE LOT PORTE LE SYSTÈME DE THÈMES**, pas seulement son contenu : c''est lui qui essuie les plâtres — bascule d''univers, déclinaison des assets, des libellés et du ton. Les deux thèmes suivants n''ont plus que leur contenu à produire, d''où leur estimation bien plus basse. *Détaché de `themes` le 2026-09-02.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3743,7 +3885,7 @@ revenus:
 
     'b4483c2704e7':
       # --- roadmap (console deva) ---
-      rank: 500
+      rank: 520
       store: true
       rsp: 55
       nom: 'theme_casanostra'
@@ -3753,10 +3895,27 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e thème, 5.99 €** — univers mafia. Le système de thèmes existe déjà (`theme_pirates`) : il ne reste que le contenu. *Détaché de `themes` le 2026-09-02.'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3851,7 +4010,7 @@ revenus:
 
     '1521505a498c':
       # --- roadmap (console deva) ---
-      rank: 590
+      rank: 610
       store: true
       rsp: 55
       nom: 'theme_starsweep'
@@ -3861,11 +4020,28 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e thème, 5.99 €** — space opera. Contenu seul, comme le précédent. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DES TROIS**, et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et la valeur 0.9312 décrivait l''état du modèle une fois les TROIS thèmes sortis. Le poser sur chacun aurait fait obtenir au premier thème seul le bénéfice de rétention des trois. *Détaché de `themes` le 2026-09-02.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       churn_facteur: 0.925
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3969,7 +4145,7 @@ revenus:
 
     '3df87efd34d2':
       # --- roadmap (console deva) ---
-      rank: 170
+      rank: 190
       store: true
       rsp: 21
       nom: 'validations automatiques'
@@ -3978,10 +4154,27 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — validations automatiques, 1.99 €** — réglables par enfant, et définitives. À ne pas confondre avec l''effet temporaire « validation auto 3 jours » d''une potion. Le produit le moins cher du catalogue, et le seul du bloc qui ne dépende d''aucune mécanique de `loots` : il ne réclame que le socle d''achat d''extensions, livré au MVP. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4049,7 +4242,7 @@ revenus:
 
     '71b889d2505e':
       # --- roadmap (console deva) ---
-      rank: 190
+      rank: 210
       store: true
       rsp: 34
       nom: 'quetes I'
@@ -4058,10 +4251,27 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er pack de quêtes, 3.99 €** — contenu seul : la mécanique de quêtes vit dans `loots`, publié avant. Il sort dans la foulée de l''Extension Butin, pour qu''une boutique qui s''ouvre ne soit pas vide. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4129,7 +4339,7 @@ revenus:
 
     '81291102e209':
       # --- roadmap (console deva) ---
-      rank: 310
+      rank: 330
       store: true
       rsp: 34
       nom: 'quêtes II'
@@ -4138,10 +4348,27 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4209,7 +4436,7 @@ revenus:
 
     '0ab7912989d0':
       # --- roadmap (console deva) ---
-      rank: 380
+      rank: 400
       store: true
       rsp: 34
       nom: 'quêtes III'
@@ -4218,7 +4445,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e et dernier pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
@@ -4287,9 +4514,26 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     'ecb38169ab68':
       # --- roadmap (console deva) ---
-      rank: 200
+      rank: 220
       store: true
       rsp: 34
       nom: 'potions I'
@@ -4298,7 +4542,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er pack de potions, 3.99 €** — contenu seul : la mécanique de potions vit dans `loots`, publié avant. Livré dans la même foulée que le premier pack de quêtes. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
@@ -4367,9 +4611,26 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '09a10ee9b42d':
       # --- roadmap (console deva) ---
-      rank: 320
+      rank: 340
       store: true
       rsp: 34
       nom: 'potions II'
@@ -4378,10 +4639,27 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4449,7 +4727,7 @@ revenus:
 
     '4333deadd8b3':
       # --- roadmap (console deva) ---
-      rank: 390
+      rank: 410
       store: true
       rsp: 34
       nom: 'potions III'
@@ -4459,7 +4737,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e et dernier pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
@@ -4528,9 +4806,26 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '13a9e8d0a1b9':
       # --- roadmap (console deva) ---
-      rank: 300
+      rank: 320
       store: true
       rsp: 55
       nom: 'devoirs faits'
@@ -4539,7 +4834,7 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack « Devoirs faits », 3.99 €** — **le seul pack qui traverse les trois mécaniques** : quête (« 13 de moyenne générale »), tâches additionnelles (« Apprendre le cours de maths ») et potion (« +15 % XP sur les exercices de SVT »). D''où 55rsp là où les autres packs valent 34. C''est aussi le plus vendable aux parents — il répond à la seule chose qu''ils n''arrivent pas à faire tenir par la routine. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 2
       duree_contenu_mois: 2
@@ -4608,9 +4903,26 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '258ff7d2b854':
       # --- roadmap (console deva) ---
-      rank: 400
+      rank: 420
       store: true
       rsp: 21
       nom: 'pack bricolage'
@@ -4620,10 +4932,27 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack de tâches « Bricolage », 3.99 €** — contenu YAML pur dans un pipeline déjà livré : aucune mécanique requise, d''où la cotation la plus basse du bloc. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4695,7 +5024,7 @@ revenus:
     #   Meme regle que `theme_starsweep` pour les themes.
     'cbe53f2e0c9b':
       # --- roadmap (console deva) ---
-      rank: 290
+      rank: 310
       store: true
       rsp: 21
       nom: 'routine'
@@ -4704,11 +5033,28 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack de tâches « Routine », 3.99 €** — se brosser les dents, préparer son cartable la veille… Contenu YAML pur, aucune mécanique requise. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DU BLOC** (0.9625), et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et cette valeur décrit l''état du modèle une fois les ONZE lots sortis. Même règle que `theme_starsweep` pour les thèmes. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
       # --- economie (console deva) ---
       churn_facteur: 0.9625
       revenu_direct: 15
       duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4870,16 +5216,34 @@ revenus:
 
     '37efb92085ab':
       # --- roadmap (console deva) ---
-      rank: 80
+      rank: 82
       store: false
       rsp: 1597
       nom: 'premier pas'
       id: '37efb92085ab'
+      livre: '2026-09-27'
       rampup_semaines: 10
       maint_demarrage: 3.0
       maint_croisiere: 2.0
       description: '**le MVP complet : lancement commercial FR/EN/ES puis consolidation.** Boucle de jeu, butin, abonnements, offre fondateurs, parrainage, corpus légal multirégion, publication Play — puis multitenancy, facturation multi-clan, notifications métier, invitations à distance et réserve de feedback. *Fusion du 2026-08-29 des lots `beta` (lancement, 377rsp) et `mvp` (consolidation, 610rsp). Ddust rentre dans la forme commune du portefeuille — un MVP puis des extensions — et les deux noms trompeurs disparaissent. L''historique du produit n''est pas perdu : il vit dans `ddust/produit`, livré le 2026-08-22.* ⚠ **Prérequis : `grisloup/mvp`** — seule l''immatriculation ouvre le compte Play organisation et fournit le SIREN du corpus légal.'
-      last_modification: '2026-09-17T01:57:37'
+      last_modification: '2026-09-27T01:50:13'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4977,7 +5341,7 @@ revenus:
 
     '0f3ce68de9ba':
       # --- roadmap (console deva) ---
-      rank: 160
+      rank: 180
       store: false
       rsp: 34
       nom: 'ios'
@@ -4987,7 +5351,24 @@ revenus:
       maint_demarrage: 0.25
       maint_croisiere: 0.25
       description: '**portage iOS de l''app** — fiche App Store Connect dans les sept langues, catalogue d''achats recréé côté Apple, revue, recette sur appareil. ⚠ **C''est CE lot qui fait entrer les utilisateurs iOS**, pas `deva/ios` : le passage framework rend le portage possible, il ne publie rien. *Une plateforme de plus à entretenir.*'
-      last_modification: '2026-09-17T01:30:18'
+      last_modification: '2026-09-26T15:04:19'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5141,6 +5522,23 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '3ee5cdbbf4e8':
       # --- roadmap (console deva) ---
       rank: 20020
@@ -5154,6 +5552,23 @@ revenus:
       maint_croisiere: 0.0
       description: '**le clan** — le créer, le rejoindre par QR code ou par lien, le roster de ses membres, la promotion d''un chef. C''est la porte d''entrée de l''app : un joueur qui n''arrive pas à rejoindre son clan n''a rien à faire dedans.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5307,6 +5722,23 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '982e1c595070':
       # --- roadmap (console deva) ---
       rank: 20040
@@ -5320,6 +5752,23 @@ revenus:
       maint_croisiere: 0.0
       description: '**le cœur de la boucle** — prendre, relâcher, terminer une tâche, la faire valider par un parent, gérer les domaines, les tâches mortelles et immortelles et leur respawn. C''est ce que l''app fait, tout le reste l''entoure.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5473,6 +5922,23 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '5ad520b40c19':
       # --- roadmap (console deva) ---
       rank: 20060
@@ -5486,6 +5952,23 @@ revenus:
       maint_croisiere: 0.0
       description: '**garder l''app vivante quand elle est fermée** — notifications push, décroissance des PV, balayeur de relance d''engagement. Sans ça une app familiale s''oublie en trois jours.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5639,6 +6122,23 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     'c03a9e06baad':
       # --- roadmap (console deva) ---
       rank: 20080
@@ -5652,6 +6152,23 @@ revenus:
       maint_croisiere: 0.0
       description: '**269 images, faites une par une** — 218 medium, 33 small, 14 big, 4 splashs, plus les 10 visuels du Play Store. Le code de ddust est vibe-codé, donc rapide ; ces pièces-là ne le sont pas, et trouver les bons outils a pris du temps. Rien de tout cela n''apparaît dans une mesure de volume de code.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5805,6 +6322,23 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '3ca5a6277c98':
       # --- roadmap (console deva) ---
       rank: 20100
@@ -5818,6 +6352,23 @@ revenus:
       maint_croisiere: 0.0
       description: '**le moment où l''app prend la main sur les sens** — montée de niveau, mort et gage, guérison, coup de pouce, la Fée. Une image, un son qui l''annonce, une vibration, et un écran qui ne répond plus le temps que ça se joue.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -5971,6 +6522,23 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     'bfdf9b81c269':
       # --- roadmap (console deva) ---
       rank: 20120
@@ -5984,6 +6552,23 @@ revenus:
       maint_croisiere: 0.0
       description: '**la récompense** — inventaire, coffre, distribution, et la cérémonie d''ouverture. Le seul moment de l''app où l''objet numérique renvoie à un objet physique posé sur une table.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6076,6 +6661,23 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     '2fb66c075ba3':
       # --- roadmap (console deva) ---
       rank: 62
@@ -6090,6 +6692,23 @@ revenus:
       maint_croisiere: 0.0
       description: '**Ce que le produit doit faire pour que les documents ne mentent pas.** Correctifs et écrans dictés par une obligation — RGPD, politique Google Play Families, article 7 de la loi colombienne 1581 — et par les points de `docs/interestActionPoints.txt` : journal filtré des relances de paiement, photos effacées au verdict, prénoms substitués avant l''appel au modèle, avis de l''enfant recueilli avant tout traitement, retrait de consentement proportionné, relances sorties du mode simulation. *Ne porte aucune fonctionnalité produit : chaque tâche d''ici existe parce qu''une phrase publiée en dépend.*'
       last_modification: '2026-09-15T21:37:57'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6122,6 +6741,23 @@ revenus:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     'b68ba8193315':
       # --- roadmap (console deva) ---
       rank: 66
@@ -6136,6 +6772,138 @@ revenus:
       maint_croisiere: 0.0
       description: '**Les prérequis de la publication.** Chaîne de versioning (builder, et détection de mise à jour côté client), feuilles de saisie versionnées dans `delivery/`, lien Play Console ↔ projet GCP sans lequel `store_verify` ne peut acquitter aucun achat, visuels de la fiche. *Porte le drapeau `mvp` : c''est sa livraison qui signifie « l''app est publiée », et qui fait basculer le projet de `implementation` à `exploitation`.*'
       last_modification: '2026-09-16T23:21:52'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    'e8b1dc21bd00':
+      # --- roadmap (console deva) ---
+      rank: 95
+      store: false
+      rsp: 89
+      nom: 'facturation'
+      id: 'e8b1dc21bd00'
+      accroche: 'Regroupement de tout le sous-système de facturation, des abonnements, des coupons et des relances d''impayé dans un module dédié.'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: |-
+        Ce lot livre l'extraction et l'encapsulation de toute la logique liée au modèle économique de Donjons & Savons : gestion des abonnements, intégration des in-app purchases (Play Store / App Store), système de coupons, gestion du cycle de vie des impayés (défaut de paiement, grace, lock) et intégration de la passerelle de facturation.
+        Il ne livre pas de nouvelles quêtes ni de modification des mécaniques de jeu (XP, butin, combat). 
+      last_modification: '2026-09-26T15:04:19'
+      # --- economie (console deva) ---
+      gratuit: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '50633bdf8758':
+      # --- roadmap (console deva) ---
+      rank: 100
+      store: false
+      rsp: 55
+      nom: 'lancement et acquisition'
+      id: '50633bdf8758'
+      accroche: 'Campagne de lancement et acquisition pour faire connaître l''application sur les réseaux et de proximité'
+      rampup_semaines: 4
+      maint_demarrage: 0.5
+      maint_croisiere: 0.0
+      description: |-
+        Ce lot livre la mise en place et l'animation des canaux d'acquisition et de promotion de Donjons & Savons pour le lancement : création et configuration du compte TikTok, campagnes de flyers pour les écoles et commerces locaux, seeding sur les subreddits et groupes de parents (FR+EN).
+        Il ne livre pas la génération des vidéos par IA (déjà portée par le MVP), ni la refonte des mécaniques de jeu.
+      last_modification: '2026-09-26T15:04:19'
+      # --- economie (console deva) ---
+      acquisition_facteur: 1.05
+      panier_facteur: 1.0
+      duree_contenu_mois: 2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    '9f24f26cf4f8':
+      # --- roadmap (console deva) ---
+      rank: 90
+      store: false
+      rsp: 55
+      nom: 'pre-beta'
+      id: '9f24f26cf4f8'
+      accroche: 'Préparation finale et conformité avant soumission de l''application en test fermé Google Play'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: |-
+        Ce lot regroupe toutes les actions de dernière minute requises avant de soumettre l'application à Google pour sa revue en vue du test fermé : vérification et alignement final du corpus légal (CGU, privacy, mentions éditeur, DPA, conformité famille), finalisation des assets et fiches store de publication, vérification des points d'audit de l'intérêt supérieur de l'enfant et des flux de données (suppression, consentement, sandbox/sandbox-test, vérification des comptes de service). 
+
+        Il ne livre ni nouvelle mécanique de jeu, ni extension payante, ni nouveau pack de contenu.
+      last_modification: '2026-09-26T15:04:19'
+      # --- economie (console deva) ---
+      gratuit: true
+
+
+
+
+
+
+
+
+
+
+
+    '8617f4232140':
+      # --- roadmap (console deva) ---
+      rank: 85
+      store: false
+      rsp: 144
+      nom: 'multitenant'
+      id: '8617f4232140'
+      accroche: 'Gestion complète du multitenant et du basculement entre clans'
+      livre: '2026-09-27'
+      rampup_semaines: 0
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: |-
+        Ce lot livre le support complet du multitenant : la gestion de plusieurs clans par un même utilisateur, le basculement rapide d'un clan à l'autre, la centralisation des demandes d'adhésion et la gestion sécurisée des profils multiples. 
+
+        Il ne livre pas la modification des abonnements croisés ni les mécaniques de quêtes ou de butin associées aux clans secondaires.
+      last_modification: '2026-09-27T03:32:58'
+      # --- economie (console deva) ---
+      duree_contenu_mois: 2
+      gratuit: true
 
   canaux:
     # Un store par ligne, et non un taux unique : les commissions divergeront,

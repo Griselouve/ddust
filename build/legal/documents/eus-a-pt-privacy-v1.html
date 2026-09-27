@@ -38,13 +38,14 @@ estritamente necessário ao seu funcionamento.</p>
   <tr><td>Estatuto legal</td><td>Apenas a distinção menor / adulto. <strong>A sua data de nascimento nunca é
   conservada</strong>: serve unicamente, na primeira ligação, para calcular esse estatuto, sendo depois
   esquecida.</td></tr>
-  <tr><td>Alcunhas</td><td>A alcunha da sua personagem e o nome do seu clã, escolhidos por si, bem como as descrições que lhes der. Só são visíveis para os membros do seu clã. Tanto a
+  <tr><td>Alcunhas</td><td>A alcunha da sua personagem e o nome do seu clã, escolhidos por si, bem como as descrições que lhes der. Só são visíveis para os membros do seu clã. Se pertencer a vários clãs, a alcunha da sua personagem, o seu avatar e o título que usa são também vistos pelos membros dos seus outros clãs, e apenas por eles: nenhum outro clã vê o que quer que seja. Tanto a
   alcunha da personagem como o nome do clã têm além disso uma versão externa gerada pela aplicação, sem
   relação com a que escolheu: é a única que a aplicação usaria para o designar fora do seu clã.</td></tr>
   <tr><td>Dados de jogo</td><td>Avatar, experiência, níveis, pontos de vida, ouro, objetos, tarefas realizadas,
   diário de atividade do clã, data da última ligação, língua da interface, registos de aceitação das condições de
   utilização.</td></tr>
-  <tr><td>Notificações</td><td>Um token técnico de envio de notificações, associado ao seu aparelho.</td></tr>
+  <tr><td>Registos dos atos que vinculam</td><td>Quando um ato vincula uma pessoa, é guardado um registo dele juntamente com as provas de aceitação das condições, na conta de quem age: entrada num clã, saída de um clã (por si próprio, ou retirada de um menor pelo seu responsável legal), dissolução de um clã pelo seu fundador, cada ato de um responsável legal (autorização de um clã, retirada de um clã, reconhecimento de outro responsável legal e declaração deste, retirada ou restabelecimento do consentimento, declaração de maioridade) e criação da representação de um menor no seu primeiro clã. Contém apenas o autor, o menor ou o clã em causa, a data e o contexto da sessão (região, língua, estatuto legal).</td></tr>
+  <tr><td>Notificações</td><td>Um token técnico de envio de notificações, associado ao seu aparelho. A partir do seu telemóvel, pode desativar as notificações do clã atual ou de todos os seus clãs: os nossos servidores deixam então de enviar o que quer que seja para esse telemóvel. Esta definição é guardada com a inscrição do telemóvel nas notificações, sem qualquer outro dado.</td></tr>
   <tr><td>Definições técnicas</td><td>A versão da aplicação instalada e o desfasamento horário do aparelho.
   Este último serve apenas para uma coisa: enviar os lembretes destinados a uma criança a uma hora razoável onde
   ela vive, e não a meio da sua noite. <strong>Não é um dado de localização</strong>: a aplicação nunca mede nem
@@ -52,9 +53,9 @@ estritamente necessário ao seu funcionamento.</p>
 </table>
 <p>E sobretudo, o que a aplicação <strong>não recolhe</strong>:</p>
 <ul>
-  <li><strong>As fotografias de tarefas nunca são guardadas em linha</strong>: são registadas no espaço privado da
+  <li><strong>As fotografias e os vídeos de tarefas nunca são guardados em linha</strong>: são registados no espaço privado da
   aplicação no seu aparelho. Apenas um identificador técnico é transmitido aos nossos servidores para assinalar
-  que existe uma prova; a imagem, essa, nunca é transmitida: fica no aparelho do jogador, que é o único que a pode rever e o único que decide mostrá-la, presencialmente, ao adulto que aprecia o seu trabalho.</li>
+  que existe uma prova; o próprio ficheiro (imagem ou vídeo) nunca é transmitido: fica no aparelho do jogador, que é o único que o pode rever e o único que decide mostrá-lo, presencialmente, ao adulto que aprecia o seu trabalho. Os vídeos (15 segundos no máximo) são gravados sem som: a aplicação não tem acesso ao microfone.</li>
   <li><strong>Nenhuma medição de audiência (analytics)</strong>: a recolha Google Analytics está desativada.</li>
   <li><strong>Nenhum identificador publicitário (AD_ID)</strong> e nenhuma publicidade, em conformidade com a
   política Famílias da Google Play.</li>
@@ -93,12 +94,12 @@ endereço de correio eletrónico. Este tratamento é distinto da aplicação e e
 Utilização</a> (cujo artigo 6 enuncia precisamente este compromisso) e exerce-se quando esse adulto convida o
 menor para o seu clã ou cria um perfil de jogador para ele. A aceitação das condições é
 datada e conservada.</p>
-<p><strong>No momento exato desse ato</strong> (convite de um membro, criação de um perfil de jogador) a aplicação recorda ao adulto que declara ser o responsável legal do menor, ou agir com o acordo
-deste quando o menor já é membro de outro clã, e que consente na recolha dos seus dados, dando-lhe acesso às
+<p><strong>No momento exato desse ato</strong> (convite de um membro, criação de um perfil de jogador) a aplicação recorda ao adulto que declara ser o responsável legal do menor, ou, quando o menor já é membro de outro clã, ter recebido a autorização prévia deste, que a aplicação verifica, e que consente na recolha dos seus dados, dando-lhe acesso às
 condições gerais. Esta declaração é da sua exclusiva responsabilidade: a aplicação não procede a qualquer
 verificação do vínculo de tutela.</p>
 <p><strong>O desejo do menor.</strong> Antes da decisão do adulto, o menor indica, no seu próprio aparelho, se deseja jogar. Esse desejo não contém qualquer dado pessoal: apenas a data em que foi expresso, a língua, a região, a versão do texto mostrado ao menor e um código de verificação aleatório de seis caracteres. É apresentado ao adulto sob a forma de código QR, ou enviado por uma ligação, e o adulto toma conhecimento dele antes de decidir. É registado juntamente com a decisão do adulto, na conta deste, e depois associado ao perfil do menor quando este entra no clã; é conservado tal como os registos de aceitação das condições. Enquanto o menor não tiver iniciado sessão na sua conta, nenhuma informação que lhe diga respeito é registada, nem no seu aparelho nem nos nossos servidores, nem sequer a língua escolhida.</p>
-<p><strong>Dados de um menor.</strong> Os dados de um menor são os de qualquer jogador, descritos no artigo 2, e nada mais. Um menor cujo perfil de jogador foi criado por um adulto não tem conta Google: não existe nenhum endereço de correio eletrónico para ele. Se iniciar sessão com a sua própria conta Google, nenhum endereço de correio eletrónico é guardado nos dados de jogo; o endereço dessa conta é detido pelo serviço de autenticação Firebase, o nosso subcontratante, para verificar a sua ligação (artigo 7).</p>
+<p><strong>Dados de um menor.</strong> Os dados de um menor são os de qualquer jogador, descritos no artigo 2, e nada mais. Um menor cujo perfil de jogador foi criado por um adulto não tem conta Google: não existe nenhum endereço de correio eletrónico para ele. Se iniciar sessão com a sua própria conta Google, nenhum endereço de correio eletrónico é guardado nos dados de jogo; o endereço dessa conta é detido pelo serviço de autenticação Firebase, o nosso subcontratante, apenas para fins de autenticação (artigo 7). Quando este menor receber mais tarde o seu próprio telemóvel, o adulto que o acolhe no clã pode designar o perfil de jogador que tinha criado para ele: o menor recupera então esse perfil e os seus dados de jogo na sua própria conta, depois de ter expressado o desejo de jogar e segundo a mesma decisão do adulto que para qualquer entrada no clã.</p>
+<p><strong>Representação de um menor.</strong> Para cada menor que joga no seu próprio telemóvel, a aplicação mantém um processo de representação: quem são os seus responsáveis legais, a lista dos seus clãs (nome do clã, nome do seu chefe, adulto que o fez entrar, data), as autorizações dadas a outros clãs e o histórico dos atos de cada responsável legal (retirada ou restabelecimento do consentimento, declaração de maioridade, autorização de um clã ou retirada dele, inclusão de um responsável legal e declaração deste). Este processo só é visível para o menor e para os seus responsáveis legais: estes veem assim o nome de cada um dos clãs do menor e o do seu chefe, e nada mais desses clãs. A alcunha, o avatar e o título usado pelo menor são os mesmos em todos os seus clãs: os membros de cada um desses clãs veem-nos. Os restantes dados de jogo (experiência, nível, objetos, tarefas, diário de atividade) são próprios de cada clã. Este processo é uma prova, conservada nas condições do artigo 8.</p>
 <p>Um menor não pode criar um clã nem entrar sozinho no jogo: a entrada num clã faz-se unicamente por convite de
 um adulto, por código QR ou por ligação cifrada protegida por um código confidencial. O limiar adotado é de
 <strong>18 anos</strong>: qualquer jogador que não tenha 18 anos fica sujeito ao consentimento do seu tutor legal,
@@ -118,7 +119,7 @@ política redigida em linguagem acessível</a> é apresentada aos jogadores meno
   uma descrição de tarefa, e redigir o relato de aventura do clã proposto para partilha após a abertura de um
   espólio. Para esta última utilização, <strong>o nome do clã, a sua descrição e o diário dos acontecimentos do
   clã (que contém as alcunhas escolhidas pelos jogadores) são transmitidos ao modelo</strong>. Nenhum outro dado
-  pessoal é enviado: nem identificador de conta, nem data de nascimento, nem fotografia, nem estatística
+  pessoal é enviado: nem identificador de conta, nem data de nascimento, nem fotografia, nem vídeo, nem estatística
   individual. O tratamento é realizado numa infraestrutura Google situada na União Europeia, e os dados
   transmitidos não são utilizados para treinar os modelos.</li>
 </ul>
@@ -166,6 +167,8 @@ antes do apagamento definitivo. A conta de acesso segue a mesma regra e, decorri
   do código civil francês) e assenta na obrigação legal de demonstrar que um consentimento válido (em particular
   o consentimento parental do artigo 8.º do RGPD) foi efetivamente recolhido. Estas provas são conservadas
   fechadas e desativadas: já não são utilizadas para fazer funcionar o serviço.</li>
+  <li><strong>Processo de representação de um menor</strong>: é uma prova. É encerrado quando o menor se torna adulto ou quando a sua conta é eliminada, e depois conservado durante <strong>5 anos</strong>, apenas para leitura, como as provas de aceitação das condições, antes de ser apagado.</li>
+  <li><strong>Registos dos atos que vinculam</strong>: conservados com as provas de aceitação das condições e segundo as mesmas regras: encerrados na eliminação da conta do seu autor e depois conservados durante <strong>5 anos</strong>.</li>
   <li><strong>Dados de um clã bloqueado (incumprimento de pagamento, cancelamento ou fim dos meses oferecidos)</strong>: conservados <strong>dois anos</strong> a contar do bloqueio do clã, e depois definitivamente suprimidos. Este prazo é deliberadamente longo: o que custa reconstituir não é o clã mas a sua história (as tarefas resolvidas, os níveis alcançados, o diário de cada um) e uma família que para nem sempre desistiu. Um mês antes do prazo, avisamos os adultos do clã.</li>
   <li><strong>Clã inativo</strong>: um clã sem subscrição em curso do qual nenhum membro se ligou há <strong>dois anos</strong> é dissolvido; os seus dados seguem então a regra do clã dissolvido indicada abaixo. Os adultos do clã recebem um lembrete a cada seis meses, salvo se tiverem desativado os lembretes, e em todos os casos um pré-aviso um mês antes. Basta uma única ligação de um membro para o anular.</li>
   <li><strong>Jogador que sai de um clã</strong>: a sua ficha nesse clã é apagada <strong>30 dias</strong> após a sua saída.</li>
@@ -173,7 +176,7 @@ antes do apagamento definitivo. A conta de acesso segue a mesma regra e, decorri
   <li><strong>Subscrição e compras</strong>: o histórico de compras do clã é conservado <strong>dois anos</strong> após o fim da subscrição, ou após o fim do último mês oferecido, para podermos responder a uma reclamação. A referência de compra transmitida pelo Google Play é apagada logo que a subscrição termina.</li>
   <li><strong>Códigos de oferta</strong>: o registo da sua utilização é apagado <strong>30 dias</strong> após o fim da validade do código.</li>
   <li><strong>Dados técnicos</strong>: histórico de ligações <strong>90 dias</strong>; token de envio de notificações <strong>30 dias</strong> após a última ligação do aparelho; contador de utilização das sugestões <strong>48 horas</strong>; registos técnicos dos servidores <strong>30 dias</strong>.</li>
-  <li><strong>Fotografias de tarefas</strong>: permanecem no aparelho do jogador e são apagadas assim que a tarefa é avaliada, o mais tardar na abertura seguinte da aplicação, quando o veredicto foi dado enquanto estava fechada. Eliminar a conta a partir da aplicação apaga também as que restarem.</li>
+  <li><strong>Fotografias e vídeos de tarefas</strong>: permanecem no aparelho do jogador e são apagados assim que a tarefa é avaliada, o mais tardar na abertura seguinte da aplicação, quando o veredicto foi dado enquanto estava fechada. Eliminar a conta a partir da aplicação apaga também os que restarem.</li>
 </ul>
 
 <p><strong>Lista de espera das betas</strong>: eliminada na totalidade no final da fase de beta, ou mais cedo
@@ -192,11 +195,7 @@ portabilidade sobre os seus dados, bem como sobre os dos menores de quem é o tu
 <h3>Retirada do consentimento</h3>
 <p>Pode <strong>retirar o seu consentimento a qualquer momento</strong>, tanto o seu como o que deu na qualidade
 de responsável legal por um menor que faz jogar.</p>
-<p><strong>Para uma criança que faz jogar, a retirada exerce-se a partir da aplicação</strong>, no menu de gestão da
-sua personagem: a opção «Retirar o meu consentimento e apagar os dados desta criança» é proposta aos chefes do seu
-clã de origem. Produz efeito imediato (a criança deixa de jogar e os seus dados já não são mostrados no jogo) e depois, decorrido um prazo de reflexão de 3 dias durante o qual um chefe do clã de origem pode voltar
-  atrás na sua decisão, os seus dados de jogo são suprimidos e, em seguida, conservados 30 dias nas condições
-  do artigo 8 antes do seu apagamento definitivo.</p>
+<p><strong>Para uma criança que faz jogar, a retirada exerce-se a partir da aplicação</strong>, no menu de gestão da sua personagem: a opção «Retirar o meu consentimento e apagar os dados desta criança» é proposta, para uma criança que joga no seu próprio telemóvel, apenas aos seus responsáveis legais, e não aos outros chefes do seu clã de origem; para uma criança que joga no telemóvel de um adulto, aos chefes do seu clã. A retirada vale para todos os clãs da criança. Produz efeito imediato (a criança deixa de jogar e os seus dados já não são mostrados no jogo) e depois, decorrido um prazo de reflexão de 3 dias durante o qual um adulto a quem a opção é proposta pode voltar atrás na decisão, os seus dados de jogo são suprimidos em todos os seus clãs e, em seguida, conservados 30 dias nas condições do artigo 8 antes do seu apagamento definitivo. No termo do prazo, os nossos servidores executam essa supressão, mesmo que a criança nunca volte a abrir a aplicação. Um responsável legal pode também retirar a criança de um só dos seus clãs, exceto do seu clã de origem: os seus dados nesse clã são então apagados como os de qualquer jogador que o deixa.</p>
 <p><strong>Para o seu próprio consentimento, a retirada exerce-se pela eliminação da sua conta</strong>, a partir da
 aplicação ou através de <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>.</p>
 <p>Retirar o seu consentimento põe fim ao tratamento dos dados da criança. Isso não impede que outro adulto
@@ -207,7 +206,7 @@ necessário o convite de um adulto que declare responder por ela.</p>
 <p>Para um menor, a eliminação da conta do chefe de clã implica a dissolução desse clã e, em cascata, a dos
 perfis dos menores cujo clã de origem era esse, bem como de qualquer perfil que já não pertença a nenhum clã ativo,
 incluindo as crianças sem conta própria, cujos dados de jogo só existem dentro do clã. A retirada produz então
-os seus efeitos tanto para elas como para si.</p>
+os seus efeitos tanto para elas como para si. No entanto, o único responsável legal de um menor não pode eliminar a sua própria conta: tem primeiro de fazer reconhecer outro responsável legal, ou eliminar a conta do menor. Um menor que mantém outro responsável legal não é eliminado quando um dos seus responsáveis legais elimina a sua conta.</p>
 <p>A retirada só vale para o futuro: em conformidade com o artigo 7(3) do RGPD, ela <strong>não põe em causa a
 licitude dos tratamentos realizados antes de ter ocorrido</strong>. É por essa razão que a prova do consentimento
 recolhido, e da data em que foi retirado, é conservada nas condições do artigo 8.</p>
