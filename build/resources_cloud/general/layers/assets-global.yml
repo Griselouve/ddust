@@ -108,6 +108,7 @@ data:
       - "layers/theme-donjon-global.yml"    # libellés + décor de tous les écrans
       - "layers/store-base-global.yml"      # catalogue de la boutique + scénarios du banc d'essai
       - "layers/fairy-base-global.yml"      # cadence et catalogue des cadeaux de la fée
+      - "layers/events-base-global.yml"     # événements aléatoires (souris, piège, gobelin...)
       - "images/small/tb_boutique.png"      # taskbar dashboard (écran 10)
       - "images/small/tb_clan.png"
       - "images/small/tb_combat.png"
@@ -225,6 +226,14 @@ data:
     # La blacklist ne retient plus rien : elle ne protégeait que les vidéos d'introduction,
     # qui ne sont plus servies par le bucket (elles vivent hors bundle, usage promotionnel).
     blacklist: []
+
+    # delayed : PAS AU DÉMARRAGE, mais au premier usage. Pour les répertoires entiers
+    # qu'on n'utilise pas encore, typiquement la racine d'un thème qu'on n'habite pas :
+    # « donjon-noel/ » (fini par « / » = tout le répertoire) ou un motif `{any}`.
+    # Un fichier différé déjà en cache reste contrôlé et tenu à jour, à la différence de
+    # la blacklist. Une vague ci-dessus l'emporte sur `delayed`.
+    # Vide : ddust n'a pas encore de second thème qui porte ses propres images.
+    delayed: []
 
   # Catalogue des thèmes. Chaque entrée décrit ce qu'il faut charger pour l'habiter :
   # les layers de conf (traductions, registry, scènes) et les racines d'assets, dans

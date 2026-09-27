@@ -86,6 +86,10 @@ extension Worker_members on worker {
 
                                 ActionRegistry.register("worker.promote_chief",             promote_chief);
 
+                                // Passage à l'âge adulte : fin de la célébration, puis rideau tombé → CGU adulte.
+                                ActionRegistry.register("worker.on_adulthood_finished",     on_adulthood_finished);
+                                ActionRegistry.register("worker.on_adulthood_covered",      on_adulthood_covered);
+
                                 // « Plus chef » (rétrogradation) : opposé de promote_chief.
                                 ActionRegistry.register("worker.nomore_chief",              nomore_chief);
 
@@ -1012,6 +1016,9 @@ extension Worker_members on worker {
                                     await _cloud?.write("workers", "clans_players/$clanId/players", id, pflag,
                                         region: region, ownerId: clanSecret);
 
+                                    // S'il payait l'abonnement du clan, il ne le paie plus (règle du payeur).
+                                    unawaited(_storePayerCheck(clanId: clanId, region: region));
+
                                     final adminName = (await Deva.instance.get("session.user.name"))?.toString() ?? "";
                                     await _writeClanLog(clanId, clanSecret, region, "ChiefDemoted",
                                         userId: id, adminId: _userId,
@@ -1034,6 +1041,36 @@ extension Worker_members on worker {
     // propre doc (_playerVigilance), détecte le "t" et se voit imposer la CGU adulte ; à l'acceptation,
     // SON app bascule à "a" (users + clans_players). Tant qu'il est "t", il est traité comme "k".
     Future<void> promote_adult(dynamic caller, dynamic event) async {
+
+                                final m    = (event is Map) ? event : const {};
+                                final id   = m["id"]?.toString()   ?? "";
+                                final name = m["name"]?.toString() ?? "";
+                                if (id.isEmpty) return;
+                                // MULTICLAN (D16, D19). Un enfant sans téléphone ne devient pas adulte : il
+                                // faut d'abord la reprise sur son téléphone. Les autres : la déclaration est
+                                // un geste de REPRÉSENTANT, écrit dans sa guardianship ; son app pose « t »
+                                // sur toutes ses fiches.
+                                if (m["no_account"] == true) {
+                                    deva_log("info", "[roster] promote_adult refusé : $name ($id) n'a pas de compte");
+                                    return;
+                                }
+                                if (await _wardDeclareMajor(id)) {
+                                    deva_log("info", "[roster] promote_adult : majorité de $name ($id) déclarée dans sa représentation");
+                                    final region  = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                    final session = await _readSession(region);
+                                    await _refreshRoster(session?.get("steps.clan.clanId")?.toString() ?? "",
+                                        session?.get("steps.clan.clanSecret")?.toString() ?? "", region);
+                                    return;
+                                }
+                                deva_log("info", "[roster] promote_adult refusé : $_userId ne représente pas $id");
+                                return;
+    }
+
+    // Ancienne déclaration de majorité par un chef du clan d'origine, directement sur la fiche.
+    // Plus appelée (D16 : c'est un geste de représentant, cf. promote_adult) ; gardée pour
+    // mémoire de la forme du champ et pour un éventuel retour arrière.
+    // ignore: unused_element
+    Future<void> _promoteAdultLegacy(dynamic caller, dynamic event) async {
 
                                 final m    = (event is Map) ? event : const {};
                                 final id   = m["id"]?.toString()   ?? "";
@@ -1132,6 +1169,47 @@ extension Worker_members on worker {
     Future<void> hors_concours_on (dynamic caller, dynamic event) async { await _setHorsConcours(event, true);  }
     Future<void> hors_concours_off(dynamic caller, dynamic event) async { await _setHorsConcours(event, false); }
 
+    // Le fondateur est-il le SEUL membre actif de son clan ? Relu à frais (la tuile peut dater).
+    Future<bool> _founderAlone(String clanId, String clanSecret, String region) async {
+
+                                try {
+                                    final players = await _cloud?.list("workers", "clans_players/$clanId/players", region: region) ?? [];
+                                    return !players.any((p) => p.get("enabled") != false
+                                        && (p.get("id")?.toString() ?? "") != _userId
+                                        && (p.get("id")?.toString() ?? "").isNotEmpty);
+                                } catch (e) {
+                                    deva_log("warning", "[roster] _founderAlone: $e");
+                                    return false;
+                                }
+    }
+
+    // Dissolution d'un clan par son fondateur resté seul (multiclan, § 4). Même marque que le
+    // serveur (enabled:false + dissolved_at, cf. delete_user_data / clan_purge), fiche tombstonée.
+    // Puis la RÈGLE DU PAYEUR (store_payer_check) : un clan dissous ne garde pas de cotisation,
+    // le serveur résilie l'abonnement Google Play qui le payait.
+    Future<void> _dissolveOwnClan(String clanId, String clanSecret, String region, String name) async {
+
+                                final now = DateTime.now().toUtc().toIso8601String();
+                                try {
+                                    final me = Dvidle({});
+                                    me.set("id", _userId);
+                                    me.set("enabled", false);
+                                    await _cloud?.write("workers", "clans_players/$clanId/players", _userId, me,
+                                        region: region, ownerId: clanSecret);
+                                    await _writeClanLog(clanId, clanSecret, region, "MemberRevoked", userId: _userId,
+                                        data: Dvidle({"playerId": _userId, "playerName": name, "dissolved": true}));
+                                    final clan = Dvidle({});
+                                    clan.set("enabled", false);
+                                    clan.set("dissolved_at", now);
+                                    await _cloud?.write("workers", "clans", clanId, clan, region: region, ownerId: clanSecret);
+                                    deva_log("info", "[roster] clan $clanId dissous par son fondateur, seul membre");
+                                    await _audit("clan_dissolved", {"playerId": _userId, "clanId": clanId});
+                                    await _storePayerCheck(clanId: clanId, region: region);
+                                } catch (e) {
+                                    deva_log("error", "[roster] _dissolveOwnClan FAILED: $e");
+                                }
+    }
+
     // Action « A quitté le clan » (admin) : révocation d'un membre OU départ volontaire (cible = soi).
     // Pose enabled=false sur son doc clans_players (tombstone → ignoré partout : roster, XP/butin, coup
     // de pouce, notifs), le retire de `admins` s'il était chef (garde _adminCount juste), journalise.
@@ -1160,6 +1238,14 @@ extension Worker_members on worker {
                                         ? clanDoc!.get("founder").toString()
                                         : (admins.isNotEmpty ? admins.first : "");
                                     if (id == founder) {
+                                        // MULTICLAN, LE « SECOND PARENT ENFERMÉ » : un fondateur SEUL membre de
+                                        // son clan peut le quitter (typiquement : il a créé un clan par erreur,
+                                        // puis rejoint celui de l'autre parent). Le clan est alors dissous.
+                                        if (id == _userId && await _founderAlone(clanId, clanSecret, region)) {
+                                            await _dissolveOwnClan(clanId, clanSecret, region, name);
+                                            await _leaveClanLocal(region);
+                                            return;
+                                        }
                                         deva_log("info", "[roster] revoke_player refusé : $name ($id) est le fondateur");
                                         return;
                                     }
@@ -1180,6 +1266,9 @@ extension Worker_members on worker {
                                             region: region, ownerId: clanSecret);
                                         _isAdminClanId = "";
                                         await _ensureIsAdmin(clanId, clanSecret, region);
+                                        // Un chef qui part (ou qu'on retire) ne paie plus l'abonnement
+                                        // du clan s'il en était le payeur (règle du payeur).
+                                        unawaited(_storePayerCheck(clanId: clanId, region: region));
                                     }
 
                                     // Journal : userId = parti, adminId = acteur (= cible si départ volontaire).
@@ -1256,6 +1345,27 @@ extension Worker_members on worker {
                                     final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
                                     if (clanId.isEmpty || clanSecret.isEmpty) return;
+
+                                    // MULTICLAN (D16) : un enfant AVEC compte a une représentation ; le geste
+                                    // est réservé à ses représentants et s'écrit dans guardianship. Un enfant
+                                    // SANS téléphone garde la règle d'avant (chef du clan d'origine).
+                                    if (m["no_account"] != true) {
+                                        final w = await _asGuardianOf(id);
+                                        if (w == null) {
+                                            deva_log("info", "[consent] refusé : $_userId ne représente pas $id");
+                                            return;
+                                        }
+                                        final withdrawn = _gshipConsentWithdrawn(w.$1);
+                                        if ((mode == "withdraw") == withdrawn) { await _refreshRoster(clanId, clanSecret, region); return; }
+                                        _consentWard       = true;
+                                        _consentTargetId   = id;
+                                        _consentTargetName = name.isNotEmpty ? name : (w.$1.get("name")?.toString() ?? "");
+                                        _consentMode       = mode;
+                                        _setConsentVisible(true);
+                                        await _applyConsentStep();
+                                        return;
+                                    }
+                                    _consentWard = false;
 
                                     // Chef de CE clan. Même garde que promote_chief : le menu ne fait pas foi.
                                     if (!await _ensureIsAdmin(clanId, clanSecret, region)) {
@@ -1370,11 +1480,26 @@ extension Worker_members on worker {
                                 }
                                 await _setConsentLabel("clan_page/consent_panel", "consent_working");
 
-                                if (mode == "withdraw") {
+                                if (_consentWard) {
+                                    // MULTICLAN : le geste va dans la représentation de l'enfant ; son app
+                                    // l'applique sur toutes ses fiches (et journalise). On le prévient pour
+                                    // qu'elle le fasse tout de suite.
+                                    final ok = await _wardConsent(id, mode == "withdraw");
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                    final session    = await _readSession(region);
+                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (ok && mode == "withdraw" && clanId.isNotEmpty) {
+                                        await _notifyConsentWithdrawn(clanId, clanSecret, region, id, name);
+                                    }
+                                    deva_log("info", "[consent] $mode posé dans la représentation de $name ($id) ok=$ok");
+                                    if (clanId.isNotEmpty) await _refreshRoster(clanId, clanSecret, region);
+                                } else if (mode == "withdraw") {
                                     await _doWithdrawConsent(id, name);
                                 } else {
                                     await _doRestoreConsent(id, name);
                                 }
+                                _consentWard = false;
                                 await on_consent_cancel(null, null);   // ferme et remet à zéro
     }
 
@@ -1422,6 +1547,8 @@ extension Worker_members on worker {
                                     await _notifyConsentWithdrawn(clanId, clanSecret, region, id, name);
 
                                     deva_log("info", "[consent] retrait posé sur $name ($id) — échéance ${due.toIso8601String()}");
+                                    await _audit("consent_withdrawn", {"childId": id, "by": _userId, "clanId": clanId,
+                                        "due": due.toIso8601String(), "no_account": true});
                                     await _refreshRoster(clanId, clanSecret, region);
                                 } catch (e) {
                                     deva_log("error", "[consent] _doWithdrawConsent FAILED: $e");
@@ -1460,6 +1587,8 @@ extension Worker_members on worker {
                                     _consentSwept.remove(id);
 
                                     deva_log("info", "[consent] retrait annulé sur $name ($id)");
+                                    await _audit("consent_restored", {"childId": id, "by": _userId, "clanId": clanId,
+                                        "no_account": true});
                                     await _refreshRoster(clanId, clanSecret, region);
                                 } catch (e) {
                                     deva_log("error", "[consent] _doRestoreConsent FAILED: $e");
@@ -1617,6 +1746,13 @@ extension Worker_members on worker {
                                     // SANS persister documents_sessions : un kill pendant la lecture repart proprement
                                     // (on re-détecte "t" au login et on ré-impose la CGU).
                                     await ActionRegistry.get("documents.set_session_legalstate")?.call(null, "a");
+                                    // Célébration EN AMONT de la CGU, une fois par processus : le passage du
+                                    // jeu aux conditions n'est plus sec. Pendant les interludes, un nouveau
+                                    // tick ne fait rien (la CGU viendra sous le rideau, on_adulthood_covered).
+                                    // Ensuite (tick suivant, CGU déjà montrée), comportement d'avant : la CGU
+                                    // est réimposée, ce qui est idempotent.
+                                    if (_adulthoodPlaying) return true;
+                                    if (!_adulthoodCelebrated && await _playAdulthood()) return true;
                                     await ActionRegistry.get("documents.show_acceptance")?.call(null, "cgu");
                                     return true;
                                 } catch (e) {
@@ -1625,12 +1761,75 @@ extension Worker_members on worker {
                                 return false;
     }
 
+    // Lance la célébration du passage à l'âge adulte (interlude `adulthood` : scène « burn » du
+    // level-up, texte adulthood_anim). Rend false si dvinterlude est absent : l'appelant montre
+    // alors la CGU tout de suite, comme avant.
+    //
+    // Deux interludes enchaînés, et non un seul : la scène « burn » brûle la page courante SANS
+    // navigation, elle se termine sur l'écran de jeu. Le rideau qui suit (`passage_adulthood`,
+    // scène « depart ») couvre l'écran et c'est SOUS lui que la CGU s'ouvre (on_covered), comme
+    // tous les passages de l'onboarding.
+    Future<bool> _playAdulthood() async {
+
+                                final play = ActionRegistry.get("dvinterlude.play.adulthood");
+                                if (play == null) return false;
+                                final lang = TranslationRegistry.currentLang;
+                                var text = (await deva_get("lang.translations.adulthood_anim.$lang"))?.toString() ?? "";
+                                if (text.isEmpty) text = (await deva_get("lang.translations.adulthood_anim.fr"))?.toString() ?? "";
+                                _adulthoodPlaying    = true;
+                                _adulthoodCelebrated = true;
+                                deva_log("info", "[legal] passage à l'âge adulte → célébration avant la CGU adulte");
+                                play(null, {"text": text});
+                                return true;
+    }
+
+    // Fin de la célébration (normale, garde-fou ou préemption : dvinterlude tire on_finished dans
+    // tous les cas) → le rideau. Sans lui (thème sans l'interlude), la CGU tout de suite.
+    Future<void> on_adulthood_finished(dynamic caller, dynamic event) async {
+
+                                if (!_adulthoodPlaying) return;
+                                final curtain = ActionRegistry.get("dvinterlude.play.passage_adulthood");
+                                if (curtain == null) {
+                                    await on_adulthood_covered(caller, event);
+                                    return;
+                                }
+                                curtain(null, null);
+    }
+
+    // Rideau tombé : la CGU adulte s'ouvre dessous. Le drapeau worker.pending_adult_transition est
+    // posé depuis _checkAdultTransition : on_acceptance_complete committera "a".
+    Future<void> on_adulthood_covered(dynamic caller, dynamic event) async {
+
+                                if (!_adulthoodPlaying) return;
+                                _adulthoodPlaying = false;
+                                await ActionRegistry.get("documents.show_acceptance")?.call(null, "cgu");
+    }
+
     // Retire localement le joueur COURANT de son clan : vide les pointeurs de clan sur son doc `users`
     // (deep-merge → champ vidé par "" ; le prédicat de login se base sur steps.clan.clanId non-vide),
     // coupe la vigilance et renvoie vers l'écran de choix de clan. Exécuté sur l'appareil du joueur
     // concerné : révocation à distance (_checkRevoked) OU départ volontaire (revoke_player sur soi).
+    //
+    // MULTICLAN : le clan est marqué quitté (users.clans, index, guardianship de l'enfant), et le
+    // joueur bascule vers un autre de ses clans (le clan d'origine d'abord). S'il n'en a plus
+    // aucun, on retombe sur l'ancien comportement : pointeur vidé, choix d'un clan.
     Future<void> _leaveClanLocal(String region) async {
 
+                                final session0 = await _readSession(region);
+                                final leftId   = session0?.get("steps.clan.clanId")?.toString() ?? "";
+                                if (leftId.isNotEmpty) {
+                                    await _audit("clan_left", {"playerId": _authUserId.isNotEmpty ? _authUserId : _userId,
+                                        "clanId": leftId});
+                                    await _markClanLeft(leftId);
+                                    final me     = _authUserId.isNotEmpty ? _authUserId : _userId;
+                                    final gsecret = (await _gshipSecrets())[me] ?? "";
+                                    if (gsecret.isNotEmpty) {
+                                        final g = Dvidle({});
+                                        g.set("clans.$leftId.left_at", DateTime.now().toUtc().toIso8601String());
+                                        await _gshipWrite(me, gsecret, g);
+                                    }
+                                    if (await _switchAfterLeave(leftId)) return;
+                                }
                                 try {
                                     final docId = _sessionDocId();
                                     if (region.isNotEmpty && docId.isNotEmpty) {

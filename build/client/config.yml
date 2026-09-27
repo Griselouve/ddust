@@ -5,8 +5,8 @@ conf:
   application:
     org: com.grisloup
     display_name: "Donjons & Savons"
-    version: "1.0.14"
-    build: 2006
+    version: "1.0.60"
+    build: 2054
 
   deva:
     modes:
@@ -14,6 +14,14 @@ conf:
         idles:
           - orb
           - lang
+
+  # --- dvautover : version des données du clan ---------------------------------
+  # Le contrôle est appelé par worker.on_login, région connue et rien d'écrit. Le
+  # rappel rend l'état du clan ; la reprise rejoue le login quand un écran d'attente
+  # se lève. `steps` arrive par le layer autover-global.yml (build.yml de la suite).
+  autover:
+    provider: worker.autover_state
+    resume_action: worker.autover_resume
 
   # --- Worker gameplay tuning (niveaux, XP, butin, PV) --------------------------
   # Valeurs ajustables des barèmes de jeu, lues au démarrage par le module worker
@@ -102,6 +110,11 @@ conf:
       #   donne son accord, le transmet à son parent, puis se connecte AVANT d'entrer. La
       #   session anonyme elle-même ne vit plus qu'en mémoire (dvcloud) : un kill la perd, et
       #   l'application repart du premier écran.
+      # L'adresse et la photo du compte Google ne sont ni affichées, ni écrites sur
+      # l'appareil (2026-09-24) : elles restent dans l'annuaire Firebase Auth, aux seules
+      # fins d'authentification. dvcloud efface aussi, à la connexion suivante, ce qu'une
+      # version précédente avait déjà écrit dans le layer runtime du compte.
+      show_identity: false
       anonymous:
         enabled: true
         # Jamais automatiquement : la session n'est ouverte que par un tap explicite sur
@@ -146,6 +159,10 @@ conf:
         store:
           isolation: none
         virtuallobby:
+          isolation: none
+        # puautover : le document de version du backend, lu par tous, écrit par le seul
+        # builder (dvautover).
+        autover:
           isolation: none
     sign-in:
       enabled: true
@@ -244,6 +261,8 @@ conf:
       - "layers/items-base-global.yml"
       - "layers/store-base-global.yml"  # catalogue de la boutique (abonnements, packs)
       - "layers/fairy-base-global.yml"  # cadence et catalogue des cadeaux de la fée
+      - "layers/events-base-global.yml" # événements aléatoires (souris, piège, gobelin...)
+      - "layers/autover-global.yml"     # dvautover : builds qui portent une mise à jour de la base
 
   # --- Theme config (dvtheme) ---------------------------------------------------
   # Seul le thème de démarrage vit ici : ce qu'il FAUT charger pour chaque thème est

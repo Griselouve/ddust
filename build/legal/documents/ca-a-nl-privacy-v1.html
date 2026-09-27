@@ -40,14 +40,15 @@ strikt noodzakelijk is om te werken.</p>
   wordt nooit bewaard</strong>: hij wordt alleen bij de eerste aanmelding gebruikt om die status te berekenen, en
   wordt daarna vergeten.</td></tr>
   <tr><td>Bijnamen</td><td>De bijnaam van uw personage en de naam van uw clan, door u gekozen, alsook de beschrijvingen die u eraan geeft. Zij zijn alleen zichtbaar voor de leden van uw
-  clan. Zowel de bijnaam van het personage als de clannaam hebben ook een door de applicatie gegenereerde
+  clan. Behoort u tot meerdere clans, dan zien ook de leden van uw andere clans de bijnaam van uw personage, uw avatar en de titel die u draagt, en alleen zij: geen enkele andere clan ziet iets. Zowel de bijnaam van het personage als de clannaam hebben ook een door de applicatie gegenereerde
   externe versie, die niets te maken heeft met de door u gekozen versie: zij is de enige die de applicatie zou
   gebruiken om u buiten uw clan aan te duiden.</td></tr>
   <tr><td>Spelgegevens</td><td>Avatar, ervaring, niveaus, levenspunten, goud, voorwerpen, voltooide taken,
   activiteitenlogboek van de clan, datum van de laatste verbinding, taal van de interface, registraties van de
   aanvaarding van de gebruiksvoorwaarden.</td></tr>
+  <tr><td>Registraties van verbindende handelingen</td><td>Wanneer een handeling iemand verbindt, wordt er een registratie van bewaard samen met de bewijzen van aanvaarding van de voorwaarden, onder het account van wie handelt: toetreding tot een clan, vertrek uit een clan (uit eigen beweging, of terugtrekking van een kind door zijn ouder of wettelijke voogd), ontbinding van een clan door zijn oprichter, elke handeling van een ouder of wettelijke voogd (toestemming voor een clan, terugtrekking uit een clan, erkenning van een andere ouder of wettelijke voogd en diens verklaring, intrekking of herstel van de toestemming, meerderjarigverklaring) en aanmaak van de vertegenwoordiging van een kind bij zijn eerste clan. Zij bevat alleen de handelende persoon, het betrokken kind of de betrokken clan, de datum en de context van de sessie (regio, taal, wettelijke status).</td></tr>
   <tr><td>Meldingen</td><td>Een technisch token voor het versturen van meldingen, verbonden aan uw
-  toestel.</td></tr>
+  toestel. Vanaf uw telefoon kunt u de meldingen van de huidige clan of van al uw clans uitschakelen: onze servers sturen die telefoon dan niets meer. Deze instelling wordt bewaard bij zijn aanmelding voor meldingen, zonder enig ander gegeven.</td></tr>
   <tr><td>Technische instellingen</td><td>De geïnstalleerde versie van de applicatie en het tijdzoneverschil
   van het toestel. Dat laatste dient maar één doel: de herinneringen die voor een kind bestemd zijn op een
   redelijk uur bij hem thuis versturen, en niet midden in zijn nacht. <strong>Dit is geen locatiegegeven</strong>:
@@ -55,8 +56,8 @@ strikt noodzakelijk is om te werken.</p>
 </table>
 <p>Vooral, wat de applicatie <strong>niet verzamelt</strong>:</p>
 <ul>
-  <li><strong>Taakfoto's worden nooit online bewaard</strong>: zij worden opgeslagen in de privéruimte van de applicatie op uw toestel, en de automatische back-up van Android is uitgeschakeld voor de applicatie; er vertrekt geen enkele kopie naar online opslag. Zij kunnen echter worden meegenomen door de rechtstreekse overdracht van een oud naar een nieuw toestel, als u die Android-functie gebruikt bij het wisselen van toestel. Alleen een technische identificatie wordt naar onze servers gestuurd om aan te geven
-  dat er een bewijs bestaat; de afbeelding zelf wordt nooit doorgestuurd: zij blijft op het toestel van de speler, die als enige haar kan terugzien en als enige beslist om haar persoonlijk te tonen aan de volwassene die zijn werk beoordeelt.</li>
+  <li><strong>Taakfoto's en -video's worden nooit online bewaard</strong>: zij worden opgeslagen in de privéruimte van de applicatie op uw toestel, en de automatische back-up van Android is uitgeschakeld voor de applicatie; er vertrekt geen enkele kopie naar online opslag. Zij kunnen echter worden meegenomen door de rechtstreekse overdracht van een oud naar een nieuw toestel, als u die Android-functie gebruikt bij het wisselen van toestel. Alleen een technische identificatie wordt naar onze servers gestuurd om aan te geven
+  dat er een bewijs bestaat; het bestand zelf (foto of video) wordt nooit doorgestuurd: het blijft op het toestel van de speler, die het als enige kan terugzien en als enige beslist om het persoonlijk te tonen aan de volwassene die zijn werk beoordeelt. Video's (hoogstens 15 seconden) worden zonder geluid opgenomen: de applicatie heeft geen toegang tot de microfoon.</li>
   <li><strong>Geen analytics</strong>: het verzamelen door Google Analytics is uitgeschakeld.</li>
   <li><strong>Geen advertentie-identificatie (AD_ID)</strong> en geen reclame, overeenkomstig het Gezinsbeleid van
   Google Play.</li>
@@ -91,8 +92,7 @@ gebruiken haar niet om modellen voor kunstmatige intelligentie te trainen.</stro
 
 <h2>4. Minderjarigen: PIPEDA en Wet 25 (Quebec)</h2>
 <p>Donjons &amp; Savons is een gezinsapplicatie bedoeld om door kinderen te worden gebruikt onder toezicht van de
-volwassenen van hun clan. De informatie die wij bij een kind verzamelen is dezelfde als bij elke speler, beschreven in artikel 2, en niet meer, met name: een <strong>bijnaam, een avatar, de spelvoortgang en het feit dat de speler minderjarig is</strong>, en, als het een eigen account en een eigen toestel gebruikt, de <strong>technische identificatie van zijn account</strong> en het <strong>token voor de bezorging van meldingen</strong>. Wij verzamelen niet de echte naam van een kind, zijn geboortedatum, zijn postadres, zijn telefoonnummer, zijn foto of zijn locatie, en de app heeft geen berichtendienst, geen chat en geen openbaar profiel.</p>
-<p><strong>E-mailadres.</strong> Een kind van wie het spelersprofiel door een volwassene is aangemaakt, heeft geen Google-account: er bestaat voor hem geen e-mailadres. Meldt het zich aan met een eigen Google-account, dan wordt er geen e-mailadres opgeslagen in de spelgegevens; het adres van dat account wordt bewaard door de aanmeldingsdienst van Firebase, onze verwerker, om zijn aanmelding te controleren (artikel 7).</p>
+volwassenen van hun clan. De informatie die wij bij een kind verzamelen is dezelfde als bij elke speler, beschreven in artikel 2, en niet meer, met name: een <strong>bijnaam, een avatar, de spelvoortgang en het feit dat de speler minderjarig is</strong>, en, als het een eigen account en een eigen toestel gebruikt, de <strong>technische identificatie van zijn account</strong> en het <strong>token voor de bezorging van meldingen</strong>. Wij verzamelen niet de echte naam van een kind, zijn geboortedatum, zijn postadres, zijn telefoonnummer, zijn foto, zijn video's of zijn locatie, en de app heeft geen berichtendienst, geen chat en geen openbaar profiel.</p>
 <p><strong>Hoe de ouderlijke toestemming wordt verkregen.</strong> Een kind kan niet alleen tot het spel
 toetreden: er is geen kinderinschrijving, geen clanregister en geen zoekfunctie. Een kind komt alleen in een clan
 via een uitnodiging die door een volwassene van die clan wordt uitgegeven, of via een spelersprofiel dat die
@@ -100,13 +100,14 @@ volwassene voor hem aanmaakt. De volwassene aanvaardt de
 <a href="https://storage.googleapis.com/dvddust-us-documents-storage/ca-a-nl-cgu-v1.html">Gebruiksvoorwaarden</a>
 (waarvan artikel 6 die verbintenis nauwkeurig uiteenzet) en, <strong>op het ogenblik van de handeling
 zelf</strong> (een lid uitnodigen, een spelersprofiel aanmaken), herhaalt de
-applicatie dat hij verklaart de ouder of wettelijke voogd van het kind te zijn, of dat hij handelt met de
-instemming van die ouder of voogd wanneer het kind reeds tot een andere clan behoort, en dat hij instemt met het
+applicatie dat hij verklaart de ouder of wettelijke voogd van het kind te zijn, of, wanneer het kind reeds tot een andere clan behoort, dat hij de voorafgaande toestemming van die ouder of voogd heeft gekregen, die de applicatie controleert, en dat hij instemt met het
 verzamelen van de spelgegevens van dat kind. De aanvaarding wordt van een tijdstempel voorzien en bewaard. De
 toestemming gaat dus altijd aan het verzamelen vooraf.</p>
 <p><strong>De wens van het kind.</strong> Voordat de volwassene beslist, geeft het kind op zijn eigen toestel aan of het wil spelen. Die wens bevat geen enkel persoonsgegeven: alleen de datum waarop hij werd geuit, de taal, de regio, de versie van de tekst die aan het kind werd getoond, en een willekeurige verificatiecode van zes tekens. Hij wordt aan de volwassene getoond als QR-code, of hem via een link toegestuurd, en de volwassene neemt er kennis van voordat hij beslist. Hij wordt samen met de beslissing van de volwassene opgeslagen, onder diens account, en daarna aan het profiel van het kind gekoppeld wanneer het tot de clan toetreedt; hij wordt bewaard zoals de bewijzen van aanvaarding van de voorwaarden. Zolang het kind niet op zijn account is ingelogd, wordt geen enkele informatie over het kind opgeslagen, noch op zijn toestel noch op onze servers, zelfs niet de gekozen taal.</p>
 <p>Die verklaring valt onder de uitsluitende verantwoordelijkheid van de volwassene: de applicatie voert geen
 enkele verificatie van de ouder-kindrelatie uit (artikel 3 van de Gebruiksvoorwaarden).</p>
+<p><strong>Gegevens van een kind.</strong> Een kind van wie het spelersprofiel door een volwassene is aangemaakt, heeft geen Google-account: er bestaat voor hem geen e-mailadres. Meldt het zich aan met een eigen Google-account, dan wordt er geen e-mailadres opgeslagen in de spelgegevens; het adres van dat account wordt bewaard door de aanmeldingsdienst van Firebase, onze verwerker, uitsluitend voor authenticatiedoeleinden (artikel 7). Krijgt dit kind later een eigen telefoon, dan kan de volwassene die het in de clan opneemt het spelersprofiel aanwijzen dat hij voor het kind had aangemaakt: het kind krijgt dan dat profiel en zijn spelgegevens terug onder zijn eigen account, nadat het zijn wens om te spelen heeft geuit, en volgens dezelfde beslissing van de volwassene als bij elke toetreding tot de clan.</p>
+<p><strong>Vertegenwoordiging van een kind.</strong> Voor elk kind dat op zijn eigen telefoon speelt, houdt de applicatie een vertegenwoordigingsdossier bij: wie zijn ouders of wettelijke voogden zijn, de lijst van zijn clans (naam van de clan, naam van het hoofd, volwassene die het liet toetreden, datum), de toestemmingen die aan andere clans zijn gegeven, en de geschiedenis van de handelingen van elk van zijn ouders of wettelijke voogden (intrekking of herstel van de toestemming, meerderjarigverklaring, toestemming voor een clan of terugtrekking eruit, toevoeging van een ouder of wettelijke voogd en diens verklaring). Dit dossier is alleen zichtbaar voor het kind en zijn ouders of wettelijke voogden: zij zien zo de naam van elk van de clans van het kind en die van het hoofd ervan, en verder niets van die clans. De bijnaam, de avatar en de gedragen titel van het kind zijn in al zijn clans dezelfde: de leden van elk van die clans zien ze. Zijn overige spelgegevens (ervaring, niveau, voorwerpen, taken, activiteitendagboek) blijven eigen aan elke clan. Dit dossier is een bewijs, bewaard onder de voorwaarden van artikel 8.</p>
 <p><strong>Uw rechten als ouder.</strong> U kunt op elk moment:</p>
 <ul>
   <li>de persoonlijke informatie die wij bij uw kind hebben verzameld <strong>inzien</strong>: zij is zichtbaar
@@ -139,7 +140,7 @@ schrijf dan naar <a href="mailto:donjons@grisloup.com">donjons@grisloup.com</a>:
   van een buitkist ter deling wordt aangeboden. Voor die laatste toepassing worden <strong>de clannaam, zijn
   beschrijving en het gebeurtenissenlogboek van de clan (dat de door de spelers gekozen bijnamen bevat) aan het
   model doorgegeven</strong>. Er wordt geen andere persoonlijke informatie verzonden: geen accountidentificatie,
-  geen geboortedatum, geen foto, geen individuele statistiek. De verwerking vindt plaats op Google-infrastructuur
+  geen geboortedatum, geen foto, geen video, geen individuele statistiek. De verwerking vindt plaats op Google-infrastructuur
   gelegen in de Verenigde Staten, en de doorgegeven gegevens worden niet gebruikt om de modellen te trainen.</li>
 </ul>
 <p>Deze dienstverleners handelen volgens onze instructies en voor geen enkel ander doel. <strong>Wij verkopen uw
@@ -192,6 +193,8 @@ wissing</strong>.</p>
   aantonen dat geldige toestemming (in het bijzonder de door Wet 25 in Quebec vereiste ouderlijke toestemming) wel degelijk
   is verkregen, en op welke datum zij is ingetrokken. Het wordt afgesloten en gedeactiveerd bewaard: het wordt niet
   meer gebruikt om de dienst te laten werken.</li>
+  <li><strong>Vertegenwoordigingsdossier van een kind</strong>: het is een bewijs. Het wordt afgesloten wanneer het kind volwassen wordt of wanneer zijn account wordt verwijderd, en daarna <strong>5 jaar</strong> bewaard, alleen leesbaar, zoals de bewijzen van aanvaarding van de voorwaarden, voordat het wordt gewist.</li>
+  <li><strong>Registraties van verbindende handelingen</strong>: bewaard samen met de bewijzen van aanvaarding van de voorwaarden en volgens dezelfde regels: afgesloten bij de verwijdering van het account van hun auteur en daarna <strong>5 jaar</strong> bewaard.</li>
   <li><strong>Gegevens van een geblokkeerde clan (wanbetaling, opzegging of einde van de geschonken maanden)</strong>: bewaard gedurende <strong>twee jaar</strong> vanaf de blokkering van de clan, daarna definitief verwijderd. Die termijn is bewust lang: wat duur is om opnieuw op te bouwen is niet de clan maar zijn geschiedenis (de afgehandelde taken, de bereikte niveaus, het dagboek van elk lid) en een gezin dat stopt heeft niet altijd opgegeven. Eén maand voor de vervaldag waarschuwen wij de volwassenen van de clan.</li>
   <li><strong>Inactieve clan</strong>: een clan zonder lopend abonnement waarvan sinds <strong>twee jaar</strong> geen enkel lid meer heeft ingelogd, wordt ontbonden; zijn gegevens volgen dan de regel voor een ontbonden clan hieronder. De volwassenen van de clan krijgen om de zes maanden een herinnering, tenzij zij de herinneringen hebben uitgeschakeld, en in alle gevallen een vooraankondiging één maand vooraf. Eén enkele login van een lid volstaat om dat te annuleren.</li>
   <li><strong>Speler die een clan verlaat</strong>: zijn gegevens in die clan worden <strong>30 dagen</strong> na zijn vertrek gewist.</li>
@@ -199,7 +202,7 @@ wissing</strong>.</p>
   <li><strong>Abonnement en aankopen</strong>: de aankoopgeschiedenis van de clan wordt <strong>twee jaar</strong> bewaard na het einde van het abonnement, of na het einde van de laatste geschonken maand, om een klacht te kunnen beantwoorden. De door Google Play doorgegeven aankoopreferentie wordt gewist zodra het abonnement afloopt.</li>
   <li><strong>Cadeaucodes</strong>: het spoor van hun gebruik wordt <strong>30 dagen</strong> na het verstrijken van de geldigheid van de code gewist.</li>
   <li><strong>Technische gegevens</strong>: aanmeldgeschiedenis <strong>90 dagen</strong>; token voor meldingen <strong>30 dagen</strong> na de laatste verbinding van het toestel; gebruiksteller van de suggesties <strong>48 uur</strong>; technische serverlogboeken <strong>30 dagen</strong>.</li>
-  <li><strong>Taakfoto's</strong>: zij blijven op het toestel van de speler en worden gewist zodra de taak is beoordeeld, uiterlijk bij de volgende opening van de applicatie, wanneer het oordeel is geveld terwijl zij gesloten was. Het verwijderen van uw account vanuit de applicatie wist ook de overgebleven foto's.</li>
+  <li><strong>Taakfoto's en -video's</strong>: zij blijven op het toestel van de speler en worden gewist zodra de taak is beoordeeld, uiterlijk bij de volgende opening van de applicatie, wanneer het oordeel is geveld terwijl zij gesloten was. Het verwijderen van uw account vanuit de applicatie wist ook de overgebleven foto's en video's.</li>
 </ul>
 
 <p><strong>Wachtlijst van de beta's</strong>: volledig verwijderd aan het einde van de betafase, of eerder op
@@ -228,12 +231,7 @@ van er gevolg aan te geven.</p>
 <h3>Intrekking van de toestemming</h3>
 <p>U kunt <strong>uw toestemming op elk moment intrekken</strong>: zowel uw eigen toestemming als die welke u als
 ouder of wettelijke voogd hebt gegeven voor een kind dat u laat spelen.</p>
-<p><strong>Voor een kind dat u laat spelen, wordt de intrekking uitgeoefend vanuit de applicatie</strong>, in het
-beheermenu van zijn personage: de optie “Mijn toestemming intrekken en de gegevens van dit kind wissen” wordt
-aangeboden aan de hoofden van zijn oorspronkelijke clan. Zij werkt onmiddellijk (het kind speelt niet meer en zijn
-gegevens worden niet meer in het spel getoond) en na een bedenktijd van 3 dagen, waarin een hoofd van de oorspronkelijke clan op de beslissing kan
-  terugkomen, worden zijn spelgegevens verwijderd en vervolgens 30 dagen bewaard onder de voorwaarden van
-  artikel 8, vóór de definitieve wissing.</p>
+<p><strong>Voor een kind dat u laat spelen, wordt de intrekking uitgeoefend vanuit de applicatie</strong>, in het beheermenu van zijn personage: de optie “Mijn toestemming intrekken en de gegevens van dit kind wissen” wordt, voor een kind dat op zijn eigen telefoon speelt, alleen aangeboden aan zijn ouders of wettelijke voogden, en niet aan de andere hoofden van zijn oorspronkelijke clan; voor een kind dat op de telefoon van een volwassene speelt, aan de hoofden van zijn clan. De intrekking geldt voor alle clans van het kind. Zij werkt onmiddellijk (het kind speelt niet meer en zijn gegevens worden niet meer in het spel getoond) en na een bedenktijd van 3 dagen, waarin een volwassene aan wie de optie wordt aangeboden op de beslissing kan terugkomen, worden zijn spelgegevens in al zijn clans verwijderd en vervolgens 30 dagen bewaard onder de voorwaarden van artikel 8, vóór de definitieve wissing. Na afloop van die termijn voeren onze servers deze verwijdering uit, ook als het kind de applicatie nooit meer opent. Een ouder of wettelijke voogd kan het kind ook uit slechts één van zijn clans terugtrekken, behalve uit zijn oorspronkelijke clan: zijn gegevens in die clan worden dan gewist zoals die van elke speler die de clan verlaat.</p>
 <p><strong>Voor uw eigen toestemming wordt de intrekking uitgeoefend door uw account te verwijderen</strong>, vanuit
 de applicatie of via <a href="https://donjons.grisloup.com/delete-account/">donjons.grisloup.com/delete-account</a>.</p>
 <p>Het intrekken van uw toestemming beëindigt de verwerking van de gegevens van het kind. Het belet niet dat een
@@ -245,7 +243,7 @@ in te staan.</p>
 <p>Voor een kind ontbindt het verwijderen van het account van het clanhoofd die clan en, in cascade, de profielen
 van de kinderen wier oorspronkelijke clan het was, alsook elk profiel dat niet langer tot een actieve clan behoort,
 met inbegrip van kinderen zonder eigen account, wier spelgegevens alleen binnen de clan bestaan. De intrekking
-sorteert dan haar gevolgen voor hen zoals voor u.</p>
+sorteert dan haar gevolgen voor hen zoals voor u. De enige erkende ouder of wettelijke voogd van een kind kan zijn eigen account echter niet verwijderen: hij moet eerst een andere laten erkennen, of het account van het kind verwijderen. Een kind dat een andere erkende ouder of wettelijke voogd behoudt, wordt niet verwijderd wanneer een van hen zijn account verwijdert.</p>
 <p>De intrekking geldt alleen voor de toekomst: zij maakt niet onrechtmatig wat werd verzameld terwijl de
 toestemming geldig was. Precies daarom wordt het bewijs van de verkregen toestemming, en van de datum waarop zij
 is ingetrokken, bewaard onder de voorwaarden van artikel 8.</p>

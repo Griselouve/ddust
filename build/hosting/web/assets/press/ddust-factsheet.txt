@@ -1,4 +1,4 @@
-DONJONS & SAVONS — FACT SHEET / FICHE PRESSE
+DONJONS & SAVONS : FACT SHEET / FICHE PRESSE
 =============================================
 
 Available in the seven languages of the site: EN, FR, ES, IT, DE, PT, NL.
@@ -22,10 +22,11 @@ Key facts
                             shortcut: nothing bought does the chore
   * Release               : December 2026 on Google Play, in France
                             then across the European Union
-  * Audience              : families — children play with the consent
+  * Audience              : families: children play with the consent
                             and supervision of their parents
   * Privacy               : no ads, no analytics, no advertising ID;
-                            chore photos never leave the phone;
+                            chore photos and short silent videos stay
+                            on the phone, never sent to our servers;
                             date of birth never stored; clans are
                             sealed off from one another (no chat,
                             no directory, invitation only)
@@ -55,14 +56,15 @@ Faits clés
                             s'achète ne dispense de faire la tâche
   * Sortie                : décembre 2026 sur Google Play, en France
                             puis dans l'Union Européenne
-  * Public                : les familles — les enfants jouent avec le
+  * Public                : les familles : les enfants jouent avec le
                             consentement et la supervision des parents
   * Vie privée            : pas de pub, pas d'analytics, pas d'identifiant
-                            publicitaire ; les photos de tâches ne quittent
-                            jamais le téléphone ; date de naissance jamais
-                            conservée ; les clans sont hermétiques les uns
-                            aux autres (pas de tchat, pas d'annuaire,
-                            invitation uniquement)
+                            publicitaire ; les photos et courtes vidéos
+                            muettes des tâches restent sur le téléphone,
+                            jamais envoyées à nos serveurs ; date de
+                            naissance jamais conservée ; les clans sont
+                            hermétiques les uns aux autres (pas de tchat,
+                            pas d'annuaire, invitation uniquement)
   * Site web              : https://donjons.grisloup.com
   * Contact presse        : donjons@grisloup.com
 
@@ -90,12 +92,14 @@ Datos clave
                              lo que se compra hace la tarea por ti
   * Lanzamiento            : diciembre de 2026 en Google Play, en Francia
                              y después en la Unión Europea
-  * Público                : las familias — los niños juegan con el
+  * Público                : las familias: los niños juegan con el
                              consentimiento y la supervisión de sus padres
   * Privacidad             : sin publicidad, sin analytics, sin identificador
-                             publicitario ; las fotos de tareas nunca salen
-                             del teléfono ; la fecha de nacimiento nunca se
-                             conserva ; los clanes son herméticos entre sí
+                             publicitario ; las fotos y vídeos cortos sin
+                             sonido de las tareas se quedan en el teléfono,
+                             nunca se envían a nuestros servidores ; la
+                             fecha de nacimiento nunca se conserva ; los
+                             clanes son herméticos entre sí
                              (sin chat, sin directorio, solo por invitación)
   * Sitio web              : https://donjons.grisloup.com
   * Contacto de prensa     : donjons@grisloup.com
@@ -125,11 +129,12 @@ Fatti chiave
                              che si compra dispensa dal fare il compito
   * Uscita                 : dicembre 2026 su Google Play, in Francia
                              e poi nell'Unione Europea
-  * Pubblico               : le famiglie — i bambini giocano con il consenso
+  * Pubblico               : le famiglie: i bambini giocano con il consenso
                              e sotto la supervisione dei genitori
   * Privacy                : niente pubblicità, niente analytics, nessun
-                             identificativo pubblicitario ; le foto dei
-                             compiti non escono mai dal telefono ; la data
+                             identificativo pubblicitario ; le foto e i
+                             brevi video muti dei compiti restano sul
+                             telefono, mai inviati ai nostri server ; la data
                              di nascita non viene mai conservata ; i clan
                              sono ermetici gli uni agli altri (niente chat,
                              niente elenco, solo su invito)
@@ -161,13 +166,15 @@ Eckdaten
                                die Aufgabe
   * Veröffentlichung         : Dezember 2026 bei Google Play, in Frankreich
                                und danach in der Europäischen Union
-  * Zielgruppe               : Familien — die Kinder spielen mit Einwilligung
+  * Zielgruppe               : Familien: die Kinder spielen mit Einwilligung
                                und unter Aufsicht ihrer Eltern
   * Datenschutz              : keine Werbung, kein Analytics, keine Werbe-ID ;
-                               Aufgabenfotos verlassen das Telefon nie ; das
-                               Geburtsdatum wird nie gespeichert ; die Clans
-                               sind gegeneinander abgeschottet (kein Chat,
-                               kein Verzeichnis, nur auf Einladung)
+                               Aufgabenfotos und kurze Videos ohne Ton
+                               bleiben auf dem Telefon, nie an unsere Server
+                               gesendet ; das Geburtsdatum wird nie
+                               gespeichert ; die Clans sind gegeneinander
+                               abgeschottet (kein Chat, kein Verzeichnis,
+                               nur auf Einladung)
   * Website                  : https://donjons.grisloup.com
   * Pressekontakt            : donjons@grisloup.com
 
@@ -195,14 +202,15 @@ Factos essenciais
                            tarefa por si
   * Lançamento           : dezembro de 2026 no Google Play, em França
                            e depois na União Europeia
-  * Público              : as famílias — as crianças jogam com o
+  * Público              : as famílias: as crianças jogam com o
                            consentimento e a supervisão dos pais
   * Privacidade          : sem publicidade, sem analytics, sem identificador
-                           publicitário ; as fotografias de tarefas nunca
-                           saem do telemóvel ; a data de nascimento nunca é
-                           conservada ; os clãs são herméticos uns aos
-                           outros (sem conversação, sem diretório, apenas
-                           por convite)
+                           publicitário ; as fotografias e vídeos curtos
+                           sem som das tarefas ficam no telemóvel, nunca
+                           enviados para os nossos servidores ; a data de
+                           nascimento nunca é conservada ; os clãs são
+                           herméticos uns aos outros (sem conversação, sem
+                           diretório, apenas por convite)
   * Sítio web            : https://donjons.grisloup.com
   * Contacto de imprensa : donjons@grisloup.com
 
@@ -230,12 +238,14 @@ Kernfeiten
                               koopt doet het klusje voor je
   * Uitgave                 : december 2026 op Google Play, in Frankrijk
                               en daarna in de Europese Unie
-  * Doelgroep               : gezinnen — de kinderen spelen met toestemming
+  * Doelgroep               : gezinnen: de kinderen spelen met toestemming
                               en onder toezicht van hun ouders
   * Privacy                 : geen reclame, geen analytics, geen
-                              advertentie-ID ; taakfoto's verlaten de telefoon
-                              nooit ; de geboortedatum wordt nooit bewaard ;
-                              de clans zijn hermetisch van elkaar gescheiden
+                              advertentie-ID ; taakfoto's en korte video's
+                              zonder geluid blijven op de telefoon, nooit naar
+                              onze servers verstuurd ; de geboortedatum wordt
+                              nooit bewaard ; de clans zijn hermetisch van
+                              elkaar gescheiden
                               (geen chat, geen register, alleen op uitnodiging)
   * Website                 : https://donjons.grisloup.com
   * Perscontact             : donjons@grisloup.com

@@ -271,6 +271,24 @@ change rien. Si elle n'est pas apparue depuis trente jours, elle apparaît à co
 - **Un joueur à zéro point de vie peut en bénéficier** grâce aux cadeaux de soin qu'un autre membre
   choisit pour lui ou pour le clan.
 
+### 4.8 bis De petits événements pour rire
+
+D'autres rencontres, plus modestes, peuvent surgir en jouant : une souris qui remercie après une
+tâche validée, un piège tendu par les monstres au moment de prendre une tâche, un gobelin espion ou
+un membre en double (un changelin) à chasser de la liste du clan, une potion glissée dans le sac.
+Elles servent à garder le jeu drôle, jamais à remplacer l'effort.
+
+- **Leur récompense est dérisoire, et sans choix.** Quelques points d'expérience au plus, plafonnés
+  par le jeu : ce qui fait progresser reste le travail dans la maison. Le choix d'un cadeau est
+  réservé à la fée.
+- **Ouvrir l'application plus souvent n'y change rien.** Un écran ne tire qu'une fois par jour et
+  par joueur, et le nombre d'événements d'une journée est plafonné.
+- **Un piège ne fait jamais tomber un personnage.** Il retire un point de vie, jamais le dernier,
+  un seul à la fois, et ce point est rendu dès la tâche validée suivante.
+- **Se tromper ne coûte rien.** Chasser le vrai membre au lieu du changelin le fait simplement fuir.
+- **Un événement ignoré n'est jamais annoncé.** Le clan n'en est informé que si le joueur l'a
+  découvert et a cliqué dessus, et jamais avec un montant.
+
 ### 4.9 Jouer sans téléphone
 
 L'application n'exige d'aucun enfant qu'il possède un appareil. Un chef peut créer pour lui un
@@ -318,9 +336,10 @@ depuis l'application ou depuis une notification.
 ### 5.2 L'inactivité n'est pas punie : elle déclenche une alerte
 
 Un personnage a dix points de vie. Ils ne se dépensent pas et ne s'achètent pas : ils se calculent
-à partir d'une seule date, **celle de la dernière activité de jeu** (tâche soumise, soin reçu,
-entrée dans le clan), et diminuent d'un point par jour. **Une seule tâche soumise rend la totalité
-des points** tant que le personnage est encore debout.
+à partir d'une seule date, **celle de la dernière activité de jeu** (tâche validée, verdict rendu
+par un chef, soin reçu, entrée dans le clan), et diminuent d'un point par jour. **Une seule tâche
+validée rend la totalité des points** tant que le personnage est encore debout. Seule exception, passagère : le piège d'un
+événement (section 4.8 bis) retire un point, jamais le dernier, rendu à la tâche validée suivante.
 
 Au bout de **dix jours sans aucune activité**, le personnage tombe à zéro. Il ne peut plus
 entreprendre de nouvelle tâche, un **signal visible de tout le clan** apparaît sur sa fiche, et un
@@ -383,8 +402,8 @@ partagées.
 L'application envoie deux sortes de messages.
 
 **Les notifications d'événement** accompagnent la vie du clan : un travail a été jugé, un membre a
-changé de niveau, la fée a été trouvée, un défi a été lancé, le coffre est prêt. Elles peuvent
-nommer un membre de la famille.
+changé de niveau, la fée a été trouvée, un petit événement a été découvert (section 4.8 bis), un
+défi a été lancé, le coffre est prêt. Elles peuvent nommer un membre de la famille.
 
 **Les rappels d'inactivité** obéissent à des règles strictes :
 
@@ -453,7 +472,9 @@ tâches, et le fondateur du clan ne peut être ni exclu ni rétrogradé.
      Ce code est un frein contre les transferts accidentels, pas un coffre-fort.
 
   Dans les deux cas, l'invitation n'est créée que sur l'appareil du chef et avec sa déclaration
-  (section 5.8). Pour un enfant, le chef ne peut déclarer qu'après avoir lu le souhait de jouer que
+  (section 5.8). Un enfant **déjà membre d'un clan** n'entre en outre dans un autre qu'avec
+  l'autorisation préalable d'un de ses représentants légaux, que son téléphone vérifie (section 5.8,
+  « Plusieurs clans »). Pour un enfant, le chef ne peut déclarer qu'après avoir lu le souhait de jouer que
   l'enfant lui a montré ou envoyé, et l'invitation ne vaut que pour la demande de cet enfant (son
   code) ; sans ce souhait, une invitation ne vaut que pour un adulte. La
   troisième voie qui existait jusqu'au 2026-09-22, la « demande » qu'un candidat envoyait à un chef,
@@ -462,8 +483,11 @@ tâches, et le fondateur du clan ne peut être ni exclu ni rétrogradé.
 - **Hors de son clan, un enfant n'est désigné que par un nom de substitution.** Chaque joueur et
   chaque clan ont deux identités : le nom que la famille emploie entre ses membres, et un nom public
   distinct, qui ne reprend pas le premier. Ni le pseudonyme, ni l'avatar, ni les résultats d'un
-  enfant ne sont montrés à un tiers, et aucun écran n'affiche aujourd'hui quoi que ce soit d'un autre
-  clan.
+  enfant ne sont montrés à un tiers. Deux exceptions, limitées à la famille élargie, viennent du
+  multiclan (section 5.8) : les membres des **autres clans de l'enfant** voient son nom, son avatar
+  et le titre qu'il porte, rien d'autre (ni niveau, ni journal, ni objets, ni tâches) ; ses
+  **représentants légaux** voient le nom de chacun de ses clans et celui de son chef. Aucun autre
+  écran n'affiche quoi que ce soit d'un autre clan.
 - **Partager un souvenir de famille reste un acte volontaire d'adulte.** Un parent peut envoyer à
   ses proches le récit des aventures de son clan, avec les noms que sa famille se donne, comme il
   leur enverrait des photos de vacances. Ce pouvoir est refusé à un mineur.
@@ -524,18 +548,60 @@ clan.
 - **en créant un profil sans téléphone**, le chef voit la mention du consentement parental ; la
   création est datée et inscrite au journal du clan.
 
-**Le lien de responsabilité est attaché au clan d'origine** et ne se transfère pas. Seuls les chefs
-du clan d'origine peuvent déclarer l'enfant majeur. La dissolution du clan d'origine entraîne la
-suppression du profil de l'enfant, qui n'a plus de responsable. **Un chef ne peut pas exclure un
-mineur de son clan d'origine**, à une exception près : le profil sans téléphone qu'il a lui-même
-créé, dont il est le seul à pouvoir décider. Aucun mineur ne peut ainsi se retrouver dans le système
-sans adulte responsable identifié.
+**Le lien de responsabilité est attaché au clan d'origine** et ne se transfère pas. Le
+**représentant légal** de l'enfant est l'adulte qui a consenti à son entrée dans ce clan : sa
+déclaration, conservée avec les preuves d'acceptation, est la preuve de référence. Seuls ses
+représentants légaux (et non les autres chefs du clan d'origine) peuvent déclarer l'enfant majeur ou
+retirer le consentement. La dissolution du clan d'origine entraîne la suppression du profil de
+l'enfant, qui n'a plus de responsable, sauf s'il a un co-représentant : il est alors conservé, et le
+clan d'un co-représentant dont il est membre devient son clan d'origine. Le seul représentant d'un
+enfant ne peut pas supprimer son propre compte : il doit d'abord ajouter un co-représentant, ou
+supprimer le compte de l'enfant. **Un chef ne peut pas exclure un mineur de son clan d'origine**, à
+une exception près : le profil sans téléphone qu'il a lui-même créé, dont il est le seul à pouvoir
+décider. Aucun mineur ne peut ainsi se retrouver dans le système sans adulte responsable identifié.
+
+**Plusieurs clans : l'autorisation se donne entre adultes, et elle est vérifiée** (décision du
+27 septembre 2026). Un enfant peut jouer dans plusieurs clans, 8 au plus, par exemple celui de ses
+grands-parents ou celui d'un parent séparé, avec un personnage distinct dans chacun ; seuls son nom,
+son avatar et le titre qu'il porte le suivent d'un clan à l'autre. Un enfant déjà membre d'un clan
+n'entre dans un autre qu'après **l'autorisation préalable** de l'un de ses représentants, donnée à
+l'adulte qui l'accueille : en présence, en lisant le code QR affiché par le chef de ce clan, ou à
+distance, par un lien et un code à six chiffres. Le représentant voit alors le nom de ce clan et
+celui de son chef. L'autorisation vaut sept jours pour entrer, puis l'adhésion suit le parcours
+habituel (souhait de l'enfant, déclaration du chef). **Le téléphone de l'enfant vérifie
+l'autorisation avant toute admission** : le chef d'accueil ne peut pas la remplacer par une simple
+déclaration. C'est une amélioration nette : jusque-là, ce chef déclarait « agir avec l'accord du
+responsable légal », sans que rien le vérifie ; **un adulte extérieur ne peut plus faire entrer seul
+un enfant dans son clan**.
+
+Un autre adulte, l'autre parent par exemple, peut devenir **co-représentant** par un échange du même
+type : le représentant choisit l'enfant, et l'adulte déclare lui-même, sur son téléphone, être
+représentant légal de l'enfant ; cette déclaration est enregistrée comme preuve. Les co-représentants
+ont les mêmes pouvoirs que le représentant d'origine (faire entrer l'enfant dans leur clan sans
+autorisation, autoriser un autre clan, l'en retirer, retirer ou rétablir le consentement, le déclarer
+majeur) et le restent pour toujours. **Le représentant garde la main** : il voit la liste des clans
+de l'enfant et peut, à tout moment, l'en retirer, sauf de son clan d'origine. Le téléphone de
+l'enfant applique ce retrait : il ne reçoit plus rien de ce clan, notifications comprises, même
+avant d'avoir rouvert le jeu, et sa fiche dans ce clan est effacée comme celle de tout membre parti.
+Tout ce qui touche à la représentation (représentants, clans de l'enfant, autorisations, historique
+des gestes de chacun) est rangé dans un **dossier de représentation**, visible de l'enfant et de ses
+seuls représentants, conservé comme une preuve (section 6.3). Un enfant sans téléphone reste dans un
+seul clan.
+
+**Risque accepté.** Ces contrôles sont faits par l'application, comme toutes les gardes du jeu : un
+enfant qui modifierait son application pourrait techniquement les contourner. Le contournement
+demande une compétence technique et ne donnerait accès qu'au jeu d'un autre clan ; le dossier de
+représentation, lui, est protégé comme un clan, par un secret que seuls l'enfant et ses
+représentants détiennent.
 
 **Retirer son consentement n'est pas exclure, et le représentant légal le peut à tout moment.** Un
-chef du clan d'origine dispose, dans le menu de la tuile de l'enfant, de l'option « Retirer mon
-consentement et effacer les données de cet enfant ». L'enfant sort du jeu immédiatement. Pendant
-trois jours, un chef peut revenir sur cette décision ; ensuite, ses données sont supprimées, pour tous
-ses clans et pour lui seul, sans rien retirer au reste de la famille (section 6.3). Donner son accord
+représentant légal de l'enfant dispose, dans le menu de la tuile de l'enfant, de l'option « Retirer
+mon consentement et effacer les données de cet enfant » (pour un enfant sans téléphone, qui reste
+dans un seul clan, l'option est proposée aux chefs de ce clan, comme avant le multiclan). L'enfant sort du jeu immédiatement, dans
+tous ses clans. Pendant trois jours, un représentant peut revenir sur cette décision ; ensuite, ses
+données sont supprimées, pour tous ses clans et pour lui seul, sans rien retirer au reste de la
+famille, et le serveur exécute cette suppression même si l'enfant ne rouvre jamais l'application
+(section 6.3). Donner son accord
 est un geste ; le retirer en est un aussi.
 
 **L'application ne vérifie pas le lien de parenté**, et la politique de confidentialité le dit.
@@ -546,31 +612,45 @@ trois éléments :
 
 1. **on n'entre pas seul** : il faut un chef qui invite et déclare, après avoir lu le souhait de
    l'enfant ;
-2. **le lien de responsabilité ne se déplace pas** : il reste attaché au clan d'origine ;
+2. **le lien de responsabilité ne se déplace pas** : il reste attaché au clan d'origine, et aucun
+   autre clan n'accueille l'enfant sans l'autorisation vérifiée de l'un de ses représentants ;
 3. **il y a peu à obtenir** : un adulte qui mentirait sur son lien de parenté verrait le pseudonyme,
-   l'avatar et le journal de jeu de l'enfant, mais aucune adresse, aucune photo, aucune localisation,
-   aucune messagerie et aucun contact avec l'extérieur.
+   l'avatar et le journal de jeu de l'enfant, mais aucune adresse, aucune photo, aucune vidéo,
+   aucune localisation, aucune messagerie et aucun contact avec l'extérieur.
 
 ### 5.9 L'intimité de l'enfant, y compris à l'égard de sa famille
 
-**La photo prise pour rendre compte d'une tâche n'est jamais envoyée** : ni au serveur, ni à
-l'appareil de l'adulte qui juge. Elle reste sur le téléphone qui l'a prise, celui de l'enfant, ou
-celui de l'adulte qui joue à la place d'un enfant sans téléphone.
+**La preuve prise pour rendre compte d'une tâche, une photo ou une courte vidéo sans son, n'est
+jamais envoyée** : ni au serveur, ni à l'appareil de l'adulte qui juge. Elle reste sur le téléphone
+qui l'a prise, celui de l'enfant, ou celui de l'adulte qui joue à la place d'un enfant sans
+téléphone.
 
-**Comment se passe la validation.** Quand l'enfant soumet une tâche, la photo reste sur son
-téléphone. Tant que la tâche attend le verdict, l'enfant peut, s'il le souhaite, la montrer à
+**Comment se passe la validation.** Quand l'enfant soumet une tâche, la photo ou la vidéo reste sur
+son téléphone. Tant que la tâche attend le verdict, l'enfant peut, s'il le souhaite, la montrer à
 l'adulte en lui présentant son propre écran. L'adulte juge sur ce que l'enfant lui montre, ou en
 allant constater le travail lui-même, puis rend son verdict depuis son appareil. Il ne peut ni
-réclamer la photo, ni la consulter à distance. L'application ne constitue donc **aucune archive d'images du logement ou
-de l'activité d'un enfant**, là où un tableau de bord parental produirait, au fil des mois, un fonds
-consultable à distance de l'intérieur d'un foyer.
+réclamer la preuve, ni la consulter à distance. L'application ne constitue donc **aucune archive
+d'images du logement ou de l'activité d'un enfant**, là où un tableau de bord parental produirait,
+au fil des mois, un fonds consultable à distance de l'intérieur d'un foyer.
 
-La photo est **effacée dès le verdict**, et au plus tard à l'ouverture suivante de l'application.
+La preuve est **effacée dès le verdict**, et au plus tard à l'ouverture suivante de l'application.
 **Elle n'est jamais sauvegardée en ligne** : la sauvegarde vers le cloud est désactivée pour
 l'application. Seul subsiste le transfert direct d'un téléphone à un autre lors d'un changement
-d'appareil, que le système ne permet pas de refuser séparément. La photo ne peut pas être choisie
-dans la galerie : elle est prise sur le moment. Un enfant sans appareil photo, ou qui refuse
-l'autorisation, joue quand même.
+d'appareil, que le système ne permet pas de refuser séparément. La preuve ne peut pas être choisie
+dans la galerie : elle est prise sur le moment, dans l'application. Un enfant sans appareil photo,
+ou qui refuse l'autorisation, joue quand même.
+
+**Pourquoi une vidéo, mais jamais de son** (décision du 26 septembre 2026). Le premier enfant à
+tester le jeu a demandé à filmer plutôt qu'à photographier : une vidéo montre mieux un rangement ou
+un geste qu'une image fixe. Une vidéo muette de quelques secondes (quinze au plus) ne dit rien de
+plus qu'une photo sur l'enfant ou son logement, et suit exactement le même chemin : jamais envoyée,
+effacée au verdict. Le son, en revanche, changerait la nature de la preuve : il enregistrerait aussi
+les frères et sœurs, les conversations des parents, tout ce qui se dit dans la pièce, c'est-à-dire
+des personnes qui n'ont rien demandé, pour une preuve de ménage qui n'en a pas besoin. Il obligerait
+aussi l'application à demander l'accès au micro, ce qu'une application destinée aux enfants doit
+éviter. L'application **n'a donc aucune permission micro** : cette permission est retirée de
+l'application à sa fabrication, si bien que le téléphone lui refuse le micro et que la vidéo ne
+contient aucune piste sonore. On ne collecte que ce qui sert à juger la tâche.
 
 **Aucune donnée de localisation n'est collectée**, à aucun degré de précision. Le contenu du coffre
 n'est pas inscrit au journal, pour que la surprise reste entière.
@@ -589,7 +669,8 @@ unilatéralement (section 5.8). En revanche :
   n'a pas de compte, est supprimé par l'adulte qui l'a créé.
 
 Ce droit a son pendant du côté de l'adulte : le représentant légal peut retirer son consentement et
-faire supprimer les données de l'enfant sans toucher au reste de la famille (section 5.8).
+faire supprimer les données de l'enfant sans toucher au reste de la famille, ou retirer l'enfant
+d'un seul de ses clans, sauf du clan d'origine (section 5.8).
 
 ---
 
@@ -602,23 +683,26 @@ faire supprimer les données de l'enfant sans toucher au reste de la famille (se
 | Identification | Identifiant technique du compte, identifiant de joueur, identifiant de l'appareil, secret du clan | Authentifier le joueur, le rattacher à son clan, acheminer les notifications |
 | Statut légal | Enfant, en transition vers la majorité, adulte. **La date de naissance n'est jamais conservée** : saisie à l'inscription, elle sert à calculer le statut, puis est oubliée | Appliquer toutes les protections de ce document |
 | Pays et langue | Pays déclaré, région de stockage, langue, **enregistrés seulement après la connexion à un compte** | Appliquer le droit et les documents du pays, héberger les données dans la région correspondante |
-| Identité de jeu | Pseudonyme choisi librement, description du personnage, avatar, nom public de substitution ; nom, description et avatar du clan et leur nom public | C'est le jeu lui-même. Visibles du seul clan ; hors du clan, seul le nom public existe |
+| Identité de jeu | Pseudonyme choisi librement, description du personnage, avatar, nom public de substitution ; nom, description et avatar du clan et leur nom public | C'est le jeu lui-même. Visibles du seul clan ; hors du clan, seul le nom public existe. Exception : le pseudonyme, l'avatar et le titre porté d'un joueur sont les mêmes dans tous ses clans (8 au plus) et visibles de leurs membres (section 5.8) |
+| Représentation d'un enfant | Représentant et co-représentants ; clans de l'enfant (nom du clan, nom du chef, adulte qui l'y a fait entrer, date) ; autorisations données à d'autres clans ; historique des gestes des représentants (retrait ou rétablissement du consentement, déclaration de majorité, autorisation ou retrait d'un clan, ajout d'un co-représentant et sa déclaration) | Garder la main des parents sur les clans de l'enfant, et pouvoir le prouver. Visible de l'enfant et de ses seuls représentants ; preuve conservée cinq ans (section 6.3) |
 | Progression | Expérience, niveau, points de vie, titres, objets, argent de poche fictif, tâches et leur état | Le jeu |
 | Vie du clan | Rôle (chef ou non), clan d'origine, joueur sans appareil, mode hors concours, choix de recevoir ou non les rappels, retrait de consentement en cours | Appliquer les règles de responsabilité et de protection |
 | Journal du clan | Événements datés : tâches jugées, niveaux, coffres ouverts, cadeaux | Mémoire familiale et traçabilité des décisions |
 | Données techniques | Jeton de notification, version de l'application, date de dernière connexion, décalage horaire, historique des connexions | Acheminer les notifications à une heure adaptée au statut du joueur, servir la bonne version |
 | Invitations | Échange technique d'une invitation à distance, effacé au bout de 72 heures | Faire entrer un membre dans le clan |
-| Preuves d'acceptation | Version des conditions acceptées, date, pays, déclaration du chef, souhait de jouer de l'enfant (date, langue, région, version du texte montré, code de la demande tiré au hasard), autorisation de transfert international | Prouver que le consentement a été donné, et quand |
+| Preuves d'acceptation | Version des conditions acceptées, date, pays, déclaration du chef, souhait de jouer de l'enfant (date, langue, région, version du texte montré, code de la demande tiré au hasard), autorisation de transfert international, autorisation d'un autre clan donnée par un représentant, déclaration d'un co-représentant | Prouver que le consentement a été donné, et quand |
 | Achats (adultes seulement) | Compte de l'acheteur, référence d'achat Google Play, produit, dates, état de l'abonnement, utilisation d'un code cadeau | Faire fonctionner l'abonnement du clan |
 | Adresse électronique | **Détenue par le service d'authentification**, pour la seule connexion au compte Google ; **jamais écrite dans les données de jeu** | Permettre au joueur de retrouver son personnage |
-| Photo de preuve | **Jamais envoyée**, jamais sauvegardée en ligne, effacée au verdict et au plus tard à l'ouverture suivante | Aucune image d'un enfant ou de son logement hors de l'appareil |
+| Preuve d'une tâche (photo ou courte vidéo sans son) | **Jamais envoyée**, jamais sauvegardée en ligne, effacée au verdict et au plus tard à l'ouverture suivante ; aucun son enregistré, l'application n'ayant pas la permission micro | Aucune image d'un enfant ou de son logement hors de l'appareil ; aucune voix de l'enfant ni de ses proches |
 
 **Comment l'application sait qu'un enfant est devenu majeur.** Elle ne le sait pas d'elle-même,
 puisqu'elle ne conserve pas la date de naissance. Le statut d'enfant reste acquis jusqu'à ce qu'un
-chef du clan d'origine, responsable de l'enfant, le **déclare majeur**. Le jeune passe alors en statut
-de transition : à sa prochaine ouverture, l'application lui présente les conditions d'utilisation
+de ses représentants légaux le **déclare majeur**. Le jeune passe alors en statut de transition dans
+tous ses clans : à sa prochaine ouverture, l'application lui présente les conditions d'utilisation
 pour adultes, et il ne peut pas continuer à jouer sans les accepter. C'est cette acceptation qui le
-fait passer au statut adulte. Tant que personne ne fait cette déclaration, toutes les protections
+fait passer au statut adulte dans tous ses clans, et qui clôt son dossier de représentation. Un
+enfant sans téléphone ne peut pas être déclaré majeur avant d'avoir repris son profil sur son propre
+téléphone. Tant que personne ne fait cette déclaration, toutes les protections
 des mineurs continuent de s'appliquer : l'erreur possible va dans le sens de la protection.
 
 **Ne sont pas collectés** : nom et prénom réels, date de naissance, adresse postale, contacts,
@@ -679,11 +763,19 @@ un journal de clan est effacé en entier.
 - **Suppression à la demande** : depuis l'application, ou depuis une page web pour un compte lié à
   Google, par l'intéressé lui-même, y compris s'il est mineur. Si le compte supprimé était le seul
   chef d'un clan, le clan est dissous, et les mineurs dont c'était le clan d'origine sont supprimés
-  eux aussi.
-- **Retrait du consentement pour un enfant** : l'enfant sort du jeu immédiatement ; pendant trois
-  jours, un chef du clan d'origine peut revenir sur la décision et rien n'est supprimé ; ensuite, la
-  suppression suit les trois temps ci-dessus. Elle est déclenchée à la première ouverture de
-  l'application par un membre du clan après ce délai.
+  eux aussi, sauf ceux qui gardent un co-représentant. Le seul représentant d'un enfant ne peut pas
+  supprimer son compte sans avoir d'abord ajouté un co-représentant ou supprimé le compte de
+  l'enfant.
+- **Retrait du consentement pour un enfant** : l'enfant sort du jeu immédiatement, dans tous ses
+  clans ; pendant trois jours, un de ses représentants peut revenir sur la décision et rien n'est
+  supprimé ; ensuite, la suppression suit les trois temps ci-dessus, dans tous ses clans. Au terme
+  du délai, elle est exécutée par le serveur, à la demande de l'application d'un représentant, même
+  si l'enfant ne rouvre jamais l'application.
+- **Retrait d'un enfant d'un seul clan** par son représentant : sa fiche dans ce clan suit la règle
+  de tout membre parti (effacée trente jours après le départ).
+- **Dossier de représentation d'un enfant** : c'est une preuve. Il est clos à la majorité de
+  l'enfant (lecture seule) ou à la suppression de son compte, puis conservé **cinq ans**, comme les
+  preuves d'acceptation, avant d'être effacé.
 - **Enfant jamais invité** : rien n'a été enregistré, ni sur son téléphone ni en base ; la seule
   entrée d'authentification anonyme, vide, est effacée par la plateforme au bout de trente jours
   (section 5.8).
@@ -709,7 +801,7 @@ atteints, le journal de chacun). Une famille qui s'interrompt n'a pas toujours r
 déménage, l'enfant grandit, la rentrée passe.
 
 **Cas résiduel** : si un compte est supprimé depuis le site et que l'application n'est plus jamais
-ouverte, une photo en attente de verdict peut rester dans l'espace privé de l'application sur
+ouverte, une photo ou une vidéo en attente de verdict peut rester dans l'espace privé de l'application sur
 l'appareil. Aucune autre application ne peut la lire, elle disparaît à la désinstallation, et
 l'éditeur n'y a jamais eu accès.
 
@@ -747,8 +839,8 @@ Vertex AI (intelligence artificielle), dans le cadre de leurs conditions de trai
 **Google Play**, qui distribue l'application et encaisse les paiements, agit comme responsable de son
 propre traitement.
 
-**Aucun fichier produit par un utilisateur n'est hébergé**, ni photo, ni document : le stockage de
-fichiers sert uniquement à distribuer les éléments du jeu et les documents légaux.
+**Aucun fichier produit par un utilisateur n'est hébergé**, ni photo, ni vidéo, ni document : le
+stockage de fichiers sert uniquement à distribuer les éléments du jeu et les documents légaux.
 
 ---
 
@@ -793,13 +885,17 @@ traitons pour l'enfant et sa famille, et chaque garantie est décrite de façon 
 > sur les serveurs.
 >
 > Aucune donnée d'un mineur n'est utilisée à des fins publicitaires, de profilage ou de partage
-> commercial, et l'application n'en montre aucune en dehors de son clan familial : au-delà du clan,
-> un joueur n'est désigné que par un nom de substitution. Seul un adulte du clan peut choisir de
+> commercial, et l'application n'en montre aucune en dehors de ses clans familiaux : au-delà de ses
+> clans, un joueur n'est désigné que par un nom de substitution. Un enfant peut jouer dans plusieurs
+> clans de sa famille, où seuls son nom, son avatar et le titre qu'il porte sont les mêmes ; il
+> n'entre dans un autre clan qu'avec l'autorisation préalable de son représentant légal, que
+> l'application vérifie, et son représentant peut l'en retirer à tout moment. Seul un adulte du clan peut choisir de
 > partager avec ses proches le récit des aventures de sa famille ; cette faculté est refusée aux
-> mineurs. La date de naissance n'est jamais conservée. Les photos prises pour rendre compte d'une
-> tâche ne sont jamais envoyées ni sauvegardées en ligne, ne sont pas accessibles à l'adulte qui juge
-> le travail, et sont effacées dès que la tâche est jugée, au plus tard à l'ouverture suivante de
-> l'application.
+> mineurs. La date de naissance n'est jamais conservée. Les photos et courtes vidéos sans son prises
+> pour rendre compte d'une tâche ne sont jamais envoyées ni sauvegardées en ligne, ne sont pas
+> accessibles à distance à l'adulte qui juge le travail, et sont effacées dès que la tâche est jugée,
+> au plus tard à l'ouverture suivante de l'application. L'application n'a pas la permission
+> d'utiliser le micro.
 >
 > À la demande explicite d'un membre de la famille, l'application peut soumettre à un service
 > d'intelligence artificielle les textes qu'il vient de saisir, pour lui proposer des idées de noms,

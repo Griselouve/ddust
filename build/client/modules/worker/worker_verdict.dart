@@ -83,8 +83,9 @@ extension Worker_verdict on worker {
                                 await _applyIdentityFields(doc, taskId);   // préserve domain + champs de clone
                                 await _cloud?.write("workers", coll, taskId, doc, region: region, ownerId: clanSecret);
 
-                                // Le joueur vient de finir sa tâche et de l'envoyer en validation → last_task.
-                                await _touchLastTask(clanId, clanSecret, region, _userId, last);
+                                // PAS de last_task ici (décision du 2026-09-27) : c'est la VALIDATION qui rend
+                                // les PV, pas l'envoi. Une tâche en attente de verdict ne soigne pas encore ;
+                                // _creditXp (ou _touchLastTask pour une tâche sans XP) le fera au verdict.
 
                                 // Miroir local (cohérent avec _loadClanTasks).
                                 await deva_set("tasks.$taskId.assignee", _userId);
@@ -257,6 +258,9 @@ extension Worker_verdict on worker {
                         // joueur (_checkPlayerLevelUp) lit un snapshot cohérent, sans course : id de tâche
                         // recommandée → anim « coup de pouce » + nettoyage ; "" → validation normale (victoire).
                         doc.set("last_task_boss", bossTaskId);
+                        // Tâche VALIDÉE : le piège d'un événement est effacé (damage n'a pas d'autre
+                        // source). Même écriture que l'XP, donc atomique avec elle.
+                        doc.set("damage", 0);
                     }
                     await _cloud?.write(
                         "workers", "clans_players/$clanId/players", assignee, doc,
@@ -340,8 +344,10 @@ extension Worker_verdict on worker {
     // Rafraîchit `last_task` (date où le joueur a « joué ») sur SON doc membre
     // clans_players/{clanId}/players/{player}. Écriture ciblée en deep-merge dvcloud →
     // xp/pv/devices/last_task-de-création préservés. Deux moments comptent comme avoir joué :
-    // le « finish » du joueur (tâche envoyée en validation) ET le verdict rendu par un admin sur
-    // la tâche d'un tiers (arbitrer est une contribution, cf. _applyVerdict).
+    // la VALIDATION d'une tâche sans XP (auto-validation d'un admin seul, cf. on_combat_ok) ET le
+    // verdict rendu par un admin sur la tâche d'un tiers (arbitrer est une contribution, cf.
+    // _applyVerdict). L'envoi en validation, lui, ne compte plus (2026-09-27) : seule la
+    // validation rend les PV.
     Future<void> _touchLastTask(String clanId, String clanSecret, String region,
                                 String player, String when) async {
                 if (clanId.isEmpty || clanSecret.isEmpty || player.isEmpty) return;
@@ -559,6 +565,12 @@ extension Worker_verdict on worker {
                                         lastTaskWhen: DateTime.now().toUtc().toIso8601String(),
                                         bossTaskId: bossTaskId);
                         await _creditClanXp(clanId, clanSecret, region, playerXp);   // CLAN = part de l'XP RÉELLE (bonus boss compris, plafond appliqué)
+                    } else if (accept && assignee.isNotEmpty) {
+                        // Tâche validée SANS XP : pas de _creditXp. C'est donc ici que la validation
+                        // rend les PV (last_task) et efface le piège d'un événement.
+                        await _touchLastTask(clanId, clanSecret, region, assignee,
+                            DateTime.now().toUtc().toIso8601String());
+                        await _clearEventDamage(clanId, clanSecret, region, assignee);
                     }
                     // Journal : verdict admin (ok / partiel / refusé). userId = celui qui a fait
                     // la tâche (assignee), adminId = l'admin courant qui tranche.

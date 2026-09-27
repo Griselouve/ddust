@@ -1109,12 +1109,14 @@ extension Worker_butin on worker {
                                     final shares = _computeButinShares(
                                         members: members, money: money, items: loot, rng: rng);
 
-                                    // Le dernier contributeur, pour l'attaque de bisous de l'écran de
-                                    // récompenses. Il se calcule ICI et nulle part ailleurs : le même lot
-                                    // recale `last_butin_xp` sur l'xp courante (plus bas), après quoi toutes
-                                    // les contributions du cycle valent zéro et plus personne ne peut le
-                                    // retrouver. On le transporte donc sur le doc de CHAQUE joueur.
-                                    final lowest = _lowestContributor(members, rng);
+                                    // Les deux joueurs de l'attaque de bisous de l'écran de récompenses. Ils
+                                    // se calculent ICI et nulle part ailleurs : le même lot recale
+                                    // `last_butin_xp` sur l'xp courante (plus bas), après quoi toutes les
+                                    // contributions du cycle valent zéro et plus personne ne peut retrouver
+                                    // le dernier. On les transporte donc sur le doc de CHAQUE joueur.
+                                    final kiss  = _kissTargets(members, rng);
+                                    final kiss1 = kiss.isNotEmpty ? kiss[0] : null;
+                                    final kiss2 = kiss.length > 1 ? kiss[1] : null;
 
                                     final coll   = "clans_items/$clanId/items";
                                     final pcoll  = "clans_players/$clanId/players";
@@ -1188,12 +1190,21 @@ extension Worker_butin on worker {
                                         // le butin suivant en entier : le mode se retournerait contre les
                                         // enfants à l'instant précis où on le désactive.
                                         flag.set("last_butin_xp", xpOf[s.id] ?? 0);
-                                        // Le dernier contributeur, transporté à tout le monde (lui compris :
-                                        // c'est son app qui décidera de ne rien lui montrer). Chaînes VIDES et
-                                        // non champs omis quand il n'y en a pas — le deep-merge dvcloud
-                                        // garderait sinon le dernier de l'ouverture PRÉCÉDENTE.
-                                        flag.set("butin_low_id",   lowest?.id   ?? "");
-                                        flag.set("butin_low_name", lowest?.name ?? "");
+                                        // Les joueurs de l'attaque de bisous, transportés à tout le monde (eux
+                                        // compris : c'est leur app qui décidera de ne rien leur montrer), dans
+                                        // l'ordre TIRÉ AU SORT : rien ne dit lequel était le dernier. Chaînes
+                                        // VIDES et non champs omis quand il n'y en a pas : le deep-merge
+                                        // dvcloud garderait sinon les noms de l'ouverture PRÉCÉDENTE.
+                                        flag.set("butin_kiss_id1",   kiss1?.id   ?? "");
+                                        flag.set("butin_kiss_name1", kiss1?.name ?? "");
+                                        flag.set("butin_kiss_id2",   kiss2?.id   ?? "");
+                                        flag.set("butin_kiss_name2", kiss2?.name ?? "");
+                                        // ⚠ `butin_low_id` / `butin_low_name` ONT DISPARU (2026-09-24) : ils
+                                        //   désignaient le seul dernier, ce que le brouillage veut taire. Vidés
+                                        //   ici tant qu'il peut en rester en base ; une app d'avant n'affiche
+                                        //   alors plus aucun message, plutôt que de nommer le dernier.
+                                        flag.set("butin_low_id",   "");
+                                        flag.set("butin_low_name", "");
                                         writes.add(DvCloudWrite.set(pcoll, s.id, flag));
                                     }
 
@@ -1292,18 +1303,25 @@ extension Worker_butin on worker {
                                 await _checkPendingButin();
     }
 
-    // Le membre NON ADMIN qui a le moins contribué au cycle — celui à qui le clan doit une attaque
-    // de bisous. Les chefs sont hors concours : ils organisent la maisonnée, on ne leur compte pas
-    // leurs points. Les joueurs mis « hors concours » non plus, pour la même raison en plus net :
-    // ils ont demandé à sortir du classement, ils n'en héritent pas la dernière place. Null si le
-    // clan n'a que ceux-là — il n'y a alors personne à encourager.
+    // Les joueurs à qui le clan doit une attaque de bisous : DEUX, dans un ordre tiré au sort.
+    //  - le membre qui a le moins contribué au cycle ;
+    //  - un autre membre du même champ, tiré au sort.
+    // Pourquoi deux (décision du 2026-09-16, dossier « intérêt supérieur de l'enfant ») : nommer
+    // seul le dernier à chaque coffre se lit comme une dernière place, donc comme un classement. Le
+    // second nom brouille les pistes, et l'ordre tiré au sort l'empêche de se trahir (le dernier
+    // cité toujours en premier, le brouillage ne servirait à rien).
+    // Le champ : ni les chefs (ils organisent la maisonnée, on ne leur compte pas leurs points), ni
+    // les joueurs « hors concours » (ils ont demandé à sortir du classement, ils n'en héritent pas
+    // la dernière place). Un seul nom si le champ ne compte qu'un joueur, aucun s'il est vide : il
+    // n'y a alors personne à encourager.
     // Ex æquo départagés par un TIRAGE explicite, comme le reste du partage : le tri de Dart n'est
     // pas stable, et sans tirage ce serait toujours le même enfant qui hériterait de la dernière
     // place (le plus souvent celui dont le document se lit en premier).
-    _ButinShare? _lowestContributor(List<_ButinShare> members, Random rng) {
+    // Fonction PURE : tout son hasard entre par `rng`, le même que celui du partage.
+    List<_ButinShare> _kissTargets(List<_ButinShare> members, Random rng) {
 
                                 final field = members.where((m) => !m.admin && !m.horsConcours).toList();
-                                if (field.isEmpty) return null;
+                                if (field.isEmpty) return [];
                                 final luck = <_ButinShare, double>{
                                     for (final m in field) m: rng.nextDouble()
                                 };
@@ -1311,7 +1329,11 @@ extension Worker_butin on worker {
                                     final c = a.contribution.compareTo(b.contribution);
                                     return c != 0 ? c : luck[a]!.compareTo(luck[b]!);
                                 });
-                                return field.first;
+                                final lowest = field.first;
+                                if (field.length == 1) return [lowest];
+                                final others = field.sublist(1);
+                                final other  = others[rng.nextInt(others.length)];
+                                return rng.nextBool() ? [lowest, other] : [other, lowest];
     }
 
     // Partage du contenu du coffre entre les membres. Fonction PURE : elle ne lit ni n'écrit rien,
@@ -1486,12 +1508,14 @@ extension Worker_butin on worker {
                                         _userId, ownerId: clanSecret, region: region);
                                     if (me == null || me.get("pending_butin") != true) return false;
 
-                                    // Le dernier contributeur voyage sur le doc, posé par la distribution :
-                                    // à cet instant sa contribution est déjà remise à zéro en base, il n'y a
-                                    // plus que ces deux champs pour s'en souvenir.
-                                    await _prepareButinKiss(
-                                        me.get("butin_low_id")?.toString()   ?? "",
-                                        me.get("butin_low_name")?.toString() ?? "");
+                                    // Les joueurs de l'attaque de bisous voyagent sur le doc, posés par la
+                                    // distribution : à cet instant les contributions sont déjà remises à
+                                    // zéro en base, il n'y a plus que ces champs pour s'en souvenir.
+                                    await _prepareButinKiss([
+                                        for (final n in ["1", "2"])
+                                            (id:   me.get("butin_kiss_id$n")?.toString()   ?? "",
+                                             name: me.get("butin_kiss_name$n")?.toString() ?? ""),
+                                    ]);
 
                                     _butinChecking = true;                  // relâché par on_celebration_end
                                     final played = await _claimButin(clanId, clanSecret, region);
@@ -1656,22 +1680,29 @@ extension Worker_butin on worker {
                                 return rows;
     }
 
-    // Prépare (ou efface) l'attaque de bisous, à partir du dernier contributeur posé sur le doc
-    // joueur par la distribution. Rien à afficher si le clan n'a que des chefs (`lowId` vide) — et
-    // rien non plus sur l'appareil du principal intéressé : le message parle de lui, pas à lui.
-    // Texte résolu dans la langue COURANTE (repli fr), même idiome que _showClanWelcomeAnimation.
-    Future<void> _prepareButinKiss(String lowId, String lowName) async {
+    // Prépare (ou efface) l'attaque de bisous, à partir des joueurs posés sur le doc joueur par la
+    // distribution (_kissTargets), dans l'ordre où elle les a tirés. Rien à afficher si le clan n'a
+    // que des chefs (aucun nom), et rien non plus sur l'appareil d'AUCUN des joueurs nommés, ni son
+    // nom ni celui de l'autre : le message parle d'eux, pas à eux.
+    // Un nom : `butin_kiss` ; deux noms : `butin_kiss_two`. Texte résolu dans la langue COURANTE
+    // (repli fr), même idiome que _showClanWelcomeAnimation.
+    Future<void> _prepareButinKiss(List<({String id, String name})> targets) async {
 
                                 _butinKissText = "";
-                                if (lowId.isEmpty || lowName.isEmpty || lowId == _userId) return;
+                                final named = targets.where((t) => t.id.isNotEmpty && t.name.isNotEmpty).toList();
+                                if (named.isEmpty || named.any((t) => t.id == _userId)) return;
 
+                                final key  = named.length == 1 ? "butin_kiss" : "butin_kiss_two";
                                 final lang = TranslationRegistry.currentLang;
-                                var text = (await deva_get("lang.translations.butin_kiss.$lang"))?.toString() ?? "";
+                                var text = (await deva_get("lang.translations.$key.$lang"))?.toString() ?? "";
                                 if (text.isEmpty) {
-                                    text = (await deva_get("lang.translations.butin_kiss.fr"))?.toString() ?? "";
+                                    text = (await deva_get("lang.translations.$key.fr"))?.toString() ?? "";
                                 }
                                 if (text.isEmpty) return;
-                                _butinKissText = text.replaceAll("@@@name@@@", lowName);
+                                _butinKissText = named.length == 1
+                                    ? text.replaceAll("@@@name@@@", named[0].name)
+                                    : text.replaceAll("@@@name1@@@", named[0].name)
+                                          .replaceAll("@@@name2@@@", named[1].name);
     }
 
     // Célébration de l'ouverture (interlude "butin"). Texte pré-résolu dans la langue COURANTE ; le
@@ -1699,7 +1730,7 @@ extension Worker_butin on worker {
     // Écran de récompenses : pur affichage de la part figée à la réclamation. Il ne lit RIEN — en
     // base, tout a déjà changé de mains.
     // Le message d'encouragement (l'attaque de bisous) suit la même règle : figé à la réclamation,
-    // vide sur l'appareil de celui qu'il nomme, donc son parchemin reste caché chez lui.
+    // vide sur l'appareil de chacun de ceux qu'il nomme, donc son parchemin reste caché chez eux.
     Future<void> on_butin_rewards_appear(dynamic caller, dynamic event) async {
 
                                 try {

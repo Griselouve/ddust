@@ -342,6 +342,45 @@ conf:
             label: "@@@T:perso_menu_nudges_on@@@"
           actions:
             tap: worker.nudges_on
+        # MULTICLAN : les notifications de CE téléphone, coupées À LA SOURCE (pumessaging écarte
+        # l'appareil avant l'envoi, application fermée comprise). Deux paires EXCLUSIVES arbitrées
+        # par perso_settings_selector : pour le clan courant, et pour tous les clans.
+        notif_clan_off:
+          icon: "notifications_off"
+          desc: "@@@T:perso_menu_notif_clan_off_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_notif_clan_off@@@"
+          actions:
+            tap: worker.notif_clan_off
+        notif_clan_on:
+          icon: "notifications_active"
+          desc: "@@@T:perso_menu_notif_clan_on_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_notif_clan_on@@@"
+          actions:
+            tap: worker.notif_clan_on
+        notif_all_off:
+          icon: "notifications_off"
+          desc: "@@@T:perso_menu_notif_all_off_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_notif_all_off@@@"
+          actions:
+            tap: worker.notif_all_off
+        notif_all_on:
+          icon: "notifications_active"
+          desc: "@@@T:perso_menu_notif_all_on_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_notif_all_on@@@"
+          actions:
+            tap: worker.notif_all_on
+        # Conditions d'utilisation, dans la version ACCEPTÉE, lues dans l'app (documents.view_doc).
+        cgu:
+          icon: "gavel"
+          desc: "@@@T:perso_menu_cgu_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_cgu@@@"
+          actions:
+            tap: worker.open_cgu
         privacy:
           icon: "privacy_tip"
           desc: "@@@T:perso_menu_privacy_desc@@@"
@@ -349,6 +388,17 @@ conf:
             label: "@@@T:perso_menu_privacy@@@"
           actions:
             tap: worker.open_privacy
+        # « Noter et partager » : ouvre le panneau commons/rate_* (étoiles + partage de l'app).
+        # RÉSERVÉ AUX ADULTES (perso_settings_selector, sur worker.player_is_adult), double garde
+        # dans worker.open_rate_panel. Placé AVANT la déconnexion : la suppression du compte
+        # reste la dernière ligne. Absent du menu de mort (fonctions vitales seulement).
+        rate_share:
+          icon: "star"
+          desc: "@@@T:menu_rate_share_desc@@@"
+          shape:
+            label: "@@@T:menu_rate_share@@@"
+          actions:
+            tap: worker.open_rate_panel
         logout:
           image: "images/small/log-out.png"
           desc: "@@@T:perso_menu_logout_desc@@@"
@@ -505,6 +555,9 @@ conf:
       class: DvExplorer
       layer: content
       selector: worker.on_avatar_selected
+      # Ordre : icon_[thème_]<groupe>_P_NN, rangé par worker.sort_avatars (groupe du clan,
+      # classe, thème en cours, puis le reste). Contexte posé à l'ouverture de l'écran.
+      sort: worker.sort_avatars
       shape:
         x: 3%
         y: 3%
@@ -514,7 +567,8 @@ conf:
         show_miniature: true
         selection: single
         folder: "images/medium"
-        regex_filter: "icon_[0-9]+_P_[0-9]+[.]png"
+        # Thème facultatif en tête (absent = donjon), groupe = numéro de clan ou nom de classe.
+        regex_filter: "icon_([A-Za-z0-9]+_)?[A-Za-z0-9]+_P_[0-9]+[.]png"
         border_color: "0xFFEAD9A6"
 
     #//------------------------------- Player rename screen ------------------------------

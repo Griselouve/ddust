@@ -77,7 +77,7 @@ extension Worker_celebrations on worker {
                                 _welcomeTuto = true;   // c'est la FIN de cette animation qui ouvrira le tutoriel
                                 // Sans animation (dvinterlude hors build), personne ne notifiera de fin : on
                                 // désarme le relais et on ouvre le tutoriel tout de suite, sinon il serait perdu.
-                                if (!await _showClanWelcomeAnimation(pending == "created")) {
+                                if (!await _showClanWelcomeAnimation(pending)) {
                                     _welcomeTuto = false;
                                     _enterTutoAfterWelcome();
                                 }
@@ -253,6 +253,8 @@ extension Worker_celebrations on worker {
                                     await deva_set("registry.commons/death_skull.shape.visible",  dead);
                                     await deva_set("registry.commons/death_gage.shape.visible",   dead);
                                     await deva_set("registry.commons/death_revive.shape.visible", showBtn);
+                                    // Kebab des fonctions vitales : il suit le voile, pour tout le monde.
+                                    await deva_set("registry.commons/death_settings.shape.visible", dead);
                                     if (dead && gage.isNotEmpty) {
                                         await deva_set("registry.commons/death_gage.shape.label", gageLabel);
                                     }
@@ -261,7 +263,7 @@ extension Worker_celebrations on worker {
                                     // Uniquement sur changement d'état (évite une écriture disque à chaque visite).
                                     if (persist) await Deva.instance.store();
 
-                                    // Les 4 shapes sont déclarées UNE fois (commons/death_*) et injectées dans les
+                                    // Les shapes de mort sont déclarées UNE fois (commons/death_*) et injectées dans les
                                     // écrans à taskbar par le registry du template "page_taskbar" → chaque page en
                                     // possède SA propre instance, sous le MÊME dvid. D'où le get_shape_by_id
                                     // d'INSTANCE (p.…) et non le statique (DvOrb.…, qui ne rendrait que celle de la
@@ -272,12 +274,13 @@ extension Worker_celebrations on worker {
                                         final skull  = p.get_shape_by_id("commons/death_skull");
                                         final gageS  = p.get_shape_by_id("commons/death_gage");
                                         final revive = p.get_shape_by_id("commons/death_revive");
+                                        final vital  = p.get_shape_by_id("commons/death_settings");
                                         if (dead) {
                                             if (gageS is DvLabel && gage.isNotEmpty) gageS.write(gageLabel);
-                                            scrim?.show(); skull?.show(); gageS?.show();
+                                            scrim?.show(); skull?.show(); gageS?.show(); vital?.show();
                                             if (showBtn) { revive?.show(); } else { revive?.hide(); }
                                         } else {
-                                            scrim?.hide(); skull?.hide(); gageS?.hide(); revive?.hide();
+                                            scrim?.hide(); skull?.hide(); gageS?.hide(); revive?.hide(); vital?.hide();
                                         }
                                     }
                                 } catch (e) {
@@ -467,9 +470,14 @@ extension Worker_celebrations on worker {
                                             deva_log("info", "[boss] tâche recommandée validée (xp $storedXp → $xp) → coup de pouce");
                                             await _showGiftAnimation();
                                             await _consumeBossReward(clanId, clanSecret, region, boss);
+                                            // Moment d'événement « tâche validée », APRÈS l'animation.
+                                            unawaited(_evtAt("task_validated"));
                                         } else {
                                             deva_log("info", "[victory] tâche validée (xp $storedXp → $xp, last_task changé)");
                                             await _showVictoryAnimation();
+                                            // Moment d'événement « tâche validée » (souris...), APRÈS la
+                                            // victoire : _evtAt attend que l'animation soit finie.
+                                            unawaited(_evtAt("task_validated"));
                                         }
                                         return celebrated;
                                     }
@@ -926,6 +934,10 @@ extension Worker_celebrations on worker {
 
                                 final playlist = dead ? "ambiant_dead" : "ambiant";
                                 ActionRegistry.get("dvsound.ambiance.$playlist")?.call(null, null);
+                                // La musique du seuil lui cède la place dès qu'elle joue. Sans ça,
+                                // un joueur passé par « Retrouver mon héros » gardait le seuil sous
+                                // l'ambiance : deux fois la musique du thème (cf. _passeLeSeuil).
+                                unawaited(_passeLeSeuil(playlist));
     }
 
     // Bienvenue clan (1re arrivée sur dashboard après création/rejoint) : même interlude que la montée de
@@ -936,7 +948,8 @@ extension Worker_celebrations on worker {
     // → rouge/gras via highlight_color de commons/levelup_label).
     // Renvoie false si dvinterlude n'est pas dans ce build : rien ne jouera, donc rien ne viendra
     // notifier la fin — et le tutoriel, qui attend derrière, doit alors être ouvert sur-le-champ.
-    Future<bool> _showClanWelcomeAnimation(bool created) async {
+    // `kind` : "created" (fondateur), "joined", ou "joined_chief" (invité comme chef).
+    Future<bool> _showClanWelcomeAnimation(String kind) async {
 
                                 final play = ActionRegistry.get("dvinterlude.play.levelup");
                                 if (play == null) {
@@ -951,7 +964,9 @@ extension Worker_celebrations on worker {
                                     return v;
                                 }
 
-                                final key  = created ? "created_clan_splash" : "joined_clan_splash";
+                                final key  = kind == "created"      ? "created_clan_splash"
+                                           : kind == "joined_chief" ? "joined_chief_clan_splash"
+                                           :                          "joined_clan_splash";
                                 final name = (await Deva.instance.get("session.clan.name"))?.toString() ?? "";
                                 var text   = await tr(key);
                                 text = text.replaceAll("@@@session.clan.name@@@", "[[$name]]");

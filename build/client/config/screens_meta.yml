@@ -135,6 +135,10 @@ conf:
     # avec son horodatage réel.
     deferred:
       when_action: "worker.is_anonymous"
+      # Application bloquée par dvautover (mise à jour forcée, clan à mettre à jour ou en
+      # maintenance) : pas même la session légale, réécrite sinon à chaque connexion.
+      also_when_actions:
+        - "autover.is_blocked"
 
   # `regions:` N'EST PLUS ÉCRIT ICI, ET C'ÉTAIT UN DUPLICATA. Le builder l'injecte
   # depuis la cible d'infrastructure visée par le build (build.yml de la suite,
@@ -232,6 +236,12 @@ conf:
     clan_invite_pin:
       text: "@@@T:share_clan_invite_pin_text@@@\n\n@@@T:share_clan_invite_link@@@\nddust://invitepin?token=@@@worker.invite_out_pin_token@@@\n\n@@@T:share_site_link@@@"
       image: "images/big/logo.png"
+    # MULTICLAN : échange entre adultes à distance (chef qui accueille un enfant d'un autre clan,
+    # candidat co-représentant). Même lien et même écran de saisie que l'invitation d'un clan ;
+    # jeton posé dans worker.guardian_out_token le seul temps du partage. Le code est dicté.
+    guardian_link:
+      text: "@@@T:share_guardian_link_text@@@\n\n@@@T:share_clan_invite_link@@@\nddust://invitepin?token=@@@worker.guardian_out_token@@@\n\n@@@T:share_site_link@@@"
+      image: "images/big/logo.png"
     # Journal (joueur, clan, ou récit IA du conte du butin) : logo (image) + accroche + corps, tous
     # deux posés au runtime par worker.on_log_appear dans log.share_intro / log.share_text.
     # L'accroche VARIE selon ce qui est partagé (journal brut vs récit narratif IA) — c'est pour ça
@@ -243,6 +253,23 @@ conf:
     log:
       text: "@@@log.share_intro@@@\n\n@@@log.share_text@@@\n\n@@@T:share_site_link@@@"
       image: "images/big/logo.png"
+    # Partage DE L'APP (panneau « Noter et partager », worker.on_rate_share). Deux messages, un
+    # seul choisi selon `app_share.store_url` : vide → le site (test interne, pas de fiche
+    # publique), rempli → la fiche Play.
+    app_site:
+      text: "@@@T:share_app_text@@@\n\n@@@T:share_site_link@@@"
+      image: "images/big/logo.png"
+    app_store:
+      text: "@@@T:share_app_text@@@\n\n@@@app_share.store_url@@@"
+      image: "images/big/logo.png"
+
+  # LA BASCULE TEST INTERNE → PUBLIÉ. Vide tant que l'app n'a pas de fiche publique : le partage
+  # envoie le site et les étoiles n'ouvrent rien. Le jour de la publication, y coller l'URL de la
+  # fiche (https://play.google.com/store/apps/details?id=<package>) avec la build de sortie. Pas
+  # de valeur déduite : l'app ignore son stade Play, et le package de l'entrée neuve n'est pas
+  # encore connu (com.grisloup.ddust_client est brûlé).
+  app_share:
+    store_url: ""
 
   # --- Interludes : ce qui EXISTE ---------------------------------------------------
   # Les cinq célébrations que le worker sait déclencher (dvinterlude.play.<id>). On ne déclare ICI
@@ -304,6 +331,24 @@ conf:
       splash: commons/levelup_label
       on_finished:
         worker: { order: 1, action: "worker.on_celebration_end" }
+    # Passage à l'âge adulte (bascule légale t → a), AVANT la CGU adulte : la célébration « burn »
+    # (texte adulthood_anim), puis le rideau sous lequel la CGU s'ouvre (worker._playAdulthood).
+    # Le `on_finished` du rideau double son `on_covered` (déclaré au thème) : un rideau préempté
+    # avant d'avoir couvert l'écran ouvre quand même la CGU. Le worker n'agit qu'une fois.
+    adulthood:
+      splash: commons/levelup_label
+      on_finished:
+        worker: { order: 1, action: "worker.on_adulthood_finished" }
+    passage_adulthood:
+      on_finished:
+        worker: { order: 1, action: "worker.on_adulthood_covered" }
+    # MULTICLAN : le rideau du changement de clan (« Bon retour parmi … »). La bascule a lieu
+    # sous le noir (on_covered, déclaré au thème) ; `on_finished` la double si le rideau est
+    # préempté avant d'avoir couvert l'écran. Le worker n'agit qu'une fois.
+    passage_switch:
+      splash: my_clans_page/switch_label
+      on_finished:
+        worker: { order: 1, action: "worker.on_switch_covered" }
     giftxp: { splash: commons/giftxp_label }
     giftgold: { splash: commons/giftgold_label }
     # Victoire de tâche validée : image seule (aucun texte → pas de splash), pas de verrou worker.

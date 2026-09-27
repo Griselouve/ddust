@@ -72,6 +72,8 @@ extension Worker_onboarding on worker {
                                 ActionRegistry.register("worker.on_acceptance_appear",  on_acceptance_appear);
                                 ActionRegistry.register("worker.on_ambiance_relais",    on_ambiance_relais);
 
+                                ActionRegistry.register("worker.on_home_appear",        on_home_appear);
+
                                 ActionRegistry.register("worker.on_intro_reveal",      on_intro_reveal);
 
                                 ActionRegistry.register("worker.on_intro_finished",    on_intro_finished);
@@ -277,7 +279,7 @@ extension Worker_onboarding on worker {
                                         "[seuil] 'intro/sounds/seuil.mp3' introuvable — seuil silencieux");
                                     return;
                                 }
-                                // ⚠ A 45 %, ET LE NIVEAU SE POSE AVANT LA BOUCLE. A plein volume la
+                                // ⚠ A 40 %, ET LE NIVEAU SE POSE AVANT LA BOUCLE. A plein volume la
                                 //   musique couvrait la narration : les répliques du conteur sont
                                 //   rendues par ElevenLabs à un niveau de parole normal, quand une
                                 //   nappe d'ambiance occupe tout le spectre en continu. Deux sources
@@ -287,10 +289,66 @@ extension Worker_onboarding on worker {
                                 //   sont déjà au maximum de ce qu'un mp3 rend sans saturer, et un
                                 //   gain logiciel au-delà de 1.0 écrête. C'est aussi le seul son du
                                 //   jeu concerné — le reste du contenu sonore garde son équilibre.
-                                await ActionRegistry.get("dvsound.volume.seuil_music.30")
+                                //
+                                //   40 % au seuil (30 % jusqu'au 2026-09-25), puis 50 % sur l'écran
+                                //   des deux portes (`on_home_appear`), le niveau de la musique du
+                                //   thème partout ailleurs (`sound.volumes` du thème).
+                                await ActionRegistry.get("dvsound.volume.seuil_music.40")
                                     ?.call(null, null);
                                 await ActionRegistry.get("dvsound.loop.seuil_music")?.call(null, null);
-                                deva_log("info", "[seuil] musique lancée (30 %)");
+                                deva_log("info", "[seuil] musique lancée (40 %)");
+    }
+
+    // L'écran des deux portes (« Je pars à l'aventure » / « Retrouver mon héros ») : la
+    // musique du seuil monte à 50 %, le niveau de la musique du thème partout ailleurs.
+    // Les répliques du conteur, qu'elle ne devait pas couvrir, sont derrière nous.
+    Future<void> on_home_appear(dynamic caller, dynamic event) async {
+
+                                if (!_seuilMusique) return;
+                                await ActionRegistry.get("dvsound.volume.seuil_music.50")
+                                    ?.call(null, null);
+    }
+
+    // La musique du seuil CÈDE LA PLACE à la playlist `playlist`, en fondu, dès que
+    // celle-ci joue vraiment. Appelée par le relais de l'onboarding ET par chaque
+    // déclaration d'ambiance (`_setAmbiance`).
+    //
+    // ⚠ C'EST CE QUI MANQUAIT AU PARCOURS « RETROUVER MON HÉROS » (2026-09-25). Le relais
+    //   n'était tiré que par l'écran de l'âge et l'énigme parentale, que ce parcours ne
+    //   traverse pas : le seuil jouait encore quand la reprise de session lançait
+    //   l'ambiance, et les deux musiques du thème tournaient ensemble jusqu'à la fin de
+    //   la partie (vu après une résurrection).
+    //
+    // ⚠ ON ATTEND QUE LA PLAYLIST JOUE, sans quoi on éteindrait le seuil pour du silence :
+    //   elle vit dans le bucket et peut n'être pas encore descendue, ou avoir été
+    //   mémorisée pendant qu'un interlude fait taire l'ambiance. `sound.playing.<surnom>`
+    //   est le seul témoin fiable. Une minute au plus, puis on laisse le seuil.
+    Future<void> _passeLeSeuil(String playlist) async {
+
+                                if (!_seuilMusique) return;
+                                for (var t = 0; t < 120; t++) {
+                                    if ((await deva_get("sound.playing.$playlist")) == true) break;
+                                    if (!_seuilMusique) return;      // un autre relais l'a fait
+                                    await Future.delayed(const Duration(milliseconds: 500));
+                                }
+                                if ((await deva_get("sound.playing.$playlist")) != true) {
+                                    deva_log("warning",
+                                        "[ambiance] '$playlist' ne joue pas après 60 s — on garde le seuil");
+                                    return;
+                                }
+                                if (!_seuilMusique) return;
+                                _seuilMusique = false;
+
+                                // Fondu plutot que coupure : deux musiques qui se succedent
+                                // sechement s'entendent comme une erreur, un fondu d'une seconde
+                                // ne se remarque pas.
+                                final fondu = ActionRegistry.get("dvsound.fadeout.seuil_music");
+                                if (fondu != null) {
+                                    unawaited(fondu(null, null));
+                                } else {
+                                    ActionRegistry.get("dvsound.stop.seuil_music")?.call(null, null);
+                                }
+                                deva_log("info", "[ambiance] relais : seuil vers '$playlist'");
     }
 
     // Le relais : la playlist du donjon remplace la musique du seuil.
@@ -322,10 +380,15 @@ extension Worker_onboarding on worker {
                                 //   musique ne demarrait plus jamais.
                                 //
                                 //   La playlist se lance donc toujours ; c'est l'extinction du
-                                //   seuil, plus bas, qui est conditionnelle. Relancer une playlist
-                                //   deja en cours est sans effet : `_playlistLoop` reprend l'etat
-                                //   existant au lieu d'en creer un second.
-                                final suite = ActionRegistry.get("dvsound.loop.ambiant");
+                                //   seuil, plus bas, qui est conditionnelle.
+                                //
+                                // ⚠ EN AMBIANCE, ET NON EN SIMPLE BOUCLE (2026-09-25). Lancee par
+                                //   `dvsound.loop.ambiant`, dvsound ignorait que c'etait la musique
+                                //   de fond : le `_setAmbiance` du tableau de bord la relancait
+                                //   depuis sa premiere piste, et les interludes ne savaient pas la
+                                //   faire taire. Declaree comme ambiance, un second appel (pas de
+                                //   l'enigme, tableau de bord) est sans effet.
+                                final suite = ActionRegistry.get("dvsound.ambiance.ambiant");
                                 if (suite == null) {
                                     deva_log("warning",
                                         "[ambiance] playlist du donjon indisponible — on garde le seuil");
@@ -333,40 +396,11 @@ extension Worker_onboarding on worker {
                                 }
                                 await suite(null, null);
 
-                                // ⚠ ON VERIFIE QUE LA SUITE JOUE VRAIMENT. `dvsound.loop.ambiant`
-                                //   est une action a prefixe : elle existe toujours, et rendre la
-                                //   main ne prouve rien. La playlist du donjon vit dans le bucket
-                                //   et peut n'etre pas encore descendue — on coupait alors le
-                                //   seuil pour du silence, a partir de l'ecran des conditions.
-                                //
-                                //   `sound.playing.<surnom>` est publie par dvsound : c'est le
-                                //   seul temoin fiable. On laisse un instant a la lecture pour
-                                //   s'etablir avant de regarder.
-                                await Future.delayed(const Duration(milliseconds: 400));
-                                if ((await deva_get("sound.playing.ambiant")) != true) {
-                                    deva_log("warning",
-                                        "[ambiance] la playlist ne joue pas — on garde le seuil");
-                                    return;
-                                }
-                                // Rien a eteindre si le seuil n'a jamais chante : c'est le cas
-                                // d'un joueur qui reprend sa session, et du second passage de ce
-                                // relais.
-                                if (!_seuilMusique) {
-                                    deva_log("info", "[ambiance] playlist du donjon lancee");
-                                    return;
-                                }
-                                _seuilMusique = false;
-
-                                // Fondu plutot que coupure : deux musiques qui se succedent
-                                // sechement s'entendent comme une erreur, un fondu d'une seconde
-                                // ne se remarque pas.
-                                final fondu = ActionRegistry.get("dvsound.fadeout.seuil_music");
-                                if (fondu != null) {
-                                    unawaited(fondu(null, null));
-                                } else {
-                                    ActionRegistry.get("dvsound.stop.seuil_music")?.call(null, null);
-                                }
-                                deva_log("info", "[ambiance] relais : seuil vers playlist du donjon");
+                                // L'extinction du seuil attend que la playlist joue vraiment
+                                // (`_passeLeSeuil`) : `dvsound.ambiance.ambiant` est une action a
+                                // prefixe, elle existe toujours, et rendre la main ne prouve rien.
+                                // Sans attendre : le relais ne doit pas retenir le pas suivant.
+                                unawaited(_passeLeSeuil("ambiant"));
     }
 
     // Une liste declaree en conf, quelle que soit la forme sous laquelle elle arrive.
@@ -625,6 +659,14 @@ extension Worker_onboarding on worker {
     Future<void> on_intro_reveal(dynamic caller, dynamic event) async {
 
                                 if (DvOrb.get_current_page()?.dvid != "lang_choice") return;
+                                // Intro rejouée après un changement de version : le joueur est connecté,
+                                // on le fait entrer (on_login le route depuis lang_choice, qui connaît
+                                // toutes les routes de reprise) au lieu des deux portes.
+                                if (_introReplay) {
+                                    _introReplay = false;
+                                    await on_login(null, _cloud?.currentUser());
+                                    return;
+                                }
                                 await ActionRegistry.get("steps.navigate")?.call(null, null);
     }
 

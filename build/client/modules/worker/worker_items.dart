@@ -108,6 +108,8 @@ extension Worker_items on worker {
                                 } catch (e) {
                                     deva_log("error", "[items] on_items_appear FAILED: $e");
                                 }
+                                // Moment d'événement « inventaire » (bienfaiteur...) : un tirage par jour.
+                                unawaited(_evtAt("inventory"));
 
                                 // Après le chargement (coffre/bourse poussés) : comme on_dashboard_appear,
                                 // dvtuto.enter est appelé ici plutôt que via appear: (non attendue), pour ne
@@ -271,10 +273,10 @@ extension Worker_items on worker {
 
                                 final data = (event is Map) ? event : const {};
 
-                                // Le coffre n'a plus d'« option seule » : depuis l'ajout de `item_view`
-                                // (commune à tout le catalogue, cf. items-base-global.yml), il porte
-                                // désormais `item_open` + `item_view` comme tout autre item — traités
-                                // par la boucle ci-dessous, aucun cas particulier ici.
+                                // Aucun cas particulier pour le coffre : il ne déclare que `item_open`,
+                                // traité par la boucle ci-dessous. Qu'un tap l'exécute sans menu ne
+                                // relève pas d'ici : c'est le `direct: true` de son TYPE
+                                // (items-base-global.yml), appliqué par DvExplorer.
 
                                 final raw  = data["options"];
                                 final opts = (raw is List) ? raw.map((e) => e.toString()).toList() : <String>[];
@@ -329,6 +331,13 @@ extension Worker_items on worker {
                                     }
                                     if (o == "title_unapply_player") {
                                         if (!(tIdx >= 0 && tIdx == _playerTitleIdx)) continue;
+                                        selectable.add(o);
+                                        continue;
+                                    }
+                                    // « Utiliser » un consommable (potion) : son propriétaire seul. Un
+                                    // chef qui voit l'objet d'un autre ne le boit pas à sa place.
+                                    if (o == "item_use") {
+                                        if (owner != _userId) continue;
                                         selectable.add(o);
                                         continue;
                                     }
@@ -598,6 +607,8 @@ extension Worker_items on worker {
                                         ownerId: ctx.get("clanSecret").toString());
                                     _playerTitleIdx = idx;   // le selector proposera « Ne plus porter » sur CET item
                                     deva_log("info", "[titres] titre perso #$idx porté");
+                                    // MULTICLAN : le titre porté suit le joueur dans ses autres clans (D2).
+                                    await _profileTouch(titleIdx: idx);
                                 } catch (e) {
                                     deva_log("error", "[titres] title_apply_player FAILED: $e");
                                 }
@@ -623,6 +634,7 @@ extension Worker_items on worker {
                                         ownerId: ctx.get("clanSecret").toString());
                                     _playerTitleIdx = -1;
                                     deva_log("info", "[titres] titre perso retiré");
+                                    await _profileTouch(titleIdx: -1);
                                 } catch (e) {
                                     deva_log("error", "[titres] title_unapply_player FAILED: $e");
                                 }

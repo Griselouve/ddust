@@ -59,7 +59,7 @@
       <tr><td>Identificador de conta</td><td>Sim</td><td>Identificador técnico da conta Google, para a autenticação. Nem nome nem e-mail nos dados de jogo.</td></tr>
       <tr><td>Dados de jogo</td><td>Sim</td><td>Apelidos, avatar, experiência, níveis, ouro, objetos, diários do clã, data do último acesso.</td></tr>
       <tr><td>Status legal</td><td>Sim</td><td>Unicamente a distinção menor/adulto. A data de nascimento <strong>nunca</strong> é conservada.</td></tr>
-      <tr><td>Fotografias</td><td><strong>Não</strong></td><td>As fotografias de tarefas ficam no aparelho, nunca são enviadas para os servidores.</td></tr>
+      <tr><td>Fotografias e vídeos</td><td><strong>Não</strong></td><td>As fotografias e os vídeos de tarefas ficam no aparelho, nunca são enviados para os servidores. Os vídeos (15 segundos no máximo) são gravados sem som: o aplicativo não tem acesso ao microfone.</td></tr>
       <tr><td>Analytics</td><td><strong>Não</strong></td><td>A coleta do Google Analytics está desativada.</td></tr>
       <tr><td>Identificador publicitário</td><td><strong>Não</strong></td><td>Nenhum AD_ID, nenhuma publicidade, em conformidade com a política Famílias do Google Play.</td></tr>
       <tr><td>Notificações</td><td>Sim</td><td>Um token técnico ligado ao aparelho, para enviar as notificações de jogo (validação de uma tarefa, abertura do baú…).</td></tr>
@@ -99,7 +99,7 @@
       uso (erro de manuseio, suporte, fraude apenas);</li>
       <li><strong>em seguida</strong>: apagamento definitivo, sem restauração possível.</li>
     </ul>
-    <p><strong>Assinatura.</strong> A exclusão da conta <strong>não cancela a assinatura</strong>: a
+    <p><strong>Assinatura.</strong> A exclusão da conta <strong>pode não cancelar a assinatura</strong>: a
     cobrança é gerenciada pelo Google Play, fora do aplicativo. Os percursos de exclusão, tanto no aplicativo quanto
     no site, pedem que você a cancele antes, pela conta Google. Os conteúdos comprados na loja
     são perdidos junto com a conta, sem reembolso.</p>
@@ -118,7 +118,7 @@
     descrição de tarefa, e redigir o relato de aventura do clã proposto para compartilhamento após a abertura de
     um tesouro. Para esta última função, o nome do clã, sua descrição e o diário do clã, que contém os
     apelidos escolhidos pelos jogadores, são transmitidos ao modelo. Nenhum outro dado pessoal é
-    enviado: nem identificador de conta, nem data de nascimento, nem fotografia. O tratamento é
+    enviado: nem identificador de conta, nem data de nascimento, nem fotografia, nem vídeo. O tratamento é
     realizado em servidores do Google situados <strong>na União Europeia</strong> para os usuários na
     França, e os dados transmitidos não são usados para treinar os modelos.</p>
 
@@ -137,7 +137,7 @@
       crianças, verificam se a missão foi cumprida e controlam todas as funções de administração.</li>
       <li><strong>Clãs herméticos</strong>: nenhum clã pode consultar os dados de outro clã, não
       existe nenhum diretório nem nenhuma busca de jogadores, e só se entra em um clã por convite
-      (QR code ou link criptografado protegido por um código ditado de viva voz).</li>
+      (QR code ou link criptografado protegido por um código ditado de viva voz). Única exceção: um jogador que pertence a vários clãs usa neles o mesmo apelido, o mesmo avatar e o mesmo título, que os membros de cada um dos seus clãs veem; nada mais passa de um clã para outro.</li>
       <li><strong>Nenhum contato com desconhecidos</strong>: sem mensagens, sem chat, sem
       conteúdos enviados por terceiros.</li>
       <li><strong>Limites de idade</strong>: opera um único limite,

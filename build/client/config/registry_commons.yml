@@ -20,6 +20,9 @@ conf:
         - age_screen
         - parentalgate_screen
         - documents_acceptance_screen
+        # Consultation des documents légaux, en lecture seule (kebab Personnage, menu de mort,
+        # profil). Sans cette ligne, documents.view_doc naviguerait vers une page inconnue.
+        - documents_view_screen
         - kid_assent_screen
         # La réponse de l'enfant, transmise au parent (QR code, lien), et le point d'où il
         # reçoit l'invitation en retour. Sans cette ligne, le « oui » ne mènerait nulle part.
@@ -82,6 +85,13 @@ conf:
         - item_view_page
         - create_player_screen
         - invite_consent_screen
+        - claim_pick_page
+        # Multiclan (registry_multiclan.yml) : changer de clan, les gestes d'un représentant
+        # légal, et le QR code des échanges entre adultes.
+        - my_clans_page
+        - guardian_hub_page
+        - ward_pick_page
+        - guardian_qr_page
         - butin_notes_page
         - butin_tale_page
         # La fée (registry_fairy.yml). On n'y arrive que par sa tuile, apparue dix minutes
@@ -140,6 +150,10 @@ conf:
         - commons/death_skull
         - commons/death_gage
         - commons/death_revive
+        # Kebab des fonctions vitales pendant la mort, et son menu. Listés APRÈS death_scrim → le
+        # kebab reçoit ses taps (cf. commons/death_settings).
+        - commons/death_settings
+        - commons/death_settings_menu
         # Bandeau d'impersonation (« prendre la place d'un joueur »), widget unique masqué par défaut,
         # révélé par worker._applyImpersonation. Listé APRÈS death_scrim → il reçoit ses taps même si
         # la cible est morte (scrim n'avale que ses propres taps, cf. commons/death_revive).
@@ -148,6 +162,23 @@ conf:
         # Injecté ici et pas dans "page" : l'onboarding n'a pas à le porter — on n'y a pas encore de
         # clan, et un bandeau rouge sur l'écran d'accueil accueillerait mal.
         - commons/store_dunning
+        # Panneau « Noter et partager » (adultes), ouvert depuis les kebabs Clan et Personnage.
+        # rate_scrim AVANT les étoiles et le partage → ils reçoivent leurs taps.
+        - commons/rate_scrim
+        - commons/rate_panel
+        - commons/rate_phrase
+        - commons/rate_star1
+        - commons/rate_star2
+        - commons/rate_star3
+        - commons/rate_star4
+        - commons/rate_star5
+        - commons/rate_share
+        # Message d'un événement aléatoire (souris, piège, potion...). evt_scrim AVANT le bouton OK.
+        - commons/evt_scrim
+        - commons/evt_panel
+        - commons/evt_image
+        - commons/evt_text
+        - commons/evt_ok
         # Porte close : le consentement parental de CE joueur vient d'être retiré. Listé en DERNIER
         # et borné à h:100% (et non 88% comme l'overlay de mort) — c'est la seule surface du jeu qui
         # recouvre la taskbar, parce qu'elle est la seule à devoir tout fermer, navigation comprise.
@@ -891,6 +922,359 @@ conf:
           tap: true
         actions:
           tap: worker.resurrect_self
+
+    # KEBAB DES FONCTIONS VITALES, au-dessus du voile de mort (2026-09-24). Le voile avale tous
+    # les taps du contenu, y compris le kebab de l'écran Personnage : un enfant « mort » ne
+    # pouvait plus couper ses rappels, lire la politique de confidentialité, supprimer son compte
+    # ni ouvrir le guide qui lui explique ce qui lui arrive. C'est précisément le moment où il
+    # décroche, et ce sont des droits que le dossier « intérêt supérieur de l'enfant » (§ 5.5,
+    # § 5.10) et la politique de confidentialité présentent comme toujours accessibles.
+    #
+    # Sur TOUS les écrans de jeu (injecté par page_taskbar), visible seulement quand le voile
+    # l'est (worker._applyDeath). En bas à droite, dans la borne h:88% : le bandeau
+    # d'impersonation s'arrête à x51% et le bouton Résurrection à x85%, rien ne se chevauche.
+    # Même gabarit doré que les autres kebabs (DvMenuButton + commons/donjon_button).
+    commons/death_settings:
+      class: DvMenuButton
+      layer: overlay
+      menu: commons/death_settings_menu
+      menu_enabled: true
+      button_style: commons/donjon_button
+      shape:
+        x: 88%
+        y: 80%
+        w: 10%
+        h: 5%
+        border: false
+        visible: false
+
+    # Le menu RÉDUIT aux fonctions vitales : guide, rappels, politique de confidentialité,
+    # déconnexion, suppression du compte. Pas de popup modale : un DvMenu en layer popup, comme
+    # personnage/settings_menu, dont il reprend les options, les libellés et les règles
+    # (worker.death_settings_selector partage sa logique avec perso_settings_selector).
+    # ⚠ Une option ajoutée ici doit aussi être déclarée dans le selector, sinon elle n'apparaît
+    #   jamais.
+    commons/death_settings_menu:
+      class: DvMenu
+      layer: popup
+      show_label: false
+      selector: worker.death_settings_selector
+      shape:
+        w: 55%
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        guide_parent:
+          icon: "menu_book"
+          desc: "@@@T:perso_menu_guide_parent_desc@@@"
+          shape:
+            label: "@@@T:tuto_guide_parent_title@@@"
+          actions:
+            tap: dvtuto.play.guide_parent
+        guide_enfant:
+          icon: "auto_stories"
+          desc: "@@@T:perso_menu_guide_enfant_desc@@@"
+          shape:
+            label: "@@@T:tuto_guide_enfant_title@@@"
+          actions:
+            tap: dvtuto.play.guide_enfant
+        nudges_off:
+          icon: "notifications_off"
+          desc: "@@@T:perso_menu_nudges_off_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_nudges_off@@@"
+          actions:
+            tap: worker.nudges_off
+        nudges_on:
+          icon: "notifications_active"
+          desc: "@@@T:perso_menu_nudges_on_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_nudges_on@@@"
+          actions:
+            tap: worker.nudges_on
+        # Conditions d'utilisation, dans la version ACCEPTÉE, lues dans l'app (documents.view_doc).
+        cgu:
+          icon: "gavel"
+          desc: "@@@T:perso_menu_cgu_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_cgu@@@"
+          actions:
+            tap: worker.open_cgu
+        privacy:
+          icon: "privacy_tip"
+          desc: "@@@T:perso_menu_privacy_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_privacy@@@"
+          actions:
+            tap: worker.open_privacy
+        logout:
+          image: "images/small/log-out.png"
+          desc: "@@@T:perso_menu_logout_desc@@@"
+          shape:
+            label: "@@@T:sign_out@@@"
+          actions:
+            tap: dvcloud.do_logout
+        # Le panneau de suppression vit sur l'écran Personnage (personnage/delete_*, layer
+        # overlay, listé après le voile) : depuis un autre écran, on s'y rend d'abord.
+        delete_account:
+          image: "images/big/skull_nobg.png"
+          desc: "@@@T:perso_menu_delete_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_delete@@@"
+          actions:
+            tap: worker.death_open_delete
+
+    #//------------------------- NOTER / PARTAGER L'APP ------------------------------------
+    # Panneau ouvert par l'option « Noter et partager » des kebabs Clan et Personnage
+    # (worker.open_rate_panel). Idiome maison, celui de la confirmation de la console : des
+    # widgets en overlay, tous visible:false, révélés par show() et refermés par hide(). JAMAIS
+    # de popup modale. Un tap sur le voile referme (worker.on_rate_close).
+    #
+    # RÉSERVÉ AUX ADULTES (`legal_state == "a"`) : les selectors cachent l'option, et chaque
+    # action du panneau refait le contrôle d'âge : masquer n'est pas interdire.
+    #
+    # En haut, cinq étoiles et une phrase : un tap remplit les étoiles jusqu'à celle touchée et
+    # ouvre la fiche Play (`app_share.store_url`, screens_meta.yml). Tant que ce champ est vide
+    # (test interne, pas de fiche publique), la phrase devient un merci et rien ne s'ouvre.
+    # En bas, l'icône de partage : share.app_site (le site) ou share.app_store (le Store).
+    #
+    # ⚠ L'ORDRE COMPTE dans page_taskbar : rate_scrim AVANT les étoiles et le partage, sinon le
+    #   voile avale leurs taps.
+    commons/rate_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.85
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_rate_close
+
+    commons/rate_panel:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 8%
+        y: 30%
+        w: 84%
+        h: 36%
+        label: ""
+        background_color: "0xF01A1A1A"
+        border: true
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 12.0
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop # un tap sur le cadre ne referme pas le panneau
+
+    # Libellé réécrit par le worker (merci en test interne) : set("shape.label") +
+    # computeDisplay() + refreshUI(), sinon le texte du YAML reste affiché.
+    commons/rate_phrase:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 12%
+        y: 32%
+        w: 76%
+        h: 12%
+        text_align: CENTER
+        valign: CENTER
+        font_size: 15.0
+        font_color: "amber_200"
+        background_color: "0x00000000"
+        border: false
+        label: "@@@T:rate_phrase@@@"
+        visible: false
+
+    # Les cinq étoiles : même gabarit, seule la colonne change. `star_border` = vide,
+    # `star` = pleine (worker._rateFill).
+    commons/rate_star:
+      class: DvIcon
+      layer: overlay
+      shape:
+        y: 46%
+        w: 12%
+        h: 7%
+        icon: "star_border"
+        icon_color: "#C8A84B"
+        icon_size: 34
+        border: false
+        visible: false
+        events:
+          tap: true
+
+    commons/rate_star1:
+      masks:
+        - commons/rate_star
+      shape:
+        x: 14%
+        actions:
+          tap: worker.on_rate_1
+
+    commons/rate_star2:
+      masks:
+        - commons/rate_star
+      shape:
+        x: 29%
+        actions:
+          tap: worker.on_rate_2
+
+    commons/rate_star3:
+      masks:
+        - commons/rate_star
+      shape:
+        x: 44%
+        actions:
+          tap: worker.on_rate_3
+
+    commons/rate_star4:
+      masks:
+        - commons/rate_star
+      shape:
+        x: 59%
+        actions:
+          tap: worker.on_rate_4
+
+    commons/rate_star5:
+      masks:
+        - commons/rate_star
+      shape:
+        x: 74%
+        actions:
+          tap: worker.on_rate_5
+
+    # Pastille de partage, décalque de log_page/share. Le tap passe par worker.on_rate_share
+    # (contrôle d'âge), jamais directement par share.app_*.
+    commons/rate_share:
+      class: DvIcon
+      layer: overlay
+      shape:
+        x: 42.5%
+        y: 55%
+        w: 15%
+        h: 9%
+        icon: "share"
+        icon_color: "#C8A84B"
+        icon_size: 26
+        background_color: "0xCC1A1A1A"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.5
+        border_radius: 30.0
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_rate_share
+
+    #//------------------------- MESSAGE D'UN ÉVÉNEMENT ------------------------------------
+    # La mise en scène `message` du moteur d'événements (worker_events.dart) : une image, une
+    # phrase, un bouton. Même idiome que le panneau « Noter et partager » : overlay, tout
+    # visible:false, révélé par show(), refermé par hide(). JAMAIS de popup modale.
+    #
+    # Le voile NE FERME PAS (worker.noop) : c'est le bouton qui compte comme « découvert et
+    # cliqué ». Pour un piège ou une souris, les effets attendent ce clic (worker.on_event_ok).
+    # L'image et le texte sont posés à l'exécution, depuis l'entrée du catalogue.
+    commons/evt_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.85
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop
+
+    commons/evt_panel:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 8%
+        y: 18%
+        w: 84%
+        h: 60%
+        label: ""
+        background_color: "0xF01A1A1A"
+        border: true
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 12.0
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop
+
+    commons/evt_image:
+      class: DvImage
+      layer: overlay
+      shape:
+        x: 25%
+        y: 21%
+        w: 50%
+        h: 25%
+        stretch: "RATIO_IN"
+        image: "images/medium/nope.png"
+        image_fallback: "images/medium/nope.png"
+        border: false
+        visible: false
+
+    # Libellé réécrit par le worker : set("shape.label") + computeDisplay() + refreshUI().
+    commons/evt_text:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 12%
+        y: 47%
+        w: 76%
+        h: 18%
+        text_align: CENTER
+        valign: CENTER
+        font_size: 15.0
+        font_color: "amber_200"
+        background_color: "0x00000000"
+        border: false
+        scrollable: true
+        label: " "
+        visible: false
+
+    commons/evt_ok:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        x: 25%
+        y: 67%
+        w: 50%
+        h: 8%
+        text_align: CENTER
+        label: "@@@T:evt_ok@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_event_ok
 
     #//------------------------- PORTE CLOSE (retrait du consentement) ---------------------
     # Le tuteur d'un joueur mineur a retiré son consentement : pendant le délai de rétractation,

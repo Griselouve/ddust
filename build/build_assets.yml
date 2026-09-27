@@ -1418,7 +1418,7 @@ assets:
             the imbalance.
 
         # -- Guide de l'aventurier. Meme mecanique, mais chaque ecran dit un DROIT et
-        #    jamais un devoir : recommencer, refuser, garder sa photo, recevoir sa part.
+        #    jamais un devoir : recommencer, refuser, garder sa preuve, recevoir sa part.
         guide_k1:
           kind: image
           out: "guide_k1.png"
@@ -3713,6 +3713,85 @@ assets:
             - { outil: remove_bg, fonction: remove_background }
           prompt: >-
             Un jeton de jeu vidéo en métal, de forme ovale, avec un centre doré gravé des lettres "XP" dans un style rustique et usé, entouré d'un anneau métallique plus foncé et riveté, le tout détouré sur fond transparent. Le style est celui d'une illustration numérique détaillée, avec des textures réalistes de métal vieilli, des éraflures et une patine verdâtre sur les lettres, éclairé de manière à accentuer les reliefs et les reflets métalliques.
+    # =========================================================================
+    - name: evenements
+      enabled: true
+      # LES ÉVÉNEMENTS ALÉATOIRES (layers/events-base-global.yml) : la souris, le piège, le
+      # gobelin espion, le changelin, la potion du bienfaiteur. Cinq images seulement : un
+      # événement de plus qui réutilise une image ne coûte AUCUNE génération.
+      #
+      # APRÈS `familles` ET `traitements_historiques`, et c'est l'ordre qui compte : la référence
+      # est un monstre de tâche, et une référence doit pointer vers l'arrière. C'est d'elle que
+      # ces images tiennent leur trait, leurs couleurs et leur humour : sans elle, on obtiendrait
+      # cinq belles illustrations qui ne sont visiblement pas du même jeu.
+      #
+      # Fond UNI puis `unbg_flat` + `trim`, comme les épées du pacte : aucun modèle ne rend de
+      # canal alpha, et demander « un fond transparent » dessine un damier.
+      dir: "resources_cloud/donjon/images/medium"
+      refs: [familles_dt_t_animaux_01]
+      style: >-
+        Illustration de jeu vidéo dans le style exact de l'image de référence : dessin animé
+        détaillé, contours nets, couleurs vives, humour bon enfant, jamais effrayant pour un
+        enfant. Un seul sujet, centré, en entier, sur un fond uni gris moyen parfaitement plat,
+        sans motif, sans damier, sans ombre portée. Aucun texte, aucun logo, aucun cadre.
+      items:
+        evt_souris:
+          kind: image
+          aspect: "1:1"
+          out: "evt_souris.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: >-
+            Une petite souris grise souriante, debout sur ses pattes arrière, avec un minuscule
+            tablier de ménage et un plumeau coincé sous le bras, qui salue d'une patte et tend de
+            l'autre une petite étoile scintillante.
+        evt_piege:
+          kind: image
+          aspect: "1:1"
+          out: "evt_piege.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: >-
+            Un piège à mâchoires en bois et en fer rouillé, tout juste refermé sur une serpillière,
+            débordant de mousse de savon, et derrière un seau renversé deux petits monstres ronds et
+            poilus qui ricanent en se cachant la bouche.
+        evt_gobelin:
+          kind: image
+          aspect: "1:1"
+          out: "evt_gobelin.png"
+          # L'anneau doré des avatars : le gobelin s'invite dans la liste du clan, entre deux
+          # membres, et doit avoir l'air de l'un d'eux au premier coup d'œil.
+          traitements:
+            - iconify
+          prompt: >-
+            Le portrait en buste d'un petit gobelin espion à la peau verte, grandes oreilles
+            pointues, petit chapeau de détective, qui plisse un œil et regarde à travers une
+            grosse loupe avec un sourire malicieux.
+        evt_changelin:
+          kind: image
+          aspect: "1:1"
+          out: "evt_changelin.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: >-
+            Une petite créature farceuse violette dont le corps se déforme comme de la guimauve à
+            moitié changée en aventurier, un faux masque souriant à la main, qui s'enfuit en
+            courant et en ricanant, laissant derrière elle un petit nuage de fumée étincelante.
+        evt_potion:
+          kind: image
+          aspect: "1:1"
+          out: "evt_potion.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: >-
+            Une fiole de verre en forme de cœur remplie d'un liquide rouge lumineux, fermée par un
+            bouchon de liège et un petit ruban, avec une étiquette de parchemin, entourée de
+            quelques étincelles dorées.
+
     - name: captures
       enabled: true
       # Les prises de la vitrine dont la video de demonstration a besoin, dans les huit

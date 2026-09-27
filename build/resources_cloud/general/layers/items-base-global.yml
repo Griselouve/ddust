@@ -11,11 +11,15 @@ data:
   # tout ce qui relève de l'apparence et du comportement est déclaré ici :
   #   image      : miniature (posée dans le layer de THÈME, pas ici)
   #   label      : nom affiché (menu, journal) — token de traduction
-  #   description: texte long — token de traduction. OBLIGATOIRE pour tout type : c'est le texte
+  #   description: texte long, token de traduction. OBLIGATOIRE pour tout type : c'est le texte
   #                de la fiche « Voir » (item_view_page), ouverte par l'option `item_view` que tout
-  #                type déclare — SAUF le coffre (`butin`), qui s'ouvre directement au tap (une
-  #                seule option restante, cf. plus bas) — un type sans description ouvrirait une
-  #                fiche muette pour qui y accède quand même.
+  #                type déclare, SAUF le coffre (`butin`), qui n'a que `item_open`. Un type sans
+  #                description ouvrirait une fiche muette pour qui y accède quand même.
+  #   direct     : true = quand il ne reste qu'UNE option après worker.items_selector, le tap
+  #                l'exécute tout de suite, sans menu (DvExplorer). Pour les items dont la seule
+  #                action ne fait que montrer (« Voir », « Ouvrir ») : un menu d'un seul choix n'y
+  #                est qu'un second tap pour rien. Deux options ou plus : le menu s'ouvre.
+  #                Absent = false : un item dont l'action seule a un effet garde son menu.
   #   span_x/y   : nombre de cases occupées dans la grille (défaut 1)
   #   draggable  : l'item peut être saisi et déplacé (rangement) ou déposé sur un autre
   #   pin        : place FIXE tenue du TYPE ("top_center", "top_left", "top_right") : la tuile
@@ -23,7 +27,7 @@ data:
   #   options    : options de menu ACCEPTÉES par ce type (sous-ensemble de items/menu) ;
   #                le worker peut encore en griser au cas par cas.
   #                `item_view` (voir la fiche : grande image + description) est la règle pour
-  #                TOUT type, sans exception — mobilier compris (cf. `butin`).
+  #                tout type, sauf le coffre (cf. `butin`).
   #                `item_give` (donner à un joueur du clan) est la règle pour tout OBJET
   #                D'INVENTAIRE : le mobilier — le coffre (`pin`é) et la bourse — ne se donne
   #                pas, il appartient au clan ou à la place qu'il occupe.
@@ -132,12 +136,11 @@ data:
     # alors l'inventaire de tout le monde sans quitter la base.
     # Pas de quantité ni de pastille : ce que contient le coffre est un secret (un enfant qui
     # regarde par-dessus l'épaule ne doit pas voir s'il est plein).
-    # `options` ne porte qu'Ouvrir : le coffre n'a qu'une action, renvoyée en « option seule » par
-    # worker.items_selector — le tap déclenche directement `item_open` (worker.butin_show) sans
-    # passer par un menu. « Ajouter une note » vit maintenant DANS le coffre (butin_page/list),
-    # pas dans ce menu extérieur — un clic sur la tuile doit ouvrir le coffre, point. Pas de
-    # `item_view` ici : contrairement au reste du catalogue, une fiche « Voir » n'apporterait rien
-    # pour le coffre (son contenu est déjà secret, cf. plus bas) et ajouterait un tap pour rien.
+    # `options` ne porte qu'Ouvrir, et `direct: true` fait qu'un tap sur la tuile ouvre le coffre
+    # sans menu (2026-09-25 ; les commentaires d'avant l'affirmaient déjà, le code ne le faisait
+    # pas : un menu d'une seule ligne « Ouvrir le coffre » s'ouvrait). « Ajouter une note » vit
+    # DANS le coffre (butin_page/list), pas dans ce menu extérieur. Pas de `item_view` ici :
+    # une fiche « Voir » n'apporterait rien pour le coffre (son contenu est secret).
     butin:
       label:       "@@@T:it_t_butin@@@"
       description: "@@@T:it_d_butin@@@"
@@ -145,6 +148,7 @@ data:
       span_y: 1
       draggable: false
       pin: top_center
+      direct: true
       # Épinglé, donc MOBILIER : le coffre est dessiné dans TOUS les onglets et sa case y est
       # réservée — sinon `drops: "*"` deviendrait inatteignable depuis l'onglet Équipement, alors
       # que le joker veut dire « n'importe quoi, d'où que ça vienne ». Sa famille ne sert donc
@@ -177,9 +181,33 @@ data:
       # normal de la famille Général, rangée comme les autres (première case libre à l'affichage,
       # rangement mémorisé ensuite comme tout autre item).
       family: general
+      # Un tap = « Voir » tout de suite quand c'est la seule option (joueur ordinaire, ou chef dont
+      # la bourse est vide). Le chef qui a de l'argent garde son menu « Voir / Remettre au coffre ».
+      direct: true
       options:
         - item_view
         - item_to_chest
+
+    # --- Potion de soin : le premier CONSOMMABLE ------------------------------
+    # Glissée dans l'inventaire par un « bienfaiteur anonyme » (moteur d'événements,
+    # layers/events-base-global.yml). `use` est lu par worker.item_use : il applique cet effet
+    # typé (mêmes types que les événements, mêmes plafonds) puis SUPPRIME l'objet. Elle ne périme
+    # pas : aucun gain n'expire. Pas de `item_give` : un cadeau dérisoire tombé du ciel ne devient
+    # pas une monnaie d'échange. `direct: false` : « Utiliser » reste un geste délibéré.
+    potion_pv:
+      label:       "@@@T:it_t_potion_pv@@@"
+      description: "@@@T:it_d_potion_pv@@@"
+      span_x: 1
+      span_y: 1
+      draggable: false
+      family: potions
+      use:
+        type: heal
+        value: 1
+      options:
+        - item_view
+        - item_use
+        - item_trash
 
   lang:
     translations:
@@ -256,6 +284,36 @@ data:
       # chefs de clan ont promis (ils l'ont eux-mêmes mis dans le coffre) ; un chef peut le remettre
       # pour de vrai (le tribut, worker.pay_tribute) et la bourse baisse du montant versé. Jamais
       # d'objectif financier imposé, et l'app ne promet rien à la place des parents.
+      it_t_potion_pv:
+        fr: "Potion de soin"
+        en: "Healing potion"
+        es: "Poción de curación"
+        de: "Heiltrank"
+        it: "Pozione curativa"
+        pt: "Poção de cura"
+        br: "Poção de cura"
+        nl: "Genezingsdrankje"
+
+      it_d_potion_pv:
+        fr: "Un bienfaiteur anonyme l'a glissée dans ton sac. Bois-la pour retrouver 1 point de vie."
+        en: "An anonymous benefactor slipped it into your bag. Drink it to get 1 health point back."
+        es: "Un benefactor anónimo la metió en tu bolsa. Bébela para recuperar 1 punto de vida."
+        de: "Ein anonymer Wohltäter hat ihn in deine Tasche gesteckt. Trink ihn, um 1 Lebenspunkt zurückzubekommen."
+        it: "Un benefattore anonimo l'ha infilata nella tua borsa. Bevila per recuperare 1 punto vita."
+        pt: "Um benfeitor anónimo meteu-a no teu saco. Bebe-a para recuperares 1 ponto de vida."
+        br: "Um benfeitor anônimo colocou ela na sua bolsa. Beba para recuperar 1 ponto de vida."
+        nl: "Een anonieme weldoener stopte het in je tas. Drink het op om 1 levenspunt terug te krijgen."
+
+      it_o_use:
+        fr: "Utiliser"
+        en: "Use"
+        es: "Usar"
+        de: "Benutzen"
+        it: "Usa"
+        pt: "Usar"
+        br: "Usar"
+        nl: "Gebruiken"
+
       it_d_argent:
         fr: "L'argent de poche que tes chefs de clan ont promis de te remettre pour de vrai. Quand l'un d'eux te le remet, c'est le tribut : ta bourse baisse alors du montant versé."
         en: "The pocket money your clan chiefs have promised to hand over to you for real. When one of them does, that is the tribute: your purse then drops by the amount paid."

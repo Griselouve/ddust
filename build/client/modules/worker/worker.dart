@@ -28,6 +28,7 @@ import 'package:flutter/widgets.dart';
 // Emprunt de compte : l'état est persisté ICI et non dans le dictionnaire deva — cf. les
 // clés _kImp* de worker_members.dart et la raison qui les y range.
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../dvcore/dvbeing.dart';
 import '../dvcore/deva.dart';
 import '../dvcore/dvidle.dart';
@@ -66,9 +67,12 @@ part 'worker_butin.dart';
 part 'worker_chest.dart';
 part 'worker_notify.dart';
 part 'worker_log.dart';
+part 'worker_rate.dart';
+part 'worker_events.dart';
 part 'worker_store.dart';
 part 'worker_fairy.dart';
 part 'worker_onboarding.dart';
+part 'worker_multiclan.dart';
 
 
 // -----------------------------------------------------------------------------
@@ -113,6 +117,12 @@ class worker extends DvBeing {
     _AiDraft? _cachedDraft;
     String? _originalDesc;
     String? _originalName;
+    // L'IA DU CLAN (champ `ai_enabled` du doc `clans`, posé par le chef). Dernière valeur
+    // lue, gardée pour le cas où la relecture échoue : sans réseau, on ne rallume pas
+    // l'IA d'un clan qui l'a coupée. Cf. `_iaDuClan` (worker_forms.dart).
+    bool _iaClanCoupee = false;
+    // Dernière proposition toute faite tirée, par préfixe : le tirage suivant l'évite.
+    final Map<String, int> _dernierRepli = {};
     // Snapshots ORIGINAUX (non mutés pendant l'édition) de l'écran rename_task, pour n'écrire
     // en Firestore QUE les champs réellement modifiés. _originalName/_originalDesc, eux, suivent la
     // valeur COURANTE (mutés à chaque frappe) → inutilisables pour la détection de changement.
@@ -281,6 +291,23 @@ class worker extends DvBeing {
     final String _defaultClanAvatar   = "images/medium/icon_01_C_01.png";
     final String _nopeAvatar          = "images/medium/nope.png";
 
+    // Contexte du tri des explorateurs d'avatars (worker.sort_avatars), posé par
+    // open_avatar_explorer / open_clan_avatar_explorer AVANT la navigation : le tri de
+    // DvExplorer est synchrone. Groupe = celui de l'avatar du clan (icon_[thème_]<groupe>_C_NN) ;
+    // classe = celle du joueur, VIDE tant que le lot « classes » n'existe pas ; thème = celui
+    // actif, sans le préfixe « theme- » (donjon par défaut).
+    String  _avatarSortGroup = "";
+    String  _avatarSortClass = "";
+    String  _avatarSortTheme = "donjon";
+
+    // Moteur d'événements (worker_events.dart). _evtActive : l'événement de ROSTER en cours
+    // (gobelin, changelin), local à l'appareil, oublié au prochain passage sur l'écran du clan.
+    // _evtOnOk : l'événement `message` dont les effets attendent le clic sur OK. _evtRolling :
+    // un seul tirage à la fois (deux moments peuvent se croiser).
+    Map<String, dynamic>? _evtActive;
+    Map<String, dynamic>? _evtOnOk;
+    bool    _evtRolling = false;
+
     // Vigilance temps réel d'une tâche en attente de validation (watch dvcloud : push
     // Firestore sur mobile, poll desktop). Handle unique (worker singleton).
     // _validationTaskId garde l'unicité et coupe une course start/stop pendant l'await.
@@ -355,6 +382,13 @@ class worker extends DvBeing {
     //   peut aussi bien recommencer que réclamer un compte existant).
     bool _onboardingLive = false;
 
+    // L'application vient de changer de datacenter (snapshot remplacée par la release en fin
+    // de beta, ou l'inverse) : le joueur, toujours connecté, repasse par TOUTE l'intro (elle
+    // peut avoir changé d'une version à l'autre), puis entre directement dans le jeu, sans
+    // l'écran des deux portes. Posé par on_login, consommé par on_intro_reveal.
+    // En mémoire seulement : un kill fait simplement démarrer normalement.
+    bool _introReplay = false;
+
     // --- L'accord de l'enfant (le mineur parle d'abord, le parent décide ensuite) ---------
     // Côté ENFANT : le lien « je veux jouer » (ddust://assent?d=…), construit une seule fois,
     // au moment exact où l'enfant a dit oui (kid_assent_route). L'écran de partage le relit à
@@ -377,6 +411,16 @@ class worker extends DvBeing {
     // Le chef a scanné quelque chose qui n'était pas un accord d'enfant : l'écran de
     // déclaration s'ouvre quand même (cas adulte seul) et le dit en tête, faute de fenêtre.
     bool                  _assentRejected  = false;
+    // Côté CHEF, entre l'accord et la déclaration : le joueur sans téléphone (no_account) que
+    // l'enfant va reprendre sur son propre téléphone, choisi sur claim_pick_page. Vide = un
+    // nouveau joueur. Mêmes règles de vie que _pendingAssent : une seule invitation, jamais
+    // sur le disque. _claimRows = les lignes de cet écran, lues avant d'y aller.
+    String                     _pendingClaimId   = "";
+    String                     _pendingClaimName = "";
+    List<Map<String, dynamic>> _claimRows        = [];
+    // Côté CHEF, en mode adulte : l'adulte invité sera aussi chef de clan (bascule
+    // invite_consent_screen/chief). Même vie que ci-dessus : une invitation, jamais sur le disque.
+    bool                       _inviteAsChief    = false;
 
     // --- Le code de l'accord (côté ENFANT, puis côté CHEF) ---------------------------------
     // Six caractères tirés au hasard (Random.secure) au moment du oui, portés par l'accord
@@ -497,6 +541,12 @@ class worker extends DvBeing {
     // même raison que _levelUpChecking (course watch ↔ appear sur la même valeur is_admin).
     bool _chiefChecking = false;
 
+    // Passage à l'âge adulte (_checkAdultTransition) : la célébration se joue UNE fois par processus,
+    // avant la CGU adulte. _adulthoodPlaying couvre la durée des deux interludes (célébration puis
+    // rideau) : un tick de vigilance pendant ce temps ne relance rien et ne montre pas la CGU trop tôt.
+    bool _adulthoodPlaying    = false;
+    bool _adulthoodCelebrated = false;
+
     // Garde de ré-entrance pour la célébration de mort (_celebrateDeath) : watch et appear peuvent
     // détecter la transition vivant → mort quasi simultanément → une seule animation jouée.
     bool _deathChecking = false;
@@ -547,11 +597,49 @@ class worker extends DvBeing {
     String _consentTargetName = "";
     // "withdraw" | "restore" — décide des trois libellés du panneau et de ce que fait consent_yes.
     String _consentMode       = "";
+    // MULTICLAN : la cible est un enfant REPRÉSENTÉ (le geste va dans sa guardianship) et non un
+    // enfant sans téléphone (le geste va sur sa fiche, comme avant).
+    bool   _consentWard       = false;
 
     // Anti-rejeu du balayage des échéances : une seule tentative de suppression par cible et par
     // session. Sans lui, chaque rafraîchissement du roster relancerait l'appel cloud sur la même
     // cible tant que la pierre tombale n'est pas visible côté client.
     final Set<String> _consentSwept = <String>{};
+
+    // --- Multiclan (worker_multiclan.dart) ----------------------------------------------------
+    // Garde de ré-entrance de la bascule d'un clan à l'autre (un double tap sur « Mes clans »).
+    bool _switchingClan = false;
+    // « Mes clans » : le clan vers lequel le joueur a demandé à passer alors qu'une tâche est en
+    // cours dans le clan courant. Premier tap = l'avertissement s'affiche dans la ligne, second
+    // tap sur la même ligne = la tâche est abandonnée et la bascule a lieu.
+    String _switchArmed = "";
+    // Le clan vers lequel on bascule, en attendant que le rideau (passage_switch) couvre l'écran.
+    String _pendingSwitchClan = "";
+    // Côté ENFANT représenté : garde de ré-entrance de l'application des gestes des
+    // représentants, et vigilance sur sa propre guardianship.
+    bool         _gshipApplying    = false;
+    DvVigilance? _gshipVigilance;
+    String       _gshipVigilanceId = "";
+    // Côté REPRÉSENTANT : la demande d'un autre adulte (QR scanné, ou lien + code) en attente du
+    // choix de l'enfant, le mode de l'écran de choix ("guest" | "cog" | "clans"), l'enfant
+    // choisi (mode "clans") et le clan dont le retrait est armé (second tap = retrait).
+    // Mémoire seule : une demande sert une fois.
+    Map<String, dynamic>? _guardReq;
+    String _wardMode  = "";
+    String _wardChild = "";
+    String _wardArmed = "";
+    // Écran QR des échanges entre adultes : mode ("guest" chef de B | "cog" candidat), jeton du
+    // lien à distance, et pour le candidat sa boîte de dépôt (id + clef qu'il a tirés) et ce qui
+    // y est arrivé.
+    String                _gqrMode    = "";
+    String                _gqrToken   = "";
+    String                _gqrDropId  = "";
+    String                _gqrDropKey = "";
+    Map<String, dynamic>? _gqrDrop;
+    DvVigilance?          _dropVigilance;
+    // _handleClanJoin : l'entrée d'un mineur a-t-elle consommé une autorisation (§ 5.2) ?
+    // Rempli par _guardianGate (une liste : l'extension ne peut pas rendre deux valeurs).
+    final List<bool>      _gateUsedAuth = [];
 
     // Une FEUILLE de domaine a un suffixe numérique (ex. salon_01, cuisine_03) → dt_t_*.
     // Un DOMAINE de premier niveau (ex. cuisine, chambre_enfant) → task_*. Générique : tout
@@ -911,9 +999,9 @@ class worker extends DvBeing {
     // il ne peut pas relire la base, où tout a déjà changé de mains.
     List<Map<String, dynamic>> _butinClaimRows = [];
 
-    // L'attaque de bisous : le petit mot qui nomme celui qui a le moins rapporté d'XP, figé au même
-    // moment que la part et pour la même raison. VIDE sur l'appareil du principal intéressé — on ne
-    // dit pas à un enfant qu'il est dernier, on le dit aux autres pour qu'ils viennent l'embrasser.
+    // L'attaque de bisous : le petit mot qui nomme deux joueurs (le moins contributeur et un autre
+    // tiré au sort, cf. _kissTargets), figé au même moment que la part et pour la même raison. VIDE
+    // sur l'appareil de chacun des deux : on le dit aux autres pour qu'ils viennent les embrasser.
     String _butinKissText = "";
 
     // --- Notes du coffre (annonces des chefs) -----------------------------------------------
@@ -1090,9 +1178,12 @@ class worker extends DvBeing {
                                 _register_chest();
                                 _register_notify();
                                 _register_log();
+                                _register_rate();
+                                _register_events();
                                 _register_store();
                                 _register_fairy();
                                 _register_onboarding();
+                                _register_multiclan();
     }
 
     @override

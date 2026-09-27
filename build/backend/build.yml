@@ -21,6 +21,9 @@ build:
   - pubudget
   - puvirtuallobby
   - pulock
+  # Le document de version de chaque backend (base `autover`), lu par dvautover pour
+  # forcer la mise a jour d'une app trop ancienne.
+  - puautover
   # Abonnements et achats in-app (Google Play) : base dédiée du miroir d'achats,
   # vérification serveur, et projection du bénéfice sur le clan (workers/clans_store).
   - pustore

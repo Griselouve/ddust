@@ -49,6 +49,9 @@ conf:
 
     #//------------------------------- Profile Screen ------------------------------------------
 
+    # ⚠ `dvcloud/user_email_label` A QUITTÉ CET ÉCRAN (2026-09-24) : l'adresse du compte Google
+    #   n'apparaît plus dans l'application (cloud.auth.show_identity: false dans config.yml).
+    #   La politique de confidentialité s'appuie sur cette absence : ne pas le remettre.
     profile:
       masks:
         - page
@@ -56,7 +59,6 @@ conf:
       registry:
         - first_session/logo
         - dvcloud/profile_avatar
-        - dvcloud/user_email_label
         - profile/separator
         - profile/lang_label
         - profile/lang_button
@@ -68,7 +70,7 @@ conf:
       layer: content
       shape:
         x: 5%
-        y: 35%
+        y: 27%
         w: 90%
         h: 0.3%
         border: false
@@ -77,7 +79,7 @@ conf:
       masks:
         - commons/btn_profile
       shape:
-        y: 40%
+        y: 31%
         label: "@@@T:language_label@@@"
 
     profile/lang_button:
@@ -85,7 +87,7 @@ conf:
       layer: content
       shape:
         x: 55%
-        y: 40%
+        y: 31%
         w: 16%
         h: 7%
         border: false
@@ -101,7 +103,7 @@ conf:
       masks:
         - commons/btn_profile
       shape:
-        y: 61%
+        y: 42%
         label: "@@@T:sign_out@@@"
         events:
           tap: true
@@ -112,7 +114,7 @@ conf:
       masks:
         - commons/btn_profile
       shape:
-        y: 71%
+        y: 52%
         label: "@@@T:my_data@@@"
         events:
           tap: true

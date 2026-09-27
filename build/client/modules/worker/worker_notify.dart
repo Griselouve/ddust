@@ -204,7 +204,7 @@ extension Worker_notify on worker {
                         final label = text.replaceAll("{name}", childName);
 
                         try {
-                            final r = await _messaging?.send(dvmsg(
+                            final r = await _sendClanMsg(dvmsg(
                                 range:   'global',
                                 label:   label,
                                 recipes: devices,
@@ -262,7 +262,7 @@ extension Worker_notify on worker {
                 final recipes = devices.map((d) => d.toString()).toList();
                 deva_log("info", "[combat] notify → assignee=$assignee lang=$lang recipes=$recipes");
                 try {
-                    final result = await _messaging?.send(dvmsg(
+                    final result = await _sendClanMsg(dvmsg(
                         range:   'global',
                         label:   text,
                         recipes: recipes,
@@ -312,7 +312,7 @@ extension Worker_notify on worker {
                 text = text.replaceAll("{name}", name);
 
                 try {
-                    final r = await _messaging?.send(dvmsg(
+                    final r = await _sendClanMsg(dvmsg(
                         range: 'global', label: text, recipes: devices));
                     deva_log("info", "[worker] notif nouveau membre → $pid ($lang)"
                         " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
@@ -365,7 +365,7 @@ extension Worker_notify on worker {
                                     final giver = (await Deva.instance.get("session.user.name"))?.toString() ?? "";
                                     text = text.replaceAll("{item}", item).replaceAll("{name}", giver);
 
-                                    final result = await _messaging?.send(dvmsg(
+                                    final result = await _sendClanMsg(dvmsg(
                                         range:   'global',
                                         label:   text,
                                         recipes: devices.map((d) => d.toString()).toList(),
@@ -427,7 +427,7 @@ extension Worker_notify on worker {
                             }
 
                             try {
-                                final r = await _messaging?.send(dvmsg(
+                                final r = await _sendClanMsg(dvmsg(
                                     range: 'global', label: text, recipes: entry.value));
                                 deva_log("info", "[chest] notif → ${entry.value.length} appareil(s) ($lang)"
                                     " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
@@ -460,7 +460,15 @@ extension Worker_notify on worker {
     // lire comme un cadeau raté (même précaution que _notifyOpeningCall).
     Future<void> _notifyClanFairy(String clanId, String region, String name) async {
 
-                    if (clanId.isEmpty) return;
+                    await _notifyClanKey(clanId, region, "fairy_notif", name);
+    }
+
+    // Annonce au clan (sauf l'intéressé) le texte de la clé `key`, dans la langue de chacun, `{name}`
+    // remplacé par le joueur. Partagé par la fée et par le moteur d'événements (seulement quand
+    // l'événement a été découvert ET cliqué).
+    Future<void> _notifyClanKey(String clanId, String region, String key, String name) async {
+
+                    if (clanId.isEmpty || key.isEmpty) return;
                     try {
                         final players = await _cloud?.list(
                             "workers", "clans_players/$clanId/players", region: region) ?? [];
@@ -477,28 +485,28 @@ extension Worker_notify on worker {
                             final lang = p.get("lang")?.toString() ?? "fr";
                             (byLang[lang] ??= <String>[]).addAll(devices);
                         }
-                        if (byLang.isEmpty) { deva_log("info", "[fairy] aucun destinataire"); return; }
+                        if (byLang.isEmpty) { deva_log("info", "[notify] $key : aucun destinataire"); return; }
 
                         for (final entry in byLang.entries) {
                             final lang = entry.key;
-                            var text = (await deva_get("lang.translations.fairy_notif.$lang"))?.toString() ?? "";
+                            var text = (await deva_get("lang.translations.$key.$lang"))?.toString() ?? "";
                             if (text.isEmpty) {
-                                text = (await deva_get("lang.translations.fairy_notif.fr"))?.toString() ?? "";
+                                text = (await deva_get("lang.translations.$key.fr"))?.toString() ?? "";
                             }
                             if (text.isEmpty) continue;                      // clef absente : on se tait
                             text = text.replaceAll("{name}", name);
 
                             try {
-                                final r = await _messaging?.send(dvmsg(
+                                final r = await _sendClanMsg(dvmsg(
                                     range: 'global', label: text, recipes: entry.value));
-                                deva_log("info", "[fairy] notif → ${entry.value.length} appareil(s) ($lang)"
+                                deva_log("info", "[notify] $key → ${entry.value.length} appareil(s) ($lang)"
                                     " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
                             } catch (e) {
-                                deva_log("error", "[fairy] notif ($lang) échec: $e");
+                                deva_log("error", "[notify] $key ($lang) échec: $e");
                             }
                         }
                     } catch (e) {
-                        deva_log("error", "[fairy] _notifyClanFairy FAILED: $e");
+                        deva_log("error", "[notify] _notifyClanKey($key) FAILED: $e");
                     }
     }
 
@@ -525,7 +533,7 @@ extension Worker_notify on worker {
                                     if (text.isEmpty) return;
                                     text = text.replaceAll("{amount}", "$amount");
 
-                                    final result = await _messaging?.send(dvmsg(
+                                    final result = await _sendClanMsg(dvmsg(
                                         range:   'global',
                                         label:   text,
                                         recipes: devices.map((d) => d.toString()).toList(),
@@ -570,7 +578,7 @@ extension Worker_notify on worker {
                         if (gotTitle) text = text.replaceAll("{title}", await tr("player_title_$titleIdx"));
 
                         try {
-                            final r = await _messaging?.send(dvmsg(
+                            final r = await _sendClanMsg(dvmsg(
                                 range: 'global', label: text, recipes: devices));
                             deva_log("info", "[levelup] notif → $pid ($lang)"
                                 " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
@@ -678,7 +686,7 @@ extension Worker_notify on worker {
                     }
 
                     try {
-                        final result = await _messaging?.send(dvmsg(
+                        final result = await _sendClanMsg(dvmsg(
                             range:   'global',
                             label:   label,
                             recipes: devices,
@@ -744,7 +752,7 @@ extension Worker_notify on worker {
                                 // Action sans libellé = convention tap-corps (cf. _notifyAssignee) :
                                 // toucher le bandeau ouvre la boutique, exactement comme le fera la
                                 // relance du serveur.
-                                final r = await _messaging?.send(dvmsg(
+                                final r = await _sendClanMsg(dvmsg(
                                     range:   'global',
                                     label:   text,
                                     recipes: devices,
@@ -790,7 +798,7 @@ extension Worker_notify on worker {
                         text = text.replaceAll("{name}", name);
 
                         try {
-                            final r = await _messaging?.send(dvmsg(
+                            final r = await _sendClanMsg(dvmsg(
                                 range: 'global', label: text, recipes: devices));
                             deva_log("info", "[roster] notif promo clan → $pid ($lang)"
                                 " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
@@ -826,7 +834,7 @@ extension Worker_notify on worker {
                             if (text.isEmpty) continue;
 
                             try {
-                                final r = await _messaging?.send(dvmsg(
+                                final r = await _sendClanMsg(dvmsg(
                                     range: 'global', label: text, recipes: devices));
                                 deva_log("info", "[boss] notif → $pid ($lang)"
                                     " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
@@ -875,7 +883,7 @@ extension Worker_notify on worker {
                             if (text.isEmpty) continue;
 
                             try {
-                                final r = await _messaging?.send(dvmsg(
+                                final r = await _sendClanMsg(dvmsg(
                                     range:      'global',
                                     label:      text,
                                     recipes:    devices,
@@ -909,7 +917,7 @@ extension Worker_notify on worker {
                             .map((d) => d.toString()).toList();
                         if (devices.isEmpty) return;
 
-                        final r = await _messaging?.send(dvmsg(
+                        final r = await _sendClanMsg(dvmsg(
                             range:   'global',
                             recipes: devices,
                             data:    {"playerId": _userId},
@@ -946,7 +954,7 @@ extension Worker_notify on worker {
                             if (text.isEmpty) continue;
 
                             try {
-                                final r = await _messaging?.send(dvmsg(
+                                final r = await _sendClanMsg(dvmsg(
                                     range:      'global',
                                     label:      text,
                                     recipes:    devices,
