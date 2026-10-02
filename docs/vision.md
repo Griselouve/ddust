@@ -839,7 +839,7 @@ Ce résumé peut être partagé. Le partage contient un lien pour télécharger 
 
 #### Voter l'app dans le store
 
-Après avoir vaincu le boss: "tu as aimé : va voter !" et on croise les doigts pour avoir un vote 5 étoiles.
+Après avoir reçu le cadeau de la fée, la feuille d'étoiles du store s'ouvre, sans question devant (Google proscrit le « tu as aimé ? ») et seulement pour un adulte : jamais sur l'appareil d'un enfant. Au plus une fois tous les 90 jours.
 
 --------------------------------------------------------------------------------------------------
 

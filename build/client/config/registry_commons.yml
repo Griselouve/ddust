@@ -110,6 +110,9 @@ conf:
         # souscrit ou change de cotisation, et on n'y arrive jamais par hasard :
         # une raison commerciale l'ouvre (plafond atteint, relance, réabonnement).
         - tiers_page
+        # Le choix du palier (« Combien d'aventuriers ? »), ouvert depuis le lien
+        # « changer » de la page des paliers, et seulement de là.
+        - tiers_pick_page
 
     page:
       class: DvPage
@@ -209,7 +212,6 @@ conf:
     commons/arrive_view:
       class: DvSceneView
       layer: popup
-      scene: arrive
       shape:
         x: 0%
         y: 0%
@@ -226,7 +228,6 @@ conf:
     commons/pacte_view:
       class: DvSceneView
       layer: popup
-      scene: pacte
       shape:
         x: 0%
         y: 0%
@@ -242,7 +243,6 @@ conf:
     commons/depart_view:
       class: DvSceneView
       layer: popup
-      scene: depart
       shape:
         x: 0%
         y: 0%
@@ -268,8 +268,6 @@ conf:
         text_align: CENTER
         valign: CENTER
         text_padding: 2.0
-        font_size: 10.0
-        font_weight: bold
 
     # Écran À TIROIR (combat + les 19 <domaine>_tasks) : hérite de page_taskbar et injecte le
     # dispositif d'ADMINISTRATION du chef de clan — le switch « Jeu | Admin » en bas du tiroir et
@@ -294,7 +292,7 @@ conf:
         - commons/tiroir_menu
 
     # ---- Theme commons: déclarations structurelles uniquement ----------------
-    # Les valeurs visuelles (couleurs, images, fonts) sont dans theme-default-global.yml
+    # Les valeurs visuelles (couleurs, images, fonts) sont dans theme-donjon-global.yml
 
     commons/shape:
       shape:
@@ -393,9 +391,7 @@ conf:
         - commons/label_label
       shape:
         h: 14%
-        font_size: 11
         text_align: JUSTIFY
-        link_color: "amber_200"
         label: "@@@T:parental_consent_notice@@@"
 
     #//------------------------------- INSPIRE FORM (modèle partagé) ----------------------
@@ -601,7 +597,6 @@ conf:
       # burn est injectée AVANT le switch « Jeu | Admin » (masque page vs page_admin) et se
       # dessine donc dessous, le laissant visible par-dessus l'animation. popup couvre tout.
       layer: popup
-      scene: burn
       shape:
         x: 0%
         y: 0%
@@ -621,14 +616,8 @@ conf:
         fadein: 2000
         duration: 2000
         fadeout: 2000
-        font_size: 26.0
-        font_weight: bold
-        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
-        font_color: "amber_400"
-        highlight_color: "#EF5350" # le niveau (encadré [[…]] par le worker) en rouge vif + gras
         text_align: CENTER
         border: false
-        background_color: "transparent"
 
     #//------------------------------- HEAL OVERLAY (célébration de soin) ------------------
     # Même mécanique que le level-up (injectées sur TOUTE page via le registry du template
@@ -640,7 +629,6 @@ conf:
     commons/heal_view:
       class: DvSceneView
       layer: popup
-      scene: heal
       shape:
         x: 0%
         y: 0%
@@ -660,14 +648,8 @@ conf:
         fadein: 2000
         duration: 2000
         fadeout: 2000
-        font_size: 26.0
-        font_weight: bold
-        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
-        font_color: "#1B5E20" # vert profond (lisible sur le voile blanc)
-        highlight_color: "#2E7D32" # nom du joueur (encadré [[…]]) en vert franc + gras
         text_align: CENTER
         border: false
-        background_color: "transparent"
 
     #//------------------------------- GIFT XP OVERLAY (cadeau de la guilde) ---------------
     # Même mécanique que level-up/heal (injectées sur TOUTE page via le registry du template
@@ -676,7 +658,6 @@ conf:
     commons/giftxp_view:
       class: DvSceneView
       layer: popup
-      scene: giftxp
       shape:
         x: 0%
         y: 0%
@@ -689,7 +670,6 @@ conf:
     commons/victory_view:
       class: DvSceneView
       layer: popup
-      scene: victory
       shape:
         x: 0%
         y: 0%
@@ -709,14 +689,8 @@ conf:
         fadein: 2000 # le texte paraît pendant que l'écran dore
         duration: 1500
         fadeout: 2000
-        font_size: 22.0
-        font_weight: bold
-        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
-        font_color: "#000000" # message en noir
-        highlight_color: "#D32F2F" # les "XP" (encadrés [[…]]) en rouge
         text_align: CENTER
         border: false
-        background_color: "transparent"
 
     #//------------------------------- GIFT GOLD OVERLAY (cadeau d'or) ---------------------
     # Même mécanique que giftxp (injectées sur TOUTE page via le registry du template "page"),
@@ -725,7 +699,6 @@ conf:
     commons/giftgold_view:
       class: DvSceneView
       layer: popup
-      scene: giftgold
       shape:
         x: 0%
         y: 0%
@@ -745,14 +718,8 @@ conf:
         fadein: 2000 # le texte paraît pendant que l'écran dore
         duration: 1500
         fadeout: 2000
-        font_size: 24.0
-        font_weight: bold
-        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
-        font_color: "#000000" # message en noir
-        highlight_color: "#D32F2F" # le nombre de pièces (encadré [[…]]) en rouge
         text_align: CENTER
         border: false
-        background_color: "transparent"
 
     #//------------------------------- GAME OVER OVERLAY (0 PV) ----------------------------
     # MIROIR de l'overlay de soin : même mécanique (injectées sur TOUTE page via le registry du
@@ -764,7 +731,6 @@ conf:
     commons/gameover_view:
       class: DvSceneView
       layer: popup
-      scene: gameover
       shape:
         x: 0%
         y: 0%
@@ -789,7 +755,6 @@ conf:
         img_y: 6%
         img_w: 80%
         img_h: 45%
-        image: "images/big/gameover.png"
         label: "GAME OVER" # statique : même texte pour toutes les langues
         # Déclenché par _celebrateDeath APRÈS la phase 1 (écran devenu noir). fadein+duration+fadeout
         # (~3,4 s) tiennent DANS le hold noir (act5, 3,5 s) → le splash disparaît AVANT que le noir
@@ -797,13 +762,8 @@ conf:
         fadein: 900
         duration: 1800
         fadeout: 700
-        font_size: 30.0
-        font_weight: bold
-        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
-        font_color: "#FFFFFF" # GAME OVER en blanc
         text_align: CENTER
         border: false
-        background_color: "transparent"
 
     #//------------------------------- BUTIN OVERLAY (ouverture du coffre) -----------------
     # La plus fournie des célébrations (scène "butin" : le coffre surgit, éclate en confettis et
@@ -816,7 +776,6 @@ conf:
     commons/butin_view:
       class: DvSceneView
       layer: popup
-      scene: butin
       shape:
         x: 0%
         y: 0%
@@ -838,14 +797,8 @@ conf:
         fadein: 700 # le texte paraît avec l'éclat, pas avant
         duration: 3000
         fadeout: 900
-        font_size: 26.0
-        font_weight: bold
-        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
-        font_color: "#FFD54F" # or clair, lisible sur la nuit du donjon
-        highlight_color: "#FF6D00" # le mot encadré [[…]] en braise (cf. les étincelles)
         text_align: CENTER
         border: false
-        background_color: "transparent"
 
     #//------------------------------- DEATH OVERLAY (0 PV) --------------------------------
     # Overlay de mort : affiché quand pvShown <= 0 sur tous les écrans à taskbar. Déclaré ICI une
@@ -863,8 +816,6 @@ conf:
         y: 0%
         w: 100%
         h: 88%
-        background_color: "#FF000000"
-        opacity: 0.7
         border: false
         visible: false
         events:
@@ -880,9 +831,6 @@ conf:
         y: 6%
         w: 64%
         h: 44%
-        stretch: "RATIO_IN"
-        image: "images/big/skull_nobg.png"
-        opacity: 0.7
         border: false
         visible: false
 
@@ -895,10 +843,8 @@ conf:
         y: 45%
         w: 90%
         h: 31% # remonté et agrandi de 5% pour éviter les textes tronqués
-        font_size: 14.0
         text_align: CENTER
         label: "" # rempli à l'exécution : @@@T:gage_NN@@@
-        opacity: 0.7
         visible: false
 
     # Bouton « Résurrection » : n'apparaît QUE pour l'admin solo mort (piloté par worker._applyDeath,
@@ -916,7 +862,6 @@ conf:
         h: 8%
         text_align: CENTER
         label: "@@@T:resurrection@@@"
-        opacity: 0.7
         visible: false
         events:
           tap: true
@@ -961,12 +906,6 @@ conf:
       selector: worker.death_settings_selector
       shape:
         w: 55%
-        background_color: "0xF01A1A1A"
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 10.0
-        font_color: "amber_200"
-        font_size: 15.0
       options:
         guide_parent:
           icon: "menu_book"
@@ -1012,7 +951,6 @@ conf:
           actions:
             tap: worker.open_privacy
         logout:
-          image: "images/small/log-out.png"
           desc: "@@@T:perso_menu_logout_desc@@@"
           shape:
             label: "@@@T:sign_out@@@"
@@ -1021,7 +959,6 @@ conf:
         # Le panneau de suppression vit sur l'écran Personnage (personnage/delete_*, layer
         # overlay, listé après le voile) : depuis un autre écran, on s'y rend d'abord.
         delete_account:
-          image: "images/big/skull_nobg.png"
           desc: "@@@T:perso_menu_delete_desc@@@"
           shape:
             label: "@@@T:perso_menu_delete@@@"
@@ -1052,8 +989,6 @@ conf:
         y: 0%
         w: 100%
         h: 100%
-        background_color: "#FF000000"
-        opacity: 0.85
         border: false
         visible: false
         events:
@@ -1070,11 +1005,7 @@ conf:
         w: 84%
         h: 36%
         label: ""
-        background_color: "0xF01A1A1A"
         border: true
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 12.0
         visible: false
         events:
           tap: true
@@ -1093,9 +1024,6 @@ conf:
         h: 12%
         text_align: CENTER
         valign: CENTER
-        font_size: 15.0
-        font_color: "amber_200"
-        background_color: "0x00000000"
         border: false
         label: "@@@T:rate_phrase@@@"
         visible: false
@@ -1110,7 +1038,6 @@ conf:
         w: 12%
         h: 7%
         icon: "star_border"
-        icon_color: "#C8A84B"
         icon_size: 34
         border: false
         visible: false
@@ -1168,13 +1095,8 @@ conf:
         w: 15%
         h: 9%
         icon: "share"
-        icon_color: "#C8A84B"
         icon_size: 26
-        background_color: "0xCC1A1A1A"
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.5
-        border_radius: 30.0
         visible: false
         events:
           tap: true
@@ -1197,8 +1119,6 @@ conf:
         y: 0%
         w: 100%
         h: 100%
-        background_color: "#FF000000"
-        opacity: 0.85
         border: false
         visible: false
         events:
@@ -1215,11 +1135,7 @@ conf:
         w: 84%
         h: 60%
         label: ""
-        background_color: "0xF01A1A1A"
         border: true
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 12.0
         visible: false
         events:
           tap: true
@@ -1234,9 +1150,6 @@ conf:
         y: 21%
         w: 50%
         h: 25%
-        stretch: "RATIO_IN"
-        image: "images/medium/nope.png"
-        image_fallback: "images/medium/nope.png"
         border: false
         visible: false
 
@@ -1251,9 +1164,6 @@ conf:
         h: 18%
         text_align: CENTER
         valign: CENTER
-        font_size: 15.0
-        font_color: "amber_200"
-        background_color: "0x00000000"
         border: false
         scrollable: true
         label: " "
@@ -1295,8 +1205,6 @@ conf:
         y: 0%
         w: 100%
         h: 100%
-        background_color: "#FF000000"
-        opacity: 0.92
         border: false
         visible: false
         events:
@@ -1313,10 +1221,8 @@ conf:
         y: 38%
         w: 84%
         h: 24%
-        font_size: 15.0
         text_align: CENTER
         label: "@@@T:consent_closed_msg@@@"
-        opacity: 0.7
         visible: false
 
     #//------------------------- IMPERSONATION BANNER (prendre la place) -------------------
@@ -1339,15 +1245,8 @@ conf:
         text_align: CENTER
         valign: CENTER
         text_padding: 4.0
-        font_size: 12.0
-        font_weight: bold
         label: "" # rempli à l'exécution : @@@T:impersonating_as@@@ <nom> — @@@T:impersonation_tap_return@@@
-        background_color: "0xF01A1A1A"
-        font_color: "#C8A84B"
         border: true
-        border_color: "#C8A84B"
-        border_size: 1.0
-        border_radius: 6.0
         visible: false
         draggable: true          # glisser pour déplacer (panupdate → shape.move, positions en %)
         events:
@@ -1389,16 +1288,9 @@ conf:
         # doit se lire sans se disputer la place avec ce qu'il recouvre — jauges,
         # écu de niveau, avatar. Les textes ont été raccourcis d'autant (une phrase
         # + l'affordance), ce qui les fait tenir sans ascenseur à cette taille.
-        font_size: 9.0
-        font_weight: bold
         scrollable: true         # filet : une traduction plus longue ne doit pas être coupée
         label: ""                # rempli à l'exécution par worker._applyDunning (@@@T:store_dunning_<phase>@@@)
-        background_color: "0xF01A1A1A"
-        font_color: "0xFFCC4444"
         border: true
-        border_color: "0xFFCC4444"
-        border_size: 1.0
-        border_radius: 6.0
         visible: false
         events:
           tap: true
@@ -1423,15 +1315,8 @@ conf:
         # DvLabel pose text_padding: 8.0 par défaut (dvlabel.dart) → 16 px mangés en hauteur, ce
         # qui rogne la ligne dans une boîte fine. Comme partout ailleurs dans ddust : on l'annule.
         text_padding: 0.0
-        font_size: 13.0
-        font_weight: bold
         label: "@@@T:mode_game@@@"
-        background_color: "0xF01A1A1A"
-        font_color: "#C8A84B"
         border: true
-        border_color: "#C8A84B"
-        border_size: 1.0
-        border_radius: 6.0
         visible: false
         events:
           tap: true
@@ -1451,15 +1336,8 @@ conf:
         # DvLabel pose text_padding: 8.0 par défaut (dvlabel.dart) → 16 px mangés en hauteur, ce
         # qui rogne la ligne dans une boîte fine. Comme partout ailleurs dans ddust : on l'annule.
         text_padding: 0.0
-        font_size: 13.0
-        font_weight: bold
         label: "@@@T:mode_admin@@@"
-        background_color: "0xF01A1A1A"
-        font_color: "#C8A84B"
         border: true
-        border_color: "#C8A84B"
-        border_size: 1.0
-        border_radius: 6.0
         visible: false
         events:
           tap: true
@@ -1480,64 +1358,50 @@ conf:
       # Pas de `selector:` ici : DvTiroir a déjà appelé worker.task_selector et transmet ses clefs.
       shape:
         w: 55%
-        background_color: "0xF01A1A1A"
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 10.0
-        font_color: "amber_200"
-        font_size: 15.0
       options:
         adm_enable:
-          image: "images/small/adm_enable.png"
           desc: "@@@T:adm_menu_enable_desc@@@"
           shape:
             label: "@@@T:adm_menu_enable@@@"
           actions:
             tap: worker.adm_enable
         adm_disable:
-          image: "images/small/adm_disable.png"
           desc: "@@@T:adm_menu_disable_desc@@@"
           shape:
             label: "@@@T:adm_menu_disable@@@"
           actions:
             tap: worker.adm_disable
         adm_hide:
-          image: "images/small/adm_hide.png"
           desc: "@@@T:adm_menu_hide_desc@@@"
           shape:
             label: "@@@T:adm_menu_hide@@@"
           actions:
             tap: worker.adm_hide
         adm_show:
-          image: "images/small/adm_show.png"
           desc: "@@@T:adm_menu_show_desc@@@"
           shape:
             label: "@@@T:adm_menu_show@@@"
           actions:
             tap: worker.adm_show
         adm_edit:
-          image: "images/medium/icon_edit.png"
           desc: "@@@T:adm_menu_edit_desc@@@"
           shape:
             label: "@@@T:adm_menu_edit@@@"
           actions:
             tap: worker.adm_edit
         adm_tasks:
-          image: "images/small/scroll_nobg.png"
           desc: "@@@T:adm_menu_tasks_desc@@@"
           shape:
             label: "@@@T:adm_menu_tasks@@@"
           actions:
             tap: worker.adm_tasks
         adm_revive:
-          image: "images/small/cure_nobg.png"
           desc: "@@@T:adm_menu_revive_desc@@@"
           shape:
             label: "@@@T:adm_menu_revive@@@"
           actions:
             tap: worker.adm_revive
         adm_recommend:
-          image: "images/small/xp_nobg.png"
           desc: "@@@T:adm_menu_recommend_desc@@@"
           shape:
             label: "@@@T:adm_menu_recommend@@@"
@@ -1546,7 +1410,6 @@ conf:
         # « Ne plus recommander » : retire le statut boss. Même icône que « Recommander » — les deux
         # options ne coexistent jamais (l'une OU l'autre, selon que la tâche est déjà recommandée).
         adm_unrecommend:
-          image: "images/small/xp_nobg.png"
           desc: "@@@T:adm_menu_unrecommend_desc@@@"
           shape:
             label: "@@@T:adm_menu_unrecommend@@@"
@@ -1555,7 +1418,6 @@ conf:
         # « Laisser tomber » : la tâche tenue par un joueur redevient libre (comme si personne
         # ne l'avait sélectionnée). Proposée uniquement sur une tâche assigned/validating.
         adm_release:
-          image: "images/small/flee_nobg.png"
           desc: "@@@T:adm_menu_release_desc@@@"
           shape:
             label: "@@@T:adm_menu_release@@@"

@@ -65,8 +65,6 @@ conf:
         y: 4%
         w: 29%
         h: 2.4%
-        background_color: "0xFF99864E"
-        border_radius: 6.0
         border: false
 
     clan_page/lvl_fill:
@@ -77,8 +75,6 @@ conf:
         y: 4%
         w: 1%
         h: 2.4%
-        background_color: "0xFFB11226"
-        border_radius: 6.0
         border: false
 
     clan_page/lvl_flame:
@@ -89,8 +85,6 @@ conf:
         y: -1%
         w: 10%
         h: 10%
-        stretch: "RATIO_IN"
-        image: "images/small/flamme_nobg.png"
         border: false
 
     clan_page/lvl_label:
@@ -103,12 +97,8 @@ conf:
         h: 7%
         text_align: CENTER
         text_padding: 0.0
-        font_size: 19.0
-        font_color: "WHITE"
         label: "1"
         border: false
-        stretch: "RATIO_IN"
-        image: "images/medium/shield.png"
 
     clan_page/xp_label:
       class: DvLabel
@@ -120,8 +110,6 @@ conf:
         h: 2.4%
         text_align: RIGHT
         text_padding: 0.0
-        font_size: 10.0
-        font_color: "BLACK"
         label: ""
         border: false
 
@@ -139,8 +127,6 @@ conf:
         y: 4%
         w: 29%
         h: 2.4%
-        background_color: "0xFF99864E"
-        border_radius: 6.0
         border: false
 
     clan_page/butin_fill:
@@ -151,8 +137,6 @@ conf:
         y: 4%
         w: 1%
         h: 2.4%
-        background_color: "0xFFB11226"
-        border_radius: 6.0
         border: false
 
     clan_page/butin_chest_ip:
@@ -163,8 +147,6 @@ conf:
         y: 1%
         w: 8%
         h: 8%
-        stretch: "RATIO_IN"
-        image: "images/small/chestip.png"
         visible: true
         border: false
 
@@ -176,8 +158,6 @@ conf:
         y: 1%
         w: 8%
         h: 8%
-        stretch: "RATIO_IN"
-        image: "images/medium/chestok.png"
         visible: false
         border: false
 
@@ -191,8 +171,6 @@ conf:
         h: 2.4%
         text_align: LEFT
         text_padding: 0.0
-        font_size: 10.0
-        font_color: "BLACK"
         label: ""
         border: false
 
@@ -207,7 +185,6 @@ conf:
     clan_page/butin_aura:
       class: DvSceneView
       layer: content
-      scene: chestaura
       shape:
         x: 75%
         y: 4%
@@ -230,8 +207,6 @@ conf:
         y: 8%
         w: 14%
         h: 7%
-        stretch: "RATIO_IN"
-        image: "images/medium/chestok.png"
         visible: false
         border: false
         events:
@@ -246,7 +221,6 @@ conf:
         w: 30%
         y: 0%
         h: 20%
-        image_fallback: "images/medium/nope.png"
 
     clan_page/label:
       mask: commons/intro_text
@@ -272,8 +246,6 @@ conf:
         h: 4%
         text_align: CENTER
         text_padding: 0.0
-        font_size: 11.0
-        font_color: "0xFFB11226"
         label: ""
         border: false
 
@@ -288,8 +260,6 @@ conf:
         y: 1%
         w: 8%
         h: 5%    
-        stretch: "RATIO_IN"
-        image: "images/medium/icon_edit.png"
         border: false
         label: ""
         events:
@@ -349,15 +319,8 @@ conf:
       show_label: false
       shape:
         w: 55%
-        background_color: "0xF01A1A1A"
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 10.0
-        font_color: "amber_200"
-        font_size: 15.0
       options:
         clan_log:
-          image: "images/small/scroll_nobg.png"
           desc: "@@@T:clan_menu_log_desc@@@"
           shape:
             label: "@@@T:clan_menu_log@@@"
@@ -401,7 +364,6 @@ conf:
         # adulte est proposé). Réservé au chef (clan_settings_selector), avec double garde dans
         # worker.on_invite_clan.
         clan_qr:
-          image: "images/small/qr-code.png"
           desc: "@@@T:clan_menu_qr_desc@@@"
           shape:
             label: "@@@T:clan_menu_qr@@@"
@@ -418,7 +380,6 @@ conf:
           actions:
             tap: worker.on_invite_clan_remote
         tutorials:
-          image: "images/medium/nope.png"
           desc: "@@@T:clan_menu_tutorials_desc@@@"
           shape:
             label: "@@@T:clan_menu_tutorials@@@"
@@ -526,11 +487,7 @@ conf:
         y: 2%
         w: 92%
         h: 68%
-        background_color: "0x99000000"
         border: true
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 8.0
         label: ""
 
     # En tete, ce qui a PRECEDE la decision du chef. En mode enfant : l'accord de l'enfant, sa
@@ -551,9 +508,6 @@ conf:
         y: 3%
         w: 86%
         h: 24%
-        font_size: 11.0
-        font_color: "amber_200"
-        highlight_color: "0xFFFFFFFF"
         scrollable: true
         text_align: LEFT
         label: ""
@@ -576,8 +530,6 @@ conf:
         y: 28%
         w: 86%
         h: 20%
-        font_size: 12.0
-        font_color: "amber_200"
         label: "@@@T:invite_consent_notice@@@"
 
     # Les cas annonces par la mention ci-dessus (deux « enfant » avec un accord joint, « adulte »
@@ -594,8 +546,6 @@ conf:
         y: 49%
         w: 86%
         h: 12%
-        font_color: "amber_200"
-        font_size: 12.0
         row_height: 28.0
         events:
           change: true
@@ -616,7 +566,6 @@ conf:
         w: 86%
         h: 7%
         text_align: CENTER
-        font_size: 12.0
         label: ""
         visible: false
         events:
@@ -637,7 +586,6 @@ conf:
         w: 86%
         h: 7%
         text_align: CENTER
-        font_size: 12.0
         label: ""
         visible: false
         events:
@@ -706,13 +654,7 @@ conf:
         y: 2%
         w: 92%
         h: 16%
-        background_color: "0x99000000"
         border: true
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 8.0
-        font_size: 12.0
-        font_color: "amber_200"
         label: "@@@T:claim_pick_hint@@@"
 
     # Une ligne = l'avatar du joueur + son nom ; alimentee par worker.on_claim_pick_appear
@@ -729,15 +671,7 @@ conf:
         h: 76%
         row_height: 64.0
         icon_size: 48.0
-        font_size: 14.0
-        font_color: "#C8A84B"
-        background_color: "0xB3000000"
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.0
-        border_radius: 10.0
-        row_color: "0xB3000000"
-        row_border_color: "0xFFB07328"
 
     #//------------------ Retrait du consentement parental (art. 7(3) RGPD) -------------
     # Overlay de confirmation du retrait, et de sa rétractation. Idiome maison — layer overlay
@@ -757,8 +691,6 @@ conf:
         y: 0%
         w: 100%
         h: 100%
-        background_color: "#FF000000"
-        opacity: 0.9
         border: false
         visible: false
         events:
@@ -775,11 +707,8 @@ conf:
         w: 88%
         h: 48%
         text_align: CENTER
-        font_size: 14.0
-        font_color: "amber_200"
         # Même opacité que consent_yes/consent_no (héritée de commons/shape) : DvImageView
         # applique shape.opacity au texte lui-même (cf. personnage/delete_panel).
-        opacity: 0.6
         border: false
         label: " "
         visible: false
@@ -824,7 +753,6 @@ conf:
       show_appbar: true
       show_back: true
       title: "@@@T:tutoriels_title@@@"
-      background_color: black
       registry:
         - tutoriels/list
 
@@ -845,8 +773,6 @@ conf:
         y: 5%
         w: 16%
         h: 10%
-        stretch: "RATIO_IN"
-        image: "images/medium/icon_edit.png"
         border: false
         label: ""
         visible: false
@@ -863,8 +789,6 @@ conf:
         y: 17%
         w: 16%
         h: 8%
-        stretch: "RATIO_IN"
-        image: "images/medium/icon_edit.png"
         border: false
         label: ""
         visible: false
@@ -881,7 +805,6 @@ conf:
       show_appbar: true
       show_back: true
       title: "@@@T:choose_avatar@@@"
-      background_color: black
       registry:
         - clan_avatar_explorer/grid
 
@@ -903,7 +826,6 @@ conf:
         folder: "images/medium"
         # Thème facultatif en tête (absent = donjon), groupe = numéro de clan ou nom de classe.
         regex_filter: "icon_([A-Za-z0-9]+_)?[A-Za-z0-9]+_C_[0-9]+[.]png"
-        border_color: "0xFFEAD9A6"
 
     # Liste scrollable des membres du clan (une tuile par joueur). Peuplée à chaud
     # par worker.on_clan_appear via l'action dvroster.set_members. y 28% → sous le
@@ -940,22 +862,14 @@ conf:
         border: false
         # Flammèche au bout de la barre de progrès « butin » de chaque joueur (sous le nom).
         # Sert aussi de badge « tâche en cours » (bas-droit de l'avatar).
-        flame_image: "images/small/flamme_nobg.png"
         # Badge « demande de validation » (bas-droit de l'avatar) : la main.
-        hand_image: "images/small/hand_nobg.png"
         # Les 5 clefs suivantes SURCHARGENT les défauts codés en dur de DvRoster (dvroster.dart),
         # tous en `images/big/…` : sans elles, le framework irait chercher ces 5 fichiers dans
         # `big/` alors qu'ils ont été reclassés (reclassement des images, cf. readme.md §12).
-        nope_image:  "images/medium/nope.png"        # repli avatar introuvable
-        ecu_image:   "images/medium/shield.png"      # écu de niveau
-        heart_image: "images/small/heart_nobg.png"   # cœur de PV
-        skull_image: "images/big/skull_nobg.png"     # crâne (mort) — reste en big (voile de mort, 256 dp)
-        crown_image: "images/small/crown.png"        # couronne d'admin
         # Bourse du bord droit de la tuile (montant = champ `wallet` poussé par le worker). En la
         # déclarant, on demande le badge : sans cette clef, DvRoster n'en dessine aucun. Elle prend
         # le bord droit et repousse le kebab à sa gauche — l'argent se lit à la même place pour
         # tout le monde, y compris les joueurs qui n'ont pas de kebab (aucune option).
-        purse_image: "images/medium/bourse.png"
         # Raccourci : taper la bourse joue directement l'option `pay_tribute` du roster_menu, au
         # lieu de passer par le kebab. Même clef, même selector (worker.clan_selector) → inerte
         # pour qui n'y a pas droit (non-chef) ou n'a rien à encaisser (bourse vide, option grisée).
@@ -987,7 +901,6 @@ conf:
         h: 12%
         text_padding: 0.0
         text_align: CENTER
-        font_size: 14.0
         label: "@@@T:clan_invite_cta@@@"
         visible: false
         events:
@@ -1009,12 +922,6 @@ conf:
       selector: worker.clan_selector
       shape:
         w: 55%
-        background_color: "0xF01A1A1A"
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 10.0
-        font_color: "amber_200"
-        font_size: 15.0
       # Chaque option porte une `image:` (icône du bouton en mode `buttons` du roster), en plus
       # de son label (repli mode menu) et de son action de tap. L'ordre d'affichage effectif est
       # décidé par le selector (worker.clan_selector) ; l'ordre ci-dessous n'est qu'indicatif.
@@ -1023,70 +930,60 @@ conf:
         # à TOUS, chefs ou non, par worker.clan_selector (_evtRosterSelector), seulement sur la
         # tuile de l'intrus et, pour un changelin, sur celle du membre imité.
         evt_chase:
-          image: "images/medium/evt_gobelin.png"
           desc: "@@@T:evt_chase_desc@@@"
           shape:
             label: "@@@T:evt_chase@@@"
           actions:
             tap: worker.on_event_chase
         player_log:
-          image: "images/small/scroll_nobg.png"
           desc: "@@@T:roster_menu_log_desc@@@"
           shape:
             label: "@@@T:roster_menu_log@@@"
           actions:
             tap: worker.open_player_log
         revive_player:
-          image: "images/small/pharma.png"
           desc: "@@@T:roster_menu_revive_desc@@@"
           shape:
             label: "@@@T:roster_menu_revive@@@"
           actions:
             tap: worker.revive_player
         support_player:
-          image: "images/small/xp_nobg.png"
           desc: "@@@T:roster_menu_support_desc@@@"
           shape:
             label: "@@@T:roster_menu_support@@@"
           actions:
             tap: worker.support_player
         declare_offline:
-          image: "images/small/notconnected_nobg.png"
           desc: "@@@T:roster_menu_offline_desc@@@"
           shape:
             label: "@@@T:roster_menu_offline@@@"
           actions:
             tap: worker.declare_offline
         take_place:
-          image: "images/small/switch_nobg.png"
           desc: "@@@T:roster_menu_takeplace_desc@@@"
           shape:
             label: "@@@T:roster_menu_takeplace@@@"
           actions:
             tap: worker.take_place
         promote_chief:
-          image: "images/small/chef_nobg.png"
           desc: "@@@T:roster_menu_promote_chief_desc@@@"
           shape:
             label: "@@@T:roster_menu_promote_chief@@@"
           actions:
             tap: worker.promote_chief
         nomore_chief:
-          image: "images/small/nomore_chef.png"
           desc: "@@@T:roster_menu_nomore_chief_desc@@@"
           shape:
             label: "@@@T:roster_menu_nomore_chief@@@"
           actions:
             tap: worker.nomore_chief
         promote_adult:
-          image: "images/small/adult.png"
           desc: "@@@T:roster_menu_promote_adult_desc@@@"
           shape:
             label: "@@@T:roster_menu_promote_adult@@@"
           actions:
             tap: worker.promote_adult
         pay_tribute:
-          image: "images/medium/bourse.png"
           desc: "@@@T:roster_menu_pay_tribute_desc@@@"
           shape:
             label: "@@@T:roster_menu_pay_tribute@@@"
@@ -1128,7 +1025,6 @@ conf:
           actions:
             tap: worker.hors_concours_off
         revoke_player:
-          image: "images/small/byebye_nobg.png"
           desc: "@@@T:roster_menu_revoke_desc@@@"
           shape:
             label: "@@@T:roster_menu_revoke@@@"
@@ -1141,7 +1037,6 @@ conf:
         # Le libellé est celui que publient les 84 politiques de confidentialité adultes (§ 9) —
         # ⚠ ne pas le reformuler sans reprendre le corpus.
         withdraw_consent:
-          image: "images/small/poubelle.png"
           desc: "@@@T:roster_menu_withdraw_consent_desc@@@"
           shape:
             label: "@@@T:roster_menu_withdraw_consent@@@"
@@ -1151,7 +1046,6 @@ conf:
         # option sur une tuile en cours de retrait : le joueur est hors du jeu, il n'y a rien
         # d'autre à lui faire.
         restore_consent:
-          image: "images/small/adm_enable.png"
           desc: "@@@T:roster_menu_restore_consent_desc@@@"
           shape:
             label: "@@@T:roster_menu_restore_consent@@@"
@@ -1189,8 +1083,6 @@ conf:
         y: 2%
         w: 94%
         h: 26%
-        image: "images/big/logo.png"
-        stretch: RATIO_IN
         align: TOP
         border: false
 
@@ -1209,13 +1101,6 @@ conf:
         valign: TOP # texte ancré en haut (pas centré verticalement)
         scrollable: true # défilement si le récit dépasse la hauteur
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.0
-        border_radius: 6.0
-        background_color: "black"
-        opacity: 0.8
-        font_color: "#C8A84B"
-        font_size: 11.0
         text_padding: 10.0
         label: "@@@T:log_page_loading@@@"
 
@@ -1241,13 +1126,8 @@ conf:
         w: 15%
         h: 9%
         icon: "share"
-        icon_color: "#C8A84B"
         icon_size: 26
-        background_color: "0xCC1A1A1A"
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.5
-        border_radius: 30.0
         visible: false
         events:
           tap: true
@@ -1294,7 +1174,6 @@ conf:
       shape:
         y: 6%
         h: 20%
-        font_size: 13.0
         label: "@@@T:imp_pin_set_intro@@@"
 
     imp_pin_set/mask:
@@ -1308,8 +1187,6 @@ conf:
         w: 80%
         h: 8%
         text_align: CENTER
-        font_size: 30.0
-        font_weight: bold
         label: ""
 
     # Cible RÉELLE du pavé : porte les chiffres, jamais affichée.
@@ -1351,7 +1228,6 @@ conf:
         y: 86%
         h: 8%
         text_align: CENTER
-        font_size: 13.0
         label: "@@@T:imp_pin_set_cancel@@@"
         events:
           tap: true
@@ -1386,7 +1262,6 @@ conf:
       shape:
         y: 6%
         h: 20%
-        font_size: 13.0
         label: "@@@T:imp_pin_ask_intro@@@"
 
     imp_pin_ask/mask:
@@ -1400,8 +1275,6 @@ conf:
         w: 80%
         h: 8%
         text_align: CENTER
-        font_size: 30.0
-        font_weight: bold
         label: ""
 
     imp_pin_ask/buffer:
@@ -1461,7 +1334,6 @@ conf:
         y: 86%
         h: 8%
         text_align: CENTER
-        font_size: 13.0
         label: "@@@T:imp_pin_ask_cancel@@@"
         events:
           tap: true

@@ -957,7 +957,6 @@ conf:
         w: 30%
         h: 5%
         text_align: LEFT
-        font_size: 13.0
         label: "@@@T:kid_assent_back@@@"
         events:
           tap: true
@@ -970,7 +969,6 @@ conf:
       shape:
         y: 22%
         h: 34%
-        font_size: 17.0
         label: "@@@T:kid_assent_question@@@"
 
     kid_assent/go:
@@ -1015,7 +1013,6 @@ conf:
       shape:
         y: 22%
         h: 34%
-        font_size: 17.0
         label: "@@@T:join_wait_text@@@"
 
     join_wait/giveup:
@@ -1037,7 +1034,7 @@ conf:
     #   * le QR code, que le parent scanne avec « Accueillir un enfant » (menu du clan) quand
     #     il est à côté ;
     #   * le même lien, envoyé par le partage du téléphone quand il est loin.
-    # Puis l'invitation du parent revient ICI : QR code du clan à scanner, ou lien et code.
+    # Puis l'invitation du parent (marquée pour ce code) revient ICI : QR à scanner, ou lien et code.
     #
     # ⚠ RIEN N'EST ÉCRIT SUR CET ÉCRAN, ni en base ni sur le disque. Le QR code ne porte aucune
     #   donnée personnelle (date, langue, royaume, texte montré, version des conditions, et un
@@ -1086,7 +1083,6 @@ conf:
         y: 6%
         w: 90%
         h: 11%
-        font_size: 13.0
         text_align: CENTER
         label: "@@@T:kid_assent_share_intro@@@"
 
@@ -1120,7 +1116,6 @@ conf:
         y: 46%
         w: 90%
         h: 6.5%
-        font_size: 22.0
         text_align: CENTER
         label: ""
 
@@ -1157,8 +1152,6 @@ conf:
         h: 8%
         label: ""
         text_align: CENTER
-        font_size: 12.0
-        font_color: "0xFFCC4444"
         visible: false
 
     kid_assent_share/scan:
@@ -1206,7 +1199,6 @@ conf:
         y: 86%
         w: 90%
         h: 12%
-        font_size: 11.0
         text_align: CENTER
         label: "@@@T:join_clan_google_notice@@@"
 
@@ -1306,7 +1298,6 @@ conf:
         y: 52%
         w: 90%
         h: 10%
-        font_size: 11.0
         label: "@@@T:link_account_notice@@@"
 
     link_account/google_button:
@@ -1346,7 +1337,6 @@ conf:
       shape:
         y: 62.5%
         h: 15%
-        font_size: 11.0
         label: ""
         visible: false
 
@@ -1364,8 +1354,6 @@ conf:
         y: 0%
         w: 100%
         h: 100%
-        background_color: "#FF000000"
-        opacity: 0.85
         border: false
         visible: false
         events:
@@ -1380,7 +1368,6 @@ conf:
       shape:
         y: 28%
         h: 30%
-        font_size: 14.0
         label: ""
         visible: false
 

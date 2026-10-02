@@ -249,7 +249,7 @@ vie domestique (qui fait quoi, quand).
 | Mesure | Statut |
 |---|---|
 | Aucun annuaire, aucune recherche de clan ou de joueur, aucune messagerie, aucune interaction entre clans | Livrée |
-| Entrée dans un clan uniquement par un chef (QR code, lien protégé par un code à six chiffres) ; invitation expirée à 72 heures, secret effacé à la première utilisation | Livrée |
+| Entrée dans un clan uniquement par un chef (QR code, lien protégé par un code à six chiffres) ; pour un enfant, seulement en réponse au souhait de jouer qu'il a d'abord montré ou envoyé, porteur de son code ; invitation expirée à 72 heures, secret effacé à la première utilisation | Livrée |
 | Invitation marquée « enfant » (avec le code de la demande de l'enfant) ou « adulte » : le téléphone d'un enfant refuse, avant toute connexion, une invitation d'adulte ou faite pour la demande d'un autre enfant, et revérifie le code scellé avec la déclaration à l'entrée ; celui d'un adulte refuse une invitation d'enfant. Le code ne vit qu'en mémoire : application fermée pendant l'attente = nouvelle demande | Livrée (code du 2026-09-22, à vérifier au build) |
 | Cloisonnement par clan dans les règles d'accès (secret d'appartenance) ; collections sensibles en lecture seule pour les clients | Livrée |
 | Hors du clan, seul un nom public de substitution existe, sauf dans les autres clans du joueur, qui voient son nom, son avatar et son titre ; aucun écran ne montre un autre clan, hormis le nom des clans d'un enfant et de leur chef, montrés à ses seuls représentants | Livrée (exceptions : code du 2026-09-27, à vérifier au build) |

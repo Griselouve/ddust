@@ -20,7 +20,6 @@ conf:
   #   voyait le contenu des chefs dès sa première ouverture.
   dvtuto:
     defaults:
-      veil: "#000000B3"     # voile ~70 % : contraste marqué sans noircir tout l'écran (pas de cadre)
       # s inerte avant de pouvoir avancer (anti-tap accidentel). 0,8 s se sentait comme un gel
       # (retour joueur du 2026-09-25) : 0,3 s absorbe encore le tap qui arrive en même temps que
       # la bulle, et le double tap est déjà coupé par l'overlay (`_handleTap`).
@@ -146,7 +145,6 @@ conf:
             requires: { worker.player_is_adult: "true" }
             text: "@@@T:guide_p1_situation@@@"
             panel:
-              image: "images/big/guide_p1.png"
               title: "@@@T:guide_p1_title@@@"
               # `verdicts` (les trois issues d'une tache) a ete retiree le 2026-09-15 : elle
               # decrivait une mecanique que le joueur decouvre en jouant, la ou cet ecran
@@ -164,7 +162,6 @@ conf:
             requires: { worker.player_is_adult: "true" }
             text: "@@@T:guide_p2_situation@@@"
             panel:
-              image: "images/big/guide_p2.png"
               title: "@@@T:guide_p2_title@@@"
               # ⚠ LE REMEDE AVANT LE SYMPTOME. « Une seule tache repare tout » passe en tete :
               #   un parent qui ouvre cet ecran veut d'abord savoir que la situation se
@@ -183,7 +180,6 @@ conf:
             requires: { worker.player_is_adult: "true" }
             text: "@@@T:guide_p3_situation@@@"
             panel:
-              image: "images/big/guide_p3.png"
               title: "@@@T:guide_p3_title@@@"
               rows:
                 temps:   { icon: "redeem", name: "@@@T:guide_p3_a@@@", desc: "@@@T:guide_p3_a_desc@@@" }
@@ -194,7 +190,6 @@ conf:
             requires: { worker.player_is_adult: "true" }
             text: "@@@T:guide_p4_situation@@@"
             panel:
-              image: "images/big/guide_p4.png"
               title: "@@@T:guide_p4_title@@@"
               rows:
                 hors_concours: { icon: "shield",     name: "@@@T:guide_p4_a@@@", desc: "@@@T:guide_p4_a_desc@@@" }
@@ -217,7 +212,6 @@ conf:
             order: 10
             text: "@@@T:guide_k1_situation@@@"
             panel:
-              image: "images/big/guide_k1.png"
               title: "@@@T:guide_k1_title@@@"
               rows:
                 ensemble: { icon: "groups",     name: "@@@T:guide_k1_a@@@", desc: "@@@T:guide_k1_a_desc@@@" }
@@ -227,7 +221,6 @@ conf:
             order: 20
             text: "@@@T:guide_k2_situation@@@"
             panel:
-              image: "images/big/guide_k2.png"
               title: "@@@T:guide_k2_title@@@"
               rows:
                 baisse: { icon: "favorite", name: "@@@T:guide_k2_a@@@", desc: "@@@T:guide_k2_a_desc@@@" }
@@ -237,7 +230,6 @@ conf:
             order: 30
             text: "@@@T:guide_k3_situation@@@"
             panel:
-              image: "images/big/guide_k3.png"
               title: "@@@T:guide_k3_title@@@"
               # `trois` (les trois verdicts possibles) a ete retiree le 2026-09-15, comme son
               # equivalent `verdicts` du guide du parent : elle enumere une mecanique que
@@ -250,7 +242,6 @@ conf:
             order: 40
             text: "@@@T:guide_k4_situation@@@"
             panel:
-              image: "images/big/guide_k4.png"
               title: "@@@T:guide_k4_title@@@"
               # ⚠ LA FETE D'ABORD, LE PARTAGE ENSUITE. Ce que l'enfant retient d'un coffre
               #   qui s'ouvre, c'est le moment qu'on passe ensemble ; le fait que chacun
@@ -372,8 +363,12 @@ conf:
             panel:
               title: "@@@T:tuto_clan_menu_title@@@"
               rows:
-                clan_log:  { image: "images/small/scroll_nobg.png", name: "@@@T:clan_menu_log@@@",       desc: "@@@T:clan_menu_log_desc@@@" }
-                tutorials: { image: "images/medium/nope.png",       name: "@@@T:clan_menu_tutorials@@@", desc: "@@@T:clan_menu_tutorials_desc@@@" }
+                clan_log:
+                  name: "@@@T:clan_menu_log@@@"
+                  desc: "@@@T:clan_menu_log_desc@@@"
+                tutorials:
+                  name: "@@@T:clan_menu_tutorials@@@"
+                  desc: "@@@T:clan_menu_tutorials_desc@@@"
           menu_options_admin:
             order: 63
             requires: { worker.is_chief: "true" }
@@ -381,7 +376,9 @@ conf:
               title: "@@@T:tuto_clan_menu_admin_title@@@"
               rows:
                 welcome_child:      { icon: "face",                      name: "@@@T:clan_menu_welcome_child@@@", desc: "@@@T:clan_menu_welcome_child_desc@@@" }
-                clan_qr:            { image: "images/small/qr-code.png", name: "@@@T:clan_menu_qr@@@",            desc: "@@@T:clan_menu_qr_desc@@@" }
+                clan_qr:
+                  name: "@@@T:clan_menu_qr@@@"
+                  desc: "@@@T:clan_menu_qr_desc@@@"
                 clan_invite_remote: { icon: "share",                     name: "@@@T:clan_menu_invite_remote@@@", desc: "@@@T:clan_menu_invite_remote_desc@@@" }
                 create_player:      { icon: "group_add",                 name: "@@@T:clan_menu_create_player@@@", desc: "@@@T:clan_menu_create_player_desc@@@" }
                 welcome_guest_child: { icon: "face",                     name: "@@@T:clan_menu_welcome_guest@@@", desc: "@@@T:clan_menu_welcome_guest_desc@@@" }
@@ -455,7 +452,9 @@ conf:
               title: "@@@T:tuto_create_player_icons_title@@@"
               rows:
                 create: { icon: "group_add",                          name: "@@@T:tuto_create_player_row_create@@@", desc: "@@@T:tuto_create_player_row_create_desc@@@" }
-                switch: { image: "images/small/switch_nobg.png", name: "@@@T:tuto_create_player_row_switch@@@", desc: "@@@T:tuto_create_player_row_switch_desc@@@" }
+                switch:
+                  name: "@@@T:tuto_create_player_row_switch@@@"
+                  desc: "@@@T:tuto_create_player_row_switch_desc@@@"
 
       # Combat — leçon 1 : l'écran des DOMAINES. Déroulé : intro (bulle) → domaines surlignés (sans bulle)
       # → switch Jeu|Admin (admins) → mode jeu → domaine grisé → repères (intro + tableau) →
@@ -506,11 +505,21 @@ conf:
             panel:
               title: "@@@T:tuto_combat_badges_title@@@"
               rows:
-                flamme: { image: "images/small/flamme_nobg.png", name: "@@@T:tuto_badge_flamme@@@",  desc: "@@@T:tuto_badge_flamme_desc@@@" }
-                hand:   { image: "images/small/hand_nobg.png",   name: "@@@T:tuto_badge_hand@@@",    desc: "@@@T:tuto_badge_hand_desc@@@" }
-                xp:     { image: "images/small/xp_nobg.png",     name: "@@@T:tuto_badge_xp@@@",      desc: "@@@T:tuto_badge_xp_desc@@@" }
-                skull:  { image: "images/big/skull_nobg.png",  name: "@@@T:tuto_badge_skull@@@",   desc: "@@@T:tuto_badge_skull_desc@@@" }
-                cure:   { image: "images/small/cure_nobg.png",   name: "@@@T:tuto_badge_cure@@@",    desc: "@@@T:tuto_badge_cure_desc@@@" }
+                flamme:
+                  name: "@@@T:tuto_badge_flamme@@@"
+                  desc: "@@@T:tuto_badge_flamme_desc@@@"
+                hand:
+                  name: "@@@T:tuto_badge_hand@@@"
+                  desc: "@@@T:tuto_badge_hand_desc@@@"
+                xp:
+                  name: "@@@T:tuto_badge_xp@@@"
+                  desc: "@@@T:tuto_badge_xp_desc@@@"
+                skull:
+                  name: "@@@T:tuto_badge_skull@@@"
+                  desc: "@@@T:tuto_badge_skull_desc@@@"
+                cure:
+                  name: "@@@T:tuto_badge_cure@@@"
+                  desc: "@@@T:tuto_badge_cure_desc@@@"
           # Cf. les reperes : l'intro passe dans le panneau qu'elle annonce.
           admin_options:
             order: 90
@@ -563,11 +572,21 @@ conf:
             panel:
               title: "@@@T:tuto_combat_badges_title@@@"
               rows:
-                flamme: { image: "images/small/flamme_nobg.png", name: "@@@T:tuto_badge_flamme@@@",  desc: "@@@T:tuto_badge_flamme_desc@@@" }
-                hand:   { image: "images/small/hand_nobg.png",   name: "@@@T:tuto_badge_hand@@@",    desc: "@@@T:tuto_badge_hand_desc@@@" }
-                xp:     { image: "images/small/xp_nobg.png",     name: "@@@T:tuto_badge_xp@@@",      desc: "@@@T:tuto_badge_xp_desc@@@" }
-                skull:  { image: "images/big/skull_nobg.png",  name: "@@@T:tuto_badge_skull@@@",   desc: "@@@T:tuto_badge_skull_desc@@@" }
-                cure:   { image: "images/small/cure_nobg.png",   name: "@@@T:tuto_badge_cure@@@",    desc: "@@@T:tuto_badge_cure_desc@@@" }
+                flamme:
+                  name: "@@@T:tuto_badge_flamme@@@"
+                  desc: "@@@T:tuto_badge_flamme_desc@@@"
+                hand:
+                  name: "@@@T:tuto_badge_hand@@@"
+                  desc: "@@@T:tuto_badge_hand_desc@@@"
+                xp:
+                  name: "@@@T:tuto_badge_xp@@@"
+                  desc: "@@@T:tuto_badge_xp_desc@@@"
+                skull:
+                  name: "@@@T:tuto_badge_skull@@@"
+                  desc: "@@@T:tuto_badge_skull_desc@@@"
+                cure:
+                  name: "@@@T:tuto_badge_cure@@@"
+                  desc: "@@@T:tuto_badge_cure_desc@@@"
           # Cf. les reperes : l'intro passe dans le panneau qu'elle annonce.
           admin_options:
             order: 90
@@ -656,7 +675,9 @@ conf:
       #
       # Le fondateur sort de la création de clan en croyant avoir fini de configurer (il vient
       # d'enchaîner le decisiontree), et rien ne lui dit qu'il lui reste le principal : faire installer
-      # l'app à sa famille, puis lui montrer le QR code. dashboard_intro lui fait visiter cinq onglets
+      # l'app à sa famille. L'enfant dit oui et affiche son code, que le chef scanne (« Accueillir un
+      # enfant ») avant de lui montrer l'invitation ; un adulte, lui, scanne le QR code du clan.
+      # dashboard_intro lui fait visiter cinq onglets
       # sans jamais prononcer le mot « inviter ». Ces deux écrans comblent ce trou.
       #
       # Le bloc `reminder:` suffit à en faire des reminders — trois comportements en découlent :

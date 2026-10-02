@@ -45,7 +45,6 @@ conf:
     combat/flamewall:
       class: DvSceneView
       layer: content
-      scene: flamewall
       shape:
         x: 0%
         y: 0%

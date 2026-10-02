@@ -17,8 +17,6 @@ data:
         base_plans:
         - essentiel-monthly
         - essentiel-yearly
-        offers:
-        - fondateur
         label: '@@@T:store_essentiel@@@'
         description: '@@@T:store_essentiel_desc@@@'
         price_hint: 1.99 €
@@ -96,8 +94,6 @@ data:
         base_plans:
         - clan-monthly
         - clan-yearly
-        offers:
-        - fondateur
         label: '@@@T:store_clan@@@'
         description: '@@@T:store_clan_desc@@@'
         price_hint: 2.99 €
@@ -175,8 +171,6 @@ data:
         base_plans:
         - tribu-monthly
         - tribu-yearly
-        offers:
-        - fondateur
         label: '@@@T:store_tribu@@@'
         description: '@@@T:store_tribu_desc@@@'
         price_hint: 4.99 €
@@ -254,8 +248,6 @@ data:
         base_plans:
         - guilde-monthly
         - guilde-yearly
-        offers:
-        - fondateur
         label: '@@@T:store_guilde@@@'
         description: '@@@T:store_guilde_desc@@@'
         price_hint: 5.99 €
@@ -333,8 +325,6 @@ data:
         base_plans:
         - royaume-monthly
         - royaume-yearly
-        offers:
-        - fondateur
         label: '@@@T:store_royaume@@@'
         description: '@@@T:store_royaume_desc@@@'
         price_hint: 7.99 €

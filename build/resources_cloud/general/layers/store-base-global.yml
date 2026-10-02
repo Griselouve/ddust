@@ -79,3 +79,18 @@ data:
       after_growth: 3
       solo: 10
       defers: 3
+
+    # ===========================================================================
+    # PALIER « POPULAIRE » (écran de choix du palier, tiers_pick_page)
+    # ---------------------------------------------------------------------------
+    # Le palier qui porte le ruban « POPULAIRE », ou "" pour aucun. Il fait
+    # relativiser le prix : une famille qui voit que d'autres prennent Tribu hésite
+    # moins à prendre Clan. Choix produit du 2026-10-01 : Tribu.
+    #
+    # FIXÉ À LA MAIN, et c'est voulu : il n'y a pas assez de clients pour mesurer
+    # quel palier est réellement le plus pris, donc rien ne le calcule. Il vit ici,
+    # au bucket, pour se changer sans nouvelle version le jour où les ventes le
+    # diront. (Afficher une popularité est une allégation de fait, cf. directive
+    # 2005/29/CE : risque connu et accepté, décision du 2026-10-01.)
+    showcase:
+      popular: ddust_tribu

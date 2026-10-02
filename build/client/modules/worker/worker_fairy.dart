@@ -663,6 +663,63 @@ extension Worker_fairy on worker {
                                 // "fairy_page" ferait un popUntil VERS la page courante, c'est-à-dire rien.
                                 DvOrb.navigate_back();
                                 await _refreshTaskStatuses(force: true);
+                                unawaited(_maybeRequestReview());
+    }
+
+    // -----------------------------------------------------------------------
+    // --- 5) Après la fée : la feuille d'avis du store
+    // -----------------------------------------------------------------------
+    //
+    // Le moment le plus heureux du jeu, et sans effort : c'est là, et seulement là, qu'on
+    // demande la feuille d'étoiles du store (dvstore.review). SANS rien devant : Google
+    // proscrit toute question avant (« Vous aimez l'app ? ») et tout bouton qui la déclenche.
+    // L'app ne saura jamais si elle s'est affichée ni quelle note a été laissée ; Play ne la
+    // remontre pas à qui a déjà noté.
+    //
+    // >>> JAMAIS SUR L'APPAREIL D'UN MINEUR (child_interest.md : aucune invitation à noter
+    // n'est présentée à un enfant ; Google Play Families). Seul l'ADULTE qui a touché la fée
+    // est concerné ; aucune prise de place (la cible n'est pas la personne qui tient
+    // l'appareil), aucune vitrine.
+    //
+    // Au plus une demande tous les 90 jours par COMPTE : la date vit sur le doc `users`, pas sur
+    // `clans_players`, sinon un adulte de plusieurs clans serait sollicité une fois par clan.
+    // Elle s'écrit AVANT l'appel : une app tuée pendant la feuille ne redemande pas en boucle.
+    static const int _reviewCooldownDays = 90;
+
+    Future<void> _maybeRequestReview() async {
+
+                                try {
+                                    if (_impersonating || _anon) return;
+                                    if ((await deva_get("deva.active_mode"))?.toString() == "showcase") return;
+                                    final ctx = await _butinCtx();
+                                    if (ctx == null) return;
+                                    if (!await _ensureIsAdult(ctx.get("clanId").toString(),
+                                            ctx.get("clanSecret").toString(), ctx.get("region").toString())) return;
+
+                                    final home    = await _homeRegion();
+                                    final session = await _readSession(home);
+                                    final asked   = session?.get("review.asked_at")?.toString() ?? "";
+                                    if (_withinDays(asked, _reviewCooldownDays)) return;
+
+                                    // Plus rien ne se joue : un cadeau d'XP peut faire passer un niveau, et
+                                    // son animation part APRÈS le fondu de la fée (cf. _quietGiftCelebration),
+                                    // le temps que la vigilance voie l'XP monter. La feuille passe après.
+                                    await Future.delayed(const Duration(seconds: 2));
+                                    await _waitInterludesIdle();
+                                    for (var i = 0; i < 50 && _evtRolling; i++) {
+                                        await Future.delayed(const Duration(milliseconds: 200));
+                                    }
+
+                                    final u = Dvidle({});
+                                    u.set("review.asked_at", DateTime.now().toUtc().toIso8601String());
+                                    await _cloud?.write("workers", "users", _sessionDocId(), u, region: home);
+                                    _invalidateSessionCache();
+
+                                    deva_log("info", "[fairy] demande d'avis au store");
+                                    await _store?.review();
+                                } catch (e) {
+                                    deva_log("warning", "[fairy] demande d'avis : $e");
+                                }
     }
 
     // Les deux libellés naissent invisibles en conf. Comme pour l'overlay de mort, il faut agir à

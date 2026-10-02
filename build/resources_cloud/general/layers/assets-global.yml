@@ -106,7 +106,7 @@ data:
       # sont pourtant en ligne depuis longtemps. C'est très exactement ce qui est
       # arrivé aux traductions store_* du thème.
       - "layers/theme-donjon-global.yml"    # libellés + décor de tous les écrans
-      - "layers/store-base-global.yml"      # catalogue de la boutique + scénarios du banc d'essai
+      - "layers/store-base-global.yml"      # catalogue de la boutique
       - "layers/fairy-base-global.yml"      # cadence et catalogue des cadeaux de la fée
       - "layers/events-base-global.yml"     # événements aléatoires (souris, piège, gobelin...)
       - "images/small/tb_boutique.png"      # taskbar dashboard (écran 10)

@@ -49,6 +49,7 @@ extension Worker_store on worker {
                                 // --- Callbacks métier appelées par dvstore ---
                                 ActionRegistry.register("worker.on_store_purchase",              on_store_purchase);
                                 ActionRegistry.register("worker.on_store_purchase_failed",       on_store_purchase_failed);
+                                ActionRegistry.register("worker.on_store_purchase_pending",      on_store_purchase_pending);
                                 ActionRegistry.register("worker.on_store_subscription",          on_store_subscription);
                                 ActionRegistry.register("worker.on_store_subscription_renewed",  on_store_subscription_renewed);
                                 ActionRegistry.register("worker.on_store_subscription_changed",  on_store_subscription_changed);
@@ -66,10 +67,19 @@ extension Worker_store on worker {
 
                                 // --- Page des paliers ---
                                 ActionRegistry.register("worker.on_tiers_appear",          on_tiers_appear);
-                                ActionRegistry.register("worker.tiers_pick",               tiers_pick);
+                                ActionRegistry.register("worker.tiers_pick_yearly",        tiers_pick_yearly);
+                                ActionRegistry.register("worker.tiers_pick_monthly",       tiers_pick_monthly);
+                                ActionRegistry.register("worker.tiers_buy",                tiers_buy);
+                                ActionRegistry.register("worker.tiers_open_pick",          tiers_open_pick);
                                 ActionRegistry.register("worker.tiers_defer",              tiers_defer);
-                                ActionRegistry.register("worker.tiers_set_monthly",        tiers_set_monthly);
-                                ActionRegistry.register("worker.tiers_set_yearly",         tiers_set_yearly);
+                                // --- Choix du palier (tiers_pick_page) ---
+                                ActionRegistry.register("worker.on_tiers_pick_appear",     on_tiers_pick_appear);
+                                ActionRegistry.register("worker.tiers_pick_1",             tiers_pick_1);
+                                ActionRegistry.register("worker.tiers_pick_2",             tiers_pick_2);
+                                ActionRegistry.register("worker.tiers_pick_3",             tiers_pick_3);
+                                ActionRegistry.register("worker.tiers_pick_4",             tiers_pick_4);
+                                ActionRegistry.register("worker.tiers_pick_5",             tiers_pick_5);
+                                ActionRegistry.register("worker.tiers_pick_6",             tiers_pick_6);
 
                                 // --- Codes cadeaux ---
                                 ActionRegistry.register("worker.on_giftcode_appear",       on_giftcode_appear);
@@ -125,7 +135,27 @@ extension Worker_store on worker {
                                 final state = (await deva_get("store.subscription.state"))?.toString() ?? "none";
                                 deva_log("info", "[store] entitlement: state=$state "
                                     "joueurs=${await deva_get("store.grants.max_players")}");
+                                await _storeChangeLanded();
                                 await _evaluateDunning();
+    }
+
+    // CHANGEMENT DE PALIER ABOUTI ? Un abonnement neuf se signale par
+    // on_store_subscription, un changement non : le clan était déjà abonné, il le
+    // reste. Une montée change le palier (ou la périodicité), une descente ne change
+    // RIEN tout de suite, elle s'annonce seulement pour l'échéance. Sans ce contrôle, la
+    // roue d'attente tournait jusqu'à son minuteur de secours. On compare donc la
+    // projection publiée à la cible demandée : en cours, ou en attente, c'est acquis.
+    Future<void> _storeChangeLanded() async {
+
+                                if (_storeChangeTo.isEmpty || _storeBuyWaitPage == null) return;
+                                final product = (await deva_get("store.subscription.product"))?.toString() ?? "";
+                                final plan    = (await deva_get("store.subscription.base_plan"))?.toString() ?? "";
+                                final pTier   = (await deva_get("store.subscription.pending_tier"))?.toString() ?? "";
+                                final pPlan   = (await deva_get("store.subscription.pending_base_plan"))?.toString() ?? "";
+                                if (_storeChangeTo != "$product|$plan" && _storeChangeTo != "$pTier|$pPlan") return;
+                                deva_log("info", "[store] changement de palier acquis : $_storeChangeTo");
+                                _storeChangeTo = "";
+                                await _storeLeaveAfterPurchase();
     }
 
     // Changement d'état commercial. Aucun état ne change l'écran affiché — le jeu
@@ -263,6 +293,8 @@ extension Worker_store on worker {
 
     Future<void> on_store_purchase_failed(dynamic caller, dynamic event) async {
 
+                                _storeBuyWaitStop();
+                                _storeChangeTo = "";
                                 final m = (event is Map) ? event : const {};
                                 // Un abandon volontaire n'est pas un incident : on ne consigne au
                                 // journal du clan que ce qui a réellement mal tourné.
@@ -284,7 +316,46 @@ extension Worker_store on worker {
                                 await _storeShowPurchaseError(reason);
     }
 
+    // Play a mis le paiement EN ATTENTE (espèces, virement, moyen de paiement à
+    // valider). Ce n'est ni un succès ni un échec : l'issue viendra dans des heures,
+    // par on_store_subscription ou on_store_purchase_failed. Sans ce retour, la roue
+    // d'attente tournait trois minutes puis la page se dégelait sans un mot, et la
+    // famille concluait à un achat qui n'avait rien fait, ou rachetait.
+    //
+    // ⚠ dvstore rappelle ce hook quand l'achat encore en attente revient dans une
+    //   autre session (« Restaurer mes achats », redélivrance par Play). Hors d'un
+    //   achat en cours (pas de roue d'attente), on ne dit rien : ouvrir la page des
+    //   paliers à ce moment-là serait incompréhensible.
+    Future<void> on_store_purchase_pending(dynamic caller, dynamic event) async {
+
+                                final m = (event is Map) ? event : const {};
+                                deva_log("info", "[store] paiement en attente: ${m["product"]}");
+                                if (_storeBuyWaitPage == null) return;
+                                _storeBuyWaitStop();
+                                await _storeShowNotice("@@@T:store_pending@@@");
+    }
+
     // Affiche l'échec sur le bandeau de la page des paliers.
+    Future<void> _storeShowPurchaseError(String reason) async {
+
+                                // `unavailable` : la facturation n'existe pas sur cet appareil (Play
+                                // Services absent, profil restreint). Réessayer n'y changera rien, le
+                                // texte le dit. Les trois refus de CHANGEMENT DE PALIER disent chacun
+                                // quoi faire (cf. dvstore) : réessayer n'y changerait rien non plus.
+                                // Tout le reste — refus de Play, vérification serveur en échec,
+                                // périodicité absente — relève du « ça n'a pas abouti, vous n'avez
+                                // pas été débité ».
+                                await _storeShowNotice(switch (reason) {
+                                    "unavailable"     => "@@@T:store_unavailable@@@",
+                                    "not_payer"       => "@@@T:store_not_payer@@@",
+                                    "payment_issue"   => "@@@T:store_payment_issue@@@",
+                                    "already_pending" => "@@@T:store_already_pending@@@",
+                                    _                 => "@@@T:store_error@@@",
+                                });
+    }
+
+    // Affiche un avis d'achat (échec, paiement en attente) sur le bandeau de la page
+    // des paliers.
     //
     // Deux situations, et une seule sortie : si l'on est déjà sur `tiers_page` —
     // le cas ordinaire, la feuille Play s'est refermée par-dessus — on repeint le
@@ -293,16 +364,7 @@ extension Worker_store on worker {
     // est de toute façon l'endroit où réessayer.
     //
     // Jamais de popup : idiome des overlays du projet.
-    Future<void> _storeShowPurchaseError(String reason) async {
-
-                                // `unavailable` : la facturation n'existe pas sur cet appareil (Play
-                                // Services absent, profil restreint). Réessayer n'y changera rien, le
-                                // texte le dit. Tout le reste — refus de Play, vérification serveur
-                                // en échec, périodicité absente — relève du « ça n'a pas abouti,
-                                // vous n'avez pas été débité ».
-                                final token = (reason == "unavailable")
-                                    ? "@@@T:store_unavailable@@@"
-                                    : "@@@T:store_error@@@";
+    Future<void> _storeShowNotice(String token) async {
 
                                 if (_storeOnTiersPage()) {
                                     await deva_set("worker.store.notice", token);
@@ -392,11 +454,11 @@ extension Worker_store on worker {
     // raconte la vie du clan, pas la comptabilité, et il n'aurait de toute façon
     // aucune valeur probante puisque c'est un client qui l'alimente.
     //
-    // ÉCRIT AUSSI AU BANC D'ESSAI, délibérément. Un scénario de test qui ne
-    // laisserait pas de trace ne prouverait rien : c'est justement au journal qu'on
-    // vient vérifier qu'un achat, un incident ou une reprise sont bien racontés à la
-    // famille. Les lignes d'essai se lisent comme les vraies — et se purgent avec le
-    // reste du clan de test.
+    // ÉCRIT AUSSI AVEC LE SIMULATEUR DE STORE (storemock), délibérément. Un scénario de
+    // test qui ne laisserait pas de trace ne prouverait rien : c'est justement au
+    // journal qu'on vient vérifier qu'un achat, un incident ou une reprise sont bien
+    // racontés à la famille. Les lignes d'essai se lisent comme les vraies, et se
+    // purgent avec le reste du clan de test.
     Future<void> _logStoreEvent(String event, String product) async {
 
                                 final ctx = await _butinCtx();
@@ -519,7 +581,7 @@ extension Worker_store on worker {
     // formulation, une inférence sur son nom se tairait sans rien dire.
     //
     // `oneMore` dit s'il faut viser une place de PLUS que l'effectif ou l'effectif tel
-    // quel. Publié, jamais déduit : cf. le commentaire de _tiersPushRows.
+    // quel. Publié, jamais déduit : cf. _tiersOfferTier.
     Future<void> _storeGotoTiers({
 
         String notice   = "",
@@ -531,6 +593,11 @@ extension Worker_store on worker {
                                 await deva_set("worker.store.notice",   notice);
                                 await deva_set("worker.store.one_more", oneMore);
                                 await deva_set("worker.store.pitch",    pitch);
+
+                                // Chaque venue repart du palier par défaut pour sa raison, et de
+                                // l'ANNUEL présélectionné : c'est la carte qu'on met en avant.
+                                _storeOfferTier = "";
+                                _storePeriod    = "yearly";
 
                                 // Les deux drapeaux de conf de l'écran sont posés AVANT la navigation —
                                 // idiome de _applyDunning : la page naît dans le bon mode, on ne la
@@ -561,7 +628,7 @@ extension Worker_store on worker {
                                 var onPage = false;
                                 try {
                                     for (final p in DvPage.actives) {
-                                        if (p.get_shape_by_id("tiers_page/list") != null) { onPage = true; break; }
+                                        if (p.get_shape_by_id("tiers_page/cta") != null) { onPage = true; break; }
                                     }
                                 } catch (_) {}
                                 if (!onPage) return false;
@@ -585,11 +652,27 @@ extension Worker_store on worker {
     // derrière eux, un retour arrière ne mènerait nulle part — on rouvre le donjon.
     Future<void> _storeLeaveAfterPurchase() async {
 
+                                // L'attente de l'achat prend fin, quelle que soit la sortie : dégeler
+                                // AVANT de naviguer, sinon la page gelée partirait gelée.
+                                _storeBuyWaitStop();
+
                                 // LA VALIDATION MISE DE CÔTÉ D'ABORD, avant toute navigation : le clan
                                 // vient de payer, la tâche qu'il rendait au moment où on l'a arrêté lui
                                 // est due. Le rejeu ramène au tiroir, sur la victoire — un `navigate_reset`
                                 // vers le dashboard joué avant lui l'aurait écrasée.
-                                if (await _storeReplayPendingVerdict()) return;
+                                //
+                                // ⚠ UN REJEU PEUT NE RIEN NAVIGUER. `on_combat_ok` sort sans un mot s'il
+                                //   ne retrouve plus la tâche en cours (tâche active effacée entre-temps,
+                                //   app relancée) : le rejeu se disait pourtant maître de la navigation,
+                                //   et l'écran des paliers restait affiché APRÈS un achat réussi (relevé
+                                //   au simulateur de store, 2026-09-30). Toujours sur les paliers après
+                                //   le rejeu = rien n'a navigué : on rouvre le donjon.
+                                if (await _storeReplayPendingVerdict()) {
+                                    if (DvOrb.get_current_page()?.dvid != "tiers_page") return;
+                                    deva_log("info", "[store] rejeu sans navigation : donjon rouvert");
+                                    DvOrb.navigate_reset("dashboard");
+                                    return;
+                                }
 
                                 // Sortie de GEL : l'écran de clan gelé est la RACINE d'une pile
                                 // réinitialisée, il n'y a rien derrière lui — un retour arrière n'y
@@ -770,7 +853,7 @@ extension Worker_store on worker {
                                 deva_log("info", "[store] place refusée — plafond du palier atteint");
                                 // `oneMore` EXPLICITE, et c'est le seul appelant qui le pose : la
                                 // famille vient de se voir refuser un membre, elle veut une place DE
-                                // PLUS. Cette intention était auparavant devinée par _tiersPushRows à
+                                // PLUS. Cette intention était autrefois devinée par la page des paliers à
                                 // la présence du bandeau ; elle se dit maintenant à l'endroit où on la
                                 // connaît. L'oublier ici ne casserait rien de visible — la page
                                 // s'ouvrirait, sans flécher aucun palier.
@@ -1218,9 +1301,11 @@ extension Worker_store on worker {
                                 //   boutique cherche a comprendre avant d'acheter.
                                 final options = <String>["tutorials", "store_restore"];
                                 try {
-                                    final product = (await deva_get("store.subscription.product"))?.toString() ?? "";
+                                    // Une cotisation EN COURS, et pas seulement un nom de palier : la
+                                    // projection le garde après l'expiration, « Gérer » y renverrait
+                                    // vers un abonnement qui n'existe plus.
                                     final canBuy  = await _storeCanBuy();
-                                    if (product.isNotEmpty && canBuy) options.add("store_manage");
+                                    if (await _storeSubscribed() && canBuy) options.add("store_manage");
                                     // Saisir un code : sous la même garde que l'achat, et pour la même
                                     // raison — c'est le clan qu'on engage. Proposée abonné ou non : un
                                     // crédit réclamé pendant une cotisation payante n'est pas perdu,
@@ -1305,8 +1390,12 @@ extension Worker_store on worker {
                                     return;
                                 }
 
-                                deva_log("info", "[store] se réabonner → $tier (tarif courant, sans offre)");
-                                await _store?.buy(tier, period: _storePeriod, offer: "");
+                                // MENSUEL, explicitement : la page des paliers présélectionne
+                                // désormais l'annuel (_storeGotoTiers), et ce bouton sans écran de
+                                // choix ne doit pas hériter d'une présélection qu'on ne voit pas ici.
+                                deva_log("info", "[store] se réabonner → $tier (mensuel, tarif courant, sans offre)");
+                                _storeBuyWaitStart();
+                                await _store?.buy(tier, period: "monthly", offer: "");
     }
 
     // L'offre d'entrée : le premier abonnement du catalogue par `order`, donc le
@@ -1414,75 +1503,303 @@ extension Worker_store on worker {
     }
 
     // -----------------------------------------------------------------------
-    // --- Page des paliers
+    // --- Page des paliers (refonte 2026-09-30 : un choix, pas un tableau)
     //
     // Le seul écran d'où l'on souscrit ou change de cotisation. Il ne se parcourt
     // pas : une raison commerciale l'ouvre (plafond atteint, relance d'impayé,
-    // réabonnement), et il répond à cette raison-là.
+    // réabonnement, première cotisation), et il y répond.
     //
-    // Il n'invente RIEN. Les paliers, leurs plafonds et leur ordre viennent du
-    // catalogue (layer cloud) ; les prix viennent de Play ; les noms viennent du
-    // thème. Ce bloc ne fait que mettre les trois en regard de l'effectif du clan
-    // et surligner deux lignes : celle où l'on est, celle qu'il faut prendre.
+    // L'app connaît l'effectif du clan, donc le palier qui lui convient : la page ne
+    // fait plus comparer cinq lignes, elle présente CE palier et pose une seule
+    // question, à l'année ou au mois. Le palier se change à part (tiers_pick_page).
+    //
+    // Il n'invente RIEN. Paliers, plafonds et ordre viennent du catalogue (layer
+    // cloud) ; prix, économie et référence de Play (dvstore) ; textes du thème.
     // -----------------------------------------------------------------------
 
     Future<void> on_tiers_appear(dynamic caller, dynamic event) async {
 
-                                // La RAISON de la venue, publiée par _storeGotoTiers. Vide pour une
-                                // entrée ordinaire — on masque alors le bandeau plutôt que d'afficher
-                                // un cadre creux.
+                                // CHAQUE PARTIE À PART, et chacune journalise son échec : une lecture
+                                // ratée sur les visages ne doit pas laisser les cartes sans prix.
+                                Future<void> part(String what, Future<void> Function() paint) async {
+                                    try {
+                                        await paint();
+                                    } catch (e, st) {
+                                        deva_log("error", "[store] paliers : $what FAILED: $e\n$st");
+                                    }
+                                }
+
+                                var tier = "";
+                                await part("palier", () async { tier = await _tiersOfferTier(); });
+                                deva_log("info", "[store] paliers : vitrine '$tier' ($_storePeriod)");
+                                await part("visages", _tiersPaintFaces);
+                                await part("raison",  _tiersPaintNotice);
+                                await part("cartes",  () => _tiersPaintCards(tier));
+                                await part("formule", () => _tiersPaintFormula(tier));
+                                await part("report",  _tiersSyncDefer);
+    }
+
+    // LE PALIER PRÉSENTÉ. Celui choisi sur tiers_pick_page s'il y en a un ; sinon
+    // celui qui résout la raison de la venue (_storeNextTier : une place de plus sur
+    // un refus de plafond, l'effectif tel quel sinon) ; sinon le palier en cours ;
+    // sinon le moins cher qui accueille tout le clan.
+    Future<String> _tiersOfferTier() async {
+
+                                final tiers = await _storeTiers();
+                                if (_storeOfferTier.isNotEmpty && tiers.contains(_storeOfferTier)) return _storeOfferTier;
+                                return await _tiersDefaultTier();
+    }
+
+    // LE PALIER PRÉSENTÉ PAR DÉFAUT : le plus juste pour la raison de la venue (une
+    // place de plus sur un refus de plafond, l'effectif tel quel sinon). Ce n'est PAS
+    // un conseil et rien ne l'affiche comme tel : on ne connaît ni la famille ni la
+    // taille de clan qui lui convient (décision du 2026-10-01). C'est seulement le
+    // point de départ de la vitrine, que la famille change d'un tap.
+    Future<String> _tiersDefaultTier() async {
+
+                                final current = await _storeSubscribed()
+                                    ? ((await deva_get("store.subscription.product"))?.toString() ?? "")
+                                    : "";
+                                final count   = await _storePlayerCount();
+                                final oneMore = (await deva_get("worker.store.one_more")) == true;
+                                final next    = await _storeNextTier(current: current, count: count, oneMore: oneMore);
+                                if (next.isNotEmpty) return next;
+                                if (current.isNotEmpty) return current;
+                                return await _storeTierForCount(count);
+    }
+
+    // LES VISAGES DU CLAN, et « Les Lapins Blancs · 5 aventuriers ». On paie pour
+    // eux : c'est la première chose que la page montre. Six places au plus, qui se
+    // chevauchent et se recentrent ; au-delà, le compte exact est dans la ligne.
+    // Une lecture ratée masque la rangée plutôt que de montrer un clan faux.
+    Future<void> _tiersPaintFaces() async {
+
+                                final faces = <String>[];
+                                var name = "";
+                                var count = -1;
+                                try {
+                                    final ctx = await _butinCtx();
+                                    if (ctx == null) deva_log("warning", "[store] paliers : aucun clan en contexte, visages masqués");
+                                    if (ctx != null) {
+                                        final clanId     = ctx.get("clanId").toString();
+                                        final clanSecret = ctx.get("clanSecret").toString();
+                                        final region     = ctx.get("region").toString();
+                                        final clan = await _cloud?.read("workers", "clans", clanId,
+                                            ownerId: clanSecret, region: region);
+                                        // Le nom vit dans la SESSION (dvsession le pose au login) ;
+                                        // le document du clan n'est qu'un repli.
+                                        name = (await deva_get("session.clan.name"))?.toString() ?? "";
+                                        if (name.isEmpty) name = clan?.get("name")?.toString() ?? "";
+                                        final players = await _cloud?.list(
+                                            "workers", "clans_players/$clanId/players", region: region) ?? [];
+                                        count = 0;
+                                        for (final p in players) {
+                                            if (p.get("enabled") == false) continue;
+                                            count++;
+                                            final a = p.get("avatar")?.toString() ?? "";
+                                            faces.add(a.isNotEmpty ? a : _defaultPlayerAvatar);
+                                        }
+                                    }
+                                } catch (e) {
+                                    deva_log("error", "[store] paliers : clan illisible ($e)");
+                                }
+
+                                const slots = 6;
+                                const step  = 8.0;     // chevauchement : une moitié de visage
+                                const width = 16.0;
+                                final n     = faces.length < slots ? faces.length : slots;
+                                final start = 50.0 - (width + step * (n - 1)) / 2;
+                                for (var i = 0; i < slots; i++) {
+                                    final id = "tiers_page/av${i + 1}";
+                                    final av = await DvOrb.wait_for_shape(id);
+                                    if (i < n) {
+                                        await _syncGeom(av, id, "shape.x", "${(start + step * i).toStringAsFixed(2)}%");
+                                        await _tiersSetImage(av, id, faces[i]);
+                                    }
+                                    await _syncVisible(av, id, i < n);
+                                }
+
+                                final line = await DvOrb.wait_for_shape("tiers_page/clan");
+                                final who  = count < 0 ? "" : TranslationRegistry.processLabel(count == 1
+                                                 ? "@@@T:tiers_adventurer@@@" : "@@@T:tiers_adventurers@@@")
+                                                 .replaceAll("{n}", "$count");
+                                await _syncLabel(line, "tiers_page/clan",
+                                    [name, who].where((s) => s.isNotEmpty).join("  ·  "));
+    }
+
+    Future<void> _tiersSetImage(dynamic shape, String id, String path) async {
+
+                                if (shape == null || shape.get("shape.image")?.toString() == path) return;
+                                shape.set("shape.image", path);
+                                await deva_set("registry.$id.shape.image", path);
+                                try { await shape.appear(); } catch (e) { deva_log("warning", "[store] visage $id : $e"); }
+                                shape.refreshUI();
+    }
+
+    // LA LIGNE SOUS LE TITRE : la RAISON de la venue s'il y en a une (plafond atteint,
+    // relance…), sinon une descente en attente, sinon la phrase par défaut. Jamais
+    // vide : un blanc sous un titre se lit comme un écran inachevé.
+    Future<void> _tiersPaintNotice() async {
+
                                 final notice = (await deva_get("worker.store.notice"))?.toString() ?? "";
                                 final banner = await DvOrb.wait_for_shape("tiers_page/notice");
+                                var text = "";
                                 if (notice.isNotEmpty) {
-                                    // {n} = le plafond courant. Même idiome de substitution que
-                                    // tiers_upto et tiers_headcount plus bas : le texte de traduction
-                                    // ne chiffre jamais la grille, qui se règle depuis le bucket.
-                                    // Garde `cap >= 0` : par construction un bandeau de plafond suppose
-                                    // un plafond, mais on n'écrira pas « au-delà de -1 aventuriers » le
-                                    // jour où un autre motif passera par ici.
-                                    var text = TranslationRegistry.processLabel(notice);
+                                    // {n} = le plafond courant : le texte ne chiffre jamais la grille.
+                                    text = TranslationRegistry.processLabel(notice);
                                     final cap = await _storeMaxPlayers();
                                     if (cap >= 0) text = text.replaceAll("{n}", "$cap");
-                                    await _syncLabel(banner, "tiers_page/notice", text);
+                                } else {
+                                    text = await _tiersPendingText();
                                 }
-                                await _syncVisible(banner, "tiers_page/notice", notice.isNotEmpty);
+                                if (text.isEmpty) text = TranslationRegistry.processLabel("@@@T:tiers_subline@@@");
+                                await _syncLabel(banner, "tiers_page/notice", text);
+                                await _syncVisible(banner, "tiers_page/notice", true);
+    }
 
-                                await _tiersSyncPeriodButtons();
-                                await _tiersPushRows();
-                                await _tiersSyncDefer();
+    // LES DEUX CARTES ET LE BOUTON.
+    //
+    // L'annuelle garde son cadre doré (c'est le meilleur prix, choisie ou non) ; la
+    // sélection se lit à la pastille et à l'épaisseur du trait. Le montant barré et
+    // l'économie ne paraissent que si dvstore les a calculés depuis les prix Play :
+    // on n'affiche jamais un chiffre de vente qu'on n'a pas.
+    Future<void> _tiersPaintCards(String tier) async {
+
+                                String t(String key) => TranslationRegistry.processLabel("@@@T:$key@@@");
+
+                                final yearPlan  = await _tiersPlanFor(tier, "yearly");
+                                final monthPlan = await _tiersPlanFor(tier, "monthly");
+                                final yearPrice  = await _tiersPriceFor(tier, yearPlan, "yearly");
+                                final monthPrice = await _tiersPriceFor(tier, monthPlan, "monthly");
+                                deva_log("info", "[store] paliers : $tier an=$yearPlan '$yearPrice' "
+                                    "mois=$monthPlan '$monthPrice' économie='${await deva_get("store.catalog.$tier.yearly_savings")}'");
+
+                                // Un palier sans annuel (ou sans prix connu pour lui) : la carte
+                                // dorée disparaît, et la mensuelle est d'office la bonne.
+                                final hasYear = yearPrice.isNotEmpty;
+                                if (!hasYear) _storePeriod = "monthly";
+                                final yearOn  = _storePeriod == "yearly";
+
+                                for (final id in const ["year_card", "year_ribbon", "year_name", "year_radio", "year_price"]) {
+                                    final s = await DvOrb.wait_for_shape("tiers_page/$id");
+                                    await _syncVisible(s, "tiers_page/$id", hasYear);
+                                }
+
+                                final yPrice = await DvOrb.wait_for_shape("tiers_page/year_price");
+                                await _syncLabel(yPrice, "tiers_page/year_price", "$yearPrice ${t("tiers_per_year")}");
+
+                                final savings   = (await deva_get("store.catalog.$tier.yearly_savings"))?.toString()   ?? "";
+                                final reference = (await deva_get("store.catalog.$tier.yearly_reference"))?.toString() ?? "";
+                                final showSave  = hasYear && savings.isNotEmpty && reference.isNotEmpty;
+                                final old  = await DvOrb.wait_for_shape("tiers_page/year_old");
+                                final save = await DvOrb.wait_for_shape("tiers_page/year_save");
+                                if (showSave) {
+                                    await _syncLabel(old,  "tiers_page/year_old",  reference);
+                                    await _syncLabel(save, "tiers_page/year_save",
+                                        t("tiers_saved").replaceAll("{amount}", savings));
+                                }
+                                await _syncVisible(old,  "tiers_page/year_old",  showSave);
+                                await _syncVisible(save, "tiers_page/year_save", showSave);
+
+                                final mPrice = await DvOrb.wait_for_shape("tiers_page/month_price");
+                                await _syncLabel(mPrice, "tiers_page/month_price", "$monthPrice ${t("tiers_per_month")}");
+
+                                // Sélection : pastille pleine et cochée, trait appuyé.
+                                const gold  = "0xFFD6A84A";
+                                const clear = "0x00000000";
+                                final yRadio = await DvOrb.wait_for_shape("tiers_page/year_radio");
+                                final mRadio = await DvOrb.wait_for_shape("tiers_page/month_radio");
+                                await _syncLabel(yRadio, "tiers_page/year_radio",  yearOn ? "✓" : "");
+                                await _syncLabel(mRadio, "tiers_page/month_radio", yearOn ? "" : "✓");
+                                await _syncGeom(yRadio, "tiers_page/year_radio",  "shape.background_color", yearOn ? gold : clear);
+                                await _syncGeom(mRadio, "tiers_page/month_radio", "shape.background_color", yearOn ? clear : gold);
+                                await _syncGeom(mRadio, "tiers_page/month_radio", "shape.border_color", yearOn ? "0x59FFFFFF" : gold);
+
+                                final yCard = await DvOrb.wait_for_shape("tiers_page/year_card");
+                                final mCard = await DvOrb.wait_for_shape("tiers_page/month_card");
+                                await _syncGeom(yCard, "tiers_page/year_card",  "shape.border_size",  yearOn ? "3.0" : "1.5");
+                                await _syncGeom(mCard, "tiers_page/month_card", "shape.border_size",  yearOn ? "1.5" : "3.0");
+                                await _syncGeom(mCard, "tiers_page/month_card", "shape.border_color", yearOn ? "0x33FFFFFF" : gold);
+
+                                // LE BOUTON : « Continuer », sauf si la carte choisie est très
+                                // exactement l'abonnement en cours, qu'on ne rachète pas.
+                                final owned = await _tiersIsOwned(tier, yearOn ? yearPlan : monthPlan);
+                                final cta   = await DvOrb.wait_for_shape("tiers_page/cta");
+                                await _syncLabel(cta, "tiers_page/cta", t(owned ? "tiers_current_plan" : "tiers_continue"));
+                                await _syncGeom(cta, "tiers_page/cta", "shape.opacity", owned ? "0.45" : "1.0");
+    }
+
+    // Vrai si (palier, base plan) est l'abonnement en cours, tel quel.
+    Future<bool> _tiersIsOwned(String tier, String plan) async {
+
+                                if (!await _storeSubscribed()) return false;
+                                final product = (await deva_get("store.subscription.product"))?.toString() ?? "";
+                                final current = (await deva_get("store.subscription.base_plan"))?.toString() ?? "";
+                                return product == tier && (current.isEmpty || current == plan);
+    }
+
+    // « Formule Tribu · jusqu'à 7 joueurs · changer ». Le lien ouvre le choix du palier.
+    Future<void> _tiersPaintFormula(String tier) async {
+
+                                var name = (await deva_get("store.catalog.$tier.label"))?.toString() ?? "";
+                                if (name.isEmpty) name = tier;
+                                final cap   = await _storeTierCapacity(tier);
+                                var seats = TranslationRegistry.processLabel(cap < 0
+                                    ? "@@@T:tiers_unlimited@@@" : "@@@T:tiers_upto@@@").replaceAll("{n}", "$cap");
+                                if (seats.isNotEmpty) seats = seats[0].toLowerCase() + seats.substring(1);
+                                final head   = TranslationRegistry.processLabel("@@@T:tiers_formula@@@")
+                                    .replaceAll("{tier}", "[[${TranslationRegistry.processLabel(name)}]]");
+                                final change = TranslationRegistry.processLabel("@@@T:tiers_change@@@");
+                                final line   = await DvOrb.wait_for_shape("tiers_page/formula");
+                                await _syncLabel(line, "tiers_page/formula",
+                                    "$head  ·  $seats  ·  (($change|worker.tiers_open_pick))");
+    }
+
+    // Base plan déclaré au catalogue pour une périodicité (le SUFFIXE est contractuel).
+    Future<String> _tiersPlanFor(String productId, String period) async {
+
+                                final plans = await deva_get("store.catalog.$productId.plans");
+                                if (plans is! Dvidle) return "";
+                                for (final id in plans.keys) {
+                                    if (id.endsWith("-$period")) return id;
+                                }
+                                return "";
+    }
+
+    // Prix d'un palier POUR UNE PÉRIODICITÉ : celui du base plan (Play s'il est là,
+    // sinon le repli de la bonne périodicité, que dvstore choisit), puis le repli du
+    // catalogue lu en direct, puis RIEN. Jamais le prix de l'autre périodicité : une
+    // page de tarifs qui ment est pire qu'une page de tarifs vide.
+    Future<String> _tiersPriceFor(String productId, String plan, String period) async {
+
+                                if (plan.isNotEmpty) {
+                                    final live = (await deva_get("store.catalog.$productId.plans.$plan.price"))?.toString() ?? "";
+                                    if (live.isNotEmpty) return live;
+                                }
+                                final key = period == "yearly" ? "price_hint_yearly" : "price_hint";
+                                return (await deva_get("store.catalog.$productId.$key"))?.toString() ?? "";
     }
 
     // LE BOUTON « PLUS TARD », et le décompte qui va avec.
     //
     // Il n'apparaît que sur une venue de première cotisation (`worker.store.pitch`) et
-    // tant qu'il reste des reports. Partout ailleurs — plafond atteint, relance
-    // d'impayé, réabonnement, montée de palier — la page a déjà une sortie (sa flèche),
-    // et un second bouton pour partir ne dirait rien de plus.
+    // tant qu'il reste des reports. Partout ailleurs, la page a déjà une sortie (sa
+    // flèche), et un second bouton pour partir ne dirait rien de plus.
     //
-    // LE DÉCOMPTE EST ÉCRIT SUR LE BOUTON, et c'est tout l'écart avec un écran qu'on
-    // ferme indéfiniment : une famille qui lit « vous pourrez encore reporter deux
-    // fois » sait ce qui vient. Rien n'est pire qu'un refus toujours accepté puis une
-    // porte qui se ferme sans prévenir, sur une famille qui avait appris que payer
-    // était facultatif.
-    //
-    // La liste se rétrécit pour lui faire place, et la retrouve quand il n'est pas là :
-    // une grille de cinq paliers avec un blanc en bas se lit comme un écran inachevé.
+    // LE DÉCOMPTE EST ÉCRIT SUR LE BOUTON : une famille qui lit « vous pourrez encore
+    // reporter deux fois » sait ce qui vient. Rien n'est pire qu'un refus toujours
+    // accepté puis une porte qui se ferme sans prévenir.
     Future<void> _tiersSyncDefer() async {
 
-                                // Une venue de première cotisation, et un écran qui a encore une sortie.
                                 // Le mode BLOQUANT est la seule chose qui fait disparaître ce bouton :
-                                // c'est l'état de la page qui décide, pas un compteur relu de son côté —
-                                // deux sources pour un même fait finissent toujours par diverger, et
-                                // celle-ci se lit sur l'écran lui-même.
+                                // c'est l'état de la page qui décide, pas un compteur relu à part.
                                 final pitch = (await deva_get("worker.store.pitch")) == true;
                                 final show  = pitch && !(await _storeOnBlockingTiers());
 
                                 final btn = await DvOrb.wait_for_shape("tiers_page/defer");
                                 if (show) {
                                     // Le décompte est celui d'APRÈS la présentation en cours, qui vient
-                                    // d'être comptée : « dernière fois » quand il ne reste plus rien
-                                    // derrière. C'est la phrase qui distingue ce dispositif d'un écran
-                                    // qu'on ferme indéfiniment, et elle doit être exacte.
+                                    // d'être comptée : « dernière fois » quand il ne reste plus rien.
                                     final token = _pitchDefersLeft > 0
                                         ? "@@@T:tiers_defer_n@@@"
                                         : "@@@T:tiers_defer_last@@@";
@@ -1491,34 +1808,17 @@ extension Worker_store on worker {
                                             .replaceAll("{n}", "$_pitchDefersLeft"));
                                 }
                                 await _syncVisible(btn, "tiers_page/defer", show);
-
-                                final list = await DvOrb.wait_for_shape("tiers_page/list");
-                                await _syncGeom(list, "tiers_page/list", "shape.h", show ? "62%" : "71%");
     }
 
-    // Les deux boutons de périodicité. Celui qui est ACTIF s'annonce par sa couleur
-    // de texte, pas par un libellé qui changerait : « Par mois » doit rester « Par
-    // mois » qu'on soit dessus ou non, sinon on ne sait plus ce qu'on tape.
-    Future<void> _tiersSyncPeriodButtons() async {
-
-                                final monthly = await DvOrb.wait_for_shape("tiers_page/monthly");
-                                final yearly  = await DvOrb.wait_for_shape("tiers_page/yearly");
-                                const on  = "amber_200";
-                                const off = "#7A6A3A";
-                                await _syncGeom(monthly, "tiers_page/monthly", "shape.font_color",
-                                    _storePeriod == "monthly" ? on : off);
-                                await _syncGeom(yearly,  "tiers_page/yearly",  "shape.font_color",
-                                    _storePeriod == "yearly"  ? on : off);
-    }
-
-    Future<void> tiers_set_monthly(dynamic caller, dynamic event) async {
-
-                                await _tiersSetPeriod("monthly");
-    }
-
-    Future<void> tiers_set_yearly(dynamic caller, dynamic event) async {
+    // Tap sur une carte : la périodicité change, rien ne s'achète.
+    Future<void> tiers_pick_yearly(dynamic caller, dynamic event) async {
 
                                 await _tiersSetPeriod("yearly");
+    }
+
+    Future<void> tiers_pick_monthly(dynamic caller, dynamic event) async {
+
+                                await _tiersSetPeriod("monthly");
     }
 
     Future<void> _tiersSetPeriod(String period) async {
@@ -1526,151 +1826,199 @@ extension Worker_store on worker {
                                 if (_storePeriod == period) return;
                                 _storePeriod = period;
                                 deva_log("info", "[store] paliers : périodicité → $period");
-                                await _tiersSyncPeriodButtons();
-                                await _tiersPushRows();
+                                await _tiersPaintCards(await _tiersOfferTier());
     }
 
-    // Construit et pousse les cinq lignes.
+    // « Continuer » : achat du palier présenté, dans la périodicité choisie, derrière
+    // le contrôle parental. Inerte quand c'est déjà l'abonnement en cours.
     //
-    // Deux marqueurs, et deux seulement : le palier COURANT et le palier CONSEILLÉ.
-    // On a résisté à l'envie d'en ajouter (« le plus populaire », « le meilleur
-    // rapport ») — ils dilueraient les deux qui répondent réellement à la question
-    // posée, et une famille venue parce qu'on lui a refusé un membre n'a qu'une
-    // chose à trouver sur cet écran.
-    Future<void> _tiersPushRows() async {
+    // `offer: null` = celle que le serveur juge éligible (aujourd'hui l'offre
+    // fondateurs pour un clan d'avant le cutoff). Play ne sert que les offres
+    // auxquelles le compte a droit, et la vérification serveur constate le reste.
+    Future<void> tiers_buy(dynamic caller, dynamic event) async {
 
-                                final tiers = await _storeTiers();
-                                final rows  = <Map<String, dynamic>>[];
+                                final tier = await _tiersOfferTier();
+                                if (tier.isEmpty) return;
+                                final plan = await _tiersPlanFor(tier, _storePeriod);
+                                if (await _tiersIsOwned(tier, plan)) {
+                                    deva_log("info", "[store] paliers : $tier/$plan est déjà l'abonnement en cours");
+                                    return;
+                                }
+                                deva_log("info", "[store] paliers : achat $tier ($_storePeriod)");
+                                await _storeBuyGated(tier);
+    }
 
-                                final current = (await deva_get("store.subscription.product"))?.toString() ?? "";
+    Future<void> tiers_open_pick(dynamic caller, dynamic event) async {
+
+                                DvOrb.navigate_new("tiers_pick_page");
+    }
+
+    // -----------------------------------------------------------------------
+    // --- Choix du palier (« Combien d'aventuriers ? »)
+    //
+    // Mêmes cartes que la vitrine, une par abonnement du catalogue dans l'ordre
+    // `order`, sur six emplacements fixes (registry_store_tiers.yml). Chaque carte
+    // montre ses PLACES en points, son plafond, et ses DEUX prix. Un palier trop petit
+    // est éteint et inerte. Un tap choisit le palier et ramène à la vitrine, sans rien
+    // acheter.
+    //
+    // Le ruban « POPULAIRE » = `store.showcase.popular` (bucket) ; le cadre doré = le
+    // palier choisi ; « VOTRE PALIER » = l'abonnement en cours. Aucun « conseillé » :
+    // on ne connaît ni la famille ni la taille de clan qui lui convient.
+    // -----------------------------------------------------------------------
+
+    static const int _tiersSlots = 6;
+
+    Future<void> on_tiers_pick_appear(dynamic caller, dynamic event) async {
+
+                                try {
+                                    await _tiersPaintPick();
+                                } catch (e, st) {
+                                    deva_log("error", "[store] choix du palier FAILED: $e\n$st");
+                                }
+    }
+
+    Future<void> _tiersPaintPick() async {
+
+                                String t(String key) => TranslationRegistry.processLabel("@@@T:$key@@@");
+
+                                final tiers   = await _storeTiers();
                                 final count   = await _storePlayerCount();
-                                // Viser une place de PLUS que l'effectif, ou l'effectif tel quel ?
-                                // L'intention est PUBLIÉE par _storeGotoTiers, elle n'est plus déduite
-                                // de la présence d'un bandeau. L'ancienne inférence (« il y a un motif,
-                                // donc c'est un refus de plafond, donc il faut une place de plus ») ne
-                                // tombait juste que par accident : le refus de plafond se trouvait être
-                                // le seul appelant à passer un motif. Toute venue portant un motif SANS
-                                // demander de place — première cotisation, relance — se serait vu
-                                // flécher le palier du dessus, donc vendre Clan à un foyer de deux qui
-                                // tient très bien dans Essentiel, et précisément au moment où l'on
-                                // cherche à ne pas faire peur.
-                                final oneMore = (await deva_get("worker.store.one_more")) == true;
-                                final next    = await _storeNextTier(
-                                    current: current, count: count, oneMore: oneMore);
+                                final chosen  = await _tiersOfferTier();
+                                // Le palier « POPULAIRE », réglé au bucket (store-base-global.yml,
+                                // `store.showcase.popular`), jamais déduit ici : c'est une allégation
+                                // de fait, elle se corrige sans nouvelle version.
+                                final popular = (await deva_get("store.showcase.popular"))?.toString() ?? "";
+                                final current = await _storeSubscribed()
+                                    ? ((await deva_get("store.subscription.product"))?.toString() ?? "")
+                                    : "";
 
-                                for (final id in tiers) {
-                                    final cap = await _storeTierCapacity(id);
+                                final sub = await DvOrb.wait_for_shape("tiers_pick_page/sub");
+                                await _syncLabel(sub, "tiers_pick_page/sub",
+                                    count < 0 ? "" : t("tiers_pick_sub").replaceAll("{n}", "$count"));
 
-                                    // Le nom du CATALOGUE, pas celui de Play : sur un comparatif,
-                                    // le titre Play répéterait « (Donjons & Savons) » à chacune des
-                                    // cinq lignes et noierait le seul mot qui les distingue. Le
-                                    // titre Play garde son sens sur une fiche d'achat — pas ici.
-                                    var name = (await deva_get("store.catalog.$id.label"))?.toString() ?? "";
-                                    if (name.isEmpty) name = (await deva_get("store.catalog.$id.title"))?.toString() ?? "";
-                                    final label = TranslationRegistry.processLabel(name.isNotEmpty ? name : id);
-
-                                    // Effectif puis prix, sur la même ligne : c'est la mise en regard
-                                    // des deux qui fait la décision. Le prix vient de Play via
-                                    // _tiersPrice (localisé, taxes incluses) et retombe sur le repli
-                                    // du catalogue — de la bonne périodicité — si le canal est fermé.
-                                    final seats = cap < 0
-                                        ? TranslationRegistry.processLabel("@@@T:tiers_unlimited@@@")
-                                        : TranslationRegistry.processLabel("@@@T:tiers_upto@@@")
-                                            .replaceAll("{n}", "$cap");
-                                    final price = await _tiersPrice(id);
-                                    final desc  = StringBuffer(seats);
-                                    if (price.isNotEmpty) desc.write("   $price");
-
-                                    // L'effectif réel du clan, rappelé UNE fois : c'est le chiffre qui
-                                    // explique et le refus, et le fléchage. Sous le palier courant s'il
-                                    // y en a un, sinon sous le palier conseillé — un clan qui n'a
-                                    // jamais souscrit n'a pas de ligne « courante » où l'accrocher, et
-                                    // c'est précisément celui à qui le chiffre manque le plus.
-                                    final anchor = current.isNotEmpty ? current : next;
-                                    if (id == anchor && anchor.isNotEmpty && count >= 0) {
-                                        desc.write("\n");
-                                        desc.write(TranslationRegistry.processLabel("@@@T:tiers_headcount@@@")
-                                            .replaceAll("{n}", "$count"));
+                                const gold = "0xFFD6A84A";
+                                _tiersShownIds = [];
+                                for (var i = 0; i < _tiersSlots; i++) {
+                                    final k   = "tiers_pick_page/c${i + 1}";
+                                    final has = i < tiers.length;
+                                    final parts = <String, dynamic>{};
+                                    for (final n in const ["frame", "badge", "name", "seats", "cap", "month", "year"]) {
+                                        parts[n] = await DvOrb.wait_for_shape("${k}_$n");
+                                    }
+                                    if (!has) {
+                                        for (final n in parts.keys) { await _syncVisible(parts[n], "${k}_$n", false); }
+                                        continue;
                                     }
 
-                                    rows.add({
-                                        "id":    id,
-                                        "label": label,
-                                        "desc":  desc.toString(),
-                                        "icon":  id == current ? "check_circle"
-                                               : id == next    ? "arrow_circle_up"
-                                               : "circle",
-                                        "badge": id == current
-                                                    ? TranslationRegistry.processLabel("@@@T:tiers_current@@@")
-                                               : id == next
-                                                    ? TranslationRegistry.processLabel("@@@T:tiers_next@@@")
-                                               : "",
-                                        "selected": id == current,
-                                        // DEUX raisons de griser une ligne, et deux seulement.
-                                        //
-                                        // 1. On ne rachète pas le palier qu'on a déjà.
-                                        //
-                                        // 2. Un palier TROP PETIT POUR LE CLAN. Une descente de palier
-                                        //    reste un droit — les lignes moins chères qui couvrent
-                                        //    encore l'effectif sont tapables, et le refuser pousserait à
-                                        //    résilier tout court, ce qui coûte bien plus qu'un
-                                        //    downgrade. Mais vendre à un clan de six un palier qui en
-                                        //    tient quatre, c'est lui vendre un refus : il paierait pour
-                                        //    se retrouver au-dessus du plafond, sans place pour le
-                                        //    prochain membre et sans rien y comprendre. L'effectif est
-                                        //    rappelé sous la ligne d'ancrage : la raison du grisage est
-                                        //    lisible sur l'écran, elle n'a pas besoin d'un texte.
-                                        //
-                                        // Effectif ILLISIBLE (count < 0) : on ne grise rien. Même
-                                        // arbitrage que _storeCapNotice et _storeEntryCap — refuser sur
-                                        // une lecture ratée est visible, injuste et sans recours, là où
-                                        // laisser passer se rattrape au contrôle suivant.
-                                        "enabled": id != current && (cap < 0 || count < 0 || cap >= count),
-                                    });
-                                }
+                                    final id = tiers[i];
+                                    _tiersShownIds.add(id);
+                                    final cap  = await _storeTierCapacity(id);
+                                    // Effectif ILLISIBLE : on n'éteint rien (refuser sur une lecture
+                                    // ratée est visible, injuste et sans recours).
+                                    final fits = cap < 0 || count < 0 || cap >= count;
 
-                                ActionRegistry.get("dvlist.set_rows")?.call(null, rows);
-                                deva_log("info", "[store] paliers : ${rows.length} ligne(s), "
-                                    "courant='$current' conseillé='$next' effectif=$count ($_storePeriod)");
+                                    var name = (await deva_get("store.catalog.$id.label"))?.toString() ?? "";
+                                    if (name.isEmpty) name = id;
+                                    final mPlan  = await _tiersPlanFor(id, "monthly");
+                                    final yPlan  = await _tiersPlanFor(id, "yearly");
+                                    final mPrice = await _tiersPriceFor(id, mPlan, "monthly");
+                                    final yPrice = await _tiersPriceFor(id, yPlan, "yearly");
+
+                                    final badge = id == current ? t("tiers_current").toUpperCase()
+                                                : id == popular ? t("tiers_popular")
+                                                : "";
+
+                                    await _syncLabel(parts["name"],  "${k}_name",  TranslationRegistry.processLabel(name));
+                                    await _syncLabel(parts["seats"], "${k}_seats", _tiersSeats(cap, count));
+                                    await _syncLabel(parts["cap"],   "${k}_cap", fits
+                                        ? TranslationRegistry.processLabel(cap < 0
+                                            ? "@@@T:tiers_unlimited@@@" : "@@@T:tiers_upto@@@").replaceAll("{n}", "$cap")
+                                        : t("tiers_too_small"));
+                                    await _syncLabel(parts["month"], "${k}_month",
+                                        mPrice.isEmpty ? "" : "$mPrice ${t("tiers_per_month")}");
+                                    await _syncLabel(parts["year"],  "${k}_year",
+                                        yPrice.isEmpty ? "" : "$yPrice ${t("tiers_per_year")}");
+                                    await _syncLabel(parts["badge"], "${k}_badge", badge);
+
+                                    // Le choisi : cadre doré appuyé, fond chaud. Les autres : sobres.
+                                    final on = id == chosen;
+                                    await _syncGeom(parts["frame"], "${k}_frame", "shape.border_color", on ? gold : "0x33FFFFFF");
+                                    await _syncGeom(parts["frame"], "${k}_frame", "shape.border_size",  on ? "3.0" : "1.5");
+                                    await _syncGeom(parts["frame"], "${k}_frame", "shape.background_color", on ? "0x2ED6A84A" : "0x0AFFFFFF");
+                                    await _syncGeom(parts["cap"],   "${k}_cap",   "shape.font_color", fits ? "0xFFBFAE90" : "0xFFE39A7A");
+
+                                    // Trop petit : tout s'éteint, et le tap ne part pas (tiers_pick_N).
+                                    for (final n in parts.keys) {
+                                        await _syncGeom(parts[n], "${k}_$n", "shape.opacity", fits ? "1.0" : "0.4");
+                                        await _syncVisible(parts[n], "${k}_$n", n != "badge" || badge.isNotEmpty);
+                                    }
+                                }
+                                deva_log("info", "[store] choix du palier : ${_tiersShownIds.length} palier(s), "
+                                    "choisi='$chosen' populaire='$popular' courant='$current' effectif=$count");
     }
 
-    // Prix d'un palier POUR LA PÉRIODICITÉ AFFICHÉE.
-    //
-    // Ne réutilise pas `_storeRowPrice` : ses deux derniers replis sont le prix
-    // d'appel et `price_hint`, tous deux MENSUELS. Sur une fiche produit c'est
-    // acceptable ; ici, sous l'onglet « Par an », cela afficherait un tarif mensuel
-    // comme s'il était annuel — une page de tarifs qui ment est pire qu'une page de
-    // tarifs vide, et elle mentirait précisément pendant toute la recette, où aucun
-    // canal Play n'est ouvert.
-    //
-    // Ordre : le prix du base plan (Play s'il est là — localisé et taxes incluses,
-    // seule vérité —, sinon le repli de la bonne périodicité, que dvstore choisit
-    // désormais lui-même via `_hintForPlan`), puis le repli du catalogue lu en
-    // direct, puis RIEN. Jamais le prix de l'autre périodicité.
-    Future<String> _tiersPrice(String productId) async {
+    // Les places d'un palier en points : ● pour chaque aventurier du clan, ○ pour
+    // chaque place libre, ∞ pour un palier sans limite. Douze points au plus.
+    String _tiersSeats(int cap, int count) {
 
-                                final plan = await _storePlanId(productId);
-                                if (plan.isNotEmpty) {
-                                    final live = (await deva_get("store.catalog.$productId.plans.$plan.price"))?.toString() ?? "";
-                                    if (live.isNotEmpty) return live;
+                                final n      = count < 0 ? 0 : count;
+                                const most   = 12;
+                                if (cap < 0) {
+                                    return "${"●" * (n < most ? n : most)} ∞";
                                 }
-                                final key = _storePeriod == "yearly" ? "price_hint_yearly" : "price_hint";
-                                return (await deva_get("store.catalog.$productId.$key"))?.toString() ?? "";
+                                final filled = n < cap ? n : cap;
+                                final free   = cap - filled;
+                                final shownF = filled < most ? filled : most;
+                                final shownE = free < (most - shownF) ? free : (most - shownF);
+                                return "${"●" * shownF}${"○" * shownE}";
     }
 
-    // Tap sur une ligne : achat du palier, derrière le contrôle parental.
-    //
-    // `offer: null` = celle que le serveur juge éligible — aujourd'hui l'offre
-    // fondateurs pour un clan d'avant le cutoff, et elle seule depuis le retrait de
-    // l'essai. On ne force rien ici : Play ne sert que les offres auxquelles le compte
-    // a droit, et c'est la vérification serveur qui constate ce qui a été appliqué.
-    Future<void> tiers_pick(dynamic caller, dynamic event) async {
+    // Tap sur une carte (tiers_pick_1 … tiers_pick_6) : ce palier devient celui de la
+    // vitrine, qui se repeint au retour (action `show`). Rien ne s'achète ici, et un
+    // palier trop petit ne se choisit pas.
+    Future<void> _tiersPickSlot(int slot) async {
 
-                                final m  = (event is Map) ? event : const {};
-                                final id = m["id"]?.toString() ?? "";
-                                if (id.isEmpty) return;
-                                deva_log("info", "[store] paliers : $id ($_storePeriod)");
-                                await _storeBuyGated(id);
+                                if (slot < 0 || slot >= _tiersShownIds.length) return;
+                                final id    = _tiersShownIds[slot];
+                                final cap   = await _storeTierCapacity(id);
+                                final count = await _storePlayerCount();
+                                if (!(cap < 0 || count < 0 || cap >= count)) {
+                                    deva_log("info", "[store] choix du palier : $id trop petit, ignoré");
+                                    return;
+                                }
+                                deva_log("info", "[store] choix du palier : $id");
+                                _storeOfferTier = id;
+                                DvOrb.navigate_back();
+    }
+
+    Future<void> tiers_pick_1(dynamic caller, dynamic event) => _tiersPickSlot(0);
+    Future<void> tiers_pick_2(dynamic caller, dynamic event) => _tiersPickSlot(1);
+    Future<void> tiers_pick_3(dynamic caller, dynamic event) => _tiersPickSlot(2);
+    Future<void> tiers_pick_4(dynamic caller, dynamic event) => _tiersPickSlot(3);
+    Future<void> tiers_pick_5(dynamic caller, dynamic event) => _tiersPickSlot(4);
+    Future<void> tiers_pick_6(dynamic caller, dynamic event) => _tiersPickSlot(5);
+
+    // Texte de la DESCENTE en attente (« Changement prévu le 12/11 : Clan, par mois »),
+    // ou "" s'il n'y en a pas. Le palier suivant est publié par dvstore depuis la
+    // projection : c'est le serveur qui l'a lu chez Play, l'app ne le devine pas.
+    Future<String> _tiersPendingText() async {
+
+                                if (!await _storeSubscribed()) return "";
+                                final tier = (await deva_get("store.subscription.pending_tier"))?.toString() ?? "";
+                                if (tier.isEmpty) return "";
+                                final plan = (await deva_get("store.subscription.pending_base_plan"))?.toString() ?? "";
+                                final at   = DateTime.tryParse(
+                                    (await deva_get("store.subscription.pending_at"))?.toString() ?? "");
+
+                                var name = (await deva_get("store.catalog.$tier.label"))?.toString() ?? "";
+                                if (name.isEmpty) name = tier;
+                                final period = plan.endsWith("yearly") ? "@@@T:tiers_yearly@@@" : "@@@T:tiers_monthly@@@";
+                                final label  = "${TranslationRegistry.processLabel(name)}, "
+                                               "${TranslationRegistry.processLabel(period).toLowerCase()}";
+                                return TranslationRegistry.processLabel("@@@T:tiers_pending@@@")
+                                    .replaceAll("{tier}", label)
+                                    .replaceAll("{date}", at == null ? "" : _storeShortDate(at));
     }
 
     // -----------------------------------------------------------------------
@@ -1754,9 +2102,49 @@ extension Worker_store on worker {
                                 deva_log("info", "[store] contrôle parental franchi → achat de $productId "
                                                  "($_storePeriod, offre=${offer == null ? "<éligible>" : offer.isEmpty ? "<aucune>" : offer})");
                                 // `offer` null : dvstore applique celle que le serveur a jugée
-                                // éligible (offre fondateurs le cas échéant). "" : tarif courant sec,
-                                // ce que demande une reprise après gel.
+                                // éligible (aucune aujourd'hui). "" : tarif courant sec, ce que
+                                // demande une reprise après gel.
+                                //
+                                // Clan déjà abonné : c'est un CHANGEMENT de palier (dvstore remplace
+                                // l'abonnement), dont l'aboutissement se lit sur la projection.
+                                _storeChangeTo = (await _storeSubscribed())
+                                    ? "$productId|${await _storePlanId(productId)}" : "";
+                                _storeBuyWaitStart();
                                 await _store?.buy(productId, period: _storePeriod, offer: offer);
+    }
+
+    // L'ATTENTE D'UN ACHAT, VISIBLE. Entre le choix d'un palier et l'issue, il y a la
+    // feuille de paiement du store PUIS la vérification serveur (lecture chez Google,
+    // verrou du jeton, projection, relecture) : plusieurs secondes pendant lesquelles
+    // l'écran restait figé sans rien dire, comme un bouton cassé. La page est gelée
+    // (voile et roue d'attente, taps et retour bloqués) jusqu'à l'issue : succès
+    // (_storeLeaveAfterPurchase), échec ou abandon (on_store_purchase_failed).
+    //
+    // Un paiement différé (Play le met « en attente », par exemple un paiement en
+    // espèces) n'aboutit pas avant des heures : il dégèle la page tout de suite et le
+    // dit (on_store_purchase_pending). L'achat, lui, reste suivi par dvstore.
+    //
+    // ⚠ UN MINUTEUR DE SECOURS, et il n'est pas décoratif : si Play ne rappelle
+    //   personne du tout, passé ce délai, la page se dégèle quand même.
+    void _storeBuyWaitStart() {
+
+                                _storeBuyWaitStop();
+                                final page = DvOrb.get_current_page();
+                                if (page is! DvPage) return;
+                                page.freeze();
+                                _storeBuyWaitPage  = page;
+                                _storeBuyWaitTimer = Timer(const Duration(seconds: 180), () {
+                                    deva_log("warning", "[store] achat sans issue après 180 s : page dégelée");
+                                    _storeBuyWaitStop();
+                                });
+    }
+
+    void _storeBuyWaitStop() {
+
+                                _storeBuyWaitTimer?.cancel();
+                                _storeBuyWaitTimer = null;
+                                _storeBuyWaitPage?.unfreeze();
+                                _storeBuyWaitPage = null;
     }
 
     // Le clan est-il actif grâce à un MOIS OFFERT plutôt qu'à un prélèvement ?

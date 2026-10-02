@@ -66,7 +66,6 @@ conf:
         w: 30%
         y: 0%
         h: 20%
-        image_fallback: "images/medium/nope.png"
 
     shop/label:
       mask: commons/intro_text
@@ -114,13 +113,12 @@ conf:
         y: 30%
         w: 90%
         h: 50%
-        font_size: 14.0
         text_align: CENTER
         label: "@@@T:coming_soon@@@"
 
     # Kebab de la boutique — calqué sur clan_page/settings. Il porte TOUT ce qui
-    # n'est pas « à vendre » : le relevé, la restauration, la gestion Play, et le
-    # banc d'essai en mode test. « Mes achats » vivait dans le kebab du CLAN : il
+    # n'est pas « à vendre » : le relevé, la restauration, la gestion Play. « Mes
+    # achats » vivait dans le kebab du CLAN : il
     # a déménagé ici, l'écran Clan n'a pas à parler d'argent.
     shop/settings:
       class: DvMenuButton
@@ -142,12 +140,6 @@ conf:
       selector: worker.shop_settings_selector
       shape:
         w: 55%
-        background_color: "0xF01A1A1A"
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 10.0
-        font_color: "amber_200"
-        font_size: 15.0
       # Pas de « Mes achats » : l'écran de relevé n'apportait rien que la boutique et
       # le JOURNAL DU CLAN ne disent déjà — et il fallait le chercher. Les achats,
       # renouvellements et incidents s'écrivent désormais au récit du clan
@@ -161,7 +153,6 @@ conf:
         # meme action, meme page. Une option d'aide qui changerait de nom d'un ecran a
         # l'autre ne se reconnaitrait plus.
         tutorials:
-          image: "images/medium/nope.png"
           desc: "@@@T:clan_menu_tutorials_desc@@@"
           shape:
             label: "@@@T:clan_menu_tutorials@@@"
@@ -273,7 +264,6 @@ conf:
         y: 0
         w: 100%
         h: 100%
-        background_color: black
         border: false
 
     # L'IMAGE PORTE L'ÉCRAN. Une elfe de ménage en haillons, les poches retournées,
@@ -297,8 +287,6 @@ conf:
         y: 6%
         w: 84%
         h: 64%
-        stretch: "RATIO_IN"
-        opacity: 1.0
 
     # UNE ligne, pas un discours. Elle existe pour l'ENFANT : lui, le bouton lui est
     # masqué, il ne verrait qu'une image et n'aurait aucun moyen de comprendre
@@ -314,8 +302,6 @@ conf:
         h: 10%
         text_align: CENTER
         text_padding: 0.0
-        font_size: 13.0
-        font_color: "amber_200"
         label: "@@@T:store_locked_text@@@"
         border: false
 
@@ -341,7 +327,6 @@ conf:
       shape:
         y: 85%
         h: 10%
-        font_size: 14.0
         label: "@@@T:store_revive@@@"
         visible: false
         events:
@@ -352,8 +337,9 @@ conf:
     #//------------------------------- Banc d'essai : SUPPRIMÉ -----------------------
     # `store_scenario_page` (changer de scénario d'abonnement à chaud) et l'option
     # « Faire venir la fée » ont été retirées le 2026-09-15, avec leur catalogue de
-    # scénarios (store-base-global.yml). La simulation elle-même reste dans dvstore
-    # (`store.debug.simulate_*`, cf. son readme) : elle ne s'active que si on la pose.
+    # scénarios (store-base-global.yml). La simulation `store.debug.simulate_*` de
+    # dvstore a suivi le 2026-09-29 : on éprouve désormais la facturation contre le
+    # simulateur de store local (composants storemock, cf. readme de dvstore).
 
     #//------------------------------- Code cadeau ---------------------------------
     # UN CHAMP, UN BOUTON. On tape ce qui est écrit sur la carte (ou reçu par mail), le
@@ -394,12 +380,8 @@ conf:
         y: 6%
         w: 90%
         h: 18%
-        font_size: 13.0
         text_align: CENTER
         label: "@@@T:giftcode_intro@@@"
-        background_color: black
-        font_color: "amber_200"
-        opacity: 0.6
 
     # Gros et centré : c'est un code qu'on recopie signe par signe en levant les yeux
     # d'une carte. Les tirets et la casse n'ont aucune importance — le serveur normalise
@@ -417,7 +399,6 @@ conf:
         type: TEXT
         hint: "@@@T:giftcode_hint@@@"
         text_align: CENTER
-        font_size: 20.0
 
     # `freezing_actions` et non `actions` : l'appel part au serveur, la page se gèle le
     # temps de l'aller-retour. Sans le gel, un double-tap enverrait deux réclamations —
@@ -453,8 +434,6 @@ conf:
         h: 12%
         label: ""
         text_align: CENTER
-        font_size: 13.0
-        font_color: "0xFFCC4444"
         scrollable: true
         visible: false
 
@@ -470,8 +449,6 @@ conf:
         y: 0%
         w: 100%
         h: 100%
-        background_color: "#FF000000"
-        opacity: 0.85
         border: false
         visible: false
         events:
@@ -491,8 +468,6 @@ conf:
         h: 36%
         label: ""
         text_align: CENTER
-        font_size: 16.0
-        font_color: "amber_200"
         scrollable: true
         visible: false
 

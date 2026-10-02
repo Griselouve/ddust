@@ -339,17 +339,28 @@ requis:
   facturation:
     - deva/dvstore
     - deva/pustore
-  lancement et acquisition:
-    - ddust/premierpas
   pre-beta:
     - ddust/pub
     - ddust/légal
   multitenant:
     - ddust/premierpas
+  go-live:
+    - ddust/prebeta
 build:
   sequence:
   - backend
   - client
+  # Console d'administration (KPI, litiges, codes cadeaux), dérivée du modèle
+  # `projects/console`. App INTERNE (`distribution: internal`) : APK et Windows
+  # seulement, jamais d'AAB, jamais publiée. Placée APRÈS `client` : les étapes qui
+  # prennent « la » première app de la suite doivent tomber sur l'app joueurs.
+  - console
+  # Simulateur de store (faux Google Play local) : composants de DEVELOPPEMENT
+  # (`dev_only`), derives de la suite modele `storemock`. Construits et lances
+  # seulement sur la cible d'essai, jamais versionnes, jamais
+  # construits pour Android, jamais publies. Cf. `store.mock` plus bas.
+  - storemock
+  - storemock_ui
 
   # ===========================================================================
   # LES DEUX CIBLES D'INFRASTRUCTURE
@@ -448,16 +459,9 @@ build:
 
       # Des surcharges de conf, par CHEMIN pointé, appliquées après tous les ingests.
       conf:
-        # ⚠ SANS CES TROIS LIGNES, LA CIBLE D'ESSAI FABRIQUE, CONSOMME ET RÉVOQUE
-        #   DE VRAIS CODES CADEAUX dans `eu-store`. Le registre des codes vit dans
-        #   UNE base, désignée par CODES_REGION, et le backend la fixe sur `eu`.
-        cloudfunctions.functions.store_claim.environment.CODES_REGION:  "eut"
-        cloudfunctions.functions.store_mint.environment.CODES_REGION:   "eut"
-        cloudfunctions.functions.store_revoke.environment.CODES_REGION: "eut"
-        # Le balayage RTDN ne doit voir que sa propre région. Il ne recevra de toute
-        # façon rien : Play n'accepte qu'un topic par package, et c'est celui de la
-        # production.
-        cloudfunctions.functions.store_rtdn.environment.STORE_REGIONS:  "eut"
+        # (Plus de surcharge de CODES_REGION ni de STORE_REGIONS ici : le builder les
+        #  déduit des régions déclarées, cf. `deva_regions` dans le readme du builder.
+        #  CODES_REGION vaut la première région de la cible, donc `eut` à l'essai.)
 
         # ⚠ UNE CLÉ ABSENTE DE `aimodel.location` RETOMBE EN SILENCE sur la région
         #   GCP du datacenter, ici europe-west9, qui sature à deux joueurs
@@ -1132,6 +1136,13 @@ store:
     publish:
       - catalog
 
+  # Les administrateurs du store : UID Firebase (pas des e-mails), seule source des
+  # GRANT_ADMINS de store_grant, store_mint, store_revoke et store_admin. Liste vide =
+  # fonctions fermées. Pour s'ajouter : lancer la console d'administration, qui
+  # affiche l'UID du compte connecté sur son écran « Accès refusé », le copier ici,
+  # puis redéployer le backend. Hors de `publish` : l'app joueurs ne la voit pas.
+  admins: []
+
   # ---------------------------------------------------------------------------
   # CE QUI N'EXISTE QUE POUR GOOGLE PLAY
   # ---------------------------------------------------------------------------
@@ -1162,49 +1173,18 @@ store:
     # range à côté de son marqueur de câblage. Introuvable, il ouvre l'URL générique
     # de la console : un clic de menu en plus, et rien à saisir.
 
-    # Les deux identifiants d'offre que lisent store_verify, store_rtdn et
-    # store_sweeper (cf. backend/config.yml). Ils ne sont plus écrits qu'ici : les
-    # fonctions les reçoivent par référence @@@C:...@@@, et pucatalog crée chez
-    # Google des offres portant exactement ces noms. Ils ne PEUVENT plus diverger.
+    # --- Aucune offre à condition (2026-09-30) ---------------------------------
+    # Ni essai calendaire (`essai-14j`, retiré le 2026-09-16 : l'accès libre du début
+    # EST l'essai, mesuré en usage, cf. store-base-global.yml → store.pitch), ni offre
+    # fondateurs (retirée le 2026-09-30). Tous les clans souscrivent au tarif courant.
     #
-    # ⚠ `trial_offer` est VIDE depuis le 2026-09-16, et ce n'est pas un oubli : il n'y
-    # a plus d'essai calendaire au catalogue (voir `offers` plus bas). Les trois
-    # fonctions le tolèrent — `process.env.TRIAL_OFFER_ID || ''` — et un identifiant
-    # vide ne peut alors correspondre à aucune offre d'achat, si bien qu'aucun
-    # abonnement n'est plus classé `trial`. C'est exactement ce qu'on veut : l'état
-    # n'existe plus. Le champ reste déclaré pour le jour où l'on rouvrirait un essai ;
-    # la référence @@@C: correspondante, elle, a été retirée des trois fonctions
-    # (backend/config.yml), car pucloudfunction refuse une référence qui résout sur
-    # du vide. Rouvrir un essai = remplir ce champ ET remettre les trois références.
-    trial_offer:   ""
-    founder_offer: fondateur
-
-    # --- Qui a droit à l'offre fondateurs ---------------------------------------
-    # Play sait arbitrer lui-même l'essai « nouveaux clients ». L'offre de lancement,
-    # non : son éligibilité est DÉLÉGUÉE au développeur, et tant que personne ne
-    # tranche, personne n'en bénéficie. C'est cette date qui tranche.
-    #
-    # Un clan CRÉÉ AVANT cet instant est fondateur. Un clan dont la date de création
-    # est illisible rend 0, donc l'est aussi — délibéré : les clans les plus anciens
-    # sont précisément ceux d'avant que le champ n'existe, et l'offre de lancement
-    # leur est due.
-    #
-    # pucatalog écrit ce couple dans {région}-store/store_config/founders, d'où
-    # `store_eligibility` le relit à chaque achat. Sans ce document la fonction sort
-    # sur `if (!conf.exists)` et AUCUN clan n'est jamais fondateur — l'offre existe
-    # chez Google mais l'app ne la demande pour personne.
-    #
-    # LA CONF FAIT FOI : la retoucher en console dépanne, rejouer un build réaligne
-    # le document sur la valeur ci-dessous (et le dit à l'écran).
-    #
-    # Fin de la période de lancement : couvre le test fermé et les premières semaines
-    # de production. À avancer si les betas s'étirent — ce n'est qu'une date.
-    founder_cutoff: "2026-09-30T23:59:59+02:00"
-
-    # Réserve de mois offerts posée d'office sur le document. Rien ne la lit
-    # aujourd'hui (les crédits s'accordent un par un via store_grant) : 0 est la
-    # valeur qui respecte la forme documentée sans rien distribuer.
-    founder_credit_months: 0
+    # Sans `founder_offer` : pucatalog DÉSACTIVE l'offre chez Google (jamais de
+    # suppression, les abonnements qui la portent courent jusqu'à leur terme) et VIDE
+    # l'offre de `store_config/founders`, si bien que `store_eligibility` ne la propose
+    # plus à personne. Rouvrir une offre à condition : la déclarer sous `offers`, la
+    # rattacher aux produits (`offers:` de chaque produit du catalogue), et redonner à
+    # store_verify / store_rtdn / store_sweeper leurs références @@@C: (TRIAL_OFFER_ID,
+    # FOUNDER_OFFER_ID, cf. backend/config.yml).
 
     # --- Les comptes qui achètent gratuitement, pour la recette ---------------
     # Leurs achats sont RÉELS côté Play — vraie commande, vrai RTDN, vraie
@@ -1223,36 +1203,15 @@ store:
       - daddy.ddust@gmail.com
       - kiddy.ddust@gmail.com
 
-    # --- Les deux offres, déclarées une fois, attachées à chaque base plan ----
-    offers:
-
-      # ⚠ L'OFFRE D'ESSAI A ÉTÉ RETIRÉE LE 2026-09-16, et il faut dire pourquoi
-      # plutôt que de laisser un trou. Elle offrait quatorze jours calendaires aux
-      # nouveaux clients. Le modèle ne demande plus sa première cotisation à une date
-      # mais à un USAGE : trois tâches menées à leur terme depuis que le clan n'est
-      # plus seul, dix pour un clan resté seul (store-base-global.yml → store.pitch).
-      # L'accès libre du début EST devenu l'essai, et il est meilleur — une famille
-      # qui installe l'app un samedi et n'y revient que le week-end suivant n'a rien
-      # consommé, là où quatorze jours lui auraient tout mangé sans qu'elle joue.
-      # En cumuler deux aurait servi deux gratuités à la suite.
-      #
-      # pucatalog ne supprime jamais rien chez Google : une offre présente chez Play
-      # et absente d'ici passe HORS VENTE (deactivate_offer). Les abonnements qui la
-      # portaient déjà courent jusqu'à leur terme, et c'est le comportement voulu.
-      # La redéclarer ici la réactiverait telle quelle.
-
-      # Offre de lancement. Éligibilité DÉTERMINÉE PAR LE DÉVELOPPEUR : Play ne
-      # filtre rien, c'est `store_eligibility` qui tranche à partir du cutoff posé
-      # dans store_config/founders — voir `founder_cutoff` plus haut, dont pucatalog
-      # fait ce document. C'est précisément ce qui permet de décaler la fenêtre sans
-      # redéploiement — une offre de lancement dont la date est figée dans du code
-      # ne sert pas à grand-chose.
-      # Un mois offert, puis la première année à -30%.
-      fondateur:
-        eligibility: developer
-        phases:
-          - { duration: P1M, free: true }
-          - { duration: P1Y, discount_percent: 30 }
+    # --- Offres attachées aux base plans : AUCUNE ---------------------------------
+    # pucatalog ne supprime jamais rien chez Google : une offre présente chez Play et
+    # absente d'ici passe HORS VENTE (deactivate_offer). Les abonnements qui la
+    # portaient déjà courent jusqu'à leur terme, et c'est le comportement voulu. La
+    # redéclarer ici la réactiverait telle quelle.
+    #   - `essai-14j` (14 jours aux nouveaux clients) : retirée le 2026-09-16.
+    #   - `fondateur` (un mois offert puis -30 % la première année, éligibilité
+    #     développeur par date de création du clan) : retirée le 2026-09-30.
+    offers: {}
 
     # --- Les deux défauts qu'exigent les produits à l'unité -------------------
     # Play réclame une `defaultLanguage` et un `defaultPrice` sur chaque produit à
@@ -1395,6 +1354,26 @@ store:
         coefficient: 0.60
         change: 4650
         countries: ["CO"]
+  # ---------------------------------------------------------------------------
+  # SIMULATEUR DE STORE (composants storemock de la séquence, cible d'essai seulement)
+  # ---------------------------------------------------------------------------
+  # Un faux Google Play LOCAL (suite `storemock`) : l'app achète contre lui, les
+  # fonctions de facturation de pustore tournent sur le poste face à lui, et
+  # l'app de pilotage fait vivre les abonnements (carte refusée, grâce,
+  # suspension, résiliation...). Tout le reste est le vrai code.
+  #
+  # ⚠ LES COMPTES DE TEST SONT LES SEULS à pouvoir acheter au simulateur, et le
+  #   client simulé ne s'ouvre que pour eux (et sur la région d'essai). JAMAIS les
+  #   testeurs de licence de `store.play.license_testers` : ils sont réservés aux
+  #   testeurs de Google. Un jeton simulé (`storemock.…`) est de toute façon refusé
+  #   par les fonctions déployées. Un clan qui a servi au simulateur : « Remise à
+  #   zéro du clan » dans le pilotage avant de le tester sur le vrai Play.
+  mock:
+    accounts:
+      - puolsirg@gmail.com
+    # Port du serveur ; les fonctions locales prennent les suivants (port+1...).
+    port: 8790
+
   catalog:
 
     # --- LES CINQ PALIERS ----------------------------------------------------
@@ -1423,8 +1402,6 @@ store:
       base_plans:
         - essentiel-monthly
         - essentiel-yearly
-      offers:
-        - fondateur
       label: "@@@T:store_essentiel@@@"
       description: "@@@T:store_essentiel_desc@@@"
       price_hint: "1.99 €"
@@ -1508,8 +1485,6 @@ store:
       base_plans:
         - clan-monthly
         - clan-yearly
-      offers:
-        - fondateur
       label: "@@@T:store_clan@@@"
       description: "@@@T:store_clan_desc@@@"
       price_hint: "2.99 €"
@@ -1572,8 +1547,6 @@ store:
       base_plans:
         - tribu-monthly
         - tribu-yearly
-      offers:
-        - fondateur
       label: "@@@T:store_tribu@@@"
       description: "@@@T:store_tribu_desc@@@"
       price_hint: "4.99 €"
@@ -1636,8 +1609,6 @@ store:
       base_plans:
         - guilde-monthly
         - guilde-yearly
-      offers:
-        - fondateur
       label: "@@@T:store_guilde@@@"
       description: "@@@T:store_guilde_desc@@@"
       price_hint: "5.99 €"
@@ -1701,8 +1672,6 @@ store:
       base_plans:
         - royaume-monthly
         - royaume-yearly
-      offers:
-        - fondateur
       label: "@@@T:store_royaume@@@"
       description: "@@@T:store_royaume_desc@@@"
       price_hint: "7.99 €"
@@ -3363,6 +3332,11 @@ revenus:
 
 
 
+
+
+
+
+
     # l'Extension « Butin » SEULE, 7.99 € — revenu hors abonnement.
     #
     # ⚠ SES CINQ AUTRES PRODUITS SONT PARTIS dans leurs propres lots le
@@ -3384,6 +3358,11 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
 
 
 
@@ -3628,6 +3607,11 @@ revenus:
 
 
 
+
+
+
+
+
     '5b617e0e5480':
       # --- roadmap (console deva) ---
       rank: 390
@@ -3645,6 +3629,11 @@ revenus:
       churn_facteur: 0.9375
       revenu_direct: 18
       duree_contenu_mois: 2
+
+
+
+
+
 
 
 
@@ -3883,6 +3872,11 @@ revenus:
 
 
 
+
+
+
+
+
     'b4483c2704e7':
       # --- roadmap (console deva) ---
       rank: 520
@@ -3899,6 +3893,11 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
+
+
+
 
 
 
@@ -4134,6 +4133,11 @@ revenus:
 
 
 
+
+
+
+
+
     # --- LES DIX LOTS DETACHES DE `loots` ET `packs` (2026-09-04) --------------
     # Un lot par produit vendu, comme les trois themes depuis le 2026-09-02.
     # `loots` ci-dessus ne porte plus que l'Extension Butin a 7.99 EUR et les
@@ -4158,6 +4162,11 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
+
+
+
 
 
 
@@ -4337,6 +4346,11 @@ revenus:
 
 
 
+
+
+
+
+
     '81291102e209':
       # --- roadmap (console deva) ---
       rank: 330
@@ -4352,6 +4366,11 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
+
+
+
+
+
 
 
 
@@ -4531,6 +4550,11 @@ revenus:
 
 
 
+
+
+
+
+
     'ecb38169ab68':
       # --- roadmap (console deva) ---
       rank: 220
@@ -4628,6 +4652,11 @@ revenus:
 
 
 
+
+
+
+
+
     '09a10ee9b42d':
       # --- roadmap (console deva) ---
       rank: 340
@@ -4643,6 +4672,11 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
+
+
+
+
+
 
 
 
@@ -4823,6 +4857,11 @@ revenus:
 
 
 
+
+
+
+
+
     '13a9e8d0a1b9':
       # --- roadmap (console deva) ---
       rank: 320
@@ -4838,6 +4877,11 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 2
       duree_contenu_mois: 2
+
+
+
+
+
 
 
 
@@ -5018,6 +5062,11 @@ revenus:
 
 
 
+
+
+
+
+
     # ⚠ ROUTINE FERME LE BLOC, DONC IL EN PORTE LE `churn_facteur` — et lui seul.
     #   Le facteur fonctionne en « dernier livre l'emporte » : le poser sur chacun
     #   des onze lots ferait obtenir au premier le benefice de retention des onze.
@@ -5038,6 +5087,11 @@ revenus:
       churn_facteur: 0.9625
       revenu_direct: 15
       duree_contenu_mois: 2
+
+
+
+
+
 
 
 
@@ -5339,6 +5393,11 @@ revenus:
 
 
 
+
+
+
+
+
     '0f3ce68de9ba':
       # --- roadmap (console deva) ---
       rank: 180
@@ -5352,6 +5411,11 @@ revenus:
       maint_croisiere: 0.25
       description: '**portage iOS de l''app** — fiche App Store Connect dans les sept langues, catalogue d''achats recréé côté Apple, revue, recette sur appareil. ⚠ **C''est CE lot qui fait entrer les utilisateurs iOS**, pas `deva/ios` : le passage framework rend le portage possible, il ne publie rien. *Une plateforme de plus à entretenir.*'
       last_modification: '2026-09-26T15:04:19'
+
+
+
+
+
 
 
 
@@ -5539,6 +5603,11 @@ revenus:
 
 
 
+
+
+
+
+
     '3ee5cdbbf4e8':
       # --- roadmap (console deva) ---
       rank: 20020
@@ -5552,6 +5621,11 @@ revenus:
       maint_croisiere: 0.0
       description: '**le clan** — le créer, le rejoindre par QR code ou par lien, le roster de ses membres, la promotion d''un chef. C''est la porte d''entrée de l''app : un joueur qui n''arrive pas à rejoindre son clan n''a rien à faire dedans.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
 
 
 
@@ -5739,6 +5813,11 @@ revenus:
 
 
 
+
+
+
+
+
     '982e1c595070':
       # --- roadmap (console deva) ---
       rank: 20040
@@ -5752,6 +5831,11 @@ revenus:
       maint_croisiere: 0.0
       description: '**le cœur de la boucle** — prendre, relâcher, terminer une tâche, la faire valider par un parent, gérer les domaines, les tâches mortelles et immortelles et leur respawn. C''est ce que l''app fait, tout le reste l''entoure.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
 
 
 
@@ -5939,6 +6023,11 @@ revenus:
 
 
 
+
+
+
+
+
     '5ad520b40c19':
       # --- roadmap (console deva) ---
       rank: 20060
@@ -5952,6 +6041,11 @@ revenus:
       maint_croisiere: 0.0
       description: '**garder l''app vivante quand elle est fermée** — notifications push, décroissance des PV, balayeur de relance d''engagement. Sans ça une app familiale s''oublie en trois jours.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
 
 
 
@@ -6139,6 +6233,11 @@ revenus:
 
 
 
+
+
+
+
+
     'c03a9e06baad':
       # --- roadmap (console deva) ---
       rank: 20080
@@ -6152,6 +6251,11 @@ revenus:
       maint_croisiere: 0.0
       description: '**269 images, faites une par une** — 218 medium, 33 small, 14 big, 4 splashs, plus les 10 visuels du Play Store. Le code de ddust est vibe-codé, donc rapide ; ces pièces-là ne le sont pas, et trouver les bons outils a pris du temps. Rien de tout cela n''apparaît dans une mesure de volume de code.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
 
 
 
@@ -6339,6 +6443,11 @@ revenus:
 
 
 
+
+
+
+
+
     '3ca5a6277c98':
       # --- roadmap (console deva) ---
       rank: 20100
@@ -6352,6 +6461,11 @@ revenus:
       maint_croisiere: 0.0
       description: '**le moment où l''app prend la main sur les sens** — montée de niveau, mort et gage, guérison, coup de pouce, la Fée. Une image, un son qui l''annonce, une vibration, et un écran qui ne répond plus le temps que ça se joue.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
 
 
 
@@ -6539,6 +6653,11 @@ revenus:
 
 
 
+
+
+
+
+
     'bfdf9b81c269':
       # --- roadmap (console deva) ---
       rank: 20120
@@ -6552,6 +6671,11 @@ revenus:
       maint_croisiere: 0.0
       description: '**la récompense** — inventaire, coffre, distribution, et la cérémonie d''ouverture. Le seul moment de l''app où l''objet numérique renvoie à un objet physique posé sur une table.'
       last_modification: '2026-09-17T01:30:18'
+
+
+
+
+
 
 
 
@@ -6678,6 +6802,11 @@ revenus:
 
 
 
+
+
+
+
+
     '2fb66c075ba3':
       # --- roadmap (console deva) ---
       rank: 62
@@ -6692,6 +6821,11 @@ revenus:
       maint_croisiere: 0.0
       description: '**Ce que le produit doit faire pour que les documents ne mentent pas.** Correctifs et écrans dictés par une obligation — RGPD, politique Google Play Families, article 7 de la loi colombienne 1581 — et par les points de `docs/interestActionPoints.txt` : journal filtré des relances de paiement, photos effacées au verdict, prénoms substitués avant l''appel au modèle, avis de l''enfant recueilli avant tout traitement, retrait de consentement proportionné, relances sorties du mode simulation. *Ne porte aucune fonctionnalité produit : chaque tâche d''ici existe parce qu''une phrase publiée en dépend.*'
       last_modification: '2026-09-15T21:37:57'
+
+
+
+
+
 
 
 
@@ -6758,6 +6892,11 @@ revenus:
 
 
 
+
+
+
+
+
     'b68ba8193315':
       # --- roadmap (console deva) ---
       rank: 66
@@ -6789,6 +6928,11 @@ revenus:
 
 
 
+
+
+
+
+
     'e8b1dc21bd00':
       # --- roadmap (console deva) ---
       rank: 95
@@ -6803,7 +6947,7 @@ revenus:
       description: |-
         Ce lot livre l'extraction et l'encapsulation de toute la logique liée au modèle économique de Donjons & Savons : gestion des abonnements, intégration des in-app purchases (Play Store / App Store), système de coupons, gestion du cycle de vie des impayés (défaut de paiement, grace, lock) et intégration de la passerelle de facturation.
         Il ne livre pas de nouvelles quêtes ni de modification des mécaniques de jeu (XP, butin, combat). 
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-09-30T22:53:27'
       # --- economie (console deva) ---
       gratuit: true
 
@@ -6822,25 +6966,10 @@ revenus:
 
 
 
-    '50633bdf8758':
-      # --- roadmap (console deva) ---
-      rank: 100
-      store: false
-      rsp: 55
-      nom: 'lancement et acquisition'
-      id: '50633bdf8758'
-      accroche: 'Campagne de lancement et acquisition pour faire connaître l''application sur les réseaux et de proximité'
-      rampup_semaines: 4
-      maint_demarrage: 0.5
-      maint_croisiere: 0.0
-      description: |-
-        Ce lot livre la mise en place et l'animation des canaux d'acquisition et de promotion de Donjons & Savons pour le lancement : création et configuration du compte TikTok, campagnes de flyers pour les écoles et commerces locaux, seeding sur les subreddits et groupes de parents (FR+EN).
-        Il ne livre pas la génération des vidéos par IA (déjà portée par le MVP), ni la refonte des mécaniques de jeu.
-      last_modification: '2026-09-26T15:04:19'
-      # --- economie (console deva) ---
-      acquisition_facteur: 1.05
-      panier_facteur: 1.0
-      duree_contenu_mois: 2
+
+
+
+
 
 
 
@@ -6859,10 +6988,11 @@ revenus:
       # --- roadmap (console deva) ---
       rank: 90
       store: false
-      rsp: 55
+      rsp: 34
       nom: 'pre-beta'
       id: '9f24f26cf4f8'
       accroche: 'Préparation finale et conformité avant soumission de l''application en test fermé Google Play'
+      livre: '2026-09-29'
       rampup_semaines: 0
       maint_demarrage: 0.0
       maint_croisiere: 0.0
@@ -6870,9 +7000,14 @@ revenus:
         Ce lot regroupe toutes les actions de dernière minute requises avant de soumettre l'application à Google pour sa revue en vue du test fermé : vérification et alignement final du corpus légal (CGU, privacy, mentions éditeur, DPA, conformité famille), finalisation des assets et fiches store de publication, vérification des points d'audit de l'intérêt supérieur de l'enfant et des flux de données (suppression, consentement, sandbox/sandbox-test, vérification des comptes de service). 
 
         Il ne livre ni nouvelle mécanique de jeu, ni extension payante, ni nouveau pack de contenu.
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-09-29T10:04:34'
       # --- economie (console deva) ---
       gratuit: true
+
+
+
+
+
 
 
 
@@ -6902,6 +7037,31 @@ revenus:
         Il ne livre pas la modification des abonnements croisés ni les mécaniques de quêtes ou de butin associées aux clans secondaires.
       last_modification: '2026-09-27T03:32:58'
       # --- economie (console deva) ---
+      duree_contenu_mois: 2
+      gratuit: true
+
+    '5a19492a3aa7':
+      # --- roadmap (console deva) ---
+      rank: 92
+      store: true
+      rsp: 89
+      nom: 'go-live'
+      id: '5a19492a3aa7'
+      accroche: 'Dernière repasse avant le lancement public (juridique, UI, dinosaures et Play Store)'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: |-
+        Ce lot livre les finitions indispensables avant d'ouvrir la production :
+        - Passe finale de conformité sur le corpus juridique (CGU, politique de confidentialité) avant relecture par un juriste.
+        - Refonte visuelle ciblée de l'UI pour un rendu plus immersif et moderne.
+        - Intégration d'un thème alternatif « Gentils Dinosaures » ciblant un public plus jeune.
+        - Finalisation et alignement des visuels et fiches de la console Google Play pour la validation finale.
+
+        Il ne livre pas de nouvelles mécaniques de jeu (pas de nouvelles quêtes ou économie de loots).
+      last_modification: '2026-10-01T15:15:04'
+      # --- economie (console deva) ---
+      churn_facteur: 0.95
       duree_contenu_mois: 2
       gratuit: true
 
@@ -6969,6 +7129,7 @@ revenus:
 #   intervalle on voudrait les voir tomber.
 # =============================================================================
 catalog_sequence:
+  - '5a19492a3aa7'
   - 'a6728b19f4b1'
   - '3df87efd34d2'
   - '0877dd1dcfb0'

@@ -464,8 +464,11 @@ tâches, et le fondateur du clan ne peut être ni exclu ni rétrogradé.
   écartée, parce qu'un annuaire interrogeable serait un vecteur d'abus dans une application
   destinée aux enfants.
 - **Il n'existe ni messagerie, ni discussion, ni aucune interaction entre clans.**
-- **On n'entre dans un clan que par un chef.** Deux voies existent, et toutes deux passent par un
-  adulte qui décide :
+- **On n'entre dans un clan que par un chef.** Pour un enfant, c'est lui qui commence : il dit sur
+  son téléphone qu'il a envie de jouer, et ce souhait, porteur de son code, est montré au chef en
+  code QR ou lui est envoyé par un lien (section 5.8). Le chef ne répond qu'ensuite, par une
+  invitation marquée pour ce code. Un adulte reçoit directement l'invitation. Elle voyage par deux
+  voies, et toutes deux passent par un adulte qui décide :
   1. le **code QR** que le chef affiche sur son téléphone, scanné en personne. Le chef peut aussi
      envoyer le lien correspondant à un proche ;
   2. le **lien d'invitation protégé par un code à six chiffres** que le chef communique de vive voix.

@@ -55,7 +55,6 @@ conf:
         y: 30%
         w: 90%
         h: 50%
-        font_size: 14.0
         text_align: CENTER
         label: "@@@T:coming_soon@@@"
 
@@ -67,8 +66,6 @@ conf:
         y: 4%
         w: 29%
         h: 2.4%
-        background_color: "0xFF99864E"
-        border_radius: 6.0
         border: false
 
     personnage/lvl_fill:
@@ -79,8 +76,6 @@ conf:
         y: 4%
         w: 1%
         h: 2.4%
-        background_color: "0xFFB11226"
-        border_radius: 6.0
         border: false
 
     personnage/lvl_flame:
@@ -91,8 +86,6 @@ conf:
         y: -1%
         w: 10%
         h: 10%
-        stretch: "RATIO_IN"
-        image: "images/small/flamme_nobg.png"
         border: false
 
     # personnage/lvl_shield:
@@ -117,12 +110,8 @@ conf:
         h: 7%
         text_align: CENTER
         text_padding: 0.0
-        font_size: 19.0
-        font_color: "WHITE" #"0xFFC8A84B"
         label: "1"
         border: false
-        stretch: "RATIO_IN"
-        image: "images/medium/shield.png"
 
     personnage/xp_label:
       class: DvLabel
@@ -134,8 +123,6 @@ conf:
         h: 2.4%
         text_align: RIGHT
         text_padding: 0.0
-        font_size: 10.0
-        font_color: "BLACK"
         label: ""
         border: false
 
@@ -152,8 +139,6 @@ conf:
         y: 4%
         w: 29%
         h: 2.4%
-        background_color: "0xFF99864E"
-        border_radius: 6.0
         border: false
 
     personnage/pv_fill:
@@ -164,8 +149,6 @@ conf:
         y: 4%
         w: 1%
         h: 2.4%
-        background_color: "0xFFB11226"
-        border_radius: 6.0
         border: false
 
     personnage/pv_heart:
@@ -176,8 +159,6 @@ conf:
         y: 2%
         w: 6%
         h: 6%
-        stretch: "RATIO_IN"
-        image: "images/small/heart_nobg.png"
         visible: true
         border: false
 
@@ -189,8 +170,6 @@ conf:
         y: 2.7%
         w: 5%
         h: 5%
-        stretch: "RATIO_IN"
-        image: "images/big/skull_nobg.png"
         visible: false
         border: false
 
@@ -204,8 +183,6 @@ conf:
         h: 2.4%
         text_align: LEFT
         text_padding: 0.0
-        font_size: 10.0
-        font_color: "BLACK"
         label: ""
         border: false
 
@@ -216,7 +193,6 @@ conf:
         w: 30%
         y: 0%
         h: 20%
-        image_fallback: "images/medium/nope.png"
 
     personnage/label:
       mask: commons/intro_text
@@ -242,8 +218,6 @@ conf:
         h: 4%
         text_align: CENTER
         text_padding: 0.0
-        font_size: 11.0
-        font_color: "0xFFB11226"
         label: ""
         border: false
 
@@ -278,15 +252,8 @@ conf:
       selector: worker.perso_settings_selector   # masque « delete_account » pendant l'impersonation
       shape:
         w: 55%
-        background_color: "0xF01A1A1A"
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 10.0
-        font_color: "amber_200"
-        font_size: 15.0
       options:
         my_log:
-          image: "images/small/scroll_nobg.png"
           desc: "@@@T:perso_menu_log_desc@@@"
           shape:
             label: "@@@T:perso_menu_log@@@"
@@ -300,7 +267,6 @@ conf:
           actions:
             tap: worker.open_lang_menu
         tutorials:
-          image: "images/medium/nope.png"
           desc: "@@@T:clan_menu_tutorials_desc@@@"
           shape:
             label: "@@@T:clan_menu_tutorials@@@"
@@ -400,14 +366,12 @@ conf:
           actions:
             tap: worker.open_rate_panel
         logout:
-          image: "images/small/log-out.png"
           desc: "@@@T:perso_menu_logout_desc@@@"
           shape:
             label: "@@@T:sign_out@@@"
           actions:
             tap: dvcloud.do_logout
         delete_account:
-          image: "images/big/skull_nobg.png"
           desc: "@@@T:perso_menu_delete_desc@@@"
           shape:
             label: "@@@T:perso_menu_delete@@@"
@@ -426,8 +390,6 @@ conf:
         y: 0%
         w: 100%
         h: 100%
-        background_color: "#FF000000"
-        opacity: 0.9
         border: false
         visible: false
         events:
@@ -443,11 +405,8 @@ conf:
         w: 88%
         h: 30%
         text_align: CENTER
-        font_size: 16.0
-        font_color: "amber_200"
         # Même opacité que delete_yes/delete_no (héritée de commons/shape) : DvImageView applique
         # shape.opacity au texte lui-même, sans ce 0.6 le panneau sort plus vif que ses boutons.
-        opacity: 0.6
         border: false
         label: " "
         visible: false
@@ -490,8 +449,6 @@ conf:
         y: 1%
         w: 8%
         h: 5%
-        stretch: "RATIO_IN"
-        image: "images/medium/icon_edit.png"
         border: false
         label: ""
         events:
@@ -509,8 +466,6 @@ conf:
         y: 5%
         w: 16%
         h: 10%
-        stretch: "RATIO_IN"
-        image: "images/medium/icon_edit.png"
         border: false
         label: ""
         visible: false
@@ -528,8 +483,6 @@ conf:
         y: 17%
         w: 16%
         h: 8%
-        stretch: "RATIO_IN"
-        image: "images/medium/icon_edit.png"
         border: false
         label: ""
         visible: false
@@ -547,7 +500,6 @@ conf:
       show_appbar: true
       show_back: true
       title: "@@@T:choose_avatar@@@"
-      background_color: black
       registry:
         - avatar_explorer/grid
 
@@ -569,7 +521,6 @@ conf:
         folder: "images/medium"
         # Thème facultatif en tête (absent = donjon), groupe = numéro de clan ou nom de classe.
         regex_filter: "icon_([A-Za-z0-9]+_)?[A-Za-z0-9]+_P_[0-9]+[.]png"
-        border_color: "0xFFEAD9A6"
 
     #//------------------------------- Player rename screen ------------------------------
     # Écran plein de renommage de l'avatar (remplace l'ancienne popup DvInput). Réutilise
@@ -738,7 +689,6 @@ conf:
       shape:
         y: 74%
         h: 10%
-        font_size: 10
 
     create_player_screen/confirm:
       masks:

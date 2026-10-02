@@ -1,0 +1,12 @@
+# ---------------------------------------------------------------
+# GENERE par builder.py depuis le build.yml de la suite.
+# Ne pas editer : toute modification est ecrasee au prochain build.
+# Source : build.yml -> autover
+# ---------------------------------------------------------------
+name: autover
+above: conf
+strategy: default
+tenant: global
+data:
+  autover:
+    steps: []
