@@ -2968,14 +2968,14 @@ data:
       # L'enfant n'accepte QUE le QR code d'invitation du clan : scanné à côté de son parent, le
       # seul autre QR code du jeu qu'il puisse croiser est le sien.
       kid_assent_share_not_invite:
-        fr: "Ce QR code n'est pas une invitation de clan. Demande à tes parents d'afficher le QR code de leur clan."
-        en: "This QR code is not a clan invitation. Ask your parents to display their clan's QR code."
-        es: "Este código QR no es una invitación de clan. Pide a tus padres que muestren el código QR de su clan."
-        de: "Dieser QR-Code ist keine Clan-Einladung. Bitte deine Eltern, den QR-Code ihres Clans anzuzeigen."
-        it: "Questo codice QR non è un invito di clan. Chiedi ai tuoi genitori di mostrare il codice QR del loro clan."
-        pt: "Este código QR não é um convite de clã. Pede aos teus pais que mostrem o código QR do clã deles."
-        br: "Este QR Code não é um convite de clã. Peça para seus pais mostrarem o QR Code do clã deles."
-        nl: "Deze QR-code is geen claninvitatie. Vraag je ouders om de QR-code van hun clan te tonen."
+        fr: "Ce QR code n'est pas une invitation de clan. Demande à tes parents de scanner d'abord ton code, puis de te montrer leur invitation."
+        en: "This QR code is not a clan invitation. Ask your parents to scan your code first, then to show you their invitation."
+        es: "Este código QR no es una invitación de clan. Pide a tus padres que escaneen primero tu código y luego te muestren su invitación."
+        de: "Dieser QR-Code ist keine Clan-Einladung. Bitte deine Eltern, zuerst deinen Code zu scannen und dir dann ihre Einladung zu zeigen."
+        it: "Questo codice QR non è un invito di clan. Chiedi ai tuoi genitori di scansionare prima il tuo codice, poi di mostrarti il loro invito."
+        pt: "Este código QR não é um convite de clã. Pede aos teus pais que digitalizem primeiro o teu código e depois te mostrem o convite deles."
+        br: "Este QR Code não é um convite de clã. Peça para seus pais escanearem primeiro o seu código e depois mostrarem o convite deles."
+        nl: "Deze QR-code is geen claninvitatie. Vraag je ouders om eerst jouw code te scannen en je daarna hun uitnodiging te tonen."
 
       # Partage de la réponse de l'enfant (share.kid_assent, screens_meta.yml) : le lien suit sur
       # la ligne d'après, puis le lien du site. Aucune donnée personnelle, ni ici ni dans le lien.
@@ -8909,6 +8909,7 @@ data:
       shape:
         stretch: "RATIO_IN"
         image: "images/medium/icon_Marchand.png"
+        image_fallback: "images/medium/nope.png"
 
     # Plaque du nom de la boutique. Strictement identique à clan_page/label et
     # personnage/label : les trois écrans à taskbar portent le même bandeau doré sous
@@ -8933,11 +8934,13 @@ data:
       shape:
         stretch: "RATIO_IN"
         image: "images/big/no_paiement_nobg.png"
+        opacity: 1.0
 
     clan_page/icon:
       shape:
         stretch: "RATIO_IN"
         image: "images/medium/icon_01_C_01.png"
+        image_fallback: "images/medium/nope.png"
 
     clan_page/label:
       shape:
@@ -9105,6 +9108,7 @@ data:
       shape:
         stretch: "RATIO_IN"
         image: "images/medium/icon_01_P_01.png"
+        image_fallback: "images/medium/nope.png"
 
     personnage/label:
       shape:
@@ -9185,6 +9189,26 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        animaux_01:
+          image: images/medium/dt_t_animaux_01.png
+        animaux_02:
+          image: images/medium/dt_t_animaux_02.png
+        animaux_03:
+          image: images/medium/dt_t_animaux_03.png
+        animaux_05:
+          image: images/medium/dt_t_animaux_05.png
     bureau_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9203,6 +9227,30 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        bureau_01:
+          image: images/medium/dt_t_bureau_01.png
+        bureau_02:
+          image: images/medium/dt_t_bureau_02.png
+        bureau_03:
+          image: images/medium/dt_t_bureau_03.png
+        bureau_04:
+          image: images/medium/dt_t_bureau_04.png
+        bureau_05:
+          image: images/medium/dt_t_bureau_05.png
+        bureau_06:
+          image: images/medium/dt_t_bureau_06.png
     chambre_enfant_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9221,6 +9269,36 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        chambre_enfant_01:
+          image: images/medium/dt_t_chambre_enfant_01.png
+        chambre_enfant_02:
+          image: images/medium/dt_t_chambre_enfant_02.png
+        chambre_enfant_03:
+          image: images/medium/dt_t_chambre_enfant_03.png
+        chambre_enfant_04:
+          image: images/medium/dt_t_chambre_enfant_04.png
+        chambre_enfant_05:
+          image: images/medium/dt_t_chambre_enfant_05.png
+        chambre_enfant_06:
+          image: images/medium/dt_t_chambre_enfant_06.png
+        chambre_enfant_09:
+          image: images/medium/dt_t_chambre_enfant_09.png
+        chambre_enfant_10:
+          image: images/medium/dt_t_chambre_enfant_10.png
+        chambre_enfant_11:
+          image: images/medium/dt_t_chambre_enfant_11.png
     chambre_parentale_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9239,6 +9317,36 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        chambre_parentale_01:
+          image: images/medium/dt_t_chambre_parentale_01.png
+        chambre_parentale_02:
+          image: images/medium/dt_t_chambre_parentale_02.png
+        chambre_parentale_03:
+          image: images/medium/dt_t_chambre_parentale_03.png
+        chambre_parentale_04:
+          image: images/medium/dt_t_chambre_parentale_04.png
+        chambre_parentale_05:
+          image: images/medium/dt_t_chambre_parentale_05.png
+        chambre_parentale_06:
+          image: images/medium/dt_t_chambre_parentale_06.png
+        chambre_parentale_08:
+          image: images/medium/dt_t_chambre_parentale_08.png
+        chambre_parentale_09:
+          image: images/medium/dt_t_chambre_parentale_09.png
+        chambre_parentale_10:
+          image: images/medium/dt_t_chambre_parentale_10.png
     courses_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9257,6 +9365,28 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        courses_01:
+          image: images/medium/dt_t_courses_01.png
+        courses_02:
+          image: images/medium/dt_t_courses_02.png
+        courses_03:
+          image: images/medium/dt_t_courses_03.png
+        courses_04:
+          image: images/medium/dt_t_courses_04.png
+        courses_05:
+          image: images/medium/dt_t_courses_05.png
     cuisine_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9275,6 +9405,48 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        cuisine_01:
+          image: images/medium/dt_t_cuisine_01.png
+        cuisine_03:
+          image: images/medium/dt_t_cuisine_03.png
+        cuisine_04:
+          image: images/medium/dt_t_cuisine_04.png
+        cuisine_05:
+          image: images/medium/dt_t_cuisine_05.png
+        cuisine_06:
+          image: images/medium/dt_t_cuisine_06.png
+        cuisine_07:
+          image: images/medium/dt_t_cuisine_07.png
+        cuisine_08:
+          image: images/medium/dt_t_cuisine_08.png
+        cuisine_09:
+          image: images/medium/dt_t_cuisine_09.png
+        cuisine_10:
+          image: images/medium/dt_t_cuisine_10.png
+        cuisine_11:
+          image: images/medium/dt_t_cuisine_11.png
+        cuisine_12:
+          image: images/medium/dt_t_cuisine_12.png
+        cuisine_13:
+          image: images/medium/dt_t_cuisine_13.png
+        cuisine_15:
+          image: images/medium/dt_t_cuisine_15.png
+        cuisine_18:
+          image: images/medium/dt_t_cuisine_18.png
+        cuisine_19:
+          image: images/medium/dt_t_cuisine_19.png
     dechets_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9293,6 +9465,32 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        dechets_01:
+          image: images/medium/dt_t_dechets_01.png
+        dechets_02:
+          image: images/medium/dt_t_dechets_02.png
+        dechets_03:
+          image: images/medium/dt_t_dechets_03.png
+        dechets_04:
+          image: images/medium/dt_t_dechets_04.png
+        dechets_05:
+          image: images/medium/dt_t_dechets_05.png
+        dechets_06:
+          image: images/medium/dt_t_dechets_06.png
+        dechets_07:
+          image: images/medium/dt_t_dechets_07.png
     entree_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9311,6 +9509,34 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        entree_01:
+          image: images/medium/dt_t_entree_01.png
+        entree_02:
+          image: images/medium/dt_t_entree_02.png
+        entree_03:
+          image: images/medium/dt_t_entree_03.png
+        entree_04:
+          image: images/medium/dt_t_entree_04.png
+        couloir_01:
+          image: images/medium/dt_t_couloir_01.png
+        couloir_02:
+          image: images/medium/dt_t_couloir_02.png
+        couloir_03:
+          image: images/medium/dt_t_couloir_03.png
+        couloir_04:
+          image: images/medium/dt_t_couloir_04.png
     extras_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9329,6 +9555,34 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        extras_01:
+          image: images/medium/dt_t_extras_01.png
+        extras_02:
+          image: images/medium/dt_t_extras_02.png
+        extras_03:
+          image: images/medium/dt_t_extras_03.png
+        extras_04:
+          image: images/medium/dt_t_extras_04.png
+        extras_05:
+          image: images/medium/dt_t_extras_05.png
+        extras_06:
+          image: images/medium/dt_t_extras_06.png
+        extras_07:
+          image: images/medium/dt_t_extras_07.png
+        extras_08:
+          image: images/medium/dt_t_extras_08.png
     garage_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9347,6 +9601,30 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        garage_01:
+          image: images/medium/dt_t_garage_01.png
+        garage_02:
+          image: images/medium/dt_t_garage_02.png
+        garage_03:
+          image: images/medium/dt_t_garage_03.png
+        garage_04:
+          image: images/medium/dt_t_garage_04.png
+        garage_05:
+          image: images/medium/dt_t_garage_05.png
+        garage_06:
+          image: images/medium/dt_t_garage_06.png
     jardin_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9365,6 +9643,30 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        jardin_01:
+          image: images/medium/dt_t_jardin_01.png
+        jardin_02:
+          image: images/medium/dt_t_jardin_02.png
+        jardin_03:
+          image: images/medium/dt_t_jardin_03.png
+        jardin_04:
+          image: images/medium/dt_t_jardin_04.png
+        jardin_05:
+          image: images/medium/dt_t_jardin_05.png
+        jardin_06:
+          image: images/medium/dt_t_jardin_06.png
     linge_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9383,6 +9685,34 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        linge_01:
+          image: images/medium/dt_t_linge_01.png
+        linge_02:
+          image: images/medium/dt_t_linge_02.png
+        linge_03:
+          image: images/medium/dt_t_linge_03.png
+        linge_04:
+          image: images/medium/dt_t_linge_04.png
+        linge_05:
+          image: images/medium/dt_t_linge_05.png
+        linge_06:
+          image: images/medium/dt_t_linge_06.png
+        linge_08:
+          image: images/medium/dt_t_linge_08.png
+        linge_09:
+          image: images/medium/dt_t_linge_09.png
     repas_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9401,6 +9731,26 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        repas_06:
+          image: images/medium/dt_t_repas_06.png
+        repas_07:
+          image: images/medium/dt_t_repas_07.png
+        repas_10:
+          image: images/medium/dt_t_repas_10.png
+        repas_11:
+          image: images/medium/dt_t_repas_11.png
     salle_de_bain_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9419,6 +9769,40 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        salle_de_bain_01:
+          image: images/medium/dt_t_salle_de_bain_01.png
+        salle_de_bain_02:
+          image: images/medium/dt_t_salle_de_bain_02.png
+        salle_de_bain_03:
+          image: images/medium/dt_t_salle_de_bain_03.png
+        salle_de_bain_04:
+          image: images/medium/dt_t_salle_de_bain_04.png
+        salle_de_bain_05:
+          image: images/medium/dt_t_salle_de_bain_05.png
+        salle_de_bain_06:
+          image: images/medium/dt_t_salle_de_bain_06.png
+        salle_de_bain_07:
+          image: images/medium/dt_t_salle_de_bain_07.png
+        salle_de_bain_08:
+          image: images/medium/dt_t_salle_de_bain_08.png
+        salle_de_bain_10:
+          image: images/medium/dt_t_salle_de_bain_10.png
+        salle_de_bain_11:
+          image: images/medium/dt_t_salle_de_bain_11.png
+        salle_de_bain_12:
+          image: images/medium/dt_t_salle_de_bain_12.png
     terrasse_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9437,6 +9821,28 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        terrasse_01:
+          image: images/medium/dt_t_terrasse_01.png
+        terrasse_02:
+          image: images/medium/dt_t_terrasse_02.png
+        balcon_01:
+          image: images/medium/dt_t_balcon_01.png
+        balcon_02:
+          image: images/medium/dt_t_balcon_02.png
+        terrasse_03:
+          image: images/medium/dt_t_terrasse_03.png
     toilettes_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9455,6 +9861,28 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        toilettes_01:
+          image: images/medium/dt_t_toilettes_01.png
+        toilettes_02:
+          image: images/medium/dt_t_toilettes_02.png
+        toilettes_03:
+          image: images/medium/dt_t_toilettes_03.png
+        toilettes_04:
+          image: images/medium/dt_t_toilettes_04.png
+        toilettes_06:
+          image: images/medium/dt_t_toilettes_06.png
     vehicules_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9473,6 +9901,24 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        voiture_01:
+          image: images/medium/dt_t_voiture_01.png
+        voiture_02:
+          image: images/medium/dt_t_voiture_02.png
+        moto_01:
+          image: images/medium/dt_t_moto_01.png
     vaisselle_tasks/tiroir:
       icons_shape:
         # Overlay (coin sud-est) par statut. Le framework ne connaît aucun de ces mots : il
@@ -9491,6 +9937,36 @@ data:
           dead:       images/big/skull_nobg.png
           cure:       images/small/cure_nobg.png
           adm_hidden: images/small/adm_cross.png
+        font_size: 14.0
+        font_color: "#C8A84B"
+        label_color: "#C8A84B"
+      shape:
+        font_size: 14.0
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        font_color: black
+        background_color: "black"
+        opacity: 0.8
+      icons:
+        vaisselle_01:
+          image: images/medium/dt_t_vaisselle_01.png
+        vaisselle_02:
+          image: images/medium/dt_t_vaisselle_02.png
+        vaisselle_03:
+          image: images/medium/dt_t_vaisselle_03.png
+        vaisselle_04:
+          image: images/medium/dt_t_vaisselle_04.png
+        vaisselle_05:
+          image: images/medium/dt_t_vaisselle_05.png
+        vaisselle_06:
+          image: images/medium/dt_t_vaisselle_06.png
+        vaisselle_07:
+          image: images/medium/dt_t_vaisselle_07.png
+        vaisselle_08:
+          image: images/medium/dt_t_vaisselle_08.png
+        vaisselle_09:
+          image: images/medium/dt_t_vaisselle_09.png
 
     pops/illustration:
       shape:
@@ -9507,3 +9983,1074 @@ data:
     pops/illus_knight:
       shape:
         image: "images/medium/intro_little_knight.png"
+    butin_page/hint:
+      shape:
+        font_size: 12.0
+        font_color: "#C8A84B"
+    butin_page/list:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    butin_note_page/hint:
+      shape:
+        font_size: 12.0
+    money_page/warning:
+      shape:
+        font_size: 13.0
+    butin_rewards_page/list:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    butin_rewards_page/kiss:
+      shape:
+        font_size: 12.0
+    butin_notes_page/halo:
+      scene: notehalo
+    butin_notes_page/story:
+      shape:
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        background_color: "black"
+        opacity: 0.8
+        font_color: "#C8A84B"
+        font_size: 11.0
+    butin_tale_page/bg:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/big/CoffreRitual.png"
+    butin_tale_page/text:
+      shape:
+        font_size: 13.0
+    butin_tale_page/share:
+      shape:
+        icon_color: "#C8A84B"
+        background_color: "0xCC1A1A1A"
+        border_color: "0xFFB07328"
+        border_size: 1.5
+        border_radius: 30.0
+    butin_open_page/bg:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/big/CoffreRitual.png"
+    butin_open_page/text:
+      shape:
+        font_size: 11.0
+    butin_open_page/list:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xCC000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    new_or_pick_clan/notice:
+      shape:
+        font_size: 13.0
+        font_color: "0xFFCC4444"
+    new_or_pick_clan/confirm_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.8
+    new_or_pick_clan/confirm_panel:
+      shape:
+        font_size: 14.0
+        font_color: "amber_200" # lisible sur le voile noir
+        opacity: 0.6
+    new_or_pick_clan/confirm_scan:
+      shape:
+        font_size: 13.0
+    new_or_pick_clan/confirm_yes:
+      shape:
+        font_size: 13.0
+    new_or_pick_clan/confirm_no:
+      shape:
+        font_size: 13.0
+    invite_clan_pin/instructions:
+      shape:
+        font_size: 15.0
+    invite_clan_pin/pin:
+      shape:
+        font_size: 42.0
+        font_color: "amber_200"
+    invite_clan_pin/family_notice:
+      shape:
+        font_size: 11.0
+    enter_invite_pin/token:
+      shape:
+        font_size: 13.0
+    enter_invite_pin/pin:
+      shape:
+        font_size: 20.0
+    enter_invite_pin/error:
+      shape:
+        font_color: "0xFFCC4444"
+    kid_wants_clan/back:
+      shape:
+        font_size: 13.0
+    kid_wants_clan/region_error:
+      shape:
+        font_size: 13.0
+        font_color: "0xFFCC4444"
+    clan_page/lvl_track:
+      shape:
+        background_color: "0xFF99864E"
+        border_radius: 6.0
+    clan_page/lvl_fill:
+      shape:
+        background_color: "0xFFB11226"
+        border_radius: 6.0
+    clan_page/lvl_flame:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/small/flamme_nobg.png"
+    clan_page/lvl_label:
+      shape:
+        font_size: 19.0
+        font_color: "WHITE"
+        stretch: "RATIO_IN"
+        image: "images/medium/shield.png"
+    clan_page/xp_label:
+      shape:
+        font_size: 10.0
+        font_color: "BLACK"
+    clan_page/butin_track:
+      shape:
+        background_color: "0xFF99864E"
+        border_radius: 6.0
+    clan_page/butin_fill:
+      shape:
+        background_color: "0xFFB11226"
+        border_radius: 6.0
+    clan_page/butin_chest_ip:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/small/chestip.png"
+    clan_page/butin_chest_ok:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/chestok.png"
+    clan_page/butin_label:
+      shape:
+        font_size: 10.0
+        font_color: "BLACK"
+    clan_page/butin_aura:
+      scene: chestaura
+    clan_page/butin_open:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/chestok.png"
+    clan_page/title_label:
+      shape:
+        font_size: 11.0
+        font_color: "0xFFB11226"
+    clan_page/edit_toggle:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+    clan_page/settings_menu:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        clan_log:
+          image: "images/small/scroll_nobg.png"
+        clan_qr:
+          image: "images/small/qr-code.png"
+        tutorials:
+          image: "images/medium/nope.png"
+    invite_consent_screen/panel:
+      shape:
+        background_color: "0x99000000"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 8.0
+    invite_consent_screen/assent:
+      shape:
+        font_size: 11.0
+        font_color: "amber_200"
+        highlight_color: "0xFFFFFFFF"
+    invite_consent_screen/notice:
+      shape:
+        font_size: 12.0
+        font_color: "amber_200"
+    documents/ack_options:
+      shape:
+        font_color: "amber_200"
+        font_size: 12.0
+    invite_consent_screen/kind:
+      shape:
+        font_size: 12.0
+    invite_consent_screen/chief:
+      shape:
+        font_size: 12.0
+    claim_pick_page/hint:
+      shape:
+        background_color: "0x99000000"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 8.0
+        font_size: 12.0
+        font_color: "amber_200"
+    claim_pick_page/list:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    clan_page/consent_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.9
+    clan_page/consent_panel:
+      shape:
+        font_size: 14.0
+        font_color: "amber_200"
+        opacity: 0.6
+    tutoriels:
+      background_color: black
+    clan_page/edit_avatar_big:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+    clan_page/edit_name_big:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+    clan_avatar_explorer:
+      background_color: black
+    clan_avatar_explorer/grid:
+      shape:
+        border_color: "0xFFEAD9A6"
+    clan_page/roster:
+      shape:
+        flame_image: "images/small/flamme_nobg.png"
+        hand_image: "images/small/hand_nobg.png"
+        nope_image:  "images/medium/nope.png"        # repli avatar introuvable
+        ecu_image:   "images/medium/shield.png"      # écu de niveau
+        heart_image: "images/small/heart_nobg.png"   # cœur de PV
+        skull_image: "images/big/skull_nobg.png"     # crâne (mort) — reste en big (voile de mort, 256 dp)
+        crown_image: "images/small/crown.png"        # couronne d'admin
+        purse_image: "images/medium/bourse.png"
+    clan_page/roster_menu:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        evt_chase:
+          image: "images/medium/evt_gobelin.png"
+        player_log:
+          image: "images/small/scroll_nobg.png"
+        revive_player:
+          image: "images/small/pharma.png"
+        support_player:
+          image: "images/small/xp_nobg.png"
+        declare_offline:
+          image: "images/small/notconnected_nobg.png"
+        take_place:
+          image: "images/small/switch_nobg.png"
+        promote_chief:
+          image: "images/small/chef_nobg.png"
+        nomore_chief:
+          image: "images/small/nomore_chef.png"
+        promote_adult:
+          image: "images/small/adult.png"
+        pay_tribute:
+          image: "images/medium/bourse.png"
+        revoke_player:
+          image: "images/small/byebye_nobg.png"
+        withdraw_consent:
+          image: "images/small/poubelle.png"
+        restore_consent:
+          image: "images/small/adm_enable.png"
+    log_page/logo:
+      shape:
+        image: "images/big/logo.png"
+        stretch: RATIO_IN
+    log_page/story:
+      shape:
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 6.0
+        background_color: "black"
+        opacity: 0.8
+        font_color: "#C8A84B"
+        font_size: 11.0
+    log_page/share:
+      shape:
+        icon_color: "#C8A84B"
+        background_color: "0xCC1A1A1A"
+        border_color: "0xFFB07328"
+        border_size: 1.5
+        border_radius: 30.0
+    imp_pin_set/intro:
+      shape:
+        font_size: 13.0
+    imp_pin_set/mask:
+      shape:
+        font_size: 30.0
+        font_weight: bold
+    imp_pin_set/cancel:
+      shape:
+        font_size: 13.0
+    imp_pin_ask/message:
+      shape:
+        font_size: 13.0
+    imp_pin_ask/mask:
+      shape:
+        font_size: 30.0
+        font_weight: bold
+    imp_pin_ask/cancel:
+      shape:
+        font_size: 13.0
+    combat/flamewall:
+      scene: flamewall
+    commons/arrive_view:
+      scene: arrive
+    commons/pacte_view:
+      scene: pacte
+    commons/depart_view:
+      scene: depart
+    commons/onboarding_banner:
+      shape:
+        font_size: 10.0
+        font_weight: bold
+    commons/parental_consent:
+      shape:
+        font_size: 11
+        link_color: "amber_200"
+    commons/levelup_view:
+      scene: burn
+    commons/levelup_label:
+      shape:
+        font_size: 26.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "amber_400"
+        highlight_color: "#EF5350" # le niveau (encadré [[…]] par le worker) en rouge vif + gras
+        background_color: "transparent"
+    commons/heal_view:
+      scene: heal
+    commons/heal_label:
+      shape:
+        font_size: 26.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#1B5E20" # vert profond (lisible sur le voile blanc)
+        highlight_color: "#2E7D32" # nom du joueur (encadré [[…]]) en vert franc + gras
+        background_color: "transparent"
+    commons/giftxp_view:
+      scene: giftxp
+    commons/victory_view:
+      scene: victory
+    commons/giftxp_label:
+      shape:
+        font_size: 22.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#000000" # message en noir
+        highlight_color: "#D32F2F" # les "XP" (encadrés [[…]]) en rouge
+        background_color: "transparent"
+    commons/giftgold_view:
+      scene: giftgold
+    commons/giftgold_label:
+      shape:
+        font_size: 24.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#000000" # message en noir
+        highlight_color: "#D32F2F" # le nombre de pièces (encadré [[…]]) en rouge
+        background_color: "transparent"
+    commons/gameover_view:
+      scene: gameover
+    commons/gameover_label:
+      shape:
+        image: "images/big/gameover.png"
+        font_size: 30.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#FFFFFF" # GAME OVER en blanc
+        background_color: "transparent"
+    commons/butin_view:
+      scene: butin
+    commons/butin_label:
+      shape:
+        font_size: 26.0
+        font_weight: bold
+        font_family: "MedievalSharp" # police JDR/donjon lisible (bundlée)
+        font_color: "#FFD54F" # or clair, lisible sur la nuit du donjon
+        highlight_color: "#FF6D00" # le mot encadré [[…]] en braise (cf. les étincelles)
+        background_color: "transparent"
+    commons/death_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.7
+    commons/death_skull:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/big/skull_nobg.png"
+        opacity: 0.7
+    commons/death_gage:
+      shape:
+        font_size: 14.0
+        opacity: 0.7
+    commons/death_revive:
+      shape:
+        opacity: 0.7
+    commons/death_settings_menu:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        logout:
+          image: "images/small/log-out.png"
+        delete_account:
+          image: "images/big/skull_nobg.png"
+    commons/rate_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.85
+    commons/rate_panel:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 12.0
+    commons/rate_phrase:
+      shape:
+        font_size: 15.0
+        font_color: "amber_200"
+        background_color: "0x00000000"
+    commons/rate_star:
+      shape:
+        icon_color: "#C8A84B"
+    commons/rate_share:
+      shape:
+        icon_color: "#C8A84B"
+        background_color: "0xCC1A1A1A"
+        border_color: "0xFFB07328"
+        border_size: 1.5
+        border_radius: 30.0
+    commons/evt_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.85
+    commons/evt_panel:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 12.0
+    commons/evt_image:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/nope.png"
+        image_fallback: "images/medium/nope.png"
+    commons/evt_text:
+      shape:
+        font_size: 15.0
+        font_color: "amber_200"
+        background_color: "0x00000000"
+    commons/closed_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.92
+    commons/closed_msg:
+      shape:
+        font_size: 15.0
+        opacity: 0.7
+    commons/impersonation_back:
+      shape:
+        font_size: 12.0
+        font_weight: bold
+        background_color: "0xF01A1A1A"
+        font_color: "#C8A84B"
+        border_color: "#C8A84B"
+        border_size: 1.0
+        border_radius: 6.0
+    commons/store_dunning:
+      shape:
+        font_size: 9.0
+        font_weight: bold
+        background_color: "0xF01A1A1A"
+        font_color: "0xFFCC4444"
+        border_color: "0xFFCC4444"
+        border_size: 1.0
+        border_radius: 6.0
+    commons/mode_game:
+      shape:
+        font_size: 13.0
+        font_weight: bold
+        background_color: "0xF01A1A1A"
+        font_color: "#C8A84B"
+        border_color: "#C8A84B"
+        border_size: 1.0
+        border_radius: 6.0
+    commons/mode_admin:
+      shape:
+        font_size: 13.0
+        font_weight: bold
+        background_color: "0xF01A1A1A"
+        font_color: "#C8A84B"
+        border_color: "#C8A84B"
+        border_size: 1.0
+        border_radius: 6.0
+    commons/tiroir_menu:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        adm_enable:
+          image: "images/small/adm_enable.png"
+        adm_disable:
+          image: "images/small/adm_disable.png"
+        adm_hide:
+          image: "images/small/adm_hide.png"
+        adm_show:
+          image: "images/small/adm_show.png"
+        adm_edit:
+          image: "images/medium/icon_edit.png"
+        adm_tasks:
+          image: "images/small/scroll_nobg.png"
+        adm_revive:
+          image: "images/small/cure_nobg.png"
+        adm_recommend:
+          image: "images/small/xp_nobg.png"
+        adm_unrecommend:
+          image: "images/small/xp_nobg.png"
+        adm_release:
+          image: "images/small/flee_nobg.png"
+    salon_tasks:
+      background_color: black
+    animaux_tasks:
+      background_color: black
+    bureau_tasks:
+      background_color: black
+    chambre_enfant_tasks:
+      background_color: black
+    chambre_parentale_tasks:
+      background_color: black
+    courses_tasks:
+      background_color: black
+    cuisine_tasks:
+      background_color: black
+    dechets_tasks:
+      background_color: black
+    entree_tasks:
+      background_color: black
+    extras_tasks:
+      background_color: black
+    garage_tasks:
+      background_color: black
+    vehicules_tasks:
+      background_color: black
+    jardin_tasks:
+      background_color: black
+    linge_tasks:
+      background_color: black
+    repas_tasks:
+      background_color: black
+    vaisselle_tasks:
+      background_color: black
+    salle_de_bain_tasks:
+      background_color: black
+    terrasse_tasks:
+      background_color: black
+    toilettes_tasks:
+      background_color: black
+    fairy_page/scene:
+      scene: fairy
+    fairy_page/glow_left:
+      scene: fairyglow
+    fairy_page/glow_right:
+      scene: fairyglow
+    fairy_page/gift_left:
+      shape:
+        font_size: 17.0
+        font_color: "#69F0AE"
+        font_weight: bold
+    fairy_page/gift_right:
+      shape:
+        font_size: 17.0
+        font_color: "#69F0AE"
+        font_weight: bold
+    items/explorer:
+      shape:
+        # Fond noir à 70 % (alpha 0xB3) : détache les items du décor de donjon sans masquer
+        # complètement l'ambiance. border_color sert aussi de teinte de surbrillance au dépôt.
+        background_color: "0xB3000000"
+        border_radius: 10.0
+        border_color: "amber_200"
+    items/menu:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        item_view:
+          image: "images/small/adm_show.png"
+        item_give:
+          image: "images/small/cadeau.png"
+        item_to_chest:
+          image: "images/big/chest_item_nobg.png"
+        title_apply_player:
+          image: "images/big/titre_perso.png"
+        title_unapply_player:
+          image: "images/big/titre_perso.png"
+        title_apply_clan:
+          image: "images/big/titre_clan.png"
+        title_unapply_clan:
+          image: "images/big/titre_clan.png"
+        item_use:
+          image: "images/medium/evt_potion.png"
+        item_trash:
+          image: "images/small/poubelle.png"
+        item_open:
+          image: "images/big/chest_item_nobg.png"
+    give_page/list:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    item_view_page/image:
+      shape:
+        stretch: "RATIO_IN"
+        opacity: 1.0
+    item_view_page/name:
+      shape:
+        font_size: 18.0
+        font_color: "amber_200"
+    item_view_page/desc:
+      shape:
+        font_size: 13.0
+        # Style inversé par rapport à commons/intro_text (fond noir/texte ambre au lieu de fond
+        # ambre/texte noir) pour reprendre l'apparence sobre des boutons de l'app (cf.
+        # new_or_pick_clan/create, commons/dark_button) — le fond ambre rempli n'a de sens que
+        # posé sur une illustration, cette fiche n'en a plus.
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+    my_clans_page/hint:
+      shape:
+        background_color: "0x99000000"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 8.0
+        font_size: 12.0
+        font_color: "amber_200"
+    my_clans_page/list:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    my_clans_page/switch_label:
+      shape:
+        font_size: 24.0
+        font_weight: bold
+        font_family: "MedievalSharp"
+        font_color: "amber_400"
+        highlight_color: "#EF5350"
+        background_color: "transparent"
+    guardian_hub_page/hint:
+      shape:
+        background_color: "0x99000000"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 8.0
+        font_size: 12.0
+        font_color: "amber_200"
+    guardian_hub_page/list:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    guardian_hub_page/error:
+      shape:
+        font_size: 13.0
+        font_color: "amber_200"
+    ward_pick_page/hint:
+      shape:
+        background_color: "0x99000000"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 8.0
+        font_size: 12.0
+        font_color: "amber_200"
+    ward_pick_page/list:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    guardian_qr_page/intro:
+      shape:
+        font_size: 13.0
+    guardian_qr_page/code:
+      shape:
+        font_size: 22.0
+    kid_assent/back:
+      shape:
+        font_size: 13.0
+    kid_assent/question:
+      shape:
+        font_size: 17.0
+    join_wait/text:
+      shape:
+        font_size: 17.0
+    kid_assent_share/intro:
+      shape:
+        font_size: 13.0
+    kid_assent_share/code:
+      shape:
+        font_size: 22.0
+    kid_assent_share/error:
+      shape:
+        font_size: 12.0
+        font_color: "0xFFCC4444"
+    kid_assent_share/notice:
+      shape:
+        font_size: 11.0
+    link_account/notice:
+      shape:
+        font_size: 11.0
+    link_account/error:
+      shape:
+        font_size: 11.0
+    link_account/conflict_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.85
+    link_account/conflict_text:
+      shape:
+        font_size: 14.0
+    personnage/coming_soon:
+      shape:
+        font_size: 14.0
+    personnage/lvl_track:
+      shape:
+        background_color: "0xFF99864E"
+        border_radius: 6.0
+    personnage/lvl_fill:
+      shape:
+        background_color: "0xFFB11226"
+        border_radius: 6.0
+    personnage/lvl_flame:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/small/flamme_nobg.png"
+    personnage/lvl_label:
+      shape:
+        font_size: 19.0
+        font_color: "WHITE" #"0xFFC8A84B"
+        stretch: "RATIO_IN"
+        image: "images/medium/shield.png"
+    personnage/xp_label:
+      shape:
+        font_size: 10.0
+        font_color: "BLACK"
+    personnage/pv_track:
+      shape:
+        background_color: "0xFF99864E"
+        border_radius: 6.0
+    personnage/pv_fill:
+      shape:
+        background_color: "0xFFB11226"
+        border_radius: 6.0
+    personnage/pv_heart:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/small/heart_nobg.png"
+    personnage/pv_skull:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/big/skull_nobg.png"
+    personnage/pv_label:
+      shape:
+        font_size: 10.0
+        font_color: "BLACK"
+    personnage/title_label:
+      shape:
+        font_size: 11.0
+        font_color: "0xFFB11226"
+    personnage/settings_menu:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        my_log:
+          image: "images/small/scroll_nobg.png"
+        tutorials:
+          image: "images/medium/nope.png"
+        logout:
+          image: "images/small/log-out.png"
+        delete_account:
+          image: "images/big/skull_nobg.png"
+    personnage/delete_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.9
+    personnage/delete_panel:
+      shape:
+        font_size: 16.0
+        font_color: "amber_200"
+        opacity: 0.6
+    personnage/edit_toggle:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+    personnage/edit_avatar_big:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+    personnage/edit_name_big:
+      shape:
+        stretch: "RATIO_IN"
+        image: "images/medium/icon_edit.png"
+    avatar_explorer:
+      background_color: black
+    avatar_explorer/grid:
+      shape:
+        border_color: "0xFFEAD9A6"
+    create_player_screen/consent:
+      shape:
+        font_size: 10
+    shop/coming_soon:
+      shape:
+        font_size: 14.0
+    shop/settings_menu:
+      shape:
+        background_color: "0xF01A1A1A"
+        border_color: "amber_200"
+        border_size: 1.0
+        border_radius: 10.0
+        font_color: "amber_200"
+        font_size: 15.0
+      options:
+        tutorials:
+          image: "images/medium/nope.png"
+    locked_page/background:
+      shape:
+        background_color: black
+    locked_page/text:
+      shape:
+        font_size: 13.0
+        font_color: "amber_200"
+    locked_page/revive:
+      shape:
+        font_size: 14.0
+    giftcode_page/intro:
+      shape:
+        font_size: 13.0
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+    giftcode_page/code:
+      shape:
+        font_size: 20.0
+    giftcode_page/error:
+      shape:
+        font_size: 13.0
+        font_color: "0xFFCC4444"
+    giftcode_page/ok_scrim:
+      shape:
+        background_color: "#FF000000"
+        opacity: 0.85
+    giftcode_page/ok_panel:
+      shape:
+        font_size: 16.0
+        font_color: "amber_200"
+    tiers_page/notice:
+      shape:
+        font_size: 12.0
+        background_color: black
+        font_color: "amber_200"
+        opacity: 0.6
+    tiers_page/monthly:
+      shape:
+        font_size: 13.0
+        font_color: "amber_200"
+    tiers_page/yearly:
+      shape:
+        font_size: 13.0
+        font_color: "#7A6A3A"
+    tiers_page/list:
+      shape:
+        font_size: 15.0
+        font_color: "#C8A84B"
+        background_color: "0xB3000000"
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+        row_color: "0xB3000000"
+        row_border_color: "0xFFB07328"
+    tiers_page/defer:
+      shape:
+        font_size: 12.0
+        font_color: "#7A6A3A"
+    rename_task/effort:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "BLACK"
+        border_color: "0xFFB07328"
+        border_radius: 6.0
+    rename_task/respawn:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "BLACK"
+        border_color: "0xFFB07328"
+        border_radius: 6.0
+    rename_task/type:
+      shape:
+        font_size: 14.0
+        font_color: "#C8A84B"
+        background_color: "BLACK"
+        border_color: "0xFFB07328"
+        border_radius: 6.0
+
+
+  # ---- Tutoriels : illustrations et voile (sortis de client/config/dvtuto.yml) ----
+  dvtuto:
+    defaults:
+      veil: "#000000B3"     # voile ~70 % : contraste marqué sans noircir tout l'écran (pas de cadre)
+    lessons:
+      guide_parent:
+        steps:
+          effort:
+            panel:
+              image: "images/big/guide_p1.png"
+          alerte:
+            panel:
+              image: "images/big/guide_p2.png"
+          butin:
+            panel:
+              image: "images/big/guide_p3.png"
+          jouer:
+            panel:
+              image: "images/big/guide_p4.png"
+      guide_enfant:
+        steps:
+          clan:
+            panel:
+              image: "images/big/guide_k1.png"
+          pv:
+            panel:
+              image: "images/big/guide_k2.png"
+          refus:
+            panel:
+              image: "images/big/guide_k3.png"
+          butin:
+            panel:
+              image: "images/big/guide_k4.png"
+      clan_intro:
+        steps:
+          menu_options:
+            panel:
+              rows:
+                clan_log:
+                  image: "images/small/scroll_nobg.png"
+                tutorials:
+                  image: "images/medium/nope.png"
+          menu_options_admin:
+            panel:
+              rows:
+                clan_qr:
+                  image: "images/small/qr-code.png"
+      create_player_intro:
+        steps:
+          icons:
+            panel:
+              rows:
+                switch:
+                  image: "images/small/switch_nobg.png"
+      combat_domains:
+        steps:
+          reperes:
+            panel:
+              rows:
+                flamme:
+                  image: "images/small/flamme_nobg.png"
+                hand:
+                  image: "images/small/hand_nobg.png"
+                xp:
+                  image: "images/small/xp_nobg.png"
+                skull:
+                  image: "images/big/skull_nobg.png"
+                cure:
+                  image: "images/small/cure_nobg.png"
+      combat_tasks:
+        steps:
+          reperes:
+            panel:
+              rows:
+                flamme:
+                  image: "images/small/flamme_nobg.png"
+                hand:
+                  image: "images/small/hand_nobg.png"
+                xp:
+                  image: "images/small/xp_nobg.png"
+                skull:
+                  image: "images/big/skull_nobg.png"
+                cure:
+                  image: "images/small/cure_nobg.png"

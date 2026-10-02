@@ -44,7 +44,6 @@ conf:
     fairy_page/scene:
       class: DvSceneView
       layer: content
-      scene: fairy
       shape:
         x: 0%
         y: 0%
@@ -67,7 +66,6 @@ conf:
     fairy_page/glow_left:
       class: DvSceneView
       layer: overlay
-      scene: fairyglow
       shape:
         x: 9%
         y: 34%
@@ -79,7 +77,6 @@ conf:
     fairy_page/glow_right:
       class: DvSceneView
       layer: overlay
-      scene: fairyglow
       shape:
         x: 54%
         y: 34%
@@ -125,9 +122,6 @@ conf:
         label: ""
         text_align: CENTER
         valign: BOTTOM
-        font_size: 17.0
-        font_color: "#69F0AE"
-        font_weight: bold
         visible: false
         border: false
         events:
@@ -146,9 +140,6 @@ conf:
         label: ""
         text_align: CENTER
         valign: BOTTOM
-        font_size: 17.0
-        font_color: "#69F0AE"
-        font_weight: bold
         visible: false
         border: false
         events:

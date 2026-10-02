@@ -1,0 +1,5 @@
+# Serveur du simulateur de store, DERIVE de la suite modele (build.from).
+# Tout vient de la base : catalogue, comptes et port viennent de `store.mock`
+# du build.yml du projet, poses par le builder (cible d'essai seulement).
+build:
+  from: storemock/server

@@ -1,0 +1,33 @@
+# Console d'administration de ddust. Le reste de la conf vient du modele
+# (deva/suites/projects/console/config.yml).
+#
+# ⚠ CE FICHIER EST OBLIGATOIRE : la version n'est pas heritee d'une base, elle
+#   appartient a l'app qui la porte (cf. readme du builder, « heritage d'items »).
+conf:
+  application:
+    display_name: "Console ddust"
+    version: "1.0.0"
+    build: 1
+
+  # ⚠ DECLAREES OU LE BUILD BLOQUE. La console ne lit aucune base (tout passe par
+  #   store_admin, store_mint, store_revoke), mais elle monte dvcloud : le builder
+  #   recoupe donc ses isolations avec celles du backend, et une base absente vaut
+  #   `strict` cote client. Copie EXACTE de `cloud.firestore.databases` de
+  #   client/config.yml : toute base ajoutee la-bas s'ajoute ici.
+  cloud:
+    firestore:
+      databases:
+        messaging:
+          isolation: strict
+        sessions:
+          isolation: strict
+        workers:
+          isolation: strict
+        locks:
+          isolation: none
+        store:
+          isolation: none
+        virtuallobby:
+          isolation: none
+        autover:
+          isolation: none

@@ -1,0 +1,126 @@
+name: events-base
+above: conf
+strategy: default
+tenant: global
+
+# LES ÉVÉNEMENTS : de petits moments qui surgissent au hasard, à un endroit précis du jeu.
+#
+# Une souris remercie après une tâche validée, un piège se referme à l'ouverture d'une tâche, un
+# gobelin espion s'invite dans la liste du clan, un changelin prend l'apparence d'un membre, un
+# bienfaiteur glisse une potion dans l'inventaire. Ils cassent la monotonie ; ils ne remplacent
+# jamais l'effort. D'où leurs trois règles, tenues par le MOTEUR (worker_events.dart) et non par
+# chaque entrée :
+#
+#   1. DÉRISOIRE. Aucun choix de récompense (c'est le privilège de la fée), et des montants
+#      plafonnés par `limits` : une entrée qui en demande plus est ramenée au plafond.
+#   2. JAMAIS SOUS 1 PV. Un dégât ne sort que si le joueur garde au moins 1 PV après lui, et un
+#      seul à la fois (`damage` doit être à 0). Il est effacé par la prochaine tâche VALIDÉE.
+#   3. SANS CAPTATION. Les moments « écran » (clan, inventaire) ne tirent qu'UNE fois par jour et
+#      par joueur : ouvrir l'écran vingt fois ne change rien. Et `per_day` borne le total.
+#
+# La fée n'est PAS ici : elle est généreuse, rare et à choix (fairy-base-global.yml).
+#
+# Ce layer vit dans la racine « general » du bucket : régler une chance, un montant ou ajouter un
+# événement est un UPLOAD, pas une release store. Une copie est embarquée dans l'apk.
+#
+# UNE ENTRÉE = UN ÉVÉNEMENT. Elle combine des pièces que le moteur connaît :
+#
+#   moment     : QUAND le tirage a lieu
+#                  task_opened     le joueur prend une tâche (écran de combat)
+#                  task_validated  sa tâche vient d'être validée (après l'animation de victoire)
+#                  clan_screen     il affiche l'écran du clan          (un tirage par jour)
+#                  inventory       il ouvre l'inventaire               (un tirage par jour)
+#   chance     : probabilité de sortir à ce moment (0 à 1). Au plus UN événement par tirage.
+#   scene      : COMMENT il se montre
+#                  message         image + texte + bouton, par-dessus la page
+#                  fake_member     un intrus dans la liste du clan, à chasser (« … » puis Chasser)
+#                  double_member   le double d'un membre, trahi par un détail faux
+#                  item            un objet déposé dans l'inventaire, puis un court message
+#   effects    : CE QU'IL CHANGE, dictionnaire (surchargeable clé par clé, jamais une liste)
+#                  type   xp | damage | heal | item   (pas d'or : il n'existe pas dans le jeu)
+#                  target self | imitated (le membre copié par un changelin) | clan, ou une liste
+#                  value  montant, ramené aux plafonds `limits`
+#   conditions : members_min, level_min, pv_min, legal_state (k | t | a)
+#   cooldown_hours : délai minimum entre deux sorties de CE même événement, pour un joueur
+#   text / text_miss / name / image / item : présentation (jetons de traduction du thème)
+#   notify     : jeton de la notification envoyée au clan UNE FOIS l'événement cliqué ; absent =
+#                aucune notification. Un événement ignoré n'est jamais annoncé.
+#
+# DICTIONNAIRES PARTOUT, jamais de listes (sauf `target`) : le merge des layers fusionne les listes
+# en union, impossible d'y surcharger un élément. Une clé nommée, elle, se surcharge champ par
+# champ : un thème retouche une chance, un pack ajoute ses propres événements, sans une ligne de Dart.
+data:
+  events:
+
+    limits:
+      per_day: 2        # événements par joueur et par jour, tous moments confondus
+      xp_max: 15
+      damage_max: 1
+      heal_max: 1
+
+    catalog:
+
+      # Après une tâche validée : une petite souris ménagère trouve que c'est bien plus propre.
+      souris:
+        moment: task_validated
+        chance: 0.10
+        cooldown_hours: 48
+        scene: message
+        image: "images/medium/evt_souris.png"
+        text: evt_souris
+        effects:
+          xp: { type: xp, target: self, value: 10 }
+        notify: evt_souris_notif
+
+      # En prenant une tâche : les vilains monstres avaient tendu un piège. -1 PV, rendu par la
+      # prochaine tâche validée (probablement celle-ci). Jamais à 1 PV, jamais deux à la fois.
+      piege:
+        moment: task_opened
+        chance: 0.05
+        cooldown_hours: 72
+        scene: message
+        image: "images/medium/evt_piege.png"
+        text: evt_piege
+        effects:
+          damage: { type: damage, value: 1 }
+
+      # Dans la liste du clan : un gobelin venu espionner. Le chasser rapporte un peu d'XP.
+      gobelin:
+        moment: clan_screen
+        chance: 0.05
+        cooldown_hours: 72
+        scene: fake_member
+        name: evt_gobelin_name
+        image: "images/medium/evt_gobelin.png"
+        text: evt_gobelin
+        effects:
+          xp: { type: xp, target: self, value: 15 }
+        notify: evt_gobelin_notif
+
+      # Dans la liste du clan : un membre en double. Le faux trahit un détail (niveau, XP ou PV).
+      # Chasser le faux récompense les DEUX joueurs ; se tromper fait fuir le changelin, sans rien
+      # retirer à personne.
+      changelin:
+        moment: clan_screen
+        chance: 0.03
+        cooldown_hours: 96
+        conditions:
+          members_min: 2
+        scene: double_member
+        image: "images/medium/evt_changelin.png"
+        text: evt_changelin
+        text_miss: evt_changelin_miss
+        effects:
+          xp: { type: xp, target: [self, imitated], value: 10 }
+        notify: evt_changelin_notif
+
+      # Dans l'inventaire : un bienfaiteur anonyme a glissé une potion (+1 PV à l'usage).
+      bienfaiteur:
+        moment: inventory
+        chance: 0.05
+        cooldown_hours: 168
+        scene: item
+        image: "images/medium/evt_potion.png"
+        text: evt_bienfaiteur
+        effects:
+          potion: { type: item, item: potion_pv }

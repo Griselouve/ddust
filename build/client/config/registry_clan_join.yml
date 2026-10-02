@@ -61,8 +61,6 @@ conf:
         h: 11%
         label: ""
         text_align: CENTER
-        font_size: 13.0
-        font_color: "0xFFCC4444"
         visible: false
 
     new_or_pick_clan/join:
@@ -100,8 +98,6 @@ conf:
         y: 0%
         w: 100%
         h: 100%
-        background_color: "#FF000000"
-        opacity: 0.8
         border: false
         visible: false
         events:
@@ -125,13 +121,10 @@ conf:
         # 14 et non 16 : le message dit désormais la CONSÉQUENCE (un seul clan par foyer, définitif)
         # et non plus une simple politesse — il est plus long. Le plafond reste 35 % : dvpops attache
         # l'elfe et le chevalier à partir de là, en layer popup, donc par-dessus ce panneau.
-        font_size: 14.0
-        font_color: "amber_200" # lisible sur le voile noir
         # DvLabel se rend via DvImageView, qui enveloppe TOUT le widget (texte compris) dans un
         # Opacity : ce 0.6 n'est pas décoratif, il reproduit celui que confirm_yes/confirm_no
         # héritent de commons/shape. Sans lui, la question sort en or vif et les boutons en or
         # éteint — deux jaunes pour un seul token amber_200.
-        opacity: 0.6
         border: false
         label: "@@@T:confirm_create_clan_msg@@@"
         visible: false
@@ -150,7 +143,6 @@ conf:
         y: 56%
         h: 12%
         text_align: CENTER
-        font_size: 13.0
         label: "@@@T:confirm_create_scan@@@"
         visible: false
         events:
@@ -166,7 +158,6 @@ conf:
         y: 70%
         h: 12%
         text_align: CENTER
-        font_size: 13.0
         label: "@@@T:confirm_create_yes@@@"
         visible: false
         events:
@@ -182,7 +173,6 @@ conf:
         y: 84%
         h: 10%
         text_align: CENTER
-        font_size: 13.0
         label: "@@@T:confirm_create_no@@@"
         visible: false
         events:
@@ -394,7 +384,6 @@ conf:
         h: 18%
         label: "@@@T:invite_clan_pin_instructions@@@"
         text_align: CENTER
-        font_size: 15.0
 
     invite_clan_pin/pin:
       masks:
@@ -408,8 +397,6 @@ conf:
         h: 14%
         label: ""
         text_align: CENTER
-        font_size: 42.0
-        font_color: "amber_200"
 
     invite_clan_pin/share:
       masks:
@@ -443,7 +430,6 @@ conf:
         h: 11%
         label: "@@@T:invite_pin_family_notice@@@"
         text_align: CENTER
-        font_size: 11.0
 
     #//------------------------------- Enter invite PIN — côté candidat ---------------------
     # Saisie manuelle : coller le lien reçu (pré-rempli si arrivé via deeplink) + taper le PIN
@@ -478,7 +464,6 @@ conf:
         h: 10%
         type: TEXT
         hint: "@@@T:enter_invite_pin_token_hint@@@"
-        font_size: 13.0
 
     enter_invite_pin/pin:
       masks:
@@ -491,7 +476,6 @@ conf:
         type: INTEGER
         hint: "@@@T:enter_invite_pin_pin_hint@@@"
         text_align: CENTER
-        font_size: 20.0
 
     enter_invite_pin/confirm:
       masks:
@@ -519,7 +503,6 @@ conf:
         h: 6%
         label: "@@@T:pin_wrong@@@"
         text_align: CENTER
-        font_color: "0xFFCC4444"
         visible: false
 
     #//------------------------------- Accept invitation clan screen -------------------------
@@ -600,7 +583,6 @@ conf:
         y: 8%
         h: 8%
         text_align: CENTER
-        font_size: 13.0
         label: "@@@T:back_to_choice@@@"
         visible: false
         events:
@@ -642,8 +624,6 @@ conf:
         h: 10%
         label: "@@@T:invite_wrong_region@@@"
         text_align: CENTER
-        font_size: 13.0
-        font_color: "0xFFCC4444"
         visible: false
 
     # « Je n'ai pas le QR code » : le candidat a reçu un lien chiffré par PIN sur les réseaux

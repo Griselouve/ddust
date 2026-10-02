@@ -1131,6 +1131,27 @@ class worker extends DvBeing {
     // d'une course entre deux publications.
     bool _pitchSuspended = false;
 
+    // L'ATTENTE D'UN ACHAT (worker_store.dart, _storeBuyWaitStart). La page gelée (voile
+    // et roue) et le minuteur de secours qui la dégèle si aucune issue n'arrive : un
+    // paiement différé (Play le met « en attente ») ne rappelle personne, et l'écran
+    // ne doit jamais rester bloqué pour autant.
+    DvPage? _storeBuyWaitPage;
+    Timer?  _storeBuyWaitTimer;
+
+    // CHANGEMENT DE PALIER en cours, « produit|base plan » visés, ou "". Un changement
+    // ne se signale pas comme un abonnement neuf : c'est la projection publiée qui dit
+    // qu'il a abouti (worker_store.dart, _storeChangeLanded).
+    String _storeChangeTo = "";
+
+    // Le palier présenté par la page des paliers, choisi sur tiers_pick_page, ou ""
+    // pour celui que le worker conseille (worker_store.dart, _tiersOfferTier). Remis à
+    // "" à chaque nouvelle venue : une raison nouvelle appelle son propre conseil.
+    String _storeOfferTier = "";
+
+    // Paliers affichés sur tiers_pick_page, dans l'ordre de ses emplacements : relus
+    // au tap (tiers_pick_1 … 6) pour savoir lequel a été touché.
+    List<String> _tiersShownIds = [];
+
     // La RAISON d'une venue commerciale (plafond de joueurs atteint, relance
     // d'impayé) n'est pas une variable de worker : _storeGotoTiers la publie dans
     // `worker.store.notice`, que `tiers_page` peint en tête d'écran. Une chaîne en

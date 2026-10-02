@@ -5,8 +5,8 @@ conf:
   application:
     org: com.grisloup
     display_name: "Donjons & Savons"
-    version: "1.0.60"
-    build: 2054
+    version: "1.0.86"
+    build: 2080
 
   deva:
     modes:
@@ -36,21 +36,21 @@ conf:
       # au-delà, le rendement hebdomadaire d'une tâche ne dépend plus que de son effort.
     player_max_xp: 100 # PLAFOND de BASE d'XP d'UNE tâche (gain, pas cumul). Valeur d'AMORÇAGE
       # seulement : elle est recopiée dans clans_players.max_xp à la création du joueur, et c'est CE
-      # champ qui s'applique ensuite (il pourra varier par joueur — pouvoirs, classes…). Sans
+      # champ qui s'applique ensuite (il pourra varier par joueur, pouvoirs, classes…). Sans
       # plafond, une corvée à fort effort et fort respawn (350 XP) RECOMMANDÉE cumulait le
       # coefficient boss ×8 : 2800 XP d'un coup, soit le niveau 10 en une seule tâche. Le plafond
       # n'est PAS fixe : il croît de player_max_xp_per_level à chaque niveau (cf. ci-dessous), si
       # bien qu'un plafond fixe généreux (500) n'est plus nécessaire pour laisser respirer les
-      # hauts niveaux — c'est la progression qui l'ouvre.
+      # hauts niveaux, c'est la progression qui l'ouvre.
     player_max_xp_per_level: 20 # ce que le plafond ci-dessus gagne PAR NIVEAU du joueur. Plafond
       # réellement appliqué = clans_players.max_xp + player_max_xp_per_level × niveau : 120 au
       # niveau 1, 300 au niveau 10. Un débutant ne peut pas rafler en une corvée ce que le barème
       # destine à plusieurs semaines, tandis qu'un guerrier confirmé encaisse le bonus boss en
-      # entier — le niveau devient lui-même une récompense, et non un simple compteur.
+      # entier, le niveau devient lui-même une récompense, et non un simple compteur.
     player_max_xp_legacy: 500 # ancienne valeur d'amorçage du plafond, à réaligner une seule fois.
       # clans_players.max_xp étant posé init-si-null, baisser player_max_xp ne touche QUE les joueurs
       # créés ensuite : les personnages existants garderaient 500 et échapperaient au nouveau barème.
-      # Au login, un max_xp valant EXACTEMENT cette valeur est réécrit à player_max_xp — un plafond
+      # Au login, un max_xp valant EXACTEMENT cette valeur est réécrit à player_max_xp, un plafond
       # personnalisé (pouvoir, classe) n'est jamais écrasé. Poser 0 désactive le réalignement, une
       # fois tous les clans passés.
     xp_per_level: 50 # pas de la courbe de niveau JOUEUR (Nv.2 = 2×pas)
@@ -60,7 +60,7 @@ conf:
     heal_pv: 3 # PV rendus quand un admin guérit (revive_player) un joueur mort
     butin_max_xp: 1000 # plafond du CYCLE de butin d'un clan : ce que la jauge doit atteindre pour
       # que le coffre s'ouvre, remis à zéro à chaque ouverture (au-delà : plus aucun gain). À ne pas
-      # confondre avec butin_gain_max_xp ci-dessous, qui borne UN SEUL crédit — les deux plafonds
+      # confondre avec butin_gain_max_xp ci-dessous, qui borne UN SEUL crédit, les deux plafonds
       # cohabitent : le premier dit quand le coffre est plein, le second à quelle vitesse il peut
       # se remplir.
     # Pas de plafond d'argent : on ne connaît pas la monnaie du joueur, et là où une baguette vaut
@@ -80,7 +80,7 @@ conf:
       # création du clan, modifiable ensuite en cours de partie, et repli des clans créés avant.
     butin_gain_max_xp_per_level: 20 # ce que le plafond ci-dessus gagne PAR NIVEAU du CLAN. Plafond
       # réellement appliqué = clans.max_xp_butin + butin_gain_max_xp_per_level × niveau de clan :
-      # 70 au niveau 1, 250 au niveau 10. Miroir exact de player_max_xp_per_level côté joueur — un
+      # 70 au niveau 1, 250 au niveau 10. Miroir exact de player_max_xp_per_level côté joueur, un
       # jeune clan remplit son coffre corvée après corvée, un clan aguerri peut le faire bondir.
 
   # --- Cloud provider config (masque flutter/modules/dvcloud/config.yml) --------
@@ -100,7 +100,7 @@ conf:
         on_account_rejected: worker.on_account_rejected
         # Le sign-in Google lui-même n'a pas abouti. Sans cette ligne, un enfant dont
         # le parent refuse l'autorisation (compte supervisé Family Link) revient sur
-        # `home` sans un mot — c'est l'échec silencieux à proscrire.
+        # `home` sans un mot, c'est l'échec silencieux à proscrire.
         on_login_failed: worker.on_login_failed
       # Le joueur démarre en session anonyme et ne lie son compte Google qu'à la fin de
       # l'onboarding : ni email, ni nom, ni photo dans l'annuaire Firebase Auth avant que
@@ -123,18 +123,18 @@ conf:
         auto_start: false
       existing:
         # « J'ai déjà un compte » : le compte Google est vérifié AVANT toute écriture, et
-        # son entrée Firebase Auth est supprimée s'il n'est pas joueur — se tromper de
+        # son entrée Firebase Auth est supprimée s'il n'est pas joueur, se tromper de
         # bouton ne doit laisser aucune trace.
         verify_action: worker.verify_account
         purge_on_reject: true
       # Vide, et cela doit le rester : le link ddust est SOFT (l'uid ne change pas), il n'y
-      # a donc aucun ownerId à migrer. Y déclarer clans_players serait une faute — son
+      # a donc aucun ownerId à migrer. Y déclarer clans_players serait une faute, son
       # ownerId est un secret partagé de clan, pas l'utilisateur.
       link:
         resources: []
     # ⚠ Chaque base doit porter ICI la MÊME isolation que dans `firestore.databases`
     #   du backend (config.yml de `backend`, ou config.yaml du module Pulumi qui la
-    #   déclare). Le builder le vérifie et bloque avant tout déploiement — mais il ne
+    #   déclare). Le builder le vérifie et bloque avant tout déploiement, mais il ne
     #   peut pas deviner : une base ABSENTE de cette liste vaut `strict` côté client,
     #   là où pufirestore, lui, ne génère alors aucune règle.
     firestore:
@@ -148,12 +148,12 @@ conf:
         # Bases dont les règles serveur sont écrites à la main (`raw` ou par
         # collection) dans le module Pulumi qui les porte : pulock, pustore,
         # puvirtuallobby. `none` parce que le filtrage doit rester du ressort de ces
-        # règles — dvcloud n'a pas à estampiller ni à filtrer sur `ownerId` des
+        # règles, dvcloud n'a pas à estampiller ni à filtrer sur `ownerId` des
         # documents qui, par nature, se lisent entre comptes.
         #
         # Leur absence n'était pas neutre : elles héritaient de `strict`, et
         # dvvirtuallobby lit des documents écrits par d'autres joueurs sans jamais
-        # manipuler `ownerId` — chaque lecture croisée revenait donc `null`.
+        # manipuler `ownerId`, chaque lecture croisée revenait donc `null`.
         locks:
           isolation: none
         store:
@@ -175,13 +175,17 @@ conf:
         # (clans_players.avatar). Seule conséquence visible : l'écran Profil affiche
         # l'icône de l'app à la place de la photo Google (repli de _updateAvatar).
         # Ne PAS vider cette liste : dvcloud retombe alors sur [email, profile].
+        # Le module dvcloud ne déclare pas de scopes par défaut : les listes s'unissent
+        # au masquage, un défaut [email, profile] ré-ajoutait `profile` en silence.
+        # Sur Android, `email` seul fait sauter « Se connecter avec Google » (qui partage
+        # toujours nom + photo) au profit d'une simple autorisation openid + email.
         scopes:
           - email
 
   # --- Cloud assets config (masque flutter/modules/dvcloudassets/config.yml) ---
   # Les VAGUES de priorité et le CATALOGUE des thèmes ne sont pas ici : ils vivent dans
-  # le layer general/layers/assets-global.yml, publié avec les assets. Les modifier — ou
-  # déclarer un nouveau thème — ne demande donc pas de nouvelle version sur les stores.
+  # le layer general/layers/assets-global.yml, publié avec les assets. Les modifier, ou
+  # déclarer un nouveau thème, ne demande donc pas de nouvelle version sur les stores.
   # Ne restent ici que les réglages qu'il faut connaître avant le moindre téléchargement.
   assets:
     cache_dir: "dvassets"
@@ -193,7 +197,7 @@ conf:
       # Racines de manifestes, dans l'ordre de cascade (dernier gagnant). Les vagues
       # nomment des chemins NUS ("images/big/x.png") : c'est cette liste qui décide du
       # thème qui les fournit, et un thème absent d'ici n'est jamais téléchargé.
-      # Valeur de démarrage — remplacée par celle du thème du clan une fois connu.
+      # Valeur de démarrage, remplacée par celle du thème du clan une fois connu.
       manifests:
         - "general"
         - "donjon"
@@ -211,10 +215,10 @@ conf:
   # --- Messaging (masque flutter/modules/dvmessaging/config.yml) ---------------
   # ⚠ LE `depends.appear.region_ready` A ÉTÉ RETIRÉ le 2026-09-12, avec la déduction
   #   automatique de région. Il retardait l'`appeared` de dvmessaging jusqu'au drapeau
-  #   du datacenter — drapeau qui se levait alors au boot, sans que personne n'ait rien
+  #   du datacenter, drapeau qui se levait alors au boot, sans que personne n'ait rien
   #   choisi. Maintenant que la région attend le joueur, il ne se lève qu'après l'écran
   #   du royaume : le depends serait tombé dans son timeout de 30 s à chaque lancement
-  #   et aurait sali les logs d'une erreur pour rien. Il ne protégeait d'ailleurs rien —
+  #   et aurait sali les logs d'une erreur pour rien. Il ne protégeait d'ailleurs rien,
   #   dvmessaging n'a pas d'`appear()`, et son `msgregister` est déjà déclenché par le
   #   worker (on_documents_ready), la région connue.
   messaging:
@@ -272,19 +276,19 @@ conf:
 
   # --- Store config (dvstore) ---------------------------------------------------
   # Le CATALOGUE n'est pas ici : il vit dans le layer store-base-global.yml, publié
-  # avec les assets — ajouter un produit ou ouvrir un pack ne demande donc pas de
+  # avec les assets, ajouter un produit ou ouvrir un pack ne demande donc pas de
   # nouvelle version sur le store. Ne restent ici que les réglages qui lient le
   # module au métier ddust.
   store:
     # Rattachement du payeur. Chez ddust, ce qui paie est le CLAN, jamais
     # l'utilisateur : un seul abonnement et un seul payeur par clan, c'est ce
-    # qu'annoncent les CGU. dvstore n'en garde qu'une empreinte sha256 — ni
+    # qu'annoncent les CGU. dvstore n'en garde qu'une empreinte sha256, ni
     # l'identifiant du clan ni son secret ne partent chez Play.
     scope_action: worker.store_scope
 
     # Éligibilité à l'offre fondateurs : décidée par le SERVEUR, jamais par l'app.
     # Le cutoff vit dans un document de configuration (store_config/founders), donc
-    # il se décale sans republier — et un client modifié ne peut pas s'accorder la
+    # il se décale sans republier, et un client modifié ne peut pas s'accorder la
     # remise. C'est aussi ce qui rend l'offre inutile à connaître pour les écrans :
     # dvstore la transmet de lui-même à l'achat.
     eligibility_function: store_eligibility
@@ -293,7 +297,7 @@ conf:
 
     # Projection lue par TOUT le clan : c'est ce document qui fait qu'un pack payé
     # par un adulte habille l'écran de tous les enfants. Il vit dans la base métier
-    # (workers), pas dans la base d'achats du module — celle-ci est personnelle et
+    # (workers), pas dans la base d'achats du module, celle-ci est personnelle et
     # ne regarde que le payeur.
     entitlement:
       database: workers
@@ -305,6 +309,7 @@ conf:
     actions:
       on_purchase: worker.on_store_purchase
       on_purchase_failed: worker.on_store_purchase_failed
+      on_purchase_pending: worker.on_store_purchase_pending
       on_subscription: worker.on_store_subscription
       on_subscription_renewed: worker.on_store_subscription_renewed
       on_subscription_changed: worker.on_store_subscription_changed
@@ -322,21 +327,25 @@ conf:
     # acheter (`simulate_state: "active"` a été posé ici). Il est ensuite passé dans
     # un layer cloud avec un écran de scénarios, retiré de l'app à son tour.
     #
-    # Ne JAMAIS reposer `store.debug.simulate_*` dans une conf embarquée : la
-    # simulation de dvstore reste disponible pour le développement, mais elle
-    # s'active dès que la clef existe.
+    # `store.debug.simulate_*` n'existe plus dans dvstore (2026-09-29) : la
+    # facturation s'éprouve contre le simulateur de store local, composants storemock
+    # de la séquence, sur la cible d'essai (comptes de test : `store.mock.accounts`).
 
 
   # --- aimodels config (vertex AI, pas de téléchargement local) ----------------
   aimodels:
     desired_model: "vertex-gemini-pro"
+    # Direct + App Check sur l'AAB installé depuis Play ; proxy `ai_generate` sur
+    # l'APK `.dev` et sur Windows (décision du 2026-09-28, readme § 6.2).
+    transport: auto
+    appcheck: true
     models:
       vertex_pro:
         name: "vertex-gemini-pro"
         chat_format: "vertex"
         model: "gemini-3.5-flash-lite"
 
-  # --- prompts config (dvprompts — surchargé par l'asset cloud prompts.yml) -----
+  # --- prompts config (dvprompts, surchargé par l'asset cloud prompts.yml) -----
   prompts:
     prompts_assets: "prompts/prompts.yml"
     agents: {}

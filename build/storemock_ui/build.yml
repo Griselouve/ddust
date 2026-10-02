@@ -1,0 +1,3 @@
+# App de pilotage du simulateur de store, DERIVEE de la suite modele.
+build:
+  from: storemock/ui

@@ -94,12 +94,7 @@ conf:
         w: 90%
         h: 6%
         hint: ""
-        font_size: 14.0
-        font_color: "#C8A84B"
-        background_color: "BLACK"
         border: true
-        border_color: "0xFFB07328"
-        border_radius: 6.0
         events:
           changed: true
         actions:
@@ -114,12 +109,7 @@ conf:
         w: 90%
         h: 6%
         hint: ""
-        font_size: 14.0
-        font_color: "#C8A84B"
-        background_color: "BLACK"
         border: true
-        border_color: "0xFFB07328"
-        border_radius: 6.0
         events:
           changed: true
         actions:
@@ -136,12 +126,7 @@ conf:
         w: 90%
         h: 6%
         hint: ""
-        font_size: 14.0
-        font_color: "#C8A84B"
-        background_color: "BLACK"
         border: true
-        border_color: "0xFFB07328"
-        border_radius: 6.0
         events:
           changed: true
         actions:

@@ -1,0 +1,286 @@
+# -----------------------------------------------------------------------------
+# --- Fragment de conf.registry : le MULTICLAN (worker_multiclan.dart).
+# --- Dossier de conception : tmp/design_multiclan.md.
+# -----------------------------------------------------------------------------
+# Quatre écrans AUTONOMES (hors dvsteps, comme give_page / claim_pick_page), tous inscrits dans
+# registry_commons.yml (conf.registry.orb.registry) : un écran absent de cette liste est
+# inatteignable, y compris par navigate_new.
+#
+#   my_clans_page      « Mes clans » : changer de clan, en rejoindre un autre (bouton aux deux
+#                      flèches de l'écran Clan, clan_page/switch).
+#   guardian_hub_page  « Mes enfants » : les gestes d'un représentant légal (menu Clan, adultes).
+#   ward_pick_page     choix de l'enfant (autoriser un clan, co-représentant), puis ses clans.
+#   guardian_qr_page   QR code des échanges entre adultes : le chef qui accueille un enfant
+#                      d'un autre clan, l'adulte qui demande à devenir co-représentant.
+#
+# ⚠ LES DvList SONT ALIMENTÉES PAR LA FORME ADRESSÉE de dvlist.set_rows ({page, rows}) : ces
+#   écrans s'empilent (hub → choix de l'enfant), la forme globale écraserait la liste du dessous.
+conf:
+  registry:
+
+    #//------------------ Mes clans ---------------------------------------------------
+    my_clans_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:my_clans_title@@@"
+      actions:
+        appear: worker.on_my_clans_appear
+      registry:
+        - commons/splash_background
+        - my_clans_page/hint
+        - my_clans_page/list
+        # Le rideau de la bascule (interlude passage_switch) et, PAR-DESSUS, son texte
+        # (« Bon retour parmi … »). Vue déclarée ICI, sur l'écran qui le joue, selon le patron
+        # de commons/depart_view.
+        - my_clans_page/depart_view
+        - my_clans_page/switch_label
+
+    my_clans_page/hint:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 4%
+        y: 2%
+        w: 92%
+        h: 10%
+        border: true
+        label: "@@@T:my_clans_hint@@@"
+
+    # Une ligne par clan actif (emblème + nom, dernière visite, « ici » sur le clan courant),
+    # puis « Rejoindre un autre clan ». Même livrée que claim_pick_page/list.
+    my_clans_page/list:
+      class: DvList
+      layer: content
+      action: worker.on_my_clans_pick
+      shape:
+        x: 4%
+        y: 14%
+        w: 92%
+        h: 82%
+        row_height: 64.0
+        icon_size: 48.0
+        border: true
+
+    my_clans_page/depart_view:
+      masks:
+        - commons/depart_view
+
+    # Le texte du rideau, doré sur le noir, posé par worker._playSwitchCurtain.
+    my_clans_page/switch_label:
+      class: DvSplash
+      layer: popup
+      shape:
+        x: 5%
+        y: 35%
+        w: 90%
+        h: 25%
+        fadein: 300
+        duration: 1600
+        fadeout: 400
+        text_align: CENTER
+        border: false
+
+    #//------------------ Mes enfants (représentant) -----------------------------------
+    guardian_hub_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:guardian_hub_title@@@"
+      actions:
+        appear: worker.on_guardian_hub_appear
+      registry:
+        - commons/splash_background
+        - guardian_hub_page/hint
+        - guardian_hub_page/list
+        - guardian_hub_page/error
+
+    guardian_hub_page/hint:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 4%
+        y: 2%
+        w: 92%
+        h: 14%
+        border: true
+        label: "@@@T:guardian_hub_hint@@@"
+
+    guardian_hub_page/list:
+      class: DvList
+      layer: content
+      action: worker.on_guardian_hub_pick
+      shape:
+        x: 4%
+        y: 18%
+        w: 92%
+        h: 62%
+        row_height: 72.0
+        icon_size: 40.0
+        border: true
+
+    # Message (scan qui n'est pas du bon type, geste fait, erreur). Invisible par défaut, révélé
+    # par le worker : jamais de fenêtre modale.
+    guardian_hub_page/error:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 82%
+        w: 90%
+        h: 14%
+        label: ""
+        text_align: CENTER
+        visible: false
+
+    #//------------------ Choix de l'enfant (représentant) ------------------------------
+    # Trois modes (worker._wardMode) : autoriser le clan d'un autre chef (« guest »), faire d'un
+    # autre adulte un co-représentant (« cog »), voir les clans d'un enfant et l'en retirer
+    # (« clans » : premier tap = l'enfant, puis ses clans ; un tap arme le retrait, le second
+    # retire). Le panneau de tête dit ce qui va être fait, avec les noms.
+    ward_pick_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:ward_pick_title@@@"
+      actions:
+        appear: worker.on_ward_pick_appear
+      registry:
+        - commons/splash_background
+        - ward_pick_page/hint
+        - ward_pick_page/list
+
+    ward_pick_page/hint:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 4%
+        y: 2%
+        w: 92%
+        h: 16%
+        border: true
+        label: ""
+
+    ward_pick_page/list:
+      class: DvList
+      layer: content
+      action: worker.on_ward_pick
+      shape:
+        x: 4%
+        y: 20%
+        w: 92%
+        h: 76%
+        row_height: 64.0
+        icon_size: 40.0
+        border: true
+
+    #//------------------ QR code des échanges entre adultes ----------------------------
+    # Le QR code ne porte AUCUNE donnée d'enfant : le chef qui accueille ne sait pas encore
+    # qui viendra, le candidat co-représentant ne connaît pas encore l'enfant. « À distance » :
+    # un code à 6 chiffres à dicter, et un lien à partager (ddust://invitepin?token=…, le même
+    # écran de saisie que l'invitation d'un clan). Pour le candidat, l'écran attend ensuite le
+    # secret de représentation et se change en déclaration (« je suis représentant légal de… »).
+    guardian_qr_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:guardian_qr_title@@@"
+      actions:
+        appear: worker.on_guardian_qr_appear
+      registry:
+        - commons/splash_background
+        - guardian_qr_page/intro
+        - guardian_qr_page/qrcode
+        - guardian_qr_page/code
+        - guardian_qr_page/remote
+        - guardian_qr_page/share
+        - guardian_qr_page/confirm
+
+    guardian_qr_page/intro:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 3%
+        w: 90%
+        h: 16%
+        text_align: CENTER
+        label: ""
+
+    guardian_qr_page/qrcode:
+      class: DvQrCode
+      layer: content
+      shape:
+        x: 20%
+        y: 20%
+        w: 60%
+        h: 30%
+        content: ""
+
+    guardian_qr_page/code:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 51%
+        w: 90%
+        h: 7%
+        text_align: CENTER
+        label: ""
+        visible: false
+
+    guardian_qr_page/remote:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 60%
+        h: 9%
+        text_align: CENTER
+        label: "@@@T:guardian_qr_remote@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_guardian_qr_remote
+
+    guardian_qr_page/share:
+      masks:
+        - commons/dark_button
+      class: DvLabel
+      layer: content
+      shape:
+        x: 15%
+        y: 71%
+        w: 70%
+        h: 8%
+        label: "@@@T:guardian_qr_share@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_guardian_qr_share
+
+    # La confirmation du CANDIDAT, une fois le secret arrivé : sa déclaration est dans le
+    # panneau de tête, ce bouton l'enregistre.
+    guardian_qr_page/confirm:
+      masks:
+        - commons/btn_wide
+      shape:
+        y: 60%
+        h: 9%
+        text_align: CENTER
+        label: "@@@T:guardian_qr_confirm@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_guardian_qr_confirm

@@ -35,11 +35,6 @@ conf:
         # et non `quantity` brut — un « 1 » sur chaque tuile ne serait que du bruit.
         badge_field: badge
         show_filename: false
-        # Fond noir à 70 % (alpha 0xB3) : détache les items du décor de donjon sans masquer
-        # complètement l'ambiance. border_color sert aussi de teinte de surbrillance au dépôt.
-        background_color: "0xB3000000"
-        border_radius: 10.0
-        border_color: "amber_200"
 
     # Menu contextuel d'un item : déclare TOUTES les options possibles ; le type de l'item
     # restreint la liste (clef `options` du catalogue), le worker arbitre le reste.
@@ -49,25 +44,17 @@ conf:
       show_label: false
       shape:
         w: 55%
-        background_color: "0xF01A1A1A"
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 10.0
-        font_color: "amber_200"
-        font_size: 15.0
       options:
         # « Voir » : commune à TOUT type (cf. items-base-global.yml, clef `options`). Ouvre
         # item_view_page — grande image, description, bouton Appliquer s'il y a lieu.
         # Icône réutilisée (pas d'œil dédié) : c'est déjà l'icône « montrer » du mode chef,
         # déjà préchargée, et sémantiquement juste.
         item_view:
-          image: "images/small/adm_show.png"
           shape:
             label: "@@@T:it_o_view@@@"
           actions:
             tap: worker.item_view
         item_give:
-          image: "images/small/cadeau.png"
           shape:
             label: "@@@T:it_o_give@@@"
           actions:
@@ -75,7 +62,6 @@ conf:
         # Remettre de son argent de poche dans le coffre du clan. Réservée aux chefs, et à LEUR
         # bourse : c'est worker.items_selector qui l'arbitre, la conf ne connaît pas les rôles.
         item_to_chest:
-          image: "images/big/chest_item_nobg.png"
           shape:
             label: "@@@T:it_o_to_chest@@@"
           actions:
@@ -88,25 +74,21 @@ conf:
         # titre de CLAN est arbitré par worker.items_selector (chefs seulement) : la conf ne
         # connaît pas les rôles.
         title_apply_player:
-          image: "images/big/titre_perso.png"
           shape:
             label: "@@@T:it_o_title_apply@@@"
           actions:
             tap: worker.title_apply_player
         title_unapply_player:
-          image: "images/big/titre_perso.png"
           shape:
             label: "@@@T:it_o_title_unapply@@@"
           actions:
             tap: worker.title_unapply_player
         title_apply_clan:
-          image: "images/big/titre_clan.png"
           shape:
             label: "@@@T:it_o_title_apply@@@"
           actions:
             tap: worker.title_apply_clan
         title_unapply_clan:
-          image: "images/big/titre_clan.png"
           shape:
             label: "@@@T:it_o_title_unapply@@@"
           actions:
@@ -115,7 +97,6 @@ conf:
         # puis le supprime (worker.item_use, moteur d'événements). Propriétaire seulement, arbitré
         # par worker.items_selector.
         item_use:
-          image: "images/medium/evt_potion.png"
           shape:
             label: "@@@T:it_o_use@@@"
           actions:
@@ -123,7 +104,6 @@ conf:
         # Jeter un item. Sans confirmation (aucune popup dans ce jeu) : le document est SUPPRIMÉ
         # (pas de sentinelle « corbeille », il n'y a pas de rattrapage qui pourrait le ressusciter).
         item_trash:
-          image: "images/small/poubelle.png"
           shape:
             label: "@@@T:it_o_trash@@@"
           actions:
@@ -133,7 +113,6 @@ conf:
         # (DvExplorer → runSelectorMenu → DvMenu.runOption). « Ajouter une note » vit DANS le
         # coffre (butin_page/list), pas ici.
         item_open:
-          image: "images/big/chest_item_nobg.png"
           shape:
             label: "@@@T:it_o_open@@@"
           actions:
@@ -176,16 +155,8 @@ conf:
         h: 84%
         row_height: 64.0
         icon_size: 48.0
-        font_size: 14.0
-        font_color: "#C8A84B"
         empty_label: "@@@T:it_give_empty@@@"
-        background_color: "0xB3000000"
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.0
-        border_radius: 10.0
-        row_color: "0xB3000000"
-        row_border_color: "0xFFB07328"
 
     #//------------------------------- Item View Screen (fiche d'un objet) --------------------
     # Écran AUTONOME (hors dvsteps, comme give_page), empilé par worker.item_view au choix de
@@ -229,8 +200,6 @@ conf:
         y: 6%
         w: 60%
         h: 30%
-        stretch: "RATIO_IN"
-        opacity: 1.0
 
     item_view_page/name:
       class: DvLabel
@@ -240,8 +209,6 @@ conf:
         y: 38%
         w: 90%
         h: 7%
-        font_size: 18.0
-        font_color: "amber_200"
         text_align: CENTER
         label: ""
 
@@ -254,16 +221,8 @@ conf:
         w: 90%
         h: 34%
         text_padding: 10.0
-        font_size: 13.0
         scrollable: true
         label: ""
-        # Style inversé par rapport à commons/intro_text (fond noir/texte ambre au lieu de fond
-        # ambre/texte noir) pour reprendre l'apparence sobre des boutons de l'app (cf.
-        # new_or_pick_clan/create, commons/dark_button) — le fond ambre rempli n'a de sens que
-        # posé sur une illustration, cette fiche n'en a plus.
-        background_color: black
-        font_color: "amber_200"
-        opacity: 0.6
 
     # Bouton « Appliquer » : libellé et action posés à chaud par worker.on_item_view_appear
     # (relit worker.items_selector), caché quand l'item n'accorde aucune option métier. Pour un

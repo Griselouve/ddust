@@ -1035,7 +1035,7 @@ extension Worker_clan on worker {
 
                                 _pendingAssent  = _parseAssentUri(content);
                                 _assentRejected = _pendingAssent == null;
-                                // L'enfant est à côté : le QR code du clan est le chemin naturel. Le
+                                // L'enfant est à côté : l'invitation en QR est le chemin naturel. Le
                                 // chef peut encore basculer sur l'invitation à distance depuis l'écran.
                                 await deva_set("worker.pending_invite_kind", "qr");
                                 await _openClaimOrConsent();

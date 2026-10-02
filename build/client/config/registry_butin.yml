@@ -35,8 +35,6 @@ conf:
         h: 8%
         text_align: CENTER
         border: false
-        font_size: 12.0
-        font_color: "#C8A84B"
         label: "@@@T:butin_hint@@@"
 
     # Liste du contenu : alimentée à chaud par worker.on_butin_page_appear (dvlist.set_rows).
@@ -52,16 +50,8 @@ conf:
         h: 78%
         row_height: 56.0
         icon_size: 40.0
-        font_size: 14.0
-        font_color: "#C8A84B"
         empty_label: "@@@T:butin_empty@@@"
-        background_color: "0xB3000000"
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.0
-        border_radius: 10.0
-        row_color: "0xB3000000"
-        row_border_color: "0xFFB07328"
 
     # « Valider » : le SEUL endroit qui écrit en base (un batchWrite avec les objets sortis et
     # l'argent promis), puis retour à l'inventaire.
@@ -114,7 +104,6 @@ conf:
         w: 90%
         h: 20%
         text_padding: 10.0
-        font_size: 12.0
         scrollable: true
         label: "@@@T:butin_note_hint@@@"
 
@@ -203,7 +192,6 @@ conf:
         w: 90%
         h: 20%
         text_padding: 10.0
-        font_size: 13.0
         label: ""
 
     # Ce qu'on est en train de faire (et, en mode retour, le maximum disponible).
@@ -320,16 +308,8 @@ conf:
         h: 68%
         row_height: 64.0
         icon_size: 48.0
-        font_size: 14.0
-        font_color: "#C8A84B"
         empty_label: "@@@T:butin_rewards_empty@@@"
-        background_color: "0xB3000000"
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.0
-        border_radius: 10.0
-        row_color: "0xB3000000"
-        row_border_color: "0xFFB07328"
 
     # L'attaque de bisous : le clan apprend quels joueurs étaient en difficulté (deux noms, dont un
     # tiré au sort, cf. worker._kissTargets) et va leur sauter dessus. Posée à chaud par
@@ -346,7 +326,6 @@ conf:
         w: 90%
         h: 14%
         text_padding: 8.0
-        font_size: 12.0
         scrollable: true
         label: ""
         visible: false
@@ -401,7 +380,6 @@ conf:
     butin_notes_page/halo:
       class: DvSceneView
       layer: content
-      scene: notehalo
       shape:
         x: 0%
         y: 5%
@@ -425,13 +403,6 @@ conf:
         valign: TOP
         scrollable: true
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.0
-        border_radius: 6.0
-        background_color: "black"
-        opacity: 0.8
-        font_color: "#C8A84B"
-        font_size: 11.0
         text_padding: 10.0
         label: ""
 
@@ -487,8 +458,6 @@ conf:
         y: 27%
         w: 100%
         h: 61%
-        stretch: "RATIO_IN"
-        image: "images/big/CoffreRitual.png"
         border: false
 
     # « Les mérites de votre clan méritent d'être contés. » Même parchemin ambre que le rituel.
@@ -505,7 +474,6 @@ conf:
         w: 90%
         h: 11%
         text_padding: 10.0
-        font_size: 13.0
         scrollable: true
         label: "@@@T:butin_tale_text@@@"
 
@@ -529,13 +497,8 @@ conf:
         w: 15%
         h: 9%
         icon: "share"
-        icon_color: "#C8A84B"
         icon_size: 26
-        background_color: "0xCC1A1A1A"
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.5
-        border_radius: 30.0
         events:
           tap: true
         freezing_actions:
@@ -595,8 +558,6 @@ conf:
         y: 52%
         w: 100%
         h: 36%
-        stretch: "RATIO_IN"
-        image: "images/big/CoffreRitual.png"
         border: false
 
     # Le texte de la cérémonie (rituel pour le maître, récit de la bataille pour les joueurs), posé
@@ -615,7 +576,6 @@ conf:
         # Le rituel du meneur est long (cinq consignes) et le parchemin ne peut pas grandir :
         # la liste d'attente commence à 46%. Police resserrée, et `scrollable` en filet pour
         # les petits écrans — sans lui DvLabel rognerait le texte sans rien dire.
-        font_size: 11.0
         scrollable: true
         label: ""
 
@@ -634,16 +594,8 @@ conf:
         h: 40%
         row_height: 64.0
         icon_size: 48.0
-        font_size: 14.0
-        font_color: "#C8A84B"
         empty_label: "@@@T:opening_wait_empty@@@"
-        background_color: "0xCC000000"
         border: true
-        border_color: "0xFFB07328"
-        border_size: 1.0
-        border_radius: 10.0
-        row_color: "0xB3000000"
-        row_border_color: "0xFFB07328"
         visible: false
 
     # Le bouton de la cérémonie. Libellé posé à chaud (maître ou joueur) ; il disparaît une fois

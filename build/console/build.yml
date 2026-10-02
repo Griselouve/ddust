@@ -1,0 +1,7 @@
+# Console d'administration de ddust, DERIVEE de la suite modele (build.from) :
+# tableau de bord des abonnements, retention, recherche d'un achat, codes cadeaux.
+# App INTERNE (APK et Windows seulement, jamais publiee), heritee du modele. Les
+# regions, les fonctions et les administrateurs (`store.admins`) viennent du
+# build.yml du projet. Cf. readme de deva/suites/projects.
+build:
+  from: projects/console
