@@ -1,3 +1,6 @@
+---
+modifie: 2026-10-01T15:59:55Z
+---
 <!-- revu: 20260910 -->
 
 # donjons & savons
