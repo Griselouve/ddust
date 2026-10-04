@@ -961,9 +961,12 @@ conf:
       # Firebase pour store_grant, store_mint, store_revoke et store_admin, jamais
       # recopiée ici. La référence rend un tableau JSON, que les quatre fonctions
       # savent lire. Liste vide = fonctions fermées à tout le monde : c'est le bon
-      # défaut pour des fonctions qui distribuent de la valeur. Pour s'y ajouter :
-      # l'écran « Accès refusé » de la console d'administration affiche l'UID du
-      # compte connecté, le recopier dans `store.admins`, puis redéployer le backend.
+      # défaut pour des fonctions qui distribuent de la valeur.
+      #
+      # ⚠ CE N'EST PLUS QU'UN REPLI. La liste qui fait foi est `store_config/admins`
+      #   de la base `<ADMINS_REGION>-store` (`store.admins_region`, `eu`), relue à
+      #   chaud, et la console deva la gère (fiche du projet, engrenage, « Gérer les
+      #   admins ») sans redéploiement. Cf. pustore/readme.md, « la liste vivante ».
       store_grant:
         environment:
           SCOPE_DATABASE: "workers"
@@ -972,6 +975,7 @@ conf:
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"
           GRANT_ADMINS: "@@@C:store.admins@@@"
+          ADMINS_REGION: "@@@C:store.admins_region@@@"
 
       # Réclamation d'un CODE CADEAU, la seconde porte vers le même octroi.
       #
@@ -1018,6 +1022,7 @@ conf:
         environment:
           CODES_REGION: "@@@C:deva_regions.primary@@@"
           GRANT_ADMINS: "@@@C:store.admins@@@"
+          ADMINS_REGION: "@@@C:store.admins_region@@@"
 
       # Couper un code ou un lot entier. Le pendant indispensable de la fabrication :
       # un code publié sur un flyer et recopié sur un forum doit pouvoir s'arrêter
@@ -1028,6 +1033,7 @@ conf:
         environment:
           CODES_REGION: "@@@C:deva_regions.primary@@@"
           GRANT_ADMINS: "@@@C:store.admins@@@"
+          ADMINS_REGION: "@@@C:store.admins_region@@@"
 
       store_rtdn:
         environment:
@@ -1214,6 +1220,7 @@ conf:
       store_admin:
         environment:
           GRANT_ADMINS: "@@@C:store.admins@@@"
+          ADMINS_REGION: "@@@C:store.admins_region@@@"
           CODES_REGION: "@@@C:deva_regions.primary@@@"
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"

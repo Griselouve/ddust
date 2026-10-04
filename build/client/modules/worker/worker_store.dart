@@ -80,6 +80,8 @@ extension Worker_store on worker {
                                 ActionRegistry.register("worker.tiers_pick_4",             tiers_pick_4);
                                 ActionRegistry.register("worker.tiers_pick_5",             tiers_pick_5);
                                 ActionRegistry.register("worker.tiers_pick_6",             tiers_pick_6);
+                                // --- Mon abonnement (subscription_manage_page) ---
+                                ActionRegistry.register("worker.on_subscription_manage_appear", on_subscription_manage_appear);
 
                                 // --- Codes cadeaux ---
                                 ActionRegistry.register("worker.on_giftcode_appear",       on_giftcode_appear);
@@ -1537,6 +1539,18 @@ extension Worker_store on worker {
                                 await part("cartes",  () => _tiersPaintCards(tier));
                                 await part("formule", () => _tiersPaintFormula(tier));
                                 await part("report",  _tiersSyncDefer);
+
+                                // Canal d'achat fermé (réseau absent au lancement, Play lent à se
+                                // réveiller) : on le rouvre sans faire attendre la page, et les
+                                // cartes se repeignent avec les prix s'il revient.
+                                final store = _store;
+                                if (store != null && !store.ready) {
+                                    store.ensureReady().then((ok) async {
+                                        if (!ok || !_storeOnTiersPage()) return;
+                                        await part("cartes",  () => _tiersPaintCards(tier));
+                                        await part("formule", () => _tiersPaintFormula(tier));
+                                    });
+                                }
     }
 
     // LE PALIER PRÉSENTÉ. Celui choisi sur tiers_pick_page s'il y en a un ; sinon
@@ -1854,6 +1868,100 @@ extension Worker_store on worker {
     }
 
     // -----------------------------------------------------------------------
+    // --- Mon abonnement (« Gérer mon abonnement », kebab de la boutique)
+    //
+    // Ce que le clan a et où il en est, lu dans `store.*` (publié par dvstore) :
+    // aucune lecture serveur de plus. Le bouton mène à Google Play (`store.manage`),
+    // seul guichet de la résiliation et du moyen de paiement ; le lien « changer de
+    // palier », à la vitrine. On n'y arrive qu'abonné (shop_settings_selector).
+    // -----------------------------------------------------------------------
+
+    Future<void> on_subscription_manage_appear(dynamic caller, dynamic event) async {
+
+                                try {
+                                    await _managePaint();
+                                } catch (e, st) {
+                                    deva_log("error", "[store] mon abonnement FAILED: $e\n$st");
+                                }
+    }
+
+    Future<void> _managePaint() async {
+
+                                String t(String key) => TranslationRegistry.processLabel("@@@T:$key@@@");
+                                const page = "subscription_manage_page";
+                                Future<void> label(String id, String text) async {
+                                    final shape = await DvOrb.wait_for_shape("$page/$id");
+                                    await _syncLabel(shape, "$page/$id", text);
+                                }
+                                Future<void> visible(String id, bool on) async {
+                                    final shape = await DvOrb.wait_for_shape("$page/$id");
+                                    await _syncVisible(shape, "$page/$id", on);
+                                }
+
+                                final tier   = (await deva_get("store.subscription.product"))?.toString() ?? "";
+                                final plan   = (await deva_get("store.subscription.base_plan"))?.toString() ?? "";
+                                final state  = await _storeState();
+                                final period = plan.endsWith("yearly") ? "yearly" : "monthly";
+                                deva_log("info", "[store] mon abonnement : $tier/$plan état=$state");
+
+                                // Palier et places.
+                                var name = (await deva_get("store.catalog.$tier.label"))?.toString() ?? "";
+                                if (name.isEmpty) name = tier;
+                                await label("tier", t("manage_formula")
+                                    .replaceAll("{tier}", TranslationRegistry.processLabel(name)));
+                                final cap = await _storeTierCapacity(tier);
+                                await label("seats", t(cap < 0 ? "tiers_unlimited" : "tiers_upto").replaceAll("{n}", "$cap"));
+
+                                // Prix de la formule en cours. Aucun prix connu : la ligne disparaît,
+                                // on n'affiche jamais un montant qu'on n'a pas.
+                                final price = await _tiersPriceFor(tier, plan, period);
+                                if (price.isNotEmpty) {
+                                    await label("price", "$price ${t(period == "yearly" ? "tiers_per_year" : "tiers_per_month")}");
+                                }
+                                await visible("price", price.isNotEmpty);
+
+                                // Où en est l'abonnement. Un paiement en souffrance passe avant tout :
+                                // c'est la seule ligne qui demande un geste.
+                                final expiry    = DateTime.tryParse((await deva_get("store.subscription.expiry"))?.toString() ?? "");
+                                final date      = expiry == null ? "" : _storeShortDate(expiry);
+                                final autoRenew = (await deva_get("store.subscription.auto_renew"))?.toString() == "true";
+                                var status = "";
+                                if (state == "grace" || state == "hold") {
+                                    status = t("manage_payment");
+                                } else if (date.isNotEmpty) {
+                                    if (state == "trial") {
+                                        status = t("manage_trial");
+                                    } else if (state == "canceled" || (state == "active" && !autoRenew)) {
+                                        status = t("manage_ends");
+                                    } else if (state == "active") {
+                                        status = t("manage_renews");
+                                    }
+                                    status = status.replaceAll("{date}", date);
+                                }
+                                await label("status", status);
+
+                                // Ce qui l'attend : changement de palier prévu, mois offerts en réserve.
+                                final extra   = <String>[];
+                                final pending = await _tiersPendingText();
+                                if (pending.isNotEmpty) extra.add(pending);
+                                final credits = int.tryParse((await deva_get("store.credits.months"))?.toString() ?? "") ?? 0;
+                                if (credits == 1) extra.add(t("manage_credit_one"));
+                                if (credits > 1)  extra.add(t("manage_credits").replaceAll("{n}", "$credits"));
+                                if (extra.isNotEmpty) await label("extra", extra.join("\n"));
+                                await visible("extra", extra.isNotEmpty);
+
+                                // Le bouton Play. Play ne montre un abonnement qu'au compte qui l'a
+                                // souscrit : à un autre chef, on dit qui peut agir plutôt que de
+                                // l'envoyer sur une page vide. Au simulateur, Play n'a rien à montrer.
+                                final isPayer = (await deva_get("store.subscription.is_payer"))?.toString() != "false";
+                                final mock    = (await deva_get("store.channel"))?.toString() == "storemock";
+                                final note    = !isPayer ? t("manage_not_payer") : mock ? t("manage_mock") : "";
+                                if (note.isNotEmpty) await label("note", note);
+                                await visible("note", note.isNotEmpty);
+                                await visible("play", isPayer);
+    }
+
+    // -----------------------------------------------------------------------
     // --- Choix du palier (« Combien d'aventuriers ? »)
     //
     // Mêmes cartes que la vitrine, une par abonnement du catalogue dans l'ordre
@@ -2109,6 +2217,21 @@ extension Worker_store on worker {
                                 // l'abonnement), dont l'aboutissement se lit sur la projection.
                                 _storeChangeTo = (await _storeSubscribed())
                                     ? "$productId|${await _storePlanId(productId)}" : "";
+
+                                // ⚠ LA PORTE NE SE REFERME PAS D'ELLE-MÊME : dvparentalgate rappelle
+                                //   l'action et reste à l'écran. Sans ce retour, l'attente gelait
+                                //   l'écran de la porte et l'issue (bandeau d'échec) se peignait sur
+                                //   la page des paliers cachée dessous : rien de visible, l'achat
+                                //   semblait n'avoir rien fait.
+                                //   On attend que la page d'en dessous soit redevenue la page
+                                //   courante : c'est elle que _storeBuyWaitStart gèle.
+                                bool onGate() => DvOrb.get_current_page()?.dvid == "parentalgate_screen";
+                                if (onGate()) {
+                                    DvOrb.navigate_back();
+                                    for (var i = 0; i < 20 && onGate(); i++) {
+                                        await Future.delayed(const Duration(milliseconds: 50));
+                                    }
+                                }
                                 _storeBuyWaitStart();
                                 await _store?.buy(productId, period: _storePeriod, offer: offer);
     }

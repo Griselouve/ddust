@@ -113,6 +113,9 @@ conf:
         # Le choix du palier (« Combien d'aventuriers ? »), ouvert depuis le lien
         # « changer » de la page des paliers, et seulement de là.
         - tiers_pick_page
+        # « Gérer mon abonnement » (kebab de la boutique, chefs abonnés) : l'état de la
+        # cotisation et le bouton vers Google Play.
+        - subscription_manage_page
 
     page:
       class: DvPage

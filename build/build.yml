@@ -346,6 +346,15 @@ requis:
     - ddust/premierpas
   go-live:
     - ddust/prebeta
+# =============================================================================
+# telegram : LE bot du projet, par son @username (BotFather). Le meme pour les
+# annonces de build (APK, liens du Store) et les notifications (budget, users).
+# Son jeton s'en deduit, dans le master : `grisloup_shared_bot` -> `deva__grisloup_shared_token`.
+# Absent : aucune notification, rien n'est devine (cf. pucore/telegram.py).
+# =============================================================================
+telegram:
+  bot: grisloup_shared_bot
+
 build:
   sequence:
   - backend
@@ -1136,12 +1145,26 @@ store:
     publish:
       - catalog
 
-  # Les administrateurs du store : UID Firebase (pas des e-mails), seule source des
-  # GRANT_ADMINS de store_grant, store_mint, store_revoke et store_admin. Liste vide =
-  # fonctions fermées. Pour s'ajouter : lancer la console d'administration, qui
-  # affiche l'UID du compte connecté sur son écran « Accès refusé », le copier ici,
-  # puis redéployer le backend. Hors de `publish` : l'app joueurs ne la voit pas.
-  admins: []
+  # Les administrateurs du store : un UID Firebase (le « code » que montre l'écran
+  # « Accès refusé » de la console d'administration) et l'e-mail du compte, pour s'y
+  # reconnaître. Liste vide = fonctions fermées. Hors de `publish` : l'app joueurs ne
+  # la voit pas.
+  #
+  # ⚠ SE GÈRE DEPUIS LA CONSOLE DEVA (fiche du projet, engrenage, « Gérer les
+  #   admins »), sur Windows comme sur Android. La console range la liste sur le
+  #   registre et la fait transmettre au projet (`store_config/admins` de la base
+  #   `<admins_region>-store`) : plus aucun redéploiement. Sa synchro Windows la
+  #   recopie ici, et ce qui est écrit ici remonte de même : `admins_last_modification`
+  #   arbitre, la date la plus récente gagne. Éditer à la main = changer la date aussi.
+  #
+  # ⚠ ENCORE LUE AU DÉPLOIEMENT, mais en REPLI seulement (GRANT_ADMINS des quatre
+  #   fonctions) : elle ne sert que tant que la liste vivante n'a jamais été transmise.
+  admins:
+    - { uid: 'THWmHhJKrbbm5OO2BMEx1NPds342', email: 'asura@grisloup.com' }
+  admins_last_modification: '2026-10-04T05:23:57'
+  # La base qui porte la liste vivante : `<admins_region>-store`. UNE pour toutes les
+  # régions et les deux cibles, un administrateur l'est du projet entier.
+  admins_region: 'eu'
 
   # ---------------------------------------------------------------------------
   # CE QUI N'EXISTE QUE POUR GOOGLE PLAY
@@ -3338,6 +3361,8 @@ revenus:
 
 
 
+
+
     # l'Extension « Butin » SEULE, 7.99 € — revenu hors abonnement.
     #
     # ⚠ SES CINQ AUTRES PRODUITS SONT PARTIS dans leurs propres lots le
@@ -3359,6 +3384,8 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
 
 
 
@@ -3615,6 +3642,8 @@ revenus:
 
 
 
+
+
     '5b617e0e5480':
       # --- roadmap (console deva) ---
       rank: 390
@@ -3632,6 +3661,8 @@ revenus:
       churn_facteur: 0.9375
       revenu_direct: 18
       duree_contenu_mois: 2
+
+
 
 
 
@@ -3882,6 +3913,8 @@ revenus:
 
 
 
+
+
     'b4483c2704e7':
       # --- roadmap (console deva) ---
       rank: 520
@@ -3898,6 +3931,8 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
+
+
 
 
 
@@ -4145,6 +4180,8 @@ revenus:
 
 
 
+
+
     # --- LES DIX LOTS DETACHES DE `loots` ET `packs` (2026-09-04) --------------
     # Un lot par produit vendu, comme les trois themes depuis le 2026-09-02.
     # `loots` ci-dessus ne porte plus que l'Extension Butin a 7.99 EUR et les
@@ -4169,6 +4206,8 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
+
+
 
 
 
@@ -4360,6 +4399,8 @@ revenus:
 
 
 
+
+
     '81291102e209':
       # --- roadmap (console deva) ---
       rank: 330
@@ -4375,6 +4416,8 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
+
+
 
 
 
@@ -4566,6 +4609,8 @@ revenus:
 
 
 
+
+
     'ecb38169ab68':
       # --- roadmap (console deva) ---
       rank: 220
@@ -4669,6 +4714,8 @@ revenus:
 
 
 
+
+
     '09a10ee9b42d':
       # --- roadmap (console deva) ---
       rank: 340
@@ -4684,6 +4731,8 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
+
+
 
 
 
@@ -4876,6 +4925,8 @@ revenus:
 
 
 
+
+
     '13a9e8d0a1b9':
       # --- roadmap (console deva) ---
       rank: 320
@@ -4891,6 +4942,8 @@ revenus:
       # --- economie (console deva) ---
       revenu_direct: 2
       duree_contenu_mois: 2
+
+
 
 
 
@@ -5083,6 +5136,8 @@ revenus:
 
 
 
+
+
     # ⚠ ROUTINE FERME LE BLOC, DONC IL EN PORTE LE `churn_facteur` — et lui seul.
     #   Le facteur fonctionne en « dernier livre l'emporte » : le poser sur chacun
     #   des onze lots ferait obtenir au premier le benefice de retention des onze.
@@ -5103,6 +5158,8 @@ revenus:
       churn_facteur: 0.9625
       revenu_direct: 15
       duree_contenu_mois: 2
+
+
 
 
 
@@ -5416,6 +5473,8 @@ revenus:
 
 
 
+
+
     '0f3ce68de9ba':
       # --- roadmap (console deva) ---
       rank: 180
@@ -5429,6 +5488,8 @@ revenus:
       maint_croisiere: 0.25
       description: '**portage iOS de l''app** — fiche App Store Connect dans les sept langues, catalogue d''achats recréé côté Apple, revue, recette sur appareil. ⚠ **C''est CE lot qui fait entrer les utilisateurs iOS**, pas `deva/ios` : le passage framework rend le portage possible, il ne publie rien. *Une plateforme de plus à entretenir.*'
       last_modification: '2026-09-26T15:04:19'
+
+
 
 
 
@@ -5628,6 +5689,8 @@ revenus:
 
 
 
+
+
     '3ee5cdbbf4e8':
       # --- roadmap (console deva) ---
       rank: 20020
@@ -5641,6 +5704,8 @@ revenus:
       maint_croisiere: 0.0
       description: '**le clan** — le créer, le rejoindre par QR code ou par lien, le roster de ses membres, la promotion d''un chef. C''est la porte d''entrée de l''app : un joueur qui n''arrive pas à rejoindre son clan n''a rien à faire dedans.'
       last_modification: '2026-09-17T01:30:18'
+
+
 
 
 
@@ -5840,6 +5905,8 @@ revenus:
 
 
 
+
+
     '982e1c595070':
       # --- roadmap (console deva) ---
       rank: 20040
@@ -5853,6 +5920,8 @@ revenus:
       maint_croisiere: 0.0
       description: '**le cœur de la boucle** — prendre, relâcher, terminer une tâche, la faire valider par un parent, gérer les domaines, les tâches mortelles et immortelles et leur respawn. C''est ce que l''app fait, tout le reste l''entoure.'
       last_modification: '2026-09-17T01:30:18'
+
+
 
 
 
@@ -6052,6 +6121,8 @@ revenus:
 
 
 
+
+
     '5ad520b40c19':
       # --- roadmap (console deva) ---
       rank: 20060
@@ -6065,6 +6136,8 @@ revenus:
       maint_croisiere: 0.0
       description: '**garder l''app vivante quand elle est fermée** — notifications push, décroissance des PV, balayeur de relance d''engagement. Sans ça une app familiale s''oublie en trois jours.'
       last_modification: '2026-09-17T01:30:18'
+
+
 
 
 
@@ -6264,6 +6337,8 @@ revenus:
 
 
 
+
+
     'c03a9e06baad':
       # --- roadmap (console deva) ---
       rank: 20080
@@ -6277,6 +6352,8 @@ revenus:
       maint_croisiere: 0.0
       description: '**269 images, faites une par une** — 218 medium, 33 small, 14 big, 4 splashs, plus les 10 visuels du Play Store. Le code de ddust est vibe-codé, donc rapide ; ces pièces-là ne le sont pas, et trouver les bons outils a pris du temps. Rien de tout cela n''apparaît dans une mesure de volume de code.'
       last_modification: '2026-09-17T01:30:18'
+
+
 
 
 
@@ -6476,6 +6553,8 @@ revenus:
 
 
 
+
+
     '3ca5a6277c98':
       # --- roadmap (console deva) ---
       rank: 20100
@@ -6489,6 +6568,8 @@ revenus:
       maint_croisiere: 0.0
       description: '**le moment où l''app prend la main sur les sens** — montée de niveau, mort et gage, guérison, coup de pouce, la Fée. Une image, un son qui l''annonce, une vibration, et un écran qui ne répond plus le temps que ça se joue.'
       last_modification: '2026-09-17T01:30:18'
+
+
 
 
 
@@ -6688,6 +6769,8 @@ revenus:
 
 
 
+
+
     'bfdf9b81c269':
       # --- roadmap (console deva) ---
       rank: 20120
@@ -6701,6 +6784,8 @@ revenus:
       maint_croisiere: 0.0
       description: '**la récompense** — inventaire, coffre, distribution, et la cérémonie d''ouverture. Le seul moment de l''app où l''objet numérique renvoie à un objet physique posé sur une table.'
       last_modification: '2026-09-17T01:30:18'
+
+
 
 
 
@@ -6839,6 +6924,8 @@ revenus:
 
 
 
+
+
     '2fb66c075ba3':
       # --- roadmap (console deva) ---
       rank: 62
@@ -6853,6 +6940,8 @@ revenus:
       maint_croisiere: 0.0
       description: '**Ce que le produit doit faire pour que les documents ne mentent pas.** Correctifs et écrans dictés par une obligation — RGPD, politique Google Play Families, article 7 de la loi colombienne 1581 — et par les points de `docs/interestActionPoints.txt` : journal filtré des relances de paiement, photos effacées au verdict, prénoms substitués avant l''appel au modèle, avis de l''enfant recueilli avant tout traitement, retrait de consentement proportionné, relances sorties du mode simulation. *Ne porte aucune fonctionnalité produit : chaque tâche d''ici existe parce qu''une phrase publiée en dépend.*'
       last_modification: '2026-09-15T21:37:57'
+
+
 
 
 
@@ -6931,6 +7020,8 @@ revenus:
 
 
 
+
+
     'b68ba8193315':
       # --- roadmap (console deva) ---
       rank: 66
@@ -6968,9 +7059,11 @@ revenus:
 
 
 
+
+
     'e8b1dc21bd00':
       # --- roadmap (console deva) ---
-      rank: 92
+      rank: 95
       store: false
       rsp: 89
       nom: 'facturation'
@@ -6982,9 +7075,11 @@ revenus:
       description: |-
         Ce lot livre l'extraction et l'encapsulation de toute la logique liée au modèle économique de Donjons & Savons : gestion des abonnements, intégration des in-app purchases (Play Store / App Store), système de coupons, gestion du cycle de vie des impayés (défaut de paiement, grace, lock) et intégration de la passerelle de facturation.
         Il ne livre pas de nouvelles quêtes ni de modification des mécaniques de jeu (XP, butin, combat). 
-      last_modification: '2026-10-01T15:15:15'
+      last_modification: '2026-10-04T11:44:47'
       # --- economie (console deva) ---
       gratuit: true
+
+
 
 
 
@@ -7056,6 +7151,8 @@ revenus:
 
 
 
+
+
     '8617f4232140':
       # --- roadmap (console deva) ---
       rank: 85
@@ -7078,9 +7175,11 @@ revenus:
       gratuit: true
 
 
+
+
     '5a19492a3aa7':
       # --- roadmap (console deva) ---
-      rank: 95
+      rank: 102
       store: true
       rsp: 89
       nom: 'go-live'
@@ -7097,7 +7196,7 @@ revenus:
         - Finalisation et alignement des visuels et fiches de la console Google Play pour la validation finale.
 
         Il ne livre pas de nouvelles mécaniques de jeu (pas de nouvelles quêtes ou économie de loots).
-      last_modification: '2026-10-01T15:15:15'
+      last_modification: '2026-10-04T11:44:47'
       # --- economie (console deva) ---
       churn_facteur: 0.95
       duree_contenu_mois: 2
