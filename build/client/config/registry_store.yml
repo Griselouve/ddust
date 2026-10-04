@@ -177,7 +177,9 @@ conf:
             label: "@@@T:giftcode_menu@@@"
           actions:
             tap: navigate_new.giftcode_page
-        # Résiliation et moyen de paiement : chez Play, jamais dans l'app.
+        # Résiliation et moyen de paiement : chez Play, jamais dans l'app. On passe
+        # d'abord par `subscription_manage_page` (registry_store_tiers.yml), qui dit
+        # ce que le clan a et porte le bouton vers Play.
         # Filtré aux chefs abonnés par shop_settings_selector.
         store_manage:
           icon: "manage_accounts"
@@ -185,7 +187,7 @@ conf:
           shape:
             label: "@@@T:store_manage@@@"
           actions:
-            tap: store.manage
+            tap: navigate_new.subscription_manage_page
 
     #//------------------------------- Abonnement : DÉMÉNAGÉ ------------------------
     # `subscription_page` (bandeau d'état, bascule mensuel/annuel, bouton de palier)

@@ -1235,3 +1235,206 @@ conf:
         text_align: RIGHT
         font_size: 15.0
         font_color: "0xFFE2B85C"
+
+    #//------------------------------- Mon abonnement -----------------------------
+    # « Gérer mon abonnement » (kebab de la boutique, chefs abonnés seulement). Même
+    # habit que la vitrine, mais rien à choisir : UNE carte dorée qui dit ce que le
+    # clan a (palier, places, formule, prix), où il en est (renouvellement, fin,
+    # paiement à régulariser) et ce qui l'attend (changement prévu, mois offerts).
+    #
+    # Ce n'est PAS le retour de `subscription_page` (retirée en août 2026) : aucune
+    # relance n'y mène, aucun tarif n'y est proposé. Changer de palier renvoie à la
+    # vitrine (worker.store_open_subscription) ; résilier ou changer de moyen de
+    # paiement, à Google Play (`store.manage`), jamais dans l'app.
+    #
+    # Tout est écrit par worker.on_subscription_manage_appear, depuis `store.*`
+    # (publié par dvstore) : aucune lecture serveur de plus.
+    subscription_manage_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: ""
+      actions:
+        appear: worker.on_subscription_manage_appear
+        show:   worker.on_subscription_manage_appear
+      registry:
+        - commons/splash_background
+        - tiers/veil
+        - subscription_manage_page/title
+        - subscription_manage_page/card
+        - subscription_manage_page/tier
+        - subscription_manage_page/seats
+        - subscription_manage_page/price
+        - subscription_manage_page/status
+        - subscription_manage_page/extra
+        - subscription_manage_page/note
+        - subscription_manage_page/play
+        - subscription_manage_page/change
+        - subscription_manage_page/safe
+
+    subscription_manage_page/title:
+      masks:
+        - tiers/txt
+      shape:
+        x: 4%
+        y: 6%
+        w: 92%
+        h: 9%
+        text_align: CENTER
+        font_family: "MedievalSharp"
+        font_size: 25.0
+        font_weight: bold
+        label: "@@@T:manage_title@@@"
+
+    subscription_manage_page/card:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 18%
+        w: 90%
+        h: 34%
+        label: ""
+        border: true
+        border_size: 3.0
+        border_color: "0xFFD6A84A"
+        border_radius: 18.0
+        background_color: "0x2ED6A84A"
+
+    # « Formule Tribu »
+    subscription_manage_page/tier:
+      masks:
+        - tiers/txt
+      shape:
+        x: 10%
+        y: 20.5%
+        w: 80%
+        h: 5%
+        font_size: 22.0
+        font_weight: bold
+        label: ""
+
+    # « Jusqu'à 7 aventuriers »
+    subscription_manage_page/seats:
+      masks:
+        - tiers/txt
+      shape:
+        x: 10%
+        y: 25.5%
+        w: 80%
+        h: 3.5%
+        font_size: 14.0
+        font_color: "0xFFCDBB9A"
+        label: ""
+
+    # « 39,99 € / an ». Masqué si aucun prix n'est connu : jamais de montant inventé.
+    subscription_manage_page/price:
+      masks:
+        - tiers/txt
+      shape:
+        x: 10%
+        y: 30%
+        w: 80%
+        h: 5.5%
+        font_size: 26.0
+        font_weight: bold
+        font_color: "0xFFFFFFFF"
+        label: ""
+
+    # Où en est l'abonnement : renouvellement, fin, paiement à régulariser.
+    subscription_manage_page/status:
+      masks:
+        - tiers/txt
+      shape:
+        x: 10%
+        y: 37%
+        w: 80%
+        h: 5.5%
+        font_size: 15.0
+        font_color: "0xFFFFF3D6"
+        label: ""
+
+    # Ce qui l'attend : changement de palier prévu, mois offerts en réserve.
+    subscription_manage_page/extra:
+      masks:
+        - tiers/txt
+      shape:
+        x: 10%
+        y: 43%
+        w: 80%
+        h: 8%
+        font_size: 13.0
+        font_color: "0xFFBFAE90"
+        label: ""
+        visible: false
+
+    # Pourquoi le bouton Play manque (un autre chef paie) ou ne mène pas à Play
+    # (simulateur de store). Né invisible : le cas ordinaire n'a rien à expliquer.
+    subscription_manage_page/note:
+      masks:
+        - tiers/txt
+      shape:
+        x: 6%
+        y: 55%
+        w: 88%
+        h: 9%
+        text_align: CENTER
+        font_size: 14.0
+        font_color: "0xFFBFAE90"
+        label: ""
+        visible: false
+
+    # LE bouton : la page Play de l'abonnement. Masqué quand ce n'est pas ce chef qui
+    # paie : Play ne lui montrerait rien.
+    subscription_manage_page/play:
+      masks:
+        - tiers/txt
+      shape:
+        x: 5%
+        y: 66%
+        w: 90%
+        h: 8%
+        text_align: CENTER
+        font_size: 19.0
+        font_weight: bold
+        font_color: "0xFF2A1A08"
+        background_color: "0xFFE2B85C"
+        border_radius: 16.0
+        label: "@@@T:manage_play@@@"
+        events:
+          tap: true
+        actions:
+          tap: store.manage
+
+    # Changer de palier : la vitrine, d'où le lien « changer » mène au choix.
+    subscription_manage_page/change:
+      masks:
+        - tiers/txt
+      shape:
+        x: 10%
+        y: 77%
+        w: 80%
+        h: 5%
+        text_align: CENTER
+        font_size: 15.0
+        font_color: "0xFFE2B85C"
+        text_decoration: underline
+        label: "@@@T:manage_change@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.store_open_subscription
+
+    subscription_manage_page/safe:
+      masks:
+        - tiers/txt
+      shape:
+        x: 5%
+        y: 88%
+        w: 90%
+        h: 3.5%
+        text_align: CENTER
+        font_size: 12.0
+        font_color: "0xFF8F836F"
+        label: "@@@T:manage_safe@@@"
