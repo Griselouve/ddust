@@ -25,6 +25,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/widgets.dart';
+// Presse-papiers : « Mon ID » du faux Google Play (worker_store, on_store_mock_id).
+import 'package:flutter/services.dart';
 // Emprunt de compte : l'état est persisté ICI et non dans le dictionnaire deva — cf. les
 // clés _kImp* de worker_members.dart et la raison qui les y range.
 import 'package:shared_preferences/shared_preferences.dart';
@@ -73,6 +75,7 @@ part 'worker_store.dart';
 part 'worker_fairy.dart';
 part 'worker_onboarding.dart';
 part 'worker_multiclan.dart';
+part 'worker_referral.dart';
 
 
 // -----------------------------------------------------------------------------
@@ -1094,6 +1097,10 @@ class worker extends DvBeing {
     // sur la pile d'appel. Vidé au rappel comme à l'abandon (le suivant l'écrase).
     String _storePendingBuy = "";
 
+    // Écran du parrainage mis de côté le temps de la porte parentale (même raison que
+    // l'achat ci-dessus) : `referral_page` ou `referral_declare_page`.
+    String _referralPendingPage = "";
+
     // Offre associée à l'achat mis de côté, portée avec lui à travers la porte
     // parentale. null = celle que le serveur juge éligible ; "" = tarif courant
     // sans aucune offre (reprise après gel : on ne redonne pas l'offre fondateurs à
@@ -1205,6 +1212,7 @@ class worker extends DvBeing {
                                 _register_fairy();
                                 _register_onboarding();
                                 _register_multiclan();
+                                _register_referral();
     }
 
     @override

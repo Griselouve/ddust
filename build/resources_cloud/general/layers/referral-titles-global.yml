@@ -1,0 +1,154 @@
+# ---------------------------------------------------------------
+# GENERE par builder.py depuis le build.yml de la suite.
+# Ne pas editer : toute modification est ecrasee au prochain build.
+# Source : build.yml -> referral
+# ---------------------------------------------------------------
+name: referral-titles
+above: conf
+strategy: default
+tenant: global
+data:
+  referral:
+    titles:
+      lineage:
+      - at: 1
+        name:
+          fr: Parrain
+          en: Sponsor
+          es: Padrino
+          de: Pate
+          it: Padrino
+          pt: Padrinho
+          br: Padrinho
+          nl: Peetouder
+      - at: 2
+        name:
+          fr: Mentor
+          en: Mentor
+          es: Mentor
+          de: Mentor
+          it: Mentore
+          pt: Mentor
+          br: Mentor
+          nl: Mentor
+      - at: 5
+        name:
+          fr: Recruteur de clans
+          en: Clan Recruiter
+          es: Reclutador de clanes
+          de: Clan-Werber
+          it: Reclutatore di clan
+          pt: Recrutador de clãs
+          br: Recrutador de clãs
+          nl: Clanwerver
+      - at: 10
+        name:
+          fr: Bâtisseur d'alliances
+          en: Alliance Builder
+          es: Constructor de alianzas
+          de: Bündnisschmied
+          it: Costruttore di alleanze
+          pt: Construtor de alianças
+          br: Construtor de alianças
+          nl: Bouwer van allianties
+      - at: 20
+        name:
+          fr: Seigneur des lignées
+          en: Lord of Lineages
+          es: Señor de los linajes
+          de: Herr der Geschlechter
+          it: Signore delle stirpi
+          pt: Senhor das linhagens
+          br: Senhor das linhagens
+          nl: Heer der geslachten
+      - at: 50
+        name:
+          fr: Fondateur de dynasties
+          en: Dynasty Founder
+          es: Fundador de dinastías
+          de: Dynastiegründer
+          it: Fondatore di dinastie
+          pt: Fundador de dinastias
+          br: Fundador de dinastias
+          nl: Stichter van dynastieën
+      - at: 100
+        name:
+          fr: Légende des donjons
+          en: Dungeon Legend
+          es: Leyenda de los calabozos
+          de: Legende der Verliese
+          it: Leggenda dei sotterranei
+          pt: Lenda das masmorras
+          br: Lenda das masmorras
+          nl: Legende van de kerkers
+      active:
+      - at: 1
+        name:
+          fr: Feu allumé
+          en: Kindled Fire
+          es: Fuego encendido
+          de: Entfachtes Feuer
+          it: Fuoco acceso
+          pt: Fogo aceso
+          br: Fogo aceso
+          nl: Ontstoken vuur
+      - at: 2
+        name:
+          fr: Foyer
+          en: Hearth
+          es: Hogar
+          de: Herdfeuer
+          it: Focolare
+          pt: Lar
+          br: Lar
+          nl: Haard
+      - at: 5
+        name:
+          fr: Hameau
+          en: Hamlet
+          es: Aldea
+          de: Weiler
+          it: Frazione
+          pt: Aldeia
+          br: Povoado
+          nl: Gehucht
+      - at: 10
+        name:
+          fr: Bourg
+          en: Market Town
+          es: Villa
+          de: Marktflecken
+          it: Borgo
+          pt: Vila
+          br: Vila
+          nl: Vlek
+      - at: 20
+        name:
+          fr: Citadelle
+          en: Citadel
+          es: Ciudadela
+          de: Zitadelle
+          it: Cittadella
+          pt: Cidadela
+          br: Cidadela
+          nl: Citadel
+      - at: 50
+        name:
+          fr: Royaume
+          en: Kingdom
+          es: Reino
+          de: Königreich
+          it: Regno
+          pt: Reino
+          br: Reino
+          nl: Koninkrijk
+      - at: 100
+        name:
+          fr: Empire des donjons
+          en: Dungeon Empire
+          es: Imperio de los calabozos
+          de: Imperium der Verliese
+          it: Impero dei sotterranei
+          pt: Império das masmorras
+          br: Império das masmorras
+          nl: Kerkerrijk

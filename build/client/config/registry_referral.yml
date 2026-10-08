@@ -1,0 +1,296 @@
+conf:
+  registry:
+
+    #//------------------------------- PARRAINAGE DE CLANS ----------------------------
+    # Conception : tmp/design_parrainage.md. Brique : module Flutter `dvreferral` (appels,
+    # valeurs `referral.*`) et module pulumi `pureferral` (règles, compteurs).
+    #
+    # Deux écrans, ouverts par le kebab de l'écran Clan (chefs ADULTES, derrière la porte
+    # parentale : clan_settings_selector + worker.open_referral / open_referral_declare).
+    #
+    # ⚠ AUCUNE INFORMATION SUR UN FILLEUL, nulle part : ni nom, ni liste, ni « filleul 1 ».
+    #   Le parrain ne voit que ses compteurs, ses titres et ses mois.
+
+    # « Parrainer un clan » : le code à partager, les deux titres et leur prochain palier,
+    # les compteurs, les mois gagnés, le stock et le plafond, et les conditions en clair.
+    # Tout ce qui change est écrit par worker.on_referral_appear (libellés vides ici).
+    referral_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:referral_title@@@"
+      actions:
+        appear: worker.on_referral_appear
+      registry:
+        - commons/splash_background
+        - referral_page/intro
+        - referral_page/code
+        - referral_page/copy
+        - referral_page/share
+        - referral_page/info
+        - referral_page/titles
+        - referral_page/stats
+        - referral_page/conditions
+        - referral_page/rotate
+
+    referral_page/intro:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 2%
+        w: 90%
+        h: 11%
+        text_align: CENTER
+        label: "@@@T:referral_intro@@@"
+
+    # Gros et centré : un code qu'on dicte au téléphone ou qu'on recopie.
+    referral_page/code:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 8%
+        y: 14%
+        w: 84%
+        h: 8%
+        label: ""
+        text_align: CENTER
+        valign: CENTER
+        font_size: 26.0
+        font_family: "MedievalSharp"
+        font_color: "amber_200"
+
+    referral_page/copy:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 5%
+        y: 23%
+        w: 43%
+        h: 7%
+        label: "@@@T:referral_copy@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_referral_copy
+
+    # Feuille de partage du téléphone (dvsocialshare, gabarit `share.referral_code`).
+    referral_page/share:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 52%
+        y: 23%
+        w: 43%
+        h: 7%
+        label: "@@@T:referral_share@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_referral_share
+
+    # Une ligne brève : « code copié », « nouveau code créé », ou un refus du serveur.
+    referral_page/info:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 31%
+        w: 90%
+        h: 4%
+        label: ""
+        text_align: CENTER
+        font_size: 13.0
+        visible: false
+
+    # Les deux titres, chacun avec son prochain palier (« encore 2 clans »).
+    referral_page/titles:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 36%
+        w: 90%
+        h: 17%
+        label: ""
+        text_align: CENTER
+        scrollable: true
+
+    # Compteurs et mois : lignée, lignée vivante, mois gagnés, stock / plafond.
+    referral_page/stats:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 54%
+        w: 90%
+        h: 14%
+        label: ""
+        text_align: CENTER
+        scrollable: true
+        font_size: 14.0
+
+    # Les conditions, en clair (conception, § 10) : qui gagne quoi, quand, le plafond, le
+    # remboursement, la fraude, le droit de suspendre l'offre.
+    referral_page/conditions:
+      masks:
+        - commons/shape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 69%
+        w: 90%
+        h: 20%
+        label: "@@@T:referral_conditions@@@"
+        text_align: LEFT
+        scrollable: true
+        font_size: 12.0
+
+    # Changer de code : l'ancien est désactivé (un clan déjà parrainé le garde), un code
+    # diffusé trop largement se coupe ainsi en un geste. `freezing_actions` : un appel part.
+    referral_page/rotate:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 20%
+        y: 90%
+        w: 60%
+        h: 6%
+        label: "@@@T:referral_rotate@@@"
+        font_size: 13.0
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_referral_rotate
+
+    # « J'ai un parrain » : saisie du code. Même gabarit que giftcode_page (un champ, un
+    # bouton, une ligne de refus cachée, un overlay de succès), même idiome sans popup.
+    # Masquée du menu une fois un parrain déclaré ou le clan abonné.
+    referral_declare_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:referral_declare_title@@@"
+      keyboard_scrollable: true
+      actions:
+        appear: worker.on_referral_declare_appear
+      registry:
+        - commons/splash_background
+        - referral_declare_page/intro
+        - referral_declare_page/code
+        - referral_declare_page/confirm
+        - referral_declare_page/error
+        - referral_declare_page/ok_scrim
+        - referral_declare_page/ok_panel
+        - referral_declare_page/ok_close
+
+    referral_declare_page/intro:
+      masks:
+        - commons/intro_text
+      shape:
+        x: 5%
+        y: 6%
+        w: 90%
+        h: 20%
+        text_align: CENTER
+        label: "@@@T:referral_declare_intro@@@"
+
+    # La saisie est tolérante (casse, espaces, tirets, préfixe) : c'est le serveur qui
+    # normalise. Rien à valider ici.
+    referral_declare_page/code:
+      masks:
+        - commons/entry
+      shape:
+        x: 8%
+        y: 30%
+        w: 84%
+        h: 9%
+        type: TEXT
+        hint: "@@@T:referral_declare_hint@@@"
+        text_align: CENTER
+
+    referral_declare_page/confirm:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 10%
+        y: 44%
+        w: 80%
+        h: 9%
+        label: "@@@T:referral_declare_confirm@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_referral_declare_confirm
+
+    referral_declare_page/error:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 56%
+        w: 90%
+        h: 14%
+        label: ""
+        text_align: CENTER
+        scrollable: true
+        visible: false
+
+    # SUCCÈS : overlay révélé, jamais une popup. `ok_close` APRÈS `ok_scrim` (hit-test).
+    referral_declare_page/ok_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop
+
+    referral_declare_page/ok_panel:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 8%
+        y: 26%
+        w: 84%
+        h: 36%
+        label: "@@@T:referral_declare_ok@@@"
+        text_align: CENTER
+        scrollable: true
+        visible: false
+
+    referral_declare_page/ok_close:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 70%
+        h: 11%
+        text_align: CENTER
+        label: "@@@T:referral_declare_close@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_referral_declare_close

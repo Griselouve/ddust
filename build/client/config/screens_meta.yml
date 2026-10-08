@@ -262,6 +262,11 @@ conf:
     app_store:
       text: "@@@T:share_app_text@@@\n\n@@@app_share.store_url@@@"
       image: "images/big/logo.png"
+    # PARRAINAGE : le code du clan (`referral.code`, publié par dvreferral), et le lien du
+    # site en dernière ligne : celui qui le reçoit n'a, par définition, pas encore le jeu.
+    referral_code:
+      text: "@@@T:share_referral_text@@@\n\n@@@referral.code@@@\n\n@@@T:share_site_link@@@"
+      image: "images/big/logo.png"
 
   # LA BASCULE TEST INTERNE → PUBLIÉ. Vide tant que l'app n'a pas de fiche publique : le partage
   # envoie le site et les étoiles n'ouvrent rien. Le jour de la publication, y coller l'URL de la

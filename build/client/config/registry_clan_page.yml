@@ -412,6 +412,25 @@ conf:
             label: "@@@T:clan_menu_ai_on@@@"
           actions:
             tap: worker.clan_ai_on
+        # PARRAINAGE (conception : tmp/design_parrainage.md). Réservé au chef ADULTE
+        # (clan_settings_selector), derrière la porte parentale (programme Familles : un
+        # partage et une saisie liés à un échange hors de l'app), double garde dans le worker.
+        # « Parrainer un clan » ouvre le code et les titres ; « J'ai un parrain » la saisie du
+        # code, masquée une fois un parrain déclaré ou le clan abonné.
+        referral:
+          icon: "workspace_premium"
+          desc: "@@@T:clan_menu_referral_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_referral@@@"
+          actions:
+            tap: worker.open_referral
+        referral_declare:
+          icon: "link"
+          desc: "@@@T:clan_menu_referral_declare_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_referral_declare@@@"
+          actions:
+            tap: worker.open_referral_declare
         # « Noter et partager » : ouvre le panneau commons/rate_* (étoiles + partage de l'app).
         # RÉSERVÉ AUX ADULTES (clan_settings_selector, sur legal_state), double garde dans
         # worker.open_rate_panel. En dernier : ce n'est ni un geste de jeu, ni un réglage.

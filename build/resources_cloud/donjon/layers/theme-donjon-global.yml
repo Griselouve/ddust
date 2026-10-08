@@ -5628,17 +5628,55 @@ data:
       # celle qu'un clan sans cotisation reçoit (cf. _notifyAdmins). Elle doit dire
       # que le corps est tapable : privée de ses trois boutons, une notification qui
       # n'annonce rien a l'air cassée, et le chef attendrait un geste qui n'existe pas.
-      # Le pendant à boutons (`notif_validate_request`) n'est déclaré nulle part et
-      # retombe sur son littéral français, dans le code.
+      # Le pendant à boutons est `notif_validate_request`, juste en dessous, avec les
+      # libellés de ses trois boutons.
       notif_validate_request_open:
-        fr: "demande une validation — touchez pour l'ouvrir"
-        en: "is asking for a review — tap to open it"
-        es: "pide una validación — toca para abrirla"
+        fr: "demande une validation : touchez pour l'ouvrir"
+        en: "is asking for a review: tap to open it"
+        es: "pide una validación: toca para abrirla"
         de: "bittet um Bestätigung: tippe zum Öffnen"
         it: "chiede una convalida: tocca per aprirla"
         pt: "pede uma validação: toca para abrir"
         br: "pede uma validação: toque para abrir"
         nl: "vraagt om validatie: tik om te openen"
+      # Clan ABONNÉ : la tête de la demande à trois boutons, et les trois boutons. Lus dans la
+      # langue du chef destinataire (_notifyAdmins) ; sans eux, tout partait en français.
+      notif_validate_request:
+        fr: "demande la validation"
+        en: "is asking for a review"
+        es: "pide la validación"
+        de: "bittet um Bestätigung"
+        it: "chiede la convalida"
+        pt: "pede a validação"
+        br: "pede a validação"
+        nl: "vraagt om validatie"
+      notif_validate_ok:
+        fr: "Valider"
+        en: "Approve"
+        es: "Validar"
+        de: "Bestätigen"
+        it: "Convalida"
+        pt: "Validar"
+        br: "Validar"
+        nl: "Valideren"
+      notif_validate_partial:
+        fr: "À moitié"
+        en: "Halfway"
+        es: "A medias"
+        de: "Zur Hälfte"
+        it: "A metà"
+        pt: "A meio"
+        br: "Pela metade"
+        nl: "Half"
+      notif_validate_ko:
+        fr: "Refuser"
+        en: "Reject"
+        es: "Rechazar"
+        de: "Ablehnen"
+        it: "Rifiuta"
+        pt: "Recusar"
+        br: "Recusar"
+        nl: "Weigeren"
 
       #------------- Shop ------------------------------------
 
@@ -5901,7 +5939,7 @@ data:
       # traductions déjà relues sans rien apporter.
 
 
-      # Les LIBELLÉS store_restore et store_manage viennent du module dvstore
+      # Le LIBELLÉ store_manage vient du module dvstore
       # (flutter/modules/dvstore/config.yml) : seules les descriptions du menu, qui
       # sont propres à ce décor, sont ici.
 
@@ -6367,6 +6405,13 @@ data:
         nl: "Allerheiligste en Stralende Dynastie van de Eeuwige Haard, Hoedster van de Zeven Kamers en de Drie Verdiepingen, Soeverein Geslacht van de Wasvlakten en de Gootsteendalen, Overwinnares van de Stofhordes sinds Generaties, Huis-aan-wiens-Blik-geen-Hoekje-Ontsnapt, en onder wier Dak geen Vlek kan overleven."
 
   # --- Interludes : ce qu'ils SONT --------------------------------------------------
+  # Couleur d'accent des notifications (petit logo et nom de l'app) : l'or des animations
+  # (aura du coffre, giftxp, giftgold). Un autre thème la redéfinit ici ; dvmessaging la relit
+  # à chaque changement de thème, clan par clan (cf. dvmessaging, « catégories et rendu riche »).
+  messaging:
+    style:
+      color: "#D4AF37"
+
   # Le contenu des célébrations déclarées dans config.yml : quelle scène, quel son, quelle
   # vibration. Les définitions elles-mêmes suivent plus bas (vibrations, flame) — tout ce qui
   # fait l'identité sensorielle du jeu est ici, et nulle part ailleurs.

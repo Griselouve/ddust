@@ -116,6 +116,10 @@ conf:
         # « Gérer mon abonnement » (kebab de la boutique, chefs abonnés) : l'état de la
         # cotisation et le bouton vers Google Play.
         - subscription_manage_page
+        # Parrainage (registry_referral.yml) : le code et les titres, la saisie d'un parrain.
+        # On n'y arrive que par le kebab de l'écran Clan ou le tap d'une notification.
+        - referral_page
+        - referral_declare_page
 
     page:
       class: DvPage

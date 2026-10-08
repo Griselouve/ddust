@@ -61,7 +61,10 @@ extension Worker_store on worker {
                                 // --- Écrans ---
                                 ActionRegistry.register("worker.on_shop_appear",           on_shop_appear);
                                 ActionRegistry.register("worker.shop_settings_selector",   shop_settings_selector);
+                                ActionRegistry.register("worker.on_store_mock_id",         on_store_mock_id);
+                                ActionRegistry.register("worker.on_store_mock_close",      on_store_mock_close);
                                 ActionRegistry.register("worker.store_open_subscription",  store_open_subscription);
+                                ActionRegistry.register("worker.store_manage_or_tiers",    store_manage_or_tiers);
                                 ActionRegistry.register("worker.on_locked_appear",         on_locked_appear);
                                 ActionRegistry.register("worker.store_revive_clan",        store_revive_clan);
 
@@ -643,6 +646,18 @@ extension Worker_store on worker {
     // en place.
     Future<void> store_open_subscription(dynamic caller, dynamic event) async {
 
+                                await _storeGotoTiers();
+    }
+
+    // « Gérer mon abonnement » (kebab de la boutique, tout chef) : « Mon abonnement » si
+    // le clan a une cotisation en cours, l'écran des paliers sinon. On choisit ainsi son
+    // abonnement quand on veut, sans attendre que le jeu le propose.
+    Future<void> store_manage_or_tiers(dynamic caller, dynamic event) async {
+
+                                if (await _storeSubscribed()) {
+                                    DvOrb.navigate_new("subscription_manage_page");
+                                    return;
+                                }
                                 await _storeGotoTiers();
     }
 
@@ -1260,6 +1275,62 @@ extension Worker_store on worker {
     Future<void> on_shop_appear(dynamic caller, dynamic event) async {
 
                                 _stopCombatSiege();
+                                unawaited(_storeMockBadge("shop"));
+    }
+
+    // --- Faux Google Play (cible d'essai) -------------------------------------
+    // Un client SNAPSHOT sur la région d'essai peut mettre son clan au faux Google Play
+    // (pilotage storemock_ui). dvstore publie `store.mock.available` (l'app peut y aller),
+    // `store.mock.active` (son clan y est) et `store.mock.code` (« clan:joueur »).
+
+    // « Mon ID », dans le kebab de la boutique : le code à coller dans le pilotage, copié
+    // dans le presse-papiers ET montré en grand (overlay, jamais de popup). Le clan bascule
+    // au prochain lancement de l'app.
+    Future<void> on_store_mock_id(dynamic caller, dynamic event) async {
+
+                                String t(String key) => TranslationRegistry.processLabel("@@@T:$key@@@");
+                                final code = (await deva_get("store.mock.code"))?.toString() ?? "";
+                                if (code.isEmpty) {
+                                    deva_log("warning", "[store] Mon ID : aucun code (hors faux store)");
+                                    return;
+                                }
+                                try {
+                                    await Clipboard.setData(ClipboardData(text: code));
+                                } catch (e) {
+                                    deva_log("warning", "[store] Mon ID : presse-papiers indisponible ($e)");
+                                }
+                                deva_log("info", "[store] Mon ID copié : $code");
+                                final text = await DvOrb.wait_for_shape("shop/mock_text");
+                                if (text is DvLabel) {
+                                    text.set("shape.label", t("store_mock_id_copied").replaceAll("{code}", code));
+                                    await text.computeDisplay();
+                                }
+                                // Visibilité de l'instance vive seulement : un overlay ne doit pas
+                                // renaître affiché au prochain lancement.
+                                for (final id in const ["shop/mock_scrim", "shop/mock_text", "shop/mock_close"]) {
+                                    DvOrb.get_shape_by_id(id)?..set("shape.visible", true)..refreshUI();
+                                }
+    }
+
+    Future<void> on_store_mock_close(dynamic caller, dynamic event) async {
+
+                                for (final id in const ["shop/mock_scrim", "shop/mock_text", "shop/mock_close"]) {
+                                    DvOrb.get_shape_by_id(id)?..set("shape.visible", false)..refreshUI();
+                                }
+    }
+
+    // La pastille « playstore mocked » d'un écran d'achat ou d'abonnement : visible tant
+    // que le clan est au faux store, pour qu'aucun faux achat ne se confonde avec un vrai.
+    // Born-filled (_syncVisible) : elle naît juste au prochain affichage de l'écran.
+    Future<void> _storeMockBadge(String page) async {
+
+                                try {
+                                    final on = (await deva_get("store.mock.active")) == true;
+                                    final id = "$page/mock_badge";
+                                    await _syncVisible(await DvOrb.wait_for_shape(id), id, on);
+                                } catch (e) {
+                                    deva_log("warning", "[store] pastille du faux store ($page) : $e");
+                                }
     }
 
     // Prix à afficher pour une entrée du catalogue.
@@ -1290,24 +1361,22 @@ extension Worker_store on worker {
                                 return (await deva_get("store.catalog.$productId.price_hint"))?.toString() ?? "";
     }
 
-    // Selector du kebab de la boutique. « Restaurer » est ouvert à tous : ce n'est
-    // pas acheter, et l'appareil qu'on réinstalle peut très bien être celui d'un
-    // enfant. « Gérer » n'a de sens que pour un chef qui a une cotisation en cours.
+    // Selector du kebab de la boutique. « Gérer mon abonnement » est offert à tout chef,
+    // abonné ou non. Pas de « Restaurer mes achats » : rien ne vit sur l'appareil,
+    // une réinstallation retrouve compte, clan et abonnement d'elle-même (2026-10-04).
     Future<List<String>> shop_settings_selector(dynamic caller, dynamic data) async {
 
                                 // ⚠ LES TUTORIELS DANS TOUS LES KEBABS, celui-ci compris. C'est la
                                 //   seule option qui reponde a « je ne sais pas quoi faire » : la
                                 //   reserver a deux ecrans sur trois oblige a se souvenir DUQUEL,
-                                //   ce que personne ne fait. Posee en tete, avant meme la
-                                //   restauration des achats, parce qu'un joueur perdu dans la
-                                //   boutique cherche a comprendre avant d'acheter.
-                                final options = <String>["tutorials", "store_restore"];
+                                //   ce que personne ne fait. Posee en tete, parce qu'un joueur
+                                //   perdu dans la boutique cherche a comprendre avant d'acheter.
+                                final options = <String>["tutorials"];
                                 try {
-                                    // Une cotisation EN COURS, et pas seulement un nom de palier : la
-                                    // projection le garde après l'expiration, « Gérer » y renverrait
-                                    // vers un abonnement qui n'existe plus.
+                                    // Tout chef, abonné ou non : abonné, il va à « Mon abonnement » ;
+                                    // sinon à l'écran des paliers (store_manage_or_tiers).
                                     final canBuy  = await _storeCanBuy();
-                                    if (await _storeSubscribed() && canBuy) options.add("store_manage");
+                                    if (canBuy) options.add("store_manage");
                                     // Saisir un code : sous la même garde que l'achat, et pour la même
                                     // raison — c'est le clan qu'on engage. Proposée abonné ou non : un
                                     // crédit réclamé pendant une cotisation payante n'est pas perdu,
@@ -1318,6 +1387,9 @@ extension Worker_store on worker {
                                     // restent. Un kebab amputé vaut mieux qu'un écran qui ne s'ouvre pas.
                                     deva_log("error", "[store] shop_settings_selector FAILED: $e");
                                 }
+                                // « Mon ID » : client snapshot sur la région d'essai seulement
+                                // (dvstore `store.mock.available`). Jamais dans une release.
+                                if ((await deva_get("store.mock.available")) == true) options.add("store_mock_id");
                                 return options;
     }
 
@@ -1336,6 +1408,7 @@ extension Worker_store on worker {
 
     Future<void> on_locked_appear(dynamic caller, dynamic event) async {
 
+                                unawaited(_storeMockBadge("locked_page"));
                                 final canBuy = await _storeCanBuy();
                                 final revive = await DvOrb.wait_for_shape("locked_page/revive");
 
@@ -1521,6 +1594,7 @@ extension Worker_store on worker {
 
     Future<void> on_tiers_appear(dynamic caller, dynamic event) async {
 
+                                unawaited(_storeMockBadge("tiers_page"));
                                 // CHAQUE PARTIE À PART, et chacune journalise son échec : une lecture
                                 // ratée sur les visages ne doit pas laisser les cartes sans prix.
                                 Future<void> part(String what, Future<void> Function() paint) async {
@@ -1752,21 +1826,23 @@ extension Worker_store on worker {
                                 return product == tier && (current.isEmpty || current == plan);
     }
 
-    // « Formule Tribu · jusqu'à 7 joueurs · changer ». Le lien ouvre le choix du palier.
+    // EN TÊTE de la vitrine, sous le titre :
+    //   « Formule Tribu                changer »
+    //   « Jusqu'à 7 joueurs »
+    // Le lien (`tiers_page/formula_change`, en conf) ouvre le choix du palier.
     Future<void> _tiersPaintFormula(String tier) async {
 
                                 var name = (await deva_get("store.catalog.$tier.label"))?.toString() ?? "";
                                 if (name.isEmpty) name = tier;
                                 final cap   = await _storeTierCapacity(tier);
-                                var seats = TranslationRegistry.processLabel(cap < 0
+                                final seats = TranslationRegistry.processLabel(cap < 0
                                     ? "@@@T:tiers_unlimited@@@" : "@@@T:tiers_upto@@@").replaceAll("{n}", "$cap");
-                                if (seats.isNotEmpty) seats = seats[0].toLowerCase() + seats.substring(1);
-                                final head   = TranslationRegistry.processLabel("@@@T:tiers_formula@@@")
-                                    .replaceAll("{tier}", "[[${TranslationRegistry.processLabel(name)}]]");
-                                final change = TranslationRegistry.processLabel("@@@T:tiers_change@@@");
-                                final line   = await DvOrb.wait_for_shape("tiers_page/formula");
-                                await _syncLabel(line, "tiers_page/formula",
-                                    "$head  ·  $seats  ·  (($change|worker.tiers_open_pick))");
+                                final head  = TranslationRegistry.processLabel("@@@T:tiers_formula@@@")
+                                    .replaceAll("{tier}", TranslationRegistry.processLabel(name));
+                                final line  = await DvOrb.wait_for_shape("tiers_page/formula");
+                                await _syncLabel(line, "tiers_page/formula", head);
+                                final sub   = await DvOrb.wait_for_shape("tiers_page/seats");
+                                await _syncLabel(sub, "tiers_page/seats", seats);
     }
 
     // Base plan déclaré au catalogue pour une périodicité (le SUFFIXE est contractuel).
@@ -1873,11 +1949,13 @@ extension Worker_store on worker {
     // Ce que le clan a et où il en est, lu dans `store.*` (publié par dvstore) :
     // aucune lecture serveur de plus. Le bouton mène à Google Play (`store.manage`),
     // seul guichet de la résiliation et du moyen de paiement ; le lien « changer de
-    // palier », à la vitrine. On n'y arrive qu'abonné (shop_settings_selector).
+    // formule », à la vitrine. On n'y arrive qu'abonné (store_manage_or_tiers), ou
+    // porté par un cadeau : l'écran le dit alors en deux lignes (_managePaint).
     // -----------------------------------------------------------------------
 
     Future<void> on_subscription_manage_appear(dynamic caller, dynamic event) async {
 
+                                unawaited(_storeMockBadge("subscription_manage_page"));
                                 try {
                                     await _managePaint();
                                 } catch (e, st) {
@@ -1903,6 +1981,31 @@ extension Worker_store on worker {
                                 final state  = await _storeState();
                                 final period = plan.endsWith("yearly") ? "yearly" : "monthly";
                                 deva_log("info", "[store] mon abonnement : $tier/$plan état=$state");
+
+                                // LE CLAN VIT D'UN CADEAU (code cadeau, mois offerts) : un mois
+                                // offert court, et rien n'est payé chez Play. Pas de formule, pas
+                                // de prix, pas de « résilié » : « 2 mois offerts » et la date
+                                // jusqu'à laquelle on joue, réserve comprise. Ni bouton Play (il
+                                // n'y a rien à y gérer) ni note.
+                                if (await _storeOnCredit()) {
+                                    final until   = DateTime.tryParse((await deva_get("store.credits.until"))?.toString() ?? "");
+                                    final reserve = int.tryParse((await deva_get("store.credits.months"))?.toString() ?? "") ?? 0;
+                                    if (until != null) {
+                                        final months = 1 + (reserve < 0 ? 0 : reserve);
+                                        await label("tier", months == 1
+                                            ? t("manage_gift_one")
+                                            : t("manage_gift_months").replaceAll("{n}", "$months"));
+                                        await label("status", t("manage_gift_until")
+                                            .replaceAll("{date}", _storeShortDate(_storeGiftEnd(until, reserve))));
+                                        await visible("seats", false);
+                                        await visible("price", false);
+                                        await visible("extra", false);
+                                        await visible("note",  false);
+                                        await visible("play",  false);
+                                        return;
+                                    }
+                                }
+                                await visible("seats", true);
 
                                 // Palier et places.
                                 var name = (await deva_get("store.catalog.$tier.label"))?.toString() ?? "";
@@ -1952,13 +2055,27 @@ extension Worker_store on worker {
 
                                 // Le bouton Play. Play ne montre un abonnement qu'au compte qui l'a
                                 // souscrit : à un autre chef, on dit qui peut agir plutôt que de
-                                // l'envoyer sur une page vide. Au simulateur, Play n'a rien à montrer.
+                                // l'envoyer sur une page vide.
                                 final isPayer = (await deva_get("store.subscription.is_payer"))?.toString() != "false";
-                                final mock    = (await deva_get("store.channel"))?.toString() == "storemock";
-                                final note    = !isPayer ? t("manage_not_payer") : mock ? t("manage_mock") : "";
+                                final note    = !isPayer ? t("manage_not_payer") : "";
                                 if (note.isNotEmpty) await label("note", note);
                                 await visible("note", note.isNotEmpty);
                                 await visible("play", isPayer);
+    }
+
+    // Fin du cadeau, réserve comprise : la fin du mois en cours, puis un mois de plus
+    // par mois en réserve, comme le balayage les ouvrira (pustore, `addMonth` : même
+    // jour du mois suivant, ramené au dernier jour s'il n'existe pas).
+    DateTime _storeGiftEnd(DateTime until, int reserve) {
+
+                                var d = until.toUtc();
+                                for (var k = 0; k < reserve; k++) {
+                                    final day  = d.day;
+                                    final last = DateTime.utc(d.year, d.month + 2, 0).day;
+                                    d = DateTime.utc(d.year, d.month + 1, day < last ? day : last,
+                                                     d.hour, d.minute, d.second);
+                                }
+                                return d;
     }
 
     // -----------------------------------------------------------------------
@@ -1979,6 +2096,7 @@ extension Worker_store on worker {
 
     Future<void> on_tiers_pick_appear(dynamic caller, dynamic event) async {
 
+                                unawaited(_storeMockBadge("tiers_pick_page"));
                                 try {
                                     await _tiersPaintPick();
                                 } catch (e, st) {
@@ -2338,6 +2456,7 @@ extension Worker_store on worker {
 
     Future<void> on_giftcode_appear(dynamic caller, dynamic event) async {
 
+                                unawaited(_storeMockBadge("giftcode_page"));
                                 final code  = await DvOrb.wait_for_shape("giftcode_page/code");
                                 code?..set("shape.value", "")..refreshUI();
 

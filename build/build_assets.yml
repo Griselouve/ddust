@@ -228,6 +228,9 @@ assets:
       items:
         icones:   { kind: source, out: "icon/*.png" }
         splash:   { kind: source, out: "images/splashs/*.png" }
+        # Sons embarqués dans l'APK : roar.mp3, le son signature des notifications
+        # (copié aussi dans res/raw par `build.android_raw` du client).
+        sons_apk: { kind: source, out: "sounds/*.mp3" }
 
     # =========================================================================
 

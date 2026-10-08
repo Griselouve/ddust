@@ -18,6 +18,10 @@ build:
   - pudocuments
   - puhosting
   - puvertexai
+  # Herite de puvertexai (la file de la veille des clips). La file est coupee chez ddust
+  # (`tasks.queues.clips.enabled: false`), mais la clef `tasks.queues` existe : la brique
+  # est chargee et doit donc etre listee ici, sinon ModuleNotFoundError.
+  - putasks
   - pubudget
   - puvirtuallobby
   - pulock
@@ -27,10 +31,17 @@ build:
   # Abonnements et achats in-app (Google Play) : base dédiée du miroir d'achats,
   # vérification serveur, et projection du bénéfice sur le clan (workers/clans_store).
   - pustore
+  # Le FAUX GOOGLE PLAY de la cible d'essai (storemock) : achats simules depuis le
+  # telephone, pour les seuls clans que le pilotage y a mis. N'existe que dans le stack
+  # de la cible `test` (deploy.scope du module) : en production le builder le retire.
+  - pustoremock
   # Le CATALOGUE : ce qui est en vente, cree et mis a jour dans la Play Console
   # depuis `store.catalog` (build.yml de la suite). Pendant de pustore, qui sait ce
   # qui a ete achete : l'un decide de l'offre, l'autre constate les achats.
   - pucatalog
+  # Le PARRAINAGE de clans (codes, lignées, titres, mois du parrain). Vit sur pustore :
+  # sa base, son compte de service, et la file des mois offerts que le balayage sert.
+  - pureferral
   # Balayage quotidien des timers de facturation. Les echeances de defaut de paiement
   # (grace 10j, gel j50, suppression j780) ne peuvent pas dependre d'une ouverture de
   # l'app : un clan en defaut est justement un clan que plus personne n'ouvre.

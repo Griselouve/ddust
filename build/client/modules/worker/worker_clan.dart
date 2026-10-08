@@ -556,6 +556,7 @@ extension Worker_clan on worker {
 
                                 var isAdmin = false;
                                 var isAdult = false;
+                                var canDeclare = false;
                                 try {
                                     final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                     final session    = await _readSession(region);
@@ -563,6 +564,7 @@ extension Worker_clan on worker {
                                     final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
                                     isAdmin = await _ensureIsAdmin(clanId, clanSecret, region);
                                     isAdult = await _ensureIsAdult(clanId, clanSecret, region);
+                                    if (isAdmin && isAdult) canDeclare = await _referralCanDeclare(clanId, clanSecret, region);
                                 } catch (e) {
                                     deva_log("error", "[clan] clan_settings_selector FAILED: $e");
                                 }
@@ -588,6 +590,13 @@ extension Worker_clan on worker {
                                 // L'IA du clan : UNE des deux options, selon l'état relu à frais.
                                 // En dernier : c'est un réglage, pas un geste de jeu.
                                 if (isAdmin) options.add(await _iaDuClan() ? "clan_ai_off" : "clan_ai_on");
+                                // PARRAINAGE : chef ADULTE seulement (partage d'un code, saisie liée à
+                                // un échange hors de l'app). « J'ai un parrain » disparaît une fois un
+                                // parrain déclaré ou le clan abonné.
+                                if (isAdmin && isAdult) {
+                                    options.add("referral");
+                                    if (canDeclare) options.add("referral_declare");
+                                }
                                 // « Noter et partager » TOUT EN BAS, pour tout adulte (chef ou non) :
                                 // partager l'app vers l'extérieur est réservé à la majorité légale.
                                 if (isAdult) options.add("rate_share");
@@ -2423,6 +2432,9 @@ extension Worker_clan on worker {
          String legalStateOverride = "", bool noAccount = false}) async {
 
             if (clanId.isEmpty || clanSecret.isEmpty || userId.isEmpty) return;
+            // Le clan ouvert devient le scope du style des notifications : ses notifications
+            // reçues app fermée prendront la couleur de SON thème (dvmessaging.setStyleScope).
+            if (userId == _userId) unawaited(_messaging?.setStyleScope(clanId));
             try {
                 final existing = await _cloud?.read(
                     "workers", "clans_players/$clanId/players", userId,
@@ -2452,7 +2464,13 @@ extension Worker_clan on worker {
                 // l'app : c'est sur elle que le balayeur de relance (pulse_sweeper) décide
                 // qu'une famille a décroché. Un clan qui décroche est justement un clan que
                 // plus personne n'ouvre — aucun client ne peut donc s'en charger.
-                doc.set("last_connected", DateTime.now().toUtc().toIso8601String());
+                // Premier passage du mois pour ce joueur ? Lu AVANT d'écraser la date : c'est le
+                // changement de mois de last_connected qui pose la marque d'actif (plus bas).
+                final avant      = doc.get("last_connected")?.toString() ?? "";
+                final maintenant = DateTime.now().toUtc();
+                final moisNeuf   = avant.length < 7
+                    || avant.substring(0, 7) != maintenant.toIso8601String().substring(0, 7);
+                doc.set("last_connected", maintenant.toIso8601String());
                 doc.set("last_version",   (await deva_get("application.version"))?.toString() ?? "");
                 // Décalage horaire du membre, en minutes. PAS ENCORE EXPLOITÉ : le balayeur de
                 // relance part à heure fixe UTC (une par région), ce qui reste un compromis à
@@ -2606,12 +2624,39 @@ extension Worker_clan on worker {
                     "workers", "clans_players/$clanId/players", userId, doc,
                     region: region, ownerId: clanSecret,
                 );
+                if (moisNeuf) unawaited(_marqueActif(userId, region, maintenant));
                 // Le doc vient d'être réécrit : la valeur mémorisée pour le badge de combat peut
                 // dater d'avant (repli sur la conf pris avant l'initialisation du champ). On la
                 // jette plutôt que de la deviner — la prochaine ouverture de combat relira.
                 _maxXpCache.remove(userId);
             } catch (e) {
                 deva_log("error", "[worker] _writeClanPlayer: FAILED: $e");
+            }
+    }
+
+    // La MARQUE D'ACTIF du mois : stats_active/{AAAAMM}_{userId}, posée au premier
+    // last_connected du mois. C'est elle que compte `active_users` (pubudget, budget
+    // automatique et rapport Telegram) : un count() sur les marques du mois, au lieu de
+    // relire toutes les heures tous les joueurs connectés depuis le 1er.
+    //
+    // ⚠ UNE MARQUE, PAS UN COMPTEUR. dvcloud ne sait pas incrémenter, et un compteur
+    //   compterait deux fois le joueur de deux clans. La marque est idempotente : la
+    //   réécrire (deux appareils, une reconnexion) ne change rien, et la règle l'accepte
+    //   pour qu'un refus ne déclenche pas « Clan en maintenance » (cf. dvautover).
+    // ⚠ JAMAIS BLOQUANTE. Une marque perdue ne coûte qu'un joueur de moins au compteur
+    //   du budget, jamais la connexion.
+    // ⚠ `expiration` EST UN DateTime : dvcloud le sérialise en timestamp, seul type que
+    //   le TTL de Firestore efface. 62 jours : le mois compté, plus le suivant.
+    Future<void> _marqueActif(String userId, String region, DateTime quand) async {
+
+            try {
+                final mois = "${quand.year}${quand.month.toString().padLeft(2, "0")}";
+                await _cloud?.write("workers", "stats_active", "${mois}_$userId", Dvidle({
+                    "month":      mois,
+                    "expiration": quand.add(const Duration(days: 62)),
+                }), region: region);
+            } catch (e) {
+                deva_log("warning", "[worker] marque d'actif non posée : $e");
             }
     }
 

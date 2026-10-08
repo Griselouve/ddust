@@ -237,6 +237,29 @@ conf:
             rule: |
               allow list, update: if false;
               allow get, create, delete: if request.auth != null;
+          # stats_active/{AAAAMM}_{userId} : la MARQUE D'ACTIF du mois, posée par l'app au
+          # premier `last_connected` du mois d'un joueur (worker_clan._marqueActif). C'est
+          # elle que compte `budget.active_users` : un count() par base au lieu de relire
+          # tous les joueurs du mois. Champs : month, expiration, ownerId (posé par dvcloud).
+          #
+          # ⚠ ÉCRITURE SEULE, ET LA RÉÉCRITURE EST PERMISE. La marque est idempotente ; la
+          #   refuser à la seconde écriture (deux appareils) déclencherait l'alerte
+          #   « Clan en maintenance » que dvautover attache aux écritures refusées.
+          # ⚠ PERSONNE NE LIT, PERSONNE N'EFFACE : le compte se fait côté serveur (accès
+          #   privilégié), et le TTL sur `expiration` vide les mois passés.
+          # ⚠ UN COMPTE CONNECTÉ PEUT GONFLER LE COMPTEUR en inventant des identifiants.
+          #   C'est le même risque qu'avant (créer de faux joueurs suffisait) et il reste
+          #   borné : le compteur ne fait que monter le budget automatique, sous `budget_max`.
+          stats_active:
+            ttl: true
+            rule: |
+              allow get, list, delete: if false;
+              allow create, update: if request.auth != null
+                && request.resource.data.keys().hasOnly(['month', 'expiration', 'ownerId'])
+                && request.resource.data.ownerId == request.auth.uid
+                && request.resource.data.month is string
+                && request.resource.data.month.size() == 6
+                && docId.matches(request.resource.data.month + '_.+');
           # Liste d'attente beta saisie sur le site vitrine (bouton « S'inscrire aux betas »
           # des pages accueil/concept/roadmap). Écrite UNIQUEMENT par la fonction beta_signup,
           # qui passe par l'admin SDK et ignore donc ces règles : le client n'y a aucun accès,
@@ -440,6 +463,13 @@ conf:
           #   seulement d'être membre de CE clan : il n'y a rien à lire, la réponse est
           #   un « introuvable » propre au lieu d'un refus.
           clans_store:
+            # Index composite pour `store_sweeper` (pustore) : les abonnés sains dont la
+            # dernière relecture chez Play date de plus de RECHECK_DAYS jours, et EUX
+            # SEULS (state in [active, trial] ET play_checked_at < seuil).
+            indexes:
+              - fields:
+                  - field: state
+                  - field: play_checked_at
             rule: |
               allow list: if false;
               allow get: if request.auth != null
@@ -814,57 +844,130 @@ conf:
     telegram:
       status_interval_hours: 2
 
-    # Joueur actif = connecté au moins une fois depuis le 1er du mois : `last_connected`
-    # de sa fiche de clan, posé à chaque ouverture de l'app (worker_session.dart, via
-    # _writeClanPlayer). Un joueur de plusieurs clans compte une fois ; une fiche
-    # supprimée ou quittée ne compte pas. Les trois piles du projet (eu, eut, us) :
-    # le budget, lui aussi, voit tout le projet.
-    #
-    # ⚠ Un enfant sans téléphone n'a pas de connexion à lui : il compte le mois de sa
-    #   création seulement (la fiche naît avec la date du jour).
-    active_users:
-      label: "Joueurs actifs"
-      unit: "joueur"
-      databases: [eu-workers, eut-workers, us-workers]
+    # QUOTAS (2026-10-05) : la capacité synchrone, à côté du coût. Planchers décidés le
+    # 2026-10-05, plafonds larges : on resserrera avec les courbes. Le plafond des
+    # instances est `cloudfunctions.max_instances` (plus bas), celui des révisions.
+    #   IA : un appel de narration coûte ~0,5 centime, 30/min = ~9 €/h au pire.
+    #   Fonctions : 10 instances bornent une boucle ; aucune n'en approche aujourd'hui.
+    quotas:
+      enabled: true
+      alert_pct: 80
+      vertexai:
+        rpm: 30
+        rpm_max: 300
+      cloudfunctions:
+        max_instances: 10
+
+    # AUTOSCALING : le budget suit les joueurs et le revenu, les quotas suivent le budget.
+    #   21 €/mois de plancher fixe
+    # + 0,20 € par joueur actif du mois, payant ou non (test, codes cadeaux) : c'est le
+    #   plancher sous lequel le backend PEUT coûter plus qu'il ne rapporte. Deux fois le
+    #   coût réel mesuré (~0,10 €/joueur). Les joueurs de la région d'essai comptent : ils
+    #   consomment les mêmes quotas, ceux du projet.
+    # + 30 % du revenu mensuel des abonnés de production,
+    # jusqu'à 100 €/mois.
+    autoscale:
+      enabled: true
+      per_active_user: 0.20
+      revenue_share: 0.30
+      budget_max: 100
+
+    # Le revenu mensuel des abonnés : celui que calcule store_kpis (pustore), dans la
+    # base `store` de CHAQUE RÉGION, découverte à l'exécution (motif `*-store`) : une
+    # région ajoutée ou retirée est vue sans rien changer ici. Une région d'essai est
+    # écartée par le document lui-même (`test_data`, posé par store_kpis) : le faux
+    # store y vit, et les quotas valent pour tout le projet GCP.
+    revenue:
+      databases: ["*-store"]
       dependencies:
         firebase-admin: "^12.0.0"
       code: |
         import { initializeApp, getApps } from 'firebase-admin/app';
         import { getFirestore } from 'firebase-admin/firestore';
 
-        const DATABASES = ['eu-workers', 'eut-workers', 'us-workers'];
-
-        export async function activeUsers(ctx: { projectId: string; since: Date }): Promise<number | null> {
+        export async function monthlyRevenue(ctx: { projectId: string; databases: string[] }): Promise<number | null> {
           if (!getApps().length) initializeApp({ projectId: ctx.projectId });
           const app = getApps()[0];
-          const since = ctx.since.toISOString();
-          const ids = new Set<string>();
-          let read = 0;
-          for (const db of DATABASES) {
+          let total = 0, read = 0;
+          for (const db of ctx.databases || []) {
             try {
-              // Index de groupe déjà posé pour pulse_sweeper (clans_players/players).
-              const snap = await getFirestore(app, db).collectionGroup('players')
-                .where('last_connected', '>=', since)
-                .select('enabled', 'status')
-                .get();
+              // Le dernier calcul du jour (`date` = l'identifiant, trié sans index).
+              const snap = await getFirestore(app, db).collection('store_kpis')
+                .orderBy('date', 'desc').limit(1).get();
               read++;
-              for (const d of snap.docs) {
-                const x = d.data() || {};
-                if (x.enabled === false || x.status === 'deleted') continue;
-                ids.add(d.id);
-              }
+              if (snap.empty) continue;
+              const d = snap.docs[0].data() || {};
+              if (d.test_data === true) continue;
+              total += Number((d.total || {}).mrr_eur || 0);
+            } catch (e) { console.warn(`[budget] revenu ${db}:`, e); }
+          }
+          return read > 0 ? total : null;
+        }
+
+    # Joueur actif = connecté au moins une fois depuis le 1er du mois. Depuis le
+    # 2026-10-08 (lot B de deva/docs/audit_serverless.md), on COMPTE LES MARQUES
+    # `stats_active/{AAAAMM}_{userId}` que l'app pose au premier `last_connected` du mois
+    # (worker_clan._marqueActif) : un count() par base, une lecture facturée par tranche
+    # de mille marques. Avant, la fonction relisait tous les joueurs du mois, sans
+    # limite, à chaque rapport Telegram (2 h), à chaque recalcul du budget (6 h) et à
+    # chaque démarrage à froid. TOUTES les régions du projet, essai compris, découvertes
+    # à l'exécution (motif `*-workers`).
+    #
+    # ⚠ CE QUI CHANGE DANS LE SENS DU CHIFFRE. Un joueur de plusieurs clans compte
+    #   toujours une fois (une marque par joueur et par mois). Un joueur qui s'est connecté
+    #   puis a quitté ou supprimé sa fiche dans le mois compte désormais : il a bien été
+    #   actif.
+    # ⚠ Un enfant sans téléphone n'a pas de connexion à lui : il compte le mois de sa
+    #   création seulement (sa fiche naît sans `last_connected`, d'où une marque).
+    active_users:
+      label: "Joueurs actifs"
+      unit: "joueur"
+      databases: ["*-workers"]
+      dependencies:
+        firebase-admin: "^12.0.0"
+      code: |
+        import { initializeApp, getApps } from 'firebase-admin/app';
+        import { getFirestore } from 'firebase-admin/firestore';
+
+        export async function activeUsers(ctx: { projectId: string; since: Date; databases: string[] }): Promise<number | null> {
+          if (!getApps().length) initializeApp({ projectId: ctx.projectId });
+          const app = getApps()[0];
+          const mois = String(ctx.since.getUTCFullYear())
+                     + String(ctx.since.getUTCMonth() + 1).padStart(2, '0');
+          let read = 0;
+          let total = 0;
+          for (const db of ctx.databases || []) {
+            try {
+              const agg = await getFirestore(app, db).collection('stats_active')
+                .where('month', '==', mois).count().get();
+              read++;
+              total += Number(agg.data().count || 0);
             } catch (e) { console.warn(`[budget] actifs ${db}:`, e); }
           }
-          return read > 0 ? ids.size : null;
+          return read > 0 ? total : null;
         }
 
   cloudfunctions:
     enabled: true
     require_app_check: false
+    # Plafond d'instances de toute fonction sans `max_instances` explicite, et étiquette
+    # `deva-autoscale` : pubudget pose dessous le plafond du service, qui suit le budget
+    # (budget.quotas.cloudfunctions, 10 au plancher). ⚠ Passer de 100 à 50 redéploie une
+    # fois toutes les fonctions des deux cibles.
+    max_instances: 50
+    autoscale: true
     functions:
       messaging:
         environment:
           BROADCAST_ENABLED: "true"
+      # Veille des clips Veo, héritée de `puvertexai`. Elle ne sert que la bibliothèque
+      # d'assets, qui vit dans les buckets du master : chez ddust, aucun clip n'est jamais
+      # lancé. Son job tournait toutes les deux minutes par région pour rien (19 000
+      # réveils en septembre 2026) ; depuis le 2026-10-08 elle n'est plus réveillée que
+      # par une tâche posée au lancement d'un clip (putasks), et ni la fonction ni sa
+      # file n'ont de raison d'exister ici. Voir aussi `tasks.queues.clips` plus bas.
+      clip_watch:
+        enabled: false
       # Paramétrage du module pustore. Le module fournit la mécanique (miroir Play,
       # vérification, verrou de jeton) ; ddust lui dit seulement ce qui, chez lui, tient
       # lieu de SCOPE et où en projeter le bénéfice.
@@ -928,6 +1031,12 @@ conf:
           # ce qu'on relit pour recaler le simulateur de store (storemock) sur le
           # comportement réel de Play, lors des vrais tests de licence.
           RAW_LOG_REGIONS: "@@@C:deva_regions.beta@@@"
+          # Faux Google Play (pustoremock) : un clan de la region d'essai mis au faux store
+          # a son vrai abonnement MASQUE le temps des essais (cf. pustore).
+          MOCK_REGIONS: "@@@C:deva_regions.beta@@@"
+          # Parrainage (pureferral) : prévenu à chaque achat vérifié, pour que le premier
+          # paiement d'un filleul compte tout de suite.
+          STORE_HOOKS: "referral_sweeper"
 
       # ⚠ PLUS D'OFFRE FONDATEURS depuis le 2026-09-30 : pucatalog vide l'offre du
       #   document ci-dessous, et la fonction rend "" à tout le monde. Elle reste
@@ -1048,6 +1157,13 @@ conf:
           STORE_REGIONS: "@@@C:deva_regions.all@@@"
           # Journal brut des RTDN des achats de la région d'essai (cf. store_verify).
           RAW_LOG_REGIONS: "@@@C:deva_regions.beta@@@"
+          # Faux Google Play (pustoremock) : un clan de la region d'essai mis au faux store
+          # a son vrai abonnement MASQUE le temps des essais (cf. pustore).
+          MOCK_REGIONS: "@@@C:deva_regions.beta@@@"
+          # Parrainage (pureferral) : prévenu à chaque notification de Google (premier
+          # paiement, résiliation, remboursement d'un filleul). Le crochet vise la
+          # fonction de la région du CLAN (`eut-referral-sweeper` pour un achat d'essai).
+          STORE_HOOKS: "referral_sweeper"
       # Règle du payeur à la demande : appelée par le client après revoke_player,
       # nomore_chief et la suppression de compte (worker_members, worker_session). Le
       # balayage quotidien applique la même règle en filet.
@@ -1056,6 +1172,9 @@ conf:
           PACKAGE_NAME: "@@@C:store.play.package@@@"
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"
+          # Faux Google Play (pustoremock) : un clan de la region d'essai mis au faux store
+          # a son vrai abonnement MASQUE le temps des essais (cf. pustore).
+          MOCK_REGIONS: "@@@C:deva_regions.beta@@@"
           # Règle du payeur (pustore, 2026-09-24) : l'abonnement est RÉSILIÉ (renouvellement
           # arrêté, rien de remboursé) dès que son payeur n'est plus chef actif du clan ou
           # que le clan est dissous. Couvre la dissolution (delete_user_data, clan_purge :
@@ -1075,6 +1194,9 @@ conf:
           PACKAGE_NAME: "@@@C:store.play.package@@@"
           PROJECTION_DATABASE: "workers"
           PROJECTION_COLLECTION: "clans_store"
+          # Faux Google Play (pustoremock) : un clan de la region d'essai mis au faux store
+          # a son vrai abonnement MASQUE le temps des essais (cf. pustore).
+          MOCK_REGIONS: "@@@C:deva_regions.beta@@@"
           # Règle du payeur (pustore, 2026-09-24) : l'abonnement est RÉSILIÉ (renouvellement
           # arrêté, rien de remboursé) dès que son payeur n'est plus chef actif du clan ou
           # que le clan est dissous. Couvre la dissolution (delete_user_data, clan_purge :
@@ -1088,6 +1210,10 @@ conf:
           SCOPE_ENABLED_FIELD: "enabled"
           IDENTITY_COLLECTION: "userindexes"
           IDENTITY_FIELD: "userId"
+          # Parrainage (pureferral) : prévenu quand le balayage change une projection
+          # (expiration, mois offert, gel), comme à chaque achat vérifié. C'est ce qui
+          # dispense referral_sweeper de relire chaque jour tous les liens.
+          STORE_HOOKS: "referral_sweeper"
           IDENTITY_ENABLED_FIELD: "enabled"
           # Cycle de défaut de paiement (vision.md § « Les défauts de paiement »).
           # C'est un jeu familial et le design le rend rentable : on montre de la
@@ -1135,9 +1261,14 @@ conf:
              "purge_day":780,
              "default_lang":"fr",
              "title":"Donjons & Savons",
+             "category":"compte",
+             "ttl_hours":168,
+             "actions":{"open":{"action":"worker.store_open_subscription","wakeup":true}},
              "notify":{"database":"messaging","collection":"msgregistry","match_field":"ownerId",
                        "scope_database":"workers","scope_collection":"clans","recipients_field":"admins",
-                       "identity_collection":"userindexes","identity_field":"userId"},
+                       "identity_collection":"userindexes","identity_field":"userId",
+                       "lang_collection":"clans_players/{scope}/players","lang_field":"lang",
+                       "payload_scope_field":"clanId"},
              "phases":[{"key":"soft","from":10,"to":20},
                        {"key":"firm","from":20,"to":40},
                        {"key":"last","from":40,"to":50},
@@ -1175,6 +1306,61 @@ conf:
                      "firm":"Laat een klein probleempje met de buidel het avontuur niet stoppen: de kerker wacht nog altijd op jullie.",
                      "last":"Het toverboek gaat bijna dicht. We vonden het geweldig om met jullie te spelen! De deur van de kerker blijft altijd open voor jullie terugkeer.",
                      "farewell":"Jullie clan wacht al twee jaar. Zijn gegevens worden over een maand gewist: hervat het abonnement voor die datum en jullie vinden hem ongeschonden terug."}}}
+
+      # --- Parrainage de clans (module pureferral) -------------------------------
+      # Conception : tmp/design_parrainage.md ; règles et modèle : readme de pureferral.
+      # Le scope, la projection et l'identité sont ceux de store_verify (références du
+      # module) : rien à recopier ici.
+      #
+      # Codes `DS-E7K3Q9` : préfixe de l'app, lettre de la région, cinq signes. La table
+      # des lettres vit dans la première région de la cible (`eu` en production, `eut`
+      # à l'essai).
+      #
+      # Auto-parrainage : les chefs PASSÉS d'un clan sont lus dans son journal
+      # (`clans_logs/{clan}/logs`, append-only) : le fondateur (`ClanCreated`) et chaque
+      # promotion (`ChiefPromoted`), champ `userId` (identifiant métier).
+      referral:
+        environment:
+          CODE_PREFIX: "DS"
+          REGISTRY_REGION: "@@@C:deva_regions.primary@@@"
+          ADMIN_HISTORY: >-
+            {"database":"workers","collection":"clans_logs/{scope}/logs","event_field":"event",
+             "events":["ClanCreated","ChiefPromoted"],"actor_field":"userId"}
+
+      # Le balayage du parrainage. Les titres viennent de `referral.titles` (build.yml
+      # de la suite), les mêmes que ceux qu'affiche l'app. Les notifications partent aux
+      # chefs ADULTES du clan parrain (fiche `clans_players/{clan}/players/{id}`,
+      # `legal_state` = "a"), chacun dans sa langue, catégorie `clan` (son roar), et
+      # ouvrent l'écran du parrainage au tap.
+      referral_sweeper:
+        environment:
+          TEST_REGIONS: "@@@C:deva_regions.beta@@@"
+          REFERRAL_TITLES: "@@@C:referral.titles@@@"
+          REFERRAL_NOTIFY: >-
+            {"category":"clan",
+             "ttl_hours":168,
+             "default_lang":"fr",
+             "title":"Donjons & Savons",
+             "actions":{"open":{"action":"worker.open_referral","wakeup":true}},
+             "thumbs":{"born":"images/big/victory_nobg.png",
+                       "title_lineage":"images/big/titre_clan.png",
+                       "title_active":"images/big/titre_clan.png"},
+             "notify":{"database":"messaging","collection":"msgregistry","match_field":"ownerId",
+                       "scope_database":"workers","scope_collection":"clans","recipients_field":"admins",
+                       "identity_collection":"userindexes","identity_field":"userId",
+                       "lang_collection":"clans_players/{scope}/players","lang_field":"lang",
+                       "adult_field":"legal_state","adult_value":"a",
+                       "payload_scope_field":"clanId"},
+             "texts":{
+               "fr":{"born": "Un nouveau clan est né grâce à vous ! Votre clan gagne un mois d'abonnement offert.", "born_capped": "Un nouveau clan est né grâce à vous ! Votre réserve de mois offerts est déjà pleine : ce mois-ci ne s'y ajoute pas.", "title_lineage": "Votre lignée s'agrandit : votre clan devient {title} !", "title_active": "Des clans vivent grâce à vous : votre clan devient {title} !"},
+               "en":{"born": "A new clan was born thanks to you! Your clan earns a free month of subscription.", "born_capped": "A new clan was born thanks to you! Your stock of free months is already full: this one is not added.", "title_lineage": "Your lineage grows: your clan becomes {title}!", "title_active": "Clans are thriving thanks to you: your clan becomes {title}!"},
+               "es":{"born": "¡Ha nacido un nuevo clan gracias a vosotros! Vuestro clan gana un mes de suscripción gratis.", "born_capped": "¡Ha nacido un nuevo clan gracias a vosotros! Vuestra reserva de meses gratis ya está llena: este no se añade.", "title_lineage": "Vuestro linaje crece: ¡vuestro clan se convierte en {title}!", "title_active": "Hay clanes que viven gracias a vosotros: ¡vuestro clan se convierte en {title}!"},
+               "de":{"born": "Dank euch ist ein neuer Clan entstanden! Euer Clan erhält einen Gratismonat Abo.", "born_capped": "Dank euch ist ein neuer Clan entstanden! Euer Vorrat an Gratismonaten ist schon voll: dieser kommt nicht hinzu.", "title_lineage": "Eure Linie wächst: euer Clan wird {title}!", "title_active": "Dank euch blühen Clans auf: euer Clan wird {title}!"},
+               "it":{"born": "Grazie a voi è nato un nuovo clan! Il vostro clan guadagna un mese di abbonamento in regalo.", "born_capped": "Grazie a voi è nato un nuovo clan! La vostra riserva di mesi in regalo è già piena: questo non si aggiunge.", "title_lineage": "La vostra stirpe cresce: il vostro clan diventa {title}!", "title_active": "Grazie a voi alcuni clan prosperano: il vostro clan diventa {title}!"},
+               "pt":{"born": "Nasceu um novo clã graças a vocês! O vosso clã ganha um mês de subscrição oferecido.", "born_capped": "Nasceu um novo clã graças a vocês! A vossa reserva de meses oferecidos já está cheia: este não é acrescentado.", "title_lineage": "A vossa linhagem cresce: o vosso clã torna-se {title}!", "title_active": "Há clãs que vivem graças a vocês: o vosso clã torna-se {title}!"},
+               "br":{"born": "Um novo clã nasceu graças a vocês! O clã de vocês ganha um mês de assinatura grátis.", "born_capped": "Um novo clã nasceu graças a vocês! A reserva de meses grátis de vocês já está cheia: este não é somado.", "title_lineage": "A linhagem de vocês cresce: o clã de vocês se torna {title}!", "title_active": "Clãs prosperam graças a vocês: o clã de vocês se torna {title}!"},
+               "nl":{"born": "Dankzij jullie is er een nieuwe clan geboren! Jullie clan krijgt een gratis maand abonnement.", "born_capped": "Dankzij jullie is er een nieuwe clan geboren! Jullie voorraad gratis maanden is al vol: deze komt er niet bij.", "title_lineage": "Jullie stamboom groeit: jullie clan wordt {title}!", "title_active": "Dankzij jullie bloeien er clans op: jullie clan wordt {title}!"}}}
+
       # --- Console d'administration (app interne `console`) ------------------------------
       # Indicateurs du jour (pustore) : une photo par région et par jour dans
       # `<région>-store/store_kpis/{AAAA-MM-JJ}`, des TOTAUX sans aucune donnée
@@ -1206,6 +1392,12 @@ conf:
           MARKET_COLLECTION: "users"
           MARKET_FIELD: "steps.region.result"
           TEST_REGIONS: "@@@C:deva_regions.beta@@@"
+          # Le revenu des 12 prochains mois, rétention comprise : churn par marché du
+          # build.yml (`revenus.marches`) et lots de la roadmap, livrés et à venir, à
+          # leur date. Construit par le builder (cf. pustore, REVENUE_MODEL).
+          REVENUE_MODEL: "@@@C:deva_revenue_model@@@"
+          # Bloc `referrals` du tableau de bord (liens du module pureferral).
+          REFERRAL_LINKS: "referral_links"
           STORE_PLANS: >-
             {"ddust_essentiel":@@@C:store.catalog.ddust_essentiel.play.plans@@@,
              "ddust_clan":@@@C:store.catalog.ddust_clan.play.plans@@@,
@@ -2771,6 +2963,9 @@ conf:
              "orphans":{"after_days":30,"lookback_days":30},
              "default_lang":"fr",
              "title":"Donjons & Savons",
+             "categories":{"validation":"validations","sleep_notice":"compte","default":"rappels"},
+             "thumbs":{"chest_full":"images/big/chest.png","chest_empty":"images/big/chest.png"},
+             "ttl_hours":{"rappels":24,"default":168},
              "notify":{"database":"messaging","collection":"msgregistry","match_field":"ownerId",
                        "identity_collection":"userindexes","identity_field":"userId"},
              "texts":{
@@ -3025,7 +3220,16 @@ conf:
                       .where(String(conf.match_field || 'ownerId'), 'in', uids.slice(i, i + 30)).get();
                   docs.push(...snap.docs);
               }
-              const kept = docs.filter((d) => String((d.data() || {}).token || ''));
+              // SILENCE À LA SOURCE, comme la fonction de messagerie : un appareil qui a tout
+              // coupé (`muted`) ou coupé CE clan (`muted_scopes`) est écarté avant l'envoi.
+              const scope = String(opts.scope || '');
+              const kept = docs.filter((d) => {
+                  const r = d.data() || {};
+                  if (!String(r.token || '')) return false;
+                  if (r.muted === true) return false;
+                  if (scope && Array.isArray(r.muted_scopes) && r.muted_scopes.includes(scope)) return false;
+                  return true;
+              });
               if (!kept.length) return 0;
 
               // `dry` est PASSÉ, pas lu dans une variable de module : Cloud Run v2 sert
@@ -3041,23 +3245,58 @@ conf:
               if (opts.data)    data.data    = JSON.stringify(opts.data);
               if (opts.actions) data.actions = JSON.stringify(opts.actions);
               if (opts.mode)    data.mode    = String(opts.mode);
+              for (const k of ['category', 'thumb', 'picture', 'scope']) {
+                  if (opts[k]) data[k] = String(opts[k]);
+              }
 
               const buttoned = opts.actions
                   && Object.values(opts.actions).some((a: any) => a && a.label);
+              // Avec une catégorie, c'est l'app qui dessine (canal, son, couleur, vignette) :
+              // DATA-ONLY, comme une notif à boutons. Les rappels partent en priorité normale.
+              const drawn = buttoned || !!opts.category;
+              const ttlMs = Math.round(Number(opts.ttl_hours || 0) * 3600 * 1000);
 
               const res = await getMessaging().sendEach(kept.map((d) => {
                   const m: any = { token: String((d.data() || {}).token || ''), data };
-                  // Sans bouton : bloc `notification` classique, rendu par le système.
-                  if (!buttoned) m.notification = { title: String(LIFE.title || ''), body: text };
-                  else           m.android      = { priority: 'high' };
+                  // Sans bouton ni catégorie : bloc `notification` classique, rendu par le système.
+                  if (!drawn) m.notification = { title: String(LIFE.title || ''), body: text };
+                  else {
+                      m.android = { priority: opts.category === 'rappels' && !buttoned ? 'normal' : 'high' };
+                      if (ttlMs > 0) m.android.ttl = ttlMs;
+                  }
                   return m;
               }));
 
-              // Jetons morts : on nettoie, comme le fait la fonction de messagerie.
+              // Jetons MORTS seulement : une erreur passagère (quota, réseau) ne doit pas
+              // effacer l'appareil, sinon la famille ne reçoit plus rien jusqu'à sa
+              // prochaine ouverture du jeu.
               res.responses.forEach((r, i) => {
-                  if (!r.success && kept[i]) kept[i].ref.delete().catch(() => {});
+                  if (r.success || !kept[i]) return;
+                  const code = String((r.error as any)?.code ?? '');
+                  if (code === 'messaging/registration-token-not-registered' ||
+                      code === 'messaging/invalid-registration-token') {
+                      kept[i].ref.delete().catch(() => {});
+                  }
               });
               return res.successCount;
+          }
+
+          // Le rendu d'une relance (dvmessaging, « catégories et rendu riche ») : sa catégorie
+          // (canal Android : son, importance), sa vignette, le scope (clan) dont l'app reprend
+          // la couleur de thème, et sa durée de vie. Tout vient de PULSE_LIFECYCLE.
+          function richOf(key: string, extra: any): any {
+              const cats   = LIFE.categories || {};
+              const thumbs = LIFE.thumbs || {};
+              const ttls   = LIFE.ttl_hours || {};
+              const r: any = { category: String(cats[key] || cats.default || '') };
+              if (thumbs[key]) r.thumb = String(thumbs[key]);
+              // Le monstre de la tâche (un clone {base}__{userId} montre celui de sa base).
+              const tid = extra && extra.taskId ? String(extra.taskId).split('__')[0] : '';
+              if (tid) r.thumb = /_\d+$/.test(tid) ? 'images/medium/dt_t_' + tid + '.png'
+                                                   : 'images/medium/task_' + tid + '_nobg.png';
+              if (extra && extra.clanId) r.scope = String(extra.clanId);
+              r.ttl_hours = Number(ttls[r.category] ?? ttls.default ?? 0);
+              return r;
           }
 
           export const pulseSweeper = onRequest(async (req, res) => {
@@ -3484,7 +3723,8 @@ conf:
                               const taskId = await summonBoss(W, clanId, ownerId, now, dry);
                               if (!taskId) { bump('skipped', 'no_boss_task'); }
                               else {
-                                  const sent = await pushByLang(reach, 'boss', null);
+                                  // clanId + taskId : la vignette du monstre et la couleur du clan.
+                                  const sent = await pushByLang(reach, 'boss', { clanId, taskId });
                                   for (const p of reach) served.add(p.id);
                                   // ⚠ LE MONSTRE EXISTE DÉJÀ : `summonBoss` vient d'écrire
                                   //   `recommended` sur une vraie tâche. On enregistre donc
@@ -3589,7 +3829,7 @@ conf:
                                 || tr('texts', lang, key);
                       if (!text) continue;
 
-                      const opts: any = { kind: 'pulse_' + key, dry };
+                      const opts: any = { kind: 'pulse_' + key, dry, ...richOf(key, extra) };
                       // Seule la validation porte des boutons : elle est la seule dont
                       // l'action utile peut être rendue SANS ouvrir l'app. Les trois
                       // actions et la charge métier reprennent à l'identique celles de
@@ -4033,7 +4273,7 @@ conf:
                             || tr('texts', lang, motive);
                   if (!text) return { error: 'motif inconnu', motive };
 
-                  const opts: any = { kind: 'pulse_' + motive, dry };
+                  const opts: any = { kind: 'pulse_' + motive, dry, ...richOf(motive, extra) };
                   if (motive === 'validation' && extra) {
                       opts.data = extra;
                       if (paid) {
@@ -4243,6 +4483,13 @@ conf:
       store_kpis:
         schedule:
           hour: "19"
+      # Parrainage (module `pureferral`). UNE DEMI-HEURE AVANT `store_sweeper` : un mois
+      # de parrain confirmé ici est servi (report d'échéance ou mois offert) par le
+      # balayage de pustore le même jour. Suit donc `store_sweeper` quand il se déplace.
+      referral_sweeper:
+        schedule:
+          minute: "30"
+          hour: "16"
       # Relance d'engagement. UNE PASSE PAR HEURE.
       #
       # ⚠ CE N'EST PLUS L'HEURE DE LA PASSE QUI EST LE GARDE-FOU, C'EST LA FENÊTRE DU
@@ -4271,9 +4518,10 @@ conf:
           day: "*"
           month: "*"
           weekday: "*"
-      # Veille des clips Veo, héritée de `puvertexai`. Elle ne sert que la bibliothèque
-      # d'assets, qui vit dans les buckets du master : chez ddust, aucun clip n'est jamais
-      # lancé, et elle tournait toutes les deux minutes par région pour rien (deux tâches
-      # Scheduler facturées, 19 000 réveils en septembre 2026). La fonction reste déployée.
-      clip_watch:
+
+  # La file de la veille des clips, héritée de `puvertexai` (module putasks). Coupée pour
+  # la même raison que la fonction `clip_watch` : aucun clip n'est lancé chez ddust.
+  tasks:
+    queues:
+      clips:
         enabled: false

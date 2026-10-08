@@ -232,16 +232,6 @@ requis:
     #     `avant le` au 2026-11-07 dans la table `## livrables` — sans elle,
     #     l'ordonnanceur le liquiderait en trois jours.
     - grisloup/micro
-  ios:
-    # ⚠ LE PORTAGE VIENT APRÈS L'APP QU'IL PORTE, et ça n'était écrit nulle
-    #   part. Sans cette ligne, l'ordonnanceur voyait un livrable de 13 sp dont
-    #   le seul prérequis était `deva/ios` : il le plaçait donc très tôt, parfois
-    #   AVANT le MVP. Chez Spirits, `ios` s'est retrouvé en tête du projet et,
-    #   comme le livrable de référence se déduisait de la position, il a verrouillé
-    #   la table à chaque exécution suivante — le MVP a glissé d'un an derrière
-    #   son propre portage.
-    - ddust/premierpas
-    - deva/ios
   socle:
     - deva/dvorb
     - deva/dvcore
@@ -364,11 +354,10 @@ build:
   # seulement, jamais d'AAB, jamais publiée. Placée APRÈS `client` : les étapes qui
   # prennent « la » première app de la suite doivent tomber sur l'app joueurs.
   - console
-  # Simulateur de store (faux Google Play local) : composants de DEVELOPPEMENT
-  # (`dev_only`), derives de la suite modele `storemock`. Construits et lances
-  # seulement sur la cible d'essai, jamais versionnes, jamais
-  # construits pour Android, jamais publies. Cf. `store.mock` plus bas.
-  - storemock
+  # Pilotage du FAUX GOOGLE PLAY de la cible d'essai (module pulumi `pustoremock` du
+  # backend) : composant de DEVELOPPEMENT (`dev_only`), derive de la suite modele
+  # `storemock`. Construit et lance seulement sur la cible d'essai, jamais versionne,
+  # jamais publie ; aussi en APK (`make-apk`) pour piloter depuis le telephone.
   - storemock_ui
 
   # ===========================================================================
@@ -1378,24 +1367,14 @@ store:
         change: 4650
         countries: ["CO"]
   # ---------------------------------------------------------------------------
-  # SIMULATEUR DE STORE (composants storemock de la séquence, cible d'essai seulement)
+  # FAUX GOOGLE PLAY (cible d'essai) : plus de bloc `store.mock` depuis le 2026-10-04
   # ---------------------------------------------------------------------------
-  # Un faux Google Play LOCAL (suite `storemock`) : l'app achète contre lui, les
-  # fonctions de facturation de pustore tournent sur le poste face à lui, et
-  # l'app de pilotage fait vivre les abonnements (carte refusée, grâce,
-  # suspension, résiliation...). Tout le reste est le vrai code.
-  #
-  # ⚠ LES COMPTES DE TEST SONT LES SEULS à pouvoir acheter au simulateur, et le
-  #   client simulé ne s'ouvre que pour eux (et sur la région d'essai). JAMAIS les
-  #   testeurs de licence de `store.play.license_testers` : ils sont réservés aux
-  #   testeurs de Google. Un jeton simulé (`storemock.…`) est de toute façon refusé
-  #   par les fonctions déployées. Un clan qui a servi au simulateur : « Remise à
-  #   zéro du clan » dans le pilotage avant de le tester sur le vrai Play.
-  mock:
-    accounts:
-      - puolsirg@gmail.com
-    # Port du serveur ; les fonctions locales prennent les suivants (port+1...).
-    port: 8790
+  # Le faux Google Play vit dans la cible d'essai (module pulumi `pustoremock` du
+  # backend), et non plus sur le poste. Il ne sert que les CLANS que le pilotage
+  # (`storemock_ui`) y a mis, par le code « Mon ID » du kebab de la boutique d'un
+  # client snapshot : la liste des comptes de test et le port n'ont plus d'objet.
+  # Un clan au faux store a son vrai abonnement MASQUÉ le temps des essais, rendu
+  # quand le pilotage le retire. Cf. suites/storemock/readme.md.
 
   catalog:
 
@@ -2578,6 +2557,171 @@ store:
         mxn:  "88.99"
         cop:  "19900"
 
+# =============================================================================
+# PARRAINAGE DE CLANS (module pureferral)
+# =============================================================================
+# Les deux séries de TITRES, partagées par l'app (écran « Parrainage ») et le backend
+# (notifications de titre) : on ne les écrit qu'ICI. Conception :
+# tmp/design_parrainage.md, § 6.
+#
+#   lineage  la lignée : descendants dont le premier paiement est confirmé (ne baisse
+#            jamais). Métaphore de la TRANSMISSION.
+#   active   la lignée vivante : MAXIMUM jamais atteint de descendants abonnés en même
+#            temps. Métaphore d'un LIEU QUI GRANDIT.
+#
+# Mêmes paliers pour les deux, qui doublent à peu près à chaque marche. Un titre acquis
+# n'est jamais retiré. Paliers et noms réglables ici ; le rang d'un clan est le nombre de
+# paliers franchis, l'ORDRE de la liste compte donc (paliers croissants).
+# =============================================================================
+
+referral:
+  layer:
+    path: resources_cloud/general/layers/referral-titles-global.yml
+    publish: [titles]
+  titles:
+    lineage:
+      - at: 1
+        name:
+          fr: "Parrain"
+          en: "Sponsor"
+          es: "Padrino"
+          de: "Pate"
+          it: "Padrino"
+          pt: "Padrinho"
+          br: "Padrinho"
+          nl: "Peetouder"
+      - at: 2
+        name:
+          fr: "Mentor"
+          en: "Mentor"
+          es: "Mentor"
+          de: "Mentor"
+          it: "Mentore"
+          pt: "Mentor"
+          br: "Mentor"
+          nl: "Mentor"
+      - at: 5
+        name:
+          fr: "Recruteur de clans"
+          en: "Clan Recruiter"
+          es: "Reclutador de clanes"
+          de: "Clan-Werber"
+          it: "Reclutatore di clan"
+          pt: "Recrutador de clãs"
+          br: "Recrutador de clãs"
+          nl: "Clanwerver"
+      - at: 10
+        name:
+          fr: "Bâtisseur d'alliances"
+          en: "Alliance Builder"
+          es: "Constructor de alianzas"
+          de: "Bündnisschmied"
+          it: "Costruttore di alleanze"
+          pt: "Construtor de alianças"
+          br: "Construtor de alianças"
+          nl: "Bouwer van allianties"
+      - at: 20
+        name:
+          fr: "Seigneur des lignées"
+          en: "Lord of Lineages"
+          es: "Señor de los linajes"
+          de: "Herr der Geschlechter"
+          it: "Signore delle stirpi"
+          pt: "Senhor das linhagens"
+          br: "Senhor das linhagens"
+          nl: "Heer der geslachten"
+      - at: 50
+        name:
+          fr: "Fondateur de dynasties"
+          en: "Dynasty Founder"
+          es: "Fundador de dinastías"
+          de: "Dynastiegründer"
+          it: "Fondatore di dinastie"
+          pt: "Fundador de dinastias"
+          br: "Fundador de dinastias"
+          nl: "Stichter van dynastieën"
+      - at: 100
+        name:
+          fr: "Légende des donjons"
+          en: "Dungeon Legend"
+          es: "Leyenda de los calabozos"
+          de: "Legende der Verliese"
+          it: "Leggenda dei sotterranei"
+          pt: "Lenda das masmorras"
+          br: "Lenda das masmorras"
+          nl: "Legende van de kerkers"
+    active:
+      - at: 1
+        name:
+          fr: "Feu allumé"
+          en: "Kindled Fire"
+          es: "Fuego encendido"
+          de: "Entfachtes Feuer"
+          it: "Fuoco acceso"
+          pt: "Fogo aceso"
+          br: "Fogo aceso"
+          nl: "Ontstoken vuur"
+      - at: 2
+        name:
+          fr: "Foyer"
+          en: "Hearth"
+          es: "Hogar"
+          de: "Herdfeuer"
+          it: "Focolare"
+          pt: "Lar"
+          br: "Lar"
+          nl: "Haard"
+      - at: 5
+        name:
+          fr: "Hameau"
+          en: "Hamlet"
+          es: "Aldea"
+          de: "Weiler"
+          it: "Frazione"
+          pt: "Aldeia"
+          br: "Povoado"
+          nl: "Gehucht"
+      - at: 10
+        name:
+          fr: "Bourg"
+          en: "Market Town"
+          es: "Villa"
+          de: "Marktflecken"
+          it: "Borgo"
+          pt: "Vila"
+          br: "Vila"
+          nl: "Vlek"
+      - at: 20
+        name:
+          fr: "Citadelle"
+          en: "Citadel"
+          es: "Ciudadela"
+          de: "Zitadelle"
+          it: "Cittadella"
+          pt: "Cidadela"
+          br: "Cidadela"
+          nl: "Citadel"
+      - at: 50
+        name:
+          fr: "Royaume"
+          en: "Kingdom"
+          es: "Reino"
+          de: "Königreich"
+          it: "Regno"
+          pt: "Reino"
+          br: "Reino"
+          nl: "Koninkrijk"
+      - at: 100
+        name:
+          fr: "Empire des donjons"
+          en: "Dungeon Empire"
+          es: "Imperio de los calabozos"
+          de: "Imperium der Verliese"
+          it: "Impero dei sotterranei"
+          pt: "Império das masmorras"
+          br: "Império das masmorras"
+          nl: "Kerkerrijk"
+
 revenus:
 
   # ===========================================================================
@@ -2599,8 +2743,9 @@ revenus:
   # Quel livrable du kpi donne la DATE de mise en service. La date elle-même
   # ne se saisit jamais ici : elle vient de roadmap.md.
   livrable: '37efb92085ab'
-  # De nouveaux parents d'enfants de 6-12 ans arrivent chaque année : le bassin
-  # se remplit tout seul.
+  # De nouveaux parents d'enfants de 4-12 ans arrivent chaque année : le bassin
+  # se remplit tout seul. (4 et non plus 6 depuis le 2026-10-07 : le thème
+  # « Gentils Dinosaures », inclus au lancement, vise les plus jeunes.)
   audience: renouvelable
   # ===========================================================================
   # LA CELLULE DU MODÈLE EST LE COUPLE (MARCHÉ x STORE)
@@ -2622,6 +2767,18 @@ revenus:
   #   prix        multiplicateur du prix affiché, à devise convertie
   #   conversion  taux téléchargement -> payant, ABSOLU
   #   churn       fond et précoce, ABSOLUS
+  #
+  # ⚠ HYPOTHÈSES DE DÉPART RÉVISÉES LE 2026-10-07 : le lancement (`go-live`) inclut
+  #   le thème « Gentils Dinosaures » et une refonte de l'interface. Ce que contient
+  #   le lancement EST le produit de départ : son effet vit ici, jamais dans un
+  #   `churn_facteur` de lot (qui décrit un AJOUT au produit lancé).
+  #   - churn ×0.99 sur toutes les cellules : un second habillage fait peu rester
+  #     les familles déjà là (aucun effet mesuré de la cosmétique sur le churn).
+  #   - acquisition ×1.08 sur toutes les cellules : la cible passe de 6-12 à 4-12
+  #     ans. +15-18 % de foyers (INSEE, BLS : familles dont l'aîné a 4-5 ans), à
+  #     35-70 % de la conversion des 6-12 ans (pré-lecteurs, tableaux imprimés
+  #     gratuits), soit +5 à +12 % ; valeur centrale prudente, +8 %.
+  #   Valeurs d'avant : churn ÷0.99, acquisition ÷1.08.
   #   confiance   probabilité d'atteindre le plateau SUR CETTE CELLULE
   #
   # ⚠ Les valeurs de tête (`churn`, `conversion`, `confiance`, `acquisition`,
@@ -2671,32 +2828,31 @@ revenus:
           # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
           # l'écart connu entre les deux plateformes, et c'est lui qui fait que
           # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
-          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
-          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
-          #   Play-only, et le manque à gagner se lit directement.
+          # Ouvert dès le lancement, comme Play. Poser son `acquisition` à 0
+          #   modéliserait un lancement Play seul.
           # payants/mois — 12.50 % de l'acquisition du projet au plateau
           # ⚠ RECALIBRÉ le 2026-08-26. Les cellules `play` portent désormais
           #   L'ESTIMATION D'ORIGINE du projet — celle des revenus.md, écrite
-          #   pour un lancement Play, seul store où le portefeuille sera présent
+          #   pour un lancement Play, seul store alors prévu au lancement
           #   avant longtemps. Elles n'en portaient que ~53 %, ce qui revenait à
           #   annoncer que le lancement réel ferait la moitié de ce qui avait
           #   été estimé pour lui.
           #   Les cellules `appstore` gardent leur rapport : elles chiffrent ce
-          #   qu'iOS APPORTERAIT EN PLUS, et non une part qu'on se retire.
-          acquisition: { m1_3: 36.492, an4_5: 13.033 }
+          #   qu'iOS APPORTE EN PLUS, et non une part qu'on se retire.
+          acquisition: { m1_3: 39.411, an4_5: 14.076 }
           conversion: 0.03200
           churn:
-            fond: 0.06800
-            precoce: 0.13600
+            fond: 0.06732
+            precoce: 0.13464
 
         play:
           # Référence : les facteurs de marché s'appliquent sans correction.
           # payants/mois — 12.50 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 36.492, an4_5: 13.033 }
+          acquisition: { m1_3: 39.411, an4_5: 14.076 }
           conversion: 0.02000
           churn:
-            fond: 0.08000
-            precoce: 0.16000
+            fond: 0.07920
+            precoce: 0.15840
     # ⚠ QUATRE MARCHÉS LÀ OÙ IL Y EN AVAIT UN, depuis le 2026-08-26. Le marché
     #   `eu` unique mettait l'Allemagne et le Portugal sur la même ligne, et
     #   comptait au taux de conversion allemand 34 M d'habitants dont aucune des
@@ -2724,13 +2880,13 @@ revenus:
       confiance: 0.08
       stores:
         appstore:
-          acquisition: { m1_3: 5.062, an4_5: 8.865 }
+          acquisition: { m1_3: 5.467, an4_5: 9.574 }
           conversion: 0.032
-          churn: { fond: 0.068, precoce: 0.136 }
+          churn: { fond: 0.0673, precoce: 0.1346 }
         play:
-          acquisition: { m1_3: 6.187, an4_5: 10.835 }
+          acquisition: { m1_3: 6.682, an4_5: 11.702 }
           conversion: 0.020
-          churn: { fond: 0.080, precoce: 0.160 }
+          churn: { fond: 0.0792, precoce: 0.1584 }
     eus:
       # Europe du Sud — ES IT PT
       # Langues couvertes (es, it, pt), mais 45 à 55 k$ de PIB par habitant en PPA
@@ -2747,13 +2903,13 @@ revenus:
       confiance: 0.08
       stores:
         appstore:
-          acquisition: { m1_3: 1.939, an4_5: 3.395 }
+          acquisition: { m1_3: 2.094, an4_5: 3.667 }
           conversion: 0.026
-          churn: { fond: 0.078, precoce: 0.156 }
+          churn: { fond: 0.0772, precoce: 0.1544 }
         play:
-          acquisition: { m1_3: 3.600, an4_5: 6.305 }
+          acquisition: { m1_3: 3.888, an4_5: 6.809 }
           conversion: 0.017
-          churn: { fond: 0.090, precoce: 0.180 }
+          churn: { fond: 0.0891, precoce: 0.1782 }
     eun:
       # Europe du Nord — SE DK NO FI
       # ⚠ AUCUNE de tes langues n'y est native — l'anglais y supplée, ce qui n'est
@@ -2776,13 +2932,13 @@ revenus:
       confiance: 0.08
       stores:
         appstore:
-          acquisition: { m1_3: 1.816, an4_5: 3.180 }
+          acquisition: { m1_3: 1.961, an4_5: 3.434 }
           conversion: 0.038
-          churn: { fond: 0.060, precoce: 0.120 }
+          churn: { fond: 0.0594, precoce: 0.1188 }
         play:
-          acquisition: { m1_3: 1.211, an4_5: 2.120 }
+          acquisition: { m1_3: 1.308, an4_5: 2.290 }
           conversion: 0.024
-          churn: { fond: 0.070, precoce: 0.140 }
+          churn: { fond: 0.0693, precoce: 0.1386 }
     eux:
       # Europe, le reste — GR SK SI EE LV LT CY HR
       # ⚠ NI TA LANGUE, NI L'ANGLAIS COURANT. Ils restent distribués parce qu'ils sont
@@ -2804,13 +2960,13 @@ revenus:
       confiance: 0.05
       stores:
         appstore:
-          acquisition: { m1_3: 0.206, an4_5: 0.360 }
+          acquisition: { m1_3: 0.222, an4_5: 0.389 }
           conversion: 0.020
-          churn: { fond: 0.090, precoce: 0.180 }
+          churn: { fond: 0.0891, precoce: 0.1782 }
         play:
-          acquisition: { m1_3: 0.822, an4_5: 1.440 }
+          acquisition: { m1_3: 0.888, an4_5: 1.555 }
           conversion: 0.013
-          churn: { fond: 0.105, precoce: 0.210 }
+          churn: { fond: 0.1039, precoce: 0.2079 }
     uk:
       # Royaume-Uni — GB
       # Anglophone natif, forte dépense applicative par habitant, et une culture du
@@ -2841,24 +2997,23 @@ revenus:
           # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
           # l'écart connu entre les deux plateformes, et c'est lui qui fait que
           # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
-          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
-          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
-          #   Play-only, et le manque à gagner se lit directement.
+          # Ouvert dès le lancement, comme Play. Poser son `acquisition` à 0
+          #   modéliserait un lancement Play seul.
           # payants/mois — 13.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 0.609, an4_5: 2.434 }
+          acquisition: { m1_3: 0.658, an4_5: 2.629 }
           conversion: 0.0416
           churn:
-            fond: 0.0544
-            precoce: 0.1088
+            fond: 0.0539
+            precoce: 0.1078
 
         play:
           # Référence : les facteurs de marché s'appliquent sans correction.
           # payants/mois — 7.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 0.609, an4_5: 2.434 }
+          acquisition: { m1_3: 0.658, an4_5: 2.629 }
           conversion: 0.0260
           churn:
-            fond: 0.0640
-            precoce: 0.1280
+            fond: 0.0634
+            precoce: 0.1267
     ch:
       # Suisse — CH
       # LE MEILLEUR COEFFICIENT DU PORTEFEUILLE : prix à 1,50 x l'Europe et TVA à
@@ -2878,13 +3033,13 @@ revenus:
       confiance: 0.08
       stores:
         appstore:
-          acquisition: { m1_3: 0.607, an4_5: 1.064 }
+          acquisition: { m1_3: 0.656, an4_5: 1.149 }
           conversion: 0.0358
-          churn: { fond: 0.0591, precoce: 0.1183 }
+          churn: { fond: 0.0585, precoce: 0.1171 }
         play:
-          acquisition: { m1_3: 0.405, an4_5: 0.709 }
+          acquisition: { m1_3: 0.437, an4_5: 0.766 }
           conversion: 0.0224
-          churn: { fond: 0.0696, precoce: 0.1391 }
+          churn: { fond: 0.0689, precoce: 0.1377 }
     us:
       # tva : de nombreux États ne taxent pas le numérique. C'est le premier
       #   moteur du coefficient américain, avant même le prix.
@@ -2908,24 +3063,23 @@ revenus:
           # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
           # l'écart connu entre les deux plateformes, et c'est lui qui fait que
           # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
-          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
-          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
-          #   Play-only, et le manque à gagner se lit directement.
+          # Ouvert dès le lancement, comme Play. Poser son `acquisition` à 0
+          #   modéliserait un lancement Play seul.
           # payants/mois — 13.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 3.390, an4_5: 13.554 }
+          acquisition: { m1_3: 3.661, an4_5: 14.638 }
           conversion: 0.04160
           churn:
-            fond: 0.05440
-            precoce: 0.10880
+            fond: 0.05386
+            precoce: 0.10771
 
         play:
           # Référence : les facteurs de marché s'appliquent sans correction.
           # payants/mois — 7.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 1.826, an4_5: 7.298 }
+          acquisition: { m1_3: 1.972, an4_5: 7.882 }
           conversion: 0.02600
           churn:
-            fond: 0.06400
-            precoce: 0.12800
+            fond: 0.06336
+            precoce: 0.12672
     ca:
       # Canada — CA
       # Anglophone et francophone : le Québec est le seul marché hors France où ta
@@ -2953,24 +3107,23 @@ revenus:
           # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
           # l'écart connu entre les deux plateformes, et c'est lui qui fait que
           # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
-          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
-          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
-          #   Play-only, et le manque à gagner se lit directement.
+          # Ouvert dès le lancement, comme Play. Poser son `acquisition` à 0
+          #   modéliserait un lancement Play seul.
           # payants/mois — 13.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 0.351, an4_5: 1.404 }
+          acquisition: { m1_3: 0.379, an4_5: 1.516 }
           conversion: 0.0416
           churn:
-            fond: 0.0544
-            precoce: 0.1088
+            fond: 0.0539
+            precoce: 0.1078
 
         play:
           # Référence : les facteurs de marché s'appliquent sans correction.
           # payants/mois — 7.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 0.287, an4_5: 1.148 }
+          acquisition: { m1_3: 0.310, an4_5: 1.240 }
           conversion: 0.0260
           churn:
-            fond: 0.0640
-            precoce: 0.1280
+            fond: 0.0634
+            precoce: 0.1267
     oceanie:
       # Australie et Nouvelle-Zélande — AU NZ
       # Anglophones natifs, pouvoir d'achat élevé, aucune traduction à faire.
@@ -3001,24 +3154,23 @@ revenus:
           # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
           # l'écart connu entre les deux plateformes, et c'est lui qui fait que
           # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
-          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
-          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
-          #   Play-only, et le manque à gagner se lit directement.
+          # Ouvert dès le lancement, comme Play. Poser son `acquisition` à 0
+          #   modéliserait un lancement Play seul.
           # payants/mois — 13.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 0.302, an4_5: 1.205 }
+          acquisition: { m1_3: 0.326, an4_5: 1.301 }
           conversion: 0.0416
           churn:
-            fond: 0.0555
-            precoce: 0.1110
+            fond: 0.0549
+            precoce: 0.1099
 
         play:
           # Référence : les facteurs de marché s'appliquent sans correction.
           # payants/mois — 7.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 0.247, an4_5: 0.986 }
+          acquisition: { m1_3: 0.267, an4_5: 1.065 }
           conversion: 0.0260
           churn:
-            fond: 0.0653
-            precoce: 0.1306
+            fond: 0.0646
+            precoce: 0.1293
     bresil:
       # ⚠ MARCHÉ ENTIÈREMENT INFÉRÉ. La source ne publie aucun revenu par
       #   install pour cette zone : l'indice de 45 était déjà une estimation.
@@ -3066,24 +3218,23 @@ revenus:
           # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
           # l'écart connu entre les deux plateformes, et c'est lui qui fait que
           # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
-          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
-          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
-          #   Play-only, et le manque à gagner se lit directement.
+          # Ouvert dès le lancement, comme Play. Poser son `acquisition` à 0
+          #   modéliserait un lancement Play seul.
           # payants/mois — 6.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 0.938, an4_5: 3.754 }
+          acquisition: { m1_3: 1.013, an4_5: 4.054 }
           conversion: 0.02400
           churn:
-            fond: 0.06800
-            precoce: 0.13600
+            fond: 0.06732
+            precoce: 0.13464
 
         play:
           # Référence : les facteurs de marché s'appliquent sans correction.
           # payants/mois — 14.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 2.189, an4_5: 8.758 }
+          acquisition: { m1_3: 2.364, an4_5: 9.459 }
           conversion: 0.01500
           churn:
-            fond: 0.08000
-            precoce: 0.16000
+            fond: 0.07920
+            precoce: 0.15840
 
   # ===========================================================================
   # CADENCE SOUHAITÉE — un VŒU, pas un engagement
@@ -3174,24 +3325,23 @@ revenus:
           # iOS convertit ~1,6x mieux et retient ~15 % plus longtemps. C'est
           # l'écart connu entre les deux plateformes, et c'est lui qui fait que
           # l'App Store capte ~65 % de la dépense mondiale avec ~28 % du parc.
-          # ⚠ AUCUN PROJET N'Y EST AUJOURD'HUI : ces lignes chiffrent ce que
-          #   coûte cette absence. Poser son `acquisition` à 0 modélise le
-          #   Play-only, et le manque à gagner se lit directement.
+          # Ouvert dès le lancement, comme Play. Poser son `acquisition` à 0
+          #   modéliserait un lancement Play seul.
           # payants/mois — 6.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 0.626, an4_5: 2.502 }
+          acquisition: { m1_3: 0.676, an4_5: 2.702 }
           conversion: 0.02400
           churn:
-            fond: 0.06800
-            precoce: 0.13600
+            fond: 0.06732
+            precoce: 0.13464
 
         play:
           # Référence : les facteurs de marché s'appliquent sans correction.
           # payants/mois — 14.00 % de l'acquisition du projet au plateau
-          acquisition: { m1_3: 1.460, an4_5: 5.839 }
+          acquisition: { m1_3: 1.577, an4_5: 6.306 }
           conversion: 0.01500
           churn:
-            fond: 0.08000
-            precoce: 0.16000
+            fond: 0.07920
+            precoce: 0.15840
 
   # ===========================================================================
   # CADENCE SOUHAITÉE — un VŒU, pas un engagement
@@ -3226,7 +3376,7 @@ revenus:
     # contenu offert : aucune vente, uniquement de la rétention
     'a6728b19f4b1':
       # --- roadmap (console deva) ---
-      rank: 170
+      rank: 140
       store: true
       rsp: 233
       nom: 'defis'
@@ -3236,132 +3386,12 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**mise à jour gratuite** — défis hebdomadaires, succès et titres, POKEDEX et objets de collection. Ce que le site annonce sous « Plus de contenu ». Premier update après le lancement : il n''a pas à se vendre, il a à ramener les familles'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
-      churn_facteur: 0.9875
+      churn_facteur: 0.985
       duree_contenu_mois: 2
-      perte_evitee: 45
+      perte_evitee: 23
       gratuit: true
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     # l'Extension « Butin » SEULE, 7.99 € — revenu hors abonnement.
     #
@@ -3371,7 +3401,7 @@ revenus:
     #   qui ferme le bloc des onze — « dernier livré l'emporte ».
     '0877dd1dcfb0':
       # --- roadmap (console deva) ---
-      rank: 200
+      rank: 185
       store: true
       rsp: 610
       nom: 'loots'
@@ -3380,134 +3410,14 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — « Extension Butin », 7.99 €, le produit le plus cher du catalogue** — or, boutique des héros, loot aléatoire, objets et équipement, faveurs, saisons et affiliation. ⚠ **CE LOT PORTE LES MOTEURS DE QUÊTES ET DE POTIONS**, pas seulement l''économie : c''est lui qui ouvre la boutique et rend vendables les dix lots de contenu qui le suivent. Ses six packs sont partis vivre dans leurs propres lots. *Éclaté le 2026-09-04 : il agrégeait six produits vendus séparément.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '1c1703f9c5bd':
       # --- roadmap (console deva) ---
-      rank: 300
+      rank: 420
       store: true
       rsp: 377
       nom: 'minijeux'
@@ -3517,136 +3427,16 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**mise à jour gratuite** — mini-jeux pour vaincre les monstres aléatoires (énigme, réflexe, memory, question piège). **Code assumé**, bâti sur le moteur d''événements livré au MVP'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
-      churn_facteur: 0.95
+      churn_facteur: 0.99
       duree_contenu_mois: 2
-      perte_evitee: 40
+      perte_evitee: 15
       gratuit: true
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '5b617e0e5480':
       # --- roadmap (console deva) ---
-      rank: 390
+      rank: 20150
       store: true
       rsp: 233
       nom: 'classes'
@@ -3656,268 +3446,31 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante à 6.99 €** (décision 2026-08-24), deuxième prix du catalogue derrière « Butin » — classes de personnage : voies, avantages et inconvénients, synergies de clan. Ce n''est pas un pack de contenu mais une **extension majeure du jeu** : un thème rhabille l''aventure, une classe la rejoue autrement'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
-      churn_facteur: 0.9375
       revenu_direct: 18
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '0b7c8f278959':
       # --- roadmap (console deva) ---
-      rank: 458
+      rank: 20230
       store: true
-      rsp: 144
+      rsp: 55
       nom: 'theme_pirates'
       id: '0b7c8f278959'
       accroche: 'A l''abordage !'
       rampup_semaines: 2
       maint_demarrage: 0.0
       maint_croisiere: 0.0
-      description: '**extension payante — 1er thème, 5.99 €** — rejouer l''aventure en univers pirate. ⚠ **CE LOT PORTE LE SYSTÈME DE THÈMES**, pas seulement son contenu : c''est lui qui essuie les plâtres — bascule d''univers, déclinaison des assets, des libellés et du ton. Les deux thèmes suivants n''ont plus que leur contenu à produire, d''où leur estimation bien plus basse. *Détaché de `themes` le 2026-09-02.*'
-      last_modification: '2026-09-26T15:04:19'
+      description: '**extension payante, 5.99 €** : rejouer l''aventure en univers pirate. Le système de thèmes est dans le socle (livré) et le premier thème, « Gentils Dinosaures », sort gratuitement avec `go-live` : ce lot n''a que son contenu à produire. **Aucun effet sur le churn** : un contenu payant n''est acheté que par une minorité d''abonnés et n''a pas d''effet mesurable sur le churn de l''ensemble ; sa valeur est dans ses ventes (`revenu_direct`). *Détaché de `themes` le 2026-09-02 ; ramené de 144 à 55 rsp le 2026-10-07, quand il a cessé de porter le système de thèmes.*'
+      last_modification: '2026-10-08T02:38:31'
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     'b4483c2704e7':
       # --- roadmap (console deva) ---
-      rank: 520
+      rank: 20200
       store: true
       rsp: 55
       nom: 'theme_casanostra'
@@ -3926,131 +3479,15 @@ revenus:
       rampup_semaines: 2
       maint_demarrage: 0.0
       maint_croisiere: 0.0
-      description: '**extension payante — 2e thème, 5.99 €** — univers mafia. Le système de thèmes existe déjà (`theme_pirates`) : il ne reste que le contenu. *Détaché de `themes` le 2026-09-02.'
-      last_modification: '2026-09-26T15:04:19'
+      description: '**extension payante, 5.99 €** : univers mafia. Le système de thèmes est dans le socle (livré) et le premier thème, « Gentils Dinosaures », sort gratuitement avec `go-live` : ce lot n''a que son contenu à produire. **Aucun effet sur le churn** : un contenu payant n''est acheté que par une minorité d''abonnés et n''a pas d''effet mesurable sur le churn de l''ensemble ; sa valeur est dans ses ventes (`revenu_direct`). *Détaché de `themes` le 2026-09-02.*'
+      last_modification: '2026-10-07T12:30:51'
       # --- economie (console deva) ---
       revenu_direct: 10
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '1521505a498c':
       # --- roadmap (console deva) ---
-      rank: 610
+      rank: 20250
       store: true
       rsp: 55
       nom: 'theme_starsweep'
@@ -4059,128 +3496,11 @@ revenus:
       rampup_semaines: 2
       maint_demarrage: 0.0
       maint_croisiere: 0.0
-      description: '**extension payante — 3e thème, 5.99 €** — space opera. Contenu seul, comme le précédent. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DES TROIS**, et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et la valeur 0.9312 décrivait l''état du modèle une fois les TROIS thèmes sortis. Le poser sur chacun aurait fait obtenir au premier thème seul le bénéfice de rétention des trois. *Détaché de `themes` le 2026-09-02.*'
-      last_modification: '2026-09-26T15:04:19'
+      description: '**extension payante, 5.99 €** : space opera. Le système de thèmes est dans le socle (livré) et le premier thème, « Gentils Dinosaures », sort gratuitement avec `go-live` : ce lot n''a que son contenu à produire. **Aucun effet sur le churn** : un contenu payant n''est acheté que par une minorité d''abonnés et n''a pas d''effet mesurable sur le churn de l''ensemble ; sa valeur est dans ses ventes (`revenu_direct`). *Détaché de `themes` le 2026-09-02.*'
+      last_modification: '2026-10-08T02:38:38'
       # --- economie (console deva) ---
-      churn_facteur: 0.925
       revenu_direct: 10
       duree_contenu_mois: 2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     # --- LES DIX LOTS DETACHES DE `loots` ET `packs` (2026-09-04) --------------
     # Un lot par produit vendu, comme les trois themes depuis le 2026-09-02.
@@ -4193,7 +3513,7 @@ revenus:
 
     '3df87efd34d2':
       # --- roadmap (console deva) ---
-      rank: 190
+      rank: 130
       store: true
       rsp: 21
       nom: 'validations automatiques'
@@ -4202,103 +3522,14 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — validations automatiques, 1.99 €** — réglables par enfant, et définitives. À ne pas confondre avec l''effet temporaire « validation auto 3 jours » d''une potion. Le produit le moins cher du catalogue, et le seul du bloc qui ne dépende d''aucune mécanique de `loots` : il ne réclame que le socle d''achat d''extensions, livré au MVP. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '71b889d2505e':
       # --- roadmap (console deva) ---
-      rank: 210
+      rank: 190
       store: true
       rsp: 34
       nom: 'quetes I'
@@ -4307,99 +3538,10 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er pack de quêtes, 3.99 €** — contenu seul : la mécanique de quêtes vit dans `loots`, publié avant. Il sort dans la foulée de l''Extension Butin, pour qu''une boutique qui s''ouvre ne soit pas vide. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '81291102e209':
       # --- roadmap (console deva) ---
@@ -4412,103 +3554,14 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '0ab7912989d0':
       # --- roadmap (console deva) ---
-      rank: 400
+      rank: 20160
       store: true
       rsp: 34
       nom: 'quêtes III'
@@ -4517,103 +3570,14 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e et dernier pack de quêtes, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     'ecb38169ab68':
       # --- roadmap (console deva) ---
-      rank: 220
+      rank: 200
       store: true
       rsp: 34
       nom: 'potions I'
@@ -4622,99 +3586,10 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 1er pack de potions, 3.99 €** — contenu seul : la mécanique de potions vit dans `loots`, publié avant. Livré dans la même foulée que le premier pack de quêtes. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '09a10ee9b42d':
       # --- roadmap (console deva) ---
@@ -4727,103 +3602,14 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 2e pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '4333deadd8b3':
       # --- roadmap (console deva) ---
-      rank: 410
+      rank: 20165
       store: true
       rsp: 34
       nom: 'potions III'
@@ -4833,103 +3619,14 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — 3e et dernier pack de potions, 3.99 €** — contenu seul, sur la mécanique livrée par `loots`. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 4
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '13a9e8d0a1b9':
       # --- roadmap (console deva) ---
-      rank: 320
+      rank: 20140
       store: true
       rsp: 55
       nom: 'devoirs faits'
@@ -4938,103 +3635,14 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack « Devoirs faits », 3.99 €** — **le seul pack qui traverse les trois mécaniques** : quête (« 13 de moyenne générale »), tâches additionnelles (« Apprendre le cours de maths ») et potion (« +15 % XP sur les exercices de SVT »). D''où 55rsp là où les autres packs valent 34. C''est aussi le plus vendable aux parents — il répond à la seule chose qu''ils n''arrivent pas à faire tenir par la routine. *Détaché de `packs` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
       revenu_direct: 2
       duree_contenu_mois: 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '258ff7d2b854':
       # --- roadmap (console deva) ---
-      rank: 420
+      rank: 20190
       store: true
       rsp: 21
       nom: 'pack bricolage'
@@ -5044,99 +3652,10 @@ revenus:
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: '**extension payante — pack de tâches « Bricolage », 3.99 €** — contenu YAML pur dans un pipeline déjà livré : aucune mécanique requise, d''où la cotation la plus basse du bloc. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      last_modification: '2026-10-07T10:56:58'
       # --- economie (console deva) ---
       revenu_direct: 16
       duree_contenu_mois: 2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     # ⚠ ROUTINE FERME LE BLOC, DONC IL EN PORTE LE `churn_facteur` — et lui seul.
     #   Le facteur fonctionne en « dernier livre l'emporte » : le poser sur chacun
@@ -5144,7 +3663,7 @@ revenus:
     #   Meme regle que `theme_starsweep` pour les themes.
     'cbe53f2e0c9b':
       # --- roadmap (console deva) ---
-      rank: 310
+      rank: 458
       store: true
       rsp: 21
       nom: 'routine'
@@ -5152,132 +3671,11 @@ revenus:
       rampup_semaines: 2
       maint_demarrage: 0.0
       maint_croisiere: 0.0
-      description: '**extension payante — pack de tâches « Routine », 3.99 €** — se brosser les dents, préparer son cartable la veille… Contenu YAML pur, aucune mécanique requise. ⚠ **C''EST LUI QUI PORTE LE `churn_facteur` DU BLOC** (0.9625), et non chacun le sien : le facteur fonctionne en « dernier livré l''emporte » et cette valeur décrit l''état du modèle une fois les ONZE lots sortis. Même règle que `theme_starsweep` pour les thèmes. *Détaché de `loots` le 2026-09-04.*'
-      last_modification: '2026-09-26T15:04:19'
+      description: '**extension payante, pack de tâches « Routine », 3.99 €** : se brosser les dents, préparer son cartable la veille… Contenu YAML pur, aucune mécanique requise. **Aucun effet sur le churn** : un contenu payant n''est acheté que par une minorité d''abonnés et n''a pas d''effet mesurable sur le churn de l''ensemble ; sa valeur est dans ses ventes (`revenu_direct`). *Détaché de `loots` le 2026-09-04.*'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
-      churn_facteur: 0.9625
       revenu_direct: 15
       duree_contenu_mois: 2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   # ===========================================================================
   # CONSTANTES COMMUNES — dupliquées dans CHAQUE projet, volontairement
@@ -5356,233 +3754,6 @@ revenus:
       description: '**le MVP complet : lancement commercial FR/EN/ES puis consolidation.** Boucle de jeu, butin, abonnements, offre fondateurs, parrainage, corpus légal multirégion, publication Play — puis multitenancy, facturation multi-clan, notifications métier, invitations à distance et réserve de feedback. *Fusion du 2026-08-29 des lots `beta` (lancement, 377rsp) et `mvp` (consolidation, 610rsp). Ddust rentre dans la forme commune du portefeuille — un MVP puis des extensions — et les deux noms trompeurs disparaissent. L''historique du produit n''est pas perdu : il vit dans `ddust/produit`, livré le 2026-08-22.* ⚠ **Prérequis : `grisloup/mvp`** — seule l''immatriculation ouvre le compte Play organisation et fournit le SIREN du corpus légal.'
       last_modification: '2026-09-27T01:50:13'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    '0f3ce68de9ba':
-      # --- roadmap (console deva) ---
-      rank: 180
-      store: false
-      rsp: 34
-      nom: 'ios'
-      id: '0f3ce68de9ba'
-      accroche: 'La pomme d''or'
-      rampup_semaines: 1
-      maint_demarrage: 0.25
-      maint_croisiere: 0.25
-      description: '**portage iOS de l''app** — fiche App Store Connect dans les sept langues, catalogue d''achats recréé côté Apple, revue, recette sur appareil. ⚠ **C''est CE lot qui fait entrer les utilisateurs iOS**, pas `deva/ios` : le passage framework rend le portage possible, il ne publie rien. *Une plateforme de plus à entretenir.*'
-      last_modification: '2026-09-26T15:04:19'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '32329fd13dae':
       # --- roadmap (console deva) ---
       rank: 20010
@@ -5596,100 +3767,6 @@ revenus:
       maint_croisiere: 0.0
       description: '**ce sur quoi tout le reste se pose** — conf découpée en layers, thèmes, écrans de base, son, langues, démarrage. Rien de spectaculaire, et le premier écran qui gèle rend l''app inutilisable.'
       last_modification: '2026-09-17T01:30:18'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '3ee5cdbbf4e8':
       # --- roadmap (console deva) ---
@@ -5705,100 +3782,6 @@ revenus:
       description: '**le clan** — le créer, le rejoindre par QR code ou par lien, le roster de ses membres, la promotion d''un chef. C''est la porte d''entrée de l''app : un joueur qui n''arrive pas à rejoindre son clan n''a rien à faire dedans.'
       last_modification: '2026-09-17T01:30:18'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '81a9612bcfad':
       # --- roadmap (console deva) ---
       rank: 20030
@@ -5812,100 +3795,6 @@ revenus:
       maint_croisiere: 0.0
       description: '**le joueur** — enrollment, session, nom, avatar, photo, écran personnage, passage à l''âge adulte. Tout ce qui fait qu''un enfant se reconnaît dans l''application.'
       last_modification: '2026-09-17T01:30:18'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '982e1c595070':
       # --- roadmap (console deva) ---
@@ -5921,100 +3810,6 @@ revenus:
       description: '**le cœur de la boucle** — prendre, relâcher, terminer une tâche, la faire valider par un parent, gérer les domaines, les tâches mortelles et immortelles et leur respawn. C''est ce que l''app fait, tout le reste l''entoure.'
       last_modification: '2026-09-17T01:30:18'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '3b81e080ee72':
       # --- roadmap (console deva) ---
       rank: 20050
@@ -6028,100 +3823,6 @@ revenus:
       maint_croisiere: 0.0
       description: '**ce qui donne envie de recommencer** — XP du joueur et du clan, niveaux, titres, points de vie et leur décroissance, barème d''effort. La mécanique de jeu qui transforme une corvée en partie.'
       last_modification: '2026-09-17T01:30:18'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '5ad520b40c19':
       # --- roadmap (console deva) ---
@@ -6137,100 +3838,6 @@ revenus:
       description: '**garder l''app vivante quand elle est fermée** — notifications push, décroissance des PV, balayeur de relance d''engagement. Sans ça une app familiale s''oublie en trois jours.'
       last_modification: '2026-09-17T01:30:18'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     'a245b12c4cb8':
       # --- roadmap (console deva) ---
       rank: 20070
@@ -6244,100 +3851,6 @@ revenus:
       maint_croisiere: 0.0
       description: '**la mémoire du clan** — le journal narratif reconstruit depuis les logs, et son partage social. C''est ce qui donne au travail accompli une trace qu''on relit.'
       last_modification: '2026-09-17T01:30:18'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     'c03a9e06baad':
       # --- roadmap (console deva) ---
@@ -6353,100 +3866,6 @@ revenus:
       description: '**269 images, faites une par une** — 218 medium, 33 small, 14 big, 4 splashs, plus les 10 visuels du Play Store. Le code de ddust est vibe-codé, donc rapide ; ces pièces-là ne le sont pas, et trouver les bons outils a pris du temps. Rien de tout cela n''apparaît dans une mesure de volume de code.'
       last_modification: '2026-09-17T01:30:18'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     'e525cb94cb33':
       # --- roadmap (console deva) ---
       rank: 20090
@@ -6460,100 +3879,6 @@ revenus:
       maint_croisiere: 0.0
       description: '**19 pièces sonores** — 9 musiques, 7 effets, 3 vidéos. Un autre métier que l''image, et le même constat : invisible dans le code, bien réel dans le temps passé.'
       last_modification: '2026-09-17T01:30:18'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '3ca5a6277c98':
       # --- roadmap (console deva) ---
@@ -6569,100 +3894,6 @@ revenus:
       description: '**le moment où l''app prend la main sur les sens** — montée de niveau, mort et gage, guérison, coup de pouce, la Fée. Une image, un son qui l''annonce, une vibration, et un écran qui ne répond plus le temps que ça se joue.'
       last_modification: '2026-09-17T01:30:18'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '992f6f465ef6':
       # --- roadmap (console deva) ---
       rank: 20110
@@ -6676,100 +3907,6 @@ revenus:
       maint_croisiere: 0.0
       description: '**les gestes du chef de clan** — cacher, désactiver, modifier ou recommander une tâche, déconnecter un joueur, gérer un départ, jouer à la place d''un autre. Tout ce qui n''est pas du jeu mais sans quoi le jeu s''enraye.'
       last_modification: '2026-09-17T01:30:18'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     'bfdf9b81c269':
       # --- roadmap (console deva) ---
@@ -6785,100 +3922,6 @@ revenus:
       description: '**la récompense** — inventaire, coffre, distribution, et la cérémonie d''ouverture. Le seul moment de l''app où l''objet numérique renvoie à un objet physique posé sur une table.'
       last_modification: '2026-09-17T01:30:18'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     '4facbb5b056a':
       # --- roadmap (console deva) ---
       rank: 20130
@@ -6892,39 +3935,6 @@ revenus:
       maint_croisiere: 0.0
       description: '**la monétisation** — abonnements, achats, entitlement vérifié côté serveur. Le principe tient en une phrase : l''entitlement n''est jamais écrit par un client.'
       last_modification: '2026-09-17T01:30:18'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '2fb66c075ba3':
       # --- roadmap (console deva) ---
@@ -6941,39 +3951,6 @@ revenus:
       description: '**Ce que le produit doit faire pour que les documents ne mentent pas.** Correctifs et écrans dictés par une obligation — RGPD, politique Google Play Families, article 7 de la loi colombienne 1581 — et par les points de `docs/interestActionPoints.txt` : journal filtré des relances de paiement, photos effacées au verdict, prénoms substitués avant l''appel au modèle, avis de l''enfant recueilli avant tout traitement, retrait de consentement proportionné, relances sorties du mode simulation. *Ne porte aucune fonctionnalité produit : chaque tâche d''ici existe parce qu''une phrase publiée en dépend.*'
       last_modification: '2026-09-15T21:37:57'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     'dc31b23a0d6c':
       # --- roadmap (console deva) ---
       rank: 65
@@ -6988,39 +3965,6 @@ revenus:
       maint_croisiere: 0.0
       description: '**Les documents et les formalités, rien d''exécutable.** Reprises de fond du corpus des 336 documents (contradiction sur l''adresse électronique, relecture des 84 politiques enfant, description de la boutique alignée sur le catalogue réel), préalables d''ouverture de marché (`hispam`, Loi 25 québécoise, représentant suisse), mention de l''éditeur, AIPD. *Se livre APRÈS `requisites` : le dossier « intérêt supérieur de l''enfant » décrit l''application dans son état cible et n''est communicable qu''une fois cette cible atteinte.*'
       last_modification: '2026-09-16T18:24:21'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     'b68ba8193315':
       # --- roadmap (console deva) ---
@@ -7037,83 +3981,24 @@ revenus:
       description: '**Les prérequis de la publication.** Chaîne de versioning (builder, et détection de mise à jour côté client), feuilles de saisie versionnées dans `delivery/`, lien Play Console ↔ projet GCP sans lequel `store_verify` ne peut acquitter aucun achat, visuels de la fiche. *Porte le drapeau `mvp` : c''est sa livraison qui signifie « l''app est publiée », et qui fait basculer le projet de `implementation` à `exploitation`.*'
       last_modification: '2026-09-16T23:21:52'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     'e8b1dc21bd00':
       # --- roadmap (console deva) ---
-      rank: 95
+      rank: 92
       store: false
       rsp: 89
       nom: 'facturation'
       id: 'e8b1dc21bd00'
       accroche: 'Regroupement de tout le sous-système de facturation, des abonnements, des coupons et des relances d''impayé dans un module dédié.'
+      livre: '2026-10-06'
       rampup_semaines: 0
       maint_demarrage: 0.0
       maint_croisiere: 0.0
       description: |-
         Ce lot livre l'extraction et l'encapsulation de toute la logique liée au modèle économique de Donjons & Savons : gestion des abonnements, intégration des in-app purchases (Play Store / App Store), système de coupons, gestion du cycle de vie des impayés (défaut de paiement, grace, lock) et intégration de la passerelle de facturation.
         Il ne livre pas de nouvelles quêtes ni de modification des mécaniques de jeu (XP, butin, combat). 
-      last_modification: '2026-10-04T11:44:47'
+      last_modification: '2026-10-06T16:20:25'
       # --- economie (console deva) ---
       gratuit: true
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '9f24f26cf4f8':
       # --- roadmap (console deva) ---
@@ -7134,24 +4019,6 @@ revenus:
       last_modification: '2026-09-29T10:04:34'
       # --- economie (console deva) ---
       gratuit: true
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     '8617f4232140':
       # --- roadmap (console deva) ---
@@ -7174,14 +4041,11 @@ revenus:
       duree_contenu_mois: 2
       gratuit: true
 
-
-
-
     '5a19492a3aa7':
       # --- roadmap (console deva) ---
-      rank: 102
+      rank: 113
       store: true
-      rsp: 89
+      rsp: 144
       nom: 'go-live'
       id: '5a19492a3aa7'
       accroche: 'Dernière repasse avant le lancement public (juridique, UI, dinosaures et Play Store)'
@@ -7196,9 +4060,25 @@ revenus:
         - Finalisation et alignement des visuels et fiches de la console Google Play pour la validation finale.
 
         Il ne livre pas de nouvelles mécaniques de jeu (pas de nouvelles quêtes ou économie de loots).
-      last_modification: '2026-10-04T11:44:47'
+      last_modification: '2026-10-08T03:12:52'
       # --- economie (console deva) ---
-      churn_facteur: 0.95
+      duree_contenu_mois: 2
+      gratuit: true
+
+    '649f985be717':
+      # --- roadmap (console deva) ---
+      rank: 20210
+      store: true
+      rsp: 55
+      nom: 'theme_noel'
+      id: '649f985be717'
+      accroche: 'Ho ho ho !'
+      rampup_semaines: 2
+      maint_demarrage: 0.0
+      maint_croisiere: 0.0
+      description: '**cadeau de Noël, gratuit** : l''aventure rhabillée aux couleurs de Noël, offerte à tous les joueurs. Il doit sortir AVANT décembre. Le système de thèmes est dans le socle (livré) et le premier thème, « Gentils Dinosaures », sort gratuitement avec `go-live` : ce lot n''a que son contenu à produire. ⚠ **Aucun effet DURABLE sur le churn**, et c''est assumé : un cadeau saisonnier fait revenir et rester pendant un mois ou deux, puis l''effet retombe : le modèle, qui ne sait pas encore représenter un effet passager, n''en compte donc rien. Sa valeur est dans l''image du jeu et dans ce pic de fin d''année, pas dans la rétention à long terme.'
+      last_modification: '2026-10-08T02:37:43'
+      # --- economie (console deva) ---
       duree_contenu_mois: 2
       gratuit: true
 
@@ -7225,25 +4105,11 @@ revenus:
         #   Elle existe pour que le jour où l'un des deux bouge, ou qu'un
         #   troisième store apparaisse, il n'y ait rien à réécrire.
         commission: 0.15
-        # ⚠ LE STORE S'OUVRE À LA LIVRAISON DE CE LIVRABLE, et la DATE vient du
-        # kpi de roadmap.md — jamais d'ici.
-        # ⚠ C'EST LE LOT DE PORTAGE DE CETTE APP, pas `deva/ios`. Le passage iOS
-        # du framework rend le portage POSSIBLE ; il ne publie rien et n'ouvre
-        # l'App Store à personne. Ce sont la fiche App Store Connect, le
-        # catalogue recréé côté Apple et la revue qui font entrer les
-        # utilisateurs — donc ce lot-ci, avec sa propre date.
-        # Avant lui, les colonnes App Store sont entre parenthèses : revenu non
-        # capté. Après, elles entrent dans le total.
-        actif_depuis: '0f3ce68de9ba'
-        # ⚠ MONTÉE EN CHARGE À L'OUVERTURE, en mois. Une app qui ouvre un second
-        # store n'est PAS une app qui naît : sa notoriété, son bouche-à-oreille
-        # et son catalogue sont déjà là, et sa communauté relaie l'arrivée.
-        # Mais le classement App Store, les avis et l'historique ASO repartent
-        # de zéro, et les utilisateurs Android ne migrent pas.
-        # Trois mois pour atteindre le rythme d'acquisition de régime — contre
-        # les quarante-huit d'un lancement à froid. `déclaré`, à mesurer au
-        # premier portage.
-        montee_mois: 3
+        # ⚠ OUVERT DÈS LE LANCEMENT (décision du 2026-10-06) : l'app sort sur
+        #   les deux stores le même jour. Plus de lot de portage par app, donc
+        #   plus d'`actif_depuis` ni de `montee_mois` : les cellules App Store
+        #   suivent la même courbe d'acquisition que Play, dès le mois 1.
+        actif: true
     direct:
       # Stripe. C'est ce taux qui donnait le coefficient de 0,778.
       frais: 0.051
@@ -7267,20 +4133,49 @@ revenus:
 # =============================================================================
 catalog_sequence:
   - '5a19492a3aa7'
-  - 'a6728b19f4b1'
   - '3df87efd34d2'
+  - 'a6728b19f4b1'
   - '0877dd1dcfb0'
   - '71b889d2505e'
   - 'ecb38169ab68'
+  - '81291102e209'
+  - '09a10ee9b42d'
   - '1c1703f9c5bd'
   - 'cbe53f2e0c9b'
   - '13a9e8d0a1b9'
-  - '81291102e209'
-  - '09a10ee9b42d'
   - '5b617e0e5480'
   - '0ab7912989d0'
   - '4333deadd8b3'
   - '258ff7d2b854'
-  - '0b7c8f278959'
   - 'b4483c2704e7'
+  - '649f985be717'
+  - '0b7c8f278959'
   - '1521505a498c'
+
+projection:
+  # Description de l'app pour la projection des revenus (methode :
+  # E:\Deva\tmp\design_methodologie_projection.md). Geree par la console
+  # deva (Reglages du projet > Projection des revenus) : les commentaires
+  # ajoutes a la main dans ce bloc ne survivent pas a un enregistrement.
+  domaines: {sante: 0.4, jeu: 0.35, education: 0.15, productivite: 0.1}
+  motivations: {communaute: 1, progres: 0.5, collection: 0.5, faire_grandir: 0.5, histoire: 0.5, defi: 0.5}
+  moyens: [rendez_vous_quotidien]
+  public: {type: enfant_parent, femmes: 0.6, plus_de_36: 0.5}
+  modele: abonnement_freemium
+  prix: {mensuel: 3.05, annuel: 25}
+  editeur: indie
+  facteur_acquisition: 1.08
+  marches:
+    fr: {langue: 'A'}
+    euo: {langue: {A: 0.99, B: 0.01}}
+    eus: {langue: 'A'}
+    eun: {langue: 'B'}
+    eux: {langue: {B: 0.43, C: 0.57}}
+    uk: {langue: 'A'}
+    ch: {langue: {A: 0.93, B: 0.07}}
+    us: {langue: 'A'}
+    ca: {langue: 'A'}
+    oceanie: {langue: 'A'}
+    bresil: {langue: 'A'}
+    hispam: {langue: 'A'}
+  app_surcharges: {lassitude: {delai: {bas: 1.5, central: 3, haut: 6}, pente: {bas: 0.03, central: 0.06, haut: 0.12}}}

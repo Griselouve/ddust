@@ -3,7 +3,7 @@
 # ---
 # --- Aucun de ces écrans ne connaît Play : ils lisent `store.*` dans le
 # --- dictionnaire deva (publié par dvstore) et déclenchent `store.buy.*`,
-# --- `store.restore` ou `store.manage`. Le worker ne fait que remplir les
+# --- ou `store.manage`. Le worker ne fait que remplir les
 # --- listes et poser les libellés — la vérité commerciale vient du serveur.
 # -----------------------------------------------------------------------------
 conf:
@@ -54,6 +54,10 @@ conf:
         - shop/coming_soon
         - shop/settings
         - shop/settings_menu
+        - shop/mock_badge
+        - shop/mock_scrim
+        - shop/mock_text
+        - shop/mock_close
 
     # La tente du marchand. AUCUNE image ici : elle vient du thème
     # (theme-donjon-global → images/medium/icon_Marchand.png), exactement comme
@@ -133,6 +137,79 @@ conf:
         h: 5%
         border: false
 
+    # --- Faux Google Play de la cible d'essai ---------------------------------
+    # Pastille « playstore mocked » : le clan est au FAUX Google Play de la cible d'essai
+    # (dvstore `store.mock.active`). Posée sur tous les écrans d'achat et d'abonnement
+    # (`<page>/mock_badge`), rendue visible par le worker (_storeMockBadge) à chaque
+    # apparition : un faux achat ne doit jamais se confondre avec un vrai.
+    commons/store_mock_badge:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 2%
+        y: 1%
+        w: 36%
+        h: 3.5%
+        label: "@@@T:store_mock_badge@@@"
+        font_size: 11.0
+        font_color: "#FFFFFFFF"
+        background_color: "#FFE65100"
+        border: true
+        border_color: "#FFFFFFFF"
+        border_size: 1.0
+        border_radius: 10.0
+        text_align: CENTER
+        valign: CENTER
+        visible: false
+
+    shop/mock_badge:
+      masks:
+        - commons/store_mock_badge
+
+    # « Rejoindre la boutique beta » : le code « clan:joueur », copié et montré en grand
+    # (overlay, jamais de popup), à envoyer à grisloup.com.
+    shop/mock_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        background_color: "#FF000000"
+        opacity: 0.8
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop
+
+    shop/mock_text:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 30%
+        h: 28%
+        font_size: 14.0
+        text_align: CENTER
+        label: ""     # rempli par worker.on_store_mock_id
+        visible: false
+
+    shop/mock_close:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        y: 62%
+        label: "@@@T:store_mock_id_close@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_store_mock_close
+
     shop/settings_menu:
       class: DvMenu
       layer: popup
@@ -146,9 +223,11 @@ conf:
       # (worker_log._logLine), là où la famille lit déjà tout le reste de son
       # histoire.
       options:
-        # Obligatoire côté store : un réinstall ne doit pas faire payer deux fois.
-        # Ouvert à tous — restaurer n'est pas acheter, et l'appareil d'un enfant
-        # peut très bien être celui qu'on réinstalle.
+        # PAS DE « RESTAURER MES ACHATS » (retiré le 2026-10-04) : rien ne vit sur
+        # l'appareil. Un achat est dans Firestore, un abonnement chez Google Play et
+        # dans la projection du clan : réinstaller le jeu, sur ce téléphone ou un autre,
+        # rend le compte, le clan et l'abonnement d'eux-mêmes.
+        #
         # Meme declaration que dans les kebabs du clan et du personnage : meme libelle,
         # meme action, meme page. Une option d'aide qui changerait de nom d'un ecran a
         # l'autre ne se reconnaitrait plus.
@@ -159,13 +238,6 @@ conf:
           actions:
             tap: navigate_new.tutoriels
 
-        store_restore:
-          icon: "restore"
-          desc: "@@@T:store_restore_desc@@@"
-          shape:
-            label: "@@@T:store_restore@@@"
-          actions:
-            tap: store.restore
         # Saisir un code cadeau. Réservé aux chefs par shop_settings_selector — la
         # récompense bénéficie au clan tout entier, elle s'engage comme un achat.
         # Toujours proposée, abonné ou non : un crédit réclamé pendant une cotisation
@@ -177,17 +249,29 @@ conf:
             label: "@@@T:giftcode_menu@@@"
           actions:
             tap: navigate_new.giftcode_page
-        # Résiliation et moyen de paiement : chez Play, jamais dans l'app. On passe
-        # d'abord par `subscription_manage_page` (registry_store_tiers.yml), qui dit
-        # ce que le clan a et porte le bouton vers Play.
-        # Filtré aux chefs abonnés par shop_settings_selector.
+        # « Gérer mon abonnement », POUR TOUT CHEF, abonné ou non (2026-10-04) : on
+        # choisit son abonnement quand on veut, sans attendre que le jeu le propose.
+        # Abonné : `subscription_manage_page` (registry_store_tiers.yml), qui dit ce que
+        # le clan a et porte le bouton vers Play (résiliation, moyen de paiement).
+        # Non abonné : l'écran des paliers. Le tri est fait par worker.store_manage_or_tiers.
         store_manage:
           icon: "manage_accounts"
           desc: "@@@T:store_manage_desc@@@"
           shape:
             label: "@@@T:store_manage@@@"
           actions:
-            tap: navigate_new.subscription_manage_page
+            tap: worker.store_manage_or_tiers
+        # « Rejoindre la boutique beta ». ESSAIS SEULEMENT : client snapshot sur la
+        # région d'essai (filtré par shop_settings_selector sur `store.mock.available`).
+        # Copie le code « clan:joueur » que le testeur envoie à grisloup.com ; collé dans
+        # le pilotage du faux Google Play (storemock_ui), il met tout le clan au faux store.
+        store_mock_id:
+          icon: "badge"
+          desc: "@@@T:store_mock_id_desc@@@"
+          shape:
+            label: "@@@T:store_mock_id@@@"
+          actions:
+            tap: worker.on_store_mock_id
 
     #//------------------------------- Abonnement : DÉMÉNAGÉ ------------------------
     # `subscription_page` (bandeau d'état, bascule mensuel/annuel, bouton de palier)
@@ -201,7 +285,9 @@ conf:
     # Depuis le 2026-08-20, ces entrées mènent à `tiers_page` (registry_store_tiers.yml)
     # via worker._storeGotoTiers. Ce n'est pas le retour de subscription_page : cet
     # écran-là racontait un compte, celui-ci compare cinq paliers et en surligne deux
-    # (le courant, le conseillé). Et il ne s'atteint jamais par navigation libre.
+    # (le courant, le conseillé). Depuis le 2026-10-04, un chef peut aussi l'ouvrir de
+    # lui-même : « Gérer mon abonnement », dans le kebab de la boutique, y mène quand le
+    # clan n'est pas abonné (worker.store_manage_or_tiers).
     #
     # La mécanique d'achat, elle, n'a pas bougé de worker_store : contrôle parental,
     # prix de la périodicité courante, achat dvstore.
@@ -249,6 +335,7 @@ conf:
         - locked_page/image
         - locked_page/text
         - locked_page/revive
+        - locked_page/mock_badge
 
     # FOND NOIR, et non `commons/splash_background`. Le décor habituel est une scène
     # de donjon chargée : l'elfe aux poches vides s'y perdait, et une salle au trésor
@@ -258,6 +345,10 @@ conf:
     # Widget explicite plutôt que de compter sur le `background_color: black` du
     # template `page` : le fond de cet écran est une décision, elle doit être lisible
     # dans la conf de l'écran et non déduite d'un défaut hérité.
+    locked_page/mock_badge:
+      masks:
+        - commons/store_mock_badge
+
     locked_page/background:
       class: DvLabel
       layer: background
@@ -373,6 +464,11 @@ conf:
         - giftcode_page/ok_scrim
         - giftcode_page/ok_panel
         - giftcode_page/ok_close
+        - giftcode_page/mock_badge
+
+    giftcode_page/mock_badge:
+      masks:
+        - commons/store_mock_badge
 
     giftcode_page/intro:
       masks:

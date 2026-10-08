@@ -385,6 +385,8 @@ conf:
                 guardian_hub:       { icon: "face",                      name: "@@@T:clan_menu_guardian_hub@@@",  desc: "@@@T:clan_menu_guardian_hub_desc@@@" }
                 # Une seule ligne pour le couple couper / rallumer : le menu n'en montre qu'une à la fois.
                 clan_ai_off:        { icon: "block",                     name: "@@@T:clan_menu_ai_off@@@",        desc: "@@@T:clan_menu_ai_off_desc@@@" }
+                referral:           { icon: "workspace_premium",         name: "@@@T:clan_menu_referral@@@",      desc: "@@@T:clan_menu_referral_desc@@@" }
+                referral_declare:   { icon: "link",                      name: "@@@T:clan_menu_referral_declare@@@", desc: "@@@T:clan_menu_referral_declare_desc@@@" }
           # Le couple « QR Code du clan » / « Créer un joueur », dans cet ordre : la RÈGLE d'abord,
           # l'exception ensuite. C'est le geste que les parents ratent le plus. Le tutoriel détaillait
           # « Créer un joueur » (l'enfant sans téléphone, le cas rare) et taisait le QR code, qui est
