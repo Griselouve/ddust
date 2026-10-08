@@ -466,7 +466,7 @@ extension Worker_admin on worker {
                                 deva_log("info", "[admin] tâche recommandée (boss): $id → $now");
 
                                 // Prévient tout le clan (sauf soi) qu'un boss est apparu.
-                                await _notifyClanBoss(clanId, clanSecret, region);
+                                await _notifyClanBoss(clanId, clanSecret, region, taskId: id);
     }
 
     // « Ne plus recommander » (menu admin du tiroir) : retour en arrière sur « Recommander ». Efface

@@ -1,11 +1,13 @@
 # -----------------------------------------------------------------------------
 # --- Fragment de conf.registry — PAGE DES PALIERS d'abonnement (refonte 2026-09-30).
 # ---
-# --- C'est le seul écran d'où l'on souscrit ou change de cotisation. Il ne
-# --- s'atteint jamais par navigation libre : une RAISON commerciale l'ouvre —
-# --- plafond de joueurs atteint, bandeau d'impayé, relance push, réabonnement
-# --- d'un clan gelé, mur de première cotisation. Toutes passent par
-# --- worker._storeGotoTiers, qui publie cette raison dans `worker.store.notice`.
+# --- C'est le seul écran d'où l'on souscrit ou change de cotisation. Une RAISON
+# --- commerciale l'ouvre le plus souvent : plafond de joueurs atteint, bandeau
+# --- d'impayé, relance push, réabonnement d'un clan gelé, mur de première
+# --- cotisation. Un chef peut aussi y venir de lui-même (2026-10-04) : « Gérer mon
+# --- abonnement », dans le kebab de la boutique, y mène quand le clan n'est pas
+# --- abonné. Toutes passent par worker._storeGotoTiers, qui publie la raison
+# --- éventuelle dans `worker.store.notice`.
 # ---
 # --- UN CHOIX, PAS UN TABLEAU. L'app connaît l'effectif du clan, donc le palier qui
 # --- lui convient : l'écran ne demande plus de comparer cinq lignes, il pose une
@@ -87,6 +89,10 @@ conf:
     # `masks: [page]` et non `page_taskbar` : c'est un écran empilé pour répondre à
     # une question, pas un onglet de jeu. Il n'hérite donc ni de la taskbar, ni du
     # bandeau d'impayé, qui ne serait ici qu'un doublon accusateur.
+    tiers_page/mock_badge:
+      masks:
+        - commons/store_mock_badge
+
     tiers_page:
       masks:
         - page
@@ -109,6 +115,9 @@ conf:
         - tiers_page/av6
         - tiers_page/clan
         - tiers_page/title
+        - tiers_page/formula
+        - tiers_page/formula_change
+        - tiers_page/seats
         - tiers_page/notice
         - tiers_page/year_card
         - tiers_page/year_ribbon
@@ -122,10 +131,10 @@ conf:
         - tiers_page/month_radio
         - tiers_page/month_price
         - tiers_page/month_note
-        - tiers_page/formula
         - tiers_page/defer
         - tiers_page/cta
         - tiers_page/safe
+        - tiers_page/mock_badge
 
     # LES VISAGES DU CLAN. Six places, qui se chevauchent : le worker pose l'avatar
     # de chaque membre (dans l'ordre du clan), masque les places en trop et recentre
@@ -177,12 +186,60 @@ conf:
         x: 4%
         y: 13%
         w: 92%
-        h: 9%
+        h: 8%
         text_align: CENTER
         font_family: "MedievalSharp"
         font_size: 25.0
         font_weight: bold
         label: "@@@T:tiers_headline@@@"
+
+    #//------------------------------- La formule, EN PREMIER --------------------
+    # « Formule Essentiel          changer »
+    # « Jusqu'à 2 joueurs »
+    # Ce que la famille achète, c'est un nombre de joueurs : il se lit avant les prix,
+    # pas en petit sous les cartes (2026-10-04). Le lien ouvre tiers_pick_page.
+    tiers_page/formula:
+      masks:
+        - tiers/txt
+      shape:
+        x: 7%
+        y: 21%
+        w: 60%
+        h: 4.5%
+        font_size: 20.0
+        font_weight: bold
+        font_color: "0xFFFFF3D6"
+        label: ""
+
+    tiers_page/formula_change:
+      masks:
+        - tiers/txt
+      shape:
+        x: 67%
+        y: 21%
+        w: 26%
+        h: 4.5%
+        text_align: RIGHT
+        font_size: 16.0
+        font_color: "0xFFE2B85C"
+        text_decoration: underline
+        label: "@@@T:tiers_change@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.tiers_open_pick
+
+    tiers_page/seats:
+      masks:
+        - tiers/txt
+      shape:
+        x: 7%
+        y: 25.5%
+        w: 86%
+        h: 3.5%
+        font_size: 16.0
+        font_color: "0xFFCDBB9A"
+        label: ""
 
     # LA RAISON DE LA VENUE (plafond atteint, relance…), ou à défaut la phrase qui
     # accompagne le titre. Le worker l'écrit toujours : jamais de cadre creux.
@@ -191,9 +248,9 @@ conf:
         - tiers/txt
       shape:
         x: 6%
-        y: 22%
+        y: 29%
         w: 88%
-        h: 6%
+        h: 5%
         text_align: CENTER
         font_size: 14.0
         font_color: "0xFFBFAE90"
@@ -209,7 +266,7 @@ conf:
       layer: content
       shape:
         x: 5%
-        y: 31%
+        y: 36%
         w: 90%
         h: 17%
         label: ""
@@ -225,7 +282,7 @@ conf:
         - tiers/on_year
       shape:
         x: 30%
-        y: 29.4%
+        y: 34.4%
         w: 40%
         h: 3.2%
         text_align: CENTER
@@ -242,7 +299,7 @@ conf:
         - tiers/on_year
       shape:
         x: 10%
-        y: 33%
+        y: 38%
         w: 60%
         h: 4.5%
         font_size: 19.0
@@ -256,7 +313,7 @@ conf:
         - tiers/on_year
       shape:
         x: 81%
-        y: 33.2%
+        y: 38.2%
         w: 8%
         h: 4%
         text_align: CENTER
@@ -277,7 +334,7 @@ conf:
         - tiers/on_year
       shape:
         x: 10%
-        y: 38%
+        y: 43%
         w: 50%
         h: 5.5%
         font_size: 26.0
@@ -293,7 +350,7 @@ conf:
         - tiers/on_year
       shape:
         x: 58%
-        y: 38.5%
+        y: 43.5%
         w: 32%
         h: 4.5%
         text_align: RIGHT
@@ -310,7 +367,7 @@ conf:
         - tiers/on_year
       shape:
         x: 10%
-        y: 43.3%
+        y: 48.3%
         w: 80%
         h: 3.6%
         text_align: CENTER
@@ -331,7 +388,7 @@ conf:
       layer: content
       shape:
         x: 5%
-        y: 50%
+        y: 55%
         w: 90%
         h: 14%
         label: ""
@@ -347,7 +404,7 @@ conf:
         - tiers/on_month
       shape:
         x: 10%
-        y: 52%
+        y: 57%
         w: 60%
         h: 4.5%
         font_size: 19.0
@@ -360,7 +417,7 @@ conf:
         - tiers/on_month
       shape:
         x: 81%
-        y: 52.2%
+        y: 57.2%
         w: 8%
         h: 4%
         text_align: CENTER
@@ -379,7 +436,7 @@ conf:
         - tiers/on_month
       shape:
         x: 10%
-        y: 56.5%
+        y: 61.5%
         w: 60%
         h: 4.5%
         font_size: 22.0
@@ -393,30 +450,14 @@ conf:
         - tiers/on_month
       shape:
         x: 10%
-        y: 60.5%
+        y: 65.5%
         w: 80%
         h: 3%
         font_size: 13.0
         font_color: "0xFFA89A82"
         label: "@@@T:tiers_no_commitment@@@"
 
-    #//------------------------------- Palier, bouton, réassurance ----------------
-    # « Formule Tribu · jusqu'à 7 · changer ». Le lien ouvre tiers_pick_page.
-    tiers_page/formula:
-      masks:
-        - tiers/txt
-      shape:
-        x: 5%
-        y: 65.5%
-        w: 90%
-        h: 4%
-        text_align: CENTER
-        font_size: 14.0
-        font_color: "0xFFCDBB9A"
-        highlight_color: "0xFFFFF3D6"
-        link_color: "0xFFE2B85C"
-        label: ""
-
+    #//------------------------------- Report, bouton, réassurance ---------------
     # « PLUS TARD » — le report de première cotisation. NÉ INVISIBLE, et il le reste
     # partout ailleurs : ces venues-là ont déjà leur sortie (la flèche). Le DÉCOMPTE
     # est écrit dessus (worker._tiersSyncDefer) : une famille doit savoir combien
@@ -534,6 +575,10 @@ conf:
         actions:
           tap: worker.tiers_pick_6
 
+    tiers_pick_page/mock_badge:
+      masks:
+        - commons/store_mock_badge
+
     tiers_pick_page:
       masks:
         - page
@@ -590,6 +635,7 @@ conf:
         - tiers_pick_page/c6_cap
         - tiers_pick_page/c6_month
         - tiers_pick_page/c6_year
+        - tiers_pick_page/mock_badge
 
     tiers_pick_page/title:
       masks:
@@ -1249,6 +1295,10 @@ conf:
     #
     # Tout est écrit par worker.on_subscription_manage_appear, depuis `store.*`
     # (publié par dvstore) : aucune lecture serveur de plus.
+    subscription_manage_page/mock_badge:
+      masks:
+        - commons/store_mock_badge
+
     subscription_manage_page:
       masks:
         - page
@@ -1272,6 +1322,7 @@ conf:
         - subscription_manage_page/play
         - subscription_manage_page/change
         - subscription_manage_page/safe
+        - subscription_manage_page/mock_badge
 
     subscription_manage_page/title:
       masks:
@@ -1302,7 +1353,7 @@ conf:
         border_radius: 18.0
         background_color: "0x2ED6A84A"
 
-    # « Formule Tribu »
+    # « Formule Tribu », ou « 2 mois offerts » quand le clan vit d'un cadeau.
     subscription_manage_page/tier:
       masks:
         - tiers/txt
@@ -1369,8 +1420,8 @@ conf:
         label: ""
         visible: false
 
-    # Pourquoi le bouton Play manque (un autre chef paie) ou ne mène pas à Play
-    # (simulateur de store). Né invisible : le cas ordinaire n'a rien à expliquer.
+    # Pourquoi le bouton Play manque : un autre chef paie. Né invisible : le cas
+    # ordinaire n'a rien à expliquer.
     subscription_manage_page/note:
       masks:
         - tiers/txt
@@ -1407,7 +1458,7 @@ conf:
         actions:
           tap: store.manage
 
-    # Changer de palier : la vitrine, d'où le lien « changer » mène au choix.
+    # « Changer de formule » : la vitrine, d'où le lien « changer » mène au choix.
     subscription_manage_page/change:
       masks:
         - tiers/txt

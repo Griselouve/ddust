@@ -1,5 +1,5 @@
 ---
-modifie: 2026-10-01T15:59:55Z
+modifie: 2026-10-04T20:40:09Z
 ---
 <!-- revu: 20260910 -->
 
@@ -824,7 +824,7 @@ La fée est le moment le plus heureux du jeu, et il ne doit rien à l'effort : c
 
 **Rien devant la feuille** : ni « tu as aimé ? », ni bouton. Google proscrit les deux (filtrage des avis ; bouton mort quand son quota est atteint). L'app ne sait jamais si la feuille s'est affichée ni quelle note a été laissée, et Play ne la remontre pas à qui a déjà noté. Le panneau « Noter et partager » du menu (`worker_rate.dart`, adultes seulement) reste le chemin explicite : ses étoiles ouvrent la **fiche** du store, ce que Google recommande pour un bouton.
 
-**Tester.** Sur la cible d'essai avec storemock, la demande apparaît dans le journal du simulateur (`demande_avis`, compte) et rien d'autre ne se passe : pas de fausse feuille, la mise en pause de l'app par la vraie feuille n'étant pas reproductible. La vraie feuille se vérifie sur une release du **canal de test interne** (compte testeur principal dans le Play Store, app installée depuis le Store, aucun avis déjà laissé ; quota non appliqué). Pour rejouer, effacer `review.asked_at` du doc `users`.
+**Tester.** Avec un clan au faux Google Play de la cible d'essai (storemock), la demande apparaît dans le journal du faux store (`demande_avis`, compte) et rien d'autre ne se passe : pas de fausse feuille, la mise en pause de l'app par la vraie feuille n'étant pas reproductible. La vraie feuille se vérifie sur une release du **canal de test interne** (compte testeur principal dans le Play Store, app installée depuis le Store, aucun avis déjà laissé ; quota non appliqué). Pour rejouer, effacer `review.asked_at` du doc `users`.
 
 ---
 
@@ -1203,7 +1203,7 @@ Le 2026-09-15, les trois outils de test que portait le kebab de la boutique ont 
 - **« Faire venir la fée »** (`worker.force_fairy`) ;
 - **la fabrique de codes** (`giftcode_mint_page`), avec la fiche produit (`store_product_page`) : la gestion des codes et des achats à l'unité sera refondue de zéro. Les fonctions serveur `store_mint` / `store_revoke` restent déployées en attendant, mais plus rien dans l'app ne les appelle ; la saisie d'un code par un chef (`giftcode_page`, `store_claim`) est inchangée.
 
-Ils étaient gardés par `store.debug.test_mode`, qui valait déjà `false` dans tous les buckets : aucun joueur ne les voyait. La **simulation** d'abonnement de dvstore (`store.debug.simulate_*`) a suivi le 2026-09-29 : la facturation s'éprouve désormais contre le **simulateur de store local** (composants `storemock` et `storemock_ui` de la séquence, actifs sur la cible d'essai, comptes de test dans `store.mock` du build.yml ; cf. readme de dvstore et de la suite `storemock`).
+Ils étaient gardés par `store.debug.test_mode`, qui valait déjà `false` dans tous les buckets : aucun joueur ne les voyait. La **simulation** d'abonnement de dvstore (`store.debug.simulate_*`) a suivi le 2026-09-29 : la facturation s'éprouve désormais contre le **faux Google Play de la cible d'essai** (module pulumi `pustoremock` du backend depuis le 2026-10-04, pilotage `storemock_ui` de la séquence). Un client snapshot y met son clan par « Mon ID », dans le kebab de la boutique ; une pastille « playstore mocked » le signale sur tous les écrans d'achat (cf. readme de dvstore et de la suite `storemock`).
 
 > Des `store.debug.simulate_*` restés persistés sur un appareil de développement (layer `runtime`) sont désormais sans effet : dvstore ne les lit plus.
 

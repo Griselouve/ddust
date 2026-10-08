@@ -22,6 +22,8 @@ build:
     - dvdecisiontree
     - dvvertexai
     - dvsocialshare
+    # Parrainage de clans : pendant client de pureferral (code, titres, déclaration).
+    - dvreferral
     - dvvirtuallobby
     - dvlock
     # Mise a jour forcee : apres la decouverte de la region, avant la premiere ecriture.
@@ -46,6 +48,10 @@ build:
   resources:
     - base
     - resources
+  # Sons de notification copiés dans android/app/src/main/res/raw (un canal Android ne joue
+  # qu'une ressource raw) et protégés du shrinker par keep.xml. Chemins relatifs à assets/.
+  android_raw:
+    - sounds/roar.mp3
   # TOUTES LES COUCHES PUBLIÉES DANS LE BUCKET, embarquées pour que l'app naisse
   # remplie sans attendre le réseau. Un répertoire entier par racine : une couche
   # ajoutée est embarquée sans toucher à ce fichier.

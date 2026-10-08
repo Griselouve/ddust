@@ -151,6 +151,30 @@ extension Worker_notify on worker {
     }
 
     // -----------------------------------------------------------------------
+    // --- Images des notifications (vignette `thumb`, grande image `picture`)
+    // -----------------------------------------------------------------------
+    //
+    // Des clés d'asset NUES : l'app du destinataire les lit dans SON cache (dvmessaging,
+    // « catégories et rendu riche »). Une image pas encore descendue est simplement omise.
+
+    // Le monstre d'une tâche : feuille → dt_t_<id>, domaine → l'icône du domaine. Un clone
+    // ({base}__{userId}) montre le monstre de sa base.
+    String _notifMonsterImage(String taskId) {
+
+                final base = taskId.split("__").first;
+                return _leafTaskRe.hasMatch(base)
+                    ? "images/medium/dt_t_$base.png"
+                    : "images/medium/task_${base}_nobg.png";
+    }
+
+    // L'avatar d'un joueur (doc clans_players), avatar par défaut sinon.
+    String _notifAvatar(Dvidle? p) {
+
+                final a = p?.get("avatar")?.toString() ?? "";
+                return a.isNotEmpty ? a : _defaultPlayerAvatar;
+    }
+
+    // -----------------------------------------------------------------------
     // --- Retrait du consentement parental : alerte aux AUTRES chefs
     // -----------------------------------------------------------------------
 
@@ -205,10 +229,12 @@ extension Worker_notify on worker {
 
                         try {
                             final r = await _sendClanMsg(dvmsg(
-                                range:   'global',
-                                label:   label,
-                                recipes: devices,
-                                data:    data,
+                                range:    'global',
+                                label:    label,
+                                recipes:  devices,
+                                data:     data,
+                                // Sérieux : son du téléphone, aucune image, aucun jeu autour.
+                                category: 'compte',
                                 actions: {
                                     "open": {"action": "worker.on_pulse_open", "wakeup": true},
                                 },
@@ -263,9 +289,14 @@ extension Worker_notify on worker {
                 deva_log("info", "[combat] notify → assignee=$assignee lang=$lang recipes=$recipes");
                 try {
                     final result = await _sendClanMsg(dvmsg(
-                        range:   'global',
-                        label:   text,
-                        recipes: recipes,
+                        range:    'global',
+                        label:    text,
+                        recipes:  recipes,
+                        // Vignette : le monstre. Grande image : la victoire, seulement quand le
+                        // défi est relevé (un raté reste sobre, sans image d'échec pour un enfant).
+                        category: 'verdicts',
+                        thumb:    _notifMonsterImage(taskId),
+                        picture:  key == "combat_validate_ok" ? "images/big/victory_nobg.png" : null,
                         // Action unique SANS label → pas de bouton : le tap sur le corps de la
                         // notif déclenche on_validation_resolved (premier plan via FLN, arrière-plan
                         // via onMessageOpenedApp). wakeup:true → l'app reste ouverte (on va au dashboard).
@@ -297,6 +328,7 @@ extension Worker_notify on worker {
         try {
             final players = await _cloud?.list(
                 "workers", "clans_players/$clanId/players", region: region) ?? [];
+            final newcomer = players.where((p) => p.get("id")?.toString() == newMemberId).firstOrNull;
             for (final p in players) {
                 final pid = p.get("id")?.toString() ?? "";
                 if (pid.isEmpty || pid == newMemberId) continue;   // pas l'arrivant
@@ -313,7 +345,8 @@ extension Worker_notify on worker {
 
                 try {
                     final r = await _sendClanMsg(dvmsg(
-                        range: 'global', label: text, recipes: devices));
+                        range: 'global', label: text, recipes: devices,
+                        category: 'clan', thumb: _notifAvatar(newcomer)));
                     deva_log("info", "[worker] notif nouveau membre → $pid ($lang)"
                         " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
                 } catch (e) {
@@ -365,10 +398,15 @@ extension Worker_notify on worker {
                                     final giver = (await Deva.instance.get("session.user.name"))?.toString() ?? "";
                                     text = text.replaceAll("{item}", item).replaceAll("{name}", giver);
 
+                                    // Vignette : l'image de l'objet (items.<type>.image du thème).
+                                    final itemImage = type.isEmpty ? null
+                                        : (await deva_get("items.$type.image"))?.toString();
                                     final result = await _sendClanMsg(dvmsg(
-                                        range:   'global',
-                                        label:   text,
-                                        recipes: devices.map((d) => d.toString()).toList(),
+                                        range:    'global',
+                                        label:    text,
+                                        recipes:  devices.map((d) => d.toString()).toList(),
+                                        category: 'coffre',
+                                        thumb:    (itemImage != null && itemImage.isNotEmpty) ? itemImage : null,
                                     ));
                                     deva_log("info", "[items] notif don → $targetId ($lang) "
                                         "status=${result?.get('status')} sent=${result?.get('sent')} "
@@ -427,8 +465,12 @@ extension Worker_notify on worker {
                             }
 
                             try {
+                                // Grande image du coffre réservée au trésor exceptionnel.
                                 final r = await _sendClanMsg(dvmsg(
-                                    range: 'global', label: text, recipes: entry.value));
+                                    range: 'global', label: text, recipes: entry.value,
+                                    category: 'coffre',
+                                    thumb:    "images/big/chest.png",
+                                    picture:  suffixKey == "chest_notif_high" ? "images/big/CoffreRitual.png" : null));
                                 deva_log("info", "[chest] notif → ${entry.value.length} appareil(s) ($lang)"
                                     " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
                             } catch (e) {
@@ -460,13 +502,15 @@ extension Worker_notify on worker {
     // lire comme un cadeau raté (même précaution que _notifyOpeningCall).
     Future<void> _notifyClanFairy(String clanId, String region, String name) async {
 
-                    await _notifyClanKey(clanId, region, "fairy_notif", name);
+                    await _notifyClanKey(clanId, region, "fairy_notif", name,
+                        thumb: "images/big/fairy_nobg.png", picture: "images/medium/fairy_tile.png");
     }
 
     // Annonce au clan (sauf l'intéressé) le texte de la clé `key`, dans la langue de chacun, `{name}`
     // remplacé par le joueur. Partagé par la fée et par le moteur d'événements (seulement quand
     // l'événement a été découvert ET cliqué).
-    Future<void> _notifyClanKey(String clanId, String region, String key, String name) async {
+    Future<void> _notifyClanKey(String clanId, String region, String key, String name,
+                                {String? thumb, String? picture}) async {
 
                     if (clanId.isEmpty || key.isEmpty) return;
                     try {
@@ -498,7 +542,8 @@ extension Worker_notify on worker {
 
                             try {
                                 final r = await _sendClanMsg(dvmsg(
-                                    range: 'global', label: text, recipes: entry.value));
+                                    range: 'global', label: text, recipes: entry.value,
+                                    category: 'clan', thumb: thumb, picture: picture));
                                 deva_log("info", "[notify] $key → ${entry.value.length} appareil(s) ($lang)"
                                     " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
                             } catch (e) {
@@ -534,9 +579,11 @@ extension Worker_notify on worker {
                                     text = text.replaceAll("{amount}", "$amount");
 
                                     final result = await _sendClanMsg(dvmsg(
-                                        range:   'global',
-                                        label:   text,
-                                        recipes: devices.map((d) => d.toString()).toList(),
+                                        range:    'global',
+                                        label:    text,
+                                        recipes:  devices.map((d) => d.toString()).toList(),
+                                        category: 'coffre',
+                                        thumb:    "images/big/chest_item_nobg.png",
                                     ));
                                     deva_log("info", "[tribut] notif → $target ($lang) "
                                         "status=${result?.get('status')} sent=${result?.get('sent')}");
@@ -557,6 +604,7 @@ extension Worker_notify on worker {
                 try {
                     final players = await _cloud?.list(
                         "workers", "clans_players/$clanId/players", region: region) ?? [];
+                    final leveler = players.where((p) => p.get("id")?.toString() == _userId).firstOrNull;
                     for (final p in players) {
                         final pid = p.get("id")?.toString() ?? "";
                         if (pid.isEmpty || pid == _userId) continue;   // pas le joueur qui monte
@@ -579,7 +627,9 @@ extension Worker_notify on worker {
 
                         try {
                             final r = await _sendClanMsg(dvmsg(
-                                range: 'global', label: text, recipes: devices));
+                                range: 'global', label: text, recipes: devices,
+                                category: 'clan', thumb: _notifAvatar(leveler),
+                                picture: "images/medium/shield.png"));
                             deva_log("info", "[levelup] notif → $pid ($lang)"
                                 " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
                         } catch (e) {
@@ -632,6 +682,15 @@ extension Worker_notify on worker {
                 final titleKey = _leafTaskRe.hasMatch(taskId) ? "dt_t_$taskId" : "task_$taskId";
                 final data     = {"clanId": clanId, "taskId": taskId, "assignee": requester};
 
+                // Vignette : l'avatar du demandeur. Lu une fois, hors de la boucle.
+                Dvidle? requesterDoc;
+                try {
+                    requesterDoc = await _cloud?.read(
+                        "workers", "clans_players/$clanId/players", requester,
+                        ownerId: clanSecret, region: region);
+                } catch (_) {}
+                final requesterAvatar = _notifAvatar(requesterDoc);
+
                 for (final adminId in admins) {
                     if (adminId == requester) continue;   // un admin ne se notifie pas lui-même
                     final pdoc = await _cloud?.read(
@@ -658,7 +717,7 @@ extension Worker_notify on worker {
                     var head = await tr(subscribed ? "notif_validate_request"
                                                    : "notif_validate_request_open");
                     if (head.isEmpty) head = subscribed ? "demande la validation"
-                                                        : "demande une validation — touchez pour l'ouvrir";
+                                                        : "demande une validation : touchez pour l'ouvrir";
 
                     final label = title.isNotEmpty
                         ? "[$title] $requesterName $head"
@@ -698,6 +757,9 @@ extension Worker_notify on worker {
                             mode:    subscribed ? 'noorb' : null,
                             data:    data,
                             actions: actions,
+                            category: 'validations',
+                            thumb:    requesterAvatar,
+                            picture:  _notifMonsterImage(taskId),
                         ));
                         deva_log("info", "[combat] notif admin → $adminId ($lang): $label"
                             " — sent=${result?.get('sent')} dead=${result?.get('dead')}");
@@ -707,67 +769,10 @@ extension Worker_notify on worker {
                 }
     }
 
-    // Relance de cotisation impayée, envoyée aux CHEFS du clan.
-    //
-    // En production c'est le balayage quotidien du serveur qui l'envoie, et ce doit
-    // rester lui : un clan en défaut est justement un clan que plus personne n'ouvre,
-    // aucun client ne peut donc garantir le départ de la relance. Cette version-ci ne
-    // sert qu'au BANC D'ESSAI — elle rejoue l'envoi à la demande, avec le même texte
-    // et par le même canal, pour qu'on puisse constater ce qu'une famille recevra
-    // sans attendre le passage de 5 h du matin.
-    //
-    // Les textes viennent de lang.yml (embarqué) et non du thème : c'est ce qui rend
-    // la relance lisible même quand le layer du bucket est en retard.
-    //
-    // Soi-même INCLUS, contrairement aux autres notifications du fichier : celui qui
-    // actionne le banc est justement celui qui doit recevoir le message.
-    Future<void> _notifyDunning(String clanId, String clanSecret, String region,
-                                String phase) async {
-
-                    if (clanId.isEmpty || clanSecret.isEmpty || phase.isEmpty) return;
-                    try {
-                        final clanDoc = await _cloud?.read("workers", "clans", clanId,
-                            ownerId: clanSecret, region: region);
-                        final admins = List<dynamic>.from(clanDoc?.get("admins") as List? ?? [])
-                            .map((a) => a.toString()).where((a) => a.isNotEmpty).toList();
-                        if (admins.isEmpty) { deva_log("info", "[store] relance: aucun chef"); return; }
-
-                        for (final adminId in admins) {
-                            final pdoc = await _cloud?.read(
-                                "workers", "clans_players/$clanId/players", adminId,
-                                ownerId: clanSecret, region: region);
-                            if (pdoc == null) continue;
-                            final lang    = pdoc.get("lang")?.toString() ?? "fr";
-                            final devices = List<dynamic>.from(pdoc.get("devices") as List? ?? [])
-                                .map((d) => d.toString()).toList();
-                            if (devices.isEmpty) continue;
-
-                            var text = (await deva_get("lang.translations.store_dunning_$phase.$lang"))?.toString() ?? "";
-                            if (text.isEmpty) {
-                                text = (await deva_get("lang.translations.store_dunning_$phase.fr"))?.toString() ?? "";
-                            }
-                            if (text.isEmpty) continue;
-
-                            try {
-                                // Action sans libellé = convention tap-corps (cf. _notifyAssignee) :
-                                // toucher le bandeau ouvre la boutique, exactement comme le fera la
-                                // relance du serveur.
-                                final r = await _sendClanMsg(dvmsg(
-                                    range:   'global',
-                                    label:   text,
-                                    recipes: devices,
-                                    actions: {"open": {"action": "worker.store_open_subscription"}},
-                                ));
-                                deva_log("info", "[store] relance $phase → $adminId ($lang)"
-                                    " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
-                            } catch (e) {
-                                deva_log("error", "[store] relance → $adminId échec: $e");
-                            }
-                        }
-                    } catch (e) {
-                        deva_log("error", "[store] _notifyDunning FAILED: $e");
-                    }
-    }
+    // Relance de cotisation impayée : envoyée par le seul balayage du serveur (pustore
+    // store_sweeper, catégorie `compte`). L'ancien rejeu client du banc d'essai
+    // (_notifyDunning) n'était appelé nulle part et a été retiré le 2026-10-06 ;
+    // pour constater une relance, utiliser le banc du serveur.
 
     // Informe les AUTRES membres du clan qu'un joueur est devenu chef (« {name} a prouvé sa valeur… »).
     // Le promu, lui, n'est PAS notifié : il a l'animation "burn" jouée localement par sa propre
@@ -783,6 +788,7 @@ extension Worker_notify on worker {
                 try {
                     final players = await _cloud?.list(
                         "workers", "clans_players/$clanId/players", region: region) ?? [];
+                    final promoted = players.where((p) => p.get("id")?.toString() == promotedId).firstOrNull;
                     for (final p in players) {
                         final pid = p.get("id")?.toString() ?? "";
                         if (pid.isEmpty || pid == _userId || pid == promotedId) continue;
@@ -799,7 +805,8 @@ extension Worker_notify on worker {
 
                         try {
                             final r = await _sendClanMsg(dvmsg(
-                                range: 'global', label: text, recipes: devices));
+                                range: 'global', label: text, recipes: devices,
+                                category: 'clan', thumb: _notifAvatar(promoted)));
                             deva_log("info", "[roster] notif promo clan → $pid ($lang)"
                                 " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
                         } catch (e) {
@@ -814,7 +821,8 @@ extension Worker_notify on worker {
     // Prévient TOUT le clan (sauf l'admin qui recommande) qu'un « boss » vient d'apparaître. Un envoi
     // par membre dans sa langue (lang.translations.boss_notif.<lang>, repli fr), en sautant soi-même
     // et les membres révoqués. Modèle : _notifyChiefPromotion / _notifyClanNewMember.
-    Future<void> _notifyClanBoss(String clanId, String clanSecret, String region) async {
+    Future<void> _notifyClanBoss(String clanId, String clanSecret, String region,
+                                 {String taskId = ""}) async {
 
                     if (clanId.isEmpty || clanSecret.isEmpty) return;
                     try {
@@ -835,7 +843,10 @@ extension Worker_notify on worker {
 
                             try {
                                 final r = await _sendClanMsg(dvmsg(
-                                    range: 'global', label: text, recipes: devices));
+                                    range: 'global', label: text, recipes: devices,
+                                    category: 'clan',
+                                    thumb:    taskId.isNotEmpty ? _notifMonsterImage(taskId) : null,
+                                    picture:  "images/medium/ecu_combat.png"));
                                 deva_log("info", "[boss] notif → $pid ($lang)"
                                     " — sent=${r?.get('sent')} dead=${r?.get('dead')}");
                             } catch (e) {
@@ -888,6 +899,9 @@ extension Worker_notify on worker {
                                     label:      text,
                                     recipes:    devices,
                                     foreground: 'silent',
+                                    category:   'coffre',
+                                    thumb:      "images/big/chest.png",
+                                    picture:    "images/big/CoffreRitual.png",
                                     actions:    {
                                         'open': {'action': 'worker.on_opening_called', 'wakeup': true},
                                     },
@@ -959,6 +973,8 @@ extension Worker_notify on worker {
                                     label:      text,
                                     recipes:    devices,
                                     foreground: 'silent',
+                                    category:   'coffre',
+                                    thumb:      "images/medium/chestok.png",
                                     actions:    {
                                         'claim': {'action': 'worker.on_butin_ready', 'wakeup': true},
                                     },

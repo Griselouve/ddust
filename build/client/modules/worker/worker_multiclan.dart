@@ -347,6 +347,11 @@ extension Worker_multiclan on worker {
                                     if (label != null && label.isNotEmpty && name.isNotEmpty && !label.startsWith("[$name]")) {
                                         m.set("label", "[$name] $label");
                                     }
+                                    // Toute notification visible a une catégorie : c'est elle qui la fait
+                                    // partir en données seules, dessinée par l'app (son roar, couleur du thème).
+                                    if (label != null && label.isNotEmpty && (m.get("category")?.toString() ?? "").isEmpty) {
+                                        m.set("category", "clan");
+                                    }
                                 } catch (e) {
                                     deva_log("warning", "[multiclan] _sendClanMsg: $e");
                                 }

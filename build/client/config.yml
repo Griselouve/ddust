@@ -223,6 +223,20 @@ conf:
   #   worker (on_documents_ready), la région connue.
   messaging:
     broadcast_enabled: true
+    # Catégories de notifications = canaux Android, réglables à part par un parent. Un
+    # seul son signature (roar, res/raw via build.android_raw) pour tout ce qui est joyeux,
+    # le son du téléphone pour ce qui est sérieux, aucun son pour les rappels.
+    # La couleur d'accent (messaging.style.color) vient de la couche de THÈME.
+    # ⚠ Changer le son d'une catégorie exige un nouvel `id` (dv_<cat>_v2) : Android fige
+    #   le son d'un canal à sa création.
+    default_category: clan
+    categories:
+      validations: { name: notif_cat_validations, desc: notif_cat_validations_desc, sound: roar,    importance: high }
+      verdicts:    { name: notif_cat_verdicts,    desc: notif_cat_verdicts_desc,    sound: roar,    importance: high }
+      clan:        { name: notif_cat_clan,        desc: notif_cat_clan_desc,        sound: roar,    importance: high }
+      coffre:      { name: notif_cat_coffre,      desc: notif_cat_coffre_desc,      sound: roar,    importance: high }
+      rappels:     { name: notif_cat_rappels,     desc: notif_cat_rappels_desc,     sound: none,    importance: low }
+      compte:      { name: notif_cat_compte,      desc: notif_cat_compte_desc,      sound: default, importance: high }
 
   # --- dvsession config ---------------------------------------------------------
   session:
@@ -273,6 +287,12 @@ conf:
   # déclaré dans le catalogue de layers/assets-global.yml.
   theme:
     default: "theme-donjon"
+
+  # --- Parrainage (dvreferral) -------------------------------------------------
+  # Le scope est celui de la boutique : le CLAN (même contrat que store.scope_action).
+  # Les titres (`referral.titles`) viennent du build.yml de la suite (conf partagée).
+  referral:
+    scope_action: worker.store_scope
 
   # --- Store config (dvstore) ---------------------------------------------------
   # Le CATALOGUE n'est pas ici : il vit dans le layer store-base-global.yml, publié
@@ -328,8 +348,9 @@ conf:
     # un layer cloud avec un écran de scénarios, retiré de l'app à son tour.
     #
     # `store.debug.simulate_*` n'existe plus dans dvstore (2026-09-29) : la
-    # facturation s'éprouve contre le simulateur de store local, composants storemock
-    # de la séquence, sur la cible d'essai (comptes de test : `store.mock.accounts`).
+    # facturation s'éprouve contre le faux Google Play de la cible d'essai (module
+    # pulumi `pustoremock`, depuis le 2026-10-04), pour les clans que son pilotage
+    # (`storemock_ui`) y a mis par le code « Mon ID » du kebab de la boutique.
 
 
   # --- aimodels config (vertex AI, pas de téléchargement local) ----------------
