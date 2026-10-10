@@ -1,0 +1,572 @@
+# Généré par la console deva depuis Firestore : ne pas éditer, réécrit à chaque envoi.
+# L'ordre des lots est celui du plan ; le rang global vit dans Firestore.
+projet: "ddust"
+cadence:
+  premier_lot_semaines: 5
+  intervalle_mois: 2
+catalog_sequence: ["5a19492a3aa7","3df87efd34d2","a6728b19f4b1","0877dd1dcfb0","71b889d2505e","ecb38169ab68","81291102e209","09a10ee9b42d","1c1703f9c5bd","cbe53f2e0c9b","13a9e8d0a1b9","5b617e0e5480","0ab7912989d0","4333deadd8b3","258ff7d2b854","b4483c2704e7","649f985be717","0b7c8f278959","1521505a498c"]
+projection: {"app_surcharges":{"lassitude":{"delai":{"bas":1.5,"central":3,"haut":6},"pente":{"bas":0.03,"central":0.06,"haut":0.12}}},"domaines":{"education":0.15,"jeu":0.35,"productivite":0.1,"sante":0.4},"editeur":"indie","facteur_acquisition":1.08,"marches":{"bresil":{"langue":"A"},"ca":{"langue":"A"},"ch":{"langue":{"A":0.93,"B":0.07}},"eun":{"langue":"B"},"euo":{"langue":{"A":0.99,"B":0.01}},"eus":{"langue":"A"},"eux":{"langue":{"B":0.43,"C":0.57}},"fr":{"langue":"A"},"hispam":{"langue":"A"},"oceanie":{"langue":"A"},"uk":{"langue":"A"},"us":{"langue":"A"}},"modele":"abonnement_freemium","motivations":{"collection":0.5,"communaute":1,"defi":0.5,"faire_grandir":0.5,"histoire":0.5,"progres":0.5},"moyens":["rendez_vous_quotidien"],"prix":{"annuel":25,"mensuel":3.05},"public":{"femmes":0.6,"plus_de_36":0.5,"type":"enfant_parent"}}
+lots:
+  - id: "2fb66c075ba3"
+    nom: "requisites"
+    mvp: false
+    livre: "2026-09-15"
+    date_fiable: true
+    reviewed: false
+    taches:
+      - {"id":"155527e5613ee9fb","livre":"2026-09-09","reviewed":false}
+      - {"id":"95992c5a26107239","livre":"2026-09-09","reviewed":false}
+      - {"id":"cc971f75a1052f91","livre":"2026-09-09","reviewed":false}
+      - {"id":"f918e27ad5004a10","livre":"2026-09-09","reviewed":false}
+      - {"id":"383033c921a014dc","livre":"2026-09-09","reviewed":false}
+      - {"id":"3b08f867a2f212ef","livre":"2026-09-09","reviewed":false}
+      - {"id":"cad995819c906fce","livre":"2026-09-09","reviewed":false}
+      - {"id":"0c09077417e47d69","livre":"2026-09-09","reviewed":false}
+      - {"id":"c4794c5694a19c77","livre":"2026-09-09","reviewed":false}
+      - {"id":"94ee947d6840404f","livre":"2026-09-09","reviewed":false}
+      - {"id":"9e157cfa3f2aebd7","livre":"2026-09-09","reviewed":false}
+      - {"id":"ebff50787b039f97","livre":"2026-09-09","reviewed":false}
+      - {"id":"46158c25c133244b","livre":"2026-09-09","reviewed":false}
+      - {"id":"488097b88725c3ab","livre":"2026-09-09","reviewed":false}
+      - {"id":"30075d78449f5310","livre":"2026-09-10","reviewed":false}
+      - {"id":"3e52ba49cb95d194","livre":"2026-09-10","reviewed":false}
+      - {"id":"b0397390ba8d7c07","livre":"2026-09-10","reviewed":false}
+      - {"id":"9110a34c9d8f4e49","livre":"2026-09-10","reviewed":false}
+      - {"id":"9ecd93d353806a4e","livre":"2026-09-10","reviewed":false}
+      - {"id":"1461c1915e470527","livre":"2026-09-10","reviewed":false}
+      - {"id":"06632f0b733f94da","livre":"2026-09-12","reviewed":false}
+      - {"id":"e1e5dd4d86f43116","livre":"2026-09-15","reviewed":false}
+      - {"id":"9275b9eac2c1e87b","livre":"2026-09-15","reviewed":false}
+  - id: "dc31b23a0d6c"
+    nom: "légal"
+    mvp: false
+    livre: "2026-09-16"
+    date_fiable: true
+    reviewed: false
+    taches:
+      - {"id":"52e71f13cf72d83e","livre":"2026-09-16","reviewed":false}
+      - {"id":"87e76a585ebc912f","livre":"2026-09-16","reviewed":false}
+      - {"id":"3bd98527b874a0ee","livre":"2026-09-16","reviewed":false}
+      - {"id":"a48a0c2ad1fe169e","livre":"2026-09-16","reviewed":false}
+      - {"id":"d2e49f9c15a367ae","livre":"2026-09-16","reviewed":false}
+      - {"id":"298d3ff16d3e6251","livre":"2026-09-16","reviewed":false}
+      - {"id":"04d0f69cc3a4cebe","livre":"2026-09-16","reviewed":false}
+  - id: "b68ba8193315"
+    nom: "pub"
+    mvp: true
+    livre: "2026-09-16"
+    date_fiable: true
+    reviewed: false
+    taches:
+      - {"id":"3bd1f5abdfbfe707","livre":"2026-09-16","reviewed":false}
+      - {"id":"4b9215978c2b483e","livre":"2026-09-16","reviewed":false}
+      - {"id":"cd27ef1e671bbce5","livre":"2026-09-16","reviewed":false}
+      - {"id":"6ba1a90f38552ea8","livre":"2026-09-16","reviewed":false}
+  - id: "37efb92085ab"
+    nom: "premier pas"
+    mvp: false
+    livre: "2026-09-27"
+    date_fiable: true
+    reviewed: true
+    backlog_complet: true
+    taches:
+      - {"id":"2ba409188d088d29","livre":"2026-07-24","reviewed":false}
+      - {"id":"a657d01472544681","livre":"2026-07-24","reviewed":false}
+      - {"id":"c15c661397e54b82","livre":"2026-07-24","reviewed":false}
+      - {"id":"100cc4555794247b","livre":"2026-07-25","reviewed":false}
+      - {"id":"151b1c174d4307c6","livre":"2026-07-30","reviewed":false}
+      - {"id":"1f61fe85eb7261b4","livre":"2026-07-30","reviewed":false}
+      - {"id":"2f737cd69d2f395a","livre":"2026-07-30","reviewed":false}
+      - {"id":"2332aabdee92bfb9","livre":"2026-07-30","reviewed":false}
+      - {"id":"d669982dab68c332","livre":"2026-07-31","reviewed":false}
+      - {"id":"a2419e38bc78a1e4","livre":"2026-07-31","reviewed":false}
+      - {"id":"964faee1cb224ce5","livre":"2026-07-31","reviewed":false}
+      - {"id":"6927d3a4bca6f447","livre":"2026-08-01","reviewed":false}
+      - {"id":"2530fd66dbc063c2","livre":"2026-08-01","reviewed":false}
+      - {"id":"6b8287ae55559503","livre":"2026-08-01","reviewed":false}
+      - {"id":"c8dda6ce04c63ad7","livre":"2026-08-02","reviewed":false}
+      - {"id":"206eadf5f34bb5e3","livre":"2026-08-02","reviewed":false}
+      - {"id":"b7b37472a85c7f9d","livre":"2026-08-02","reviewed":false}
+      - {"id":"5e6a19c6bc3abda4","livre":"2026-08-02","reviewed":false}
+      - {"id":"4ae0eacaa4921855","livre":"2026-08-02","reviewed":false}
+      - {"id":"4207f9665654d57b","livre":"2026-08-02","reviewed":false}
+      - {"id":"794d20ee7d5d1ff7","livre":"2026-08-03","reviewed":false}
+      - {"id":"5543754ae97c290e","livre":"2026-08-03","reviewed":false}
+      - {"id":"3a9cd7e3b6bcf115","livre":"2026-08-03","reviewed":false}
+      - {"id":"efdb45f6a6350a99","livre":"2026-08-03","reviewed":false}
+      - {"id":"ed612893242def9f","livre":"2026-08-04","reviewed":false}
+      - {"id":"a92af614f71a9975","livre":"2026-08-04","reviewed":false}
+      - {"id":"74a3204537405b17","livre":"2026-08-04","reviewed":false}
+      - {"id":"d02fcc722d3afcf0","livre":"2026-08-18","reviewed":false}
+      - {"id":"8e7268e6e36b0b0d","livre":"2026-08-18","reviewed":false}
+      - {"id":"7fc4c64be18b39dc","livre":"2026-08-18","reviewed":false}
+      - {"id":"90a45c40a310fb6a","livre":"2026-08-19","reviewed":false}
+      - {"id":"447c80a9e0a648e0","livre":"2026-08-19","reviewed":false}
+      - {"id":"57e971ccc9b61991","livre":"2026-08-19","reviewed":false}
+      - {"id":"967a80eb12546b04","livre":"2026-08-19","reviewed":false}
+      - {"id":"90fa1d23c7b1e844","livre":"2026-08-20","reviewed":false}
+      - {"id":"02bd829aa88750bd","livre":"2026-08-20","reviewed":false}
+      - {"id":"b2dd0f60e7ef35a0","livre":"2026-08-20","reviewed":false}
+      - {"id":"aed697f9fcb72949","livre":"2026-08-21","reviewed":false}
+      - {"id":"9ceaf8bcac04695d","livre":"2026-08-21","reviewed":false}
+      - {"id":"374d441d155bb973","livre":"2026-08-21","reviewed":false}
+      - {"id":"f77f2b1544ef08a5","livre":"2026-08-23","reviewed":false}
+      - {"id":"33b7a9e788bb03bb","livre":"2026-08-23","reviewed":false}
+      - {"id":"6df351f2c341ce27","livre":"2026-08-24","reviewed":false}
+      - {"id":"ebe8bdadc0e6c96a","livre":"2026-09-01","reviewed":false}
+      - {"id":"68228be58bacb7db","livre":"2026-09-08","reviewed":false}
+      - {"id":"17bb203070ee2e2a","livre":"2026-09-08","reviewed":false}
+      - {"id":"82ed9ca93b10ec9b","livre":"2026-09-08","reviewed":false}
+      - {"id":"c5f44047bf32d279","livre":"2026-09-08","reviewed":false}
+      - {"id":"529e4b721d05797d","livre":"2026-09-08","reviewed":false}
+      - {"id":"2a9d5fed2fe38f6b","livre":"2026-09-08","reviewed":false}
+      - {"id":"29b80183da5e0044","livre":"2026-09-08","reviewed":false}
+      - {"id":"1a58710c3d5b5ec9","livre":"2026-09-08","reviewed":false}
+      - {"id":"b0f35c8f82d10d89","livre":"2026-09-09","reviewed":false}
+      - {"id":"1f27af3ef49e2368","livre":"2026-09-09","reviewed":false}
+      - {"id":"922d32e41f458a27","livre":"2026-09-09","reviewed":false}
+      - {"id":"371e431a9d05d5bb","livre":"2026-09-22","reviewed":false}
+      - {"id":"04467d0f91bbee3c","livre":"2026-09-22","reviewed":false}
+      - {"id":"753959bdfe789060","livre":"2026-09-22","reviewed":false}
+      - {"id":"b83a21687b8c077e","livre":"2026-09-22","reviewed":false}
+      - {"id":"8e00fb7f61ff9034","livre":"2026-09-22","reviewed":false}
+      - {"id":"dc4708c7365b3ee3","livre":"2026-09-22","reviewed":false}
+      - {"id":"e166c11ce351c917","livre":"2026-09-22","reviewed":false}
+      - {"id":"d38cae52d4762c9a","livre":"2026-09-22","reviewed":false}
+      - {"id":"cdbd140c2b83a1e4","livre":"2026-09-24","reviewed":false}
+      - {"id":"1d369ba6e051ffb0","livre":"2026-09-24","reviewed":false}
+      - {"id":"cfc5b432d1cb0f4c","livre":"2026-09-24","reviewed":false}
+      - {"id":"c89275c867718b2e","livre":"2026-09-24","reviewed":false}
+      - {"id":"b028db09b00f2816","livre":"2026-09-24","reviewed":false}
+      - {"id":"ae121cae5f5c4563","livre":"2026-09-24","reviewed":false}
+      - {"id":"790e3b34f8235896","livre":"2026-09-24","reviewed":false}
+      - {"id":"9e9eb171f718ea59","livre":"2026-09-24","reviewed":false}
+      - {"id":"4860799d3d6a8163","livre":"2026-09-24","reviewed":false}
+      - {"id":"5720da3af6ee8f63","livre":"2026-09-24","reviewed":false}
+      - {"id":"a91c48acdf70c139","livre":"2026-09-24","reviewed":false}
+      - {"id":"77a38749d4f98cd5","livre":"2026-09-25","reviewed":false}
+      - {"id":"6bc0418acf26fd9b","livre":"2026-09-25","reviewed":false}
+      - {"id":"9665dd3042d66e1b","livre":"2026-09-25","reviewed":false}
+      - {"id":"0da03b08bc938354","livre":"2026-09-25","reviewed":false}
+      - {"id":"500490e5de954e5b","livre":"2026-09-25","reviewed":false}
+      - {"id":"8bee6b2188ad5c79","livre":"2026-09-25","reviewed":true}
+      - {"id":"9bc96da35c0c4567","livre":"2026-09-25","reviewed":false}
+      - {"id":"ec9373d7f9f57a89","livre":"2026-09-26","reviewed":false}
+      - {"id":"a923b42cf31da9d2","livre":"2026-09-26","reviewed":false}
+      - {"id":"9e72c659ee7cfc5a","livre":"2026-09-26","reviewed":false}
+      - {"id":"5a7d09a774caced8","livre":"2026-09-26","reviewed":false}
+      - {"id":"35c3fd54df0a48c1","livre":"2026-09-26","reviewed":false}
+      - {"id":"1d022601d372e26c","livre":"2026-09-26","reviewed":false}
+      - {"id":"54ac9ba7f1bf3213","livre":"2026-09-26","reviewed":false}
+      - {"id":"a0f47a5d075f058b","livre":"2026-09-26","reviewed":false}
+      - {"id":"9f39b4daf99b28cf","livre":"2026-09-26","reviewed":false}
+      - {"id":"5907b401b7b23f93","livre":"2026-09-26","reviewed":false}
+      - {"id":"e2e58e1a7f0f7083","livre":"2026-09-26","reviewed":false}
+      - {"id":"1dac2f0fb52d2f48","livre":"2026-09-26","reviewed":false}
+      - {"id":"3ecdb809e2c20be4","livre":"2026-09-26","reviewed":false}
+      - {"id":"48e4ad09b39fe664","livre":"2026-09-26","reviewed":false}
+      - {"id":"7c1bf2235183527c","livre":"2026-09-26","reviewed":false}
+      - {"id":"5fb6413f77492eac","livre":"2026-09-27","reviewed":true}
+      - {"id":"1e37726c9017ce62","livre":"2026-09-27","reviewed":false}
+  - id: "8617f4232140"
+    nom: "multitenant"
+    mvp: false
+    livre: "2026-09-27"
+    date_fiable: true
+    reviewed: true
+    taches:
+      - {"id":"4b1ce2d628f006a7","livre":"2026-09-27","reviewed":false}
+      - {"id":"d811c007db1d9fd6","livre":"2026-09-27","reviewed":false}
+      - {"id":"45635d087e0be2bd","livre":"2026-09-27","reviewed":false}
+      - {"id":"be17f6dca6cbadac","livre":"2026-09-27","reviewed":false}
+      - {"id":"d0f0ce665e7da64e","livre":"2026-09-27","reviewed":false}
+  - id: "9f24f26cf4f8"
+    nom: "pre-beta"
+    mvp: false
+    livre: "2026-09-29"
+    date_fiable: true
+    reviewed: true
+    backlog_complet: true
+    taches:
+      - {"id":"5c1ca043a1645257","livre":"2026-09-28","reviewed":false}
+      - {"id":"429b1990da6fd925","livre":"2026-09-28","reviewed":false}
+      - {"id":"4bbad8eb2fd93cfc","livre":"2026-09-28","reviewed":false}
+      - {"id":"ed1664a67a9cb7b2","livre":"2026-09-29","reviewed":false}
+  - id: "e8b1dc21bd00"
+    nom: "facturation"
+    mvp: false
+    livre: "2026-10-06"
+    date_fiable: true
+    reviewed: true
+    backlog_complet: true
+    taches:
+      - {"id":"91fa4b3d6f1002a5","livre":"2026-09-30","reviewed":false}
+      - {"id":"a0055e060904b129","livre":"2026-09-30","reviewed":false}
+      - {"id":"1d57f8b21ce6f146","livre":"2026-09-30","reviewed":false}
+      - {"id":"11e4be860dceab73","livre":"2026-09-30","reviewed":false}
+      - {"id":"8ba67af54b97c6ca","livre":"2026-09-30","reviewed":false}
+      - {"id":"0852c6d66fdaa926","livre":"2026-09-30","reviewed":false}
+      - {"id":"3ca7e8e009f6b66b","livre":"2026-09-30","reviewed":false}
+      - {"id":"3cb2635900d0282e","livre":"2026-09-30","reviewed":false}
+      - {"id":"1decd6657847696c","livre":"2026-09-30","reviewed":false}
+      - {"id":"6c5068bed29f0ceb","livre":"2026-09-30","reviewed":false}
+      - {"id":"fcc7218ce7d3f1f7","livre":"2026-10-01","reviewed":false}
+      - {"id":"21da9d3e754dd90a","livre":"2026-10-01","reviewed":false}
+      - {"id":"5e03385e0e4643f8","livre":"2026-10-04","reviewed":false}
+      - {"id":"474547ffbecf05fb","livre":"2026-10-05","reviewed":false}
+      - {"id":"80740b3282e83eea","livre":"2026-10-05","reviewed":true}
+      - {"id":"d437c82cc8121b5e","livre":"2026-10-05","reviewed":false}
+      - {"id":"243fb44ef1bc60d2","livre":"2026-10-06","reviewed":false}
+  - id: "5a19492a3aa7"
+    nom: "go-live"
+    mvp: false
+    reviewed: false
+    taches:
+      - {"id":"feffd032f793f303","reviewed":false}
+      - {"id":"172ab3ed187a1023","reviewed":false}
+      - {"id":"267f273eba6799ca","reviewed":false}
+      - {"id":"cb8eab16077df4c1","reviewed":false}
+      - {"id":"368e672525dde7e0","reviewed":false}
+      - {"id":"e773fbdb4a6019f9","reviewed":false}
+      - {"id":"308b459357e9ebbf","reviewed":false}
+      - {"id":"4031c27c5459cc56","reviewed":false}
+      - {"id":"8bc6b261b73aa805","reviewed":false}
+      - {"id":"c28c4f4162861583","reviewed":false}
+      - {"id":"8955725f3ed32ef6","reviewed":true}
+  - id: "3df87efd34d2"
+    nom: "validations automatiques"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"4ea4acfe53087097","reviewed":true}
+  - id: "a6728b19f4b1"
+    nom: "defis"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"441868ec9c06bcdb"}
+      - {"id":"c9bac285bbd8badb"}
+      - {"id":"c32a5bfd5f948e86"}
+      - {"id":"369468b290c6a6c0"}
+  - id: "0877dd1dcfb0"
+    nom: "loots"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"0798d2336e4564cb","reviewed":true}
+      - {"id":"cf8412285ad7e8f4","reviewed":true}
+      - {"id":"194555e3206ae44d","reviewed":true}
+      - {"id":"82a0a3fbb08063e3","reviewed":false}
+      - {"id":"694d10f5020dda17","reviewed":false}
+      - {"id":"a3fb98add6f4455c","reviewed":true}
+      - {"id":"7912b5d563ae5a66","reviewed":false}
+      - {"id":"a59dbd0982ab6a0e","reviewed":false}
+      - {"id":"953c8befbc2cb122","reviewed":true}
+      - {"id":"0836f40e7a30a95d","reviewed":false}
+  - id: "71b889d2505e"
+    nom: "quetes I"
+    mvp: false
+    date_fiable: false
+    reviewed: true
+    taches:
+      - {"id":"57e135e987b88aa2","reviewed":true}
+  - id: "ecb38169ab68"
+    nom: "potions I"
+    mvp: false
+    date_fiable: false
+    reviewed: true
+    taches:
+      - {"id":"eb23bbe947dbb357","reviewed":true}
+  - id: "81291102e209"
+    nom: "quêtes II"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"d4266729b41a33e9"}
+  - id: "09a10ee9b42d"
+    nom: "potions II"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"d7a362b7a50ea442"}
+  - id: "1c1703f9c5bd"
+    nom: "minijeux"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"f211fb5f7ecf470e"}
+  - id: "cbe53f2e0c9b"
+    nom: "routine"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"d7d7b68c4ff2c8e3"}
+  - id: "32329fd13dae"
+    nom: "socle"
+    mvp: false
+    livre: "2026-05-20"
+    date_fiable: true
+    taches:
+      - {"id":"691376352d23e98f","livre":"2026-06-03"}
+      - {"id":"73a1555adb235ef0","livre":"2026-06-05"}
+      - {"id":"c6d12b2f79f2af19","livre":"2026-06-06"}
+      - {"id":"7322e5d1115dfce7","livre":"2026-06-09"}
+      - {"id":"d066fff923960cbb","livre":"2026-06-11"}
+      - {"id":"094603cafa680fef","livre":"2026-06-24"}
+      - {"id":"5bb234edbf1bc3e0","livre":"2026-06-30"}
+      - {"id":"94faa407d1537999","livre":"2026-06-30"}
+      - {"id":"7420bf00a2caba86","livre":"2026-07-02"}
+      - {"id":"af91e588ac8c1f5f","livre":"2026-07-05"}
+      - {"id":"5f1ff072e48424a3","livre":"2026-07-07"}
+      - {"id":"d64db7a84ac1f204","livre":"2026-07-13"}
+      - {"id":"00dedc48df89dd13","livre":"2026-07-13"}
+      - {"id":"c8b29f97f8d704d4","livre":"2026-07-13"}
+      - {"id":"655e5c062c9705fb","livre":"2026-07-14"}
+      - {"id":"a63168513cf82d92","livre":"2026-07-15"}
+      - {"id":"957ede446cff7389","livre":"2026-07-15"}
+      - {"id":"92d54c87a0d60721","livre":"2026-07-15"}
+      - {"id":"23721432c46c9e9d","livre":"2026-07-19"}
+      - {"id":"e23f7a8badbd4628","livre":"2026-07-22"}
+      - {"id":"661572837f3f6269","livre":"2026-07-22"}
+      - {"id":"b949e7ea3eb4d221","livre":"2026-07-23"}
+      - {"id":"f5389095b8d7d6b7","livre":"2026-07-28"}
+      - {"id":"63538261745c0630","livre":"2026-07-28"}
+      - {"id":"30f7e1a5210719d5","livre":"2026-08-02"}
+      - {"id":"624e39595c5bfbbf","livre":"2026-08-04"}
+  - id: "3ee5cdbbf4e8"
+    nom: "clan"
+    mvp: false
+    livre: "2026-06-10"
+    date_fiable: true
+    taches:
+      - {"id":"a5635e4590c02b15","livre":"2026-06-10"}
+      - {"id":"ed66a75824178ae1","livre":"2026-06-14"}
+      - {"id":"136f93bd04be081a","livre":"2026-06-30"}
+      - {"id":"b622c73d1969b3df","livre":"2026-06-30"}
+      - {"id":"68b9c19285482058","livre":"2026-07-02"}
+      - {"id":"c8c74952c5c6e9c0","livre":"2026-07-05"}
+      - {"id":"6779443c308cfc9b","livre":"2026-07-07"}
+      - {"id":"e6db62051a52c3cd","livre":"2026-07-08"}
+      - {"id":"9a57ec872ecf501a","livre":"2026-07-08"}
+      - {"id":"7416bc84449a13a5","livre":"2026-07-13"}
+      - {"id":"ecb526a396c89d56","livre":"2026-07-15"}
+      - {"id":"18f10c038b06c450","livre":"2026-07-16"}
+      - {"id":"bf8344d3f94d1b51","livre":"2026-07-17"}
+      - {"id":"f22da0ad5e028e3f","livre":"2026-07-24"}
+  - id: "81a9612bcfad"
+    nom: "personnage"
+    mvp: false
+    livre: "2026-06-20"
+    date_fiable: true
+    taches:
+      - {"id":"7ee7221dd64e5ab3","livre":"2026-06-06"}
+      - {"id":"ed0e049deeb9aabe","livre":"2026-06-30"}
+      - {"id":"6109906e99e2e448","livre":"2026-06-30"}
+      - {"id":"fbd3f87163b05440","livre":"2026-07-02"}
+      - {"id":"d22421a4b148e508","livre":"2026-07-02"}
+      - {"id":"7440ce530bc51eee","livre":"2026-07-05"}
+      - {"id":"e4c2624f5c7fae20","livre":"2026-07-11"}
+      - {"id":"e2618cbc41d11159","livre":"2026-07-11"}
+      - {"id":"32d47f1a3f89d6e6","livre":"2026-07-11"}
+      - {"id":"00da27ac69457ab5","livre":"2026-07-15"}
+      - {"id":"f36906517aa09781","livre":"2026-07-17"}
+      - {"id":"3cfbe001b1046392","livre":"2026-07-18"}
+      - {"id":"0180b218eb099906","livre":"2026-07-24"}
+      - {"id":"5aae101fab1f4f66","livre":"2026-07-24"}
+      - {"id":"8a566ac28dd03bdb","livre":"2026-07-31"}
+  - id: "982e1c595070"
+    nom: "taches"
+    mvp: false
+    livre: "2026-06-27"
+    date_fiable: true
+    taches:
+      - {"id":"e7d3309a502991ad","livre":"2026-06-23"}
+      - {"id":"209e4e40d89460dd","livre":"2026-06-24"}
+      - {"id":"d46c57fbf97450be","livre":"2026-06-24"}
+      - {"id":"9c4ad23ec246b0d4","livre":"2026-06-24"}
+      - {"id":"91fd094995f1b38f","livre":"2026-06-24"}
+      - {"id":"8316607feeff24d5","livre":"2026-06-24"}
+      - {"id":"f0d9621988be39c8","livre":"2026-06-24"}
+      - {"id":"0ef7c8ebd435ba2a","livre":"2026-06-25"}
+      - {"id":"a7288bcf4251a772","livre":"2026-06-25"}
+      - {"id":"268ef056f0066402","livre":"2026-06-26"}
+      - {"id":"344d3964d82cc29d","livre":"2026-06-26"}
+      - {"id":"36f20824d5a8d1d4","livre":"2026-06-26"}
+      - {"id":"3b80b321d474c9b9","livre":"2026-06-29"}
+      - {"id":"32964e1f21d6ac99","livre":"2026-06-29"}
+      - {"id":"4b538dc40d7abb11","livre":"2026-06-29"}
+      - {"id":"b9e05f0acb9d2f38","livre":"2026-06-30"}
+      - {"id":"0445ac27fec8eb26","livre":"2026-07-02"}
+      - {"id":"70e9747bae16b245","livre":"2026-07-03"}
+      - {"id":"d33f6d969e840ef1","livre":"2026-07-03"}
+      - {"id":"7949d3ec33eadace","livre":"2026-07-03"}
+      - {"id":"419509ef1139d967","livre":"2026-07-05"}
+      - {"id":"e27062ba2942b68a","livre":"2026-07-16"}
+      - {"id":"00ff50100f173011","livre":"2026-07-17"}
+      - {"id":"e38f343e3cc9433b","livre":"2026-07-17"}
+      - {"id":"d2361e91404bf0f8","livre":"2026-07-17"}
+      - {"id":"7ee4b5a73a094ae7","livre":"2026-07-18"}
+      - {"id":"6d5691fe8bdf24ce","livre":"2026-07-18"}
+      - {"id":"c5a9a7d51a6e5bab","livre":"2026-07-18"}
+      - {"id":"314ca572d3ce315e","livre":"2026-07-23"}
+      - {"id":"ada638f5bd97c5d3","livre":"2026-07-23"}
+  - id: "3b81e080ee72"
+    nom: "progression"
+    mvp: false
+    livre: "2026-07-01"
+    date_fiable: true
+    taches:
+      - {"id":"628d1cd9a844a5af","livre":"2026-06-26","reviewed":false}
+      - {"id":"af981bd99f071aee","livre":"2026-06-29","reviewed":false}
+      - {"id":"a68227cdeb9e8e3d","livre":"2026-06-29","reviewed":false}
+      - {"id":"b7ac1fc2ad187831","livre":"2026-06-29","reviewed":false}
+      - {"id":"20eb9bbd99062815","livre":"2026-06-30","reviewed":false}
+      - {"id":"f994a6ad31d8cf3a","livre":"2026-06-30","reviewed":false}
+      - {"id":"c10180cc45cecc77","livre":"2026-06-30","reviewed":false}
+      - {"id":"412e5f96d8dea709","livre":"2026-06-30","reviewed":false}
+      - {"id":"b3b6ea751e92347d","livre":"2026-06-30","reviewed":false}
+      - {"id":"5239ed3c3459f28d","livre":"2026-07-03","reviewed":true}
+      - {"id":"27ce7b7bcea87ee2","livre":"2026-07-03","reviewed":false}
+      - {"id":"27192bcf2e856b2a","livre":"2026-07-04","reviewed":false}
+      - {"id":"84c71a98a9e60294","livre":"2026-07-04","reviewed":false}
+      - {"id":"b631a25f670ffb28","livre":"2026-07-04","reviewed":false}
+      - {"id":"60b9b90362b13458","livre":"2026-07-04","reviewed":false}
+      - {"id":"05b304e85878d1d0","livre":"2026-07-07","reviewed":false}
+      - {"id":"8463b88d551c3f04","livre":"2026-07-28","reviewed":false}
+  - id: "5ad520b40c19"
+    nom: "notifications"
+    mvp: false
+    livre: "2026-07-05"
+    date_fiable: true
+    taches:
+      - {"id":"d9fe75d90627bc51","livre":"2026-07-05"}
+      - {"id":"5d3b908ee47277af","livre":"2026-07-05"}
+      - {"id":"231d490c2b47cad3","livre":"2026-08-20"}
+  - id: "a245b12c4cb8"
+    nom: "journal"
+    mvp: false
+    livre: "2026-07-08"
+    date_fiable: true
+    taches:
+      - {"id":"13de419eb1298286","livre":"2026-07-05"}
+      - {"id":"7454f3b978969d34","livre":"2026-07-05"}
+      - {"id":"b3e52f539dcc3e41","livre":"2026-07-07"}
+      - {"id":"da7539f75fc8570e","livre":"2026-07-08"}
+      - {"id":"3851f091fffbb791","livre":"2026-07-08"}
+      - {"id":"03197e1d508b404e","livre":"2026-07-08"}
+  - id: "c03a9e06baad"
+    nom: "contenu_visuel"
+    mvp: false
+    livre: "2026-07-12"
+    date_fiable: true
+    taches:
+      - {"id":"5b7accf9c31f7b59","livre":"2026-07-11"}
+      - {"id":"7276f0506f81c95e","livre":"2026-07-12"}
+      - {"id":"3d67c333b168e735","livre":"2026-07-12"}
+  - id: "e525cb94cb33"
+    nom: "contenu_sonore"
+    mvp: false
+    livre: "2026-07-15"
+    date_fiable: true
+    taches:
+      - {"id":"9c92dc28d20764eb","livre":"2026-07-15"}
+      - {"id":"c4f51bfff55bf0ec","livre":"2026-07-15"}
+      - {"id":"b4927fac40c2f0b1","livre":"2026-07-15"}
+      - {"id":"efe81eb7fe113fdd","livre":"2026-07-15"}
+  - id: "3ca5a6277c98"
+    nom: "celebrations"
+    mvp: false
+    livre: "2026-07-16"
+    date_fiable: true
+    taches:
+      - {"id":"4da6968b4ff8d171","livre":"2026-07-05"}
+      - {"id":"fddfa2b6dfa67da9","livre":"2026-07-13"}
+      - {"id":"ad3af75a18ea7fb5","livre":"2026-07-14"}
+      - {"id":"da56906e9dbd8bcd","livre":"2026-07-16"}
+      - {"id":"53ccdf1db533ad7b","livre":"2026-07-16"}
+      - {"id":"99df2bbe36fe8780","livre":"2026-07-16"}
+      - {"id":"d6063e34945982ea","livre":"2026-08-20"}
+  - id: "992f6f465ef6"
+    nom: "administration"
+    mvp: false
+    livre: "2026-07-20"
+    date_fiable: true
+    taches:
+      - {"id":"492e735782b39d90","livre":"2026-07-20"}
+      - {"id":"cc7ebae3dc348e8e","livre":"2026-07-20"}
+  - id: "bfdf9b81c269"
+    nom: "butin"
+    mvp: false
+    livre: "2026-07-28"
+    date_fiable: true
+    taches:
+      - {"id":"caee474f0d94578b","livre":"2026-06-30"}
+      - {"id":"fece29a6d5f8f4c1","livre":"2026-07-25"}
+      - {"id":"8059a998ea5c4b2a","livre":"2026-07-27"}
+      - {"id":"30198cc3bde55c1d","livre":"2026-07-27"}
+      - {"id":"cd79c8dc733224a7","livre":"2026-07-27"}
+  - id: "4facbb5b056a"
+    nom: "boutique"
+    mvp: false
+    livre: "2026-08-22"
+    date_fiable: true
+    taches:
+      - {"id":"eb0ba28864678b96","livre":"2026-08-22"}
+      - {"id":"f067df1bd222050a","livre":"2026-08-22"}
+      - {"id":"31e51506079cdbb1","livre":"2026-08-22"}
+  - id: "13a9e8d0a1b9"
+    nom: "devoirs faits"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"106d61bb5f514c6b","reviewed":true}
+  - id: "5b617e0e5480"
+    nom: "classes"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"0e236eb080cf7a87"}
+  - id: "0ab7912989d0"
+    nom: "quêtes III"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"93e71aaaf4cf66ee"}
+  - id: "4333deadd8b3"
+    nom: "potions III"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"b81d32946901e9ef"}
+  - id: "258ff7d2b854"
+    nom: "pack bricolage"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"1a7c51e345ac71f3"}
+  - id: "b4483c2704e7"
+    nom: "theme_casanostra"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"50712fef96c2bf55"}
+  - id: "649f985be717"
+    nom: "theme_noel"
+    mvp: false
+    date_fiable: false
+    reviewed: true
+    backlog_complet: false
+    taches:
+      - {"id":"a1274854ed11a9c4","reviewed":true}
+  - id: "0b7c8f278959"
+    nom: "theme_pirates"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"9673c86ab30dfff8","reviewed":true}
+  - id: "1521505a498c"
+    nom: "theme_starsweep"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"c12da55190e24e3b"}
