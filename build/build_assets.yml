@@ -59,7 +59,7 @@ assets:
     #   reposer a chaque capture ajoutee.
     #
     #   `showcase` : les prises de la vitrine (dvshowcase), refaites a chaque passage de
-    #   `builder.py suite=ddust showcase`. Elles ont remplace `resources_others/screenshots/`
+    #   `builder.py suite=ddust run-showcase`. Elles ont remplace `resources_others/screenshots/`
     #   le 2026-09-16 : le site, la fiche Play et les videos y puisent directement.
     # Le decor de l'accueil servi par le bucket PUBLIC (vague `ante`). Il n'a pas de
     # racine de manifeste : ces fichiers ne partent pas dans le bucket d'assets, ils

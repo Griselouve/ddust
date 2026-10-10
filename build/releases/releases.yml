@@ -1,6 +1,6 @@
 # Les versions PUBLIEES de l'application, la plus recente en tete.
 #
-# ⚠ ECRIT PAR LE BUILDER (mot-clef `release`), pas a la main. Le fichier est
+# ⚠ ECRIT PAR LE BUILDER (`push-bundle`), pas a la main. Le fichier est
 #   reemis en entier a chaque publication : un commentaire ajoute ici
 #   disparaitrait a la suivante. Ce qui se regle a la main vit dans
 #   `releases/i18n.yml` (libelles) et `releases/template.html` (gabarit).

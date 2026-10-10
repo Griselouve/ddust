@@ -5,3 +5,7 @@
 # build.yml du projet. Cf. readme de deva/suites/projects.
 build:
   from: projects/console
+  # VERIFICATION DEVELOPPEUR ANDROID (dvapkreg) : OFF, cet APK ne quitte jamais nos
+  # propres appareils (ADB ou parcours avance d'Android), il n'a pas besoin d'etre
+  # enregistre aupres de Google. Ni controle, ni trace, ni pastille.
+  apkreg: "off"

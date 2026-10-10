@@ -1,3 +1,7 @@
 # App de pilotage du simulateur de store, DERIVEE de la suite modele.
 build:
   from: storemock/ui
+  # VERIFICATION DEVELOPPEUR ANDROID (dvapkreg) : OFF, cet APK ne quitte jamais nos
+  # propres appareils (ADB ou parcours avance d'Android), il n'a pas besoin d'etre
+  # enregistre aupres de Google. Ni controle, ni trace, ni pastille.
+  apkreg: "off"
