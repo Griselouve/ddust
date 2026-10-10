@@ -17,7 +17,7 @@ conf:
   # ⚠ NE PAS TOUCHER CE CHAMP POUR UN SIMPLE ESSAI. Depuis le 2026-08-27, le mot-clef
   #   `dryrun` passe au builder force la simulation du catalogue :
   #
-  #       python builder.py suite=ddust upload dryrun
+  #       python builder.py suite=ddust dry-assets dry-docs dry-catalog dry-site
   #
   #   Le mot-clef ne peut qu'AJOUTER de la prudence, il ne desactive jamais un
   #   dry_run demande ici. Editer ce champ pour un essai, c'est prendre le risque
@@ -835,8 +835,6 @@ conf:
       vertexai:
         monthly_limit: 5.00
         auto_disable: true
-        price_input_per_million: 1.25
-        price_output_per_million: 5.00
       cloudrun:
         monthly_limit: 8.00
         auto_disable: true

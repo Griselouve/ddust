@@ -1,5 +1,9 @@
 build:
   type: flutter
+  # VERIFICATION DEVELOPPEUR ANDROID (dvapkreg) : ON, l'APK de dev part chez les
+  # testeurs ; son package doit etre enregistre, sinon un appareil certifie refuse
+  # de l'installer. Controle et trace a chaque APK.
+  apkreg: "on"
   modules:
     - dvcore
     - dvlang

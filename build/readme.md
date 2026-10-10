@@ -1,5 +1,5 @@
 ---
-modifie: 2026-10-04T20:40:09Z
+modifie: 2026-10-08T17:42:10Z
 ---
 <!-- revu: 20260910 -->
 
@@ -1718,7 +1718,7 @@ Backend provisionné par Pulumi. L'ordre de build est `backend` puis `client`, l
 
 **Deux clients OAuth Android** coexistent, même package, empreintes différentes : Play re-signe l'AAB avec **sa** clé, le certificat de l'app installée depuis le Store n'est donc pas celui du keystore local. Google résout le bon client côté serveur d'après le certificat réel de l'APK, l'app n'envoie jamais de `client_id` Android. L'empreinte de production a été **relevée sur l'APK réellement distribué** et non lue en console, qui donnait une autre valeur ne correspondant à aucune installation.
 
-**Publication (mot-clef `release`)** : l'AAB part sur Google Play depuis la console (bouton `release` de l'écran Build) ou en ligne de commande. `version=patch` produit un **snapshot** sur la piste `internal` ; `version=minor` et `version=major` produisent une **release** sur `production` **et** une entrée sur la page « Releases » du site (`/{langue}/releases/`, huit langues, même timeline que la roadmap). Le changelog est rédigé en français dans la console, traduit dans les sept autres langues au moment de publier, et plafonné à **500 caractères par langue**, la limite de Google, dont le dépassement fait échouer la publication *après* l'upload du bundle. Les trois fichiers du site vivent dans `build/releases/` : `releases.yml` (écrit par le builder), `i18n.yml` et `template.html` (écrits à la main). Cf. `deva/python/modules/dvrelease/readme.md`.
+**Publication (`push-bundle`)** : l'AAB part sur Google Play depuis la console (écran Release) ou en ligne de commande. Sans `make-*`, c'est un **snapshot** sur la piste des testeurs ; `make-patch` publie en `production` ; `make-minor` et `make-major` publient en `production` **et** ajoutent une entrée sur la page « Releases » du site (`/{langue}/releases/`, huit langues, même timeline que la roadmap). Le changelog est rédigé en français dans la console, traduit dans les sept autres langues au moment de publier, et plafonné à **500 caractères par langue**, la limite de Google, dont le dépassement fait échouer la publication *après* l'upload du bundle. Les trois fichiers du site vivent dans `build/releases/` : `releases.yml` (écrit par le builder), `i18n.yml` et `template.html` (écrits à la main). Cf. `deva/python/modules/dvrelease/readme.md`.
 
 ⚠ **Un correctif ne peut pas partir seul en production** : `patch` va sur la piste interne, par construction. Un correctif destiné aux joueurs se publie en `minor`.
 

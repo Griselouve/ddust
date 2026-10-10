@@ -72,7 +72,7 @@ build:
   #
   # ⚠ SEPT LANGUES ICI, HUIT SUR LE SITE (depuis le 2026-09-16). Le portugais du Brésil
   #   (`br`) a ses pages, mais pas encore ses captures : `resources_others/showcase/br/`
-  #   n'existera qu'au prochain passage de la vitrine (`builder.py suite=ddust showcase`).
+  #   n'existera qu'au prochain passage de la vitrine (`builder.py suite=ddust run-showcase`).
   #   Or UNE SOURCE ABSENTE ARRÊTE LE BUILD — et c'est justement un build qui embarque la
   #   langue `br` dans l'application avant que la vitrine puisse la photographier. Déclarer
   #   `br` ici tout de suite fermait donc la porte de l'intérieur.
