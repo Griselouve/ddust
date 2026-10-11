@@ -222,7 +222,6 @@ lots:
     mvp: false
     reviewed: false
     taches:
-      - {"id":"feffd032f793f303","reviewed":false}
       - {"id":"267f273eba6799ca","reviewed":false}
       - {"id":"cb8eab16077df4c1","reviewed":false}
       - {"id":"c28c4f4162861583","reviewed":false}
@@ -233,6 +232,7 @@ lots:
       - {"id":"8955725f3ed32ef6","reviewed":true}
       - {"id":"308b459357e9ebbf","reviewed":false}
       - {"id":"e773fbdb4a6019f9","livre":"2026-10-11","reviewed":false}
+      - {"id":"feffd032f793f303","livre":"2026-10-11","reviewed":false}
   - id: "3df87efd34d2"
     nom: "validations automatiques"
     mvp: false
