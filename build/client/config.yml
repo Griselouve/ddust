@@ -53,16 +53,33 @@ conf:
       # Au login, un max_xp valant EXACTEMENT cette valeur est réécrit à player_max_xp, un plafond
       # personnalisé (pouvoir, classe) n'est jamais écrasé. Poser 0 désactive le réalignement, une
       # fois tous les clans passés.
-    xp_per_level: 50 # pas de la courbe de niveau JOUEUR (Nv.2 = 2×pas)
-    clan_xp_factor: 10 # le CLAN progresse clan_xp_factor× plus lentement que le joueur
+    level_base: 200 # courbe de niveau JOUEUR : passer du niveau n au niveau n+1 coûte
+      # level_base + level_step × n XP. Avec 200 et 100 : Nv.2 = 300, Nv.3 = 700, Nv.5 = 1800,
+      # Nv.10 = 6300 XP cumulés. Calibré sur des foyers simulés : un enfant à ~1,5 tâche par jour
+      # passe le niveau 3 en une dizaine de jours (4 j à 3 tâches/j, 4 semaines à 0,6 tâche/j).
+    level_step: 100
+    clan_level_base: 1000 # courbe de niveau CLAN, même forme : clan_level_base + clan_level_step × n.
+      # Nv.2 = 1500, Nv.3 = 3500, Nv.5 = 9000. L'XP du clan étant la part de chaque gain divisée
+      # par le nombre de membres, elle avance au rythme d'un joueur moyen du foyer.
+    clan_level_step: 500
     player_pv: 10 # PV initiaux d'un joueur à la création de son doc
     player_decay: 1 # decay initial d'un joueur : jours d'inactivité pour perdre 1 PV
     heal_pv: 3 # PV rendus quand un admin guérit (revive_player) un joueur mort
-    butin_max_xp: 1000 # plafond du CYCLE de butin d'un clan : ce que la jauge doit atteindre pour
+    butin_max_xp: 500 # plafond du CYCLE de butin d'un clan : ce que la jauge doit atteindre pour
       # que le coffre s'ouvre, remis à zéro à chaque ouverture (au-delà : plus aucun gain). À ne pas
       # confondre avec butin_gain_max_xp ci-dessous, qui borne UN SEUL crédit, les deux plafonds
       # cohabitent : le premier dit quand le coffre est plein, le second à quelle vitesse il peut
-      # se remplir.
+      # se remplir. Avec les deux bornes journalières ci-dessous, un coffre s'ouvre tous les 6 à
+      # 10 jours dans un foyer actif, 7 à 14 dans un foyer moyen, 11 à 30 dans un foyer passif.
+    butin_day_max_xp: 100 # au plus ce que la jauge gagne sur une journée (heure locale), tâches et
+      # dons de montée de niveau confondus : un coffre ne s'ouvre jamais en moins de 5 jours. Ne
+      # borne QUE la jauge : l'XP gagnée au-delà reste comptée dans les contributions, le partage
+      # à l'ouverture n'en dépend pas. 0 = pas de plafond.
+    butin_day_min_xp: 30 # la PREMIÈRE tâche validée de la journée verse au moins ce montant au
+      # coffre (les suivantes, leur gain normal). Récompense la régularité : sans lui, une famille
+      # passive attendait plus de 40 jours son coffre. 0 = pas de plancher.
+    butin_levelup_per_level: 10 # don au butin quand un joueur monte de niveau : ce montant × le
+      # niveau atteint, soumis au plafond de crédit et au plafond journalier.
     # Pas de plafond d'argent : on ne connaît pas la monnaie du joueur, et là où une baguette vaut
     # 100 000 un maximum réglable n'a aucun sens. La saisie n'est bornée que par le nombre de
     # chiffres (garde-fou technique, cf. worker._moneyDigitsMax) et, pour un retour au coffre, par
@@ -197,7 +214,9 @@ conf:
       # Racines de manifestes, dans l'ordre de cascade (dernier gagnant). Les vagues
       # nomment des chemins NUS ("images/big/x.png") : c'est cette liste qui décide du
       # thème qui les fournit, et un thème absent d'ici n'est jamais téléchargé.
-      # Valeur de démarrage, remplacée par celle du thème du clan une fois connu.
+      # Valeur d'une INSTALLATION NEUVE seulement : dès qu'un thème du catalogue est
+      # actif sur l'appareil (tag), ce sont ses `manifests` qui sont lus au démarrage,
+      # et dvtheme.switchTheme change la liste à chaud (thème du clan, clans_owned).
       manifests:
         - "general"
         - "donjon"

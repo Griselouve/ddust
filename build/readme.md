@@ -349,7 +349,10 @@ admins:  ["userId", ...]
 founder: "userId"                # admin à vie, jamais rétrogradable ni révocable
 avatar:  "icon_12_C_03.png"
 xp: 0                            # niveau dérivé
-butin_xp: 0                      # jauge d'ouverture (0 → 1000)
+butin_xp: 0                      # jauge d'ouverture (0 → 500)
+butin_day: "AAAA-MM-JJ"          # jour du compteur journalier de la jauge
+butin_day_xp: 0                  # versé à la jauge ce jour-là (≤ 100)
+butin_day_task: false            # la 1re tâche du jour a déjà eu son plancher
 title_idx: -1                    # titre PORTÉ ; -1 = aucun
 butin_xp_factor: 1               # amorcé par la conf, modifiable en partie
 max_xp_butin: 50                 # plafond d'UN crédit (+20 × niveau du clan)
@@ -636,9 +639,9 @@ Sur ce socle s'applique la **fenêtre de régénération** `dead → revive` : 0
 
 #### niveaux joueur et clan
 
-Le niveau n'est **jamais stocké** : il se dérive de l'XP cumulée. L'XP requise pour atteindre le niveau N suit `XP_N = 50 · (N(N+1)/2 − 1)` : 100 au niveau 2, 250 au 3, 450 au 4, 700 au 5. Le coût d'un palier croît linéairement, compromis entre le linéaire (les niveaux ne signifient plus rien) et l'exponentiel (mur infranchissable).
+Le niveau n'est **jamais stocké** : il se dérive de l'XP cumulée. Passer du niveau n au niveau n+1 coûte `level_base + level_step × n` XP (200 + 100 × n par défaut) : l'XP cumulée pour atteindre le niveau N vaut `200·(N−1) + 100·(N−1)·N/2`, soit 300 au niveau 2, 700 au 3, 1200 au 4, 1800 au 5. Calibrage : un enfant qui valide environ 1,5 tâche par jour passe le niveau 3 en une dizaine de jours. Le coût d'un palier croît linéairement, compromis entre le linéaire (les niveaux ne signifient plus rien) et l'exponentiel (mur infranchissable).
 
-Même courbe pour le clan avec un pas ×10 : niveau 2 à 1000 XP, niveau 3 à 2500. Le crédit d'XP au clan est **divisé par le nombre de membres** (`ceil(xp / count)`) : le palier de clan récompense l'effort collectif, pas la taille du foyer. L'XP partagée est celle **réellement gagnée par le joueur, bonus boss compris**. Le diviseur ne compte que les membres **actifs** : révoqués (`enabled = false`) et sans-téléphone (`has_device = false`) en sont exclus. Un **hors concours y reste**, et c'est délibéré : il joue et il produit, contrairement à un sans-téléphone. Il a renoncé aux récompenses, pas à la contribution.
+Même forme pour le clan, `clan_level_base + clan_level_step × n` (1000 + 500 × n) : niveau 2 à 1500 XP, niveau 3 à 3500. Le crédit d'XP au clan est **divisé par le nombre de membres** (`ceil(xp / count)`) : le palier de clan récompense l'effort collectif, pas la taille du foyer. L'XP partagée est celle **réellement gagnée par le joueur, bonus boss compris**. Le diviseur ne compte que les membres **actifs** : révoqués (`enabled = false`) et sans-téléphone (`has_device = false`) en sont exclus. Un **hors concours y reste**, et c'est délibéré : il joue et il produit, contrairement à un sans-téléphone. Il a renoncé aux récompenses, pas à la contribution.
 
 **Plafond d'XP par tâche, indexé sur le niveau.** L'XP gagnée sur UNE tâche est écrêtée à `clans_players.max_xp` (amorcé à 100, le champ du doc faisant foi ensuite et pouvant varier d'un joueur à l'autre) **+ 20 × niveau du joueur** (niveau avant le gain) : 120 au niveau 1, 300 au niveau 10. Sans ce bonus, un plafond fixe traite pareil le débutant et le vétéran, trop bas il écrase le bonus boss d'une grosse corvée au niveau 10, trop haut il laisse un niveau 1 rafler d'un coup ce que le barème destine à plusieurs semaines. Indexer le plafond sur le niveau fait du niveau lui-même une récompense. Le badge de combat applique la même formule pour ne jamais promettre plus que ce que le verdict versera. Un réalignement à usage unique (`player_max_xp_legacy`) réécrit l'ancienne valeur d'amorçage sur les personnages existants, sans jamais écraser un plafond personnalisé.
 
@@ -650,7 +653,7 @@ Un titre n'est pas une propriété dérivée du niveau : c'est un **item**. Au n
 
 L'XP d'un joueur est créditée **à distance** (sur l'appareil de l'admin qui valide). Une vigilance sur le doc membre détecte donc la montée **à tout moment, sur n'importe quel écran**. La comparaison se fait contre une XP mémorisée : amorçage silencieux à la première exécution (pas de fausse célébration au déploiement), mémorisation avant célébration (anti double-fire), lectures transitoires ignorées.
 
-Au franchissement d'un palier : **(0)** l'item titre est écrit **avant** l'animation et la notification, si l'un des deux échoue, le titre gagné doit exister tout de même ; **(1)** animation sur place (texte dans le DvSplash commun + scène dvflame « burn » : combustion, carbonisation, effritement), sans aucune navigation ; **(2)** notification au reste du clan dans la langue de chacun ; **(3)** récompenses : soin complet et don au butin de 100 × nouveau niveau, plafonné ; **(4)** log `PlayerLeveledUp`.
+Au franchissement d'un palier : **(0)** l'item titre est écrit **avant** l'animation et la notification, si l'un des deux échoue, le titre gagné doit exister tout de même ; **(1)** animation sur place (texte dans le DvSplash commun + scène dvflame « burn » : combustion, carbonisation, effritement), sans aucune navigation ; **(2)** notification au reste du clan dans la langue de chacun ; **(3)** récompenses : soin complet et don au butin de `butin_levelup_per_level` (10) × nouveau niveau, plafonné ; **(4)** log `PlayerLeveledUp`.
 
 Côté clan, le franchissement est détecté au crédit d'XP, seul endroit qui voit l'XP du clan avant et après, et donne l'item `titre_clan` avec un log, mais sans animation : ce code tourne sur l'appareil de l'admin qui valide, pas sur celui d'un joueur.
 
@@ -671,9 +674,11 @@ Six scènes `dvinterlude` ponctuent le jeu, toutes déclenchées par **détectio
 
 #### jauge de butin
 
-Le butin se remplit via une jauge dédiée, distincte du niveau de clan. À chaque crédit d'XP au clan, le même montant (modulé par `clans.butin_xp_factor`) est ajouté à `clans.butin_xp`. **Deux plafonds distincts** : celui du **cycle** (1000, au-delà, plus aucun gain jusqu'à l'ouverture) et, en amont, celui d'**un seul crédit** (`clans.max_xp_butin`, amorcé à 50, **+ 20 × niveau du clan**) : miroir exact du plafond joueur, il évite qu'une seule corvée recommandée, divisée par peu de membres, ne remplisse la jauge d'un coup dans un jeune clan. Les dons fixes des montées de niveau (10 × niveau) sont soumis au même plafond de crédit.
+Le butin se remplit via une jauge dédiée, distincte du niveau de clan. À chaque crédit d'XP au clan, le même montant (modulé par `clans.butin_xp_factor`) est ajouté à `clans.butin_xp`. **Deux plafonds distincts** : celui du **cycle** (500, au-delà, plus aucun gain jusqu'à l'ouverture) et, en amont, celui d'**un seul crédit** (`clans.max_xp_butin`, amorcé à 50, **+ 20 × niveau du clan**) : miroir exact du plafond joueur, il évite qu'une seule corvée recommandée, divisée par peu de membres, ne remplisse la jauge d'un coup dans un jeune clan. Les dons fixes des montées de niveau (10 × niveau) sont soumis au même plafond de crédit.
 
-Deux compteurs cohabitent sur le doc clan : `xp` (non borné) pilote le niveau et les titres ; `butin_xp` (0 → 1000) est la jauge d'ouverture. L'écran clan affiche la jauge avec un coffre qui avance sur la barre, et le roster la **contribution de chaque joueur au cycle courant** (`xp − last_butin_xp`, normalisée sur le meilleur contributeur). Cette normalisation est la raison d'être du mode **hors concours** : un adulte actif devenait le meilleur contributeur et **aplatissait la barre de toute la fratrie**. Les hors concours sortent du calcul de ce maximum, ce qui rend leur amplitude aux barres des enfants, et leur propre barre n'est plus affichée. `last_butin_xp` est recalé à l'ouverture, sur le doc clan comme sur chaque doc membre.
+**Bornes journalières.** La jauge gagne **au plus 100 par jour** (`butin_day_max_xp`, heure locale de l'appareil qui crédite, tâches et dons confondus) : un coffre ne s'ouvre jamais en moins de 5 jours. La **première tâche validée du jour** verse **au moins 30** (`butin_day_min_xp`), les suivantes leur gain normal : la régularité compte plus que le volume. Ces bornes ne touchent que la jauge, pas les contributions (`xp − last_butin_xp`), donc le partage à l'ouverture reste celui de l'XP réellement gagnée. Résultat simulé : un coffre tous les 6 à 10 jours dans un foyer actif, 7 à 14 dans un foyer moyen, 11 à 30 dans un foyer passif.
+
+Deux compteurs cohabitent sur le doc clan : `xp` (non borné) pilote le niveau et les titres ; `butin_xp` (0 → 500) est la jauge d'ouverture. L'écran clan affiche la jauge avec un coffre qui avance sur la barre, et le roster la **contribution de chaque joueur au cycle courant** (`xp − last_butin_xp`, normalisée sur le meilleur contributeur). Cette normalisation est la raison d'être du mode **hors concours** : un adulte actif devenait le meilleur contributeur et **aplatissait la barre de toute la fratrie**. Les hors concours sortent du calcul de ce maximum, ce qui rend leur amplitude aux barres des enfants, et leur propre barre n'est plus affichée. `last_butin_xp` est recalé à l'ouverture, sur le doc clan comme sur chaque doc membre.
 
 #### le coffre et son contenu
 

@@ -63,6 +63,7 @@ extension Worker_store on worker {
                                 ActionRegistry.register("worker.shop_settings_selector",   shop_settings_selector);
                                 ActionRegistry.register("worker.on_store_mock_id",         on_store_mock_id);
                                 ActionRegistry.register("worker.on_store_mock_close",      on_store_mock_close);
+                                ActionRegistry.register("worker.on_shop_theme_test",       on_shop_theme_test);
                                 ActionRegistry.register("worker.store_open_subscription",  store_open_subscription);
                                 ActionRegistry.register("worker.store_manage_or_tiers",    store_manage_or_tiers);
                                 ActionRegistry.register("worker.on_locked_appear",         on_locked_appear);
@@ -1276,6 +1277,7 @@ extension Worker_store on worker {
 
                                 _stopCombatSiege();
                                 unawaited(_storeMockBadge("shop"));
+                                unawaited(_shopThemeButton());
     }
 
     // --- Faux Google Play (cible d'essai) -------------------------------------
@@ -1317,6 +1319,134 @@ extension Worker_store on worker {
                                 for (final id in const ["shop/mock_scrim", "shop/mock_text", "shop/mock_close"]) {
                                     DvOrb.get_shape_by_id(id)?..set("shape.visible", false)..refreshUI();
                                 }
+    }
+
+    // --- Thème du clan (TEST) -------------------------------------------------
+    // Le thème actif est un fait du CLAN : l'item `theme` à `enabled: true` dans
+    // `clans_owned/{clanId}/items`. Cette table n'est écrite que par la fonction
+    // `clan_owned` (possession vérifiée côté serveur, chefs seuls pour changer).
+    // Chaque appareil s'aligne dessus : le chef qui appuie tout de suite, les autres à
+    // leur prochain passage sur le dashboard ou l'écran clan (_ensurePlayerVigilance).
+    //
+    // Le bouton de la boutique bascule entre donjon et X, le thème de test. La
+    // bascule elle-même (dvtheme.switchTheme) télécharge d'abord TOUT le thème, sans
+    // rien changer à l'écran, puis bascule d'un coup.
+
+    static const String _themeBase = "theme-donjon";
+    static const String _themeTest = "theme-x";
+
+    // Dernière synchro du thème du clan : on ne relit pas la table à chaque retour au
+    // dashboard, deux minutes suffisent à un test.
+    String    _clanThemeSyncClan = "";
+    DateTime? _clanThemeSyncAt;
+
+    Future<String> _themeActif() async {
+
+                                final a = dvtheme.instance?.get("active")?.toString() ?? "";
+                                if (a.isNotEmpty) return a;
+                                return (await deva_get("theme.default"))?.toString() ?? _themeBase;
+    }
+
+    // Thème activé dans une liste d'items (Dvidle de _cloud.list ou Map rendue par la
+    // fonction), null si aucun.
+    String? _themeActive(List<dynamic> items) {
+
+                                for (final it in items) {
+                                    final m = it is Dvidle ? it.toJson() : it;
+                                    if (m is! Map) continue;
+                                    if (m["type"]?.toString() == "theme" && m["enabled"] == true) {
+                                        return m["id"]?.toString();
+                                    }
+                                }
+                                return null;
+    }
+
+    Future<void> _appliquerThemeClan(String? theme) async {
+
+                                if (theme == null || theme.isEmpty) return;
+                                if (await _themeActif() == theme) return;
+                                deva_log("info", "[theme] le clan est en $theme, bascule de l'appareil");
+                                await dvtheme.instance?.switchTheme(theme);
+                                unawaited(_shopThemeButton());
+    }
+
+    // Aligne l'appareil sur le thème du clan. Table vide (clan né avant les possessions) :
+    // la fonction pose les items par défaut.
+    Future<void> _syncClanTheme(String clanId, String clanSecret, String region) async {
+
+                                final now = DateTime.now();
+                                if (_clanThemeSyncClan == clanId && _clanThemeSyncAt != null
+                                    && now.difference(_clanThemeSyncAt!) < const Duration(minutes: 2)) return;
+                                _clanThemeSyncClan = clanId;
+                                _clanThemeSyncAt   = now;
+                                try {
+                                    List<dynamic> items = await _cloud?.list("workers", "clans_owned/$clanId/items",
+                                        region: region) ?? [];
+                                    if (items.isEmpty) {
+                                        final res = await _cloud?.call("clan_owned", Dvidle({"op": "sync", "clanId": clanId}));
+                                        final raw = res?.get("items");
+                                        if (raw is List) items = raw;
+                                        deva_log("info", "[theme] possessions du clan initialisées : ${res?.get("status")}");
+                                    }
+                                    await deva_set("worker.clan.owned", items
+                                        .map((it) => it is Dvidle ? it.toJson() : it)
+                                        .toList());
+                                    await _appliquerThemeClan(_themeActive(items));
+                                } catch (e) {
+                                    deva_log("warning", "[theme] synchro du thème du clan : $e");
+                                }
+    }
+
+    // Bouton de test, chefs seulement (la fonction refuse de toute façon les autres).
+    // Son libellé nomme le thème vers lequel il bascule.
+    Future<void> _shopThemeButton() async {
+
+                                try {
+                                    final btn = DvOrb.get_shape_by_id("shop/theme_test");
+                                    final ctx = await _butinCtx();
+                                    if (btn == null || ctx == null) return;
+                                    final chief = await _ensureIsAdmin(ctx.get("clanId").toString(),
+                                        ctx.get("clanSecret").toString(), ctx.get("region").toString());
+                                    final key = await _themeActif() == _themeTest ? "shop_theme_donjon" : "shop_theme_x";
+                                    btn.set("shape.label", TranslationRegistry.processLabel("@@@T:$key@@@"));
+                                    if (btn is DvLabel) await btn.computeDisplay();
+                                    btn.refreshUI();
+                                    await _syncVisible(btn, "shop/theme_test", chief);
+                                } catch (e) {
+                                    deva_log("warning", "[theme] bouton de test : $e");
+                                }
+    }
+
+    Future<void> on_shop_theme_test(dynamic caller, dynamic event) async {
+
+                                final ctx = await _butinCtx();
+                                if (ctx == null) return;
+                                final cible = await _themeActif() == _themeTest ? _themeBase : _themeTest;
+                                try {
+                                    final res = await _cloud?.call("clan_owned", Dvidle({
+                                        "op":     "enable",
+                                        "clanId": ctx.get("clanId").toString(),
+                                        "item":   cible,
+                                    }));
+                                    final status = res?.get("status")?.toString() ?? "";
+                                    if (status != "ok") {
+                                        deva_log("warning", "[theme] activation de $cible refusée : $status");
+                                        return;
+                                    }
+                                    final raw = res?.get("items");
+                                    if (raw is List) {
+                                        await deva_set("worker.clan.owned", raw
+                                            .map((it) => it is Dvidle ? it.toJson() : it)
+                                            .toList());
+                                    }
+                                } catch (e) {
+                                    deva_log("error", "[theme] activation de $cible injoignable : $e");
+                                    return;
+                                }
+                                // Pas de gel : le téléchargement du thème peut être long, la bascule
+                                // arrive d'elle-même quand tout est là.
+                                _clanThemeSyncAt = DateTime.now();
+                                unawaited(_appliquerThemeClan(cible));
     }
 
     // La pastille « playstore mocked » d'un écran d'achat ou d'abonnement : visible tant

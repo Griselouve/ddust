@@ -726,27 +726,54 @@ class worker extends DvBeing {
     int _playerMaxXpLegacy = 500;
 
     // Barème de niveaux — courbe quadratique. Le coût d'un niveau croît LINÉAIREMENT :
-    // passer de n à n+1 coûte `_xpPerLevel · (n + 1)` XP (1→2 = 100, 2→3 = 150, 3→4 = 200…).
-    // L'XP cumulé pour ATTEINDRE le niveau N vaut donc `_xpPerLevel · (N·(N+1)/2 − 1)` :
-    // Nv.2 = 100, Nv.3 = 250, Nv.4 = 450, Nv.5 = 700. Compromis entre le linéaire (les niveaux
+    // passer de n à n+1 coûte `_levelBase + _levelStep · n` XP (1→2 = 300, 2→3 = 400, 3→4 = 500…).
+    // L'XP cumulé pour ATTEINDRE le niveau N vaut donc `_levelBase·(N−1) + _levelStep·(N−1)·N/2` :
+    // Nv.2 = 300, Nv.3 = 700, Nv.4 = 1200, Nv.5 = 1800. Compromis entre le linéaire (les niveaux
     // défilent à l'infini et ne signifient plus rien) et le fibonacci (le prochain niveau
     // devient vite inatteignable) : les niveaux ralentissent sans jamais créer de mur.
-    // `_xpPerLevel` est le pas de progression ; le 1er niveau coûte `2 · _xpPerLevel` (= 100 XP).
-    // Surchargé depuis la conf `worker.xp_per_level` au démarrage (cf. _loadTuning).
-    int _xpPerLevel = 50;
+    // Calibré (simulation de foyers types, oct. 2026) pour qu'un enfant à ~1,5 tâche par jour
+    // passe le niveau 3 en une dizaine de jours ; l'ancien barème (50 + 50·n) l'y menait en 3.
+    // Surchargés depuis la conf `worker.level_base` / `worker.level_step` (cf. _loadTuning).
+    int _levelBase = 200;
 
-    // Barème CLAN — copié du barème joueur mais ×`_clanXpFactor` (facteur sur le pas) :
-    // avec le défaut (×10) : Nv.2 = 1000, Nv.3 = 2500, Nv.4 = 4500, Nv.5 = 7000. Même courbe,
-    // montée plus lente. Le pas clan se dérive du pas joueur → un seul barème à régler.
-    // Surchargé depuis la conf `worker.clan_xp_factor` au démarrage (cf. _loadTuning).
-    int _clanXpFactor = 10;
+    int _levelStep = 100;
+
+    // Barème CLAN — même forme, coût de n à n+1 = `_clanLevelBase + _clanLevelStep · n` :
+    // Nv.2 = 1500, Nv.3 = 3500, Nv.4 = 6000, Nv.5 = 9000. L'XP du clan est la part de chaque
+    // gain divisée par le nombre de membres (cf. _creditClanXp) : elle avance au rythme d'un
+    // joueur moyen du foyer, d'où un barème ~5× plus lent que celui du joueur.
+    // Surchargés depuis la conf `worker.clan_level_base` / `worker.clan_level_step`.
+    int _clanLevelBase = 1000;
+
+    int _clanLevelStep = 500;
 
     // Plafond du butin d'un clan : au-delà, le butin ne gagne plus d'XP. Le plafond borne le butin
     // du CYCLE COURANT (cf. _butinCourant), pas le compteur cumulé. À ne pas confondre avec
     // _butinGainMaxXp, qui borne UN SEUL crédit : celui-ci dit quand le coffre est plein, l'autre à
     // quelle vitesse il peut se remplir.
     // Surchargé depuis la conf `worker.butin_max_xp` au démarrage (cf. _loadTuning).
-    int _butinMaxXp = 1000;
+    int _butinMaxXp = 500;
+
+    // Plafond JOURNALIER du butin : ce que la jauge peut gagner au plus sur une journée (heure
+    // locale de l'appareil qui crédite), tâches et dons de montée de niveau confondus. Il fixe le
+    // délai minimal d'un cycle (_butinMaxXp / plafond = 5 jours) : sans lui, une famille très
+    // active ouvrait un coffre tous les 3 jours et le rituel perdait son poids. Il ne borne QUE
+    // la jauge : les contributions de chacun (xp − last_butin_xp) continuent de compter, donc le
+    // partage à l'ouverture n'en est pas affecté. 0 = pas de plafond.
+    // Surchargé depuis la conf `worker.butin_day_max_xp`.
+    int _butinDayMaxXp = 100;
+
+    // Gain PLANCHER au butin de la PREMIÈRE tâche validée de la journée : elle verse au moins
+    // ce montant, les suivantes leur gain normal. Récompense la régularité plutôt que le volume :
+    // sans lui, une famille passive (~4 tâches par semaine) attendait plus de 40 jours son coffre.
+    // Reste soumis au plafond journalier. 0 = pas de plancher.
+    // Surchargé depuis la conf `worker.butin_day_min_xp`.
+    int _butinDayMinXp = 30;
+
+    // Don au butin à la montée de niveau d'un joueur, PAR NIVEAU atteint (× nouveau niveau).
+    // Soumis au plafond de crédit du clan et au plafond journalier (cf. _creditClanButinFixed).
+    // Surchargé depuis la conf `worker.butin_levelup_per_level`.
+    int _butinLevelUpPerLevel = 10;
 
     // Facteur de conversion XP-clan → butin, valeur d'AMORÇAGE. Le facteur réellement appliqué
     // est celui du doc clan (`clans.butin_xp_factor`), lu à chaque crédit par _creditClanButin :

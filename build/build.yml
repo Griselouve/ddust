@@ -397,6 +397,9 @@ build:
           # précédent : état payant, crédits de mois et timers de défaut de paiement
           # ressuscités sur des données de jeu vides.
           - clans_store
+          # Possessions des clans (thèmes, packs, extensions), écrites par clan_owned.
+          # Même raison que clans_store : un clan recréé hériterait des achats du précédent.
+          - clans_owned
           # Invitations privées des chefs (worker._publishInvite). Absentes de cette
           # liste, elles survivraient au reset, avec la déclaration scellée que chacune porte.
           - clans_invites

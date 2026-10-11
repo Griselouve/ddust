@@ -511,12 +511,12 @@ extension Worker_celebrations on worker {
 
                                     // Récompenses de la montée de niveau : soin complet du joueur (last_task=now +
                                     // damage=0 → _computeDisplayedPv repart de pv plein) et don au butin du clan
-                                    // (10 × niveau — c'était 100, soit 30 tâches d'un coup : le butin sautait de
+                                    // (_butinLevelUpPerLevel × niveau, conf `butin_levelup_per_level`, 10 par défaut — c'était 100, soit 30 tâches d'un coup : le butin sautait de
                                     // 44 à 354 sur un seul passage de niveau, écrasant l'échelle des gains par
                                     // tâche). Chaque écriture est isolée (helper avec try/catch propre) → un échec
                                     // ne casse pas l'animation ni la notif déjà jouées.
                                     await _rewardPlayerOnLevelUp(clanId, clanSecret, region, _userId);
-                                    await _creditClanButinFixed(clanId, clanSecret, region, 10 * newNiv);
+                                    await _creditClanButinFixed(clanId, clanSecret, region, _butinLevelUpPerLevel * newNiv);
 
                                     // Le plafond d'XP par tâche affiché au badge de combat dépend du niveau
                                     // (cf. _readPlayerMaxXp) : sans cette invalidation, le badge continuerait

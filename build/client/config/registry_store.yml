@@ -52,6 +52,7 @@ conf:
         - shop/icon
         - shop/label
         - shop/coming_soon
+        - shop/theme_test
         - shop/settings
         - shop/settings_menu
         - shop/mock_badge
@@ -119,6 +120,27 @@ conf:
         h: 50%
         text_align: CENTER
         label: "@@@T:coming_soon@@@"
+
+    # Bouton de TEST du changement de thème : bascule tout le clan entre donjon et X
+    # (worker.on_shop_theme_test → fonction clan_owned, puis dvtheme.switchTheme).
+    # Posé sur le bas du cadre « Bientôt », qui n'a pas d'action. Caché par défaut :
+    # on_shop_appear ne l'affiche qu'aux chefs, et y écrit le thème vers lequel il
+    # bascule (« Thème X » sous donjon, « Thème Donjon » sous X).
+    shop/theme_test:
+      masks:
+        - commons/btn_medium
+      layer: content
+      shape:
+        x: 20%
+        y: 68%
+        w: 60%
+        h: 9%
+        visible: false
+        label: "@@@T:shop_theme_x@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_shop_theme_test
 
     # Kebab de la boutique — calqué sur clan_page/settings. Il porte TOUT ce qui
     # n'est pas « à vendre » : le relevé, la restauration, la gestion Play. « Mes
