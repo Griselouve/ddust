@@ -47,7 +47,7 @@ extension Worker_screen_clan on worker {
 
     // Affichage de l'écran « Clan » : copie de on_personnage_appear, mais lit l'xp du CLAN
     // (workers/clans/{clanId}.xp) et dérive niveau/progression avec le barème clan
-    // (getClanNiveauProgres / _xpForNiveauClan, ×10). Barre/flamme/badge/XP identiques à
+    // (getClanNiveauProgres / _xpForNiveauClan, courbe _clanLevelBase + _clanLevelStep·n). Barre/flamme/badge/XP identiques à
     // l'écran personnage ; dimensions de cadrage LUES depuis les shapes clan_page/lvl_*.
     Future<void> on_clan_appear(dynamic caller, dynamic event) async {
 

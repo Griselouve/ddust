@@ -254,6 +254,9 @@ extension Worker_watch on worker {
                                     // lesquels un joueur enrôlé passe avant tout autre écran.
                                     await _ensureIsAdult(clanId, clanSecret, region);
                                     _startPlayerVigilance(clanId, clanSecret, region);
+                                    // Thème du clan : même entonnoir, l'appareil s'aligne sur le thème
+                                    // activé par un chef (en tâche de fond, bornée à une relecture / 2 min).
+                                    unawaited(_syncClanTheme(clanId, clanSecret, region));
                                     await _checkPendingCeremony();
                                 } catch (e) {
                                     deva_log("error", "[levelup] _ensurePlayerVigilance FAILED: $e");

@@ -386,9 +386,10 @@ extension Worker_verdict on worker {
     // Crédite un MONTANT FIXE au butin du clan (champ butin_xp de clans/{clanId}), le cycle courant
     // plafonné à _butinMaxXp (cf. _butinPlafonne). Contrairement à _creditClanButin (proportionnel à
     // l'XP-clan via le facteur du clan `butin_xp_factor`), le montant est passé tel quel et N'EST PAS
-    // soumis à ce facteur — ici 10 × niveau à la montée de niveau. Il reste en revanche soumis au
-    // MÊME plafond de gain (+20×niveau du clan) que _creditClanButin : sans lui, ce don rouvrirait
-    // exactement le déséquilibre corrigé (10×niveau dépasse 70 dès le niveau 7). Read-modify-write
+    // soumis à ce facteur — ici _butinLevelUpPerLevel × niveau à la montée de niveau. Il reste en
+    // revanche soumis au MÊME plafond de gain (+20×niveau du clan) et au MÊME plafond journalier
+    // (cf. _butinVerse) que _creditClanButin, sans le plancher réservé aux tâches : sans eux, ce don
+    // rouvrirait exactement le déséquilibre corrigé (10×niveau dépasse 70 dès le niveau 7). Read-modify-write
     // dédié — ne mute pas `xp`, donc le niveau se dérive directement du doc lu.
     Future<void> _creditClanButinFixed(String clanId, String clanSecret, String region, int amount) async {
 
@@ -404,7 +405,7 @@ extension Worker_verdict on worker {
                                                     ?? _butinGainMaxXp;
                                     final cap     = _capForLevel(baseCap, niveau, _butinGainMaxXpPerLevel);
                                     final granted = (cap > 0 && amount > cap) ? cap : amount;
-                                    doc.set("butin_xp", _butinPlafonne(doc, granted));
+                                    _butinVerse(doc, granted, task: false);   // plafond journalier + cycle, sans plancher
                                     await _cloud?.write(
                                         "workers", "clans", clanId, doc,
                                         region: region, ownerId: clanSecret);

@@ -249,3 +249,14 @@ data:
         manifests:
           - "general"
           - "donjon"
+      # Thème de TEST : clone visible de donjon (libellés préfixés « X », images
+      # barrées). Thème partiel : sons et musiques retombent sur donjon par la
+      # cascade. La racine `x/` n'est téléchargée que par un appareil qui l'habite.
+      theme-x:
+        layers:
+          - "layers/theme-x-global.yml"
+          - "layers/decisiontree-x-global.yml"
+        manifests:
+          - "general"
+          - "donjon"
+          - "x"

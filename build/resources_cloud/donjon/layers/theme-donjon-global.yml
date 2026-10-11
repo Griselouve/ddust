@@ -6040,6 +6040,27 @@ data:
         br: "Tema Pirata"
         nl: "Piratenthema"
 
+      # Bouton de test de la boutique : bascule tout le clan entre donjon et X.
+      shop_theme_x:
+        fr: "Thème X"
+        en: "X Theme"
+        es: "Tema X"
+        de: "X-Thema"
+        it: "Tema X"
+        pt: "Tema X"
+        br: "Tema X"
+        nl: "X-thema"
+
+      shop_theme_donjon:
+        fr: "Thème Donjon"
+        en: "Dungeon Theme"
+        es: "Tema Mazmorra"
+        de: "Verlies-Thema"
+        it: "Tema Dungeon"
+        pt: "Tema Masmorra"
+        br: "Tema Masmorra"
+        nl: "Kerkerthema"
+
       #------------- Titres de joueur (1 nouveau titre toutes les 5 niveaux) ----------
       player_title_0:
         fr: "Apprenti Dépoussiéreur"

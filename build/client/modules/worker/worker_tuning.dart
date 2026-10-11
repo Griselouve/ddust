@@ -74,13 +74,17 @@ extension Worker_tuning on worker {
                             return (effort * (_xpPerEffort + respawnH / div)).round();
     }
 
-    // XP cumulé requis pour ATTEINDRE le niveau [n] (n <= 1 → 0 XP, on démarre niveau 1).
-    int _xpForNiveau(int n) => n <= 1 ? 0 : _xpPerLevel * (n * (n + 1) ~/ 2 - 1);
+    // XP cumulé requis pour ATTEINDRE le niveau [n] d'une courbe où passer de k à k+1 coûte
+    // `base + step · k` : somme des coûts de 1 à n−1 = `base·(n−1) + step·(n−1)·n/2`.
+    // n <= 1 → 0 XP (on démarre niveau 1). Seule formule du barème, joueur et clan confondus.
+    int _xpForCurve(int n, int base, int step) =>
+        n <= 1 ? 0 : base * (n - 1) + step * ((n - 1) * n ~/ 2);
 
-    int get _xpPerLevelClan => _xpPerLevel * _clanXpFactor;
+    // XP cumulé requis pour ATTEINDRE le niveau [n] du JOUEUR.
+    int _xpForNiveau(int n) => _xpForCurve(n, _levelBase, _levelStep);
 
     // XP cumulé requis pour ATTEINDRE le niveau CLAN [n] (miroir de _xpForNiveau).
-    int _xpForNiveauClan(int n) => n <= 1 ? 0 : _xpPerLevelClan * (n * (n + 1) ~/ 2 - 1);
+    int _xpForNiveauClan(int n) => _xpForCurve(n, _clanLevelBase, _clanLevelStep);
 
     // --- Butin du clan : compteur cumulé + snapshot d'ouverture ------------------------------
     // `clans.butin_xp` est MONOTONE : il n'est jamais remis à 0, même quand le coffre est ouvert.
@@ -179,8 +183,10 @@ extension Worker_tuning on worker {
 
                             _xpPerEffort   = await _confInt("xp_per_effort",   _xpPerEffort);
                             _xpRespawnDiv  = await _confInt("xp_respawn_div",  _xpRespawnDiv);
-                            _xpPerLevel    = await _confInt("xp_per_level",    _xpPerLevel);
-                            _clanXpFactor  = await _confInt("clan_xp_factor",  _clanXpFactor);
+                            _levelBase     = await _confInt("level_base",      _levelBase);
+                            _levelStep     = await _confInt("level_step",      _levelStep);
+                            _clanLevelBase = await _confInt("clan_level_base", _clanLevelBase);
+                            _clanLevelStep = await _confInt("clan_level_step", _clanLevelStep);
                             _playerPv      = await _confInt("player_pv",       _playerPv);
                             _playerDecay   = await _confDouble("player_decay", _playerDecay);
                             _healPv        = await _confInt("heal_pv",         _healPv);
@@ -191,13 +197,17 @@ extension Worker_tuning on worker {
                             _butinXpFactor = await _confInt("butin_xp_factor", _butinXpFactor);
                             _butinGainMaxXp         = await _confInt("butin_gain_max_xp",           _butinGainMaxXp);
                             _butinGainMaxXpPerLevel = await _confInt("butin_gain_max_xp_per_level", _butinGainMaxXpPerLevel);
+                            _butinDayMaxXp          = await _confInt("butin_day_max_xp",            _butinDayMaxXp);
+                            _butinDayMinXp          = await _confInt("butin_day_min_xp",            _butinDayMinXp);
+                            _butinLevelUpPerLevel   = await _confInt("butin_levelup_per_level",     _butinLevelUpPerLevel);
                             _chestLowPct   = await _confInt("chest_low_pct",   _chestLowPct);
                             _chestHighPct  = await _confInt("chest_high_pct",  _chestHighPct);
-                            deva_log("info", "[worker] tuning: xp=(${_xpPerEffort}+respawn/$_xpRespawnDiv)×effort, niveau/$_xpPerLevel, "
-                                "clan×$_clanXpFactor, pv=$_playerPv, decay=$_playerDecay, "
+                            deva_log("info", "[worker] tuning: xp=(${_xpPerEffort}+respawn/$_xpRespawnDiv)×effort, niveau=$_levelBase+$_levelStep·n, "
+                                "clan=$_clanLevelBase+$_clanLevelStep·n, pv=$_playerPv, decay=$_playerDecay, "
                                 "xp/tâche≤$_playerMaxXp+$_playerMaxXpPerLevel/niveau, butin≤$_butinMaxXp "
                                 "×$_butinXpFactor (amorçage — facteur réel = clans.butin_xp_factor), "
                                 "gain butin≤$_butinGainMaxXp+$_butinGainMaxXpPerLevel/niveau clan (amorçage — plafond réel = clans.max_xp_butin), "
+                                "butin/jour $_butinDayMinXp(1re tâche)..$_butinDayMaxXp, don niveau $_butinLevelUpPerLevel×niveau, "
                                 "coffre $_chestLowPct%/$_chestHighPct%");
     }
 
@@ -226,7 +236,41 @@ extension Worker_tuning on worker {
                                             ?? _butinGainMaxXp;
                             final capGain = _capForLevel(baseCap, clanNiveau, _butinGainMaxXpPerLevel);
                             if (capGain > 0 && gain > capGain) gain = capGain;
-                            doc.set("butin_xp", _butinPlafonne(doc, gain));
+                            _butinVerse(doc, gain, task: true);
+    }
+
+    // Jour courant à l'heure locale de l'appareil qui crédite (AAAA-MM-JJ) : clé du compteur
+    // journalier du butin. Les appareils d'un même foyer partagent le fuseau.
+    String _butinToday() {
+
+                            final d = DateTime.now();
+                            return "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+    }
+
+    // Verse `gain` (déjà écrêté au plafond de crédit) dans la jauge du doc clan, en appliquant
+    // dans l'ordre : le PLANCHER de la 1re tâche du jour (_butinDayMinXp, `task` seulement — un don
+    // de montée de niveau n'y a pas droit), le PLAFOND JOURNALIER (_butinDayMaxXp, tâches et dons
+    // confondus), puis le plafond du CYCLE (_butinPlafonne). Le compteur du jour vit sur le doc
+    // clan (`butin_day` = date, `butin_day_xp` = versé ce jour, `butin_day_task` = une tâche a déjà
+    // eu son plancher) et s'écrit dans le même write que la jauge ; un jour neuf le remet à zéro.
+    // Le compteur retient ce qui est RÉELLEMENT entré dans la jauge, pas ce qui était demandé.
+    // Ne borne que la jauge : les contributions (xp − last_butin_xp des joueurs) n'en dépendent pas.
+    void _butinVerse(Dvidle doc, int gain, {required bool task}) {
+
+                            if (gain <= 0) return;
+                            final today   = _butinToday();
+                            final sameDay = doc.get("butin_day")?.toString() == today;
+                            final dayXp   = sameDay ? (int.tryParse(doc.get("butin_day_xp")?.toString() ?? "0") ?? 0) : 0;
+                            final floored = sameDay && doc.get("butin_day_task")?.toString() == "true";
+                            if (task && !floored && gain < _butinDayMinXp) gain = _butinDayMinXp;
+                            if (_butinDayMaxXp > 0 && gain > _butinDayMaxXp - dayXp) gain = _butinDayMaxXp - dayXp;
+                            if (gain <= 0) return;                               // plafond du jour atteint
+                            final before = _butinCumul(doc);
+                            final next   = _butinPlafonne(doc, gain);
+                            doc.set("butin_xp",       next);
+                            doc.set("butin_day",      today);
+                            doc.set("butin_day_xp",   dayXp + (next - before));
+                            doc.set("butin_day_task", floored || task);
     }
 
     // Nouvelle valeur du compteur CUMULÉ après un gain de `gain`, plafond appliqué au DELTA :
@@ -244,20 +288,30 @@ extension Worker_tuning on worker {
     // Retourne (niveau, progres) où `progres` ∈ [0, 1[ = fraction parcourue entre le seuil
     // du niveau courant et celui du suivant (à multiplier par 100 pour un %).
     // Réutilisable partout (badge joueur, profil, barre de progression, notif level-up).
-    ({int niveau, double progres}) getNiveauProgres(int xp) {
+    ({int niveau, double progres}) getNiveauProgres(int xp) =>
+        _niveauProgresCurve(xp, _levelBase, _levelStep);
 
-                            if (xp <= 0) return (niveau: 1, progres: 0.0);
+    // Niveau et progression sur la courbe `base + step · n` (cf. _xpForCurve), partagés par le
+    // joueur et le clan. Approximation par inversion de la formule — avec m = niveau − 1,
+    // xp = base·m + step·m(m+1)/2, soit (step/2)·m² + (base + step/2)·m − xp = 0 — puis correction
+    // des erreurs d'arrondi flottant exactement aux seuils (cheap : 0–1 itération en pratique).
+    // Courbe dégénérée (base et step ≤ 0, réglage aberrant) → niveau 1, jamais de boucle infinie.
+    ({int niveau, double progres}) _niveauProgresCurve(int xp, int base, int step) {
 
-                            // Approximation par inversion de la formule, puis correction des erreurs
-                            // d'arrondi flottant exactement aux seuils (cheap : 0–1 itération en pratique).
-                            var niveau = (-1 + sqrt(9 + 8.0 * xp / _xpPerLevel)) ~/ 2;
+                            if (xp <= 0 || (base <= 0 && step <= 0)) return (niveau: 1, progres: 0.0);
+
+                            final b = base + step / 2.0;
+                            final m = step > 0
+                                ? (-b + sqrt(b * b + 2.0 * step * xp)) / step
+                                : xp / base;
+                            var niveau = m.floor() + 1;
                             if (niveau < 1) niveau = 1;
-                            while (_xpForNiveau(niveau + 1) <= xp) niveau++;
-                            while (_xpForNiveau(niveau) > xp)      niveau--;
+                            while (_xpForCurve(niveau + 1, base, step) <= xp) niveau++;
+                            while (niveau > 1 && _xpForCurve(niveau, base, step) > xp) niveau--;
 
-                            final seuil   = _xpForNiveau(niveau);       // XP au début du niveau courant
-                            final suivant = _xpForNiveau(niveau + 1);   // XP au début du niveau suivant
-                            final span    = suivant - seuil;            // coût du niveau courant (> 0)
+                            final seuil   = _xpForCurve(niveau, base, step);       // XP au début du niveau courant
+                            final suivant = _xpForCurve(niveau + 1, base, step);   // XP au début du niveau suivant
+                            final span    = suivant - seuil;                       // coût du niveau courant (> 0)
                             final progres = span <= 0 ? 0.0 : (xp - seuil) / span;
                             return (niveau: niveau, progres: progres.clamp(0.0, 1.0));
     }
@@ -285,26 +339,11 @@ extension Worker_tuning on worker {
                             return "@@@T:${prefix}_$capped@@@";
     }
 
-    // Niveau d'un CLAN ET sa progression vers le niveau suivant — copie de getNiveauProgres()
-    // utilisant le barème clan (_xpPerLevelClan / _xpForNiveauClan, ×10). Rien n'est stocké :
+    // Niveau d'un CLAN ET sa progression vers le niveau suivant — même calcul que
+    // getNiveauProgres() sur le barème clan (_clanLevelBase / _clanLevelStep). Rien n'est stocké :
     // tout se dérive de l'xp cumulé du clan à l'affichage.
-    ({int niveau, double progres}) getClanNiveauProgres(int xp) {
-
-                            if (xp <= 0) return (niveau: 1, progres: 0.0);
-
-                            // Approximation par inversion de la formule, puis correction des erreurs
-                            // d'arrondi flottant exactement aux seuils (cheap : 0–1 itération en pratique).
-                            var niveau = (-1 + sqrt(9 + 8.0 * xp / _xpPerLevelClan)) ~/ 2;
-                            if (niveau < 1) niveau = 1;
-                            while (_xpForNiveauClan(niveau + 1) <= xp) niveau++;
-                            while (_xpForNiveauClan(niveau) > xp)      niveau--;
-
-                            final seuil   = _xpForNiveauClan(niveau);       // XP au début du niveau courant
-                            final suivant = _xpForNiveauClan(niveau + 1);   // XP au début du niveau suivant
-                            final span    = suivant - seuil;                // coût du niveau courant (> 0)
-                            final progres = span <= 0 ? 0.0 : (xp - seuil) / span;
-                            return (niveau: niveau, progres: progres.clamp(0.0, 1.0));
-    }
+    ({int niveau, double progres}) getClanNiveauProgres(int xp) =>
+        _niveauProgresCurve(xp, _clanLevelBase, _clanLevelStep);
 
     // Badge de difficulté : libellé d'effort traduit + XP (ex. "@@@T:dt_effort_5@@@ - 8 XP").
     // `cap` = plafond d'XP par tâche du joueur CONCERNÉ (0 = pas de plafond connu) : le badge ne

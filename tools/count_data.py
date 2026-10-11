@@ -26,7 +26,7 @@ PROJECT = "dvddust"
 TARGETS = {
     "workers": [
         "clans", "clans_tasks", "clans_items", "clans_chest_history", "clans_logs",
-        "clans_players", "clans_pulse", "clans_store", "userindexes", "users",
+        "clans_players", "clans_pulse", "clans_store", "clans_owned", "userindexes", "users",
     ],
     "store": ["store_purchases", "store_tokens", "store_codes", "store_code_attempts"],
     "virtuallobby": [
