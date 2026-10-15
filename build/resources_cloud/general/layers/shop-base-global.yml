@@ -1,0 +1,356 @@
+name: shop-base
+above: conf
+strategy: default
+tenant: global
+data:
+
+  # ===========================================================================
+  # BOUTIQUE (dvshop) — interface et libellés
+  # ---------------------------------------------------------------------------
+  # Écrit par E:\Deva\tmp\dvshop\gen_shop_base.py (jetable) ; à retoucher ici
+  # directement désormais. Le catalogue : build.yml de la suite (`shop.catalog`).
+  # ===========================================================================
+  shop:
+    # La boutique : interface (le CATALOGUE vient du build.yml de la suite, couche
+    # shop-catalog-global.yml ; l'HABILLAGE vient de chaque thème, `shop.style`).
+    ui:
+      # Page portant le DvShopStore : `shop.open.<boutique>` y mène.
+      page: shop_store_page
+      display:
+        columns: 3
+        highlight_height: 310
+        confirm_seconds: 4
+        min_discount: 0.05
+        min_advantage: 0.05
+        # Produit Play que Play ne sert pas (produits encore `enabled: false`) : la carte
+        # dit « Bientôt » plutôt que de disparaître.
+        unpriced: soon
+
+      # PAGE D'ENTRÉE : l'écran Boutique (fond du thème, échoppe, enseigne), dont le corps
+      # est une grille de tuiles. Plus de kebab : code cadeau et abonnement sont des tuiles.
+      # Un joueur qui ne voit aucune tuile lit `empty` (« Bientôt »), jamais un écran vide.
+      hub:
+        empty: "@@@T:shop_hub_empty@@@"
+        # Une boutique SANS ITEM garde sa tuile : elle dit seulement « Bientôt ». C'est le cas
+        # tant qu'un contenu n'est pas livré (on ne montre que ce qui existe vraiment).
+        soon: "@@@T:shop_hub_empty@@@"
+        badges: [free, new, discount, advantage]
+        tile_height_ratio: 0.46
+        tiles:
+          - { id: t_themes, shop: themes, art: vitrine, toggle_group: theme, tags: [chef],
+              label: "@@@T:shop_tile_themes@@@", subtitle: "@@@T:shop_tile_themes_sub@@@" }
+          - { id: t_achats, shop: achats, art: stack, tags: [chef],
+              label: "@@@T:shop_tile_achats@@@", subtitle: "@@@T:shop_tile_achats_sub@@@" }
+          # L'échoppe des objets du jeu (payés en or, avec l'extension loots), pour TOUT le clan.
+          # Vide d'ici là : la tuile garde sa place et dit « Bientôt ». Aucun mot sur l'or.
+          - { id: t_objets, shop: objets, art: row, span: 2,
+              label: "@@@T:shop_tile_objets@@@", subtitle: "@@@T:shop_tile_objets_sub@@@" }
+          - { id: t_cadeau, action: navigate_new.giftcode_page, art: giftwrap, tags: [chef, majeur],
+              label: "@@@T:shop_tile_cadeau@@@", subtitle: "@@@T:shop_tile_cadeau_sub@@@" }
+          - { id: t_abo, action: worker.store_manage_or_tiers, art: crown, tags: [chef, majeur],
+              label: "@@@T:shop_tile_abo@@@", subtitle: "@@@T:shop_tile_abo_sub@@@" }
+          # Faux store (cible d'essai seulement) : l'identifiant à donner au pilotage.
+          - { id: t_essai, action: worker.on_store_mock_id, art: crown, span: 2, tags: [essai],
+              label: "@@@T:shop_tile_essai@@@", subtitle: "@@@T:shop_tile_essai_sub@@@" }
+
+      # Une boutique sans item n'est PAS retirée : sa tuile dit « Bientôt ». Ses sections restent
+      # déclarées, un item qui arrive au catalogue s'y range de lui-même.
+      shops:
+        themes:
+          title: "@@@T:shop_title_themes@@@"
+          sections: [themes, mascottes]
+          highlights: []
+          # Une puce sans item visible se cache d'elle-même : « Mascottes » n'apparaît
+          # qu'avec la première mascotte en vente (futur pack « mascottes »).
+          selectors:
+            - { id: all,       label: "@@@T:shop_sel_all@@@",       sections: "*" }
+            - { id: themes,    label: "@@@T:shop_sel_themes@@@",    sections: [themes] }
+            - { id: mascottes, label: "@@@T:shop_sel_mascottes@@@", sections: [mascottes] }
+        achats:
+          title: "@@@T:shop_title_achats@@@"
+          sections: [extensions, packs, gratuits]
+          highlights: []
+          selectors: []
+        objets:
+          title: "@@@T:shop_title_objets@@@"
+          sections: [potions]
+          highlights: []
+          currency: gold
+          selectors: []
+
+      # `layout: showcase` = grandes vitrines pleine largeur ; sinon grille de cartes.
+      sections:
+        - { id: extensions, rank: 10, label: "@@@T:shop_sec_extensions@@@", tags: [chef] }
+        - { id: packs,      rank: 20, label: "@@@T:shop_sec_packs@@@",      tags: [chef] }
+        - { id: gratuits,   rank: 25, label: "@@@T:shop_sec_gratuits@@@",   tags: [chef] }
+        - { id: themes,     rank: 30, label: "@@@T:shop_sec_themes@@@",     tags: [chef], layout: showcase }
+        - { id: mascottes,  rank: 40, label: "@@@T:shop_sec_mascottes@@@",  tags: [chef] }
+        - { id: potions,    rank: 50, label: "@@@T:shop_sec_potions@@@" }
+
+      # Panneaux du carrousel : 1 à n items, qui remplissent tout le panneau. Aucun pour
+      # l'instant : un carrousel qui redit une vitrine de la page est redondant.
+      highlights: []
+
+  lang:
+    translations:
+      shop_sel_all:
+        fr: "Tout"
+        en: "All"
+        es: "Todo"
+        de: "Alles"
+        it: "Tutto"
+        pt: "Tudo"
+        br: "Tudo"
+        nl: "Alles"
+      shop_sel_themes:
+        fr: "Thèmes"
+        en: "Themes"
+        es: "Temas"
+        de: "Themen"
+        it: "Temi"
+        pt: "Temas"
+        br: "Temas"
+        nl: "Thema's"
+      shop_sel_mascottes:
+        fr: "Mascottes"
+        en: "Mascots"
+        es: "Mascotas"
+        de: "Maskottchen"
+        it: "Mascotte"
+        pt: "Mascotes"
+        br: "Mascotes"
+        nl: "Mascottes"
+      shop_sec_mascottes:
+        fr: "Mascottes"
+        en: "Mascots"
+        es: "Mascotas"
+        de: "Maskottchen"
+        it: "Mascotte"
+        pt: "Mascotes"
+        br: "Mascotes"
+        nl: "Mascottes"
+      shop_tile_themes:
+        fr: "Thèmes"
+        en: "Themes"
+        es: "Temas"
+        de: "Themen"
+        it: "Temi"
+        pt: "Temas"
+        br: "Temas"
+        nl: "Thema's"
+      shop_tile_themes_sub:
+        fr: "Habille ton clan"
+        en: "Dress up your clan"
+        es: "Viste a tu clan"
+        de: "Gestalte deinen Clan"
+        it: "Vesti il tuo clan"
+        pt: "Veste o teu clã"
+        br: "Vista seu clã"
+        nl: "Kleed je clan aan"
+      shop_tile_achats:
+        fr: "Extensions & packs"
+        en: "Expansions & packs"
+        es: "Expansiones y packs"
+        de: "Erweiterungen & Pakete"
+        it: "Espansioni e pacchetti"
+        pt: "Expansões e pacotes"
+        br: "Expansões e pacotes"
+        nl: "Uitbreidingen & pakketten"
+      shop_tile_achats_sub:
+        fr: "Nouveautés et contenus"
+        en: "New content"
+        es: "Novedades y contenidos"
+        de: "Neuheiten und Inhalte"
+        it: "Novità e contenuti"
+        pt: "Novidades e conteúdos"
+        br: "Novidades e conteúdos"
+        nl: "Nieuw en extra inhoud"
+      shop_tile_objets:
+        fr: "Échoppe d'objets"
+        en: "Item stall"
+        es: "Puesto de objetos"
+        de: "Gegenstandsstand"
+        it: "Bottega degli oggetti"
+        pt: "Banca de objetos"
+        br: "Banca de itens"
+        nl: "Voorwerpenkraam"
+      shop_tile_objets_sub:
+        fr: "Potions et objets du jeu"
+        en: "Potions and game items"
+        es: "Pociones y objetos del juego"
+        de: "Tränke und Spielgegenstände"
+        it: "Pozioni e oggetti di gioco"
+        pt: "Poções e objetos do jogo"
+        br: "Poções e itens do jogo"
+        nl: "Drankjes en spelvoorwerpen"
+      shop_tile_cadeau:
+        fr: "Code cadeau"
+        en: "Gift code"
+        es: "Código regalo"
+        de: "Geschenkcode"
+        it: "Codice regalo"
+        pt: "Código de oferta"
+        br: "Código de presente"
+        nl: "Cadeaucode"
+      shop_tile_cadeau_sub:
+        fr: "Un cadeau à ouvrir ?"
+        en: "A gift to open?"
+        es: "¿Un regalo que abrir?"
+        de: "Ein Geschenk zum Auspacken?"
+        it: "Un regalo da aprire?"
+        pt: "Um presente para abrir?"
+        br: "Um presente para abrir?"
+        nl: "Een cadeau om open te maken?"
+      shop_tile_abo:
+        fr: "Mon abonnement"
+        en: "My subscription"
+        es: "Mi suscripción"
+        de: "Mein Abo"
+        it: "Il mio abbonamento"
+        pt: "A minha subscrição"
+        br: "Minha assinatura"
+        nl: "Mijn abonnement"
+      shop_tile_abo_sub:
+        fr: "Ta formule et tes paiements"
+        en: "Your plan and payments"
+        es: "Tu plan y tus pagos"
+        de: "Dein Tarif und deine Zahlungen"
+        it: "Il tuo piano e i pagamenti"
+        pt: "O teu plano e pagamentos"
+        br: "Seu plano e pagamentos"
+        nl: "Je abonnement en betalingen"
+      shop_tile_essai:
+        fr: "Faux store : mon ID"
+        en: "Fake store: my ID"
+        es: "Tienda simulada: mi ID"
+        de: "Teststore: meine ID"
+        it: "Store simulato: il mio ID"
+        pt: "Loja simulada: o meu ID"
+        br: "Loja simulada: meu ID"
+        nl: "Nepwinkel: mijn ID"
+      shop_tile_essai_sub:
+        fr: "Pour le pilotage des tests"
+        en: "For test control"
+        es: "Para el control de pruebas"
+        de: "Für die Teststeuerung"
+        it: "Per il controllo dei test"
+        pt: "Para o controlo de testes"
+        br: "Para o controle de testes"
+        nl: "Voor het testbeheer"
+      shop_title_themes:
+        fr: "Thèmes"
+        en: "Themes"
+        es: "Temas"
+        de: "Themen"
+        it: "Temi"
+        pt: "Temas"
+        br: "Temas"
+        nl: "Thema's"
+      shop_title_achats:
+        fr: "Extensions & packs"
+        en: "Expansions & packs"
+        es: "Expansiones y packs"
+        de: "Erweiterungen & Pakete"
+        it: "Espansioni e pacchetti"
+        pt: "Expansões e pacotes"
+        br: "Expansões e pacotes"
+        nl: "Uitbreidingen & pakketten"
+      shop_title_objets:
+        fr: "Échoppe d'objets"
+        en: "Item stall"
+        es: "Puesto de objetos"
+        de: "Gegenstandsstand"
+        it: "Bottega degli oggetti"
+        pt: "Banca de objetos"
+        br: "Banca de itens"
+        nl: "Voorwerpenkraam"
+      shop_sec_extensions:
+        fr: "Extensions"
+        en: "Expansions"
+        es: "Expansiones"
+        de: "Erweiterungen"
+        it: "Espansioni"
+        pt: "Expansões"
+        br: "Expansões"
+        nl: "Uitbreidingen"
+      shop_sec_packs:
+        fr: "Packs de contenu"
+        en: "Content packs"
+        es: "Packs de contenido"
+        de: "Inhaltspakete"
+        it: "Pacchetti di contenuti"
+        pt: "Pacotes de conteúdo"
+        br: "Pacotes de conteúdo"
+        nl: "Inhoudspakketten"
+      shop_sec_gratuits:
+        fr: "Cadeaux"
+        en: "Gifts"
+        es: "Regalos"
+        de: "Geschenke"
+        it: "Regali"
+        pt: "Presentes"
+        br: "Presentes"
+        nl: "Cadeaus"
+      shop_sec_themes:
+        fr: "Thèmes"
+        en: "Themes"
+        es: "Temas"
+        de: "Themen"
+        it: "Temi"
+        pt: "Temas"
+        br: "Temas"
+        nl: "Thema's"
+      shop_sec_potions:
+        fr: "Potions & co"
+        en: "Potions & more"
+        es: "Pociones y más"
+        de: "Tränke & mehr"
+        it: "Pozioni e altro"
+        pt: "Poções e mais"
+        br: "Poções e mais"
+        nl: "Drankjes & meer"
+      shop_hub_empty:
+        fr: "Bientôt"
+        en: "Coming soon"
+        es: "Próximamente"
+        de: "Demnächst"
+        it: "Presto"
+        pt: "Em breve"
+        br: "Em breve"
+        nl: "Binnenkort"
+      shop_it_theme_donjon:
+        fr: "Donjon"
+        en: "Dungeon"
+        es: "Mazmorra"
+        de: "Verlies"
+        it: "Segrete"
+        pt: "Masmorra"
+        br: "Masmorra"
+        nl: "Kerker"
+      shop_it_theme_donjon_sub:
+        fr: "Héros, dragons et chevaliers"
+        en: "Heroes, dragons and knights"
+        es: "Héroes, dragones y caballeros"
+        de: "Helden, Drachen und Ritter"
+        it: "Eroi, draghi e cavalieri"
+        pt: "Heróis, dragões e cavaleiros"
+        br: "Heróis, dragões e cavaleiros"
+        nl: "Helden, draken en ridders"
+      shop_it_theme_dino:
+        fr: "Gentils dinosaures"
+        en: "Friendly dinosaurs"
+        es: "Dinosaurios amables"
+        de: "Liebe Dinosaurier"
+        it: "Dinosauri gentili"
+        pt: "Dinossauros simpáticos"
+        br: "Dinossauros fofos"
+        nl: "Lieve dinosaurussen"
+      shop_it_theme_dino_sub:
+        fr: "Adapté aux plus petits"
+        en: "Made for the little ones"
+        es: "Pensado para los más pequeños"
+        de: "Für die Kleinsten"
+        it: "Pensato per i più piccoli"
+        pt: "Pensado para os mais pequenos"
+        br: "Feito para os pequenininhos"
+        nl: "Voor de allerkleinsten"

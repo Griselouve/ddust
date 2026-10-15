@@ -29,7 +29,7 @@ part of 'worker.dart';
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
-// --- worker extension — Vigilances dvcloud (validation, joueur)
+// --- worker extension — Vigilances dvcloud (validation, joueur, thème du clan)
 // -----------------------------------------------------------------------------
 extension Worker_watch on worker {
 
@@ -223,12 +223,36 @@ extension Worker_watch on worker {
                                     celebrateDeath: !(leveled || golded || promoted));
     }
 
-    // Coupe la vigilance joueur (logout / changement de contexte).
+    // Coupe la vigilance joueur (logout / changement de contexte). Coupe aussi celle du thème
+    // du clan : mêmes points d'arrêt (déconnexion, changement de clan, départ, emprunt
+    // d'identité), et _ensurePlayerVigilance les réarme ensemble au passage suivant.
     void _stopPlayerVigilance() {
 
                                 _playerVigilance?.stop();
                                 _playerVigilance = null;
                                 _playerVigilanceUserId = "";
+                                _stopThemeVigilance();
+    }
+
+    // -----------------------------------------------------------------------
+    // --- Vigilance du thème du clan (bascule en direct)
+    // -----------------------------------------------------------------------
+    //
+    // Le thème (et la mascotte) du clan est UNE décision, prise côté serveur par un chef
+    // (callable `shop`, op toggle) et projetée dans `clans_shop/{clanId}.active`. La VIGILANCE
+    // est celle de dvshop : elle s'arme à la première synchro (_syncClanTheme) et rappelle
+    // `worker.on_shop_change` quand l'état actif change. Ce qu'on reçoit n'est pas appliqué
+    // tout de suite : _basculeThemeEnDirect attend le bon moment (ni tâche, ni animation, ni
+    // cérémonie, ni mort, ni écran hors jeu).
+    //
+    // Coupe la vigilance, et oublie une bascule encore en attente : elle visait le clan
+    // qu'on quitte.
+    void _stopThemeVigilance() {
+
+                                dvshop.instance?.stop();
+                                _themeAttenteTimer?.cancel();
+                                _themeAttenteTimer  = null;
+                                _themeAttente       = null;
     }
 
     // Point d'ancrage unique : résout region + clan depuis la session (même préambule que
@@ -254,8 +278,9 @@ extension Worker_watch on worker {
                                     // lesquels un joueur enrôlé passe avant tout autre écran.
                                     await _ensureIsAdult(clanId, clanSecret, region);
                                     _startPlayerVigilance(clanId, clanSecret, region);
-                                    // Thème du clan : même entonnoir, l'appareil s'aligne sur le thème
-                                    // activé par un chef (en tâche de fond, bornée à une relecture / 2 min).
+                                    // Thème du clan : la synchro de la boutique (en tâche de fond, bornée à
+                                    // une / 2 min) aligne l'appareil au démarrage et arme la vigilance de
+                                    // dvshop, qui suit ensuite en direct les décisions d'un chef.
                                     unawaited(_syncClanTheme(clanId, clanSecret, region));
                                     await _checkPendingCeremony();
                                 } catch (e) {

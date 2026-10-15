@@ -60,10 +60,15 @@ extension Worker_store on worker {
 
                                 // --- Écrans ---
                                 ActionRegistry.register("worker.on_shop_appear",           on_shop_appear);
-                                ActionRegistry.register("worker.shop_settings_selector",   shop_settings_selector);
+                                ActionRegistry.register("worker.on_shop_store_appear",     on_shop_store_appear);
+                                // Boutique dvshop : achat Play sous double garde, état actif du clan.
+                                ActionRegistry.register("worker.shop_buy_play",            shop_buy_play);
+                                ActionRegistry.register("worker.on_shop_change",           on_shop_change);
                                 ActionRegistry.register("worker.on_store_mock_id",         on_store_mock_id);
                                 ActionRegistry.register("worker.on_store_mock_close",      on_store_mock_close);
-                                ActionRegistry.register("worker.on_shop_theme_test",       on_shop_theme_test);
+                                // Choix du thème par le fondateur, juste après la création du clan.
+                                ActionRegistry.register("worker.on_theme_pick_donjon",     on_theme_pick_donjon);
+                                ActionRegistry.register("worker.on_theme_pick_dino",       on_theme_pick_dino);
                                 ActionRegistry.register("worker.store_open_subscription",  store_open_subscription);
                                 ActionRegistry.register("worker.store_manage_or_tiers",    store_manage_or_tiers);
                                 ActionRegistry.register("worker.on_locked_appear",         on_locked_appear);
@@ -112,6 +117,9 @@ extension Worker_store on worker {
                                 return Dvidle({
                                     "scope_id": ctx.get("clanId").toString(),
                                     "secret":   ctx.get("clanSecret").toString(),
+                                    // L'identifiant MÉTIER du joueur, pour la boutique (dvshop) :
+                                    // l'or et les objets personnels sont rangés sous lui.
+                                    "actor":    _userId,
                                 });
     }
 
@@ -294,6 +302,15 @@ extension Worker_store on worker {
                                 final product = m["product"]?.toString() ?? "";
                                 deva_log("info", "[store] achat acquis: $product");
                                 await _logStoreEvent("StorePurchase", product);
+                                // Un produit acheté DEPUIS LA BOUTIQUE dvshop : on reste dans la
+                                // boutique (aucune des sorties d'un abonnement ne s'applique), et
+                                // c'est dvshop qui en tire l'acquisition (sync) et le dit.
+                                if (product.isNotEmpty && product == _shopPlayPending) {
+                                    _shopPlayPending = "";
+                                    _storeBuyWaitStop();
+                                    await ActionRegistry.get("shop.store_purchased")?.call(caller, event);
+                                    return;
+                                }
                                 await _storeLeaveAfterPurchase();
     }
 
@@ -302,6 +319,16 @@ extension Worker_store on worker {
                                 _storeBuyWaitStop();
                                 _storeChangeTo = "";
                                 final m = (event is Map) ? event : const {};
+                                // Achat parti de la boutique dvshop : c'est elle qui le dit (son
+                                // bandeau), sans l'écran d'erreur des abonnements.
+                                final fromShop = (m["product"]?.toString() ?? "") == _shopPlayPending
+                                                 && _shopPlayPending.isNotEmpty;
+                                if (fromShop) {
+                                    _shopPlayPending = "";
+                                    deva_log("info", "[store] achat boutique non abouti: ${m["product"]} (${m["reason"]})");
+                                    await ActionRegistry.get("shop.store_purchase_failed")?.call(caller, event);
+                                    return;
+                                }
                                 // Un abandon volontaire n'est pas un incident : on ne consigne au
                                 // journal du clan que ce qui a réellement mal tourné.
                                 final reason = m["reason"]?.toString() ?? "";
@@ -1265,19 +1292,89 @@ extension Worker_store on worker {
     // --- Boutique (liste)
     // -----------------------------------------------------------------------
 
-    // La boutique n'a plus de LISTE : le catalogue ne contient que des abonnements,
-    // qui ne se présentent pas en lignes, et aucun produit à l'unité n'existe
-    // encore. Restait un cadre vide affichant « l'étal est vide » — un aveu, pas une
-    // boutique. La présentation commerciale se construira avec ses propres widgets ;
-    // ce fichier garde la mécanique qu'elle appellera.
+    // LA BOUTIQUE (dvshop, 2026-10-14). L'écran `shop` est la PAGE D'ENTRÉE : fond du thème,
+    // échoppe, enseigne et une grille de tuiles (DvShopHub) — une par boutique dédiée, plus
+    // le code cadeau et l'abonnement. Tout le reste (catalogue, règles, prix, achats) est au
+    // module dvshop et au callable `shop` (pustore) ; le worker ne garde que ce qui touche au
+    // métier ddust : le thème du clan, la double garde de l'argent réel, le faux store.
     //
-    // Ne subsiste donc ici que le devoir hérité de l'ancien écran : quitter le combat
-    // par la taskbar ne doit pas laisser tourner la boucle batte_swords.
+    // Garde aussi le devoir hérité de l'ancien écran : quitter le combat par la taskbar ne
+    // doit pas laisser tourner la boucle batte_swords.
     Future<void> on_shop_appear(dynamic caller, dynamic event) async {
 
                                 _stopCombatSiege();
                                 unawaited(_storeMockBadge("shop"));
-                                unawaited(_shopThemeButton());
+                                unawaited(_shopRefresh());
+    }
+
+    // Une boutique dédiée (shop_store_page) : la pastille du faux store, rien d'autre — la
+    // boutique se dessine et se synchronise d'elle-même (DvShopStore).
+    Future<void> on_shop_store_appear(dynamic caller, dynamic event) async {
+
+                                unawaited(_storeMockBadge("shop_store_page"));
+    }
+
+    // Les rôles D'ABORD, la synchro ENSUITE : les tuiles « Code cadeau » et « Mon abonnement »
+    // demandent `chef` ET `majeur`, et `majeur` est une règle d'affichage qui lit
+    // `worker.player_is_adult` — publié par _storeCanBuy (via _ensureIsAdult). Dans l'autre
+    // ordre, un chef adulte verrait ces deux tuiles apparaître avec un temps de retard.
+    Future<void> _shopRefresh() async {
+
+                                try {
+                                    await _storeCanBuy();
+                                } catch (e) {
+                                    deva_log("warning", "[shop] rôles illisibles : $e");
+                                }
+                                await dvshop.instance?.sync();
+    }
+
+    // L'ARGENT RÉEL depuis la boutique (`shop.play_action`). Même double garde que tout achat
+    // ddust : chef ET adulte (_storeCanBuy), puis porte parentale (_storeBuyGated) — la
+    // politique Familles du store l'exige. L'issue est rendue à dvshop par on_store_purchase /
+    // on_store_purchase_failed, qui reconnaissent le produit mis de côté ici.
+    Future<void> shop_buy_play(dynamic caller, dynamic event) async {
+
+                                final m       = (event is Map) ? event : const {};
+                                final product = m["product"]?.toString() ?? "";
+                                if (product.isEmpty) return;
+                                if (!await _storeCanBuy()) {
+                                    deva_log("info", "[shop] achat Play refusé : $_userId n'est pas chef adulte");
+                                    await ActionRegistry.get("shop.store_purchase_failed")
+                                        ?.call(null, {"product": product, "reason": "not_allowed"});
+                                    return;
+                                }
+                                _shopPlayPending = product;
+                                await _storeBuyGated(product);
+    }
+
+    // L'état actif du clan a changé (crochet `shop.actions.on_change` de dvshop, reçu par
+    // TOUS les appareils du clan, celui du chef compris). La bascule attend le bon moment
+    // (_basculeThemeEnDirect). Le chef qui vient de changer le thème prévient aussi les
+    // membres dont l'app est fermée (push, dans la langue de chacun) ; les autres basculent
+    // par la vigilance.
+    Future<void> on_shop_change(dynamic caller, dynamic event) async {
+
+                                try {
+                                    final m      = (event is Map) ? event : const {};
+                                    final active = (m["active"] is Map) ? m["active"] as Map : const {};
+                                    final theme  = active["theme"]?.toString()  ?? "";
+                                    final mascot = active["mascot"]?.toString() ?? "";
+                                    final by     = m["changed_by"]?.toString()  ?? "";
+                                    final ctx    = await _butinCtx();
+                                    if (ctx == null) return;
+                                    final clanId = ctx.get("clanId").toString();
+                                    final region = ctx.get("region").toString();
+                                    // Pas de push pendant le choix du thème à la création du clan :
+                                    // son fondateur y est seul, il n'y a personne à prévenir.
+                                    if (by == _userId && !_themePickEnCours && theme.isNotEmpty
+                                        && theme != await _themeActif()) {
+                                        unawaited(_notifyClanTheme(clanId, region, theme));
+                                    }
+                                    await _basculeThemeEnDirect(clanId, ctx.get("clanSecret").toString(), region,
+                                                                theme, mascot, by);
+                                } catch (e) {
+                                    deva_log("warning", "[shop] changement d'état actif : $e");
+                                }
     }
 
     // --- Faux Google Play (cible d'essai) -------------------------------------
@@ -1285,7 +1382,7 @@ extension Worker_store on worker {
     // (pilotage storemock_ui). dvstore publie `store.mock.available` (l'app peut y aller),
     // `store.mock.active` (son clan y est) et `store.mock.code` (« clan:joueur »).
 
-    // « Mon ID », dans le kebab de la boutique : le code à coller dans le pilotage, copié
+    // « Mon ID », tuile de la boutique (essais seulement) : le code à coller dans le pilotage, copié
     // dans le presse-papiers ET montré en grand (overlay, jamais de popup). Le clan bascule
     // au prochain lancement de l'app.
     Future<void> on_store_mock_id(dynamic caller, dynamic event) async {
@@ -1321,24 +1418,17 @@ extension Worker_store on worker {
                                 }
     }
 
-    // --- Thème du clan (TEST) -------------------------------------------------
-    // Le thème actif est un fait du CLAN : l'item `theme` à `enabled: true` dans
-    // `clans_owned/{clanId}/items`. Cette table n'est écrite que par la fonction
-    // `clan_owned` (possession vérifiée côté serveur, chefs seuls pour changer).
-    // Chaque appareil s'aligne dessus : le chef qui appuie tout de suite, les autres à
-    // leur prochain passage sur le dashboard ou l'écran clan (_ensurePlayerVigilance).
-    //
-    // Le bouton de la boutique bascule entre donjon et X, le thème de test. La
-    // bascule elle-même (dvtheme.switchTheme) télécharge d'abord TOUT le thème, sans
-    // rien changer à l'écran, puis bascule d'un coup.
+    // --- Thème du clan ---------------------------------------------------------
+    // Le thème actif est un fait du CLAN : `active.theme` de la projection de la boutique
+    // (clans_shop/{clanId}), écrite par le callable `shop` (possession et rôle de chef
+    // vérifiés côté serveur). Chaque appareil s'y aligne : le chef qui active un thème dans
+    // la boutique, les autres EN DIRECT par la vigilance de dvshop (worker.on_shop_change,
+    // bascule mise en attente du bon moment, cf. _basculeThemeEnDirect), et à défaut à leur
+    // prochain passage sur le dashboard ou l'écran clan (_ensurePlayerVigilance, le filet).
+    // La bascule elle-même (dvtheme.switchTheme) télécharge d'abord TOUT le thème, sans rien
+    // changer à l'écran, puis bascule d'un coup.
 
     static const String _themeBase = "theme-donjon";
-    static const String _themeTest = "theme-x";
-
-    // Dernière synchro du thème du clan : on ne relit pas la table à chaque retour au
-    // dashboard, deux minutes suffisent à un test.
-    String    _clanThemeSyncClan = "";
-    DateTime? _clanThemeSyncAt;
 
     Future<String> _themeActif() async {
 
@@ -1347,31 +1437,246 @@ extension Worker_store on worker {
                                 return (await deva_get("theme.default"))?.toString() ?? _themeBase;
     }
 
-    // Thème activé dans une liste d'items (Dvidle de _cloud.list ou Map rendue par la
-    // fonction), null si aucun.
-    String? _themeActive(List<dynamic> items) {
+    // Les mascottes du thème actif (`theme.themes.<thème>.mascots`, layers/assets-global.yml),
+    // dans l'ordre du catalogue : la première est celle du thème par défaut. Vide = aucune
+    // contrainte (thème qui n'en déclare pas). Une mascotte qu'aucun thème ne déclare (le
+    // phénix, gardé pour plus tard) n'apparaît donc nulle part.
+    Future<List<String>> _mascottesDuTheme() async {
 
-                                for (final it in items) {
-                                    final m = it is Dvidle ? it.toJson() : it;
-                                    if (m is! Map) continue;
-                                    if (m["type"]?.toString() == "theme" && m["enabled"] == true) {
-                                        return m["id"]?.toString();
-                                    }
+                                final theme = await _themeActif();
+                                final raw = await deva_get("theme.themes.$theme.mascots");
+                                final l = raw is Dvidle ? raw.toJson() : raw;
+                                return l is List ? l.map((e) => e.toString()).toList() : <String>[];
+    }
+
+    // --- Mascotte du clan --------------------------------------------------------
+    // Même modèle que le thème : `active.mascot` de la projection désigne un mini-thème du
+    // catalogue `theme.minis` (dvtheme.switchMini). La mascotte du clan qui n'est pas du thème
+    // courant est remplacée sur l'appareil par la première du thème (cf. ci-dessous).
+
+    static const String _mascotBase = "mascot-dragon";
+
+    Future<String> _mascotteActive() async =>
+                                await dvtheme.instance?.miniActif("mascot") ?? _mascotBase;
+
+    Future<void> _appliquerMascotteClan(String? mascotte) async {
+
+                                // La mascotte du clan n'est pas du thème (dragon sous dino...) : la
+                                // première du thème la remplace sur l'appareil, sans toucher au choix
+                                // enregistré du clan (il revient s'il repasse sur un thème qui l'a).
+                                final duTheme = await _mascottesDuTheme();
+                                if (duTheme.isNotEmpty && !duTheme.contains(mascotte)) {
+                                    mascotte = duTheme.first;
                                 }
+                                if (mascotte == null || mascotte.isEmpty) return;
+                                // Une mascotte que le catalogue de l'appareil ne sait pas habiller
+                                // (déclarée au bucket mais pas encore arrivée) attend son layer.
+                                if (await deva_get("theme.minis.$mascotte") == null) return;
+                                if (await dvtheme.instance?.miniActif("mascot") == mascotte) return;
+                                deva_log("info", "[theme] la mascotte du clan est $mascotte, bascule de l'appareil");
+                                await dvtheme.instance?.switchMini(mascotte);
+    }
+
+    // Les écrans de JEU : ceux qu'une bascule de thème peut quitter pour le dashboard sans
+    // casser un parcours (connexion, accueil, CGU, fée, cérémonie n'en sont pas).
+    static const Set<String> _pagesDeJeu = {
+
+        "dashboard", "shop", "shop_store_page", "clan_page", "personnage", "combat", "testme",
+        "profile", "log_page"};
+
+    bool _estPageDeJeu(String ici) => _pagesDeJeu.contains(ici) || ici.endsWith("_tasks");
+
+    // `versDashboard` : aller au dashboard même depuis un écran hors jeu (le choix du thème à
+    // la création du clan), sous la scène de transition comme le reste.
+    Future<void> _appliquerThemeClan(String? theme, {bool versDashboard = false}) async {
+
+                                // Une seule bascule à la fois vers un même thème : la vigilance, le
+                                // filet et la boutique peuvent le viser au même instant, et
+                                // _themeActif ne change qu'à la FIN du téléchargement.
+                                if (theme == null || theme.isEmpty || _themeEnCours == theme) return;
+                                // Un thème que le catalogue de l'appareil ne sait pas habiller (acheté
+                                // mais pas encore déclaré, layer pas encore arrivé) : on attend plutôt
+                                // que de laisser l'appareil sur un thème fantôme.
+                                if (await deva_get("theme.themes.$theme") == null) {
+                                    deva_log("warning", "[theme] le clan est en $theme, inconnu du catalogue de l'appareil");
+                                    return;
+                                }
+                                _themeEnCours = theme;
+                                try {
+                                    if (await _themeActif() == theme) return;
+                                    deva_log("info", "[theme] le clan est en $theme, bascule de l'appareil");
+                                    // Tout ce qui suit la bascule se joue SOUS la scène de transition
+                                    // (`avantRevelation`) : le rideau ne se lève que sur l'écran final,
+                                    // mascotte comprise, déjà sur le dashboard.
+                                    await dvtheme.instance?.switchTheme(theme, avantRevelation: () async {
+                                        // Le thème vient avec sa mascotte : on réaligne celle de l'appareil.
+                                        await _appliquerMascotteClan(dvshop.instance?.active("mascot"));
+                                        // Après un changement de thème, on arrive sur le DASHBOARD (demande
+                                        // utilisateur, 2026-10-13) : l'écran quitté gardait des morceaux de
+                                        // l'ancien habillage. Seulement depuis un écran de JEU : la synchro du
+                                        // thème tourne aussi pendant la connexion et l'accueil, qu'on ne doit
+                                        // pas interrompre. ⚠ JAMAIS `await` sur navigate_reset (sa promesse ne
+                                        // se termine qu'au départ de la page) : on guette l'arrivée à la place.
+                                        final ici = DvOrb.get_current_page()?.dvid ?? "";
+                                        if (ici != "dashboard" && (versDashboard || _estPageDeJeu(ici))) {
+                                            DvOrb.navigate_reset("dashboard");
+                                            for (var i = 0; i < 50 && DvOrb.get_current_page()?.dvid != "dashboard"; i++) {
+                                                await Future.delayed(const Duration(milliseconds: 100));
+                                            }
+                                            // Le temps que le dashboard se peigne dans son nouvel habillage.
+                                            await Future.delayed(const Duration(milliseconds: 400));
+                                        }
+                                    });
+                                } finally {
+                                    if (_themeEnCours == theme) _themeEnCours = "";
+                                }
+    }
+
+    // --- Bascule en direct (vigilance du thème, worker_watch) -----------------------
+    //
+    // Un chef change le thème : le callable `shop` le projette dans clans_shop, et la
+    // vigilance de dvshop le rend à chaque membre (worker.on_shop_change). On ne bascule pas n'importe quand : la bascule
+    // recharge tout l'habillage et finit au dashboard. Elle est donc mise en ATTENTE tant que
+    // le moment est mal choisi (_themeMomentRefuse), sondé toutes les 3 s pendant 30 min au
+    // plus ; au-delà, le filet (_syncClanTheme) la fera au prochain passage sur le dashboard.
+    // Une nouvelle décision remplace celle qui attendait.
+
+    static const Duration _themeSondage    = Duration(seconds: 3);
+    static const Duration _themeAttenteMax = Duration(minutes: 30);
+
+    // Le nom du thème dans la langue de l'appareil (`theme_name_<id sans « theme- »>`, repli
+    // sur l'identifiant nu si la clé manque).
+    String _themeNom(String theme) {
+
+                                final suffixe = theme.replaceFirst("theme-", "");
+                                final key = "theme_name_$suffixe";
+                                final nom = TranslationRegistry.translate(key);
+                                return (nom.isEmpty || nom == key) ? suffixe : nom;
+    }
+
+    // L'appareil diffère-t-il de la décision du clan ? La mascotte se compare APRÈS la règle
+    // de _appliquerMascotteClan (celle du clan si le thème l'a, sinon la première du thème).
+    Future<bool> _themeDiffere(String theme, String mascot) async {
+
+                                if (theme.isNotEmpty && theme != await _themeActif()) return true;
+                                if (mascot.isEmpty) return false;
+                                final duTheme = await _mascottesDuTheme();
+                                final voulue  = (duTheme.isNotEmpty && !duTheme.contains(mascot)) ? duTheme.first : mascot;
+                                return voulue != await _mascotteActive();
+    }
+
+    // Pourquoi ce n'est PAS le moment de basculer, null si ça l'est : une tâche en cours (ou en
+    // revue), une animation, la cérémonie du butin, la mort (écran du gage), ou un écran hors
+    // jeu (connexion, accueil, CGU, fée...).
+    Future<String?> _themeMomentRefuse() async {
+
+                                if (((await deva_get("session.active_task"))?.toString() ?? "").isNotEmpty) return "tâche en cours";
+                                if (((await deva_get("session.review_task"))?.toString() ?? "").isNotEmpty) return "tâche en revue";
+                                if (await deva_get("interludes.playing", false) == true) return "interlude";
+                                if (_butinChecking || _openingRole.isNotEmpty) return "cérémonie du butin";
+                                if ((await deva_get("session.player_dead")) == true) return "joueur mort";
+                                final ici = DvOrb.get_current_page()?.dvid ?? "";
+                                if (!_estPageDeJeu(ici)) return "écran $ici";
                                 return null;
     }
 
-    Future<void> _appliquerThemeClan(String? theme) async {
+    // Reçu de la vigilance : le clan est passé à `theme` / `mascot`, sur décision de `by`.
+    Future<void> _basculeThemeEnDirect(String clanId, String clanSecret, String region,
+                                       String theme, String mascot, String by) async {
 
-                                if (theme == null || theme.isEmpty) return;
-                                if (await _themeActif() == theme) return;
-                                deva_log("info", "[theme] le clan est en $theme, bascule de l'appareil");
-                                await dvtheme.instance?.switchTheme(theme);
-                                unawaited(_shopThemeButton());
+                                try {
+                                    // Déjà aligné (le chef qui vient d'appuyer, ou un filet passé avant) :
+                                    // une décision plus ancienne qui attendait encore n'a plus lieu d'être.
+                                    if (!await _themeDiffere(theme, mascot)) {
+                                        _themeAttenteTimer?.cancel();
+                                        _themeAttenteTimer = null;
+                                        _themeAttente      = null;
+                                        return;
+                                    }
+                                    deva_log("info", "[theme] décision du clan reçue en direct : $theme / $mascot (par $by)");
+                                    _themeAttenteTimer?.cancel();
+                                    _themeAttenteTimer  = null;
+                                    _themeAttenteDepuis = DateTime.now();
+                                    _themeAttente = {
+                                        "clanId": clanId, "clanSecret": clanSecret, "region": region,
+                                        "theme":  theme,  "mascot":     mascot,     "by":     by,
+                                    };
+                                    await _themeEssai();
+                                } catch (e) {
+                                    deva_log("warning", "[theme] bascule en direct : $e");
+                                }
     }
 
-    // Aligne l'appareil sur le thème du clan. Table vide (clan né avant les possessions) :
-    // la fonction pose les items par défaut.
+    // Un essai de la bascule en attente : la joue si le moment est bon, sinon se reprogramme.
+    Future<void> _themeEssai() async {
+
+                                final a = _themeAttente;
+                                if (a == null) return;
+                                final refus = await _themeMomentRefuse();
+                                if (!identical(_themeAttente, a)) return;   // remplacée ou oubliée entre-temps
+                                if (refus != null) {
+                                    final depuis = _themeAttenteDepuis ?? DateTime.now();
+                                    if (DateTime.now().difference(depuis) > _themeAttenteMax) {
+                                        deva_log("info", "[theme] bascule abandonnée après 30 min d'attente ($refus) : le filet la fera");
+                                        _themeAttente      = null;
+                                        _themeAttenteTimer = null;
+                                        return;
+                                    }
+                                    if (_themeAttenteTimer == null) {
+                                        deva_log("info", "[theme] bascule vers ${a["theme"]} en attente ($refus)");
+                                    }
+                                    _themeAttenteTimer?.cancel();
+                                    _themeAttenteTimer = Timer(_themeSondage, () => unawaited(_themeEssai()));
+                                    return;
+                                }
+                                final theme  = a["theme"] ?? "";
+                                final change = theme.isNotEmpty && theme != await _themeActif();
+                                // L'annonce, chez les membres seulement : le chef qui vient d'appuyer
+                                // sait déjà. Une fois par décision, même si le moment se dérobe ensuite.
+                                if (change && a["by"] != _userId && a["annonce"] != "1") {
+                                    a["annonce"] = "1";
+                                    final texte = TranslationRegistry.translate("theme_switch_announce")
+                                        .replaceAll("{theme}", _themeNom(theme));
+                                    _messageBref(texte, ms: 3500);
+                                    await Future.delayed(const Duration(milliseconds: 1500));
+                                    // Le joueur a pu ouvrir une tâche pendant l'annonce : on revérifie.
+                                    if (!identical(_themeAttente, a)) return;
+                                    if (await _themeMomentRefuse() != null) {
+                                        _themeAttenteTimer?.cancel();
+                                        _themeAttenteTimer = Timer(_themeSondage, () => unawaited(_themeEssai()));
+                                        return;
+                                    }
+                                }
+                                _themeAttenteTimer?.cancel();
+                                _themeAttenteTimer = null;
+                                _themeAttente      = null;
+                                await _themeBasculer(a);
+    }
+
+    // La bascule elle-même, au bon moment.
+    Future<void> _themeBasculer(Map<String, String> a) async {
+
+                                final clanId = a["clanId"] ?? "";
+                                final theme  = a["theme"]  ?? "";
+                                final mascot = a["mascot"] ?? "";
+                                // Bascule déjà en route vers ce thème (le chef qui vient d'appuyer) :
+                                // elle réalignera la mascotte elle-même.
+                                if (theme.isNotEmpty && _themeEnCours == theme) return;
+                                // Le filet n'a pas à repasser derrière.
+                                _clanThemeSyncClan = clanId;
+                                _clanThemeSyncAt   = DateTime.now();
+                                if (theme.isNotEmpty && theme != await _themeActif()) {
+                                    // Rideau de transition (dvtheme), mascotte du thème, puis le dashboard.
+                                    await _appliquerThemeClan(theme);
+                                } else {
+                                    await _appliquerMascotteClan(mascot);
+                                }
+    }
+
+    // Aligne l'appareil sur le thème du clan : synchro de la boutique (items offerts d'office,
+    // reprise unique de l'ancienne table clans_owned, achats rapprochés — tout est côté
+    // serveur, idempotent), puis thème et mascotte actifs. La synchro arme aussi la
+    // vigilance de dvshop. Une fois toutes les deux minutes au plus.
     Future<void> _syncClanTheme(String clanId, String clanSecret, String region) async {
 
                                 final now = DateTime.now();
@@ -1380,73 +1685,89 @@ extension Worker_store on worker {
                                 _clanThemeSyncClan = clanId;
                                 _clanThemeSyncAt   = now;
                                 try {
-                                    List<dynamic> items = await _cloud?.list("workers", "clans_owned/$clanId/items",
-                                        region: region) ?? [];
-                                    if (items.isEmpty) {
-                                        final res = await _cloud?.call("clan_owned", Dvidle({"op": "sync", "clanId": clanId}));
-                                        final raw = res?.get("items");
-                                        if (raw is List) items = raw;
-                                        deva_log("info", "[theme] possessions du clan initialisées : ${res?.get("status")}");
+                                    final shop = dvshop.instance;
+                                    if (shop == null || !await shop.sync()) {
+                                        deva_log("warning", "[theme] synchro de la boutique du clan impossible");
+                                        return;
                                     }
-                                    await deva_set("worker.clan.owned", items
-                                        .map((it) => it is Dvidle ? it.toJson() : it)
-                                        .toList());
-                                    await _appliquerThemeClan(_themeActive(items));
+                                    await _appliquerThemeClan(shop.active("theme"));
+                                    await _appliquerMascotteClan(shop.active("mascot"));
                                 } catch (e) {
                                     deva_log("warning", "[theme] synchro du thème du clan : $e");
                                 }
     }
 
-    // Bouton de test, chefs seulement (la fonction refuse de toute façon les autres).
-    // Son libellé nomme le thème vers lequel il bascule.
-    Future<void> _shopThemeButton() async {
+    // --- Choix du thème à la création du clan (theme_pick_page) ---------------------
+    //
+    // Le FONDATEUR, et lui seul, choisit l'ambiance de son clan entre la quête et le dashboard
+    // (pas `decisiontree`, routeur worker.decisiontree_route). Celui qui rejoint un clan suit
+    // le thème du clan (_syncClanTheme, vigilance) et ne voit jamais cet écran.
+    //
+    // Un tap sur une carte : un message bref (pas de popup), puis la synchro de la boutique (le
+    // clan vient de naître, ses items offerts d'office n'existent pas encore : la bascule
+    // répondrait `not_owned`), puis la bascule du thème choisi (le fondateur est chef). Enfin
+    // la bascule de l'appareil par _appliquerThemeClan, qui joue le rideau PROPRE au thème
+    // choisi et réaligne la mascotte ; thème déjà courant : pas de bascule. Puis le dashboard,
+    // où la bienvenue du clan (worker.pending_clan_welcome, « created ») se joue dans le thème.
+    //
+    // ⚠ PAS DE PUSH ICI (on_shop_change le sait par _themePickEnCours) : le clan vient de
+    //   naître, son fondateur y est seul, il n'y a personne à prévenir.
+    // ⚠ LA NAVIGATION EST FAITE ICI, et non par _appliquerThemeClan : theme_pick_page n'est
+    //   pas un écran de JEU (_pagesDeJeu), et ne doit pas le devenir (la vigilance pourrait
+    //   sinon y basculer et en partir). Elle couvre aussi le thème déjà courant, où
+    //   _appliquerThemeClan ne fait rien.
+    // Échec réseau (ou session illisible) : message bref d'erreur, l'écran reste, on retape.
+    Future<void> on_theme_pick_donjon(dynamic caller, dynamic event) async =>
+                                _choisirThemeClan("theme-donjon");
 
+    Future<void> on_theme_pick_dino(dynamic caller, dynamic event) async =>
+                                _choisirThemeClan("theme-dino");
+
+    Future<void> _choisirThemeClan(String theme) async {
+
+                                if (_themePickEnCours) return;
+                                _themePickEnCours = true;
                                 try {
-                                    final btn = DvOrb.get_shape_by_id("shop/theme_test");
+                                    final debut = DateTime.now();
+                                    _messageBref(TranslationRegistry.translate(
+                                        theme == "theme-dino" ? "theme_pick_go_dino" : "theme_pick_go_donjon"), ms: 3000);
                                     final ctx = await _butinCtx();
-                                    if (btn == null || ctx == null) return;
-                                    final chief = await _ensureIsAdmin(ctx.get("clanId").toString(),
-                                        ctx.get("clanSecret").toString(), ctx.get("region").toString());
-                                    final key = await _themeActif() == _themeTest ? "shop_theme_donjon" : "shop_theme_x";
-                                    btn.set("shape.label", TranslationRegistry.processLabel("@@@T:$key@@@"));
-                                    if (btn is DvLabel) await btn.computeDisplay();
-                                    btn.refreshUI();
-                                    await _syncVisible(btn, "shop/theme_test", chief);
-                                } catch (e) {
-                                    deva_log("warning", "[theme] bouton de test : $e");
-                                }
-    }
-
-    Future<void> on_shop_theme_test(dynamic caller, dynamic event) async {
-
-                                final ctx = await _butinCtx();
-                                if (ctx == null) return;
-                                final cible = await _themeActif() == _themeTest ? _themeBase : _themeTest;
-                                try {
-                                    final res = await _cloud?.call("clan_owned", Dvidle({
-                                        "op":     "enable",
-                                        "clanId": ctx.get("clanId").toString(),
-                                        "item":   cible,
-                                    }));
-                                    final status = res?.get("status")?.toString() ?? "";
-                                    if (status != "ok") {
-                                        deva_log("warning", "[theme] activation de $cible refusée : $status");
+                                    if (ctx == null) {
+                                        deva_log("warning", "[theme] choix du thème $theme : session sans clan");
+                                        _messageBref(TranslationRegistry.translate("theme_pick_error"), ms: 4000);
                                         return;
                                     }
-                                    final raw = res?.get("items");
-                                    if (raw is List) {
-                                        await deva_set("worker.clan.owned", raw
-                                            .map((it) => it is Dvidle ? it.toJson() : it)
-                                            .toList());
+                                    final clanId = ctx.get("clanId").toString();
+                                    try {
+                                        final shop = dvshop.instance;
+                                        if (shop == null) throw "dvshop absent";
+                                        if (!await shop.sync()) throw "sync";
+                                        final status = await shop.toggle(theme);
+                                        if (status != "ok") throw "toggle : $status";
+                                    } catch (e) {
+                                        deva_log("warning", "[theme] choix du thème $theme à la création du clan : $e");
+                                        _messageBref(TranslationRegistry.translate("theme_pick_error"), ms: 4000);
+                                        return;
                                     }
-                                } catch (e) {
-                                    deva_log("error", "[theme] activation de $cible injoignable : $e");
-                                    return;
+                                    deva_log("info", "[theme] le fondateur a choisi $theme pour son clan");
+                                    // Le filet du dashboard n'a pas à relire tout de suite ce qu'on vient d'écrire.
+                                    _clanThemeSyncClan = clanId;
+                                    _clanThemeSyncAt   = DateTime.now();
+                                    // Le message a le temps d'être lu avant que le rideau ne tombe.
+                                    final reste = 1200 - DateTime.now().difference(debut).inMilliseconds;
+                                    if (reste > 0) await Future.delayed(Duration(milliseconds: reste));
+                                    // Rideau du thème choisi, mascotte du thème et arrivée au dashboard SOUS
+                                    // le rideau ; sans effet si c'est déjà le thème de l'appareil (la
+                                    // navigation ci-dessous couvre ce cas).
+                                    await _appliquerThemeClan(theme, versDashboard: true);
+                                    // ⚠ JAMAIS `await` sur navigate_reset (sa promesse ne se termine qu'au
+                                    //   départ de la page).
+                                    if ((DvOrb.get_current_page()?.dvid ?? "") == "theme_pick_page") {
+                                        DvOrb.navigate_reset("dashboard");
+                                    }
+                                } finally {
+                                    _themePickEnCours = false;
                                 }
-                                // Pas de gel : le téléchargement du thème peut être long, la bascule
-                                // arrive d'elle-même quand tout est là.
-                                _clanThemeSyncAt = DateTime.now();
-                                unawaited(_appliquerThemeClan(cible));
     }
 
     // La pastille « playstore mocked » d'un écran d'achat ou d'abonnement : visible tant
@@ -1474,9 +1795,8 @@ extension Worker_store on worker {
     // d'affichage, jamais une source de vérité. Play fournit les prix localisés et
     // taxes incluses, et c'est une exigence de la politique du store.
     //
-    // Conservé bien que la boutique ne liste plus les abonnements : c'est l'une des
-    // deux prises que la présentation commerciale à venir appellera, avec
-    // `_storeBuyGated(productId)`.
+    // La boutique dvshop lit ses prix directement (store.catalog.<sku>.price/raw_price) ;
+    // conservé pour les écrans d'abonnement.
     Future<String> _storeRowPrice(String productId, bool subscription) async {
 
                                 if (subscription) {
@@ -1489,38 +1809,6 @@ extension Worker_store on worker {
                                 final price = (await deva_get("store.catalog.$productId.price"))?.toString() ?? "";
                                 if (price.isNotEmpty) return price;
                                 return (await deva_get("store.catalog.$productId.price_hint"))?.toString() ?? "";
-    }
-
-    // Selector du kebab de la boutique. « Gérer mon abonnement » est offert à tout chef,
-    // abonné ou non. Pas de « Restaurer mes achats » : rien ne vit sur l'appareil,
-    // une réinstallation retrouve compte, clan et abonnement d'elle-même (2026-10-04).
-    Future<List<String>> shop_settings_selector(dynamic caller, dynamic data) async {
-
-                                // ⚠ LES TUTORIELS DANS TOUS LES KEBABS, celui-ci compris. C'est la
-                                //   seule option qui reponde a « je ne sais pas quoi faire » : la
-                                //   reserver a deux ecrans sur trois oblige a se souvenir DUQUEL,
-                                //   ce que personne ne fait. Posee en tete, parce qu'un joueur
-                                //   perdu dans la boutique cherche a comprendre avant d'acheter.
-                                final options = <String>["tutorials"];
-                                try {
-                                    // Tout chef, abonné ou non : abonné, il va à « Mon abonnement » ;
-                                    // sinon à l'écran des paliers (store_manage_or_tiers).
-                                    final canBuy  = await _storeCanBuy();
-                                    if (canBuy) options.add("store_manage");
-                                    // Saisir un code : sous la même garde que l'achat, et pour la même
-                                    // raison — c'est le clan qu'on engage. Proposée abonné ou non : un
-                                    // crédit réclamé pendant une cotisation payante n'est pas perdu,
-                                    // il attend simplement son tour.
-                                    if (canBuy) options.add("store_code");
-                                } catch (e) {
-                                    // Lecture KO → repli sûr : seules les deux options inoffensives
-                                    // restent. Un kebab amputé vaut mieux qu'un écran qui ne s'ouvre pas.
-                                    deva_log("error", "[store] shop_settings_selector FAILED: $e");
-                                }
-                                // « Mon ID » : client snapshot sur la région d'essai seulement
-                                // (dvstore `store.mock.available`). Jamais dans une release.
-                                if ((await deva_get("store.mock.available")) == true) options.add("store_mock_id");
-                                return options;
     }
 
     // --- « Mes achats » : SUPPRIMÉ ------------------------------------------
@@ -2463,7 +2751,9 @@ extension Worker_store on worker {
                                 //
                                 // Clan déjà abonné : c'est un CHANGEMENT de palier (dvstore remplace
                                 // l'abonnement), dont l'aboutissement se lit sur la projection.
-                                _storeChangeTo = (await _storeSubscribed())
+                                // Un produit de la BOUTIQUE (dvshop) n'est jamais un changement de
+                                // palier, même pour un clan abonné.
+                                _storeChangeTo = (productId != _shopPlayPending && await _storeSubscribed())
                                     ? "$productId|${await _storePlanId(productId)}" : "";
 
                                 // ⚠ LA PORTE NE SE REFERME PAS D'ELLE-MÊME : dvparentalgate rappelle

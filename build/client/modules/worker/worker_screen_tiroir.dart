@@ -206,17 +206,95 @@ extension Worker_screen_tiroir on worker {
                                 deva_log("info", "[tuto] entrée dashboard : seen.dashboard_intro="
                                     "${await deva_get("dvtuto.seen.dashboard_intro", false)}");
                                 await _enterTuto();
+                                // Puis la mascotte se présente, APRÈS la leçon (elle l'attend). Non
+                                // awaitée : une leçon dure le temps que l'utilisateur veut.
+                                unawaited(_mascotGreet());
+    }
+
+    //-----------------------------------------------------------------------
+    //-- Accueil de la mascotte -----------------------------------------------
+    //-----------------------------------------------------------------------
+
+    // La mascotte se présente, dans sa bulle de parole (dvmascot.say, pas la discussion) : au
+    // premier dashboard après le LANCEMENT, et au premier après la CRÉATION du clan. Appelée
+    // JUSTE APRÈS _enterTuto (arrivée ordinaire, ou derrière la bienvenue clan), jamais avant :
+    // la leçon qu'il vient peut-être d'ouvrir passe d'abord, l'accueil ATTEND qu'elle se termine
+    // (elle cache la mascotte, de toute façon). Puis la fin des interludes, puis que la mascotte
+    // soit visible et libre (6 s au plus). Elle passe son tour, SANS se consommer, si l'on a
+    // quitté le dashboard entre-temps ou si la mascotte ne s'est pas montrée : le prochain
+    // passage sur le dashboard la retente.
+    //
+    // Parent (`worker.player_is_adult`) : son nom complet et son nom court, et qu'il peut lui
+    // demander de l'aide. Enfant : son nom court, et qu'il peut jouer avec elle. Les noms sont
+    // ceux du personnage ACTIF, posés par dvmascot ({name}, {short}).
+    Future<void> _mascotGreet() async {
+
+                                if (_mascotGreeting) return;
+                                if (_mascotGreeted && !_mascotGreetClan) return;
+                                if (ActionRegistry.get("dvmascot.say") == null) return;   // pas de mascotte au build
+                                _mascotGreeting = true;
+                                try {
+                                    await _waitTutoIdle();
+                                    await Future.delayed(const Duration(milliseconds: 300));
+                                    await _waitInterludesIdle();
+                                    final page = DvOrb.get_current_page()?.dvid ?? "";
+                                    if (page != "dashboard") {
+                                        deva_log("info", "[mascotte] accueil reporté : on a quitté le dashboard ($page)");
+                                        return;
+                                    }
+                                    final adult = (await deva_get("worker.player_is_adult"))?.toString() == "true";
+                                    final cle   = adult ? "mascot_hello_adult" : "mascot_hello_kid";
+                                    final r     = ActionRegistry.get("dvmascot.say")?.call(null,
+                                                      {"text": "@@@T:$cle@@@", "wait": 6000});
+                                    final dit   = (r is Future ? await r : r) == true;
+                                    if (dit) {
+                                        _mascotGreeted   = true;
+                                        _mascotGreetClan = false;
+                                    }
+                                    deva_log("info", "[mascotte] accueil ${adult ? "parent" : "enfant"} : "
+                                                     "${dit ? "dit" : "reporté (mascotte cachée ou occupée)"}");
+                                } catch (e) {
+                                    deva_log("warning", "[mascotte] accueil en échec ($e)");
+                                } finally {
+                                    _mascotGreeting = false;
+                                }
+    }
+
+    // Attend la fin de la leçon dvtuto en cours (son état VIVANT, repli sur `tuto.playing` de la
+    // session). Plafond de 10 minutes : au-delà, l'accueil passe (la mascotte reste cachée tant
+    // que la leçon joue, et say renonce).
+    Future<void> _waitTutoIdle() async {
+
+                                const step  = Duration(milliseconds: 300);
+                                const limit = 600000 ~/ 300;
+                                for (var i = 0; i < limit; i++) {
+                                    bool joue;
+                                    try {
+                                        joue = (Deva.instance.module("dvtuto") as dynamic)?.lessonPlaying == true;
+                                    } catch (_) {
+                                        joue = await deva_get("tuto.playing", false) == true;
+                                    }
+                                    if (!joue) return;
+                                    await Future.delayed(step);
+                                }
+                                deva_log("warning", "[mascotte] une leçon joue encore après 10 min : accueil sans attendre");
     }
 
     // Ids des 20 tiroirs (celui des domaines + les 19 de tâches).
     List<String> get _tiroirIds =>
         ["combat/tiroir", for (final d in _taskDomains) "${d}_tasks/tiroir"];
 
-    // Bordure d'un tiroir selon le mode. Repli sur l'or donjon si l'originale n'a pas pu être
-    // capturée : sans ça, un tiroir sans border_color en conf resterait rouge après la sortie.
-    String _borderOf(String tid) => _adminMode
-        ? _admBorderColor
-        : (_tiroirBorder[tid]?.toString() ?? _defBorderColor);
+    // Bordure d'un tiroir selon le mode, LUE DANS LA CONF (thème actif compris) : naguère
+    // capturée une fois sur la shape, elle gardait la couleur de l'ancien thème après une
+    // bascule à chaud. Repli sur l'or donjon : sans ça, un tiroir sans border_color en conf
+    // resterait rouge après la sortie du mode chef.
+    Future<String> _borderOf(String tid) async {
+
+                                final cle = _adminMode ? "admin_border_color" : "border_color";
+                                final v = (await deva_get("registry.$tid.shape.$cle"))?.toString() ?? "";
+                                if (v.isNotEmpty) return v;
+                                return _adminMode ? _admBorderColor : _defBorderColor;
+    }
 
     // Segments du switch « Jeu | Admin » (bas du tiroir). Réservés aux chefs vivants : mort,
     // l'écran est mangé par l'overlay de mort (et le switch, en layer overlay, se dessinerait
@@ -386,11 +464,7 @@ extension Worker_screen_tiroir on worker {
                                     for (final tid in _tiroirIds) {
                                         final t = p.get_shape_by_id(tid);
                                         if (t == null) continue;
-                                        // Bordure d'origine capturée sur la shape elle-même, avant de la repeindre.
-                                        if (!_tiroirBorder.containsKey(tid)) {
-                                            _tiroirBorder[tid] = t.get("shape.border_color");
-                                        }
-                                        t.set("shape.border_color", _borderOf(tid));
+                                        t.set("shape.border_color", await _borderOf(tid));
                                         t.refreshUI();
                                     }
                                 }
@@ -399,8 +473,13 @@ extension Worker_screen_tiroir on worker {
     void _paintSegment(dynamic seg, {required bool selected}) {
 
                                 if (seg == null) return;
-                                seg.set("shape.background_color", selected ? _segOnBg  : _segOffBg);
-                                seg.set("shape.font_color",       selected ? _segOnFg  : _segOffFg);
+                                // Couleurs du thème si la shape en déclare (cf. worker.dart), sinon donjon.
+                                String c(String cle, String def) {
+                                    final v = seg.get("shape.$cle")?.toString() ?? "";
+                                    return v.isNotEmpty ? v : def;
+                                }
+                                seg.set("shape.background_color", selected ? c("on_background_color", _segOnBg)  : c("off_background_color", _segOffBg));
+                                seg.set("shape.font_color",       selected ? c("on_font_color", _segOnFg)        : c("off_font_color", _segOffFg));
                                 seg.refreshUI();
     }
 

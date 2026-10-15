@@ -316,6 +316,202 @@ conf:
         y: 5%
         h: 30%
 
+    #//------------------------------- THEME PICK SCREEN (fondateur) --------------------------
+    # L'AMBIANCE DU CLAN, choisie par son fondateur juste après la quête et avant le dashboard
+    # (pas `decisiontree`, routeur worker.decisiontree_route). Celui qui REJOINT un clan n'y
+    # passe jamais : il suit le thème du clan (worker_store._syncClanTheme, vigilance).
+    #
+    # L'écran vit dans le thème COURANT de l'appareil (celui de l'onboarding, donjon le plus
+    # souvent) : habillé par theme-donjon-global.yml et par la couche dino.
+    #
+    # Deux grandes cartes empilées, chacune sur toute la largeur : l'image de vitrine du thème,
+    # son nom et une phrase. Un tap n'importe où sur une carte (cadre, image, nom, phrase :
+    # chacun porte l'action, pour qu'aucun libellé n'avale le tap) choisit le thème
+    # (worker.on_theme_pick_donjon / on_theme_pick_dino) : message bref, `clan_owned` sync puis
+    # enable, bascule de l'appareil sous le rideau du thème choisi, puis le dashboard, où la
+    # bienvenue du clan se joue. Échec réseau : message bref, l'écran reste, on peut retaper.
+    #
+    # PAS DE SORTIE SANS CHOISIR, ET PAS DE RETOUR : on arrive ici en `reset` (rien à dépiler),
+    # la flèche et le bouton retour du système sont coupés.
+    #
+    # Les deux images vivent dans `general` (vitrines.py, build_assets.yml étape
+    # `vitrines_themes`) : l'écran s'affiche avant que la racine du thème non actif ne soit
+    # téléchargée, et elles sont les mêmes quel que soit le thème courant, d'où leur place ici
+    # et non dans les couches de thème.
+    theme_pick_page:
+      masks:
+        - page_onboarding
+      show_appbar: true
+      show_back: false
+      block_back: true
+      title: "@@@T:theme_pick_title@@@"
+      registry:
+        - theme_pick_page/banner
+        - theme_pick_page/donjon_card
+        - theme_pick_page/donjon_image
+        - theme_pick_page/donjon_title
+        - theme_pick_page/donjon_text
+        - theme_pick_page/note
+        - theme_pick_page/dino_card
+        - theme_pick_page/dino_image
+        - theme_pick_page/dino_title
+        - theme_pick_page/dino_text
+
+    theme_pick_page/banner:
+      masks:
+        - commons/onboarding_banner
+      shape:
+        label: "@@@T:chapter_theme_pick@@@"
+
+    # --- Gabarits (habillés par les couches de thème) ---
+    # Le cadre de la carte.
+    theme_pick_page/card:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 4%
+        w: 92%
+        h: 40%
+        label: ""
+        border: true
+        events:
+          tap: true
+
+    # L'image de vitrine, 2:1, entière.
+    theme_pick_page/image:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 6%
+        w: 88%
+        h: 25%
+        label: ""
+        border: false
+        stretch: RATIO_IN
+        events:
+          tap: true
+
+    theme_pick_page/card_title:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 6%
+        w: 88%
+        h: 5%
+        text_align: CENTER
+        valign: CENTER
+        text_padding: 0.0
+        border: false
+        events:
+          tap: true
+
+    theme_pick_page/card_text:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 6%
+        w: 88%
+        h: 8%
+        text_align: CENTER
+        valign: TOP
+        text_padding: 2.0
+        border: false
+        events:
+          tap: true
+
+    # --- Carte du HAUT : Donjon (6 % → 46 %) ---
+    theme_pick_page/donjon_card:
+      masks:
+        - theme_pick_page/card
+      shape:
+        y: 6%
+        actions:
+          tap: worker.on_theme_pick_donjon
+
+    theme_pick_page/donjon_image:
+      masks:
+        - theme_pick_page/image
+      shape:
+        y: 7%
+        image: "images/big/theme_vitrine_donjon.png"
+        actions:
+          tap: worker.on_theme_pick_donjon
+
+    theme_pick_page/donjon_title:
+      masks:
+        - theme_pick_page/card_title
+      shape:
+        y: 32.5%
+        label: "@@@T:theme_pick_donjon_title@@@"
+        actions:
+          tap: worker.on_theme_pick_donjon
+
+    theme_pick_page/donjon_text:
+      masks:
+        - theme_pick_page/card_text
+      shape:
+        y: 37.5%
+        label: "@@@T:theme_pick_donjon_text@@@"
+        actions:
+          tap: worker.on_theme_pick_donjon
+
+    # Entre les deux cartes : le choix n'est pas définitif.
+    theme_pick_page/note:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 46.5%
+        w: 90%
+        h: 5%
+        text_align: CENTER
+        valign: CENTER
+        text_padding: 0.0
+        border: false
+        label: "@@@T:theme_pick_note@@@"
+
+    # --- Carte du BAS : Gentils dinosaures (52 % → 92 %) ---
+    theme_pick_page/dino_card:
+      masks:
+        - theme_pick_page/card
+      shape:
+        y: 52%
+        actions:
+          tap: worker.on_theme_pick_dino
+
+    theme_pick_page/dino_image:
+      masks:
+        - theme_pick_page/image
+      shape:
+        y: 53%
+        image: "images/big/theme_vitrine_dino.png"
+        actions:
+          tap: worker.on_theme_pick_dino
+
+    theme_pick_page/dino_title:
+      masks:
+        - theme_pick_page/card_title
+      shape:
+        y: 78.5%
+        label: "@@@T:theme_pick_dino_title@@@"
+        actions:
+          tap: worker.on_theme_pick_dino
+
+    theme_pick_page/dino_text:
+      masks:
+        - theme_pick_page/card_text
+      shape:
+        y: 83.5%
+        label: "@@@T:theme_pick_dino_text@@@"
+        actions:
+          tap: worker.on_theme_pick_dino
+
     #//------------------------------- Invite clan screen ------------------------------------
 
     invite_clan:

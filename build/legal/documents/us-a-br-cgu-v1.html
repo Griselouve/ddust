@@ -184,11 +184,12 @@ informações do que as razoavelmente necessárias para jogar.</p>
 
 <h2>7. Conteúdos gerados por inteligência artificial</h2>
 <p>O Aplicativo usa a API de inteligência artificial Google Gemini para produzir certos conteúdos narrativos e
-lúdicos. Essa chamada só ocorre por ação explícita de um usuário, em quatro casos:</p>
+lúdicos. Essa chamada só ocorre por ação explícita de um usuário, em cinco casos:</p>
 <ul>
   <li>a sugestão de um nome e de uma descrição para um personagem (botão "Me inspire");</li>
   <li>a sugestão de um nome e de uma descrição para um clã;</li>
   <li>a sugestão de um nome e de uma descrição para uma tarefa;</li>
+  <li>o assistente de ajuda reservado aos jogadores maiores de idade (o pequeno companheiro do Aplicativo): são transmitidas a ele a pergunta digitada e a conversa em andamento, nada é guardado após a conversa e não se deve digitar nenhuma informação pessoal; ele se cala se um chefe de clã desativar a IA;</li>
   <li>a redação do relato de aventura do clã, oferecido para compartilhamento após a abertura de um baú do tesouro.</li>
 </ul>
 <p>Para este último uso, o nome do clã, a sua descrição e o registro de acontecimentos do clã (que contém
@@ -196,7 +197,7 @@ os apelidos escolhidos pelos jogadores) são transmitidos ao modelo. Nenhum outr
 identificador de conta, nem data de nascimento, nem fotografia, nem vídeo. O tratamento é realizado em uma infraestrutura
 situada nos Estados Unidos. Esses conteúdos são gerados automaticamente e para fins puramente recreativos; ao
 usar o Aplicativo, você aceita que eles possam conter imperfeições.</p>
-<p>Os conteúdos produzidos se destinam a ser lidos por crianças: os filtros de segurança do modelo estão ajustados no nível mais rigoroso que a interface oferece, para as quatro categorias de conteúdos nocivos (assédio, discurso de ódio, conteúdos sexuais, conteúdos perigosos), e esse ajuste é imposto pelos nossos servidores e não pelo aparelho. As instruções dadas ao modelo delimitam ainda o tom: nenhuma violência contra uma pessoa ou um animal, nada que dê medo, nenhum tema adulto, nenhum palavrão.</p>
+<p>Os conteúdos produzidos se destinam a ser lidos por crianças: os filtros de segurança do modelo estão ajustados no nível mais rigoroso que a interface oferece, para as quatro categorias de conteúdos nocivos (assédio, discurso de ódio, conteúdos sexuais, conteúdos perigosos), e esse ajuste é imposto pelos nossos servidores e não pelo aparelho. As instruções dadas ao modelo delimitam ainda o tom: nenhuma violência contra uma pessoa ou um animal, nada que dê medo, nenhum tema adulto, nenhum palavrão. Apenas o assistente de ajuda reservado aos jogadores maiores de idade é exceção: suas respostas são lidas por um adulto, e seus filtros só bloqueiam a partir de uma probabilidade alta de conteúdo nocivo. No nível mais rigoroso, o vocabulário do jogo (monstros, combates, um personagem que morre) fazia recusar a maioria das perguntas comuns dos pais; o modelo continua obrigado por suas instruções a recusar qualquer conteúdo inadequado.</p>
 
 <h2>8. Dados pessoais</h2>
 <p>O tratamento das informações pessoais está descrito na

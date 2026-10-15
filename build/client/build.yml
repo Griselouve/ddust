@@ -44,7 +44,13 @@ build:
     - dvflame
     - dvinterlude
     - dvtuto
+    # Objets de jeu animés (DvSprite / DvAnimatedSprite), et le bébé dragon qui s'en sert.
+    - dvsprite
+    - dvmascot
     - dvstore
+    # La boutique (page d'entrée à tuiles, boutiques dédiées) : après dvstore, qui
+    # achète en argent réel pour elle.
+    - dvshop
     - worker
     # LA VITRINE : inerte en lancement normal. En mode `showcase` (config/showcase.yml),
     # elle rejoue les écrans avec des données bidons et les photographie par langue.

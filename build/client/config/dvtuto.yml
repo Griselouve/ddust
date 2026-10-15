@@ -24,7 +24,32 @@ conf:
       # (retour joueur du 2026-09-25) : 0,3 s absorbe encore le tap qui arrive en même temps que
       # la bulle, et le double tap est déjà coupé par l'overlay (`_handleTap`).
       hold: 0.3
+      # Leçon jouée UNE fois, juste après le premier « Passer » d'une leçon : elle montre où
+      # retrouver les tutoriels (kebab du Clan → Tutoriels). Absente de l'écran Tutoriels.
+      # Le bouton « Passer » est offert sur toutes les leçons, sauf les reminders et celles qui
+      # déclarent `skippable: false`.
+      skip_hint: tuto_skip_hint
+      # PLUS AUCUN TUTORIEL AUTOMATIQUE (décision du 2026-10-11, avec l'arrivée du bébé dragon
+      # qui guide à la demande) : les leçons ne se jouent que depuis l'écran Tutoriels du kebab
+      # du Clan, ou sur commande (`dvtuto.play`). Un enfant n'en a donc plus aucun d'office, et
+      # c'est voulu : il n'aurait pas l'attention de les lire. Les REMINDERS (recrutement,
+      # sécurité) gardent leur cadence, et `impersonation_back` reste automatique (ci-dessous).
+      automatic: false
     lessons:
+      # Le « petit splash » du premier « Passer ». L'image montre le kebab du Clan ouvert, l'option
+      # « Tutoriels » encadrée de rouge, UNE PAR LANGUE (le libellé est dans l'image). Tant qu'elle
+      # manque, le panneau s'affiche sans image, texte seul.
+      tuto_skip_hint:
+        screen: dashboard
+        manual: true
+        title: "@@@T:tuto_skip_hint_title@@@"
+        steps:
+          ou:
+            order: 10
+            text: "@@@T:tuto_skip_hint_text@@@"
+            panel:
+              title: "@@@T:tuto_skip_hint_title@@@"
+              image: "images/big/tuto_ou_@@@lang@@@.png"
       # Leçon d'impersonation : jouée à l'atterrissage sur le dashboard quand un admin vient de
       # « prendre la place » d'un joueur (flag worker.impersonating posé par take_place, remis à
       # false au retour). take_place réinitialise aussi dvtuto.seen.impersonation_back → rejouée à
@@ -43,6 +68,8 @@ conf:
         screen: dashboard
         order: 5                                        # avant dashboard_intro : prime à l'arrivée
         header_top: true
+        # Un rappel de SÉCURITÉ, pas un tutoriel : il reste automatique à chaque prise de place.
+        automatic: true
         requires: { worker.impersonating: "true" }
         title: "@@@T:tuto_impersonation_title@@@"
         steps:
@@ -375,18 +402,13 @@ conf:
             panel:
               title: "@@@T:tuto_clan_menu_admin_title@@@"
               rows:
-                welcome_child:      { icon: "face",                      name: "@@@T:clan_menu_welcome_child@@@", desc: "@@@T:clan_menu_welcome_child_desc@@@" }
-                clan_qr:
-                  name: "@@@T:clan_menu_qr@@@"
-                  desc: "@@@T:clan_menu_qr_desc@@@"
-                clan_invite_remote: { icon: "share",                     name: "@@@T:clan_menu_invite_remote@@@", desc: "@@@T:clan_menu_invite_remote_desc@@@" }
-                create_player:      { icon: "group_add",                 name: "@@@T:clan_menu_create_player@@@", desc: "@@@T:clan_menu_create_player_desc@@@" }
-                welcome_guest_child: { icon: "face",                     name: "@@@T:clan_menu_welcome_guest@@@", desc: "@@@T:clan_menu_welcome_guest_desc@@@" }
-                guardian_hub:       { icon: "face",                      name: "@@@T:clan_menu_guardian_hub@@@",  desc: "@@@T:clan_menu_guardian_hub_desc@@@" }
-                # Une seule ligne pour le couple couper / rallumer : le menu n'en montre qu'une à la fois.
-                clan_ai_off:        { icon: "block",                     name: "@@@T:clan_menu_ai_off@@@",        desc: "@@@T:clan_menu_ai_off_desc@@@" }
-                referral:           { icon: "workspace_premium",         name: "@@@T:clan_menu_referral@@@",      desc: "@@@T:clan_menu_referral_desc@@@" }
-                referral_declare:   { icon: "link",                      name: "@@@T:clan_menu_referral_declare@@@", desc: "@@@T:clan_menu_referral_declare_desc@@@" }
+                # Refonte du kebab du 2026-10-11 : le menu de base ne montre plus que ces trois gestes de
+                # chef ; « Ajouter mon enfant » ouvre le choix téléphone / pas de téléphone, et le reste
+                # (invitation à distance, enfants d'autres clans, IA du clan, parrainage…) est sous
+                # « Options avancées… ».
+                clan_qr:   { icon: "qr_code",   name: "@@@T:clan_menu_qr@@@",        desc: "@@@T:clan_menu_qr_desc@@@" }
+                add_child: { icon: "group_add", name: "@@@T:clan_menu_add_child@@@", desc: "@@@T:clan_menu_add_child_desc@@@" }
+                advanced:  { icon: "widgets",   name: "@@@T:clan_menu_advanced@@@",  desc: "@@@T:clan_menu_advanced_desc@@@" }
           # Le couple « QR Code du clan » / « Créer un joueur », dans cet ordre : la RÈGLE d'abord,
           # l'exception ensuite. C'est le geste que les parents ratent le plus. Le tutoriel détaillait
           # « Créer un joueur » (l'enfant sans téléphone, le cas rare) et taisait le QR code, qui est

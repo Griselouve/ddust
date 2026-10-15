@@ -64,6 +64,9 @@ extension Worker_celebrations on worker {
                                 if (pending.isEmpty) return false;
 
                                 await deva_set("worker.pending_clan_welcome", "");   // one-shot
+                                // Clan tout juste CRÉÉ : la mascotte se présentera de nouveau, après la
+                                // bienvenue et la leçon (_enterTutoAfterWelcome → _mascotGreet).
+                                if (pending == "created") _mascotGreetClan = true;
                                 final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
                                 final page = DvOrb.get_current_page();
                                 if (page is DvPage) page.freeze();
@@ -880,8 +883,11 @@ extension Worker_celebrations on worker {
     // L'écran est devenu noir : on pose le splash « GAME OVER » et le crâne, sous le noir.
     Future<void> show_gameover(dynamic caller, dynamic event) async {
 
+                                // L'image et le libellé s'affichent TOUJOURS, quand la scène tire ce hook : un
+                                // interlude rejoué hors d'une vraie mort (touche « I » de test) les montrait
+                                // sans image. Seule l'APPLICATION de la mort reste gardée.
+                                ActionRegistry.get("dvorb.splash.commons/gameover_label")?.call(null, TranslationRegistry.translate("gameover_title"));
                                 if (!_deathChecking) return;
-                                ActionRegistry.get("dvorb.splash.commons/gameover_label")?.call(null, "GAME OVER");
                                 await _applyDeath(true, _deathGage, persist: true, showRevive: _deathShowRevive);
     }
 
@@ -924,6 +930,8 @@ extension Worker_celebrations on worker {
                                 deva_log("info", "[tuto] fin de bienvenue → dvtuto.enter (seen.dashboard_intro="
                                     "${await deva_get("dvtuto.seen.dashboard_intro", false)})");
                                 await _enterTuto();
+                                // Puis la mascotte se présente, APRÈS la leçon (elle l'attend).
+                                unawaited(_mascotGreet());
     }
 
     // Déclare la musique de fond correspondant à l'état de vie : le mort a la sienne.

@@ -128,7 +128,8 @@ extension Worker_events on worker {
     // un événement de ROSTER vient d'être posé : l'écran du clan doit alors se rafraîchir.
     // `waitIdle` : attendre la fin d'une célébration en cours avant de rien montrer (jamais deux
     // spectacles à la fois). Faux pour l'écran du clan, dont l'événement se glisse dans la liste.
-    Future<bool> _evtAt(String moment, {bool waitIdle = true}) async {
+    // `force` : banc d'essai seulement (cf. _evtForce), l'événement nommé à la place du tirage.
+    Future<bool> _evtAt(String moment, {bool waitIdle = true, String force = ""}) async {
 
                                 if (_evtRolling) return false;
                                 _evtRolling = true;
@@ -142,7 +143,7 @@ extension Worker_events on worker {
                                         // on ne tire pas, plutôt que de compter un événement invisible.
                                         if (DvOrb.get_shape_by_id("commons/evt_ok") == null) return false;
                                     }
-                                    final ev = await _evtRoll(moment);
+                                    final ev = await _evtRoll(moment, force: force);
                                     if (ev == null) return false;
                                     final scene = ev["scene"]?.toString() ?? "message";
                                     deva_log("info", "[events] $moment → ${ev["id"]} ($scene)");
@@ -177,7 +178,7 @@ extension Worker_events on worker {
 
     // Tire un événement pour ce moment, ou null. Écrit les compteurs du joueur AVANT de rendre la
     // main : un événement tiré compte dans le plafond du jour, qu'il soit cliqué ou non.
-    Future<Map<String, dynamic>?> _evtRoll(String moment) async {
+    Future<Map<String, dynamic>?> _evtRoll(String moment, {String force = ""}) async {
 
                                 // --- Garde-fous globaux --------------------------------------------
                                 // Un événement abandonné ne bloque pas les suivants : un message dont
@@ -215,6 +216,15 @@ extension Worker_events on worker {
                                 final pvNow  = _computeDisplayedPv(maxPv, damage,
                                     me.get("last_task")?.toString() ?? "", _readDecay(me.get("decay")));
                                 if (pvNow <= 0) return null;
+
+                                // Banc d'essai (touche « E », worker_testkeys) : l'événement NOMMÉ, sans dé,
+                                // sans délai propre ni conditions, et SANS toucher aux compteurs du jour (un
+                                // essai ne doit pas consommer le plafond du jeu réel). Les garde-fous
+                                // ci-dessus restent, et un dégât est revérifié à l'application (règle 2).
+                                if (force.isNotEmpty) {
+                                    if (catalog.get(force) is! Dvidle) return null;
+                                    return _evtBuild(catalog, force);
+                                }
 
                                 final today   = _evtToday();
                                 final sameDay = me.get("events.day")?.toString() == today;
@@ -726,6 +736,46 @@ extension Worker_events on worker {
                                     }
                                     await _refreshRoster(clanId, clanSecret, region);
                                 }
+    }
+
+    // Banc d'essai (touche « E », worker_testkeys) : met en scène l'événement `id` par le chemin du
+    // tirage (_evtAt), sans dé. Les mises en scène du roster ne vivent que sur l'écran du clan, celles
+    // à message que sur un écran qui porte l'overlay (page_taskbar). Renvoie null si l'événement est
+    // parti, sinon la raison du refus (affichée telle quelle).
+    Future<String?> _evtForce(String id) async {
+
+                                final catalog = await _evtCatalog();
+                                if (catalog == null || catalog.get(id) is! Dvidle) return "absent du catalogue";
+                                final moment = catalog.get("$id.moment")?.toString() ?? "";
+                                final scene  = catalog.get("$id.scene")?.toString()  ?? "";
+                                final roster = _kEvtRosterScenes.contains(scene);
+                                if (_evtRolling) return "un tirage est déjà en cours";
+                                if (roster && DvOrb.get_current_page()?.dvid != "clan_page") return "ouvrir l'écran du clan";
+                                if (!roster && DvOrb.get_shape_by_id("commons/evt_ok") == null) return "écran sans overlay d'événement";
+                                if (_evtOnOk != null
+                                    && DvOrb.get_shape_by_id("commons/evt_ok")?.get("shape.visible") == true) {
+                                    return "un message attend son OK";
+                                }
+                                // Un intrus encore dans la liste s'en va : un seul événement de roster à la fois.
+                                _evtActive = null;
+
+                                final posed = await _evtAt(moment, waitIdle: !roster, force: id);
+                                if (roster) {
+                                    if (!posed) return "refusé par le moteur (voir le journal)";
+                                    final ev = _evtActive;
+                                    if (ev != null && ev["scene"] == "fake_member") {
+                                        ev["name_text"] = await _fairyTr(ev["name"]?.toString() ?? "");
+                                    }
+                                    final ctx = await _butinCtx();
+                                    if (ctx != null) {
+                                        await _refreshRoster(ctx.get("clanId").toString(),
+                                            ctx.get("clanSecret").toString(), ctx.get("region").toString());
+                                    }
+                                    // Le changelin renonce de lui-même sans autre membre à imiter.
+                                    return _evtActive == null ? "aucun membre à imiter" : null;
+                                }
+                                if (scene == "item") return null;        // appliqué puis annoncé par _evtAt
+                                return _evtOnOk != null ? null : "refusé par le moteur (voir le journal)";
     }
 
     // -----------------------------------------------------------------------

@@ -442,8 +442,10 @@ extension Worker_combat on worker {
                                                       "status": "validating"}));
                                     // Prévenir les admins du clan (notif à 3 boutons) qu'une validation est demandée.
                                     final requesterName = (await Deva.instance.get("session.user.name"))?.toString() ?? "";
+                                    // Nom vide : _notifyAdmins pose le repli (notif_someone_player) dans la
+                                    // langue de chaque chef destinataire.
                                     await _notifyAdmins(clanId, clanSecret, region, taskId, _userId,
-                                        requesterName.isNotEmpty ? requesterName : "Un joueur");
+                                        requesterName);
                                     // Le verdict admin n'est pas synchronisé en temps réel → on poll Firestore
                                     // (backoff Fibonacci) jusqu'à ce que la tâche ne soit plus "validating".
                                     _startValidationPolling(clanId, clanSecret, region, taskId);

@@ -1,0 +1,452 @@
+# Maquette de la boutique générique (dvshop) : TOUT l'écran sort de ce fichier.
+# Modifier puis relancer main.py. Schéma = celui proposé pour le layer bucket `shop-global.yml`.
+shop:
+  version: 1
+  title: "Boutique"
+
+  # Tags du spectateur. En vrai : règles sur des données que le serveur relit aussi.
+  # Dans la maquette, ils se cochent dans le panneau de simulation.
+  tags:
+    chef:     { doc: "clans/{group}", field: admins, contains: "{user}", label: "Chef de clan" }
+    guerrier: { doc: "clans_players/{group}/players/{user}", field: class, equals: guerrier, label: "Guerrier" }
+    assassin: { doc: "clans_players/{group}/players/{user}", field: class, equals: assassin, label: "Assassin" }
+    veteran:  { doc: "clans_players/{group}/players/{user}", field: level, gte: 10, label: "Vétéran (niv. 10+)" }
+
+  currencies:
+    gold: { label: "or", symbol: "🪙", doc: "clans_players/{group}/players/{user}", field: gold }
+
+  display:
+    min_advantage: 0.05        # en dessous, l'avantage n'est pas affiché
+    min_discount: 0.05
+    confirm_seconds: 4         # durée de l'état « Confirmer ? » de la carte
+    columns: 3
+    highlight_height: 310
+
+  # Habillage : la boutique suit le thème ACTIF du clan (toggle_group `theme`).
+  # Un thème sans habillage (Noël, Pirates…) retombe sur `fallback`.
+  # Couleurs : "#RRGGBB" ou "#AARRGGBB" (alpha devant, convention Flutter).
+  fonts:
+    MedievalSharp: fonts/MedievalSharp-Regular.ttf
+  looks:
+    fallback: donjon
+    donjon:
+      item: theme-donjon
+      mode: dark
+      title_font: MedievalSharp
+      background: "#141210"
+      card: "#211c15"
+      card_locked: "#191510"
+      card_border: "#5a4a2a"
+      card_radius: 6
+      square: "#2f6fe0"          # carré bleu = image de l'item (maquette)
+      accent: "#C8A84B"
+      on_accent: "#1a1a1a"
+      text: "#f1e6c8"
+      text_dim: "#99864E"
+      chip_bg: "#2a241a"
+      price_bg: "#2a241a"
+      price_fg: "#D4AF37"
+      owned_bg: "#1f2a18"
+      owned_fg: "#a9d18e"
+      activate_bg: "#B07328"
+      activate_fg: "#ffffff"
+      disabled_bg: "#1c1915"
+      panel_gradient: ["#4a3418", "#140f0a"]
+      panel_border: "#C8A84B"
+      panel_title: "#D4AF37"
+      panel_subtitle: "#d8c9a0"
+      caption_bg: "#B3000000"
+      overlay_icon: "#CCFFFFFF"
+      arrows: "#CCD4AF37"
+      dots_off: "#5599864E"
+      sim_bg: "#0c0b09"
+      sim_border: "#66C8A84B"
+      error: "#CC4444"
+      hub:
+        background: img/donjon/splash.png
+        merchant: img/donjon/marchand.png
+        merchant_ring: "#B07328"
+        sign_bg: "#99864E"
+        sign_border: "#B07328"
+        sign_fg: "#000000"
+        sign_radius: 6
+        tile_bg: "#CC141210"
+        tile_border: "#C8A84B"
+        tile_title: "#D4AF37"
+        tile_text: "#d8c9a0"
+        appbar_bg: "#000000"
+        appbar_fg: "#C8A84B"
+        taskbar_bg: "#000000"
+        taskbar_fg: "#C8A84B"
+        taskbar_center: "#1a1a1a"
+        giftwrap: ["#B11226", "#7a0c1a"]
+        ribbon: "#D4AF37"
+      flag_colors:
+        popular: "#B11226"
+        new: "#3F7A3A"
+        discount: "#B07328"
+        advantage: "#6b4fa0"
+        timer: "#CC4444"
+    dino:
+      item: theme-dino
+      mode: light
+      title_font: null
+      background: "#F6EBD3"
+      card: "#FFF8EC"
+      card_locked: "#EFE3CB"
+      card_border: "#E3CFAE"
+      card_radius: 18
+      square: "#2f6fe0"
+      accent: "#6DAA4C"
+      on_accent: "#ffffff"
+      text: "#5A3E2B"
+      text_dim: "#8A6F55"
+      chip_bg: "#E3CFAE"
+      price_bg: "#F6EBD3"
+      price_fg: "#3F7A3A"
+      owned_bg: "#E4F0D8"
+      owned_fg: "#3F7A3A"
+      activate_bg: "#6DAA4C"
+      activate_fg: "#ffffff"
+      disabled_bg: "#EFE3CB"
+      panel_gradient: ["#A9D18E", "#3F7A3A"]
+      panel_border: "#E3CFAE"
+      panel_title: "#FFF8EC"
+      panel_subtitle: "#F6EBD3"
+      caption_bg: "#995A3E2B"
+      overlay_icon: "#E6FFFFFF"
+      arrows: "#E6FFF8EC"
+      dots_off: "#555A3E2B"
+      sim_bg: "#FFF8EC"
+      sim_border: "#E3CFAE"
+      error: "#C24F38"
+      hub:
+        background: img/dino/splash.png
+        merchant: img/dino/marchand.png
+        merchant_ring: "#8A6F55"
+        sign_bg: "#6DAA4C"
+        sign_border: "#3F7A3A"
+        sign_fg: "#FFFFFF"
+        sign_radius: 14
+        tile_bg: "#D9FFF8EC"
+        tile_border: "#E3CFAE"
+        tile_title: "#5A3E2B"
+        tile_text: "#8A6F55"
+        appbar_bg: "#00000000"
+        appbar_fg: "#5A3E2B"
+        taskbar_bg: "#F6EBD3"
+        taskbar_fg: "#8A6F55"
+        taskbar_center: "#6DAA4C"
+        giftwrap: ["#E07A5F", "#C24F38"]
+        ribbon: "#FFF8EC"
+      flag_colors:
+        popular: "#E07A5F"
+        new: "#3F7A3A"
+        discount: "#D9823B"
+        advantage: "#7a5cbf"
+        timer: "#C24F38"
+
+  # Page d'entrée : l'écran Boutique actuel de ddust (fond du thème, échoppe du
+  # marchand, enseigne), dont le corps devient une grille de tuiles. Une tuile
+  # mène à une boutique, au code cadeau ou à l'abonnement. Plus de kebab.
+  hub:
+    title: "Boutique"
+    sign: "La boutique du Loup Gris"
+    # Comme l'app : aucune tuile visible → `empty` ; une boutique SANS ITEM visible garde
+    # sa tuile, qui ne dit que `soon` (ni titre ni sous-titre, petites cartes translucides).
+    empty: "Bientôt"
+    soon: "Bientôt"
+    tiles:
+      - { id: t_themes,  kind: shop, shop: themes, label: "Thèmes",             subtitle: "Habille ton clan",
+          art: vitrine, tags: [chef] }
+      - { id: t_achats,  kind: shop, shop: achats, label: "Extensions & packs", subtitle: "Nouveautés et contenus",
+          art: stack, tags: [chef] }
+      - { id: t_objets,  kind: shop, shop: objets, label: "Échoppe d'objets",   subtitle: "Potions et objets du jeu",
+          art: row, span: 2 }
+      - { id: t_cadeau,  kind: giftcode,     label: "Code cadeau",    subtitle: "Un cadeau à ouvrir ?",
+          art: giftwrap, tags: [chef] }
+      - { id: t_abo,     kind: subscription, label: "Mon abonnement", subtitle: "Clan · 3 à 4 joueurs",
+          art: crown, tags: [chef] }
+    badges: [free, new, discount, advantage]     # pastilles calculées sur le contenu de chaque boutique
+    taskbar: [Boutique, Clan, Au ménage !, Moi, Items]
+
+  # Plusieurs boutiques = plusieurs VUES d'un même catalogue (même table, mêmes règles).
+  shops:
+    themes:
+      title: "Thèmes"
+      sections: [themes, mascottes]
+      highlights: [hl_pirates, hl_noel]
+      selectors:
+        - { id: all,       label: "Tout",      sections: "*" }
+        - { id: themes,    label: "Thèmes",    sections: [themes] }
+        - { id: mascottes, label: "Mascottes", sections: [mascottes] }
+    achats:
+      title: "Extensions & packs"
+      sections: [offres, extensions, packs, gratuits]
+      highlights: [hl_aventure]
+      selectors:
+        - { id: all,        label: "Tout",       sections: "*" }
+        - { id: extensions, label: "Extensions", sections: [extensions] }
+        - { id: packs,      label: "Packs",      sections: [packs, offres] }
+        - { id: gratuits,   label: "Cadeaux",    sections: [gratuits] }
+    objets:
+      title: "Échoppe d'objets"
+      sections: [objets, armurerie]
+      highlights: [hl_potions]
+      currency: gold                      # seule boutique qui montre la réserve d'or
+      selectors:
+        - { id: all,       label: "Tout",      sections: "*" }
+        - { id: objets,    label: "Potions & co", sections: [objets] }
+        - { id: armurerie, label: "Armurerie", sections: [armurerie] }
+
+  # `layout` : grid (cartes en grille) | showcase (grandes vitrines pleine largeur).
+  sections:
+    - { id: offres,     rank: 5,  label: "Offres groupées",  tags: [chef], visibility: hidden }
+    - { id: extensions, rank: 10, label: "Extensions",       tags: [chef], visibility: hidden }
+    - { id: packs,      rank: 20, label: "Packs de contenu", tags: [chef], visibility: hidden }
+    - { id: gratuits,   rank: 25, label: "Cadeaux",          tags: [chef], visibility: hidden }
+    - { id: themes,     rank: 30, label: "Thèmes",           tags: [chef], visibility: hidden, layout: showcase }
+    - { id: mascottes,  rank: 40, label: "Mascottes",        tags: [chef], visibility: hidden }
+    - { id: objets,     rank: 50, label: "Potions & co" }
+    - { id: armurerie,  rank: 60, label: "Armurerie de classe" }
+
+  highlights:
+    - id: hl_pirates
+      rank: 1
+      title: "À l'abordage !"
+      subtitle: "Thème Pirates : prix de lancement"
+      items: [theme-pirates]
+      until: "2026-10-20T00:00"            # compte à rebours affiché
+      tags: [chef]
+    - id: hl_aventure
+      rank: 2
+      title: "Pack aventure"
+      subtitle: "Loots + Quêtes I + Potions I"
+      items: [pack-aventure, loots, quetes-1, potions-1]
+      tags: [chef]
+    - id: hl_noel
+      rank: 3
+      title: "Ho ho ho !"
+      subtitle: "Le thème de Noël est offert"
+      items: [theme-noel]
+      tags: [chef]
+    - id: hl_potions
+      rank: 4
+      title: "Réserve de potions"
+      subtitle: "Plus on en prend, moins c'est cher"
+      items: [potion-soin-x10, potion-soin, elixir-pv]
+
+  items:
+    # ---------- Offres groupées ----------
+    pack-aventure:
+      section: offres
+      rank: 1
+      label: "Pack aventure"
+      price: { kind: play, product: ddust_pack_aventure,
+               compare_to: [ddust_butin, ddust_quetes_1, ddust_potions_1] }
+      policy: once
+      scope: group
+      grants: [loots, quetes-1, potions-1]
+      tags_none: ["owns:loots", "owns:quetes-1", "owns:potions-1"]   # disparaît si un morceau est déjà pris
+      after_purchase: vanish
+      flags: [popular]
+
+    # ---------- Extensions ----------
+    loots:
+      section: extensions
+      rank: 1
+      label: "Loots"
+      subtitle: "Or, butin, boutique des héros"
+      price: { kind: play, product: ddust_butin }
+      policy: once
+      scope: group
+      after_purchase: owned
+      flags: [popular]
+    classes:
+      section: extensions
+      rank: 2
+      label: "Classes"
+      subtitle: "En costard"
+      price: { kind: play, product: ddust_classes }
+      policy: once
+      scope: group
+      after_purchase: owned
+      flags: [new]
+    validations:
+      section: extensions
+      rank: 3
+      label: "Validations auto"
+      price: { kind: play, product: ddust_validations }
+      policy: once
+      scope: group
+      after_purchase: owned
+    routine:
+      section: extensions
+      rank: 4
+      label: "Routine"
+      price: { kind: play, product: ddust_routine }
+      policy: once
+      scope: group
+      after_purchase: owned
+    devoirs:
+      section: extensions
+      rank: 5
+      label: "Devoirs faits"
+      price: { kind: play, product: ddust_devoirs }
+      policy: once
+      scope: group
+      after_purchase: owned
+    bricolage:
+      section: extensions
+      rank: 6
+      label: "Bricolage"
+      subtitle: "Mc Gyver"
+      price: { kind: play, product: ddust_bricolage }
+      policy: once
+      scope: group
+      after_purchase: owned
+
+    # ---------- Packs de contenu (chaînés) ----------
+    quetes-1:   { section: packs, rank: 1, label: "Quêtes I",   price: { kind: play, product: ddust_quetes_1 },
+                  policy: once, scope: group, after_purchase: owned }
+    quetes-2:   { section: packs, rank: 2, label: "Quêtes II",  price: { kind: play, product: ddust_quetes_2 },
+                  policy: once, scope: group, after_purchase: owned,
+                  requires: [quetes-1], requires_reason: "Après Quêtes I" }
+    quetes-3:   { section: packs, rank: 3, label: "Quêtes III", price: { kind: play, product: ddust_quetes_3 },
+                  policy: once, scope: group, after_purchase: owned,
+                  requires: [quetes-2], requires_reason: "Après Quêtes II" }
+    potions-1:  { section: packs, rank: 4, label: "Potions I",   price: { kind: play, product: ddust_potions_1 },
+                  policy: once, scope: group, after_purchase: owned }
+    potions-2:  { section: packs, rank: 5, label: "Potions II",  price: { kind: play, product: ddust_potions_2 },
+                  policy: once, scope: group, after_purchase: owned,
+                  requires: [potions-1], requires_reason: "Après Potions I" }
+    potions-3:  { section: packs, rank: 6, label: "Potions III", subtitle: "blurp",
+                  price: { kind: play, product: ddust_potions_3 },
+                  policy: once, scope: group, after_purchase: owned,
+                  requires: [potions-2], requires_reason: "Après Potions II" }
+
+    # ---------- Cadeaux (gratuits, disparaissent une fois pris) ----------
+    defis:    { section: gratuits, rank: 1, label: "Défis", subtitle: "fantastiques",
+                price: { kind: free }, policy: once, scope: group, after_purchase: vanish, flags: [new] }
+    minijeux: { section: gratuits, rank: 2, label: "Minijeux", subtitle: "maxifun",
+                price: { kind: free }, policy: once, scope: group, after_purchase: vanish }
+
+    # ---------- Thèmes (un actif par clan) ----------
+    theme-donjon:
+      { section: themes, rank: 1, label: "Donjon", price: { kind: free }, default: true,
+        image: img/theme_vitrine_donjon.png,
+        toggle_group: theme, toggle_default: true, policy: once, scope: group, after_purchase: owned }
+    theme-dino:
+      { section: themes, rank: 2, label: "Gentils dinosaures", price: { kind: free }, default: true,
+        image: img/theme_vitrine_dino.png,
+        toggle_group: theme, policy: once, scope: group, after_purchase: owned }
+    theme-noel:
+      { section: themes, rank: 3, label: "Noël", subtitle: "Ho ho ho !", price: { kind: free },
+        toggle_group: theme, policy: once, scope: group, after_purchase: owned, flags: [new] }
+    theme-pirates:
+      { section: themes, rank: 4, label: "Pirates", subtitle: "À l'abordage !",
+        price: { kind: play, product: ddust_theme_pirates_lancement, compare_to: ddust_theme_pirates },
+        toggle_group: theme, policy: once, scope: group, after_purchase: owned }
+    theme-casanostra:
+      { section: themes, rank: 5, label: "Casa Nostra", subtitle: "Bienvenue dans la mafia",
+        price: { kind: play, product: ddust_theme_casanostra },
+        toggle_group: theme, policy: once, scope: group, after_purchase: owned }
+    theme-starsweep:
+      { section: themes, rank: 6, label: "Starsweep", subtitle: "Que le ménage soit avec toi",
+        price: { kind: play, product: ddust_theme_starsweep },
+        toggle_group: theme, policy: once, scope: group, after_purchase: owned }
+
+    # ---------- Mascottes (une active par clan) ----------
+    mascot-dragon:  { section: mascottes, rank: 1, label: "Vermi le dragon", price: { kind: free }, default: true,
+                      toggle_group: mascot, toggle_default: true, policy: once, scope: group, after_purchase: owned }
+    mascot-diplo:   { section: mascottes, rank: 2, label: "Diplo", price: { kind: free }, default: true,
+                      toggle_group: mascot, policy: once, scope: group, after_purchase: owned }
+    mascot-phoenix: { section: mascottes, rank: 3, label: "Iggy le phénix", price: { kind: free },
+                      toggle_group: mascot, policy: once, scope: group, after_purchase: owned }
+    mascot-trixie:  { section: mascottes, rank: 4, label: "Trixie", price: { kind: free },
+                      toggle_group: mascot, policy: once, scope: group, after_purchase: owned,
+                      requires: [theme-dino], requires_reason: "Avec le thème dinosaures" }
+
+    # ---------- Objets payés en or (extension loots, visibles par tous) ----------
+    potion-soin:
+      { section: objets, rank: 1, label: "Potion de soin", unit_of: potion-soin, quantity: 1,
+        price: { kind: gold, amount: 50 }, policy: rebuy, scope: owner, after_purchase: vanish,
+        requires: [loots], requires_reason: "Extension Loots" }
+    potion-soin-x10:
+      { section: objets, rank: 2, label: "Potions de soin", unit_of: potion-soin, quantity: 10,
+        price: { kind: gold, amount: 400 }, policy: rebuy, scope: owner, after_purchase: vanish,
+        requires: [loots], requires_reason: "Extension Loots", flags: [popular] }
+    elixir-pv:
+      { section: objets, rank: 3, label: "Élixir de PV",
+        price: { kind: gold, amount: 120, compare_to: { amount: 150 } }, policy: rebuy, scope: owner,
+        after_purchase: vanish, requires: [loots], requires_reason: "Extension Loots" }
+    eponge:
+      { section: objets, rank: 4, label: "Éponge légendaire +3",
+        price: { kind: gold, amount: 200 }, policy: "cooldown:P7D", scope: owner, after_purchase: owned,
+        requires: [loots], requires_reason: "Extension Loots" }
+    parchemin:
+      { section: objets, rank: 5, label: "Parchemin « Je range demain »",
+        price: { kind: gold, amount: 80 }, policy: "period:P1M", scope: owner, after_purchase: owned,
+        requires: [loots], requires_reason: "Extension Loots" }
+    invisibilite:
+      { section: objets, rank: 6, label: "Invisibilité devant la vaisselle",
+        price: { kind: gold, amount: 150 }, policy: rebuy, expiry: PT24H, scope: owner,
+        after_purchase: owned, requires: [loots], requires_reason: "Extension Loots", flags: [popular] }
+    pack-debutant:
+      { section: objets, rank: 7, label: "Pack débutant", quantity: 3, unit_of: potion-soin,
+        price: { kind: gold, amount: 90 }, policy: once, scope: owner, after_purchase: vanish,
+        tags_none: [veteran], requires: [loots], requires_reason: "Extension Loots" }
+
+    # ---------- Armurerie de classe ----------
+    chaussettes-assassin:
+      { section: armurerie, rank: 1, label: "Chaussettes de l'assassin", subtitle: "Pas un bruit",
+        price: { kind: gold, amount: 300 }, policy: once, scope: owner, after_purchase: owned,
+        tags: [assassin], requires: [loots], requires_reason: "Extension Loots" }
+    poison:
+      { section: armurerie, rank: 2, label: "Fiole de poison", subtitle: "Pas pour la soupe",
+        price: { kind: gold, amount: 75 }, policy: rebuy, scope: owner, after_purchase: vanish,
+        tags: [assassin], requires: [loots, classes], requires_reason: "Loots + Classes" }
+    marteau-chef:
+      { section: armurerie, rank: 3, label: "Marteau de guerre du chef",
+        price: { kind: gold, amount: 900 }, policy: once, scope: owner, after_purchase: owned,
+        tags: [chef, guerrier], requires: [loots, classes], requires_reason: "Loots + Classes", flags: [new] }
+    bouclier-commun:
+      { section: armurerie, rank: 4, label: "Bouclier en couvercle",
+        price: { kind: gold, amount: 120 }, policy: once, scope: owner, after_purchase: owned,
+        tags_any: [guerrier, assassin], requires: [loots], requires_reason: "Extension Loots" }
+
+# ----------------------------------------------------------------------------
+# SIMULATION (hors conf réelle) : ce que Play et la base fourniraient.
+simulation:
+  now: "2026-10-13T20:00"
+  user: "u_moi"
+  group: "clan_secret_42"
+  gold: 600
+  tags: [chef]
+  market: FR
+  markets:
+    FR: { currency: eur, fmt: "{v} €",   decimal: "," }
+    US: { currency: usd, fmt: "US$ {v}", decimal: "." }
+    BR: { currency: brl, fmt: "R$ {v}",  decimal: "," }
+    UK: { currency: gbp, fmt: "£{v}",    decimal: "." }
+    CH: { currency: chf, fmt: "CHF {v}", decimal: "." }
+  # Prix localisés « renvoyés par Play » (repris de build.yml store.catalog).
+  play_prices:
+    ddust_validations:     { eur: 1.99, usd: 2.99,  brl: 7.90,  gbp: 1.99, chf: 2.90 }
+    ddust_quetes_1:        { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_quetes_2:        { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_quetes_3:        { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_potions_1:       { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_potions_2:       { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_potions_3:       { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_routine:         { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_devoirs:         { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_bricolage:       { eur: 3.99, usd: 5.99,  brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_butin:           { eur: 7.99, usd: 11.49, brl: 31.90, gbp: 7.49, chf: 11.50 }
+    ddust_classes:         { eur: 6.99, usd: 9.99,  brl: 27.90, gbp: 6.49, chf: 9.90 }
+    ddust_theme_pirates:   { eur: 5.99, usd: 8.49,  brl: 23.90, gbp: 5.49, chf: 8.50 }
+    ddust_theme_casanostra: { eur: 5.99, usd: 8.49, brl: 23.90, gbp: 5.49, chf: 8.50 }
+    ddust_theme_starsweep: { eur: 5.99, usd: 8.49,  brl: 23.90, gbp: 5.49, chf: 8.50 }
+    # SKU inventés pour la maquette
+    ddust_theme_pirates_lancement: { eur: 3.99, usd: 5.99, brl: 15.90, gbp: 3.49, chf: 5.50 }
+    ddust_pack_aventure:   { eur: 11.99, usd: 16.99, brl: 45.90, gbp: 10.99, chf: 16.50 }

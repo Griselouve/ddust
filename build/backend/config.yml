@@ -512,24 +512,29 @@ conf:
               allow get: if request.auth != null
                 && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId;
               allow create, update, delete: if false;
-          # Ce que le clan POSSÈDE : thèmes, packs, extensions. Un document par item,
-          # doc-id = identifiant de l'item (`theme-donjon`, `theme-x`…).
+          # LA BOUTIQUE DU CLAN (dvshop) : doc-id = clanId. PROJECTION écrite par le
+          # callable `shop` (pustore) — ce dont le clan bénéficie : `items` (possessions du
+          # clan), `users.<userId>` (possessions personnelles), `active` (thème, mascotte
+          # actifs), `pending` (achats en or en cours), `rev`, `changed_at/_by`, ownerId
+          # (clanSecret). Les ACQUISITIONS elles-mêmes, avec leur preuve, vivent dans la base
+          # `store` (`shop_records`), personnelles.
           #
-          # Champs : id, type (theme|pack|extension), name, acquired_at, expires_at (fin
-          # de vie d'un item éphémère, null sinon), enabled (ON/OFF ; pour un thème : le
-          # thème actif du clan, un seul à la fois), source (default|purchase|gift…),
-          # ownerId (clanSecret, recopié par la fonction), updated_at.
+          # C'est le document qu'écoute chaque membre (dvshop) pour basculer EN DIRECT quand
+          # un chef change le thème. Remplace `clans_owned` (retiré le 2026-10-14 ; la
+          # fonction `shop` en reprend une fois l'état actif, cf. SHOP_MIGRATE).
           #
-          # Même modèle que `clans_store`, pour la même raison : un client capable d'écrire
-          # ici s'offrirait n'importe quel thème. LECTURE pour les membres, ÉCRITURE par
-          # le SDK Admin seul, via la fonction `clan_owned` (y compris pour changer de
-          # thème actif : elle vérifie la possession et le rôle de chef).
-          clans_owned/{clanId}/items:
+          # Même modèle que `clans_store` : LECTURE pour les membres de CE clan, ÉCRITURE par
+          # le SDK Admin seul — un client capable d'écrire ici s'offrirait n'importe quel
+          # thème. Sur un document absent, il suffit d'être membre (un « introuvable »
+          # propre plutôt qu'un 403 à chaque relecture de la vigilance).
+          clans_shop:
             rule: |
+              allow list: if false;
               allow get: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret == resource.data.ownerId;
-              allow list: if request.auth != null
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[clanId].clanSecret != null;
+                && ((resource == null
+                     && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret != null)
+                 || (resource != null
+                     && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId));
               allow create, update, delete: if false;
           # Invitation ouverte par un chef : doc-id = lobbyId (généré par le chef lui-même,
           # AVANT `virtuallobby.create_management`). Champs : ownerId (UID Firebase du chef
@@ -774,19 +779,38 @@ conf:
     # Une racine par jeu d'assets. "general" porte ce qui ne dépend d'aucun thème
     # (structure des tâches, arbre de décision, prompts) ; "donjon" porte la saveur
     # (images, sons, musiques, vidéos, traductions et layers de thème).
-    # "x" est le thème de test (clone barré de donjon), téléchargé seulement par un
-    # clan qui l'active.
+    # "dino" est le thème « gentils dinosaures », téléchargé seulement par un clan qui l'active
+    # (le thème de test "x" est retiré depuis le 2026-10-13). "mascot_phoenix" est le
+    # mini-thème de la mascotte phénix (dvtheme.switchMini), indépendant du thème.
     directories:
       - "general"
       - "donjon"
-      - "x"
+      - "mascot_phoenix"
+      # Thème « gentils dinosaures » et sa mascotte (2026-10-12).
+      - "dino"
+      - "mascot_diplo"
+      # Trixie, la bébé tricératops (2026-10-13) : mini-thème rattaché à aucun thème.
+      - "mascot_trixie"
+      # ⚠ Une racine de `manifests` DOIT figurer ici aussi : seuls ces répertoires sont
+      #   envoyés au bucket. Absente, son manifeste est publié VIDE et le client prend un 404
+      #   (vécu le 2026-10-12 avec les thèmes intermédiaires).
+      - "donjon_transition"
+      - "dino_transition"
     # Un assets.yml par racine : le client ne charge que les thèmes qu'il utilise.
     # Un thème absent d'ici n'est ni indexé ni purgé, ajouter une racine ne met
     # jamais en danger les fichiers d'un thème livré séparément.
     manifests:
       - "general"
       - "donjon"
-      - "x"
+      - "dino"
+      # Mini-thèmes (dvtheme.switchMini) : une racine par mini qui porte ses propres images.
+      - "mascot_phoenix"
+      - "mascot_diplo"
+      - "mascot_trixie"
+      # Thèmes intermédiaires (transition de thème, dvtheme) : interlude + scène seulement.
+      # Le thème X joue celle de donjon.
+      - "donjon_transition"
+      - "dino_transition"
     pointers:
       general/prompts/prompts.yml: "general/prompts/prompts_General_V1.yml"
       donjon/images/splash-pirate.png: "donjon/images/splashs/pirates/splash.png"
@@ -796,7 +820,8 @@ conf:
       donjon/music/ambiant4.mp3: "donjon/music/Ambiant4_General_V1.mp3"
       donjon/music/ambiant_dead.mp3: "donjon/music/AmbiantDead_General_V1.mp3"
       donjon/music/win.mp3: "donjon/music/Win_General_V1.mp3"
-      donjon/music/fairy.mp3: "donjon/music/Fairy_General_V1.mp3"
+      # La fée est commune à tous les thèmes : sa musique vit dans la racine general.
+      general/music/fairy.mp3: "general/music/Fairy_General_V1.mp3"
 
   aimodel:
     enabled: true
@@ -1140,6 +1165,29 @@ conf:
           # une famille qui reçoit deux cadeaux n'est jamais bloquée.
           CLAIM_MAX_ATTEMPTS: "5"
           CLAIM_WINDOW_HOURS: "24"
+
+      # La BOUTIQUE (dvshop) : un callable, trois opérations (sync | buy | toggle).
+      # Le catalogue vient du build.yml de la suite (`shop.catalog`), en JSON : le
+      # serveur refait la règle que l'écran a affichée, sans jamais en avoir une autre.
+      # Les droits du clan sont projetés dans `workers/clans_shop/{clanId}`.
+      shop:
+        environment:
+          SCOPE_DATABASE: "workers"
+          SCOPE_COLLECTION: "clans"
+          SCOPE_SECRET_FIELD: "ownerId"
+          IDENTITY_COLLECTION: "userindexes"
+          IDENTITY_FIELD: "userId"
+          PROJECTION_DATABASE: "workers"
+          PROJECTION_COLLECTION: "clans_store"
+          SHOP_PROJECTION_DATABASE: "workers"
+          SHOP_PROJECTION_COLLECTION: "clans_shop"
+          SHOP_CATALOG: "@@@C:shop.catalog@@@"
+          SHOP_TZ: "Europe/Paris"
+          # Reprise UNIQUE du thème actif de l'ancienne table `clans_owned` (retirée le
+          # 2026-10-14). Lue seulement quand la projection du clan n'existe pas encore :
+          # à retirer une fois tous les clans passés. Pas la mascotte : aucune ne se vend
+          # pour l'instant, chaque thème apporte la sienne.
+          SHOP_MIGRATE: '{"database":"workers","collection":"clans_owned","active":{"theme":"active_theme"}}'
 
       # Fabrication des codes. MÊME allowlist que store_grant (`store.admins`),
       # volontairement : offrir des mois et fabriquer de quoi en offrir sont le même
@@ -1664,7 +1712,9 @@ conf:
           }
 
           const CLAN_COLLECTIONS = ['clans_tasks', 'clans_items', 'clans_logs', 'clans_chest_history',
-                                    'clans_players', 'clans_store', 'clans_pulse', 'clans_owned'];
+                                    'clans_players', 'clans_store', 'clans_pulse', 'clans_owned', 'clans_shop'];
+          // `clans_owned` : table retirée le 2026-10-14, gardée ici pour que ses restes suivent
+          // le clan (la fonction `shop` y relit une fois l'état actif) et soient purgés au départ.
 
           // La région de production d'un pays (`COUNTRY_REGIONS`, ex. "FR:eu"). La même table
           // que le catalogue des marchés du client (documents.regions_catalog) : à garder
@@ -1791,6 +1841,14 @@ conf:
                 }
                 await wsx.close();
 
+                // La boutique (dvshop) : les acquisitions du clan, avec leur preuve. Copiées
+                // TELLES QUELLES ; une acquisition Play dont le produit n'a pas suivi (achat
+                // simulé vers la production) est révoquée au premier `sync` à l'arrivée.
+                const wsh = dstS.bulkWriter();
+                const shq = await srcS.collection('shop_records').where('scope_id', '==', clanId).get();
+                for (const x of shq.docs) wsh.set(dstS.collection('shop_records').doc(x.id), x.data() || {});
+                await wsh.close();
+
                 // Les appareils des membres, sinon plus aucune relance à l'arrivée.
                 const wm = dstM.bulkWriter();
                 for (const part of chunks(uids, 30)) {
@@ -1833,6 +1891,8 @@ conf:
                   const q = await srcS.collection(coll).where('scope', '==', clanId).get();
                   for (const x of q.docs) await x.ref.delete();
                 }
+                const shd = await srcS.collection('shop_records').where('scope_id', '==', clanId).get();
+                for (const x of shd.docs) await x.ref.delete();
                 for (const part of chunks(uids, 30)) {
                   const q = await srcM.collection('msgregistry').where('ownerId', 'in', part).get();
                   for (const x of q.docs) await x.ref.delete();
@@ -1876,120 +1936,6 @@ conf:
             }
           });
 
-      # Possessions du clan (`clans_owned/{clanId}/items`) : seule porte d'écriture de
-      # cette table, fermée au client par les règles. Deux opérations :
-      #   sync   : tout membre ; pose les items par défaut manquants et active le thème
-      #            par défaut si aucun thème ne l'est. Idempotente.
-      #   enable : chefs seulement ; active un THÈME possédé et non périmé, éteint les
-      #            autres, en une transaction (jamais deux thèmes actifs).
-      # Rend toujours HTTP 200 avec un `status` (ok|bad_request|not_found|forbidden|
-      # not_chief|not_owned|bad_type|expired) et, si ok, la liste des items (sans ownerId).
-      #
-      # ⚠ DEFAULT_ITEMS EST LE RÉGLAGE DU TEST : tous les clans possèdent donjon et X.
-      #   Le jour où un thème s'achète, il sortira d'ici et sera posé par le circuit
-      #   d'achat (source: purchase).
-      clan_owned:
-        entry_point: clanOwned
-        trigger: callable
-        memory: 256
-        service_account: backend
-        timeout: 30
-        code: |
-          import { onCall, HttpsError } from 'firebase-functions/v2/https';
-          import * as admin from 'firebase-admin';
-          import { getFirestore } from 'firebase-admin/firestore';
-          admin.initializeApp();
-
-          const DEFAULT_ITEMS = [
-            { id: 'theme-donjon', type: 'theme', name: 'Donjon' },
-            { id: 'theme-x',      type: 'theme', name: 'X (test)' },
-          ];
-          const DEFAULT_THEME = 'theme-donjon';
-
-          export const clanOwned = onCall(async (request) => {
-            if (!request.auth) {
-              throw new HttpsError('unauthenticated', 'Authentication required');
-            }
-            const data   = (request.data ?? {}) as Record<string, unknown>;
-            const op     = String(data.op ?? '');
-            const clanId = String(data.clanId ?? '');
-            if (!clanId || (op !== 'sync' && op !== 'enable')) return { status: 'bad_request' };
-
-            // Appartenance : le secret du clan, lu côté serveur, doit être celui que
-            // l'index de l'appelant détient pour CE clan (même garde que ddust_autover).
-            const db   = getFirestore(admin.app(), '@@@region@@@_workers');
-            const clan = await db.collection('clans').doc(clanId).get();
-            if (!clan.exists) return { status: 'not_found' };
-            const c      = clan.data() || {};
-            const secret = String(c.ownerId || '');
-            if (!secret || c.enabled === false) return { status: 'forbidden' };
-            const ix = (await db.collection('userindexes').doc(request.auth.uid).get()).data() || {};
-            if (String(((ix.clans || {})[clanId] || {}).clanSecret || '') !== secret) {
-              return { status: 'forbidden' };
-            }
-
-            const parent = db.collection('clans_owned').doc(clanId);
-            const items  = parent.collection('items');
-            const now    = new Date().toISOString();
-
-            if (op === 'sync') {
-              await db.runTransaction(async (tx) => {
-                const snap    = await tx.get(items);
-                // ⚠ LE PARENT DOIT EXISTER. Sans lui, `clans_owned/{clanId}` est un
-                //   document fantôme : le reset (build.reset) et la migration de région
-                //   (copyTree) qui partent des documents de la collection ne verraient
-                //   jamais ces items.
-                tx.set(parent, { ownerId: secret, updated_at: now }, { merge: true });
-                const have    = new Set(snap.docs.map((d) => d.id));
-                const themeOn = snap.docs.some((d) => {
-                  const v = d.data() || {};
-                  return v.type === 'theme' && v.enabled === true;
-                });
-                for (const it of DEFAULT_ITEMS) {
-                  if (have.has(it.id)) continue;
-                  tx.set(items.doc(it.id), {
-                    ...it, acquired_at: now, expires_at: null,
-                    enabled: !themeOn && it.id === DEFAULT_THEME,
-                    source: 'default', ownerId: secret, updated_at: now,
-                  });
-                }
-                if (!themeOn && have.has(DEFAULT_THEME)) {
-                  tx.update(items.doc(DEFAULT_THEME), { enabled: true, updated_at: now });
-                }
-              });
-            } else {
-              const userId = String(ix.userId || '');
-              const admins = Array.isArray(c.admins) ? c.admins : [];
-              if (!userId || !admins.includes(userId)) return { status: 'not_chief' };
-              const itemId = String(data.item ?? '');
-              const res = await db.runTransaction(async (tx) => {
-                const snap   = await tx.get(items);
-                const target = snap.docs.find((d) => d.id === itemId);
-                if (!target) return 'not_owned';
-                const t = target.data() || {};
-                if (t.type !== 'theme') return 'bad_type';
-                if (t.expires_at && Date.parse(String(t.expires_at)) <= Date.now()) return 'expired';
-                for (const d of snap.docs) {
-                  const v = d.data() || {};
-                  if (v.type !== 'theme') continue;
-                  const on = d.id === itemId;
-                  if (v.enabled !== on) tx.update(d.ref, { enabled: on, updated_at: now });
-                }
-                return 'ok';
-              });
-              if (res !== 'ok') return { status: res };
-            }
-
-            const snap = await items.get();
-            return {
-              status: 'ok',
-              items: snap.docs.map((d) => {
-                const v: Record<string, unknown> = { ...(d.data() || {}) };
-                delete v.ownerId;
-                return v;
-              }),
-            };
-          });
       count_sessions:
         entry_point: countSessions
         trigger: callable

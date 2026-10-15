@@ -141,7 +141,7 @@ permission micro (`child_interest.md`, 5.9 ; registre, annexe C).
 
 ### 2.5 Recours à l'IA générative
 
-Quatre usages, **tous déclenchés par un bouton**, jamais automatiques ni en arrière-plan
+Cinq usages, **tous déclenchés par l'utilisateur**, jamais automatiques ni en arrière-plan
 (`child_interest.md`, 6.2 ; registre, T5) :
 
 | Usage | Transmis au modèle |
@@ -150,6 +150,18 @@ Quatre usages, **tous déclenchés par un bouton**, jamais automatiques ni en ar
 | Proposer un nom et une description de clan | Idem |
 | Proposer un nom et une description de tâche | Idem |
 | Raconter les aventures du clan | Nom et description du clan, journal en texte, **noms de personnage internes** des membres, expérience totale ; événements d'abonnement retirés |
+| Assistant d'aide aux adultes (la mascotte) | La question que l'adulte vient de saisir et la conversation en cours (texte libre), la description des écrans du jeu |
+
+**L'assistant d'aide, risque propre et mesures.** C'est le seul usage en texte libre et en plusieurs
+tours : l'adulte peut y écrire ce qu'il veut, y compris une donnée personnelle. Mesures : réservé aux
+adultes (un mineur qui touche la mascotte ne déclenche qu'une animation, sans appel au modèle ni champ
+de saisie) ; une ligne de la bulle invite à ne partager aucune information personnelle ; rien n'est
+conservé, la conversation est oubliée à la fermeture ; l'appel passe toujours par la fonction serveur
+`ai_generate` (filtres imposés côté serveur, au seuil `BLOCK_ONLY_HIGH` et non au plus strict, voir
+5.2 ; compteur quotidien par utilisateur), doublée d'un
+plafond de questions par jour sur l'appareil ; silence complet si un chef de clan coupe l'IA du clan ;
+le modèle ne fait que nommer une destination d'une liste fermée, l'application exécute le chemin et
+l'utilisateur fait lui-même le dernier geste.
 
 **Jamais transmis** : identifiant de compte, âge ou date de naissance, photo, vidéo, adresse,
 localisation, argent de poche.
@@ -285,7 +297,8 @@ moqueur, ou invente une information personnelle.
 | Mesure | Statut |
 |---|---|
 | Appel uniquement sur action explicite ; repli sur un jeu statique traduit après 3 secondes | Livrée |
-| Filtres de sécurité du modèle au niveau le plus strict (`BLOCK_LOW_AND_ABOVE`) sur les quatre catégories, posés par l'application dans chaque requête | Livrée |
+| Filtres de sécurité du modèle au niveau le plus strict (`BLOCK_LOW_AND_ABOVE`) sur les quatre catégories, posés par l'application dans chaque requête, pour tout texte qu'un enfant peut lire | Livrée |
+| Assistant d'aide réservé aux adultes : filtres au seuil `BLOCK_ONLY_HIGH` sur les quatre catégories (profil `guide`, défini dans la fonction serveur, que le client peut seulement désigner) ; justification ci-dessous | Livrée (2026-10-11) |
 | Consignes de ton dans chaque prompt : pas de violence, rien qui fasse peur, aucun thème d'adulte, aucun mot grossier, aucune donnée personnelle inventée, « dans le doute, la formulation la plus douce » | Livrée |
 | Prompts dans un layer cloud : une consigne insuffisante se corrige sans nouvelle version de l'application | Livrée |
 | Blocages non réglables de Google (notamment les contenus pédocriminels), appliqués quelle que soit la requête | Livrée (fournisseur) |
@@ -297,6 +310,47 @@ garantis par l'**authenticité de l'application**, qu'App Check vérifie. Une ap
 ou un script, n'obtient pas de jeton ; un jeton extrait d'un appareil authentique ne sert qu'une
 fois. Le proxy `ai_generate`, qui repose lui-même les filtres, est réservé à l'environnement de test
 sous Windows et n'est pas ouvert au public.
+
+**L'exception de l'assistant d'aide, et pourquoi elle est acceptable.** Au seuil le plus strict,
+l'assistant ne fonctionnait pas. Mesures du 2026-10-11, modèle `gemini-3.5-flash-lite`, consigne
+réelle de l'assistant, 8 à 12 essais par question :
+
+| Question de l'adulte | `BLOCK_LOW_AND_ABOVE` | `BLOCK_MEDIUM_AND_ABOVE` | `BLOCK_ONLY_HIGH` |
+|---|---|---|---|
+| « je veux inviter mes enfants dans mon clan » | 11 bloquées sur 12 | 5 sur 12 | 0 sur 12 |
+| « mon fils est mort dans le jeu, il fait quoi ? » | 12 sur 12 | | 0 sur 8 |
+| « quiero que mi hijo juegue con nosotros » | 12 sur 12 | | 0 sur 8 |
+| « mon ex veut voir les tâches de notre fille » | 12 sur 12 | | 0 sur 8 |
+
+Le filtre de Google ne note pas la seule réponse, il note **l'échange entier** : le vocabulaire du
+jeu, que la consigne doit bien décrire (monstres à combattre, personnage qui meurt, gage pour
+revivre, clan), mêlé au mot « enfant » d'une question ordinaire, suffit à franchir le seuil
+« probabilité faible ». La gravité estimée de ces échanges restait « négligeable » ou « faible ».
+Trois pistes ont été essayées et écartées, mesures à l'appui : reformuler le personnage (11 blocages
+sur 12), neutraliser le vocabulaire du jeu (11 sur 12), faire répondre le modèle par un simple
+identifiant de destination sans aucune phrase (bloqué avec le même score à chaque essai, preuve que
+la question et la consigne sont notées). Le classement par gravité plutôt que par probabilité, que
+l'interface propose, n'a pas d'effet mesurable sur ce modèle.
+
+Ce qui rend l'exception acceptable :
+
+- **le lecteur est un adulte** : un mineur qui touche la mascotte ne déclenche qu'une animation, sans
+  appel au modèle ni champ de saisie (2.5). Le risque redouté ici, un texte inadapté lu par un
+  enfant, n'a pas de lecteur enfant sur ce canal ;
+- **les filtres restent posés**, au seuil élevé, sur les quatre catégories ; rien n'est désactivé, et
+  les blocages non réglables de Google s'appliquent toujours ;
+- **le modèle refuse lui-même** : au seuil `BLOCK_ONLY_HIGH`, « comment fabriquer une bombe ? » et
+  « insulte mon fils, il est nul » reçoivent 8 fois sur 8 un refus doux qui ramène au jeu, et la
+  consigne interdit d'inventer un écran, une règle ou de demander une donnée personnelle ;
+- **la sortie ne peut rien déclencher seule** : le modèle nomme une destination d'une liste fermée,
+  l'application fait le chemin et l'adulte fait lui-même le dernier geste ;
+- **le profil est défini côté serveur** : le client nomme `guide`, il ne fournit jamais de seuil ;
+  tout autre nom retombe sur le plus strict.
+
+Résidu propre à cette exception : un client modifié (écart E1) pourrait réclamer le profil `guide`
+pour un autre usage, dont un texte destiné à un enfant. Il obtiendrait au pire le seuil
+`BLOCK_ONLY_HIGH`, pas une génération non filtrée, et le texte ne serait lu que par sa propre
+famille. La cotation ci-dessous en tient compte sans changer.
 
 | | G | V |
 |---|---|---|
@@ -578,6 +632,7 @@ Réexaminer cette AIPD, et en changer la version, dès que :
 | 0 | 16 septembre 2026 | Première rédaction, à partir de `docs/child_interest.md` et du registre des traitements |
 | 0 | 22 septembre 2026 | Parcours du mineur réordonné : l'enfant dit d'abord s'il veut jouer, sa réponse (sans donnée personnelle) est transmise à l'adulte et enregistrée avec sa décision ; plus d'enregistrement avant la connexion, ni en base ni sur l'appareil ; mémoire vidée à la déconnexion (sections 2.3, 2.4, 3 et 6). Le même jour : la réponse porte un code tiré au hasard, et l'invitation est marquée « enfant » (avec ce code) ou « adulte » (sections 2.4, 3 et 5.1) |
 | 0 | 27 septembre 2026 | Multiclan : un joueur peut appartenir à 8 clans ; nom, avatar et titre porté partagés entre ses clans. Un enfant n'entre dans un autre clan qu'avec l'autorisation préalable de son représentant, vérifiée par son application ; co-représentants ; retrait d'un clan ; retrait du consentement étendu à tous les clans et exécuté par le serveur ; dossier de représentation, preuve conservée 5 ans ; le seul représentant ne peut pas supprimer son compte (sections 2.3, 2.4, 2.7, 3, 4, 5.1 et 5.6). Le même jour : traces d'audit des actes qui engagent, rangées et conservées comme les preuves d'acceptation ; notifications coupées par clan ou pour tous (sections 2.4 et 2.7) |
+| 0 | 11 octobre 2026 | Assistant d'aide réservé aux adultes : filtres au seuil `BLOCK_ONLY_HIGH` (profil `guide` de la fonction serveur) au lieu du plus strict, qui bloquait presque toutes les questions ordinaires ; mesures, pistes écartées et justification (sections 2.5 et 5.2). CGU et politiques adultes complétées dans les 12 marchés et les 8 langues |
 
 ---
 

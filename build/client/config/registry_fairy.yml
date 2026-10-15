@@ -7,8 +7,9 @@
 # --- Cet écran est le SEUL du jeu qu'on ne quitte pas sans avoir agi : ni flèche
 # --- retour, ni barre de titre, ni retour système. Ce n'est pas de la rétention,
 # --- c'est la nature de la scène — la fée tend deux cadeaux, il faut en prendre un.
-# --- Le contenu (scènes dvflame, libellés) vit dans le THÈME ; ici, seulement où
-# --- les choses se posent.
+# --- Le contenu (scènes dvflame, libellés, vibrations, son) vit dans la couche
+# --- general/layers/fairy-base-global.yml, commune à tous les thèmes ; ici,
+# --- seulement où les choses se posent.
 # -----------------------------------------------------------------------------
 conf:
   registry:

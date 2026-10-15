@@ -62,7 +62,11 @@ extension Worker_session on worker {
                                 // Suppression de compte (option kebab Personnage) : selector conditionnel
                                 // (masquée en impersonation) + overlay d'avertissements répétés → delete_user_data.
                                 ActionRegistry.register("worker.perso_settings_selector",   perso_settings_selector);
+                                ActionRegistry.register("worker.perso_advanced_selector",   perso_advanced_selector);
+                                ActionRegistry.register("worker.open_perso_advanced",       open_perso_advanced);
                                 ActionRegistry.register("worker.death_settings_selector",   death_settings_selector);
+                                ActionRegistry.register("worker.death_advanced_selector",   death_advanced_selector);
+                                ActionRegistry.register("worker.open_death_advanced",       open_death_advanced);
                                 ActionRegistry.register("worker.death_open_delete",         death_open_delete);
 
                                 // Changement de langue (option kebab Personnage) : ouvre le picker
@@ -374,6 +378,12 @@ extension Worker_session on worker {
                                 // l'état de vie mémorisé (worker.player_dead) plutôt que `ambiant` en dur.
                                 await _setAmbiance((await deva_get("worker.player_dead")) == true);
                                 await _loadClanTasks(session, region);
+                                // ⚠ LE DÉMARRAGE D'UN MEMBRE POSE `clan_done` LUI AUSSI. Seuls la création,
+                                //   l'adhésion et le skip le posaient : au démarrage à froid, le drapeau ne
+                                //   tenait qu'à un layer persisté, qui survit ou non (cf. worker_forms).
+                                //   Sur Android il était vide, et dvmascot, qui l'exige, ne montrait jamais
+                                //   le dragon (2026-10-12).
+                                await Deva.instance.set("worker.session.clan_done", "true");
                                 // Enregistre ce device dans le doc membre clans_players (cible
                                 // FCM) — idempotent : couvre le démarrage de l'app sur un nouveau
                                 // device pour un joueur déjà membre.
@@ -1728,32 +1738,103 @@ extension Worker_session on worker {
                                 await ActionRegistry.get("documents.view_doc")?.call(null, "cgu");
     }
 
+    // Menu du kebab Personnage : LES GESTES DE TOUS LES JOURS (refonte du 2026-10-12, retours
+    // joueurs, même découpe que le kebab du clan). Ordre :
+    //   1. « Mon Journal », les tutoriels, le guide (du parent ou de l'aventurier) ;
+    //   2. « Noter et partager », adultes seulement ;
+    //   3. « Options avancées… » : langue, rappels, notifications, documents légaux, suppression ;
+    //   4. la déconnexion, en dernier.
+    // Le menu de mort suit la même découpe (death_settings_selector / death_advanced_selector).
     Future<List<String>> perso_settings_selector(dynamic caller, dynamic data) async {
 
-                                final options = ["my_log", "tutorials", "change_lang", ...await _vitalSettingsOptions()];
-                                // MULTICLAN : couper les notifications de ce téléphone, pour ce clan ou pour
-                                // tous (silence à la source). Juste après les rappels ; une option de
-                                // chaque paire, selon l'état relu sur la fiche de l'appareil.
-                                final notif = await _notifMenuOptions();
-                                final afterNudges = options.indexWhere((o) => o == "nudges_on" || o == "nudges_off");
-                                options.insertAll(afterNudges < 0 ? 3 : afterNudges + 1, notif);
-                                // « Noter et partager », adultes seulement, JUSTE AVANT la déconnexion :
-                                // la suppression du compte reste la dernière ligne. Hors de
-                                // _vitalSettingsOptions : le menu de mort n'a pas à le proposer.
+                                final vital = await _vitalSettingsOptions();
+                                final options = ["my_log", "tutorials", ...vital.where((o) => o.startsWith("guide_"))];
+                                // « Noter et partager » : hors de _vitalSettingsOptions, le menu de mort
+                                // n'a pas à le proposer.
                                 final bool isAdult =
                                     (await Deva.instance.get("worker.player_is_adult"))?.toString() == "true";
-                                if (isAdult) {
-                                    final at = options.indexOf("logout");
-                                    options.insert(at < 0 ? options.length : at, "rate_share");
-                                }
+                                if (isAdult) options.add("rate_share");
+                                if ((await _persoAdvancedOptions(vital)).isNotEmpty) options.add("advanced");
+                                if (vital.contains("logout")) options.add("logout");
                                 return options;
     }
 
+    Future<List<String>> perso_advanced_selector(dynamic caller, dynamic data) async =>
+                                _persoAdvancedOptions(await _vitalSettingsOptions());
+
+    // Les options avancées du personnage, mêmes gardes qu'avant la refonte : la langue, les
+    // rappels (une option de la paire, selon l'état relu), les notifications de ce téléphone
+    // (MULTICLAN, silence à la source, une option de chaque paire), les deux documents légaux,
+    // et la suppression du compte EN DERNIER (absente pendant l'impersonation).
+    Future<List<String>> _persoAdvancedOptions(List<String> vital) async {
+
+                                return [
+                                    "change_lang",
+                                    ...vital.where((o) => o.startsWith("nudges_")),
+                                    ...await _notifMenuOptions(),
+                                    ...vital.where((o) => o == "cgu" || o == "privacy"),
+                                    if (vital.contains("delete_account")) "delete_account",
+                                ];
+    }
+
+    // Ouvre « Options avancées… » AU MÊME ENDROIT que le menu de base, que DvMenu vient de
+    // refermer (même motif que le menu du clan et le choix de la langue).
+    Future<void> open_perso_advanced(dynamic caller, dynamic event) async {
+
+                                final base = DvOrb.get_shape_by_id("personnage/settings_menu");
+                                final anchor = (base is DvMenu && base.lastShowPosition != null)
+                                    ? base.lastShowPosition!
+                                    : const Offset(100, 100);
+                                // Par le kebab (DvMenuButton.openSubMenu) : il passe les icônes du sous-menu.
+                                final btn = DvOrb.get_shape_by_id("personnage/settings");
+                                if (btn is DvMenuButton) {
+                                    btn.openSubMenu("personnage/advanced_menu", anchor);
+                                } else {
+                                    DvOrb.get_shape_by_id("personnage/advanced_menu")?.act("show", {"x": anchor.dx, "y": anchor.dy});
+                                }
+    }
+
     // Menu du kebab posé au-dessus du voile de mort (commons/death_settings_menu) : les seules
-    // fonctions VITALES, avec exactement les règles du menu Personnage (même helper).
+    // fonctions VITALES, avec exactement les règles du menu Personnage (même helper), découpées
+    // comme lui (2026-10-13). Premier niveau : le guide, « Options avancées… » et la
+    // déconnexion ; le reste (rappels, documents légaux, suppression) dans
+    // commons/death_advanced_menu (death_advanced_selector).
     Future<List<String>> death_settings_selector(dynamic caller, dynamic data) async {
 
-                                return _vitalSettingsOptions();
+                                final vital = await _vitalSettingsOptions();
+                                return [
+                                    ...vital.where((o) => o.startsWith("guide_")),
+                                    if (_deathAdvancedOptions(vital).isNotEmpty) "advanced",
+                                    if (vital.contains("logout")) "logout",
+                                ];
+    }
+
+    Future<List<String>> death_advanced_selector(dynamic caller, dynamic data) async =>
+                                _deathAdvancedOptions(await _vitalSettingsOptions());
+
+    // Les options avancées du menu de mort : tout ce que _vitalSettingsOptions propose hors du
+    // guide et de la déconnexion, dans son ordre (rappels, documents légaux), et la suppression
+    // du compte EN DERNIER (déjà absente pendant l'impersonation).
+    List<String> _deathAdvancedOptions(List<String> vital) => [
+                                    ...vital.where((o) =>
+                                        !o.startsWith("guide_") && o != "logout" && o != "delete_account"),
+                                    if (vital.contains("delete_account")) "delete_account",
+                                ];
+
+    // Ouvre « Options avancées… » du menu de mort AU MÊME ENDROIT que le menu de base, que DvMenu
+    // vient de refermer, par le kebab du voile (DvMenuButton.openSubMenu : avec ses icônes).
+    Future<void> open_death_advanced(dynamic caller, dynamic event) async {
+
+                                final base = DvOrb.get_shape_by_id("commons/death_settings_menu");
+                                final anchor = (base is DvMenu && base.lastShowPosition != null)
+                                    ? base.lastShowPosition!
+                                    : const Offset(100, 100);
+                                final btn = DvOrb.get_shape_by_id("commons/death_settings");
+                                if (btn is DvMenuButton) {
+                                    btn.openSubMenu("commons/death_advanced_menu", anchor);
+                                } else {
+                                    DvOrb.get_shape_by_id("commons/death_advanced_menu")?.act("show", {"x": anchor.dx, "y": anchor.dy});
+                                }
     }
 
     // Depuis le menu de mort : le panneau de suppression vit sur l'écran Personnage. On s'y rend

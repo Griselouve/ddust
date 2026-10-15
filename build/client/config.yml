@@ -216,7 +216,7 @@ conf:
       # thème qui les fournit, et un thème absent d'ici n'est jamais téléchargé.
       # Valeur d'une INSTALLATION NEUVE seulement : dès qu'un thème du catalogue est
       # actif sur l'appareil (tag), ce sont ses `manifests` qui sont lus au démarrage,
-      # et dvtheme.switchTheme change la liste à chaud (thème du clan, clans_owned).
+      # et dvtheme.switchTheme change la liste à chaud (thème du clan, boutique dvshop).
       manifests:
         - "general"
         - "donjon"
@@ -297,6 +297,8 @@ conf:
       - "layers/tasks-base-global.yml"
       - "layers/items-base-global.yml"
       - "layers/store-base-global.yml"  # catalogue de la boutique (abonnements, packs)
+      - "layers/shop-catalog-global.yml" # boutique dvshop : catalogue (généré du build.yml)
+      - "layers/shop-base-global.yml"   # boutique dvshop : interface et libellés
       - "layers/fairy-base-global.yml"  # cadence et catalogue des cadeaux de la fée
       - "layers/events-base-global.yml" # événements aléatoires (souris, piège, gobelin...)
       - "layers/autover-global.yml"     # dvautover : builds qui portent une mise à jour de la base
@@ -312,6 +314,27 @@ conf:
   # Les titres (`referral.titles`) viennent du build.yml de la suite (conf partagée).
   referral:
     scope_action: worker.store_scope
+
+  # --- Boutique (dvshop) ---------------------------------------------------------
+  # Le CATALOGUE vient du build.yml de la suite (couche shop-catalog-global.yml),
+  # l'INTERFACE de la couche shop-base-global.yml, l'HABILLAGE de chaque thème
+  # (`shop.style`). Ne restent ici que les liens avec le métier ddust.
+  shop:
+    # Le groupe est le CLAN (même contrat que store.scope_action), plus l'acteur
+    # (userId) pour l'or et les objets personnels.
+    scope_action: worker.store_scope
+    # Ce dont le clan bénéficie, projeté par le callable `shop` (pustore) : lu et
+    # surveillé en direct (un chef change le thème, tout le clan bascule).
+    projection:
+      database: workers
+      collection: clans_shop
+    # L'argent réel passe par la double garde du worker (chef + adulte, puis porte
+    # parentale) avant dvstore.
+    play_action: worker.shop_buy_play
+    actions:
+      # L'état actif a changé (thème, mascotte) : le worker bascule l'appareil au bon
+      # moment (jamais en pleine tâche).
+      on_change: worker.on_shop_change
 
   # --- Store config (dvstore) ---------------------------------------------------
   # Le CATALOGUE n'est pas ici : il vit dans le layer store-base-global.yml, publié

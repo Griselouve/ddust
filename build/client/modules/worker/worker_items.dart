@@ -458,7 +458,7 @@ extension Worker_items on worker {
                                     await _syncLabel(applyShape, "item_view_page/apply", label);
                                     await _syncVisible(applyShape, "item_view_page/apply", true);
                                     // Grisage à l'idiome de rename_task/confirm : opacité + tap coupé.
-                                    applyShape?.set("shape.opacity", applyDisabled ? 0.3 : 0.6);
+                                    applyShape?.set("shape.opacity", _confirmOpacity(applyShape, !applyDisabled));
                                     applyShape?.set("shape.events.tap", !applyDisabled);
                                     applyShape?.refreshUI();
                                 }
