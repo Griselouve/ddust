@@ -1,0 +1,13 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud/donjon/layers/theme-pirate-global.yml
+name: theme-pirate
+above: theme-donjon
+strategy: force
+tenant: global
+tags:
+  - theme-pirate
+data:
+  registry:
+    commons/splash_background:
+      shape:
+        image: "assets/images/splash-pirate.png"

@@ -1,0 +1,2755 @@
+above: core
+data:
+  accroche: Vos enfants ne rangent pas leur chambre ? Transformez votre maison en donjon.
+  application:
+    app: console
+    build: 1
+    display_name: Console ddust
+    org: com.grisloup
+    suite: ddust
+    version: 1.0.0
+  assets:
+    cache_dir: dvassets
+    critical:
+      a: []
+      b: []
+      c: []
+      d: []
+    fallback:
+      default: ''
+      extensions: {}
+    max_age_days: 30
+    pointers: {}
+    tenant: ''
+    version: ''
+  autover:
+    beta_region: eut
+    channel: snapshot
+    steps: []
+  builds: E:\Deva\projects\suites\ddust\delivery
+  cloud:
+    aimodel_regions:
+      eu:
+        default_model: gemini-3.5-flash-lite
+        endpoint: https://europe-west9-aiplatform.googleapis.com
+        locations:
+        - eu
+        - europe-west4
+        models:
+        - gemini-3.5-flash-lite
+        - gemini-2.5-flash-lite
+        region: europe-west9
+    auth:
+      actions:
+        on_account_linked: ''
+        on_account_rejected: ''
+        on_anonymous_started: ''
+        on_authenticated: adminconsole.on_login
+        on_authenticated_list: []
+        on_link_conflict: ''
+        on_link_failed: ''
+        on_login_failed: ''
+        on_login_required: dvcloud.show_dvcloud_login_page
+        on_login_required_list: []
+        on_logout: adminconsole.on_logout
+        on_logout_list:
+        - dvcloud.show_dvcloud_login_page
+      anonymous:
+        auto_start: false
+        enabled: false
+      existing:
+        purge_on_reject: true
+        verify_action: ''
+      link:
+        resources: []
+      sessions:
+        collection: sessions
+        database: sessions
+        enabled: false
+        ttl_days: 90
+      show_identity: false
+      testing:
+        audience_pub: Testing
+        error_image_when_testing: assets/icon/icon.png
+        error_message_when_testing: '@@@T:cloud_testing_closed_message@@@'
+        redirect_when_testing: ''
+    cloud_functions:
+      eu-ai_generate: https://eu-ai-generate-bltizpaxaq-od.a.run.app
+      eu-autover: https://eu-autover-bltizpaxaq-od.a.run.app
+      eu-beta_signup: https://eu-beta-signup-bltizpaxaq-od.a.run.app
+      eu-clan_owned: https://eu-clan-owned-bltizpaxaq-od.a.run.app
+      eu-clan_purge: https://eu-clan-purge-bltizpaxaq-od.a.run.app
+      eu-count_sessions: https://eu-count-sessions-bltizpaxaq-od.a.run.app
+      eu-ddust_autover: https://eu-ddust-autover-bltizpaxaq-od.a.run.app
+      eu-delete_user_data: https://eu-delete-user-data-bltizpaxaq-od.a.run.app
+      eu-messaging: https://eu-messaging-bltizpaxaq-od.a.run.app
+      eu-messaging_server: https://eu-messaging-server-bltizpaxaq-od.a.run.app
+      eu-pulse_sweeper: https://eu-pulse-sweeper-bltizpaxaq-od.a.run.app
+      eu-referral: https://eu-referral-bltizpaxaq-od.a.run.app
+      eu-referral_sweeper: https://eu-referral-sweeper-bltizpaxaq-od.a.run.app
+      eu-store_admin: https://eu-store-admin-bltizpaxaq-od.a.run.app
+      eu-store_claim: https://eu-store-claim-bltizpaxaq-od.a.run.app
+      eu-store_eligibility: https://eu-store-eligibility-bltizpaxaq-od.a.run.app
+      eu-store_grant: https://eu-store-grant-bltizpaxaq-od.a.run.app
+      eu-store_kpis: https://eu-store-kpis-bltizpaxaq-od.a.run.app
+      eu-store_mint: https://eu-store-mint-bltizpaxaq-od.a.run.app
+      eu-store_payer_check: https://eu-store-payer-check-bltizpaxaq-od.a.run.app
+      eu-store_revoke: https://eu-store-revoke-bltizpaxaq-od.a.run.app
+      eu-store_rtdn: https://eu-store-rtdn-bltizpaxaq-od.a.run.app
+      eu-store_sweeper: https://eu-store-sweeper-bltizpaxaq-od.a.run.app
+      eu-store_verify: https://eu-store-verify-bltizpaxaq-od.a.run.app
+      eut-ai_generate: https://eut-ai-generate-bltizpaxaq-od.a.run.app
+      eut-autover: https://eut-autover-bltizpaxaq-od.a.run.app
+      eut-beta_signup: https://eut-beta-signup-bltizpaxaq-od.a.run.app
+      eut-clan_owned: https://eut-clan-owned-bltizpaxaq-od.a.run.app
+      eut-clan_purge: https://eut-clan-purge-bltizpaxaq-od.a.run.app
+      eut-count_sessions: https://eut-count-sessions-bltizpaxaq-od.a.run.app
+      eut-ddust_autover: https://eut-ddust-autover-bltizpaxaq-od.a.run.app
+      eut-delete_user_data: https://eut-delete-user-data-bltizpaxaq-od.a.run.app
+      eut-messaging: https://eut-messaging-bltizpaxaq-od.a.run.app
+      eut-messaging_server: https://eut-messaging-server-bltizpaxaq-od.a.run.app
+      eut-pulse_sweeper: https://eut-pulse-sweeper-bltizpaxaq-od.a.run.app
+      eut-referral: https://eut-referral-bltizpaxaq-od.a.run.app
+      eut-referral_sweeper: https://eut-referral-sweeper-bltizpaxaq-od.a.run.app
+      eut-store_admin: https://eut-store-admin-bltizpaxaq-od.a.run.app
+      eut-store_claim: https://eut-store-claim-bltizpaxaq-od.a.run.app
+      eut-store_eligibility: https://eut-store-eligibility-bltizpaxaq-od.a.run.app
+      eut-store_grant: https://eut-store-grant-bltizpaxaq-od.a.run.app
+      eut-store_kpis: https://eut-store-kpis-bltizpaxaq-od.a.run.app
+      eut-store_mint: https://eut-store-mint-bltizpaxaq-od.a.run.app
+      eut-store_payer_check: https://eut-store-payer-check-bltizpaxaq-od.a.run.app
+      eut-store_revoke: https://eut-store-revoke-bltizpaxaq-od.a.run.app
+      eut-store_rtdn: https://eut-store-rtdn-bltizpaxaq-od.a.run.app
+      eut-store_sweeper: https://eut-store-sweeper-bltizpaxaq-od.a.run.app
+      eut-store_verify: https://eut-store-verify-bltizpaxaq-od.a.run.app
+      eut-storemock: https://eut-storemock-bltizpaxaq-od.a.run.app
+    firebase:
+      android_app_id: 1:1093892811802:android:062bc191b6bab041bf75a3
+      api_key: AIzaSyDIptwwMk9ym5TpGSWLZpvDnRbTpXtwfK0
+      web_app_id: 1:1093892811802:web:44b56b2397a8cdb3bf75a3
+    firestore:
+      databases:
+        autover:
+          isolation: none
+        eu-aimodel:
+          admins: []
+          isolation: strict
+        eu-autover:
+          admins: []
+          isolation: none
+        eu-documents:
+          admins: []
+          isolation: strict
+        eu-locks:
+          admins: []
+          isolation: none
+        eu-messaging:
+          admins: []
+          isolation: strict
+        eu-secrets:
+          admins: []
+          isolation: strict
+        eu-sessions:
+          admins: []
+          isolation: strict
+        eu-store:
+          admins: []
+          isolation: none
+        eu-virtuallobby:
+          admins: []
+          isolation: none
+        eu-workers:
+          admins: []
+          isolation: strict
+        eut-aimodel:
+          admins: []
+          isolation: strict
+        eut-autover:
+          admins: []
+          isolation: none
+        eut-documents:
+          admins: []
+          isolation: strict
+        eut-locks:
+          admins: []
+          isolation: none
+        eut-messaging:
+          admins: []
+          isolation: strict
+        eut-secrets:
+          admins: []
+          isolation: strict
+        eut-sessions:
+          admins: []
+          isolation: strict
+        eut-store:
+          admins: []
+          isolation: none
+        eut-virtuallobby:
+          admins: []
+          isolation: none
+        eut-workers:
+          admins: []
+          isolation: strict
+        locks:
+          isolation: none
+        messaging:
+          isolation: strict
+        sessions:
+          isolation: strict
+        store:
+          isolation: none
+        virtuallobby:
+          isolation: none
+        workers:
+          isolation: strict
+      project: dvddust
+    providers:
+      google:
+        client_ids:
+          android: 1093892811802-do5agmqpgj78ql6ph9kjufuiotdtvkqc.apps.googleusercontent.com
+          desktop: 1093892811802-qea85u3ptlj65sr1pabfsiqqlcov4509.apps.googleusercontent.com
+          web: 1093892811802-2g110vpm3dqefj6p82sinon2htn9ruu2.apps.googleusercontent.com
+        client_secrets:
+          desktop: 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
+        redirect_port: 8765
+        scopes:
+        - email
+        type: google
+    region: ''
+    regions:
+      EU: europe-west9
+      EUT: europe-west9
+    sign-in:
+      enabled: true
+    storage:
+      buckets:
+        eu-apk: dvddust-eu-apk-storage
+        eu-assets: dvddust-eu-assets-storage
+        eu-preload: dvddust-eu-preload-storage
+        eut-apk: dvddust-eut-apk-storage
+        eut-assets: dvddust-eut-assets-storage
+        eut-preload: dvddust-eut-preload-storage
+  console:
+    regions:
+      prod:
+      - eu
+      test:
+      - eut
+  description: 'Les corvées du foyer transformées en monstres, à abattre en famille. Application, abonnement, publiée sur le Play Store.
+
+
+    Le foyer est un donjon poussiéreux ; les parents n''y arrivent plus et recrutent des aventuriers : les enfants. Chaque tâche ménagère est un monstre. Le vaincre rapporte de l''expérience au joueur ET au clan tout entier.
+
+
+    Ce qui fait le jeu, c''est le BUTIN : quand le clan monte de niveau, les parents ouvrent un coffre dont ils ont eux-mêmes défini le contenu (argent de poche, sortie, privilèges) et il se répartit entre les joueurs au prorata de leur expérience acquise après avoir vaincu des monstres. La récompense est donc réelle, décidée par les parents, et le mérite s''y lit directement. Un coup de pouce en XP permet de relancer un retardataire sans fausser le compte du clan.'
+  deva: true
+  display_name: Donjons & Savons
+  documents:
+    regions:
+    - fr
+    test_servers:
+      enabled: false
+  icon: resources/icon/icon.png
+  lang:
+    translations:
+      cloud_testing_closed_message:
+        en: This app is currently in closed beta. Please check back later.
+        es: Esta aplicación está actualmente en beta cerrada. Vuelve más tarde.
+        fr: Cette application est en bêta fermée pour le moment. Merci de revenir plus tard.
+  langues:
+  - fr
+  - en
+  - es
+  - it
+  - de
+  - pt
+  - br
+  - nl
+  layers:
+    prelogin: true
+  modules:
+  - modules.dvassets.dvassets
+  - modules.dvlang.dvlang
+  - modules.dvcloud.dvcloud
+  referral:
+    titles:
+      active:
+      - at: 1
+        name:
+          br: Fogo aceso
+          de: Entfachtes Feuer
+          en: Kindled Fire
+          es: Fuego encendido
+          fr: Feu allumé
+          it: Fuoco acceso
+          nl: Ontstoken vuur
+          pt: Fogo aceso
+      - at: 2
+        name:
+          br: Lar
+          de: Herdfeuer
+          en: Hearth
+          es: Hogar
+          fr: Foyer
+          it: Focolare
+          nl: Haard
+          pt: Lar
+      - at: 5
+        name:
+          br: Povoado
+          de: Weiler
+          en: Hamlet
+          es: Aldea
+          fr: Hameau
+          it: Frazione
+          nl: Gehucht
+          pt: Aldeia
+      - at: 10
+        name:
+          br: Vila
+          de: Marktflecken
+          en: Market Town
+          es: Villa
+          fr: Bourg
+          it: Borgo
+          nl: Vlek
+          pt: Vila
+      - at: 20
+        name:
+          br: Cidadela
+          de: Zitadelle
+          en: Citadel
+          es: Ciudadela
+          fr: Citadelle
+          it: Cittadella
+          nl: Citadel
+          pt: Cidadela
+      - at: 50
+        name:
+          br: Reino
+          de: Königreich
+          en: Kingdom
+          es: Reino
+          fr: Royaume
+          it: Regno
+          nl: Koninkrijk
+          pt: Reino
+      - at: 100
+        name:
+          br: Império das masmorras
+          de: Imperium der Verliese
+          en: Dungeon Empire
+          es: Imperio de los calabozos
+          fr: Empire des donjons
+          it: Impero dei sotterranei
+          nl: Kerkerrijk
+          pt: Império das masmorras
+      lineage:
+      - at: 1
+        name:
+          br: Padrinho
+          de: Pate
+          en: Sponsor
+          es: Padrino
+          fr: Parrain
+          it: Padrino
+          nl: Peetouder
+          pt: Padrinho
+      - at: 2
+        name:
+          br: Mentor
+          de: Mentor
+          en: Mentor
+          es: Mentor
+          fr: Mentor
+          it: Mentore
+          nl: Mentor
+          pt: Mentor
+      - at: 5
+        name:
+          br: Recrutador de clãs
+          de: Clan-Werber
+          en: Clan Recruiter
+          es: Reclutador de clanes
+          fr: Recruteur de clans
+          it: Reclutatore di clan
+          nl: Clanwerver
+          pt: Recrutador de clãs
+      - at: 10
+        name:
+          br: Construtor de alianças
+          de: Bündnisschmied
+          en: Alliance Builder
+          es: Constructor de alianzas
+          fr: Bâtisseur d'alliances
+          it: Costruttore di alleanze
+          nl: Bouwer van allianties
+          pt: Construtor de alianças
+      - at: 20
+        name:
+          br: Senhor das linhagens
+          de: Herr der Geschlechter
+          en: Lord of Lineages
+          es: Señor de los linajes
+          fr: Seigneur des lignées
+          it: Signore delle stirpi
+          nl: Heer der geslachten
+          pt: Senhor das linhagens
+      - at: 50
+        name:
+          br: Fundador de dinastias
+          de: Dynastiegründer
+          en: Dynasty Founder
+          es: Fundador de dinastías
+          fr: Fondateur de dynasties
+          it: Fondatore di dinastie
+          nl: Stichter van dynastieën
+          pt: Fundador de dinastias
+      - at: 100
+        name:
+          br: Lenda das masmorras
+          de: Legende der Verliese
+          en: Dungeon Legend
+          es: Leyenda de los calabozos
+          fr: Légende des donjons
+          it: Leggenda dei sotterranei
+          nl: Legende van de kerkers
+          pt: Lenda das masmorras
+  regions:
+    EU:
+      backend: europe-west9
+      label: Europe
+    EUT:
+      backend: europe-west9
+      label: Europe (essai)
+  registry:
+    batch_page:
+      actions:
+        appear: adminconsole.on_batch_appear
+        show: adminconsole.on_batch_appear
+      masks:
+      - page
+      registry:
+      - batch_page/fields
+      - batch_page/tab
+      - batch_page/list
+      - batch_page/revoke
+      title: Lot de codes
+    batch_page/fields:
+      masks:
+      - commons/panel
+      shape:
+        h: 20%
+        y: 1%
+    batch_page/list:
+      action: adminconsole.on_claim_tap
+      masks:
+      - commons/list
+      shape:
+        empty_label: Rien.
+        h: 62%
+        y: 28.5%
+    batch_page/revoke:
+      masks:
+      - commons/danger_button
+      shape:
+        actions:
+          tap: adminconsole.do_ask_revoke_batch
+        label: Révoquer le lot
+        w: 94%
+        x: 3%
+        y: 92.5%
+    batch_page/tab:
+      class: DvSegmented
+      layer: content
+      shape:
+        actions:
+          changed: adminconsole.on_batch_tab
+        font_size: 12.0
+        h: 5%
+        options:
+        - Codes
+        - Utilisations
+        value: Codes
+        w: 94%
+        x: 3%
+        y: 22.5%
+    clan_page:
+      actions:
+        appear: adminconsole.on_clan_appear
+        show: adminconsole.on_clan_appear
+      masks:
+      - page
+      registry:
+      - clan_page/fields
+      - clan_page/payer
+      - clan_page/tab
+      - clan_page/list
+      title: Fiche du clan
+    clan_page/fields:
+      masks:
+      - commons/panel
+      shape:
+        font_size: 12.0
+        h: 39%
+        y: 1%
+    clan_page/list:
+      masks:
+      - commons/list
+      shape:
+        empty_label: Rien.
+        h: 44.5%
+        row_height: 60.0
+        y: 54.5%
+    clan_page/payer:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: navigate_new.payer_page
+        label: Autres clans du même payeur
+        w: 94%
+        x: 3%
+        y: 41.5%
+    clan_page/tab:
+      class: DvSegmented
+      layer: content
+      shape:
+        actions:
+          changed: adminconsole.on_clan_tab
+        font_size: 12.0
+        h: 5%
+        options:
+        - Journal
+        - Achats
+        - Codes
+        value: Journal
+        w: 94%
+        x: 3%
+        y: 48.5%
+    codes_page:
+      actions:
+        appear: adminconsole.on_codes_appear
+        show: adminconsole.on_codes_appear
+      masks:
+      - page
+      registry:
+      - codes_page/new
+      - codes_page/refresh
+      - codes_page/status
+      - codes_page/list
+      - codes_page/code
+      - codes_page/revoke_code
+      title: Codes cadeaux
+    codes_page/code:
+      masks:
+      - commons/entry
+      shape:
+        hint: Code à révoquer
+        w: 60%
+        y: 86%
+    codes_page/list:
+      action: adminconsole.on_batch_tap
+      masks:
+      - commons/list
+      shape:
+        empty_label: Aucun lot de codes.
+        h: 72%
+        y: 12.5%
+    codes_page/new:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: navigate_new.mint_page
+        label: Nouveau lot
+        w: 60%
+        x: 3%
+        y: 1%
+    codes_page/refresh:
+      masks:
+      - commons/button
+      shape:
+        freezing_actions:
+          tap: adminconsole.do_codes_refresh
+        label: Rafraîchir
+        w: 32%
+        x: 65%
+        y: 1%
+    codes_page/revoke_code:
+      masks:
+      - commons/danger_button
+      shape:
+        actions:
+          tap: adminconsole.do_ask_revoke_code
+        label: Révoquer
+        w: 32%
+        x: 65%
+        y: 86.5%
+    codes_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 5%
+        y: 7%
+    commons/big_button:
+      class: DvLabel
+      layer: content
+      shape:
+        background_color: '0xFF1C2228'
+        border: false
+        border_radius: 12.0
+        events:
+          tap: true
+        font_color: '0xFFECECEC'
+        font_size: 19.0
+        h: 9%
+        text_align: CENTER
+        valign: CENTER
+        w: 84%
+        x: 8%
+    commons/button:
+      class: DvLabel
+      layer: content
+      shape:
+        background_color: '0xFF14141C'
+        border: true
+        border_color: blueGrey_300
+        border_radius: 6.0
+        border_size: 1.0
+        border_size_hover: 2.0
+        events:
+          tap: true
+        font_color: '0xFFECECEC'
+        font_size: 13.0
+        h: 5.5%
+        text_align: CENTER
+        valign: CENTER
+    commons/danger_button:
+      masks:
+      - commons/button
+      shape:
+        background_color: '0xFF2A1212'
+        border_color: red_300
+        font_color: red_100
+    commons/entry:
+      class: DvEntry
+      layer: content
+      shape:
+        background_color: '0xB3000000'
+        border: true
+        border_color: grey_700
+        border_radius: 8.0
+        font_color: '0xFFECECEC'
+        font_size: 13.0
+        h: 6.5%
+        value: ''
+        w: 94%
+        x: 3%
+    commons/list:
+      class: DvList
+      draggable: false
+      layer: content
+      shape:
+        background_color: '0x00000000'
+        border: false
+        empty_label: Rien à afficher.
+        font_color: '0xFFECECEC'
+        font_size: 12.5
+        icon_size: 22.0
+        row_border: false
+        row_color: '0xB3000000'
+        row_height: 56.0
+        w: 94%
+        x: 3%
+    commons/market:
+      class: DvPicklist
+      layer: content
+      shape:
+        actions:
+          changed: adminconsole.on_market
+        background_color: '0xFF14141C'
+        border: false
+        border_radius: 8.0
+        font_color: '0xFFECECEC'
+        font_size: 12.0
+        h: 5.5%
+        options:
+        - Tous les marchés
+        value: Tous les marchés
+        w: 46%
+        x: 3%
+        y: 1%
+    commons/mint_title:
+      masks:
+      - commons/status
+      shape:
+        font_color: '0xFFECECEC'
+        font_size: 12.0
+        h: 4%
+    commons/mode:
+      class: DvSegmented
+      layer: content
+      shape:
+        actions:
+          changed: adminconsole.on_mode
+        colors:
+          Données de test: '0xFF7A4A12'
+        font_size: 11.0
+        h: 5.5%
+        options:
+        - Données réelles
+        - Données de test
+        value: Données réelles
+        w: 46%
+        x: 51%
+        y: 1%
+    commons/panel:
+      class: DvLabel
+      layer: content
+      shape:
+        background_color: '0xB3000000'
+        border: true
+        border_color: grey_700
+        border_radius: 6.0
+        font_color: '0xFFECECEC'
+        font_size: 12.5
+        label: ''
+        scrollable: true
+        text_align: LEFT
+        w: 94%
+        x: 3%
+    commons/refresh:
+      masks:
+      - commons/button
+      shape:
+        font_size: 11.0
+        h: 4.5%
+        label: Rafraîchir
+        w: 21%
+        x: 76%
+        y: 7.5%
+    commons/status:
+      class: DvLabel
+      layer: content
+      shape:
+        border: false
+        font_color: grey_400
+        font_size: 11.0
+        label: ''
+        text_align: LEFT
+        valign: CENTER
+        w: 94%
+        x: 3%
+    dash_page:
+      actions:
+        appear: adminconsole.on_dash_appear
+        show: adminconsole.on_dash_appear
+      masks:
+      - page
+      registry:
+      - dash_page/market
+      - dash_page/mode
+      - dash_page/status
+      - dash_page/refresh
+      - dash_page/list
+      - dash_page/serie
+      - dash_page/chart
+      title: Tableau de bord
+    dash_page/chart:
+      class: DvScrollChart
+      layer: content
+      scroll:
+        day_col: date
+        legend: true
+        legend_height: 30.0
+        visible_days: 90
+        y_axis_width: 54
+      shape:
+        background_color: '0x00000000'
+        border: false
+        h: 34%
+        w: 96%
+        x: 2%
+        y: 64.5%
+    dash_page/list:
+      masks:
+      - commons/list
+      shape:
+        empty_label: Aucun chiffre pour l'instant.
+        h: 44%
+        row_height: 46.0
+        y: 13%
+    dash_page/market:
+      masks:
+      - commons/market
+    dash_page/mode:
+      masks:
+      - commons/mode
+    dash_page/refresh:
+      masks:
+      - commons/refresh
+      shape:
+        freezing_actions:
+          tap: adminconsole.do_refresh
+    dash_page/serie:
+      class: DvPicklist
+      layer: content
+      shape:
+        actions:
+          changed: adminconsole.on_serie
+        background_color: '0xFF14141C'
+        border: false
+        border_radius: 8.0
+        font_color: '0xFFECECEC'
+        font_size: 12.0
+        h: 5.5%
+        options:
+        - Abonnés
+        - Revenu mensuel estimé
+        - Arrivées et départs
+        value: Abonnés
+        w: 60%
+        x: 3%
+        y: 58%
+    dash_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 4.5%
+        w: 71%
+        y: 7.5%
+    denied_page:
+      actions:
+        appear: adminconsole.on_denied_appear
+        show: adminconsole.on_denied_appear
+      masks:
+      - page
+      registry:
+      - denied_page/text
+      - denied_page/uid
+      - denied_page/copy
+      - denied_page/status
+      - denied_page/logout
+      show_back: false
+      title: Accès refusé
+    denied_page/copy:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: adminconsole.do_copy_uid
+        label: Copier l'identifiant
+        w: 80%
+        x: 10%
+        y: 57%
+    denied_page/logout:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: dvcloud.do_logout
+        label: Changer de compte
+        w: 80%
+        x: 10%
+        y: 70%
+    denied_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 4%
+        text_align: CENTER
+        y: 63.5%
+    denied_page/text:
+      masks:
+      - commons/panel
+      shape:
+        font_size: 13.5
+        h: 42%
+        label: ''
+        y: 3%
+    denied_page/uid:
+      masks:
+      - commons/panel
+      shape:
+        font_size: 14.0
+        h: 8%
+        label: ''
+        text_align: CENTER
+        valign: CENTER
+        y: 47%
+    dvcloud/avatar:
+      class: DvImage
+      layer: front
+      shape:
+        actions:
+          tap: dvcloud.do_logout
+        border_radius: 100.0
+        events:
+          tap: true
+        h: 5%
+        image: assets/icon/icon.png
+        stretch: RATIO_CROP
+        w: 10%
+        x: 85%
+        y: 7%
+    dvcloud/login_button:
+      class: DvLabel
+      layer: content
+      shape:
+        border: true
+        border_radius: 6.0
+        events:
+          tap: true
+        font_size: 15.0
+        freezing_actions:
+          tap: dvcloud.do_login
+        h: 10%
+        label: Se connecter
+        text_align: CENTER
+        w: 90%
+        x: 5%
+        y: 85%
+    dvcloud/profile_avatar:
+      class: DvImage
+      layer: content
+      shape:
+        border_radius: 100.0
+        h: 15%
+        image: assets/icon/icon.png
+        stretch: RATIO_CROP
+        w: 30%
+        x: 35%
+        y: 8%
+    dvcloud/testing_error_image:
+      class: DvImage
+      layer: content
+      shape:
+        h: 20%
+        image: assets/icon/icon.png
+        stretch: RATIO_CROP
+        w: 40%
+        x: 30%
+        y: 25%
+    dvcloud/testing_error_label:
+      class: DvLabel
+      layer: content
+      shape:
+        font_size: 16.0
+        h: 20%
+        label: ''
+        text_align: CENTER
+        w: 80%
+        x: 10%
+        y: 50%
+    dvcloud/user_email_label:
+      class: DvLabel
+      layer: content
+      shape:
+        background_color: black
+        border: false
+        border_radius: 4.0
+        font_color: '0xFFFFFFFF'
+        font_size: 17.0
+        h: 6%
+        label: ''
+        opacity: 0.6
+        text_align: CENTER
+        w: 80%
+        x: 10%
+        y: 26%
+    dvcloud_login_page:
+      background_color: grey
+      class: DvPage
+      layers:
+      - content
+      registry:
+      - dvcloud/login_button
+      show_appbar: false
+    dvcloud_testing_error_page:
+      background_color: grey
+      class: DvPage
+      layers:
+      - content
+      registry:
+      - dvcloud/testing_error_image
+      - dvcloud/testing_error_label
+      show_appbar: false
+    lang/flag_icon:
+      class: DvLangButton
+      layer: front
+      shape:
+        background_color: transparent
+        events:
+          tap: true
+        font_size: 22.0
+        h: 6%
+        w: 13%
+        x: 5%
+        y: 0%
+    menu_page:
+      actions:
+        appear: adminconsole.on_menu_appear
+        show: adminconsole.on_menu_appear
+      masks:
+      - page
+      registry:
+      - menu_page/mode
+      - menu_page/status
+      - menu_page/dash
+      - menu_page/split
+      - menu_page/retention
+      - menu_page/search
+      - menu_page/codes
+      - menu_page/metrics
+      - menu_page/logout
+      show_back: false
+      title: Console
+    menu_page/codes:
+      masks:
+      - commons/big_button
+      shape:
+        actions:
+          tap: navigate_new.codes_page
+        label: Codes cadeaux
+        y: 59%
+    menu_page/dash:
+      masks:
+      - commons/big_button
+      shape:
+        actions:
+          tap: navigate_new.dash_page
+        label: Tableau de bord
+        y: 15%
+    menu_page/logout:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: dvcloud.do_logout
+        label: Se déconnecter
+        w: 84%
+        x: 8%
+        y: 90%
+    menu_page/metrics:
+      masks:
+      - commons/big_button
+      shape:
+        actions:
+          tap: navigate_new.metrics_page
+        label: Métriques
+        y: 70%
+    menu_page/mode:
+      masks:
+      - commons/mode
+      shape:
+        w: 84%
+        x: 8%
+    menu_page/retention:
+      masks:
+      - commons/big_button
+      shape:
+        actions:
+          tap: navigate_new.retention_page
+        label: Rétention
+        y: 37%
+    menu_page/search:
+      masks:
+      - commons/big_button
+      shape:
+        actions:
+          tap: navigate_new.search_page
+        label: Achats
+        y: 48%
+    menu_page/split:
+      masks:
+      - commons/big_button
+      shape:
+        actions:
+          tap: navigate_new.split_page
+        label: Répartition
+        y: 26%
+    menu_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 5%
+        text_align: CENTER
+        w: 84%
+        x: 8%
+        y: 7.5%
+    metrics_funnel_page:
+      actions:
+        appear: dvmetrics.on_funnel_appear
+        show: dvmetrics.on_funnel_appear
+      masks:
+      - page
+      registry:
+      - metrics_funnel_page/status
+      title: Entonnoir
+    metrics_funnel_page/status:
+      masks:
+      - commons/status
+      shape:
+        font_size: 14.0
+        h: 40%
+        text_align: CENTER
+        y: 30%
+    metrics_page:
+      actions:
+        appear: dvmetrics.on_metrics_appear
+        show: dvmetrics.on_metrics_appear
+      masks:
+      - page
+      registry:
+      - metrics_page/mode
+      - metrics_page/status
+      - metrics_page/refresh
+      - metrics_page/serie
+      - metrics_page/chart
+      title: Métriques
+    metrics_page/chart:
+      class: DvScrollChart
+      layer: content
+      shape:
+        background_color: '0xFF14141C'
+        border: true
+        border_color: grey_800
+        border_radius: 8.0
+        h: 72%
+        w: 98%
+        x: 1%
+        y: 13%
+    metrics_page/mode:
+      class: DvSegmented
+      layer: content
+      shape:
+        actions:
+          changed: dvmetrics.on_metrics_mode
+        colors:
+          Données de test: '0xFF7A4A12'
+        font_size: 11.0
+        h: 5.5%
+        options:
+        - Données réelles
+        - Données de test
+        value: Données réelles
+        w: 94%
+        x: 3%
+        y: 1%
+    metrics_page/refresh:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: dvmetrics.do_metrics_refresh
+        font_size: 11.0
+        h: 4.5%
+        label: Rafraîchir
+        w: 21%
+        x: 76%
+        y: 7.5%
+    metrics_page/serie:
+      class: DvSegmented
+      layer: content
+      shape:
+        actions:
+          changed: dvmetrics.on_metrics_serie
+        font_size: 11.0
+        h: 4.5%
+        options:
+        - Abonnés
+        - Revenu mensuel
+        value: Abonnés
+        w: 70%
+        x: 3%
+        y: 7.5%
+    metrics_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 8%
+        text_align: CENTER
+        y: 87%
+    mint_page:
+      actions:
+        appear: adminconsole.on_mint_appear
+        show: adminconsole.on_mint_appear
+      masks:
+      - page
+      registry:
+      - mint_page/info
+      - mint_page/label_t
+      - mint_page/label
+      - mint_page/count_t
+      - mint_page/count
+      - mint_page/months_t
+      - mint_page/months
+      - mint_page/uses_t
+      - mint_page/uses
+      - mint_page/days_t
+      - mint_page/days
+      - mint_page/go
+      - mint_page/status
+      title: Nouveau lot
+    mint_page/count:
+      masks:
+      - commons/entry
+      shape:
+        type: INTEGER
+        value: '10'
+        y: 24%
+    mint_page/count_t:
+      masks:
+      - commons/mint_title
+      shape:
+        label: Nombre de codes (1 à 200)
+        y: 20%
+    mint_page/days:
+      masks:
+      - commons/entry
+      shape:
+        type: INTEGER
+        value: '90'
+        y: 60%
+    mint_page/days_t:
+      masks:
+      - commons/mint_title
+      shape:
+        label: Valable pendant (jours, vide ou 0 = sans fin)
+        y: 56%
+    mint_page/go:
+      masks:
+      - commons/button
+      shape:
+        font_size: 15.0
+        freezing_actions:
+          tap: adminconsole.do_mint
+        h: 7%
+        label: Fabriquer les codes
+        w: 80%
+        x: 10%
+        y: 70%
+    mint_page/info:
+      masks:
+      - commons/status
+      shape:
+        h: 6%
+        label: ''
+        y: 1%
+    mint_page/label:
+      masks:
+      - commons/entry
+      shape:
+        hint: Nom du lot
+        y: 12%
+    mint_page/label_t:
+      masks:
+      - commons/mint_title
+      shape:
+        label: 'Nom du lot (pour le retrouver : « Salon de septembre »)'
+        y: 8%
+    mint_page/months:
+      masks:
+      - commons/entry
+      shape:
+        type: INTEGER
+        value: '1'
+        y: 36%
+    mint_page/months_t:
+      masks:
+      - commons/mint_title
+      shape:
+        label: Mois offerts par code (1 à 24)
+        y: 32%
+    mint_page/status:
+      masks:
+      - commons/status
+      shape:
+        font_size: 12.0
+        h: 10%
+        text_align: CENTER
+        y: 79%
+    mint_page/uses:
+      masks:
+      - commons/entry
+      shape:
+        type: INTEGER
+        value: '1'
+        y: 48%
+    mint_page/uses_t:
+      masks:
+      - commons/mint_title
+      shape:
+        label: Utilisations possibles de chaque code
+        y: 44%
+    minted_page:
+      actions:
+        appear: adminconsole.on_minted_appear
+        show: adminconsole.on_minted_appear
+      masks:
+      - page
+      registry:
+      - minted_page/warning
+      - minted_page/codes
+      - minted_page/copy
+      - minted_page/status
+      - minted_page/done
+      show_back: false
+      title: Codes fabriqués
+    minted_page/codes:
+      masks:
+      - commons/panel
+      shape:
+        font_size: 15.0
+        h: 58%
+        label: ''
+        y: 16.5%
+    minted_page/copy:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: adminconsole.do_copy_codes
+        font_size: 15.0
+        h: 6.5%
+        label: Copier les codes
+        w: 80%
+        x: 10%
+        y: 76%
+    minted_page/done:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: adminconsole.do_minted_done
+        font_size: 14.0
+        h: 6.5%
+        label: J'ai mis les codes à l'abri, terminer
+        w: 80%
+        x: 10%
+        y: 88.5%
+    minted_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 4%
+        text_align: CENTER
+        y: 83%
+    minted_page/warning:
+      masks:
+      - commons/panel
+      shape:
+        border_color: amber_400
+        font_color: amber_200
+        font_size: 13.0
+        h: 14%
+        label: ''
+        y: 1%
+    orb:
+      class: DvOrb
+      debug_banner: false
+      freeze:
+        ring:
+          color: amber
+          size: 40%
+      home_page: start_page
+      name: Console
+      registry:
+      - start_page
+      - denied_page
+      - menu_page
+      - dash_page
+      - split_page
+      - retention_page
+      - search_page
+      - clan_page
+      - payer_page
+      - codes_page
+      - batch_page
+      - revoke_page
+      - mint_page
+      - minted_page
+      - metrics_page
+      - metrics_funnel_page
+      - dvcloud_login_page
+      - dvcloud_testing_error_page
+      theme_color: blueGrey
+      title: Console
+      window_height: 840
+      window_width: 480
+    page:
+      appbar_font_color: '0xFFECECEC'
+      appbar_height: 5%
+      background_color: '0xFF101418'
+      class: DvPage
+      layers:
+      - background
+      - content
+      - overlay
+      show_appbar: true
+    payer_page:
+      actions:
+        appear: adminconsole.on_payer_appear
+        show: adminconsole.on_payer_appear
+      masks:
+      - page
+      registry:
+      - payer_page/status
+      - payer_page/list
+      title: Même payeur
+    payer_page/list:
+      action: adminconsole.on_payer_tap
+      masks:
+      - commons/list
+      shape:
+        empty_label: Aucun autre clan pour ce payeur.
+        h: 91%
+        y: 8%
+    payer_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 6%
+        y: 1%
+    retention_page:
+      actions:
+        appear: adminconsole.on_retention_appear
+        show: adminconsole.on_retention_appear
+      masks:
+      - page
+      registry:
+      - retention_page/market
+      - retention_page/mode
+      - retention_page/status
+      - retention_page/refresh
+      - retention_page/list
+      title: Rétention
+    retention_page/list:
+      masks:
+      - commons/list
+      shape:
+        empty_label: Aucun chiffre pour l'instant.
+        h: 86%
+        row_height: 52.0
+        y: 13%
+    retention_page/market:
+      masks:
+      - commons/market
+    retention_page/mode:
+      masks:
+      - commons/mode
+    retention_page/refresh:
+      masks:
+      - commons/refresh
+      shape:
+        freezing_actions:
+          tap: adminconsole.do_refresh
+    retention_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 4.5%
+        w: 71%
+        y: 7.5%
+    revoke_page:
+      actions:
+        appear: adminconsole.on_revoke_appear
+        show: adminconsole.on_revoke_appear
+      masks:
+      - page
+      registry:
+      - revoke_page/text
+      - revoke_page/confirm
+      - revoke_page/cancel
+      - revoke_page/status
+      title: Révoquer
+    revoke_page/cancel:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: adminconsole.do_back
+        font_size: 15.0
+        h: 7%
+        label: Annuler
+        w: 80%
+        x: 10%
+        y: 62%
+    revoke_page/confirm:
+      masks:
+      - commons/danger_button
+      shape:
+        font_size: 15.0
+        freezing_actions:
+          tap: adminconsole.do_revoke
+        h: 7%
+        label: Révoquer définitivement
+        w: 80%
+        x: 10%
+        y: 52%
+    revoke_page/status:
+      masks:
+      - commons/status
+      shape:
+        font_size: 12.0
+        h: 8%
+        text_align: CENTER
+        y: 71%
+    revoke_page/text:
+      masks:
+      - commons/panel
+      shape:
+        font_size: 14.0
+        h: 45%
+        y: 3%
+    search_page:
+      actions:
+        appear: adminconsole.on_search_appear
+        show: adminconsole.on_search_appear
+      masks:
+      - page
+      registry:
+      - search_page/query
+      - search_page/go
+      - search_page/status
+      - search_page/list
+      title: Achats
+    search_page/go:
+      masks:
+      - commons/button
+      shape:
+        freezing_actions:
+          tap: adminconsole.do_search
+        label: Chercher
+        w: 22%
+        x: 75%
+        y: 1.5%
+    search_page/list:
+      action: adminconsole.on_result_tap
+      masks:
+      - commons/list
+      shape:
+        empty_label: Saisir un n° de commande Google, un identifiant de clan ou un code cadeau.
+        h: 85%
+        y: 14%
+    search_page/query:
+      masks:
+      - commons/entry
+      shape:
+        actions:
+          submitted: adminconsole.do_search
+        hint: N° de commande (GPA...), clan ou code
+        w: 70%
+        y: 1%
+    search_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 5%
+        y: 8.5%
+    split_page:
+      actions:
+        appear: adminconsole.on_split_appear
+        show: adminconsole.on_split_appear
+      masks:
+      - page
+      registry:
+      - split_page/market
+      - split_page/mode
+      - split_page/status
+      - split_page/refresh
+      - split_page/kind
+      - split_page/donut
+      - split_page/total
+      title: Répartition
+    split_page/donut:
+      class: DvDonut
+      donut:
+        color: color
+        key: cat
+        show_amounts: true
+        value: val
+      layer: content
+      shape:
+        background_color: '0x00000000'
+        border: false
+        font_color: '0xFFECECEC'
+        font_size: 12.0
+        h: 68%
+        w: 96%
+        x: 2%
+        y: 20%
+    split_page/kind:
+      class: DvPicklist
+      layer: content
+      shape:
+        actions:
+          changed: adminconsole.on_kind
+        background_color: '0xFF14141C'
+        border: false
+        border_radius: 8.0
+        font_color: '0xFFECECEC'
+        font_size: 12.0
+        h: 5.5%
+        options:
+        - Abonnés par marché
+        - Revenu estimé par marché
+        - Abonnés par palier
+        - Mensuel ou annuel
+        value: Abonnés par marché
+        w: 94%
+        x: 3%
+        y: 13%
+    split_page/market:
+      masks:
+      - commons/market
+    split_page/mode:
+      masks:
+      - commons/mode
+    split_page/refresh:
+      masks:
+      - commons/refresh
+      shape:
+        freezing_actions:
+          tap: adminconsole.do_refresh
+    split_page/status:
+      masks:
+      - commons/status
+      shape:
+        h: 4.5%
+        w: 71%
+        y: 7.5%
+    split_page/total:
+      masks:
+      - commons/status
+      shape:
+        font_color: '0xFFECECEC'
+        font_size: 12.0
+        h: 6%
+        text_align: CENTER
+        y: 90%
+    start_page:
+      actions:
+        appear: adminconsole.on_start_appear
+        show: adminconsole.on_start_appear
+      masks:
+      - page
+      registry:
+      - start_page/status
+      - start_page/retry
+      - start_page/logout
+      show_back: false
+      title: Console
+    start_page/logout:
+      masks:
+      - commons/button
+      shape:
+        actions:
+          tap: dvcloud.do_logout
+        label: Changer de compte
+        w: 80%
+        x: 10%
+        y: 68%
+    start_page/retry:
+      masks:
+      - commons/button
+      shape:
+        freezing_actions:
+          tap: adminconsole.do_retry
+        label: Réessayer
+        w: 80%
+        x: 10%
+        y: 60%
+    start_page/status:
+      masks:
+      - commons/panel
+      shape:
+        font_size: 14.0
+        h: 30%
+        label: Connexion en cours...
+        text_align: CENTER
+        valign: CENTER
+        y: 25%
+  store:
+    catalog:
+      ddust_bricolage:
+        attachement_mensuel: 0.0034
+        enabled: false
+        libelle: Pack de tâches « Bricolage »
+        lot: 258ff7d2b854
+        play:
+          listings:
+            de-DE:
+              description: 'Ein Vorrat an fertigen Aufgaben rund ums Werkzeug: reparieren, aufbauen, die Werkstatt aufräumen. Aussuchen statt selbst schreiben.'
+              title: Aufgabenpaket „Heimwerken“
+            en-US:
+              description: 'A ready-made stack of tasks from the toolbox side: fix it, build it, tidy the workshop. Pick from them instead of writing them.'
+              title: 'Task Pack: Handiwork'
+            es-ES:
+              description: 'Una reserva de tareas listas para usar, del lado de las herramientas: reparar, montar, ordenar el taller. Elegir en vez de escribir.'
+              title: Pack de tareas « Bricolaje »
+            fr-FR:
+              description: 'Une réserve de tâches prêtes à poser, du côté des outils : réparer, monter, ranger l''atelier. À piocher dedans plutôt qu''à les écrire.'
+              title: Pack de tâches « Bricolage »
+            it-IT:
+              description: 'Una scorta di compiti pronti all''uso, dal lato degli attrezzi: riparare, montare, riordinare il laboratorio. Da scegliere invece che scrivere.'
+              title: Pacchetto compiti «Fai da te»
+            nl-NL:
+              description: 'Een voorraad kant-en-klare taken uit de gereedschapskist: repareren, in elkaar zetten, de werkplaats opruimen. Kiezen in plaats van schrijven.'
+              title: Takenpakket ‘Klussen’
+            pt-BR:
+              description: 'Um estoque de tarefas prontas para usar, do lado das ferramentas: consertar, montar, arrumar a oficina. Escolher em vez de escrever.'
+              title: Pack de tarefas "Consertos"
+            pt-PT:
+              description: 'Uma reserva de tarefas prontas a usar, do lado das ferramentas: reparar, montar, arrumar a oficina. Escolher em vez de escrever.'
+              title: Pack de tarefas «Bricolage»
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_butin:
+        attachement_mensuel: 0.0017
+        enabled: false
+        libelle: Extension « Butin »
+        lot: 0877dd1dcfb0
+        play:
+          listings:
+            de-DE:
+              description: 'Das größte Stück des Spiels: Gold, der Heldenladen, zufällige Beute, Ausrüstung, Gefälligkeiten und Saisons. Hausarbeit wird zur Wirtschaft.'
+              title: Erweiterung „Beute“
+            en-US:
+              description: 'The biggest piece of the game: gold, the heroes'' shop, random loot, equipment, favours and seasons. Chores become an economy.'
+              title: Loot Expansion
+            es-ES:
+              description: 'La pieza más grande del juego: el oro, la tienda de los héroes, el botín aleatorio, el equipo, los favores y las temporadas.'
+              title: Expansión « Botín »
+            fr-FR:
+              description: 'Le plus gros morceau du jeu : l''or, la boutique des héros, le butin aléatoire, l''équipement, les faveurs et les saisons. Les tâches deviennent une économie.'
+              title: Extension « Butin »
+            it-IT:
+              description: 'Il pezzo più grande del gioco: l''oro, il negozio degli eroi, il bottino casuale, l''equipaggiamento, i favori e le stagioni. Le faccende diventano un''economia.'
+              title: Espansione «Bottino»
+            nl-NL:
+              description: 'Het grootste stuk van het spel: goud, de heldenwinkel, willekeurige buit, uitrusting, gunsten en seizoenen. Klusjes worden een economie.'
+              title: Uitbreiding ‘Buit’
+            pt-BR:
+              description: 'A maior peça do jogo: o ouro, a loja dos heróis, o tesouro aleatório, o equipamento, os favores e as temporadas. As tarefas viram uma economia.'
+              title: Expansão "Tesouro"
+            pt-PT:
+              description: 'A maior peça do jogo: o ouro, a loja dos heróis, o espólio aleatório, o equipamento, os favores e as temporadas. As tarefas tornam-se uma economia.'
+              title: Expansão «Espólio»
+        prix:
+          aud: '14.99'
+          brl: '31.90'
+          cad: '12.49'
+          chf: '11.50'
+          cop: '21900'
+          dkk: '75'
+          eur: '7.99'
+          gbp: '7.49'
+          mxn: '101.99'
+          nok: '125'
+          nzd: '14.99'
+          sek: '109'
+          usd: '11.49'
+        type: product
+      ddust_clan:
+        base_plans:
+        - clan-monthly
+        - clan-yearly
+        description: '@@@T:store_clan_desc@@@'
+        enabled: true
+        grants:
+          max_players: 4
+          shop: true
+        label: '@@@T:store_clan@@@'
+        order: 2
+        play:
+          listings:
+            de-DE:
+              description: 'Der ganz normale Haushalt: Eltern und Kinder auf denselben Quests.'
+              title: 'Clan: bis zu 4 Spieler'
+            en-US:
+              description: 'The ordinary household: parents and children on the same quests.'
+              title: Clan, up to 4 players
+            es-ES:
+              description: 'El hogar corriente: padres e hijos en torno a las mismas misiones.'
+              title: Clan, hasta 4 jugadores
+            fr-FR:
+              description: 'La maisonnée ordinaire : parents et enfants autour des mêmes quêtes.'
+              title: Clan, jusqu'à 4 joueurs
+            it-IT:
+              description: 'La famiglia di tutti i giorni: genitori e figli sulle stesse missioni.'
+              title: 'Clan: fino a 4 giocatori'
+            nl-NL:
+              description: 'Het gewone gezin: ouders en kinderen op dezelfde queesten.'
+              title: 'Clan: tot 4 spelers'
+            pt-BR:
+              description: 'A casa de sempre: pais e filhos nas mesmas missões.'
+              title: 'Clã: até 4 jogadores'
+            pt-PT:
+              description: 'O lar comum: pais e filhos nas mesmas missões.'
+              title: 'Clã: até 4 jogadores'
+          plans:
+            clan-monthly:
+              part_base: 0.225
+              period: P1M
+              prices:
+                aud: '5.49'
+                brl: '11.90'
+                cad: '4.49'
+                chf: '4.00'
+                cop: '7900'
+                dkk: '29'
+                eur: '2.99'
+                gbp: '2.99'
+                mxn: '37.99'
+                nok: '49'
+                nzd: '5.49'
+                sek: '39'
+                usd: '4.49'
+            clan-yearly:
+              part_base: 0.075
+              pays_exclus:
+              - NL
+              period: P1Y
+              prices:
+                aud: '46.99'
+                brl: '98.90'
+                cad: '38.49'
+                chf: '35.00'
+                cop: '69900'
+                dkk: '235'
+                eur: '24.99'
+                gbp: '23.49'
+                mxn: '318.49'
+                nok: '395'
+                nzd: '46.49'
+                sek: '339'
+                usd: '36.49'
+        price_hint: 2.99 €
+        price_hint_yearly: 24.99 €
+        type: subscription
+      ddust_classes:
+        attachement_mensuel: 0.0022
+        enabled: false
+        libelle: Classes de personnage
+        lot: 5b617e0e5480
+        play:
+          listings:
+            de-DE:
+              description: Jeder Held wählt einen Weg, mit Vorteilen, Nachteilen und Clan-Synergien. Ein Thema kleidet das Abenteuer neu ein; eine Klasse spielt es anders.
+              title: Charakterklassen
+            en-US:
+              description: Each hero picks a path, with its strengths, its weaknesses and its clan synergies. A theme re-skins the adventure; a class replays it.
+              title: Character Classes
+            es-ES:
+              description: Cada héroe elige una vía, con sus ventajas, sus inconvenientes y sus sinergias de clan. Un tema reviste la aventura; una clase la rejuega.
+              title: Clases de personaje
+            fr-FR:
+              description: Chaque héros choisit une voie, avec ses avantages, ses inconvénients et ses synergies de clan. Un thème rhabille l'aventure ; une classe la rejoue autrement.
+              title: Classes de personnage
+            it-IT:
+              description: Ogni eroe sceglie una via, con i suoi vantaggi, i suoi svantaggi e le sue sinergie di clan. Un tema riveste l'avventura; una classe la rigioca.
+              title: Classi di personaggio
+            nl-NL:
+              description: Elke held kiest een pad, met voordelen, nadelen en clansynergieën. Een thema geeft het avontuur een nieuw jasje; een klasse speelt het anders.
+              title: Personageklassen
+            pt-BR:
+              description: Cada herói escolhe um caminho, com suas vantagens, desvantagens e sinergias de clã. Um tema veste a aventura; uma classe faz jogar de novo.
+              title: Classes de personagem
+            pt-PT:
+              description: Cada herói escolhe um caminho, com as suas vantagens, desvantagens e sinergias de clã. Um tema reveste a aventura; uma classe volta a jogá-la.
+              title: Classes de personagem
+        prix:
+          aud: '12.99'
+          brl: '27.90'
+          cad: '10.99'
+          chf: '9.90'
+          cop: '19900'
+          dkk: '65'
+          eur: '6.99'
+          gbp: '6.49'
+          mxn: '88.99'
+          nok: '109'
+          nzd: '12.99'
+          sek: '95'
+          usd: '9.99'
+        type: product
+      ddust_devoirs:
+        attachement_mensuel: 0.0008
+        enabled: false
+        libelle: Pack « Devoirs faits »
+        lot: 13a9e8d0a1b9
+        play:
+          listings:
+            de-DE:
+              description: 'Das einzige Paket, das alle drei Mechaniken verbindet: die Quest für den Notendurchschnitt, die Aufgabe zum Lernen, der Trank für +15 % XP.'
+              title: Paket „Hausaufgaben erledigt“
+            en-US:
+              description: 'The one pack that crosses all three mechanics: a quest for the term average, a task for learning the lesson, a potion for +15% XP.'
+              title: Homework Done Pack
+            es-ES:
+              description: 'El único pack que atraviesa las tres mecánicas: la misión de la nota media, la tarea de estudiar la lección, la poción de +15 % de XP.'
+              title: Pack « Deberes hechos »
+            fr-FR:
+              description: 'Le seul pack qui traverse les trois mécaniques : la quête « 13 de moyenne », la tâche « apprendre le cours », la potion « +15 % d''XP en SVT ».'
+              title: Pack « Devoirs faits »
+            it-IT:
+              description: 'L''unico pacchetto che attraversa le tre meccaniche: la missione della media dei voti, il compito di studiare la lezione, la pozione da +15 % di XP.'
+              title: Pacchetto «Compiti fatti»
+            nl-NL:
+              description: 'Het enige pakket dat alle drie de mechanieken combineert: de queeste voor het gemiddelde, de taak om de les te leren, het drankje voor +15 % XP.'
+              title: Pakket ‘Huiswerk gedaan’
+            pt-BR:
+              description: 'O único pack que atravessa as três mecânicas: a missão da média das notas, a tarefa de estudar a matéria, a poção de +15 % de XP.'
+              title: Pack "Lição de casa feita"
+            pt-PT:
+              description: 'O único pack que atravessa as três mecânicas: a missão da média das notas, a tarefa de estudar a matéria, a poção de +15 % de XP.'
+              title: Pack «Trabalhos de casa feitos»
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_essentiel:
+        base_plans:
+        - essentiel-monthly
+        - essentiel-yearly
+        description: '@@@T:store_essentiel_desc@@@'
+        enabled: true
+        grants:
+          max_players: 2
+          shop: true
+        label: '@@@T:store_essentiel@@@'
+        order: 1
+        play:
+          listings:
+            de-DE:
+              description: 'Ein kleiner Trupp: ein Erwachsener und sein Abenteurer, oder zwei Gefährten.'
+              title: 'Essenziell: bis zu 2 Spieler'
+            en-US:
+              description: 'A small squad: one adult and their adventurer, or two companions.'
+              title: Essential, up to 2 players
+            es-ES:
+              description: 'Una pequeña escuadra: un adulto y su aventurero, o dos compañeros.'
+              title: Esencial, hasta 2 jugadores
+            fr-FR:
+              description: 'Une petite escouade : un adulte et son aventurier, ou deux compagnons.'
+              title: Essentiel, jusqu'à 2 joueurs
+            it-IT:
+              description: 'Una piccola squadra: un adulto e il suo avventuriero, o due compagni.'
+              title: 'Essenziale: fino a 2 giocatori'
+            nl-NL:
+              description: 'Een kleine ploeg: een volwassene en zijn avonturier, of twee kameraden.'
+              title: 'Essentieel: tot 2 spelers'
+            pt-BR:
+              description: 'Um pequeno esquadrão: um adulto e seu aventureiro, ou dois companheiros.'
+              title: 'Essencial: até 2 jogadores'
+            pt-PT:
+              description: 'Um pequeno esquadrão: um adulto e o seu aventureiro, ou dois companheiros.'
+              title: 'Essencial: até 2 jogadores'
+          plans:
+            essentiel-monthly:
+              part_base: 0.3
+              period: P1M
+              prices:
+                aud: '3.49'
+                brl: '7.90'
+                cad: '2.99'
+                chf: '2.90'
+                cop: '5900'
+                dkk: '19'
+                eur: '1.99'
+                gbp: '1.99'
+                mxn: '25.49'
+                nok: '29'
+                nzd: '3.49'
+                sek: '29'
+                usd: '2.99'
+            essentiel-yearly:
+              part_base: 0.1
+              pays_exclus:
+              - NL
+              period: P1Y
+              prices:
+                aud: '37.49'
+                brl: '78.90'
+                cad: '30.99'
+                chf: '28.00'
+                cop: '55900'
+                dkk: '185'
+                eur: '19.99'
+                gbp: '18.49'
+                mxn: '254.49'
+                nok: '315'
+                nzd: '37.49'
+                sek: '275'
+                usd: '28.99'
+        price_hint: 1.99 €
+        price_hint_yearly: 19.99 €
+        type: subscription
+      ddust_guilde:
+        base_plans:
+        - guilde-monthly
+        - guilde-yearly
+        description: '@@@T:store_guilde_desc@@@'
+        enabled: true
+        grants:
+          max_players: 12
+          shop: true
+        label: '@@@T:store_guilde@@@'
+        order: 4
+        play:
+          listings:
+            de-DE:
+              description: Cousins, Großeltern, zwei Häuser, die eins geworden sind.
+              title: 'Gilde: bis zu 12 Spieler'
+            en-US:
+              description: Cousins, grandparents, two houses that have become one.
+              title: Guild, up to 12 players
+            es-ES:
+              description: Primos, abuelos, dos casas que ya son una.
+              title: Gremio, hasta 12 jugadores
+            fr-FR:
+              description: Cousins, grands-parents, deux maisons qui n'en font plus qu'une.
+              title: Guilde, jusqu'à 12 joueurs
+            it-IT:
+              description: Cugini, nonni, due case diventate una.
+              title: 'Gilda: fino a 12 giocatori'
+            nl-NL:
+              description: Neven en nichten, grootouders, twee huizen die er één zijn geworden.
+              title: 'Gilde: tot 12 spelers'
+            pt-BR:
+              description: Primos, avós, duas casas que viraram uma só.
+              title: 'Guilda: até 12 jogadores'
+            pt-PT:
+              description: Primos, avós, duas casas que se tornaram uma.
+              title: 'Guilda: até 12 jogadores'
+          plans:
+            guilde-monthly:
+              part_base: 0.03
+              period: P1M
+              prices:
+                aud: '10.99'
+                brl: '23.90'
+                cad: '9.49'
+                chf: '8.50'
+                cop: '16900'
+                dkk: '55'
+                eur: '5.99'
+                gbp: '5.49'
+                mxn: '76.49'
+                nok: '95'
+                nzd: '10.99'
+                sek: '79'
+                usd: '8.49'
+            guilde-yearly:
+              part_base: 0.01
+              pays_exclus:
+              - NL
+              period: P1Y
+              prices:
+                aud: '93.49'
+                brl: '197.90'
+                cad: '76.99'
+                chf: '70.50'
+                cop: '139900'
+                dkk: '465'
+                eur: '49.99'
+                gbp: '46.99'
+                mxn: '636.99'
+                nok: '789'
+                nzd: '93.49'
+                sek: '685'
+                usd: '72.99'
+        price_hint: 5.99 €
+        price_hint_yearly: 49.99 €
+        type: subscription
+      ddust_potions_1:
+        attachement_mensuel: 0.0034
+        enabled: false
+        libelle: Pack « Potions » I
+        lot: ecb38169ab68
+        play:
+          listings:
+            de-DE:
+              description: 'Eine erste Auswahl an Tränken: zeitlich begrenzte Effekte, die eine Abenteuerwoche verändern, wie XP-Bonus, Schubse und Aufschub.'
+              title: Trank-Paket I
+            en-US:
+              description: 'A first assortment of potions: temporary effects that change a week of adventure, XP bonuses, helping hands, reprieves.'
+              title: Potion Pack I
+            es-ES:
+              description: 'Un primer surtido de pociones: efectos temporales que cambian una semana de aventura, bonus de XP, empujones, prórrogas.'
+              title: Pack « Pociones » I
+            fr-FR:
+              description: 'Un premier assortiment de potions : des effets temporaires qui changent une semaine d''aventure, bonus d''XP, coups de pouce, sursis.'
+              title: Pack « Potions » I
+            it-IT:
+              description: 'Un primo assortimento di pozioni: effetti temporanei che cambiano una settimana di avventura, come bonus di XP, colpetti e proroghe.'
+              title: Pacchetto «Pozioni» I
+            nl-NL:
+              description: 'Een eerste assortiment drankjes: tijdelijke effecten die een avonturenweek veranderen, zoals XP-bonus, duwtjes en uitstel.'
+              title: Drankjespakket I
+            pt-BR:
+              description: 'Um primeiro sortimento de poções: efeitos temporários que mudam uma semana de aventura, como bônus de XP, empurrõezinhos e adiamentos.'
+              title: Pack "Poções" I
+            pt-PT:
+              description: 'Um primeiro sortido de poções: efeitos temporários que mudam uma semana de aventura, como bónus de XP, empurrões e adiamentos.'
+              title: Pack «Poções» I
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_potions_2:
+        attachement_mensuel: 0.0008
+        enabled: false
+        libelle: Pack « Potions » II
+        lot: 09a10ee9b42d
+        play:
+          listings:
+            de-DE:
+              description: Eine zweite Auswahl an Tränken, mit Effekten, die die erste nicht hatte.
+              title: Trank-Paket II
+            en-US:
+              description: A second assortment of potions, with effects the first one did not have.
+              title: Potion Pack II
+            es-ES:
+              description: Un segundo surtido de pociones, con efectos que el primero no tenía.
+              title: Pack « Pociones » II
+            fr-FR:
+              description: Un deuxième assortiment de potions, avec des effets que le premier n'avait pas.
+              title: Pack « Potions » II
+            it-IT:
+              description: Un secondo assortimento di pozioni, con effetti che il primo non aveva.
+              title: Pacchetto «Pozioni» II
+            nl-NL:
+              description: Een tweede assortiment drankjes, met effecten die het eerste niet had.
+              title: Drankjespakket II
+            pt-BR:
+              description: Um segundo sortimento de poções, com efeitos que o primeiro não tinha.
+              title: Pack "Poções" II
+            pt-PT:
+              description: Um segundo sortido de poções, com efeitos que o primeiro não tinha.
+              title: Pack «Poções» II
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_potions_3:
+        attachement_mensuel: 0.0008
+        enabled: false
+        libelle: Pack « Potions » III
+        lot: 4333deadd8b3
+        play:
+          listings:
+            de-DE:
+              description: Die dritte und letzte Auswahl an Tränken, die stärkste der drei.
+              title: Trank-Paket III
+            en-US:
+              description: The third and last assortment of potions, the strongest of the three.
+              title: Potion Pack III
+            es-ES:
+              description: El tercer y último surtido de pociones, el más fuerte de los tres.
+              title: Pack « Pociones » III
+            fr-FR:
+              description: Le troisième et dernier assortiment de potions, le plus corsé des trois.
+              title: Pack « Potions » III
+            it-IT:
+              description: Il terzo e ultimo assortimento di pozioni, il più forte dei tre.
+              title: Pacchetto «Pozioni» III
+            nl-NL:
+              description: Het derde en laatste assortiment drankjes, het sterkste van de drie.
+              title: Drankjespakket III
+            pt-BR:
+              description: O terceiro e último sortimento de poções, o mais forte dos três.
+              title: Pack "Poções" III
+            pt-PT:
+              description: O terceiro e último sortido de poções, o mais forte dos três.
+              title: Pack «Poções» III
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_quetes_1:
+        attachement_mensuel: 0.0034
+        enabled: false
+        libelle: Pack « Quêtes » I
+        lot: 71b889d2505e
+        play:
+          listings:
+            de-DE:
+              description: 'Eine erste Sammlung von Quests für den Clan: Ziele, die länger als einen Tag dauern, und eine Belohnung am Ende.'
+              title: Quest-Paket I
+            en-US:
+              description: 'A first book of quests for the clan: goals that last longer than a day, and a reward at the end.'
+              title: Quest Pack I
+            es-ES:
+              description: 'Un primer libro de misiones para el clan: objetivos que duran más de un día, y una recompensa al final.'
+              title: Pack « Misiones » I
+            fr-FR:
+              description: 'Un premier recueil de quêtes à mener en clan : des objectifs qui durent plus qu''une journée, et une récompense au bout.'
+              title: Pack « Quêtes » I
+            it-IT:
+              description: 'Una prima raccolta di missioni da vivere in clan: obiettivi che durano più di un giorno, e una ricompensa alla fine.'
+              title: Pacchetto «Missioni» I
+            nl-NL:
+              description: 'Een eerste bundel queesten voor de clan: doelen die langer dan een dag duren, en een beloning aan het eind.'
+              title: Queestenpakket I
+            pt-BR:
+              description: 'Uma primeira coleção de missões para o clã: objetivos que duram mais de um dia, e uma recompensa no final.'
+              title: Pack "Missões" I
+            pt-PT:
+              description: 'Uma primeira coletânea de missões para o clã: objetivos que duram mais do que um dia, e uma recompensa no fim.'
+              title: Pack «Missões» I
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_quetes_2:
+        attachement_mensuel: 0.0008
+        enabled: false
+        libelle: Pack « Quêtes » II
+        lot: 81291102e209
+        play:
+          listings:
+            de-DE:
+              description: Eine zweite Sammlung von Quests, für Clans, die mit der ersten durch sind.
+              title: Quest-Paket II
+            en-US:
+              description: A second book of quests, for clans that have been all the way through the first.
+              title: Quest Pack II
+            es-ES:
+              description: Un segundo libro de misiones, para los clanes que ya han terminado el primero.
+              title: Pack « Misiones » II
+            fr-FR:
+              description: Un deuxième recueil de quêtes, pour les clans qui ont fait le tour du premier.
+              title: Pack « Quêtes » II
+            it-IT:
+              description: Una seconda raccolta di missioni, per i clan che hanno finito la prima.
+              title: Pacchetto «Missioni» II
+            nl-NL:
+              description: Een tweede bundel queesten, voor clans die de eerste helemaal hebben uitgespeeld.
+              title: Queestenpakket II
+            pt-BR:
+              description: Uma segunda coleção de missões, para os clãs que já terminaram a primeira.
+              title: Pack "Missões" II
+            pt-PT:
+              description: Uma segunda coletânea de missões, para os clãs que já terminaram a primeira.
+              title: Pack «Missões» II
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_quetes_3:
+        attachement_mensuel: 0.0008
+        enabled: false
+        libelle: Pack « Quêtes » III
+        lot: 0ab7912989d0
+        play:
+          listings:
+            de-DE:
+              description: Die dritte und letzte Sammlung von Quests. Genug für eine weitere Saison.
+              title: Quest-Paket III
+            en-US:
+              description: The third and last book of quests. Enough to carry one more season.
+              title: Quest Pack III
+            es-ES:
+              description: El tercer y último libro de misiones. Suficiente para aguantar otra temporada.
+              title: Pack « Misiones » III
+            fr-FR:
+              description: Le troisième et dernier recueil de quêtes. De quoi tenir une saison de plus.
+              title: Pack « Quêtes » III
+            it-IT:
+              description: La terza e ultima raccolta di missioni. Abbastanza per un'altra stagione.
+              title: Pacchetto «Missioni» III
+            nl-NL:
+              description: De derde en laatste bundel queesten. Genoeg voor nog een seizoen.
+              title: Queestenpakket III
+            pt-BR:
+              description: A terceira e última coleção de missões. O suficiente para mais uma temporada.
+              title: Pack "Missões" III
+            pt-PT:
+              description: A terceira e última coletânea de missões. O suficiente para mais uma temporada.
+              title: Pack «Missões» III
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_routine:
+        attachement_mensuel: 0.0034
+        enabled: false
+        libelle: Pack de tâches « Routine »
+        lot: cbe53f2e0c9b
+        play:
+          listings:
+            de-DE:
+              description: Zähne putzen, am Vorabend die Schultasche packen, das Zimmer aufräumen. Die Aufgaben des Alltags, schon geschrieben.
+              title: Aufgabenpaket „Alltag“
+            en-US:
+              description: Brushing teeth, packing the schoolbag the night before, tidying the room. The everyday tasks, already written.
+              title: 'Task Pack: Routine'
+            es-ES:
+              description: Lavarse los dientes, preparar la mochila la víspera, ordenar el cuarto. Las tareas de cada día, ya escritas.
+              title: Pack de tareas « Rutina »
+            fr-FR:
+              description: Se brosser les dents, préparer son cartable la veille, ranger sa chambre. Les tâches de tous les jours, déjà écrites.
+              title: Pack de tâches « Routine »
+            it-IT:
+              description: Lavarsi i denti, preparare lo zaino la sera prima, riordinare la camera. I compiti di tutti i giorni, già scritti.
+              title: Pacchetto compiti «Routine»
+            nl-NL:
+              description: Tanden poetsen, de avond ervoor je schooltas inpakken, je kamer opruimen. De taken van elke dag, al geschreven.
+              title: Takenpakket ‘Routine’
+            pt-BR:
+              description: Escovar os dentes, arrumar a mochila na véspera, arrumar o quarto. As tarefas de todo dia, já escritas.
+              title: Pack de tarefas "Rotina"
+            pt-PT:
+              description: Lavar os dentes, preparar a mochila na véspera, arrumar o quarto. As tarefas de todos os dias, já escritas.
+              title: Pack de tarefas «Rotina»
+        prix:
+          aud: '7.49'
+          brl: '15.90'
+          cad: '5.99'
+          chf: '5.50'
+          cop: '10900'
+          dkk: '39'
+          eur: '3.99'
+          gbp: '3.49'
+          mxn: '50.99'
+          nok: '65'
+          nzd: '7.49'
+          sek: '55'
+          usd: '5.99'
+        type: product
+      ddust_royaume:
+        base_plans:
+        - royaume-monthly
+        - royaume-yearly
+        description: '@@@T:store_royaume_desc@@@'
+        enabled: true
+        grants:
+          max_players: -1
+          shop: true
+        label: '@@@T:store_royaume@@@'
+        order: 5
+        play:
+          listings:
+            de-DE:
+              description: 'Für Clans ohne Ende: keine Grenze, so viele Abenteurer, wie ihr wollt.'
+              title: 'Königreich: unbegrenzt viele Spieler'
+            en-US:
+              description: 'For clans without end: no cap, as many adventurers as you like.'
+              title: Kingdom, unlimited players
+            es-ES:
+              description: 'Para los clanes sin fin: sin límite, tantos aventureros como queráis.'
+              title: Reino, jugadores ilimitados
+            fr-FR:
+              description: 'Pour les clans sans fin : aucun plafond, tous les aventuriers.'
+              title: Royaume, joueurs illimités
+            it-IT:
+              description: 'Per i clan senza fine: nessun limite, tutti gli avventurieri che volete.'
+              title: 'Regno: giocatori illimitati'
+            nl-NL:
+              description: 'Voor clans zonder einde: geen limiet, zoveel avonturiers als jullie willen.'
+              title: 'Koninkrijk: onbeperkt spelers'
+            pt-BR:
+              description: 'Para clãs sem fim: sem limite, quantos aventureiros vocês quiserem.'
+              title: 'Reino: jogadores ilimitados'
+            pt-PT:
+              description: 'Para clãs sem fim: sem limite, tantos aventureiros quantos quiserem.'
+              title: 'Reino: jogadores ilimitados'
+          plans:
+            royaume-monthly:
+              part_base: 0.0075
+              period: P1M
+              prices:
+                aud: '14.99'
+                brl: '31.90'
+                cad: '12.49'
+                chf: '11.50'
+                cop: '21900'
+                dkk: '75'
+                eur: '7.99'
+                gbp: '7.49'
+                mxn: '101.99'
+                nok: '125'
+                nzd: '14.99'
+                sek: '109'
+                usd: '11.49'
+            royaume-yearly:
+              part_base: 0.0025
+              pays_exclus:
+              - NL
+              period: P1Y
+              prices:
+                aud: '121.99'
+                brl: '257.90'
+                cad: '100.49'
+                chf: '91.50'
+                cop: '180900'
+                dkk: '605'
+                eur: '64.99'
+                gbp: '60.99'
+                mxn: '827.99'
+                nok: '1025'
+                nzd: '121.49'
+                sek: '889'
+                usd: '94.99'
+        price_hint: 7.99 €
+        price_hint_yearly: 64.99 €
+        type: subscription
+      ddust_theme_casanostra:
+        attachement_mensuel: 0.0014
+        enabled: false
+        libelle: Thème « La Casa Nostra »
+        lot: b4483c2704e7
+        play:
+          listings:
+            de-DE:
+              description: 'Das ganze Spiel neu eingekleidet als Mafiageschichte: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt.'
+              title: Thema „La Casa Nostra“
+            en-US:
+              description: 'The whole game re-skinned as a mob story: art, monsters, items and tone. The same adventure, played somewhere else.'
+              title: La Casa Nostra Theme
+            es-ES:
+              description: 'Todo el juego revestido de universo mafioso: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+              title: Tema « La Casa Nostra »
+            fr-FR:
+              description: 'Tout le jeu rhabillé en univers mafieux : décors, monstres, objets et ton. La même aventure, jouée ailleurs.'
+              title: Thème « La Casa Nostra »
+            it-IT:
+              description: 'Tutto il gioco rivestito da storia di mafia: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove.'
+              title: Tema «La Casa Nostra»
+            nl-NL:
+              description: 'Het hele spel in een nieuw jasje als maffiaverhaal: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld.'
+              title: Thema ‘La Casa Nostra’
+            pt-BR:
+              description: 'O jogo inteiro vestido de universo mafioso: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar.'
+              title: Tema "La Casa Nostra"
+            pt-PT:
+              description: 'Todo o jogo revestido de universo mafioso: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar.'
+              title: Tema «La Casa Nostra»
+        prix:
+          aud: '10.99'
+          brl: '23.90'
+          cad: '9.49'
+          chf: '8.50'
+          cop: '16900'
+          dkk: '55'
+          eur: '5.99'
+          gbp: '5.49'
+          mxn: '76.49'
+          nok: '95'
+          nzd: '10.99'
+          sek: '79'
+          usd: '8.49'
+        type: product
+      ddust_theme_pirates:
+        attachement_mensuel: 0.0014
+        enabled: false
+        libelle: Thème « Pirates of the accariens »
+        lot: 0b7c8f278959
+        play:
+          listings:
+            de-DE:
+              description: 'Das ganze Spiel neu eingekleidet als Piratengeschichte: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt.'
+              title: Thema „Pirates of the accariens“
+            en-US:
+              description: 'The whole game re-skinned as a pirate tale: art, monsters, items and tone. The same adventure, played somewhere else.'
+              title: Pirates of the Accarians Theme
+            es-ES:
+              description: 'Todo el juego revestido de universo pirata: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+              title: Tema « Pirates of the accariens »
+            fr-FR:
+              description: 'Tout le jeu rhabillé en univers pirate : décors, monstres, objets et ton. La même aventure, jouée ailleurs.'
+              title: Thème « Pirates of the accariens »
+            it-IT:
+              description: 'Tutto il gioco rivestito da universo pirata: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove.'
+              title: Tema «Pirates of the accariens»
+            nl-NL:
+              description: 'Het hele spel in een nieuw jasje als piratenverhaal: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld.'
+              title: Thema ‘Pirates of the accariens’
+            pt-BR:
+              description: 'O jogo inteiro vestido de universo pirata: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar.'
+              title: Tema "Pirates of the accariens"
+            pt-PT:
+              description: 'Todo o jogo revestido de universo pirata: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar.'
+              title: Tema «Pirates of the accariens»
+        prix:
+          aud: '10.99'
+          brl: '23.90'
+          cad: '9.49'
+          chf: '8.50'
+          cop: '16900'
+          dkk: '55'
+          eur: '5.99'
+          gbp: '5.49'
+          mxn: '76.49'
+          nok: '95'
+          nzd: '10.99'
+          sek: '79'
+          usd: '8.49'
+        type: product
+      ddust_theme_starsweep:
+        attachement_mensuel: 0.0014
+        enabled: false
+        libelle: Thème « Star Sweep »
+        lot: 1521505a498c
+        play:
+          listings:
+            de-DE:
+              description: 'Das ganze Spiel neu eingekleidet als Space Opera: Kulissen, Monster, Gegenstände und Ton. Dasselbe Abenteuer, anderswo gespielt.'
+              title: Thema „Star Sweep“
+            en-US:
+              description: 'The whole game re-skinned as space opera: art, monsters, items and tone. The same adventure, played somewhere else.'
+              title: Star Sweep Theme
+            es-ES:
+              description: 'Todo el juego revestido de ópera espacial: escenarios, monstruos, objetos y tono. La misma aventura, jugada en otro lugar.'
+              title: Tema « Star Sweep »
+            fr-FR:
+              description: 'Tout le jeu rhabillé en space opera : décors, monstres, objets et ton. La même aventure, jouée ailleurs.'
+              title: Thème « Star Sweep »
+            it-IT:
+              description: 'Tutto il gioco rivestito da space opera: scenari, mostri, oggetti e tono. La stessa avventura, giocata altrove.'
+              title: Tema «Star Sweep»
+            nl-NL:
+              description: 'Het hele spel in een nieuw jasje als space opera: decors, monsters, voorwerpen en toon. Hetzelfde avontuur, ergens anders gespeeld.'
+              title: Thema ‘Star Sweep’
+            pt-BR:
+              description: 'O jogo inteiro vestido de ópera espacial: cenários, monstros, objetos e tom. A mesma aventura, jogada em outro lugar.'
+              title: Tema "Star Sweep"
+            pt-PT:
+              description: 'Todo o jogo revestido de ópera espacial: cenários, monstros, objetos e tom. A mesma aventura, jogada noutro lugar.'
+              title: Tema «Star Sweep»
+        prix:
+          aud: '10.99'
+          brl: '23.90'
+          cad: '9.49'
+          chf: '8.50'
+          cop: '16900'
+          dkk: '55'
+          eur: '5.99'
+          gbp: '5.49'
+          mxn: '76.49'
+          nok: '95'
+          nzd: '10.99'
+          sek: '79'
+          usd: '8.49'
+        type: product
+      ddust_tribu:
+        base_plans:
+        - tribu-monthly
+        - tribu-yearly
+        description: '@@@T:store_tribu_desc@@@'
+        enabled: true
+        grants:
+          max_players: 7
+          shop: true
+        label: '@@@T:store_tribu@@@'
+        order: 3
+        play:
+          listings:
+            de-DE:
+              description: 'Wenn der Haushalt überquillt: viele Geschwister, vereinte Familien.'
+              title: 'Stamm: bis zu 7 Spieler'
+            en-US:
+              description: 'When the household overflows: a big sibling crew, homes joined.'
+              title: Tribe, up to 7 players
+            es-ES:
+              description: 'Cuando la casa se desborda: hermandad numerosa, hogares reunidos.'
+              title: Tribu, hasta 7 jugadores
+            fr-FR:
+              description: 'Quand la maisonnée déborde : grande fratrie, foyers réunis.'
+              title: Tribu, jusqu'à 7 joueurs
+            it-IT:
+              description: 'Quando la casa trabocca: tanti fratelli, famiglie riunite.'
+              title: 'Tribù: fino a 7 giocatori'
+            nl-NL:
+              description: 'Als het huis overloopt: een grote kinderschaar, samengevoegde gezinnen.'
+              title: 'Stam: tot 7 spelers'
+            pt-BR:
+              description: 'Quando a casa transborda: muitos irmãos, famílias reunidas.'
+              title: 'Tribo: até 7 jogadores'
+            pt-PT:
+              description: 'Quando a casa transborda: muitos irmãos, lares reunidos.'
+              title: 'Tribo: até 7 jogadores'
+          plans:
+            tribu-monthly:
+              part_base: 0.1875
+              period: P1M
+              prices:
+                aud: '9.49'
+                brl: '19.90'
+                cad: '7.49'
+                chf: '7.00'
+                cop: '13900'
+                dkk: '45'
+                eur: '4.99'
+                gbp: '4.49'
+                mxn: '63.49'
+                nok: '79'
+                nzd: '9.49'
+                sek: '69'
+                usd: '7.49'
+            tribu-yearly:
+              part_base: 0.0625
+              pays_exclus:
+              - NL
+              period: P1Y
+              prices:
+                aud: '74.99'
+                brl: '158.90'
+                cad: '61.49'
+                chf: '56.50'
+                cop: '111900'
+                dkk: '375'
+                eur: '39.99'
+                gbp: '37.49'
+                mxn: '509.49'
+                nok: '629'
+                nzd: '74.99'
+                sek: '549'
+                usd: '58.49'
+        price_hint: 4.99 €
+        price_hint_yearly: 39.99 €
+        type: subscription
+      ddust_validations:
+        attachement_mensuel: 0.0067
+        enabled: false
+        libelle: Validations automatiques
+        lot: 3df87efd34d2
+        play:
+          listings:
+            de-DE:
+              description: 'Manche Aufgaben bestätigen sich selbst: Niemand muss mehr nachkontrollieren. Für jedes Kind einzeln einstellbar, und dauerhaft erworben.'
+              title: Automatische Bestätigungen
+            en-US:
+              description: Some tasks approve themselves, nobody has to check behind. Set it child by child, and it stays set.
+              title: Automatic approvals
+            es-ES:
+              description: 'Algunas tareas se validan solas: nadie tiene que repasarlas. Se ajusta niño por niño, y queda para siempre.'
+              title: Validaciones automáticas
+            fr-FR:
+              description: 'Certaines tâches se valident seules : plus personne ne repasse derrière. Réglable enfant par enfant, et acquis pour de bon.'
+              title: Validations automatiques
+            it-IT:
+              description: 'Alcuni compiti si convalidano da soli: nessuno deve più ricontrollare. Regolabile bambino per bambino, e acquisito per sempre.'
+              title: Convalide automatiche
+            nl-NL:
+              description: 'Sommige taken valideren zichzelf: niemand hoeft nog na te kijken. Per kind in te stellen, en voorgoed verworven.'
+              title: Automatische validaties
+            pt-BR:
+              description: 'Algumas tarefas se validam sozinhas: ninguém precisa conferir de novo. Ajustável criança por criança, e seu para sempre.'
+              title: Validações automáticas
+            pt-PT:
+              description: 'Algumas tarefas validam-se sozinhas: ninguém tem de voltar a verificar. Ajustável criança a criança, e adquirido para sempre.'
+              title: Validações automáticas
+        prix:
+          aud: '3.49'
+          brl: '7.90'
+          cad: '2.99'
+          chf: '2.90'
+          cop: '5900'
+          dkk: '19'
+          eur: '1.99'
+          gbp: '1.99'
+          mxn: '25.49'
+          nok: '29'
+          nzd: '3.49'
+          sek: '29'
+          usd: '2.99'
+        type: product
+  type: application
+name: conf
+strategy: default
+tenant: global

@@ -25,6 +25,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/widgets.dart';
+// Raccourcis clavier de test (worker_testkeys) : Windows seulement.
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 // Presse-papiers : « Mon ID » du faux Google Play (worker_store, on_store_mock_id).
 import 'package:flutter/services.dart';
 // Emprunt de compte : l'état est persisté ICI et non dans le dictionnaire deva — cf. les
@@ -38,10 +40,14 @@ import '../dvcore/registry.dart';
 import '../dvorb/dvshape.dart';
 import '../dvorb/dvlabel.dart';
 import '../dvorb/dvinput.dart';
+import '../dvorb/dvchecklist.dart';
 import '../dvorb/dvorb.dart';
 import '../dvorb/dvpage.dart';
+// Overlay du Navigator : message bref (_messageBref), annonces du jeu et raccourcis de test.
+import '../dvorb/registry.dart' show PageRegistry;
 import '../dvcloud/dvcloud.dart';
 import '../dventries/dvmenu.dart';
+import '../dvorb/dvmenubutton.dart';
 import '../dvlang/dvlang_button.dart';
 import '../dvlock/dvlock.dart';
 import '../dvcamera/dvcamera.dart';
@@ -49,6 +55,7 @@ import '../dvdevicelock/dvdevicelock.dart';
 import '../dvmessaging/dvmessaging.dart';
 import '../dvtheme/dvtheme.dart';
 import '../dvstore/dvstore.dart';
+import '../dvshop/dvshop.dart';
 part 'worker_session.dart';
 part 'worker_clan.dart';
 part 'worker_members.dart';
@@ -76,6 +83,7 @@ part 'worker_fairy.dart';
 part 'worker_onboarding.dart';
 part 'worker_multiclan.dart';
 part 'worker_referral.dart';
+part 'worker_testkeys.dart';
 
 
 // -----------------------------------------------------------------------------
@@ -89,6 +97,39 @@ String _generateUuid() {
     bytes[8] = (bytes[8] & 0x3f) | 0x80;
     final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
     return '${hex.substring(0,8)}-${hex.substring(8,12)}-${hex.substring(12,16)}-${hex.substring(16,20)}-${hex.substring(20)}';
+}
+
+// Le message bref affiché (un seul à la fois, le dernier remplace le précédent).
+OverlayEntry? _messageBrefEntry;
+
+// Message bref en bas de l'écran (2,5 s par défaut), dans l'overlay du Navigator : au-dessus
+// des pages et du gel d'un interlude, transparent aux taps. Pas de popup. Né pour les
+// raccourcis de test (worker_testkeys._tkToast), promu utilitaire commun pour les annonces du
+// jeu (bascule de thème du clan, worker_store._themeEssai).
+void _messageBref(String msg, {int ms = 2500}) {
+
+    final overlay = PageRegistry.navigatorKey.currentState?.overlay;
+    if (overlay == null) return;
+    _messageBrefEntry?.remove();
+    final entry = OverlayEntry(builder: (_) => Positioned(
+        left: 0, right: 0, bottom: 48,
+        child: IgnorePointer(child: Center(child: DecoratedBox(
+            decoration: BoxDecoration(
+                color: const Color(0xCC000000),
+                borderRadius: BorderRadius.circular(8)),
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Text(msg, textAlign: TextAlign.center, style: const TextStyle(
+                    color: Color(0xFFFFFFFF), fontSize: 16,
+                    decoration: TextDecoration.none))))))));
+    overlay.insert(entry);
+    _messageBrefEntry = entry;
+    Future.delayed(Duration(milliseconds: ms), () {
+
+        if (_messageBrefEntry != entry) return;
+        entry.remove();
+        _messageBrefEntry = null;
+    });
 }
 
 // Brouillon d'un appel « Inspire moi » — PARTAGÉ par create_clan, rename_task et les trois
@@ -196,6 +237,26 @@ class worker extends DvBeing {
     // Distingue l'admin SOLO (<=1) : auto-validation conservée + bouton « Résurrection » sur l'écran
     // de mort ; à plusieurs admins, l'admin passe par la validation croisée comme un joueur lambda.
     int     _adminCount    = 0;
+    // Dernière synchro du thème du clan (worker_store._syncClanTheme) : on ne resynchronise
+    // pas la boutique à chaque retour au dashboard, deux minutes suffisent. La décision du
+    // chef arrive EN DIRECT par la vigilance de dvshop (projection clans_shop, crochet
+    // worker.on_shop_change) ; ceci n'est que le filet.
+    String    _clanThemeSyncClan = "";
+    DateTime? _clanThemeSyncAt;
+    // Bascule reçue en direct et mise en ATTENTE du bon moment (worker_store._themeEssai) :
+    // clanId, clanSecret, region, theme, mascot, by (et annonce une fois faite). Mémoire seule :
+    // la relecture du dashboard (_syncClanTheme) rattrape tout ce qu'un arrêt de l'app perdrait.
+    Map<String, String>? _themeAttente;
+    Timer?               _themeAttenteTimer;
+    DateTime?            _themeAttenteDepuis;
+    // Thème vers lequel une bascule est EN COURS (_appliquerThemeClan) : la vigilance, le filet
+    // et le bouton du chef peuvent viser le même thème au même instant, une seule bascule part
+    // (dvtheme.switchTheme sérialise, mais rejouerait le même thème une seconde fois).
+    String               _themeEnCours = "";
+    // Choix du thème à la création du clan EN COURS (worker_store._choisirThemeClan) : un
+    // second tap, sur la même carte ou sur l'autre, est ignoré tant que le premier n'a pas
+    // abouti ou échoué (deux `enable` croisés laisseraient le clan sur le dernier arrivé).
+    bool                 _themePickEnCours = false;
     // Statut légal de l'utilisateur courant dans le clan courant (cache indexé sur le même
     // couple que _isAdmin, et pour la même raison : bascule de compte ou impersonation sur le
     // même appareil doit forcer la relecture). Sert la SECONDE garde des surfaces commerciales
@@ -353,6 +414,14 @@ class worker extends DvBeing {
     // « levelup » qui s'achève est une bienvenue et que le tutoriel l'attend derrière. Il est tiré
     // dans TOUS les cas (fin normale, garde-fou, préemption) : le relais ne peut pas rester en l'air.
     bool _welcomeTuto = false;
+
+    // --- Accueil de la mascotte sur le dashboard (cf. worker_screen_tiroir._mascotGreet) -----
+    // Elle se présente une fois par LANCEMENT (en mémoire seulement : un redémarrage la refait
+    // parler), et de nouveau à la première arrivée après la CRÉATION d'un clan (armé par
+    // _playPendingClanWelcome). Un seul accueil en attente à la fois.
+    bool _mascotGreeted   = false;
+    bool _mascotGreetClan = false;
+    bool _mascotGreeting  = false;
 
     // --- Accueil et onboarding (cf. worker_onboarding) -------------------------------------
     // Le grand interlude d'accueil est en cours. Garde le double tap sur « Je suis nouveau » :
@@ -830,9 +899,13 @@ class worker extends DvBeing {
     // et il est persisté sur 3 surfaces (conf + layer runtime + Firestore) par _admApply.
     // Cf. _iconVisible / _iconEnabled / _buildEnabledMap / _buildHiddenStatusMap.
 
-    // Bordure d'origine de chaque tiroir, capturée avant de la repeindre en mode chef.
-    final Map<String, dynamic> _tiroirBorder = {};
-
+    // Couleurs posées à chaud par le code : ce sont des DÉFAUTS (valeurs donjon). Chaque thème
+    // peut les redéfinir dans la shape du widget (clés lues à côté de chaque usage), sans quoi
+    // le code repeindrait par-dessus la conf du thème (relevé lors du relooking X, 2026-10-12).
+    //   tiroirs   : shape.border_color (hors admin), shape.admin_border_color
+    //   segments  : shape.on_background_color / on_font_color / off_background_color / off_font_color
+    //   « Valider »: shape.opacity_on / opacity_off (cf. _confirmOpacity)
+    //   listes    : shape.armed_color (my_clans_page/list, ward_pick_page/list)
     final String _admBorderColor = "0xFFB03030";   // rouge : « tu es en train d'administrer »
 
     final String _defBorderColor = "0xFFB07328";   // or donjon : bordure des 20 tiroirs
@@ -845,6 +918,22 @@ class worker extends DvBeing {
     final String _segOffBg = "0xF01A1A1A";
 
     final String _segOffFg = "#C8A84B";
+
+    final String _armedColor = "0xFFCC4444";       // ligne « armée » des listes multiclan
+
+    // Opacité d'un bouton « Valider » de formulaire selon qu'il est actionnable. Défauts donjon
+    // 0.6 / 0.3 ; un thème les redéfinit par shape.opacity_on / shape.opacity_off du bouton
+    // (DvImageView applique shape.opacity au TEXTE : 0.6 fait un or éteint).
+    double _confirmOpacity(dynamic shape, bool enabled) {
+
+                                final v = shape?.get(enabled ? "shape.opacity_on" : "shape.opacity_off");
+                                if (v is num) return v.toDouble();
+                                return enabled ? 0.6 : 0.3;
+    }
+
+    // Couleur de la ligne « armée » d'une liste multiclan (shape.armed_color de la liste).
+    Future<String> _armedColorOf(String listId) async =>
+                                (await deva_get("registry.$listId.shape.armed_color"))?.toString() ?? _armedColor;
 
     // Tuile « + » (ajouter une TÂCHE) : une icône INJECTÉE dans la grille en mode admin, et non un
     // bouton flottant par-dessus — elle vit dans le tiroir, avec les autres, et ferme la marche.
@@ -1124,6 +1213,11 @@ class worker extends DvBeing {
     // sur la pile d'appel. Vidé au rappel comme à l'abandon (le suivant l'écrase).
     String _storePendingBuy = "";
 
+    // Produit Play acheté DEPUIS LA BOUTIQUE dvshop (worker.shop_buy_play) : son issue est
+    // rendue à dvshop (shop.store_purchased / shop.store_purchase_failed), sans les
+    // navigations d'un achat d'abonnement. Vide hors d'un tel achat.
+    String _shopPlayPending = "";
+
     // Écran du parrainage mis de côté le temps de la porte parentale (même raison que
     // l'achat ci-dessus) : `referral_page` ou `referral_declare_page`.
     String _referralPendingPage = "";
@@ -1245,6 +1339,9 @@ class worker extends DvBeing {
     @override
     Future<void> invoke() async {
 
+                                // Raccourcis clavier de test (I = interlude suivant, B = butin plein) :
+                                // build de test (DV_STOREMOCK) sur Windows seulement, cf. worker_testkeys.
+                                _installTestKeys();
                                 await _loadTuning();
                                 // Le défilement des langues sur le SEUIL. Lancé ici et non par un
                                 // `appear` de page : `awake` est bâtie avant que ce register ne soit

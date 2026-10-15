@@ -1,0 +1,199 @@
+# GÉNÉRÉ par E:\Deva\tmp\gen_transitions.py : ne pas éditer à la main.
+# Thème intermédiaire de donjon : l'écran brûle, reste carbonisé le temps du
+# téléchargement, puis tombe en cendres sur l'écran donjon.
+name: transition-donjon
+above: theme-donjon
+strategy: force
+tenant: global
+data:
+  interludes:
+    theme_transition_donjon:
+      scene: transition_donjon
+      guard: 270
+      on_covered:
+        bascule:
+          order: 1
+          action: dvtheme.transition_covered
+      sound: anim_burn
+      vibration: cue_burn
+  flame:
+    scenes:
+      transition_donjon:
+        lifecycle: mortal
+        autostart: false
+        on_finished:
+          end:
+            order: 1
+            action: dvinterlude.finished
+        objects:
+          carbone:
+            type: fill
+            order: 10
+            color: '#000000'
+            position:
+              x: 50%
+              y: 100%
+            anchor: bottom_center
+            size:
+              w: 100%
+              h: 0
+          braises:
+            type: particles
+            order: 15
+            preset: sparkles
+            position:
+              x: 50%
+              y: 50%
+            emission:
+              rate: 0
+              zone:
+                shape: rect
+                w: 96%
+                h: 96%
+            lifetime:
+              min: 0.6
+              max: 1.6
+            velocity:
+              angle: -90
+              angle_var: 40
+              speed: 10
+              speed_var: 8
+            particle_size:
+              start: 6
+              end: 1
+            blur: 3
+            opacity_var: 0.75
+            colors:
+              c1:
+                order: 1
+                color: '#FFFFECB3'
+              c2:
+                order: 2
+                color: '#FFFF9800'
+              c3:
+                order: 3
+                color: '#00E65100'
+          front_flammes:
+            type: particles
+            order: 20
+            preset: flame
+            position:
+              x: 50%
+              y: 100%
+            emission:
+              rate: 260
+              zone:
+                shape: line
+                w: 100%
+                h: 0
+            particle_size:
+              start: 26
+              end: 5
+            velocity:
+              angle: -90
+              angle_var: 14
+              speed: 110
+              speed_var: 45
+          front_cendres:
+            type: particles
+            order: 20
+            preset: ashes
+            position:
+              x: 50%
+              y: 100%
+            emission:
+              rate: 0
+              zone:
+                shape: line
+                w: 100%
+                h: 0
+            velocity:
+              speed: 45
+              speed_var: 25
+            acceleration:
+              y: 70
+            lifetime:
+              min: 2.3
+              max: 4.3
+        effects:
+          act1_haptic:
+            order: 1
+            type: hold
+            duration: 0.05
+            on_end:
+              vib:
+                order: 1
+                action: dvvibrations.start.burn_ignite
+          act1_carbone:
+            order: 1
+            target: carbone.size.h
+            from: 0
+            to: 100%
+            duration: 2.0
+            on_end:
+              vib:
+                order: 1
+                action: dvvibrations.start.burn_impact
+              couvert:
+                order: 2
+                action: dvinterlude.covered
+          act1_flammes:
+            order: 1
+            target: front_flammes.position.y
+            from: 100%
+            to: 0
+            duration: 2.0
+          act2_flammes:
+            order: 2
+            target: front_flammes.emission.rate
+            to: 0
+            duration: 0.3
+          act2_braises:
+            order: 2
+            target: braises.emission.rate
+            to: 60
+            duration: 0.3
+          act3_hold:
+            order: 3
+            type: hold
+            duration: 2.7
+            on_end:
+              vib:
+                order: 1
+                action: dvvibrations.start.burn_crumble
+            wait_until: theme
+            wait_max: 240
+          act4_carbone:
+            order: 4
+            target: carbone.size.h
+            from: 100%
+            to: 0
+            duration: 8.0
+          act4_carbone_top:
+            order: 4
+            target: carbone.position.y
+            from: 100%
+            to: 0
+            duration: 8.0
+          act4_cendres:
+            order: 4
+            target: front_cendres.position.y
+            from: 100%
+            to: 0
+            duration: 8.0
+          act4_pluie:
+            order: 4
+            target: front_cendres.emission.rate
+            from: 720
+            to: 720
+            duration: 8.0
+          act4_braises:
+            order: 4
+            target: braises.emission.rate
+            to: 0
+            duration: 0.4
+          act5_cendres:
+            order: 5
+            target: front_cendres.emission.rate
+            to: 0
+            duration: 0.1

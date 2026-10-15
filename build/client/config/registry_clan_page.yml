@@ -40,6 +40,8 @@ conf:
         - clan_page/roster_menu
         - clan_page/settings
         - clan_page/settings_menu
+        - clan_page/add_child_menu
+        - clan_page/advanced_menu
         - clan_page/switch
         - clan_page/edit_toggle
         - clan_page/edit_avatar_big
@@ -273,6 +275,8 @@ conf:
       class: DvMenuButton
       layer: content
       menu: clan_page/settings_menu
+      # Sous-menus ouverts depuis ce menu : leurs icônes sont préparées avec les siennes.
+      submenus: [clan_page/add_child_menu, clan_page/advanced_menu]
       menu_enabled: true
       # Même cadre doré que les boutons du roster (fond noir ~60 % + cadre doré).
       button_style: commons/donjon_button
@@ -306,10 +310,18 @@ conf:
         h: 5%
         border: false
 
-    # Menu du bouton settings de l'écran Clan (Journal, accueil d'un enfant, QR, invitation,
-    # tutoriels + « Créer un joueur »). Le selector clan_settings_selector filtre les options
-    # réservées au chef : recruter (enfant, QR, invitation à distance) et « Créer un joueur »
-    # n'apparaissent que pour un admin ; seuls le journal et les tutoriels sont visibles par tous.
+    # Menu du bouton settings de l'écran Clan : LES GESTES DE BASE, et rien d'autre.
+    #
+    # ⚠ REFONTE DU 2026-10-11 (retours joueurs). Jusqu'à treize options d'affilée, dont trois
+    #   qui parlaient d'enfants : « Accueillir un enfant » (il a un téléphone), « Créer un
+    #   joueur » (il n'en a pas) et « Mes enfants » (gérer ses clans). Un parent qui voulait
+    #   ajouter son enfant touchait « Mes enfants » : logique, et mauvaise porte. Désormais :
+    #     - « Ajouter mon enfant » ouvre un second choix au même endroit, « il a son téléphone »
+    #       ou « il n'en a pas » (clan_page/add_child_menu) ;
+    #     - l'invitation d'un adulte par QR code passe en tête ;
+    #     - tout ce que peu de clans utilisent part sous « Options avancées… »
+    #       (clan_page/advanced_menu).
+    #   Le selector clan_settings_selector garde les mêmes gardes (chef, adulte).
     # ⚠ Une option ajoutée ici est à reporter dans le panneau du tutoriel qui lui correspond
     #   (dvtuto.yml, menu_options ou menu_options_admin) : ils sont écrits à la main.
     clan_page/settings_menu:
@@ -320,12 +332,57 @@ conf:
       shape:
         w: 55%
       options:
+        # Fait entrer un ADULTE dans le clan par QR code (sans accord d'enfant joint, seul le cas
+        # adulte est proposé). Réservé au chef (clan_settings_selector), avec double garde dans
+        # worker.on_invite_clan.
+        clan_qr:
+          desc: "@@@T:clan_menu_qr_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_qr@@@"
+          actions:
+            tap: worker.on_invite_clan
+        # Ajouter mon enfant : ouvre clan_page/add_child_menu au même endroit (worker.open_add_child_menu).
+        # Réservé au chef, comme les deux options qu'il remplace.
+        add_child:
+          icon: "group_add"
+          desc: "@@@T:clan_menu_add_child_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_add_child@@@"
+          actions:
+            tap: worker.open_add_child_menu
         clan_log:
           desc: "@@@T:clan_menu_log_desc@@@"
           shape:
             label: "@@@T:clan_menu_log@@@"
           actions:
             tap: worker.open_clan_log
+        tutorials:
+          desc: "@@@T:clan_menu_tutorials_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_tutorials@@@"
+          actions:
+            tap: navigate_new.tutoriels
+        # Options avancées… : ouvre clan_page/advanced_menu au même endroit
+        # (worker.open_clan_advanced). Absente quand ce second menu serait vide (enfant simple).
+        advanced:
+          icon: "widgets"
+          desc: "@@@T:clan_menu_advanced_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_advanced@@@"
+          actions:
+            tap: worker.open_clan_advanced
+
+    # « Ajouter mon enfant » : le second choix, ouvert au même endroit que le menu du clan.
+    # Les deux options sont celles d'avant (welcome_child, create_player) sous un libellé qui
+    # dit la seule question qui les distingue : l'enfant a-t-il son propre téléphone ?
+    clan_page/add_child_menu:
+      class: DvMenu
+      layer: popup
+      selector: worker.clan_add_child_selector
+      show_label: false
+      shape:
+        w: 55%
+      options:
         # Accueillir un enfant : l'enfant a dit qu'il voulait jouer, son téléphone affiche un QR
         # code ; le chef le scanne, voit cet accord, déclare, puis invite (QR ou à distance).
         # C'est la SEULE porte d'un enfant : « QR Code du clan » et « Inviter à distance » ne
@@ -339,6 +396,37 @@ conf:
             label: "@@@T:clan_menu_welcome_child@@@"
           actions:
             tap: worker.on_welcome_child
+        # Créer un joueur enfant (sans téléphone ni compte Google), admis directement dans le
+        # clan. Réservé au chef (clan_settings_selector). Icône Material group_add (colorée par
+        # le thème, pas d'asset). Ouvre l'écran create_player_screen.
+        create_player:
+          icon: "group_add"
+          desc: "@@@T:clan_menu_create_player_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_create_player@@@"
+          actions:
+            tap: worker.create_player
+
+    # « Options avancées… » : ce que peu de clans utilisent, ouvert au même endroit que le menu
+    # du clan. Gardes inchangées, arbitrées par clan_advanced_selector.
+    clan_page/advanced_menu:
+      class: DvMenu
+      layer: popup
+      selector: worker.clan_advanced_selector
+      show_label: false
+      shape:
+        w: 55%
+      options:
+        # Invitation à distance : lien chiffré par PIN, partagé sur les réseaux sociaux (pas de QR).
+        # Icône Material Flutter (partage) au lieu d'un asset — colorée par le thème du menu.
+        # Réservé au chef (clan_settings_selector), double garde dans worker.on_invite_clan_remote.
+        clan_invite_remote:
+          icon: "share"
+          desc: "@@@T:clan_menu_invite_remote_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_invite_remote@@@"
+          actions:
+            tap: worker.on_invite_clan_remote
         # MULTICLAN. Accueillir un enfant qui a DÉJÀ un clan : le chef montre un QR code (ou un
         # lien + code) au représentant légal de l'enfant, qui autorise ce clan pour 7 jours.
         # Réservé au chef adulte (clan_settings_selector), double garde dans
@@ -360,41 +448,6 @@ conf:
             label: "@@@T:clan_menu_guardian_hub@@@"
           actions:
             tap: worker.open_guardian_hub
-        # Fait entrer un ADULTE dans le clan par QR code (sans accord d'enfant joint, seul le cas
-        # adulte est proposé). Réservé au chef (clan_settings_selector), avec double garde dans
-        # worker.on_invite_clan.
-        clan_qr:
-          desc: "@@@T:clan_menu_qr_desc@@@"
-          shape:
-            label: "@@@T:clan_menu_qr@@@"
-          actions:
-            tap: worker.on_invite_clan
-        # Invitation à distance : lien chiffré par PIN, partagé sur les réseaux sociaux (pas de QR).
-        # Icône Material Flutter (partage) au lieu d'un asset — colorée par le thème du menu.
-        # Réservé au chef (clan_settings_selector), double garde dans worker.on_invite_clan_remote.
-        clan_invite_remote:
-          icon: "share"
-          desc: "@@@T:clan_menu_invite_remote_desc@@@"
-          shape:
-            label: "@@@T:clan_menu_invite_remote@@@"
-          actions:
-            tap: worker.on_invite_clan_remote
-        tutorials:
-          desc: "@@@T:clan_menu_tutorials_desc@@@"
-          shape:
-            label: "@@@T:clan_menu_tutorials@@@"
-          actions:
-            tap: navigate_new.tutoriels
-        # Créer un joueur enfant (sans téléphone ni compte Google), admis directement dans le
-        # clan. Réservé au chef (clan_settings_selector). Icône Material group_add (colorée par
-        # le thème, pas d'asset). Ouvre l'écran create_player_screen.
-        create_player:
-          icon: "group_add"
-          desc: "@@@T:clan_menu_create_player_desc@@@"
-          shape:
-            label: "@@@T:clan_menu_create_player@@@"
-          actions:
-            tap: worker.create_player
         # L'IA DU CLAN : couper / rallumer, pour tous les joueurs (champ `ai_enabled` du doc
         # `clans`). Deux options EXCLUSIVES arbitrées par clan_settings_selector, réservées au
         # chef, double garde dans worker._setClanAi. Icônes Material : c'est un réglage.
@@ -441,10 +494,82 @@ conf:
             label: "@@@T:menu_rate_share@@@"
           actions:
             tap: worker.open_rate_panel
-        # « Mes achats » a DÉMÉNAGÉ dans le kebab de la boutique (shop/settings_menu).
+        # « Mes achats » a DÉMÉNAGÉ à la boutique (tuiles de la page d'entrée, dvshop).
         # Tout ce qui touche à l'argent se regroupe sur l'écran qui le vend : l'écran
         # Clan n'a plus à en parler, et l'on ne cherche plus son relevé de cotisation
         # sous un menu qui parle de recrutement et de tutoriels.
+
+    #//------------------------------- ECRAN d'AVANT le scan d'un enfant ----------------
+    # « Mon enfant a son téléphone » ouvrait la caméra sans un mot : le parent ne savait pas quoi
+    # viser (retour utilisateur du 2026-10-12). Cet écran dit d'abord ce qui doit se passer sur
+    # le téléphone de l'enfant ; la caméra ne s'ouvre qu'au toucher du bouton. Un scan abandonné
+    # ramène ici, un scan réussi remplace cet écran par la suite (worker.on_welcome_child_scan).
+    # Un ECRAN et non un overlay : comme invite_consent_screen, il couvre tout et se lit sur un
+    # fond qui ne bouge pas.
+    welcome_child_screen:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:clan_menu_add_child@@@"
+      registry:
+        - commons/splash_background
+        - welcome_child_screen/panel
+        - welcome_child_screen/text
+        - welcome_child_screen/scan
+        - welcome_child_screen/no
+
+    welcome_child_screen/panel:
+      class: DvLabel
+      layer: content
+      shape:
+        x: 4%
+        y: 2%
+        w: 92%
+        h: 68%
+        border: true
+        label: ""
+
+    welcome_child_screen/text:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 20%
+        w: 80%
+        h: 36%
+        text_align: CENTER
+        label: "@@@T:welcome_child_intro@@@"
+
+    welcome_child_screen/scan:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        y: 74%
+        h: 11%
+        text_align: CENTER
+        label: "@@@T:welcome_child_scan@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_welcome_child_scan
+
+    welcome_child_screen/no:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        y: 87%
+        h: 11%
+        text_align: CENTER
+        label: "@@@T:invite_consent_no@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_welcome_child_cancel
 
     #//------------------------------- ECRAN de CONSENTEMENT du chef (recrutement) -------
     # Ouvert par worker.on_invite_clan / on_invite_clan_remote / on_welcome_child / on_assent_link
@@ -592,25 +717,25 @@ conf:
         actions:
           tap: worker.on_invite_kind_toggle
 
-    # « Simple membre » ou « aussi chef de clan », en mode ADULTE seulement : meme emplacement que
-    # la bascule QR / a distance, qui n'existe qu'en mode enfant. Un tap bascule
-    # (worker.on_invite_chief_toggle) ; repart a « simple membre » a chaque ouverture.
+    # « Il sera aussi chef du clan », en mode ADULTE seulement : une CASE, juste sous « Il s'agit
+    # d'un adulte » (retour utilisateur du 2026-10-11 : un bouton « toucher pour changer » se lit
+    # mal, une case se comprend d'un coup d'œil). Décochée à chaque ouverture
+    # (worker.on_invite_consent_appear). HORS de documents/ack_options, et c'est voulu : cette
+    # liste est l'acquittement légal, et une case cochée y allume le bouton d'invitation.
     invite_consent_screen/chief:
-      masks:
-        - commons/btn_wide
+      class: DvCheck
       layer: content
       shape:
         x: 7%
-        y: 62%
+        y: 61.5%
         w: 86%
-        h: 7%
-        text_align: CENTER
-        label: ""
+        h: 5%
+        label: "@@@T:invite_consent_chief_check@@@"
         visible: false
         events:
-          tap: true
+          change: true
         actions:
-          tap: worker.on_invite_chief_toggle
+          change: worker.on_invite_chief_toggle
 
     # Le bouton est ETEINT ET SOURD a l'ouverture de l'ecran, et ne s'allume qu'une fois une
     # case cochee (worker._setInviteYesReady) : une invitation sans declaration ne part pas.

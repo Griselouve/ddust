@@ -141,6 +141,11 @@ extension Worker_notify on worker {
                                     case "consent_withdrawn":
                                         DvOrb.navigate_reset("clan_page");
                                         return;
+                                    // Nouveau thème du clan (_notifyClanTheme) : le dashboard, où la
+                                    // relecture du thème (_ensurePlayerVigilance) fait la bascule.
+                                    case "theme_changed":
+                                        DvOrb.navigate_reset("dashboard");
+                                        return;
                                     // Boss, onboarding, retour du clan : le dashboard est le point de
                                     // départ du parcours dans les trois cas — c'est de là qu'on entre
                                     // dans les domaines, et donc qu'on tombe sur la tâche promue.
@@ -555,6 +560,82 @@ extension Worker_notify on worker {
                     }
     }
 
+    // -----------------------------------------------------------------------
+    // --- Nouveau thème du clan : « Ton clan a changé de thème : X ! »
+    // -----------------------------------------------------------------------
+    //
+    // Pour les membres dont l'app est FERMÉE : ceux dont elle est ouverte basculent par leur
+    // vigilance (dvshop, crochet worker.on_shop_change) avec une annonce à l'écran. Le push leur
+    // part aussi : l'émetteur ne sait pas qui a l'app ouverte, et un message de trop vaut mieux
+    // qu'un clan qui découvre son nouvel habillage sans savoir pourquoi.
+    //
+    // Regroupement PAR LANGUE, comme _notifyClanKey ; le nom du thème est traduit dans la langue
+    // du destinataire (`theme_name_<id sans « theme- »>`, repli fr puis identifiant nu). Une
+    // action UNIQUE et SANS libellé (modèle _notifyConsentWithdrawn) : le tap sur le corps ouvre
+    // l'app au dashboard (on_pulse_open, motif theme_changed), où la bascule se fait.
+    //
+    // Jamais fatale : le thème est DÉJÀ changé pour le clan quand on arrive ici.
+    Future<void> _notifyClanTheme(String clanId, String region, String theme) async {
+
+                    if (clanId.isEmpty || theme.isEmpty) return;
+                    final suffixe = theme.replaceFirst("theme-", "");
+                    try {
+                        final players = await _cloud?.list(
+                            "workers", "clans_players/$clanId/players", region: region) ?? [];
+
+                        final byLang = <String, List<String>>{};
+                        for (final p in players) {
+                            final pid = p.get("id")?.toString() ?? "";
+                            if (pid.isEmpty || pid == _userId) continue;     // pas le chef qui l'a choisi
+                            if (p.get("enabled")    == false) continue;      // membre révoqué
+                            if (p.get("has_device") == false) continue;      // déclaré hors ligne
+                            final devices = List<dynamic>.from(p.get("devices") as List? ?? [])
+                                .map((d) => d.toString()).where((d) => d.isNotEmpty).toList();
+                            if (devices.isEmpty) continue;
+                            final lang = p.get("lang")?.toString() ?? "fr";
+                            (byLang[lang] ??= <String>[]).addAll(devices);
+                        }
+                        if (byLang.isEmpty) { deva_log("info", "[notify] thème : aucun destinataire"); return; }
+
+                        final data = {"clanId": clanId, "motive": "theme_changed"};
+
+                        for (final entry in byLang.entries) {
+                            final lang = entry.key;
+
+                            Future<String> tr(String key) async {
+                                var v = (await deva_get("lang.translations.$key.$lang"))?.toString() ?? "";
+                                if (v.isEmpty) v = (await deva_get("lang.translations.$key.fr"))?.toString() ?? "";
+                                return v;
+                            }
+
+                            var text = await tr("notif_theme_changed");
+                            if (text.isEmpty) continue;                      // clef absente : on se tait
+                            var nom = await tr("theme_name_$suffixe");
+                            if (nom.isEmpty) nom = suffixe;
+                            text = text.replaceAll("{theme}", nom);
+
+                            try {
+                                final r = await _sendClanMsg(dvmsg(
+                                    range:    'global',
+                                    label:    text,
+                                    recipes:  entry.value,
+                                    data:     data,
+                                    category: 'clan',
+                                    actions: {
+                                        "open": {"action": "worker.on_pulse_open", "wakeup": true},
+                                    },
+                                ));
+                                deva_log("info", "[notify] thème $theme → ${entry.value.length} appareil(s) ($lang)"
+                                    " : sent=${r?.get('sent')} dead=${r?.get('dead')}");
+                            } catch (e) {
+                                deva_log("error", "[notify] thème ($lang) échec: $e");
+                            }
+                        }
+                    } catch (e) {
+                        deva_log("error", "[notify] _notifyClanTheme FAILED: $e");
+                    }
+    }
+
     // Prévient le joueur payé, dans SA langue (même schéma que _notifyItemGift) : il a de l'argent
     // à réclamer, et le jeu ne peut pas le lui donner tout seul. Sans appareil (enfant sans
     // compte) : rien à envoyer, le versement a bien eu lieu.
@@ -600,7 +681,8 @@ extension Worker_notify on worker {
                                     String levelerName, bool gotTitle, int titleIdx) async {
 
                 if (clanId.isEmpty || clanSecret.isEmpty) return;
-                final name = levelerName.isNotEmpty ? levelerName : "Un aventurier";
+                // Sans nom, le repli (notif_someone) est traduit plus bas, dans la langue du destinataire.
+                final name = levelerName;
                 try {
                     final players = await _cloud?.list(
                         "workers", "clans_players/$clanId/players", region: region) ?? [];
@@ -622,7 +704,7 @@ extension Worker_notify on worker {
 
                         var text = gotTitle ? await tr("levelup_notif_title") : await tr("levelup_notif");
                         if (text.isEmpty) continue;
-                        text = text.replaceAll("{name}", name);
+                        text = text.replaceAll("{name}", name.isNotEmpty ? name : await tr("notif_someone"));
                         if (gotTitle) text = text.replaceAll("{title}", await tr("player_title_$titleIdx"));
 
                         try {
@@ -719,9 +801,11 @@ extension Worker_notify on worker {
                     if (head.isEmpty) head = subscribed ? "demande la validation"
                                                         : "demande une validation : touchez pour l'ouvrir";
 
+                    // Demandeur sans nom : repli traduit dans la langue du chef (notif_someone_player).
+                    final who = requesterName.isNotEmpty ? requesterName : await tr("notif_someone_player");
                     final label = title.isNotEmpty
-                        ? "[$title] $requesterName $head"
-                        : "$requesterName $head";
+                        ? "[$title] $who $head"
+                        : "$who $head";
 
                     Map<String, dynamic> actions;
                     if (subscribed) {
@@ -783,7 +867,8 @@ extension Worker_notify on worker {
                                        String promotedId, String promotedName) async {
 
                 if (clanId.isEmpty || clanSecret.isEmpty || promotedId.isEmpty) return;
-                final name = promotedName.isNotEmpty ? promotedName : "Un aventurier";
+                // Sans nom, le repli (notif_someone) est traduit plus bas, dans la langue du destinataire.
+                final name = promotedName;
 
                 try {
                     final players = await _cloud?.list(
@@ -801,7 +886,10 @@ extension Worker_notify on worker {
                         var text = (await deva_get("lang.translations.promote_chief_clan.$lang"))?.toString() ?? "";
                         if (text.isEmpty) text = (await deva_get("lang.translations.promote_chief_clan.fr"))?.toString() ?? "";
                         if (text.isEmpty) continue;
-                        text = text.replaceAll("{name}", name);
+                        var who = name;
+                        if (who.isEmpty) who = (await deva_get("lang.translations.notif_someone.$lang"))?.toString() ?? "";
+                        if (who.isEmpty) who = (await deva_get("lang.translations.notif_someone.fr"))?.toString() ?? "";
+                        text = text.replaceAll("{name}", who);
 
                         try {
                             final r = await _sendClanMsg(dvmsg(

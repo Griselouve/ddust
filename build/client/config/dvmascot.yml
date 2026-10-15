@@ -1,0 +1,313 @@
+# -----------------------------------------------------------------------------
+# --- Le bébé dragon : mascotte de ddust (module framework dvmascot, sprite dvsprite).
+# --- Maquette validée le 2026-10-11 (E:\Deva\tmp\dragon\maquette.py). Poses générées par
+# --- Gemini à partir du grand dragon de bronze du fond Clan, détourées, mises à une échelle
+# --- COMMUNE (prepare.py) : même taille de tête au sol et en vol, plus large < 384 px pour que
+# --- imgshaking `medium` ne les retouche pas. Le miroir (regarder à droite) est fait au rendu.
+# -----------------------------------------------------------------------------
+conf:
+
+  mascot:
+    enabled: true
+    # Ligne du sol : le haut de la barre d'onglets. Sans barre (écrans plein contenu), 90 % de
+    # la hauteur de l'écran.
+    ground:
+      shape: commons/taskbar
+      offset: 0
+      fallback: 0.9
+    # Onboarding : jamais. Le clan doit exister (clan_done), et ces écrans restent nus même
+    # pour un joueur déjà installé qui y repasse.
+    roles:
+      adult: worker.player_is_adult
+      ai_enabled: worker.clan_ai_enabled
+      ai_check: worker.clan_ai_check       # relit `ai_enabled` du clan avant d'ouvrir la discussion
+    requires:
+      worker.session.clan_done: "true"
+    hidden_masks: [page_onboarding]
+    # Caché tant qu'une de ces clés du store vaut true : un interlude (dvinterlude), en plus de
+    # son état vivant que la mascotte lit déjà.
+    hidden_when: [interludes.playing]
+    # Caché tant qu'une de ces shapes est visible sur la page courante : le message d'un
+    # événement du jeu (overlay commons/evt_*, worker_events.dart ; evt_ok est montré et caché
+    # avec tout l'overlay).
+    hidden_shapes: [commons/evt_ok]
+    hidden_screens:
+      - home
+      - awake
+      - lang_choice
+      - region_screen
+      - player_name_screen
+      - age_screen
+      - parentalgate_screen
+      - documents_acceptance_screen
+      - documents_view_screen
+      - kid_assent_screen
+      - kid_assent_share
+      - link_account_screen
+      - new_or_pick_clan
+      - new_or_pick_clan_minor
+      - create_clan
+      - decisiontree
+      # Le choix du thème : deux grandes cartes pleine largeur, rien à couvrir.
+      - theme_pick_page
+      - join_wait
+      - enter_invite_pin
+      - kid_wants_clan
+      # La cérémonie de la fée : un écran-événement, la mascotte n'y a pas sa place.
+      - fairy_page
+    style:
+      bubble_color: "0xF01A1A1A"
+      border_color: "amber_200"
+      text_color: "amber_200"
+      pointer_color: "0xFFFF3B30"
+      font_size: 13
+
+    ai:
+      daily_questions: 30
+      # La FICHE PARENTS : ce que le dragon sait hors des menus. Condensée le 2026-10-13 du site
+      # (concept, « Données & mineurs ») et des CGU adulte France ; elle suit la CIBLE légale.
+      # Ce qui se montre (menus, tutoriels) n'y est pas : les catalogues le portent, générés
+      # depuis l'application. Courte exprès : elle repart avec CHAQUE question (coût en jetons).
+      knowledge: |
+        LE JEU. Donjons & Savons est un jeu de famille : la maison est un donjon, la famille un
+        clan, chaque tâche ménagère un monstre. Un joueur choisit une tâche (bouton central « Au
+        ménage ! »), la fait pour de vrai, déclare l'avoir vaincue, puis un chef de clan vérifie et
+        valide. Le joueur gagne de l'expérience (XP) et des niveaux, avec des titres amusants ; le
+        clan progresse aussi. L'XP du clan remplit le coffre : plein, la famille ouvre le butin, une
+        VRAIE récompense choisie à l'avance par les parents (argent de poche, sortie, soirée
+        pizza…). L'argent promis est partagé selon l'XP de chacun, les objets tirés au sort en
+        faveur de ceux qui ont le moins reçu. Un joueur qui ne fait plus rien perd doucement ses
+        points de vie ; à zéro, il accomplit un gage pour revivre, et une seule tâche répare tout.
+        Ce n'est jamais une punition : c'est une alerte pour en parler.
+        LES RÔLES. Les chefs de clan (adultes) choisissent les tâches, valident, garnissent le
+        butin et invitent ; un enfant ne peut pas être chef. Un parent peut jouer ou se mettre
+        « hors concours » : il fait progresser le clan sans apparaître dans les classements ni
+        prendre part au butin. Un chef peut donner un coup de pouce d'XP à un retardataire. Ces
+        gestes sur un joueur se font en touchant sa tuile sur l'écran Clan. Un enfant sans
+        téléphone joue quand même : un parent lui crée un profil et joue à sa place depuis le sien.
+        Un enfant peut appartenir à plusieurs clans (familles recomposées), avec l'accord de son
+        représentant légal.
+        L'ABONNEMENT. Le jeu est gratuit au départ, sans limite de durée, jusqu'à quelques tâches
+        accomplies (trois à deux membres ou plus, dix en solo). Ensuite le clan a besoin d'un
+        abonnement, un seul pour tout le clan, pris par un adulte dans la Boutique, où le prix est
+        affiché. Il se renouvelle tout seul et se résilie depuis les abonnements du compte Google,
+        jamais dans l'application. Sans abonnement, le clan est bloqué mais rien n'est effacé. La
+        Boutique vend aussi des décors, objets et classes de personnage ; jamais d'XP, de niveau ni
+        de tâche validée sans l'avoir faite. Seuls les adultes achètent.
+        DONNÉES ET SÉCURITÉ. Aucune publicité, aucun traqueur. Les photos et vidéos de tâches
+        restent sur le téléphone (vidéos sans son). Seule la distinction enfant/adulte est gardée,
+        jamais la date de naissance. Chaque clan est fermé : pas de tchat, pas d'inconnus, on
+        n'entre que sur invitation d'un adulte. Le parent peut voir, faire effacer et refuser toute
+        collecte sur son enfant ; un chef peut retirer son consentement pour un enfant depuis sa
+        tuile sur l'écran Clan (3 jours pour changer d'avis). Supprimer son compte se fait dans
+        les options avancées de l'écran Moi ; résilier l'abonnement AVANT. Les données partent
+        hors service tout de suite, effacées après 30 jours. Toi, le dragon, tu ne gardes rien de
+        la conversation. Contact : donjons@grisloup.com.
+        NOTIFICATIONS ET RÉGLAGES PERSONNELS. Langue, rappels, notifications (pour ce clan ou pour
+        tous), conditions d'utilisation, confidentialité et suppression du compte sont dans l'écran
+        Moi, menu « … », « Options avancées… ».
+        CONSEILS AUX PARENTS. Valoriser l'effort plutôt que le résultat ; jouer avec ses enfants
+        sans les écraser ; choisir ensemble un butin qui motive ; une perte de points de vie
+        signale un enfant qui décroche, pas une faute. Le tutoriel « Guide du parent » développe
+        tout cela.
+      rules: |
+        RÈGLES, dans cet ordre :
+        1. Si le parent veut FAIRE quelque chose dans l'application et qu'une destination y
+           correspond, tu ne montres RIEN tout de suite : tu REFORMULES ce que tu as compris, avec
+           tes mots, et tu demandes si c'est bien ça. action = "confirm", destination = l'identifiant.
+           Choisis la destination la plus PRÉCISE : l'option elle-même, jamais l'onglet ou le menu
+           qui y mène.
+        2. Si le parent veut COMPRENDRE une partie du jeu, ou des conseils de parent, et qu'un
+           tutoriel en parle : réponds en une ou deux phrases, puis propose de le lancer.
+           action = "confirm", lesson = l'identifiant du tutoriel, destination = "".
+        3. Si le parent confirme une reformulation précédente : action = "guide" (destination) ou
+           "tuto" (lesson), la même cible, texte = une phrase courte (« Suis-moi ! »).
+        4. S'il dit non, ou si la demande est floue, pose UNE question pour préciser.
+           action = "clarify".
+        5. Question générale sur le jeu, ses règles, l'abonnement, les données ou la vie de famille
+           autour du jeu : réponds directement avec ce que tu sais. action = "answer". Ajoute une
+           destination ou un tutoriel seulement s'il aide vraiment. Pour le détail juridique, renvoie
+           vers les conditions d'utilisation ou la confidentialité.
+        6. Hors sujet (rien à voir avec le jeu ou la famille autour du jeu) : tu ne réponds PAS sur
+           le fond, tu dis gentiment que ce n'est pas ton domaine et tu ramènes au jeu. Si tu ne
+           sais pas : dis-le franchement, propose un tutoriel ou l'adresse de contact. N'invente JAMAIS un bouton, un écran, un prix ou une règle qui
+           n'est pas écrit ici. Ne propose pas à un membre ce que seul un chef peut faire. Ne
+           demande jamais d'information personnelle.
+
+    guide:
+      # LES MENUS, DÉCLARÉS EN ENTIER (2026-10-13) : chaque option devient une destination
+      # `<id>_<clé>`, décrite par son libellé et sa `desc` traduits, filtrée par le `selector` du
+      # menu (ce que CET utilisateur y verrait : droits de chef, adulte, état des réglages).
+      # Avant, quinze destinations écrites à la main : le menu Personnage n'y était pas, et
+      # « comment ne plus recevoir de notifications ? » s'arrêtait sur l'onglet « Moi ».
+      # L'option FINALE est désignée, jamais touchée.
+      menus:
+        - menu: clan_page/settings_menu
+          id: clan
+          where: "Écran Clan, menu « … »"
+          via: [{page: clan_page}, {tap: clan_page/settings}]
+        - menu: clan_page/add_child_menu
+          id: clan_enfant
+          where: "Écran Clan, menu « … », « Ajouter mon enfant »"
+          via: [{page: clan_page}, {tap: clan_page/settings}, {option: "clan_page/settings_menu#add_child"}]
+        - menu: clan_page/advanced_menu
+          id: clan_avance
+          where: "Écran Clan, menu « … », « Options avancées… »"
+          via: [{page: clan_page}, {tap: clan_page/settings}, {option: "clan_page/settings_menu#advanced"}]
+          pairs: [[clan_ai_off, clan_ai_on]]
+        - menu: personnage/settings_menu
+          id: moi
+          where: "Écran Moi, menu « … »"
+          via: [{page: personnage}, {tap: personnage/settings}]
+        - menu: personnage/advanced_menu
+          id: moi_avance
+          where: "Écran Moi, menu « … », « Options avancées… »"
+          via: [{page: personnage}, {tap: personnage/settings}, {option: "personnage/settings_menu#advanced"}]
+          pairs: [[nudges_off, nudges_on], [notif_clan_off, notif_clan_on], [notif_all_off, notif_all_on]]
+      # Ce que les menus ne disent pas : les onglets du bas.
+      destinations:
+        tab_boutique:
+          desc: "Onglet « Boutique » en bas : abonnement du clan, achats, codes cadeaux."
+          path: [{point: shop_open}]
+        tab_clan:
+          desc: "Onglet « Clan » en bas : les membres du clan, son niveau, le coffre du butin."
+          path: [{point: clan_open}]
+        tab_menage:
+          desc: "Bouton central « Au ménage ! » en bas : choisir une pièce puis une tâche à combattre."
+          path: [{point: combat_open}]
+        tab_moi:
+          desc: "Onglet « Moi » en bas : son personnage, son niveau, ses points de vie (ses réglages sont dans le menu « … » de cet écran, voir les destinations moi_*)."
+          path: [{point: personnage_open}]
+        tab_items:
+          desc: "Onglet « Items » en bas : les objets gagnés et le coffre du clan (le butin)."
+          path: [{point: testme_open}]
+
+    # ---------------------------------------------------------------------------
+    # Le PERSONNAGE : apparence (`look`) ET personnalité (répertoires, noms de poses,
+    # caresse, persona de l'IA). Un thème en désigne un autre par `mascot.character`
+    # (thème X : le bébé phénix) ; toute clé absente du personnage est lue à la racine.
+    # ---------------------------------------------------------------------------
+    character: dragon
+    characters:
+      dragon:
+        name: "Vermithrax"           # noms propres, identiques dans toutes les langues (dvmascot : titre du chat, {name}/{short})
+        short_name: "Vermi"
+        base_pose: ref
+        look:
+          height: 78               # hauteur affichée du dragon assis (px logiques)
+          base_height_px: 277      # hauteur du contenu de la pose `ref` dans son image source
+          base: ref
+          clips:
+            marche: { poses: [marche_a, marche_b], ms: 170, loop: true }
+            vol:    { poses: [vol_milieu, vol_haut, vol_milieu, vol_bas], ms: 90, loop: true }
+          poses:
+            ref:        { image: "images/medium/dragon/ref.png", w: 321, h: 292, foot: 0.986 }
+            cligne:     { image: "images/medium/dragon/cligne.png", w: 321, h: 292, foot: 0.979 }
+            aide:       { image: "images/medium/dragon/aide.png", w: 321, h: 292, foot: 0.983 }
+            assis:      { image: "images/medium/dragon/assis.png", w: 321, h: 292, foot: 0.986 }
+            rugit:      { image: "images/medium/dragon/rugit.png", w: 321, h: 292, foot: 0.983 }
+            leche:      { image: "images/medium/dragon/leche.png", w: 321, h: 292, foot: 0.983 }
+            pose:       { image: "images/medium/dragon/pose.png", w: 321, h: 292, foot: 0.986 }
+            marche_a:   { image: "images/medium/dragon/marche_a.png", w: 321, h: 292, foot: 1.000 }
+            marche_b:   { image: "images/medium/dragon/marche_b.png", w: 321, h: 292, foot: 1.000 }
+            baille:     { image: "images/medium/dragon/baille.png", w: 321, h: 292, foot: 0.983 }
+            etire:      { image: "images/medium/dragon/etire.png", w: 321, h: 292, foot: 0.959 }
+            gratte:     { image: "images/medium/dragon/gratte.png", w: 321, h: 292, foot: 0.979 }
+            queue:      { image: "images/medium/dragon/queue.png", w: 321, h: 292, foot: 0.986 }
+            dort:       { image: "images/medium/dragon/dort.png", w: 321, h: 292, foot: 0.983 }
+            saute:      { image: "images/medium/dragon/saute.png", w: 321, h: 292, foot: 0.949 }
+            rit:        { image: "images/medium/dragon/rit.png", w: 321, h: 292, foot: 0.997 }
+            surpris:    { image: "images/medium/dragon/surpris.png", w: 321, h: 292, foot: 0.976 }
+            flamme:     { image: "images/medium/dragon/flamme.png", w: 321, h: 292, foot: 0.966 }
+            roule:      { image: "images/medium/dragon/roule.png", w: 321, h: 292, foot: 0.928 }
+            coucou:     { image: "images/medium/dragon/coucou.png", w: 321, h: 292, foot: 0.976 }
+            timide:     { image: "images/medium/dragon/timide.png", w: 321, h: 292, foot: 0.990 }
+            dos:        { image: "images/medium/dragon/dos.png", w: 321, h: 292, foot: 0.928 }
+            vol_haut:   { image: "images/medium/dragon/vol_haut.png", w: 382, h: 349, foot: 0.946 }
+            vol_milieu: { image: "images/medium/dragon/vol_milieu.png", w: 382, h: 349, foot: 0.948 }
+            vol_bas:    { image: "images/medium/dragon/vol_bas.png", w: 382, h: 349, foot: 1.000 }
+        poses_names:
+          land: pose
+          help: aide
+          listen: assis
+          think: queue
+          wave: coucou
+          yawn: baille
+          sleep: dort
+          surprised: surpris
+          blink: cligne
+          laugh: rit
+          shy: timide
+          petted: dos            # couché sur le dos, aux anges : la caresse
+        clips_names:
+          walk: marche
+          fly: vol
+        # Répertoire au repos : [pose, ms], tiré au hasard selon `weight`. `fx` : hop | pulse | shake | squash.
+        idle:
+          - { weight: 45, seq: [[cligne, 130], [ref, 0]] }
+          - { weight: 10, seq: [[leche, 1300], [cligne, 130], [ref, 0]] }
+          - { weight: 8,  seq: [[baille, 1200], [ref, 0]] }
+          - { weight: 8,  seq: [[etire, 1500], [ref, 0]] }
+          - { weight: 8,  seq: [[gratte, 1300], [ref, 0]], fx: shake }
+          - { weight: 8,  seq: [[queue, 1600], [ref, 0]] }
+          - { weight: 6,  seq: [[coucou, 1000], [ref, 0]] }
+          - { weight: 7,  seq: [[saute, 420], [ref, 0]], fx: hop }
+        # Réactions d'un ENFANT qui touche le dragon (un adulte ouvre la discussion).
+        reactions:
+          - { weight: 1, seq: [[assis, 500], [rugit, 1100], [ref, 0]], fx: pulse }
+          - { weight: 1, seq: [[rit, 1100], [ref, 0]], fx: shake }
+          - { weight: 1, seq: [[saute, 450], [ref, 0]], fx: hop }
+          - { weight: 1, seq: [[assis, 350], [flamme, 1300], [ref, 0]] }
+          - { weight: 1, seq: [[roule, 1600], [ref, 0]] }
+          - { weight: 1, seq: [[surpris, 600], [coucou, 900], [ref, 0]], fx: hop }
+          - { weight: 1, seq: [[timide, 1400], [ref, 0]] }
+        pet:
+          threshold: 24          # px de frottement avant qu'il ne se mette sur le dos
+          linger: 0.9            # s qu'il reste sur le dos après la caresse
+        ai:
+          persona: |
+            Tu es Vermi (de ton vrai nom Vermithrax), le petit dragon de Donjons & Savons, un bébé dragon gentil et malicieux qui aide un
+            PARENT dans l'application. Tu tutoies, tu es bref (2 à 3 phrases), chaleureux, un brin
+            espiègle, jamais technique.
+
+
+  registry:
+    # Le calque de la mascotte : rendu AU-DESSUS du Navigator (il survit aux changements d'écran
+    # et passe par-dessus les menus ouverts). Ses coordonnées sont celles de l'écran.
+    orb:
+      registry:
+      - mascot_layer
+
+    mascot_layer:
+      class: DvLayer
+      registry:
+      - mascot/fx
+      - mascot/sprite
+
+    # Le décor (bulle, « z », rond d'appui, cadre + flèche) : plein écran, ne capte que la bulle.
+    mascot/fx:
+      class: DvMascotFx
+      layer: front
+      shape:
+        x: 0
+        y: 0
+        w: 100%
+        h: 100%
+
+    mascot/sprite:
+      class: DvAnimatedSprite
+      layer: front
+      shape:
+        # L'apparence vient du personnage (mascot.characters.<nom>.look).
+        # Tap : réaction (enfant) ou discussion (adulte). Glisser le doigt dessus : caresse, pour
+        # tout le monde, il se met sur le dos et profite.
+        events:
+          tap: true
+          panstart: true
+          panupdate: true
+          panend: true
+        actions:
+          tap: dvmascot.tap
+          panstart: dvmascot.pet_start
+          panupdate: dvmascot.pet
+          panend: dvmascot.pet_end

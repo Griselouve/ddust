@@ -1,0 +1,20 @@
+data:
+  layers:
+    conf:
+      above: core
+      name: conf
+      strategy: default
+      tenant: global
+    core:
+      above: null
+      name: core
+      strategy: default
+      tenant: global
+    runtime:
+      above: conf
+      name: runtime
+      strategy: default
+      tenant: global
+name: core
+strategy: default
+tenant: global

@@ -37,6 +37,7 @@ extension Worker_forms on worker {
 
                                 // Édition d'une tâche/domaine (écran rename_task, masks commons/inspireform_*).
                                 ActionRegistry.register("worker.on_rename_task_appear",       on_rename_task_appear);
+                                ActionRegistry.register("worker.clan_ai_check",               clan_ai_check);
 
                                 ActionRegistry.register("worker.on_rename_task_name_changed", on_rename_task_name_changed);
 
@@ -154,7 +155,7 @@ extension Worker_forms on worker {
                                 if (draft.name.isNotEmpty) {
                                     nameEntry?.set("shape.value", draft.name); nameEntry?.refreshUI();
                                     final confirm = DvOrb.get_shape_by_id("$prefix/confirm");
-                                    confirm?.set("shape.opacity", 0.6);
+                                    confirm?.set("shape.opacity", _confirmOpacity(confirm, true));
                                     confirm?.set("shape.events.tap", true);
                                     confirm?.refreshUI();
                                 }
@@ -244,8 +245,15 @@ extension Worker_forms on worker {
                                     deva_log("warning", "[ia] lecture du réglage du clan en échec "
                                         "(dernière valeur : ${_iaClanCoupee ? "coupée" : "permise"}) : $e");
                                 }
+                                // Publié pour la mascotte (dvmascot, `roles.ai_enabled`) : elle ne
+                                // parle pas à un clan dont le chef a coupé l'IA.
+                                await _publishRole("worker.clan_ai_enabled", !_iaClanCoupee);
                                 return !_iaClanCoupee;
     }
+
+    // Action `worker.clan_ai_check` : la mascotte la demande quand un parent ouvre sa discussion,
+    // pour décider sur un réglage RELU et non sur la dernière valeur connue.
+    Future<bool> clan_ai_check(dynamic caller, dynamic event) => _iaDuClan();
 
     // Moteur « Inspire moi » partagé (create_clan / rename_task / écrans joueur). `prefix` = id
     // d'écran (shapes <prefix>/name, <prefix>/desc, <prefix>/confirm, <prefix>/replay).
@@ -465,7 +473,7 @@ extension Worker_forms on worker {
 
                                 replay?.set("shape.visible", false); replay?.refreshUI();
                                 final enabled = curName.trim().isNotEmpty;
-                                confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, enabled));
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
 
@@ -485,7 +493,7 @@ extension Worker_forms on worker {
                                 _originalName = value.trim();
                                 final confirm = DvOrb.get_shape_by_id("rename_task/confirm");
                                 final enabled = value.trim().isNotEmpty;
-                                confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, enabled));
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
     }
@@ -953,7 +961,7 @@ extension Worker_forms on worker {
                                 nameEntry?.set("shape.value", ""); nameEntry?.refreshUI();
                                 descEntry?.set("shape.value", ""); descEntry?.refreshUI();
                                 replay?.set("shape.visible", false); replay?.refreshUI();
-                                confirm?.set("shape.opacity", 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, false));
                                 confirm?.set("shape.events.tap", false);
                                 confirm?.refreshUI();
     }
@@ -966,7 +974,7 @@ extension Worker_forms on worker {
                                 _originalName = value.trim();
                                 final confirm = DvOrb.get_shape_by_id("player_name_screen/confirm");
                                 final enabled = value.trim().isNotEmpty;
-                                confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, enabled));
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
     }
@@ -1014,7 +1022,7 @@ extension Worker_forms on worker {
                                 _originalName = current.trim();
                                 _originalDesc = desc;
                                 final enabled = current.trim().isNotEmpty;
-                                confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, enabled));
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
     }
@@ -1026,7 +1034,7 @@ extension Worker_forms on worker {
                                 final confirm = DvOrb.get_shape_by_id("player_rename_screen/confirm");
                                 _originalName = value.trim();
                                 final enabled = value.trim().isNotEmpty;
-                                confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, enabled));
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
     }
@@ -1120,7 +1128,7 @@ extension Worker_forms on worker {
                                 nameEntry?.set("shape.value", ""); nameEntry?.refreshUI();
                                 descEntry?.set("shape.value", ""); descEntry?.refreshUI();
                                 replay?.set("shape.visible", false); replay?.refreshUI();
-                                confirm?.set("shape.opacity", 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, false));
                                 confirm?.set("shape.events.tap", false);
                                 confirm?.refreshUI();
     }
@@ -1143,7 +1151,7 @@ extension Worker_forms on worker {
                                 final confirm = DvOrb.get_shape_by_id("create_player_screen/confirm");
                                 _originalName = value.trim();
                                 final enabled = value.trim().isNotEmpty;
-                                confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, enabled));
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
     }

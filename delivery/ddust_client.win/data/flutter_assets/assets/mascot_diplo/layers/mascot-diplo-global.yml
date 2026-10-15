@@ -1,0 +1,90 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud\mascot_diplo\layers\mascot-diplo-global.yml
+# GÉNÉRÉ par E:\Deva\tmp\dino\prepare_diplo.py : ne pas éditer à la main.
+# Mini-thème « mascotte diplodocus » (catalogue theme.minis, groupe mascot) : Diplo, le bébé
+# diplodocus vert du thème dino, choisissable quel que soit le thème. Il ne vole JAMAIS
+# (flight.enabled: false, dvmascot) : il marche, et reste du côté de l'écran où il est né.
+name: mascot-diplo
+above: theme-donjon
+strategy: force
+tenant: global
+tags: [mascot-diplo]
+data:
+  mascot:
+    character: diplo
+    characters:
+      diplo:
+        name: "Diplodocus Hallorum"   # noms propres, identiques dans toutes les langues (dvmascot : titre du chat, {name}/{short})
+        short_name: "Diplo"
+        base_pose: ref
+        flight: { enabled: false }
+        look:
+          height: 80
+          base_height_px: 384
+          base: ref
+          clips:
+            marche: { poses: [marche_a, marche_b], ms: 190, loop: true }
+          poses:
+            ref:        { image: "images/medium/diplo/ref.png", w: 384, h: 387, foot: 0.992 }
+            cligne:     { image: "images/medium/diplo/cligne.png", w: 384, h: 387, foot: 0.992 }
+            aide:       { image: "images/medium/diplo/aide.png", w: 384, h: 387, foot: 0.995 }
+            assis:      { image: "images/medium/diplo/assis.png", w: 384, h: 387, foot: 0.990 }
+            appelle:    { image: "images/medium/diplo/appelle.png", w: 384, h: 387, foot: 1.000 }
+            mange:      { image: "images/medium/diplo/mange.png", w: 384, h: 387, foot: 0.987 }
+            pose:       { image: "images/medium/diplo/pose.png", w: 384, h: 387, foot: 0.992 }
+            marche_a:   { image: "images/medium/diplo/marche_a.png", w: 384, h: 387, foot: 0.990 }
+            marche_b:   { image: "images/medium/diplo/marche_b.png", w: 384, h: 387, foot: 0.990 }
+            baille:     { image: "images/medium/diplo/baille.png", w: 384, h: 387, foot: 0.992 }
+            etire:      { image: "images/medium/diplo/etire.png", w: 384, h: 387, foot: 0.969 }
+            gratte:     { image: "images/medium/diplo/gratte.png", w: 384, h: 387, foot: 0.987 }
+            queue:      { image: "images/medium/diplo/queue.png", w: 384, h: 387, foot: 0.992 }
+            dort:       { image: "images/medium/diplo/dort.png", w: 384, h: 387, foot: 1.000 }
+            saute:      { image: "images/medium/diplo/saute.png", w: 384, h: 387, foot: 0.969 }
+            rit:        { image: "images/medium/diplo/rit.png", w: 384, h: 387, foot: 0.992 }
+            surpris:    { image: "images/medium/diplo/surpris.png", w: 384, h: 387, foot: 0.992 }
+            bulle:      { image: "images/medium/diplo/bulle.png", w: 384, h: 387, foot: 0.992 }
+            roule:      { image: "images/medium/diplo/roule.png", w: 384, h: 387, foot: 0.879 }
+            coucou:     { image: "images/medium/diplo/coucou.png", w: 384, h: 387, foot: 0.969 }
+            timide:     { image: "images/medium/diplo/timide.png", w: 384, h: 387, foot: 0.992 }
+            dos:        { image: "images/medium/diplo/dos.png", w: 384, h: 387, foot: 1.000 }
+        poses_names:
+          land: pose
+          help: aide
+          listen: assis
+          think: queue
+          wave: coucou
+          yawn: baille
+          sleep: dort
+          surprised: surpris
+          blink: cligne
+          laugh: rit
+          shy: timide
+          petted: roule          # sur le dos, ventre en l'air : la caresse
+        clips_names:
+          walk: marche
+          fly: marche            # jamais utilisé (pas de vol), par sûreté
+        idle:
+          - { weight: 45, seq: [[cligne, 130], [ref, 0]] }
+          - { weight: 12, seq: [[mange, 1500], [cligne, 130], [ref, 0]] }
+          - { weight: 8,  seq: [[baille, 1200], [ref, 0]] }
+          - { weight: 8,  seq: [[etire, 1500], [ref, 0]] }
+          - { weight: 8,  seq: [[gratte, 1300], [ref, 0]], fx: shake }
+          - { weight: 8,  seq: [[queue, 1600], [ref, 0]] }
+          - { weight: 6,  seq: [[coucou, 1000], [ref, 0]] }
+          - { weight: 5,  seq: [[saute, 420], [ref, 0]], fx: hop }
+        reactions:
+          - { weight: 1, seq: [[assis, 500], [appelle, 1100], [ref, 0]], fx: pulse }
+          - { weight: 1, seq: [[rit, 1100], [ref, 0]], fx: shake }
+          - { weight: 1, seq: [[saute, 450], [ref, 0]], fx: hop }
+          - { weight: 1, seq: [[assis, 350], [bulle, 1400], [ref, 0]] }
+          - { weight: 1, seq: [[roule, 1600], [ref, 0]] }
+          - { weight: 1, seq: [[surpris, 600], [coucou, 900], [ref, 0]], fx: hop }
+          - { weight: 1, seq: [[timide, 1400], [ref, 0]] }
+        pet:
+          threshold: 24
+          linger: 0.9
+        ai:
+          persona: |
+            Tu es Diplo (de ton vrai nom Diplodocus Hallorum), le bébé diplodocus vert de Donjons & Savons, doux, curieux et un peu gourmand,
+            qui aide un PARENT dans l'application. Tu tutoies, tu es bref (2 à 3 phrases), chaleureux, tu
+            parles simplement, jamais technique, et tu ne fais jamais peur.

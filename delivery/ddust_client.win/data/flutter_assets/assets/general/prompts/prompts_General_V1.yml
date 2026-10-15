@@ -1,0 +1,17 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud\general\prompts\prompts_General_V1.yml
+# Prompts « inspire » (VertexAI). Le corps de chaque prompt vit désormais dans
+# lang.translations (clés prompt_inspire_*), rédigé nativement par langue et résolu
+# par get_prompt via @@@T:...@@@ (repli fr pour toute langue non traduite). Les
+# placeholders données @@@worker.inspire_input@@@ / @@@worker.inspire_lang@@@ sont
+# résolus après la traduction.
+prompts:
+  agents:
+    inspire_clan: "@@@T:prompt_inspire_clan@@@"
+    inspire_task: "@@@T:prompt_inspire_task@@@"
+    # Inspiration d'un PERSONNAGE : mêmes quatre valeurs que inspire_clan (nom, description, et
+    # leurs substituts publics), en un seul appel. Qui ne demande pas d'inspiration ne déclenche
+    # AUCUN appel : son nom public est alors tiré d'une banque locale, dans le worker.
+    inspire_player: "@@@T:prompt_inspire_player@@@"
+    # Conte du butin (worker._narrateClanStory) : récit narratif du clan, tiré du journal.
+    narrate_clan: "@@@T:prompt_narrate_clan@@@"

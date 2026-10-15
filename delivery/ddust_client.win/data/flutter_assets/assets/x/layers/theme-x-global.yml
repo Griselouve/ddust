@@ -1,0 +1,452 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud\x\layers\theme-x-global.yml
+# Thème X (v2, 2026-10-12) : le thème DONJON, plus ce que les ado-testeurs ont aimé du X relooké
+# (archivé dans E:\Deva\tmp\theme-x-global.relook-v1.yml) :
+#   1. les titres en MedievalSharp, plus grands (mi-chemin entre donjon et le relook, + 2 points) ;
+#   2. le texte des boutons en gras ;
+#   3. dans « Au ménage », chaque domaine et chaque tâche encadrés, aux couleurs de donjon.
+# Tout le reste (couleurs, opacités, géométrie, images, textes, mascotte, transition) est celui de
+# donjon. GÉNÉRÉ par E:\Deva\tmp\_xt_x2.py.
+name: theme-x
+above: theme-donjon
+strategy: force
+tenant: global
+tags: [theme-x]
+data:
+  registry:
+
+    #------------------------------- 1. Titres : médiévale, un peu plus grands
+    accept_invitation_clan/title:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 22.0
+    butin_tale_page/text:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 19.0
+    clan_page/label:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 21.0
+    combat/icon_label:
+      shape:
+        font_size: 19.0
+    documents/acceptance_title:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 19.0
+    item_view_page/name:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 23.0
+    lang_choice/title:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 22.0
+    link_account/title:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 21.0
+    my_clans_page/switch_label:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 27.0
+    personnage/label:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 21.0
+    referral_page/code:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 30.0
+    shop/label:
+      shape:
+        font_family: "MedievalSharp"
+        font_size: 21.0
+
+    #------------------------------- 2. Boutons : texte en gras
+    accept_invitation_clan/confirm:
+      shape:
+        font_weight: bold
+    butin_note_page/ok:
+      shape:
+        font_weight: bold
+    butin_notes_page/ok:
+      shape:
+        font_weight: bold
+    butin_open_page/ok:
+      shape:
+        font_weight: bold
+    butin_page/ok:
+      shape:
+        font_weight: bold
+    butin_rewards_page/ok:
+      shape:
+        font_weight: bold
+    butin_tale_page/ok:
+      shape:
+        font_weight: bold
+    clan_page/consent_no:
+      shape:
+        font_weight: bold
+    clan_page/consent_yes:
+      shape:
+        font_weight: bold
+    clan_page/invite_cta:
+      shape:
+        font_weight: bold
+    combat/cancel:
+      shape:
+        font_weight: bold
+    combat/ok:
+      shape:
+        font_weight: bold
+    combat/proof:
+      shape:
+        font_weight: bold
+    combat/validate_ko:
+      shape:
+        font_weight: bold
+    combat/validate_ok:
+      shape:
+        font_weight: bold
+    combat/validate_partial:
+      shape:
+        font_weight: bold
+    commons/dark_button:
+      shape:
+        font_weight: bold
+    commons/death_revive:
+      shape:
+        font_weight: bold
+    commons/evt_ok:
+      shape:
+        font_weight: bold
+    commons/impersonation_back:
+      shape:
+        font_weight: bold
+    commons/inspireform_confirm:
+      shape:
+        font_weight: bold
+    commons/mode_admin:
+      shape:
+        font_weight: bold
+    commons/mode_game:
+      shape:
+        font_weight: bold
+    commons/store_dunning:
+      shape:
+        font_weight: bold
+    create_clan/confirm:
+      shape:
+        font_weight: bold
+    create_player_screen/confirm:
+      shape:
+        font_weight: bold
+    documents/acceptance_accept:
+      shape:
+        font_weight: bold
+    documents/age_confirm:
+      shape:
+        font_weight: bold
+    documents/region_confirm:
+      shape:
+        font_weight: bold
+    enter_invite_pin/confirm:
+      shape:
+        font_weight: bold
+    fairy_page/gift_left:
+      shape:
+        font_weight: bold
+    fairy_page/gift_right:
+      shape:
+        font_weight: bold
+    giftcode_page/confirm:
+      shape:
+        font_weight: bold
+    giftcode_page/ok_close:
+      shape:
+        font_weight: bold
+    guardian_qr_page/confirm:
+      shape:
+        font_weight: bold
+    guardian_qr_page/remote:
+      shape:
+        font_weight: bold
+    guardian_qr_page/share:
+      shape:
+        font_weight: bold
+    home/already_have_account:
+      shape:
+        font_weight: bold
+    home/connect:
+      shape:
+        font_weight: bold
+    home/rejected_close:
+      shape:
+        font_weight: bold
+    imp_pin_ask/cancel:
+      shape:
+        font_weight: bold
+    imp_pin_ask/unlock:
+      shape:
+        font_weight: bold
+    imp_pin_set/cancel:
+      shape:
+        font_weight: bold
+    invite_clan/share:
+      shape:
+        font_weight: bold
+    invite_clan_pin/share:
+      shape:
+        font_weight: bold
+    invite_consent_screen/kind:
+      shape:
+        font_weight: bold
+    invite_consent_screen/yes:
+      shape:
+        font_weight: bold
+    item_view_page/apply:
+      shape:
+        font_weight: bold
+    join_wait/giveup:
+      shape:
+        font_weight: bold
+    kid_assent/go:
+      shape:
+        font_weight: bold
+    kid_assent_share/scan:
+      shape:
+        font_weight: bold
+    kid_assent_share/send:
+      shape:
+        font_weight: bold
+    kid_wants_clan/scan_qr:
+      shape:
+        font_weight: bold
+    link_account/conflict_cancel:
+      shape:
+        font_weight: bold
+    link_account/conflict_confirm:
+      shape:
+        font_weight: bold
+    link_account/google_button:
+      shape:
+        font_weight: bold
+    locked_page/revive:
+      shape:
+        font_weight: bold
+    money_page/ok:
+      shape:
+        font_weight: bold
+    new_or_pick_clan/confirm_scan:
+      shape:
+        font_weight: bold
+    new_or_pick_clan/confirm_yes:
+      shape:
+        font_weight: bold
+    new_or_pick_clan/create:
+      shape:
+        font_weight: bold
+    new_or_pick_clan/join:
+      shape:
+        font_weight: bold
+    personnage/coming_soon:
+      shape:
+        font_weight: bold
+    personnage/delete_no:
+      shape:
+        font_weight: bold
+    personnage/delete_yes:
+      shape:
+        font_weight: bold
+    player_name_screen/confirm:
+      shape:
+        font_weight: bold
+    player_rename_screen/confirm:
+      shape:
+        font_weight: bold
+    profile/lang_label:
+      shape:
+        font_weight: bold
+    profile/logout_button:
+      shape:
+        font_weight: bold
+    profile/mydata_button:
+      shape:
+        font_weight: bold
+    referral_declare_page/confirm:
+      shape:
+        font_weight: bold
+    referral_declare_page/ok_close:
+      shape:
+        font_weight: bold
+    referral_page/copy:
+      shape:
+        font_weight: bold
+    referral_page/share:
+      shape:
+        font_weight: bold
+    rename_task/confirm:
+      shape:
+        font_weight: bold
+    shop/coming_soon:
+      shape:
+        font_weight: bold
+    shop/mascot_test:
+      shape:
+        font_weight: bold
+    shop/mock_close:
+      shape:
+        font_weight: bold
+    shop/theme_test:
+      shape:
+        font_weight: bold
+    welcome_child_screen/scan:
+      shape:
+        font_weight: bold
+
+    #------------------------------- 3. « Au ménage » : tuiles encadrées (couleurs donjon)
+    # icons_shape = l'habillage de CHAQUE tuile (lu par dvtiroir_motor) : fond noir translucide,
+    # filet or du cadre des tiroirs donjon (0xFFB07328), coins doux. Les tuiles sont jointives
+    # (DvTiroir ne lit aucun écart), comme sous le X relooké que les testeurs ont vu.
+    combat/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    salon_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    animaux_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    bureau_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    chambre_enfant_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    chambre_parentale_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    courses_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    cuisine_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    dechets_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    entree_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    extras_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    garage_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    vehicules_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    jardin_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    linge_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    repas_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    vaisselle_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    salle_de_bain_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    terrasse_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0
+    toilettes_tasks/tiroir:
+      icons_shape:
+        background_color: "0x66000000"
+        border: true
+        border_color: "0xFFB07328"
+        border_size: 1.0
+        border_radius: 10.0

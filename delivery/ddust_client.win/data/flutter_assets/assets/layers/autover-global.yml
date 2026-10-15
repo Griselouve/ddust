@@ -1,0 +1,14 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud/general/layers/autover-global.yml
+# ---------------------------------------------------------------
+# GENERE par builder.py depuis le build.yml de la suite.
+# Ne pas editer : toute modification est ecrasee au prochain build.
+# Source : build.yml -> autover
+# ---------------------------------------------------------------
+name: autover
+above: conf
+strategy: default
+tenant: global
+data:
+  autover:
+    steps: []

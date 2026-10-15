@@ -1,0 +1,60 @@
+# ---------------------------------------------------------------
+# GENERE par builder.py depuis le build.yml de la suite.
+# Ne pas editer : toute modification est ecrasee au prochain build.
+# Source : build.yml -> shop
+# ---------------------------------------------------------------
+name: shop-catalog
+above: conf
+strategy: default
+tenant: global
+data:
+  shop:
+    catalog:
+      version: 1
+      tags:
+        chef:
+          doc: clans/{scope}
+          field: admins
+          contains: '{actor}'
+        majeur:
+          deva: worker.player_is_adult
+        essai:
+          deva: store.mock.available
+      currencies:
+        gold:
+          doc: clans_players/{scope}/players/{actor}
+          field: gold
+          symbol: 🪙
+      items:
+        theme-donjon:
+          label: '@@@T:shop_it_theme_donjon@@@'
+          subtitle: '@@@T:shop_it_theme_donjon_sub@@@'
+          section: themes
+          rank: 1
+          image: images/big/theme_vitrine_donjon.png
+          price:
+            kind: free
+          policy: once
+          default: true
+          toggle_group: theme
+          toggle_default: true
+          tags:
+          - chef
+          after_purchase: owned
+        theme-dino:
+          label: '@@@T:shop_it_theme_dino@@@'
+          subtitle: '@@@T:shop_it_theme_dino_sub@@@'
+          section: themes
+          rank: 2
+          image: images/big/theme_vitrine_dino.png
+          price:
+            kind: free
+          policy: once
+          default: true
+          toggle_group: theme
+          tags:
+          - chef
+          after_purchase: owned
+        theme-x:
+          retired: true
+          toggle_group: theme

@@ -396,8 +396,11 @@ extension Worker_log on worker {
                                     }
 
                                     final totals = StringBuffer();
-                                    if (names.isNotEmpty)  totals.writeln("Membres du clan : ${names.join(", ")}.");
-                                    if (totalXp > 0)       totals.writeln("XP totale accumulée par le clan : $totalXp XP.");
+                                    // Dans la langue du joueur, celle du conte demandé (inspire_lang ci-dessous).
+                                    if (names.isNotEmpty)  totals.writeln(TranslationRegistry.translate("log_prompt_members")
+                                                               .replaceAll("{names}", names.join(", ")));
+                                    if (totalXp > 0)       totals.writeln(TranslationRegistry.translate("log_prompt_xp")
+                                                               .replaceAll("{xp}", "$totalXp"));
 
                                     const langNames = {"fr": "French", "en": "English", "es": "Spanish", "de": "German",
                                                        "it": "Italian", "pt": "European Portuguese", "br": "Brazilian Portuguese",

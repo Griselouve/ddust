@@ -1,0 +1,967 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud\dino_transition\layers\transition-dino-global.yml
+# GÉNÉRÉ par E:\Deva\tmp\dino\scripts\gen_transition_dino.py : ne pas éditer à la main.
+# Thème intermédiaire du thème dino : un rideau de grandes feuilles se referme sur l'écran,
+# tient (en bruissant, quelques feuilles tombent) le temps du téléchargement, puis s'écarte
+# vers les bords pour révéler l'écran du nouveau thème.
+# À poser en resources_cloud/dino_transition/layers/transition-dino-global.yml.
+name: transition-dino
+above: theme-donjon
+strategy: force
+tenant: global
+data:
+  interludes:
+    theme_transition_dino:
+      scene: transition_dino
+      guard: 270
+      on_covered:
+        bascule:
+          order: 1
+          action: dvtheme.transition_covered
+      sound: anim_heal
+      vibration: cue_heal
+  flame:
+    scenes:
+      transition_dino:
+        lifecycle: mortal
+        autostart: false
+        on_finished:
+          end:
+            order: 1
+            action: dvinterlude.finished
+        objects:
+          fond:
+            type: fill
+            order: 5
+            color: '#1B5E20'
+            position:
+              x: 0
+              y: 0
+            anchor: top_left
+            size:
+              w: 100%
+              h: 100%
+            opacity: 0
+          chute:
+            type: particles
+            order: 100
+            particle_shape: circle
+            position:
+              x: 50%
+              y: 0
+            emission:
+              rate: 0
+              zone:
+                shape: line
+                w: 100%
+                h: 0
+            velocity:
+              angle: 90
+              angle_var: 25
+              speed: 45
+              speed_var: 20
+            acceleration:
+              x: 0
+              y: 10
+            lifetime:
+              min: 5.0
+              max: 8.0
+            particle_size:
+              start: 10
+              end: 8
+            size_var: 0.5
+            opacity_var: 0.3
+            colors:
+              c1:
+                order: 1
+                color: '#AED581'
+              c2:
+                order: 2
+                color: '#C5E1A5'
+              c3:
+                order: 3
+                color: '#00DCEDC8'
+          feuille_g1:
+            type: fill
+            shape: circle
+            order: 10
+            color: '#2E7D32'
+            position:
+              x: -62%
+              y: 6%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: -24
+          nervure_g1:
+            type: fill
+            order: 11
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: -62%
+              y: 6%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: -24
+          feuille_d1:
+            type: fill
+            shape: circle
+            order: 12
+            color: '#2E7D32'
+            position:
+              x: 162%
+              y: 6%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: 24
+          nervure_d1:
+            type: fill
+            order: 13
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: 162%
+              y: 6%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: 24
+          feuille_g2:
+            type: fill
+            shape: circle
+            order: 14
+            color: '#388E3C'
+            position:
+              x: -62%
+              y: 24%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: 18
+          nervure_g2:
+            type: fill
+            order: 15
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: -62%
+              y: 24%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: 18
+          feuille_d2:
+            type: fill
+            shape: circle
+            order: 16
+            color: '#388E3C'
+            position:
+              x: 162%
+              y: 24%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: -18
+          nervure_d2:
+            type: fill
+            order: 17
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: 162%
+              y: 24%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: -18
+          feuille_g3:
+            type: fill
+            shape: circle
+            order: 18
+            color: '#43A047'
+            position:
+              x: -62%
+              y: 41%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: -20
+          nervure_g3:
+            type: fill
+            order: 19
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: -62%
+              y: 41%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: -20
+          feuille_d3:
+            type: fill
+            shape: circle
+            order: 20
+            color: '#43A047'
+            position:
+              x: 162%
+              y: 41%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: 20
+          nervure_d3:
+            type: fill
+            order: 21
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: 162%
+              y: 41%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: 20
+          feuille_g4:
+            type: fill
+            shape: circle
+            order: 22
+            color: '#33691E'
+            position:
+              x: -62%
+              y: 58%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: 22
+          nervure_g4:
+            type: fill
+            order: 23
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: -62%
+              y: 58%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: 22
+          feuille_d4:
+            type: fill
+            shape: circle
+            order: 24
+            color: '#33691E'
+            position:
+              x: 162%
+              y: 58%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: -22
+          nervure_d4:
+            type: fill
+            order: 25
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: 162%
+              y: 58%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: -22
+          feuille_g5:
+            type: fill
+            shape: circle
+            order: 26
+            color: '#558B2F'
+            position:
+              x: -62%
+              y: 76%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: -18
+          nervure_g5:
+            type: fill
+            order: 27
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: -62%
+              y: 76%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: -18
+          feuille_d5:
+            type: fill
+            shape: circle
+            order: 28
+            color: '#558B2F'
+            position:
+              x: 162%
+              y: 76%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: 18
+          nervure_d5:
+            type: fill
+            order: 29
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: 162%
+              y: 76%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: 18
+          feuille_g6:
+            type: fill
+            shape: circle
+            order: 30
+            color: '#4CAF50'
+            position:
+              x: -62%
+              y: 94%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: 20
+          nervure_g6:
+            type: fill
+            order: 31
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: -62%
+              y: 94%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: 20
+          feuille_d6:
+            type: fill
+            shape: circle
+            order: 32
+            color: '#4CAF50'
+            position:
+              x: 162%
+              y: 94%
+            anchor: center
+            size:
+              w: 96%
+              h: 27%
+            rotation: -20
+          nervure_d6:
+            type: fill
+            order: 33
+            color: '#A5D6A7'
+            opacity: 0.7
+            position:
+              x: 162%
+              y: 94%
+            anchor: center
+            size:
+              w: 82%
+              h: 0.8%
+            rotation: -20
+        effects:
+          act1_haptic:
+            order: 1
+            type: hold
+            duration: 0.05
+            on_end:
+              vib:
+                order: 1
+                action: dvvibrations.start.heal_pulse
+          act1_fond:
+            order: 1
+            target: fond.opacity
+            from: 0
+            to: 1
+            duration: 1.2
+            curve: ease_in
+            on_end:
+              couvert:
+                order: 1
+                action: dvinterlude.covered
+          act2_chute:
+            order: 2
+            target: chute.emission.rate
+            from: 0
+            to: 6
+            duration: 0.5
+          act2_hold:
+            order: 2
+            type: hold
+            duration: 1.5
+            wait_until: theme
+            wait_max: 240
+          act3_fond:
+            order: 3
+            target: fond.opacity
+            from: 1
+            to: 0
+            duration: 1.4
+            curve: ease_in_out
+          act3_chute:
+            order: 3
+            target: chute.emission.rate
+            to: 0
+            duration: 0.3
+          act1_feuille_g1:
+            order: 1
+            target: feuille_g1.position.x
+            from: -62%
+            to: 24%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_g1:
+            order: 1
+            type: oscillate
+            target: feuille_g1.rotation
+            from: -27
+            to: -21
+            period: 2.4
+            phase: 0
+          act3_feuille_g1:
+            order: 3
+            target: feuille_g1.position.x
+            from: 24%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_g1:
+            order: 1
+            target: nervure_g1.position.x
+            from: -62%
+            to: 24%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_g1:
+            order: 1
+            type: oscillate
+            target: nervure_g1.rotation
+            from: -27
+            to: -21
+            period: 2.4
+            phase: 0
+          act3_nervure_g1:
+            order: 3
+            target: nervure_g1.position.x
+            from: 24%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_d1:
+            order: 1
+            target: feuille_d1.position.x
+            from: 162%
+            to: 76%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_d1:
+            order: 1
+            type: oscillate
+            target: feuille_d1.rotation
+            from: 21
+            to: 27
+            period: 2.4
+            phase: 30
+          act3_feuille_d1:
+            order: 3
+            target: feuille_d1.position.x
+            from: 76%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_d1:
+            order: 1
+            target: nervure_d1.position.x
+            from: 162%
+            to: 76%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_d1:
+            order: 1
+            type: oscillate
+            target: nervure_d1.rotation
+            from: 21
+            to: 27
+            period: 2.4
+            phase: 30
+          act3_nervure_d1:
+            order: 3
+            target: nervure_d1.position.x
+            from: 76%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_g2:
+            order: 1
+            target: feuille_g2.position.x
+            from: -62%
+            to: 30%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_g2:
+            order: 1
+            type: oscillate
+            target: feuille_g2.rotation
+            from: 15
+            to: 21
+            period: 2.4
+            phase: 60
+          act3_feuille_g2:
+            order: 3
+            target: feuille_g2.position.x
+            from: 30%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_g2:
+            order: 1
+            target: nervure_g2.position.x
+            from: -62%
+            to: 30%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_g2:
+            order: 1
+            type: oscillate
+            target: nervure_g2.rotation
+            from: 15
+            to: 21
+            period: 2.4
+            phase: 60
+          act3_nervure_g2:
+            order: 3
+            target: nervure_g2.position.x
+            from: 30%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_d2:
+            order: 1
+            target: feuille_d2.position.x
+            from: 162%
+            to: 70%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_d2:
+            order: 1
+            type: oscillate
+            target: feuille_d2.rotation
+            from: -21
+            to: -15
+            period: 2.4
+            phase: 90
+          act3_feuille_d2:
+            order: 3
+            target: feuille_d2.position.x
+            from: 70%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_d2:
+            order: 1
+            target: nervure_d2.position.x
+            from: 162%
+            to: 70%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_d2:
+            order: 1
+            type: oscillate
+            target: nervure_d2.rotation
+            from: -21
+            to: -15
+            period: 2.4
+            phase: 90
+          act3_nervure_d2:
+            order: 3
+            target: nervure_d2.position.x
+            from: 70%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_g3:
+            order: 1
+            target: feuille_g3.position.x
+            from: -62%
+            to: 20%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_g3:
+            order: 1
+            type: oscillate
+            target: feuille_g3.rotation
+            from: -23
+            to: -17
+            period: 2.4
+            phase: 120
+          act3_feuille_g3:
+            order: 3
+            target: feuille_g3.position.x
+            from: 20%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_g3:
+            order: 1
+            target: nervure_g3.position.x
+            from: -62%
+            to: 20%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_g3:
+            order: 1
+            type: oscillate
+            target: nervure_g3.rotation
+            from: -23
+            to: -17
+            period: 2.4
+            phase: 120
+          act3_nervure_g3:
+            order: 3
+            target: nervure_g3.position.x
+            from: 20%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_d3:
+            order: 1
+            target: feuille_d3.position.x
+            from: 162%
+            to: 80%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_d3:
+            order: 1
+            type: oscillate
+            target: feuille_d3.rotation
+            from: 17
+            to: 23
+            period: 2.4
+            phase: 150
+          act3_feuille_d3:
+            order: 3
+            target: feuille_d3.position.x
+            from: 80%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_d3:
+            order: 1
+            target: nervure_d3.position.x
+            from: 162%
+            to: 80%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_d3:
+            order: 1
+            type: oscillate
+            target: nervure_d3.rotation
+            from: 17
+            to: 23
+            period: 2.4
+            phase: 150
+          act3_nervure_d3:
+            order: 3
+            target: nervure_d3.position.x
+            from: 80%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_g4:
+            order: 1
+            target: feuille_g4.position.x
+            from: -62%
+            to: 31%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_g4:
+            order: 1
+            type: oscillate
+            target: feuille_g4.rotation
+            from: 19
+            to: 25
+            period: 2.4
+            phase: 180
+          act3_feuille_g4:
+            order: 3
+            target: feuille_g4.position.x
+            from: 31%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_g4:
+            order: 1
+            target: nervure_g4.position.x
+            from: -62%
+            to: 31%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_g4:
+            order: 1
+            type: oscillate
+            target: nervure_g4.rotation
+            from: 19
+            to: 25
+            period: 2.4
+            phase: 180
+          act3_nervure_g4:
+            order: 3
+            target: nervure_g4.position.x
+            from: 31%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_d4:
+            order: 1
+            target: feuille_d4.position.x
+            from: 162%
+            to: 69%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_d4:
+            order: 1
+            type: oscillate
+            target: feuille_d4.rotation
+            from: -25
+            to: -19
+            period: 2.4
+            phase: 210
+          act3_feuille_d4:
+            order: 3
+            target: feuille_d4.position.x
+            from: 69%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_d4:
+            order: 1
+            target: nervure_d4.position.x
+            from: 162%
+            to: 69%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_d4:
+            order: 1
+            type: oscillate
+            target: nervure_d4.rotation
+            from: -25
+            to: -19
+            period: 2.4
+            phase: 210
+          act3_nervure_d4:
+            order: 3
+            target: nervure_d4.position.x
+            from: 69%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_g5:
+            order: 1
+            target: feuille_g5.position.x
+            from: -62%
+            to: 21%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_g5:
+            order: 1
+            type: oscillate
+            target: feuille_g5.rotation
+            from: -21
+            to: -15
+            period: 2.4
+            phase: 240
+          act3_feuille_g5:
+            order: 3
+            target: feuille_g5.position.x
+            from: 21%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_g5:
+            order: 1
+            target: nervure_g5.position.x
+            from: -62%
+            to: 21%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_g5:
+            order: 1
+            type: oscillate
+            target: nervure_g5.rotation
+            from: -21
+            to: -15
+            period: 2.4
+            phase: 240
+          act3_nervure_g5:
+            order: 3
+            target: nervure_g5.position.x
+            from: 21%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_d5:
+            order: 1
+            target: feuille_d5.position.x
+            from: 162%
+            to: 79%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_d5:
+            order: 1
+            type: oscillate
+            target: feuille_d5.rotation
+            from: 15
+            to: 21
+            period: 2.4
+            phase: 270
+          act3_feuille_d5:
+            order: 3
+            target: feuille_d5.position.x
+            from: 79%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_d5:
+            order: 1
+            target: nervure_d5.position.x
+            from: 162%
+            to: 79%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_d5:
+            order: 1
+            type: oscillate
+            target: nervure_d5.rotation
+            from: 15
+            to: 21
+            period: 2.4
+            phase: 270
+          act3_nervure_d5:
+            order: 3
+            target: nervure_d5.position.x
+            from: 79%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_g6:
+            order: 1
+            target: feuille_g6.position.x
+            from: -62%
+            to: 29%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_g6:
+            order: 1
+            type: oscillate
+            target: feuille_g6.rotation
+            from: 17
+            to: 23
+            period: 2.4
+            phase: 300
+          act3_feuille_g6:
+            order: 3
+            target: feuille_g6.position.x
+            from: 29%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_g6:
+            order: 1
+            target: nervure_g6.position.x
+            from: -62%
+            to: 29%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_g6:
+            order: 1
+            type: oscillate
+            target: nervure_g6.rotation
+            from: 17
+            to: 23
+            period: 2.4
+            phase: 300
+          act3_nervure_g6:
+            order: 3
+            target: nervure_g6.position.x
+            from: 29%
+            to: -75%
+            duration: 1.4
+            curve: ease_in
+          act1_feuille_d6:
+            order: 1
+            target: feuille_d6.position.x
+            from: 162%
+            to: 71%
+            duration: 1.2
+            curve: back_out
+          bruisse_feuille_d6:
+            order: 1
+            type: oscillate
+            target: feuille_d6.rotation
+            from: -23
+            to: -17
+            period: 2.4
+            phase: 330
+          act3_feuille_d6:
+            order: 3
+            target: feuille_d6.position.x
+            from: 71%
+            to: 175%
+            duration: 1.4
+            curve: ease_in
+          act1_nervure_d6:
+            order: 1
+            target: nervure_d6.position.x
+            from: 162%
+            to: 71%
+            duration: 1.2
+            curve: back_out
+          bruisse_nervure_d6:
+            order: 1
+            type: oscillate
+            target: nervure_d6.rotation
+            from: -23
+            to: -17
+            period: 2.4
+            phase: 330
+          act3_nervure_d6:
+            order: 3
+            target: nervure_d6.position.x
+            from: 71%
+            to: 175%
+            duration: 1.4
+            curve: ease_in

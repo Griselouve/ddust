@@ -397,9 +397,12 @@ build:
           # précédent : état payant, crédits de mois et timers de défaut de paiement
           # ressuscités sur des données de jeu vides.
           - clans_store
-          # Possessions des clans (thèmes, packs, extensions), écrites par clan_owned.
-          # Même raison que clans_store : un clan recréé hériterait des achats du précédent.
+          # Possessions des clans (ancienne table de clan_owned, retirée le 2026-10-14) :
+          # purgée tant que des restes peuvent exister.
           - clans_owned
+          # La boutique du clan (projection du callable `shop`, dvshop). Même raison que
+          # clans_store : un clan recréé hériterait des possessions et du thème du précédent.
+          - clans_shop
           # Invitations privées des chefs (worker._publishInvite). Absentes de cette
           # liste, elles survivraient au reset, avec la déclaration scellée que chacune porte.
           - clans_invites
@@ -424,6 +427,9 @@ build:
           # part avec son parent.
           - store_codes
           - store_code_attempts
+          # Acquisitions de la boutique (dvshop) : purgées avec leur projection
+          # (clans_shop), sinon un clan neuf retrouverait les achats d'un clan disparu.
+          - shop_records
       - project: dvddust
         database: eu-virtuallobby
         collections: &lobby_collections
@@ -2440,6 +2446,55 @@ store:
         brl:  "27.90"
         mxn:  "88.99"
         cop:  "19900"
+
+# =============================================================================
+# BOUTIQUE (modules dvshop + pustore `shop`) — le CATALOGUE
+# =============================================================================
+# Partagé par l'app (couche publiée, `layer.publish: [catalog]`) et le serveur
+# (callable `shop`, `SHOP_CATALOG: "@@@C:shop.catalog@@@"`) : on ne l'écrit qu'ICI.
+# Le serveur REFAIT toutes les règles (tags, prérequis, politique, prix en or) :
+# l'écran ne fait que les annoncer. L'interface (page d'entrée, boutiques, sections,
+# carrousels) vit à part, côté app : resources_cloud/general/layers/shop-base-global.yml.
+# Maquette validée : E:/Deva/tmp/shop_poc ; conception : E:/Deva/tmp/dvshop/plan.md.
+#
+# ⚠ SEULEMENT CE QUI EXISTE VRAIMENT (décision du 2026-10-14). Un item arrive ici avec
+#   son contenu, jamais avant : une boutique sans item garde sa tuile à l'écran, qui dit
+#   « Bientôt » (extensions & packs, échoppe d'objets).
+# ⚠ PAS DE MASCOTTE À VENDRE pour l'instant : chaque thème apporte la sienne (donjon →
+#   Vermi, dino → Diplo, `theme.themes.<thème>.mascots`). Iggy et Trixie viendront avec
+#   un pack « mascottes ».
+# ⚠ UN ITEM `play` EST TOUJOURS `once` : jamais de paye-des-tours en argent réel. Son
+#   `product` doit exister dans `store.catalog` en `type: product` (pucatalog le vérifie).
+# ⚠ L'OR N'EXISTE PAS ENCORE (il arrive avec l'extension loots) : `currencies.gold` est
+#   déclaré d'avance, mais aucun item ne se paie en or tant que loots n'est pas livré.
+shop:
+  layer:
+    path: resources_cloud/general/layers/shop-catalog-global.yml
+    publish:
+      - catalog
+  catalog:
+    version: 1
+    tags:
+      # Refaits par le serveur (règle `doc`).
+      chef:   { doc: "clans/{scope}", field: admins, contains: "{actor}" }
+      # Affichage seulement (règle `deva`) : l'achat en argent réel repasse de toute
+      # façon par la double garde du worker (chef + adulte, puis porte parentale).
+      majeur: { deva: "worker.player_is_adult" }
+      essai:  { deva: "store.mock.available" }
+    currencies:
+      gold: { doc: "clans_players/{scope}/players/{actor}", field: gold, symbol: "🪙" }
+    items:
+      # ---------- Thèmes (un actif par clan, chacun avec sa mascotte) ----------
+      # Offerts d'office à tout clan (`default`), comme l'étaient les DEFAULT_ITEMS de
+      # l'ancienne fonction `clan_owned`.
+      theme-donjon: { label: "@@@T:shop_it_theme_donjon@@@", subtitle: "@@@T:shop_it_theme_donjon_sub@@@", section: themes, rank: 1,
+                      image: "images/big/theme_vitrine_donjon.png", price: { kind: free }, policy: once,
+                      default: true, toggle_group: theme, toggle_default: true, tags: [chef], after_purchase: owned }
+      theme-dino:   { label: "@@@T:shop_it_theme_dino@@@", subtitle: "@@@T:shop_it_theme_dino_sub@@@", section: themes, rank: 2,
+                      image: "images/big/theme_vitrine_dino.png", price: { kind: free }, policy: once,
+                      default: true, toggle_group: theme, tags: [chef], after_purchase: owned }
+      # Retiré le 2026-10-13 : un clan resté dessus retombe sur le thème par défaut.
+      theme-x:      { retired: true, toggle_group: theme }
 
 # =============================================================================
 # PARRAINAGE DE CLANS (module pureferral)

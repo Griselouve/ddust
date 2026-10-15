@@ -726,6 +726,12 @@ sert à quatre usages, tous **déclenchés par un bouton** :
 - proposer un nom et une description **de tâche** ;
 - raconter **les aventures du clan**, sous forme d'un court récit destiné à la famille.
 
+**L'assistant d'aide n'est pas un usage destiné aux enfants.** Une mascotte (un bébé dragon) vit sur
+les écrans du jeu. Pour un adulte, elle propose son aide et répond à ses questions par le même
+modèle ; pour un mineur, la toucher ne déclenche qu'une animation, sans appel au modèle ni champ de
+saisie. La conversation de l'adulte n'est pas conservée, elle passe par la fonction serveur qui
+plafonne les appels, et la mascotte se tait si un chef de clan a coupé l'IA du clan.
+
 Ce qui est transmis diffère selon l'usage :
 
 - **pour une proposition**, les seuls textes que la personne vient de saisir ;
@@ -752,8 +758,11 @@ contractuelles de Google Cloud (Service Specific Terms, clause « Training Restr
 que Google n'utilise pas les données du client pour entraîner ou ajuster ses modèles sans son
 autorisation, et l'éditeur n'a donné aucune autorisation de ce type. C'est un engagement contractuel
 du prestataire, que l'éditeur ne peut pas vérifier par lui-même. Les filtres de sécurité du modèle sont
-réglés au niveau le plus strict par l'application, et les consignes imposent un registre adapté à des
-enfants : ni violence, ni peur, ni thème d'adulte, ni moquerie, ni invention de donnée personnelle.
+réglés au niveau le plus strict par l'application pour tout texte qu'un enfant peut lire, et les
+consignes imposent un registre adapté à des enfants : ni violence, ni peur, ni thème d'adulte, ni
+moquerie, ni invention de donnée personnelle. Seul l'assistant d'aide, qu'un enfant ne peut pas
+interroger, a des filtres au seuil élevé : au plus strict, le vocabulaire du jeu faisait refuser la
+plupart des questions ordinaires des parents (AIPD, § 5.2).
 
 ### 6.3 Conservation et suppression
 

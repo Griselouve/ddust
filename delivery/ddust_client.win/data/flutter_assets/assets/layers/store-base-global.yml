@@ -1,0 +1,98 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud/general/layers/store-base-global.yml
+name: store-base
+above: conf
+strategy: default
+tenant: global
+data:
+
+  store:
+
+    # ===========================================================================
+    # LE CATALOGUE N'EST PLUS ICI
+    # ---------------------------------------------------------------------------
+    # Il vit dans le build.yml de la suite, d'ou le builder le redistribue en trois
+    # points : la conf du client, le config.yaml du backend, et le layer cloud
+    # store-catalog-global.yml (genere, publie au bucket a cote de celui-ci).
+    #
+    # La raison est la Play Console : les memes identifiants de produits servent a
+    # l'app, au backend et au module qui les CREE chez Google. Un identifiant Play
+    # ne se corrige jamais — il ne pouvait pas rester ecrit a trois endroits.
+    #
+    # Ne restent ici que les reglages d'exploitation, qui ne regardent que l'app.
+    # ===========================================================================
+
+
+    # ===========================================================================
+    # RELANCE DE CONVERSION
+    # ---------------------------------------------------------------------------
+    # Quand demande-t-on sa premiere cotisation a un clan qui n'en a jamais eu ?
+    #
+    # IL N'Y A PLUS D'ESSAI CALENDAIRE (decision du 2026-09-16, l'offre Play
+    # `essai-14j` est retiree du catalogue). L'acces libre du debut EST la
+    # generosite du modele, et il se mesure en USAGE et non en jours : une famille
+    # qui installe l'app le samedi et n'y revient qu'au week-end suivant n'a rien
+    # consomme de son essai, alors qu'un calendrier le lui aurait mange en entier.
+    #
+    # Le plafond de joueurs attrape les foyers qui GRANDISSENT : le 3e membre ouvre la
+    # page des paliers, avec le palier adapte deja fleche. Il ne dit en revanche jamais
+    # rien a un foyer d'un parent et un enfant, qui tient dans le palier d'entree et
+    # n'en sortira pas — environ quatre clans sur dix. Pour ceux-la, la seule porte est
+    # le nombre de taches menees a leur terme : `clans/{clanId}.validations`.
+    #
+    # DEUX SEUILS, parce qu'il y a deux populations, et qu'un chiffre unique dirait
+    # une betise a l'une des deux :
+    #
+    #   after_growth — clan CONSTITUE (au moins deux membres). Compte a partir de
+    #     l'ANCRE `validations_anchor`, posee sur le doc du clan a l'instant ou le
+    #     clan cesse d'etre seul. Trois validations VECUES A PLUSIEURS, et pas trois
+    #     validations tout court : un fondateur qui a deja valide neuf taches seul en
+    #     preparant le terrain n'a encore rien vu du jeu qu'on lui vend, et lui
+    #     presenter la note a la seconde ou sa famille arrive serait le pire moment
+    #     du parcours. Aucune condition de delai : trois validations dans le meme
+    #     quart d'heure sont le signe le plus favorable qui soit.
+    #
+    #   solo — clan reste SEUL. Dix, parce qu'un fondateur solitaire n'a pas encore
+    #     le jeu qu'il paiera (il s'auto-valide sans preuve, personne ne le regarde
+    #     jouer) : on le laisse aller bien plus loin avant de lui demander quoi que
+    #     ce soit. Il n'est pas exempte pour autant — l'ancienne regle l'ajournait
+    #     indefiniment, et un clan d'un seul joueur qui joue tous les jours pendant
+    #     six mois coute de l'infrastructure sans jamais rencontrer une seule porte.
+    #
+    #   defers — REPORTS autorises. L'ecran est refusable un petit nombre de fois,
+    #     annonce honnetement (« vous pourrez encore reporter deux fois »), puis il
+    #     devient une racine de pile. On ne fait PAS credit a qui n'a jamais paye :
+    #     le calendrier de defaut de paiement (grace, relances, gel a J50) reste
+    #     reserve aux clans qui ont deja cotise, ou l'echec est presque toujours
+    #     technique. Un ecran refusable indefiniment enseignerait que payer est
+    #     facultatif, puis fermerait le donjon deux mois plus tard sur une famille
+    #     installee : ni convertie, ni menagee.
+    #
+    # Ces trois reglages sont ICI et pas dans le code parce que regler le moment de la
+    # conversion est precisement ce qu'on voudra ajuster en observant les premieres
+    # semaines — et une version sur les stores pour deplacer un entier serait absurde.
+    # Les relever sert aussi a REJOUER le test au banc, les compteurs vivant sur le
+    # doc du clan.
+    #
+    # Ce que le seuil declenche s'affiche QUE chez les chefs — les enfants continuent
+    # de jouer, leurs taches s'empilent simplement en attente d'une validation que
+    # personne ne rend, et c'est tres exactement la pression qu'on veut.
+    pitch:
+      after_growth: 3
+      solo: 10
+      defers: 3
+
+    # ===========================================================================
+    # PALIER « POPULAIRE » (écran de choix du palier, tiers_pick_page)
+    # ---------------------------------------------------------------------------
+    # Le palier qui porte le ruban « POPULAIRE », ou "" pour aucun. Il fait
+    # relativiser le prix : une famille qui voit que d'autres prennent Tribu hésite
+    # moins à prendre Clan. Choix produit du 2026-10-01 : Tribu.
+    #
+    # FIXÉ À LA MAIN, et c'est voulu : il n'y a pas assez de clients pour mesurer
+    # quel palier est réellement le plus pris, donc rien ne le calcule. Il vit ici,
+    # au bucket, pour se changer sans nouvelle version le jour où les ventes le
+    # diront. (Afficher une popularité est une allégation de fait, cf. directive
+    # 2005/29/CE : risque connu et accepté, décision du 2026-10-01.)
+    showcase:
+      popular: ddust_tribu

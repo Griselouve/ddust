@@ -34,6 +34,9 @@ conf:
         - new_or_pick_clan
         - create_clan
         - decisiontree
+        # Le choix de l'ambiance du clan (thème), par son fondateur seul, entre la quête et
+        # le dashboard (pas `decisiontree`, routeur worker.decisiontree_route).
+        - theme_pick_page
         - invite_clan
         # L'invitation à distance, côté chef (code + lien) et côté invité (saisie). Absentes
         # de cette liste jusqu'au 2026-09-22 : tout le parcours à distance était inatteignable,
@@ -48,6 +51,7 @@ conf:
         #- burn_page
         - profile
         - shop
+        - shop_store_page   # une boutique dédiée (dvshop), ouverte par shop.open.<boutique>
         - clan_page
         - tutoriels
         - log_page
@@ -84,6 +88,7 @@ conf:
         - give_page
         - item_view_page
         - create_player_screen
+        - welcome_child_screen
         - invite_consent_screen
         - claim_pick_page
         # Multiclan (registry_multiclan.yml) : changer de clan, les gestes d'un représentant
@@ -164,6 +169,7 @@ conf:
         # kebab reçoit ses taps (cf. commons/death_settings).
         - commons/death_settings
         - commons/death_settings_menu
+        - commons/death_advanced_menu
         # Bandeau d'impersonation (« prendre la place d'un joueur »), widget unique masqué par défaut,
         # révélé par worker._applyImpersonation. Listé APRÈS death_scrim → il reçoit ses taps même si
         # la cible est morte (scrim n'avale que ses propres taps, cf. commons/death_revive).
@@ -890,6 +896,8 @@ conf:
       class: DvMenuButton
       layer: overlay
       menu: commons/death_settings_menu
+      # Sous-menu ouvert depuis ce menu : ses icônes sont préparées avec les siennes.
+      submenus: [commons/death_advanced_menu]
       menu_enabled: true
       button_style: commons/donjon_button
       shape:
@@ -900,10 +908,14 @@ conf:
         border: false
         visible: false
 
-    # Le menu RÉDUIT aux fonctions vitales : guide, rappels, politique de confidentialité,
-    # déconnexion, suppression du compte. Pas de popup modale : un DvMenu en layer popup, comme
-    # personnage/settings_menu, dont il reprend les options, les libellés et les règles
-    # (worker.death_settings_selector partage sa logique avec perso_settings_selector).
+    # Le menu RÉDUIT aux fonctions vitales, découpé comme le kebab du personnage (2026-10-13) :
+    # au premier niveau le guide, « Options avancées… » et la déconnexion ; les gestes rares ou
+    # graves (rappels, documents légaux, suppression du compte en dernier) passent dans
+    # commons/death_advanced_menu, ouvert au même endroit. Aucun droit ne disparaît : tous
+    # restent à deux taps. Pas de popup modale : des DvMenu en layer popup, comme
+    # personnage/settings_menu, dont ils reprennent les options, les libellés et les règles
+    # (worker.death_settings_selector / death_advanced_selector partagent _vitalSettingsOptions
+    # avec perso_settings_selector).
     # ⚠ Une option ajoutée ici doit aussi être déclarée dans le selector, sinon elle n'apparaît
     #   jamais.
     commons/death_settings_menu:
@@ -928,6 +940,34 @@ conf:
             label: "@@@T:tuto_guide_enfant_title@@@"
           actions:
             tap: dvtuto.play.guide_enfant
+        # Options avancées… : ouvre commons/death_advanced_menu au même endroit
+        # (worker.open_death_advanced, par DvMenuButton.openSubMenu, donc avec ses icônes).
+        advanced:
+          icon: "widgets"
+          desc: "@@@T:death_menu_advanced_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_advanced@@@"
+          actions:
+            tap: worker.open_death_advanced
+        logout:
+          desc: "@@@T:perso_menu_logout_desc@@@"
+          shape:
+            label: "@@@T:sign_out@@@"
+          actions:
+            tap: dvcloud.do_logout
+
+    # « Options avancées… » du menu de mort : rappels, documents légaux et suppression du compte,
+    # arbitrés par worker.death_advanced_selector (mêmes gardes : pas de suppression pendant une
+    # impersonation). La suppression reste la DERNIÈRE ligne : une action irréversible se met au
+    # bout, là où l'on n'arrive pas par inadvertance.
+    commons/death_advanced_menu:
+      class: DvMenu
+      layer: popup
+      show_label: false
+      selector: worker.death_advanced_selector
+      shape:
+        w: 55%
+      options:
         nudges_off:
           icon: "notifications_off"
           desc: "@@@T:perso_menu_nudges_off_desc@@@"
@@ -957,12 +997,6 @@ conf:
             label: "@@@T:perso_menu_privacy@@@"
           actions:
             tap: worker.open_privacy
-        logout:
-          desc: "@@@T:perso_menu_logout_desc@@@"
-          shape:
-            label: "@@@T:sign_out@@@"
-          actions:
-            tap: dvcloud.do_logout
         # Le panneau de suppression vit sur l'écran Personnage (personnage/delete_*, layer
         # overlay, listé après le voile) : depuis un autre écran, on s'y rend d'abord.
         delete_account:

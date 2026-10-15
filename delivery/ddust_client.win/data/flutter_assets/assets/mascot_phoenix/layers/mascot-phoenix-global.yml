@@ -1,0 +1,113 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud\mascot_phoenix\layers\mascot-phoenix-global.yml
+# GÉNÉRÉ par E:\Deva\tmp\dragon\prepare_phoenix.py : ne pas éditer à la main.
+# Mini-thème « mascotte phénix » (catalogue theme.minis, groupe mascot) : actif quel que
+# soit le thème, dès que le tag mascot-phoenix l'est (dvtheme.switchMini).
+name: mascot-phoenix
+above: theme-donjon
+strategy: force
+tenant: global
+tags: [mascot-phoenix]
+data:
+  # Mascotte phénix, mini-thème indépendant du thème (couche mascot-phoenix-global.yml, sous data:).
+  # Tenu à la main ; le bloc `look` (poses, échelle) est ajouté par prepare_phoenix.py, qui écrit
+  # mascot_phoenix.yml puis la couche du mini-thème.
+  #
+  # Un AUTRE personnage, pas un dragon repeint : il sautille au lieu de marcher (et s'envole
+  # vite), chante, se lisse les plumes, s'ébroue, et sa réaction signature est de s'embraser,
+  # tomber en cendres et renaître.
+  mascot:
+    character: phoenix
+    characters:
+      phoenix:
+        name: "Ignarax Pyroclaste"   # noms propres, identiques dans toutes les langues (dvmascot : titre du chat, {name}/{short})
+        short_name: "Iggy"
+        base_pose: ref
+        walk_max: 0.12           # il sautille peu : au-delà de 12 % de l'écran, il vole
+        walk_speed: 55
+        flight:
+          speed: 210
+          max_height: 170
+        rest: { min: 4, max: 9 }
+        gestures: { hop: 24 }
+        sleep_after: 150
+        poses_names:
+          land: pose
+          help: aide
+          listen: assis
+          think: queue
+          wave: coucou
+          yawn: baille
+          sleep: dort
+          surprised: surpris
+          blink: cligne
+          laugh: rit
+          shy: timide
+          petted: dos
+        clips_names:
+          walk: saut
+          fly: vol
+        idle:
+          - { weight: 45, seq: [[cligne, 130], [ref, 0]] }
+          - { weight: 10, seq: [[lisse, 1400], [cligne, 130], [ref, 0]] }
+          - { weight: 9,  seq: [[chante, 1500], [ref, 0]], fx: pulse }
+          - { weight: 6,  seq: [[baille, 1100], [ref, 0]] }
+          - { weight: 7,  seq: [[etire, 1400], [ref, 0]] }
+          - { weight: 7,  seq: [[gratte, 1200], [ref, 0]], fx: shake }
+          - { weight: 7,  seq: [[queue, 1500], [ref, 0]] }
+          - { weight: 6,  seq: [[secoue, 700], [ref, 0]], fx: shake }
+          - { weight: 6,  seq: [[saute, 400], [ref, 0]], fx: hop }
+        # Réactions d'un ENFANT qui le touche. La signature : il s'embrase, tombe en cendres, renaît.
+        reactions:
+          - { weight: 2, seq: [[flamme, 700], [cendres, 1400], [renait, 900], [ref, 0]], fx: squash }
+          - { weight: 1, seq: [[surpris, 400], [flamme, 1200], [ref, 0]], fx: pulse }
+          - { weight: 1, seq: [[rit, 1100], [ref, 0]], fx: shake }
+          - { weight: 1, seq: [[saute, 450], [ref, 0]], fx: hop }
+          - { weight: 1, seq: [[chante, 1400], [ref, 0]], fx: pulse }
+          - { weight: 1, seq: [[surpris, 600], [coucou, 900], [ref, 0]], fx: hop }
+          - { weight: 1, seq: [[timide, 1400], [ref, 0]] }
+        pet:
+          threshold: 20
+          linger: 1.2
+        ai:
+          persona: |
+            Tu es Iggy (de ton vrai nom Ignarax Pyroclaste), le petit phénix de Donjons & Savons, un bébé phénix lumineux, enjoué et un peu
+            chanteur, qui aide un PARENT dans l'application. Tu tutoies, tu es bref (2 à 3 phrases),
+            chaleureux, plein d'entrain, jamais technique. Il t'arrive de glisser une image de feu
+            ou de plumes, sans en abuser.
+        # --- GÉNÉRÉ par prepare_phoenix.py ---
+        look:
+          height: 72
+          base_height_px: 244
+          base: ref
+          clips:
+            saut: { poses: [saut_a, saut_b], ms: 140, loop: true }
+            vol: { poses: [vol_milieu, vol_haut, vol_milieu, vol_bas], ms: 80, loop: true }
+          poses:
+            vol_haut:   { image: "images/medium/phoenix/vol_haut.png", w: 384, h: 294, foot: 1.000 }
+            vol_milieu: { image: "images/medium/phoenix/vol_milieu.png", w: 384, h: 294, foot: 1.000 }
+            vol_bas:    { image: "images/medium/phoenix/vol_bas.png", w: 384, h: 294, foot: 1.000 }
+            ref:        { image: "images/medium/phoenix/ref.png", w: 324, h: 267, foot: 0.978 }
+            cligne:     { image: "images/medium/phoenix/cligne.png", w: 324, h: 267, foot: 0.978 }
+            aide:       { image: "images/medium/phoenix/aide.png", w: 324, h: 267, foot: 0.978 }
+            assis:      { image: "images/medium/phoenix/assis.png", w: 324, h: 267, foot: 1.000 }
+            chante:     { image: "images/medium/phoenix/chante.png", w: 324, h: 267, foot: 0.970 }
+            lisse:      { image: "images/medium/phoenix/lisse.png", w: 324, h: 267, foot: 0.970 }
+            pose:       { image: "images/medium/phoenix/pose.png", w: 324, h: 267, foot: 0.921 }
+            saut_a:     { image: "images/medium/phoenix/saut_a.png", w: 324, h: 267, foot: 0.974 }
+            saut_b:     { image: "images/medium/phoenix/saut_b.png", w: 324, h: 267, foot: 0.978 }
+            baille:     { image: "images/medium/phoenix/baille.png", w: 324, h: 267, foot: 0.966 }
+            etire:      { image: "images/medium/phoenix/etire.png", w: 324, h: 267, foot: 0.985 }
+            gratte:     { image: "images/medium/phoenix/gratte.png", w: 324, h: 267, foot: 0.970 }
+            queue:      { image: "images/medium/phoenix/queue.png", w: 324, h: 267, foot: 0.966 }
+            dort:       { image: "images/medium/phoenix/dort.png", w: 324, h: 267, foot: 0.910 }
+            saute:      { image: "images/medium/phoenix/saute.png", w: 324, h: 267, foot: 0.929 }
+            rit:        { image: "images/medium/phoenix/rit.png", w: 324, h: 267, foot: 0.978 }
+            surpris:    { image: "images/medium/phoenix/surpris.png", w: 324, h: 267, foot: 0.978 }
+            flamme:     { image: "images/medium/phoenix/flamme.png", w: 324, h: 267, foot: 0.955 }
+            cendres:    { image: "images/medium/phoenix/cendres.png", w: 324, h: 267, foot: 0.970 }
+            renait:     { image: "images/medium/phoenix/renait.png", w: 324, h: 267, foot: 1.000 }
+            secoue:     { image: "images/medium/phoenix/secoue.png", w: 324, h: 267, foot: 0.974 }
+            coucou:     { image: "images/medium/phoenix/coucou.png", w: 324, h: 267, foot: 0.981 }
+            timide:     { image: "images/medium/phoenix/timide.png", w: 324, h: 267, foot: 0.978 }
+            dos:        { image: "images/medium/phoenix/dos.png", w: 324, h: 267, foot: 0.861 }

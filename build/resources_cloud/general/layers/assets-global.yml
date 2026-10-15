@@ -107,6 +107,8 @@ data:
       # arrivé aux traductions store_* du thème.
       - "layers/theme-donjon-global.yml"    # libellés + décor de tous les écrans
       - "layers/store-base-global.yml"      # catalogue de la boutique
+      - "layers/shop-catalog-global.yml"    # boutique dvshop : catalogue (généré du build.yml)
+      - "layers/shop-base-global.yml"       # boutique dvshop : interface et libellés
       - "layers/fairy-base-global.yml"      # cadence et catalogue des cadeaux de la fée
       - "layers/events-base-global.yml"     # événements aléatoires (souris, piège, gobelin...)
       - "images/small/tb_boutique.png"      # taskbar dashboard (écran 10)
@@ -243,20 +245,91 @@ data:
   theme:
     themes:
       theme-donjon:
+        # Les mascottes du thème (mini-thèmes, groupe mascot), la première par défaut. Le phénix
+        # n'appartient à aucun thème pour l'instant : gardé, mais jamais affiché (2026-10-13).
+        mascots: [mascot-dragon]
+        # Image du splash de démarrage (dvtheme._poserSplash) : embarquée pour le thème par défaut.
+        splash: "assets/images/splashs/splash.png"
         layers:
           - "layers/theme-donjon-global.yml"
           - "layers/decisiontree-donjon-global.yml"
         manifests:
           - "general"
           - "donjon"
-      # Thème de TEST : clone visible de donjon (libellés préfixés « X », images
-      # barrées). Thème partiel : sons et musiques retombent sur donjon par la
-      # cascade. La racine `x/` n'est téléchargée que par un appareil qui l'habite.
-      theme-x:
+        # Transition (dvtheme) : le thème intermédiaire `donjon_transition` (interlude + scène, quelques
+        # Ko) se télécharge d'abord ; l'interlude joue pendant que le thème descend. Bouton
+        # Annuler après `cancel_after` s, renoncement automatique après `max_wait` s.
+        transition:
+          manifests:
+            - "donjon_transition"
+          layers:
+            - "donjon_transition/layers/transition-donjon-global.yml"
+          interlude: theme_transition_donjon
+          scene: transition_donjon
+          cancel_after: 15
+          max_wait: 180
+      # Thème « gentils dinosaures » (2026-10-12) : pour les plus jeunes. Racine `dino` par-dessus
+      # donjon : ce qu'elle ne redessine pas (icônes d'interface neutres, musiques d'ambiance,
+      # dragon) retombe sur donjon par la cascade.
+      theme-dino:
+        mascots: [mascot-diplo]
+        # Image du bucket : recopiée par dvtheme dans un fichier local au splash suivant.
+        splash: "images/splashs/splash.png"
         layers:
-          - "layers/theme-x-global.yml"
-          - "layers/decisiontree-x-global.yml"
+          - "layers/theme-dino-global.yml"
+          - "layers/decisiontree-dino-global.yml"
         manifests:
           - "general"
           - "donjon"
-          - "x"
+          - "dino"
+        # Rideau de feuilles (thème intermédiaire `dino_transition`, interlude + scène).
+        transition:
+          manifests:
+            - "dino_transition"
+          layers:
+            - "dino_transition/layers/transition-dino-global.yml"
+          interlude: theme_transition_dino
+          scene: transition_dino
+          cancel_after: 15
+          max_wait: 180
+
+    # Thèmes RETIRÉS : un appareil qui en porte encore le tag l'ôte au démarrage (dvtheme), sans
+    # quoi leur couche, persistée et taguée, resterait fusionnée par-dessus le thème actif.
+    # theme-x : retiré le 2026-10-13 (donjon et dino suffisent à tester la bascule).
+    retired: [theme-x]
+
+    # Mini-thèmes (dvtheme.switchMini) : un aspect de l'app qui se choisit INDÉPENDAMMENT du
+    # thème. Un seul actif par `group`. Leurs racines (`manifests`) s'ajoutent à celles du
+    # thème, quel qu'il soit. Le chemin d'une couche portée par une racine propre au mini
+    # s'écrit en entier (`mascot_phoenix/layers/…`) : elle est chargée avant que la racine
+    # ne soit active.
+    minis:
+      # Le bébé dragon : décrit dans client/config/dvmascot.yml, images dans `donjon`.
+      mascot-dragon:
+        group: mascot
+        layers:
+          - "layers/mascot-dragon-global.yml"
+      # Le bébé phénix : personnage complet dans sa couche, images dans sa racine.
+      mascot-phoenix:
+        group: mascot
+        layers:
+          - "mascot_phoenix/layers/mascot-phoenix-global.yml"
+        manifests:
+          - "mascot_phoenix"
+      # Pistache, le bébé diplodocus vert (thème dino, mais choisissable partout) : il marche,
+      # il ne vole jamais (flight.enabled: false).
+      mascot-diplo:
+        group: mascot
+        layers:
+          - "mascot_diplo/layers/mascot-diplo-global.yml"
+        manifests:
+          - "mascot_diplo"
+      # Trixie (« Triceratops Pusilla »), la bébé tricératops rose du splash dino. Déclarée mais
+      # rattachée à AUCUN thème pour le moment (absente de tous les `mascots`), comme le phénix :
+      # elle marche, elle ne vole jamais (flight.enabled: false).
+      mascot-trixie:
+        group: mascot
+        layers:
+          - "mascot_trixie/layers/mascot-trixie-global.yml"
+        manifests:
+          - "mascot_trixie"

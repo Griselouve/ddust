@@ -98,9 +98,9 @@ assets:
     tags: ["coffre"]
   "resources_cloud/donjon/images/big/chest_item_nobg.png":
     tags: ["coffre"]
-  "resources_cloud/donjon/images/big/fairy_nobg.png":
+  "resources_cloud/general/images/big/fairy_nobg.png":
     tags: ["alone"]
-  "resources_cloud/donjon/images/big/frost_frame_nobg.png":
+  "resources_cloud/general/images/big/frost_frame_nobg.png":
     tags: ["alone"]
   "resources_cloud/donjon/images/big/gameover.png":
     tags: ["alone"]
@@ -425,7 +425,7 @@ assets:
     tags: ["guerrier1"]
   "resources_cloud/donjon/images/medium/ecu_combat.png":
     tags: ["alone"]
-  "resources_cloud/donjon/images/medium/fairy_tile.png":
+  "resources_cloud/general/images/medium/fairy_tile.png":
     tags: ["alone"]
   "resources_cloud/donjon/images/medium/icon_01_C_01.png":
     derived: true

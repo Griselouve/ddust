@@ -41,6 +41,9 @@ extension Worker_clan on worker {
 
                                 ActionRegistry.register("worker.on_decisiontree_complete",    on_decisiontree_complete);
 
+                                // Pas `decisiontree` : le fondateur passe par le choix du thème du clan.
+                                ActionRegistry.register("worker.decisiontree_route",          decisiontree_route);
+
                                 ActionRegistry.register("worker.on_create_clan_appear",      on_create_clan_appear);
 
                                 ActionRegistry.register("worker.on_create_clan_name_changed",on_create_clan_name_changed);
@@ -83,6 +86,8 @@ extension Worker_clan on worker {
                                 // Le parent décide ensuite : option « Accueillir un enfant » (scan de
                                 // l'accord) et lien ddust://assent ouvert à distance.
                                 ActionRegistry.register("worker.on_welcome_child",             on_welcome_child);
+                                ActionRegistry.register("worker.on_welcome_child_scan",        on_welcome_child_scan);
+                                ActionRegistry.register("worker.on_welcome_child_cancel",      (c, e) async => DvOrb.navigate_back());
                                 ActionRegistry.register("worker.on_assent_link",               (c, e) async { if (e is Map) await on_assent_link(c, e); });
                                 ActionRegistry.register("worker.on_invite_kind_toggle",        on_invite_kind_toggle);
                                 ActionRegistry.register("worker.on_invite_chief_toggle",       on_invite_chief_toggle);
@@ -134,6 +139,10 @@ extension Worker_clan on worker {
                                 // Créer un joueur enfant (option clan « Créer un joueur », chef) : selector du
                                 // menu d'en-tête + écran de saisie du nom + création directe dans clans_players.
                                 ActionRegistry.register("worker.clan_settings_selector",    clan_settings_selector);
+                                ActionRegistry.register("worker.clan_add_child_selector",   clan_add_child_selector);
+                                ActionRegistry.register("worker.clan_advanced_selector",    clan_advanced_selector);
+                                ActionRegistry.register("worker.open_add_child_menu",       open_add_child_menu);
+                                ActionRegistry.register("worker.open_clan_advanced",        open_clan_advanced);
 
                                 ActionRegistry.register("worker.clan_ai_off",               clan_ai_off);
 
@@ -314,6 +323,18 @@ extension Worker_clan on worker {
                                 DvOrb.navigate_reset("dashboard");
     }
 
+    // Routeur du pas `decisiontree` (steps.yml), tiré par l'interlude passage_quete une fois les
+    // tâches enregistrées. Le FONDATEUR d'un clan tout juste créé va choisir l'ambiance de son
+    // clan (route `theme` → theme_pick_page) ; tous les autres (joueur renvoyé à la quête après
+    // un départ ou une éjection) vont droit au dashboard, comme avant (`default`).
+    // Le signe du fondateur : la bienvenue « created » encore armée, posée par
+    // on_create_clan_complete et consommée seulement à l'arrivée sur le dashboard.
+    Future<String> decisiontree_route(dynamic caller, dynamic event) async {
+
+                                final pending = (await deva_get("worker.pending_clan_welcome"))?.toString() ?? "";
+                                return pending == "created" ? "theme" : "default";
+    }
+
     // Nom lisible d'un membre du clan. Joueur courant → session (aucune lecture).
     // Sinon lecture clans_players (champ `name` posé par _writeClanPlayer), avec le
     // pattern admin de _notifyAssignee (ownerId: clanSecret). Repli : le userId brut.
@@ -391,7 +412,7 @@ extension Worker_clan on worker {
                                 nameEntry?.set("shape.value", ""); nameEntry?.refreshUI();
                                 descEntry?.set("shape.value", ""); descEntry?.refreshUI();
                                 replay?.set("shape.visible", false); replay?.refreshUI();
-                                confirm?.set("shape.opacity", 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, false));
                                 confirm?.set("shape.events.tap", false);
                                 confirm?.refreshUI();
     }
@@ -508,7 +529,7 @@ extension Worker_clan on worker {
                                 _originalName = value.trim();
                                 final confirm = DvOrb.get_shape_by_id("create_clan/confirm");
                                 final enabled = value.trim().isNotEmpty;
-                                confirm?.set("shape.opacity", enabled ? 0.6 : 0.3);
+                                confirm?.set("shape.opacity", _confirmOpacity(confirm, enabled));
                                 confirm?.set("shape.events.tap", enabled);
                                 confirm?.refreshUI();
     }
@@ -545,14 +566,10 @@ extension Worker_clan on worker {
                                 });
     }
 
-    // Selector du menu d'en-tête du clan (DvMenuButton, charge vide). Seuls le journal et les
-    // tutoriels sont ouverts à tous ; recruter (accueil d'un enfant, QR, invitation à distance) et « Créer un joueur »
-    // sont des prérogatives de chef (admin). Le menu s'affiche dans l'ordre de la liste renvoyée :
-    // on calcule donc `isAdmin` d'abord, et on monte la liste dans l'ordre historique.
-    //
-    // « Mes achats » n'est plus ici : il a rejoint le kebab de la boutique
-    // (worker.shop_settings_selector), avec le reste de ce qui touche à l'argent.
-    Future<List<String>> clan_settings_selector(dynamic caller, dynamic data) async {
+    // Rôles de l'utilisateur dans le clan courant, relus à chaque ouverture d'un des trois menus
+    // du clan (de base, « Ajouter mon enfant », « Options avancées »). Lecture KO → tout à false :
+    // repli sûr, les options de chef et d'adulte restent cachées.
+    Future<({bool admin, bool adult, bool canDeclare})> _clanMenuRoles() async {
 
                                 var isAdmin = false;
                                 var isAdult = false;
@@ -566,42 +583,89 @@ extension Worker_clan on worker {
                                     isAdult = await _ensureIsAdult(clanId, clanSecret, region);
                                     if (isAdmin && isAdult) canDeclare = await _referralCanDeclare(clanId, clanSecret, region);
                                 } catch (e) {
-                                    deva_log("error", "[clan] clan_settings_selector FAILED: $e");
+                                    deva_log("error", "[clan] rôles du menu clan illisibles : $e");
                                 }
-                                // Lecture KO → isAdmin false : repli sûr (les options chef restent cachées).
-                                // Les tutoriels en DEUXIEME position, juste apres le journal :
-                                // c'est l'option qu'on cherche quand on ne sait pas quoi faire, et
-                                // elle etait enterree sous deux entrees reservees au chef. Un
-                                // membre simple ne voyait meme qu'une ligne avant elle.
-                                // (« Mes clans » n'est pas ici : c'est le bouton aux deux flèches de
-                                // l'écran du clan, clan_page/switch.)
-                                final options = <String>["clan_log", "tutorials"];
-                                // « Accueillir un enfant » EN TÊTE des options de chef : c'est la seule
-                                // porte d'un enfant, et le cas le plus fréquent d'une application de
-                                // famille. « QR Code du clan » et « Inviter à distance », sans accord
-                                // d'enfant joint, ne font plus entrer que des adultes.
-                                if (isAdmin) options.addAll(["welcome_child", "clan_qr", "clan_invite_remote"]);
-                                // MULTICLAN : accueillir un enfant qui a déjà un clan (le chef montre un QR
-                                // code à son représentant) ; et, pour tout adulte, l'écran des enfants
-                                // qu'il représente (autoriser un clan, co-représentants, retraits).
-                                if (isAdmin && isAdult) options.add("welcome_guest_child");
-                                if (isAdult) options.add("guardian_hub");
-                                if (isAdmin) options.add("create_player");
-                                // L'IA du clan : UNE des deux options, selon l'état relu à frais.
-                                // En dernier : c'est un réglage, pas un geste de jeu.
-                                if (isAdmin) options.add(await _iaDuClan() ? "clan_ai_off" : "clan_ai_on");
-                                // PARRAINAGE : chef ADULTE seulement (partage d'un code, saisie liée à
-                                // un échange hors de l'app). « J'ai un parrain » disparaît une fois un
-                                // parrain déclaré ou le clan abonné.
-                                if (isAdmin && isAdult) {
-                                    options.add("referral");
-                                    if (canDeclare) options.add("referral_declare");
-                                }
-                                // « Noter et partager » TOUT EN BAS, pour tout adulte (chef ou non) :
-                                // partager l'app vers l'extérieur est réservé à la majorité légale.
-                                if (isAdult) options.add("rate_share");
+                                return (admin: isAdmin, adult: isAdult, canDeclare: canDeclare);
+    }
+
+    // Selector du menu d'en-tête du clan : LES GESTES DE BASE (refonte du 2026-10-11, retours
+    // joueurs). Jusque-là treize options d'affilée, dont trois parlant d'enfants que les parents
+    // confondaient. Ordre :
+    //   1. « Inviter un adulte (QR code) », chef : le geste le plus naturel, en tête ;
+    //   2. « Ajouter mon enfant », chef : ouvre le choix « téléphone / pas de téléphone » ;
+    //   3. le journal et les tutoriels, pour tous ;
+    //   4. « Options avancées… », seulement si ce second menu a quelque chose à montrer.
+    //
+    // « Mes achats » n'est plus ici : tout ce qui touche à l'argent vit sur la page
+    // d'entrée de la boutique (tuiles dvshop : code cadeau, abonnement).
+    // (« Mes clans » non plus : c'est le bouton aux deux flèches de l'écran, clan_page/switch.)
+    Future<List<String>> clan_settings_selector(dynamic caller, dynamic data) async {
+
+                                final r = await _clanMenuRoles();
+                                final options = <String>[];
+                                if (r.admin) options.addAll(["clan_qr", "add_child"]);
+                                options.addAll(["clan_log", "tutorials"]);
+                                if ((await _clanAdvancedOptions(r)).isNotEmpty) options.add("advanced");
                                 return options;
     }
+
+    // « Ajouter mon enfant » : l'enfant a son téléphone (il donne son accord, le chef scanne) ou il
+    // n'en a pas (le chef crée son personnage). Réservé au chef, double garde dans chaque action.
+    Future<List<String>> clan_add_child_selector(dynamic caller, dynamic data) async {
+
+                                final r = await _clanMenuRoles();
+                                return r.admin ? <String>["welcome_child", "create_player"] : <String>[];
+    }
+
+    Future<List<String>> clan_advanced_selector(dynamic caller, dynamic data) async =>
+                                _clanAdvancedOptions(await _clanMenuRoles());
+
+    // Les options avancées, mêmes gardes qu'avant la refonte.
+    Future<List<String>> _clanAdvancedOptions(({bool admin, bool adult, bool canDeclare}) r) async {
+
+                                final options = <String>[];
+                                if (r.admin) options.add("clan_invite_remote");
+                                // MULTICLAN : accueillir un enfant qui a déjà un clan (le chef montre un QR
+                                // code à son représentant) ; et, pour tout adulte, les clans des enfants
+                                // qu'il représente (autoriser un clan, co-représentants, retraits).
+                                if (r.admin && r.adult) options.add("welcome_guest_child");
+                                if (r.adult) options.add("guardian_hub");
+                                // L'IA du clan : UNE des deux options, selon l'état relu à frais.
+                                if (r.admin) options.add(await _iaDuClan() ? "clan_ai_off" : "clan_ai_on");
+                                // PARRAINAGE : chef ADULTE seulement. « J'ai un parrain » disparaît une fois
+                                // un parrain déclaré ou le clan abonné.
+                                if (r.admin && r.adult) {
+                                    options.add("referral");
+                                    if (r.canDeclare) options.add("referral_declare");
+                                }
+                                // « Noter et partager » TOUT EN BAS, pour tout adulte (chef ou non).
+                                if (r.adult) options.add("rate_share");
+                                return options;
+    }
+
+    // Ouvre un second menu du clan AU MÊME ENDROIT que le menu de base, que DvMenu vient de
+    // refermer (même motif que le choix de la langue, worker.open_lang_menu).
+    Future<void> _openClanSubMenu(String menuId) async {
+
+                                final base = DvOrb.get_shape_by_id("clan_page/settings_menu");
+                                final anchor = (base is DvMenu && base.lastShowPosition != null)
+                                    ? base.lastShowPosition!
+                                    : const Offset(100, 100);
+                                // Par le kebab (DvMenuButton.openSubMenu) : il passe les icônes du
+                                // sous-menu, sans quoi celui-ci sortait sans icônes, texte centré.
+                                final btn = DvOrb.get_shape_by_id("clan_page/settings");
+                                if (btn is DvMenuButton) {
+                                    btn.openSubMenu(menuId, anchor);
+                                } else {
+                                    DvOrb.get_shape_by_id(menuId)?.act("show", {"x": anchor.dx, "y": anchor.dy});
+                                }
+    }
+
+    Future<void> open_add_child_menu(dynamic caller, dynamic event) async =>
+                                _openClanSubMenu("clan_page/add_child_menu");
+
+    Future<void> open_clan_advanced(dynamic caller, dynamic event) async =>
+                                _openClanSubMenu("clan_page/advanced_menu");
 
     // Couper / rallumer l'IA pour TOUT le clan (champ `ai_enabled` du doc `clans`).
     //
@@ -634,6 +698,7 @@ extension Worker_clan on worker {
                                     await _cloud?.write("workers", "clans", clanId, clan,
                                         region: region, ownerId: clanSecret);
                                     _iaClanCoupee = !enabled;
+                                    await _publishRole("worker.clan_ai_enabled", enabled);
                                     deva_log("info", "[clan] IA ${enabled ? "rallumée" : "coupée"} pour le clan");
                                 } catch (e) {
                                     deva_log("error", "[clan] _setClanAi($enabled) FAILED: $e");
@@ -1024,15 +1089,27 @@ extension Worker_clan on worker {
                                 return _decodeAssent(uri.queryParameters["d"] ?? "");
     }
 
-    // Option « Accueillir un enfant » : l'enfant est à côté, il montre son QR code.
+    // Option « Mon enfant a son téléphone » : d'abord l'écran qui dit quoi faire sur le téléphone
+    // de l'enfant (welcome_child_screen). La caméra ouverte d'emblée laissait le parent sans savoir
+    // quoi viser (2026-10-12).
+    Future<void> on_welcome_child(DvShape? caller, dynamic event) async {
+
+                                if ((await _clanIdIfChief("on_welcome_child")).isEmpty) return;
+                                DvOrb.navigate_new("welcome_child_screen");
+    }
+
+    // Le bouton de welcome_child_screen : l'enfant est à côté, il montre son QR code.
     //
     // Un code qui n'est pas un accord n'arrête PAS le chef : l'écran de déclaration s'ouvre quand
     // même, limité au cas adulte, et dit en tête ce qui s'est passé. C'est l'idiome maison (pas
     // de fenêtre modale), et c'est aussi le plus utile : un chef qui a scanné le mauvais code
     // voit tout de suite pourquoi les cas « enfant » ne lui sont pas proposés.
-    Future<void> on_welcome_child(DvShape? caller, dynamic event) async {
+    //
+    // Un scan abandonné laisse le parent sur l'écran d'explication ; un scan lu le REMPLACE par
+    // la suite, pour qu'un retour depuis la déclaration ramène au clan et non à la caméra.
+    Future<void> on_welcome_child_scan(DvShape? caller, dynamic event) async {
 
-                                if ((await _clanIdIfChief("on_welcome_child")).isEmpty) return;
+                                if ((await _clanIdIfChief("on_welcome_child_scan")).isEmpty) return;
 
                                 // Le lecteur ne vide jamais son résultat : sans cette remise à blanc, un
                                 // scan abandonné rejouerait l'accord scanné la fois précédente.
@@ -1040,8 +1117,9 @@ extension Worker_clan on worker {
                                 final fut = ActionRegistry.get("qrcodereader.scan")?.call(caller, event);
                                 if (fut is Future) await fut;
                                 final content = (await deva_get("commons.qrcodereader.result"))?.toString() ?? "";
-                                if (content.isEmpty) return;   // scan abandonné
+                                if (content.isEmpty) return;   // scan abandonné : on reste sur l'explication
 
+                                DvOrb.navigate_back();
                                 _pendingAssent  = _parseAssentUri(content);
                                 _assentRejected = _pendingAssent == null;
                                 // L'enfant est à côté : l'invitation en QR est le chemin naturel. Le
@@ -1182,14 +1260,11 @@ extension Worker_clan on worker {
                                     next == "pin" ? "invite_consent_kind_pin" : "invite_consent_kind_qr");
     }
 
-    // Bascule « simple membre ⇄ aussi chef de clan », en mode ADULTE seulement : un mineur n'est
-    // jamais chef (cf. la garde d'âge de promote_chief). Le libellé dit l'état courant et qu'on
-    // peut en changer, comme la bascule QR / à distance.
+    // Case « Il sera aussi chef du clan », en mode ADULTE seulement : un mineur n'est jamais chef
+    // (cf. la garde d'âge de promote_chief). `change` porte le nouvel état de la case.
     Future<void> on_invite_chief_toggle(DvShape? caller, dynamic event) async {
 
-                                _inviteAsChief = !_inviteAsChief;
-                                await _revealLabel("invite_consent_screen/chief",
-                                    _inviteAsChief ? "invite_consent_chief_yes" : "invite_consent_chief_no");
+                                _inviteAsChief = event == true || caller?.get("shape.checked") == true;
     }
 
     // Le scellé de la déclaration est lisible par qui le transporte (base64url d'un JSON, cf.
@@ -2896,6 +2971,29 @@ extension Worker_clan on worker {
                                 await ActionRegistry.get("documents.show_ack")?.call(null, assent != null ? "guardian" : "adult");
                                 _setInviteYesReady(false);
 
+                                // ⚠ MODE ADULTE : LA DÉCLARATION EST LE CHOIX DU MENU (2026-10-12). Le chef a
+                                //   touché « Inviter un adulte » : lui refaire cocher « Il s'agit d'un
+                                //   adulte », sous une mention qui parle d'enfants, le perdait. La case
+                                //   unique de l'acquittement `adult` est donc cochée d'office puis cachée,
+                                //   avec la mention : le scellé part toujours avec l'invitation
+                                //   (on_confirm_invite_consent), simplement sans geste redondant. Le mode
+                                //   enfant, lui, garde ses cases et sa mention, qu'on remontre.
+                                final ackList = DvOrb.get_shape_by_id("documents/ack_options");
+                                if (assent == null) {
+                                    if (ackList is DvChecklist) {
+                                        for (final item in ackList.items) {
+                                            if (!item.checked) ackList.toggleItem(item.id);
+                                        }
+                                    }
+                                    _hideShapes(["documents/ack_options", "invite_consent_screen/notice"]);
+                                    final fn = ActionRegistry.get("documents.ack_ready");
+                                    _setInviteYesReady(fn == null || (await fn(null, null))?.toString() == "true");
+                                } else {
+                                    for (final id in ["documents/ack_options", "invite_consent_screen/notice"]) {
+                                        DvOrb.get_shape_by_id(id)?..set("shape.visible", true)..refreshUI();
+                                    }
+                                }
+
                                 final head = await DvOrb.wait_for_shape("invite_consent_screen/assent");
                                 if (head != null) {
                                     String text;
@@ -2939,12 +3037,16 @@ extension Worker_clan on worker {
                                 } else {
                                     _hideShapes(["invite_consent_screen/kind"]);
                                 }
-                                // Même emplacement, l'autre mode : en mode adulte, le chef peut faire de
-                                // l'invité un chef dès son arrivée. Repart à « simple membre » à chaque
-                                // ouverture : une décision prise pour l'invitation précédente ne vaut pas.
+                                // En mode adulte, la case « Il sera aussi chef du clan » : le chef peut faire
+                                // de l'invité un chef dès son arrivée. Décochée à chaque ouverture : une
+                                // décision prise pour l'invitation précédente ne vaut pas pour celle-ci.
                                 _inviteAsChief = false;
                                 if (assent == null) {
-                                    await _revealLabel("invite_consent_screen/chief", "invite_consent_chief_no");
+                                    final chief = await DvOrb.wait_for_shape("invite_consent_screen/chief");
+                                    chief
+                                        ?..set("shape.checked", false)
+                                        ..set("shape.visible", true)
+                                        ..refreshUI();
                                 } else {
                                     _hideShapes(["invite_consent_screen/chief"]);
                                 }

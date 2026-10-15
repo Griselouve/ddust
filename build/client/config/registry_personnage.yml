@@ -37,6 +37,7 @@ conf:
         - personnage/coming_soon
         - personnage/settings
         - personnage/settings_menu
+        - personnage/advanced_menu
         - personnage/edit_toggle
         - personnage/edit_avatar_big
         - personnage/edit_name_big
@@ -229,6 +230,8 @@ conf:
       class: DvMenuButton
       layer: content
       menu: personnage/settings_menu
+      # Sous-menu ouvert depuis ce menu : ses icônes sont préparées avec les siennes.
+      submenus: [personnage/advanced_menu]
       menu_enabled: true
       button_style: commons/donjon_button
       # MÊME EMPLACEMENT que le kebab de l'écran Clan (clan_page/settings) : coincé entre l'icône
@@ -240,9 +243,15 @@ conf:
         h: 5%
         border: false
 
-    # Menu du bouton settings de l'écran Personnage : « Mon Journal » (même effet que l'option
-    # journal du roster, appliquée à l'utilisateur courant), langue, tutoriels, politique de
-    # confidentialité, déconnexion et suppression de compte.
+    # Menu du bouton settings de l'écran Personnage : LES GESTES DE TOUS LES JOURS, et rien d'autre.
+    #
+    # ⚠ REFONTE DU 2026-10-12 (retours joueurs), même découpe que le kebab du clan : le menu
+    #   alignait jusqu'à quatorze options, dont des réglages rares (langue, rappels, notifications)
+    #   et des gestes graves (suppression du compte). Restent ici « Mon Journal », les tutoriels,
+    #   le guide (du parent ou de l'aventurier), « Noter et partager » (adultes) et la
+    #   déconnexion ; tout le reste part sous « Options avancées… » (personnage/advanced_menu).
+    #   Le menu de mort (commons/death_settings_menu) a reçu la même découpe le 2026-10-13
+    #   (commons/death_advanced_menu) : ses fonctions vitales restent toutes à deux taps.
     # ⚠️ perso_settings_selector (worker_session.dart) énumère les options AUTORISÉES : toute
     # option ajoutée ici doit y être déclarée, sinon elle n'apparaît jamais.
     personnage/settings_menu:
@@ -259,13 +268,6 @@ conf:
             label: "@@@T:perso_menu_log@@@"
           actions:
             tap: worker.open_my_log
-        change_lang:
-          icon: "language"
-          desc: "@@@T:perso_menu_lang_desc@@@"
-          shape:
-            label: "@@@T:perso_menu_lang@@@"
-          actions:
-            tap: worker.open_lang_menu
         tutorials:
           desc: "@@@T:clan_menu_tutorials_desc@@@"
           shape:
@@ -290,6 +292,51 @@ conf:
             label: "@@@T:tuto_guide_enfant_title@@@"
           actions:
             tap: dvtuto.play.guide_enfant
+        # « Noter et partager » : ouvre le panneau commons/rate_* (étoiles + partage de l'app).
+        # RÉSERVÉ AUX ADULTES (perso_settings_selector, sur worker.player_is_adult), double garde
+        # dans worker.open_rate_panel. Placé AVANT la déconnexion : la suppression du compte
+        # reste la dernière ligne. Absent du menu de mort (fonctions vitales seulement).
+        rate_share:
+          icon: "star"
+          desc: "@@@T:menu_rate_share_desc@@@"
+          shape:
+            label: "@@@T:menu_rate_share@@@"
+          actions:
+            tap: worker.open_rate_panel
+        # Options avancées… : ouvre personnage/advanced_menu au même endroit
+        # (worker.open_perso_advanced), comme celui de l'écran Clan.
+        advanced:
+          icon: "widgets"
+          desc: "@@@T:perso_menu_advanced_desc@@@"
+          shape:
+            label: "@@@T:clan_menu_advanced@@@"
+          actions:
+            tap: worker.open_perso_advanced
+        logout:
+          desc: "@@@T:perso_menu_logout_desc@@@"
+          shape:
+            label: "@@@T:sign_out@@@"
+          actions:
+            tap: dvcloud.do_logout
+    # « Options avancées… » du personnage : les réglages rares et les gestes graves, ouverts au
+    # même endroit que le menu de base. Gardes inchangées, arbitrées par perso_advanced_selector.
+    # La suppression du compte reste la DERNIÈRE ligne : une action irréversible se met au bout,
+    # là où l'on n'arrive pas par inadvertance.
+    personnage/advanced_menu:
+      class: DvMenu
+      layer: popup
+      show_label: false
+      selector: worker.perso_advanced_selector
+      shape:
+        w: 55%
+      options:
+        change_lang:
+          icon: "language"
+          desc: "@@@T:perso_menu_lang_desc@@@"
+          shape:
+            label: "@@@T:perso_menu_lang@@@"
+          actions:
+            tap: worker.open_lang_menu
         # Rappels de relance : deux options EXCLUSIVES, arbitrées par
         # perso_settings_selector qui lit `clans_players.nudges` du joueur courant.
         # Même bascule que celle du menu roster (registry_clan_page), à ceci près
@@ -354,23 +401,6 @@ conf:
             label: "@@@T:perso_menu_privacy@@@"
           actions:
             tap: worker.open_privacy
-        # « Noter et partager » : ouvre le panneau commons/rate_* (étoiles + partage de l'app).
-        # RÉSERVÉ AUX ADULTES (perso_settings_selector, sur worker.player_is_adult), double garde
-        # dans worker.open_rate_panel. Placé AVANT la déconnexion : la suppression du compte
-        # reste la dernière ligne. Absent du menu de mort (fonctions vitales seulement).
-        rate_share:
-          icon: "star"
-          desc: "@@@T:menu_rate_share_desc@@@"
-          shape:
-            label: "@@@T:menu_rate_share@@@"
-          actions:
-            tap: worker.open_rate_panel
-        logout:
-          desc: "@@@T:perso_menu_logout_desc@@@"
-          shape:
-            label: "@@@T:sign_out@@@"
-          actions:
-            tap: dvcloud.do_logout
         delete_account:
           desc: "@@@T:perso_menu_delete_desc@@@"
           shape:

@@ -255,7 +255,9 @@ jamais écrite dans les données de jeu.
 
 Un modèle génératif (Google Vertex AI) n'est utilisé qu'à la demande, par un bouton : pour proposer
 un nom et une description (personnage, clan, tâche), ou pour écrire un court récit des aventures du
-clan, destiné à la famille. Seuls sont transmis les textes saisis ou le journal du clan avec les
+clan, destiné à la famille. Un assistant d'aide (une mascotte) répond aussi aux questions des
+adultes par le même modèle ; il n'est jamais proposé à un mineur, pour qui la toucher ne déclenche
+qu'une animation. Seuls sont transmis les textes saisis ou le journal du clan avec les
 pseudonymes, jamais un identifiant, une date de naissance, une image ou une localisation. Le
 traitement a lieu dans la même zone géographique que le stockage des données. Les conditions
 contractuelles de Google Cloud stipulent que les données du client ne sont pas utilisées pour

@@ -1,0 +1,15 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud/general/layers/mascot-dragon-global.yml
+# Mini-thème « mascotte dragon » (catalogue theme.minis, groupe mascot), actif quel que soit
+# le thème dès que le tag mascot-dragon l'est (dvtheme.switchMini). Le personnage lui-même est
+# décrit dans client/config/dvmascot.yml (characters.dragon), qui en fait aussi le repli quand
+# aucun mini-thème de mascotte n'est actif ; ses images vivent dans la racine donjon, que tous
+# les thèmes portent.
+name: mascot-dragon
+above: theme-donjon
+strategy: force
+tenant: global
+tags: [mascot-dragon]
+data:
+  mascot:
+    character: dragon

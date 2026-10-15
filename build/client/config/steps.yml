@@ -252,7 +252,20 @@ conf:
         ok: decisiontree
         default: create_clan
 
+    # La quête préparée : le FONDATEUR d'un clan tout juste créé choisit d'abord l'ambiance de
+    # son clan (theme_pick_page), tous les autres vont droit au dashboard. C'est le routeur qui
+    # tranche (worker.decisiontree_route : la bienvenue « created » encore armée).
     decisiontree:
+      routeur: worker.decisiontree_route
+      navigate: reset
+      routes:
+        theme: theme_pick_page
+        default: dashboard
+
+    # Le choix du thème du clan. Aucune route n'en part par dvsteps : c'est le worker qui
+    # navigue au dashboard une fois le thème posé et l'appareil basculé
+    # (worker_store._choisirThemeClan). L'entrée déclare l'écran et sa sortie naturelle.
+    theme_pick_page:
       navigate: reset
       routes:
         default: dashboard

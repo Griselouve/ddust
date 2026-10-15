@@ -82,6 +82,19 @@ assets:
     intro_sources:
       dir: "resources_others/intro"
       order: 45
+    # Le thème « gentils dinosaures » (2026-10-12) : mêmes chemins et mêmes noms de
+    # fichiers que donjon sous sa propre racine ; ce qu'il ne redessine pas retombe sur
+    # donjon par la cascade (theme.themes.theme-dino.manifests = general, donjon, dino).
+    dino:
+      dir: "resources_cloud/dino"
+      order: 32
+      root: "dino"
+    # Les planches de référence du thème dino (famille, diplodocus, tricératops) et les poses
+    # brutes des mascottes (diplo/, trixie/) : ni embarquées ni
+    # téléversées, c'est la matière dont la série tient son trait.
+    dino_sources:
+      dir: "resources_others/dino"
+      order: 46
     web:
       dir: "hosting/web/assets"
       order: 50
@@ -93,6 +106,12 @@ assets:
   # pas un repli silencieux : une video muette sur un marche passerait inapercue.
   langs: [fr, en, es, de, it, pt, br, nl]
 
+  # GARDE-FOU DE DEPENSE D'UN BUILD (assetgen, 2026-10-12) : au-dela, le build s'arrete
+  # AVANT l'appel suivant et liste ce qui reste ; le build suivant reprend la ou il
+  # s'etait arrete. Estimation a 0,09 EUR l'image, mesuree (cf. `_PRIX` d'assetgen.py). Seul filet
+  # pour Lyria et les sons, que pubudget ne voit pas.
+  max_spend_eur: 60
+
   defaults:
     # MESURE, pas suppose (sondes des 2026-09-10 et 2026-09-11 sur asura-888) :
     #   - aucun modele Imagen n'est ouvert (404 « does not have access to it ») ;
@@ -103,7 +122,10 @@ assets:
     image:
       model: "gemini-2.5-flash-image"
       aspect: "3:2"
-      locations: ["europe-west4", "us-central1"]
+      # `global` EN TETE (2026-10-12) : le point d'acces global repartit l'appel sur toute la
+      # capacite de Google, la ou une region seule renvoyait des 429 en rafale pendant la serie
+      # du theme dino (125 echecs sur 263). Les regions suivent en repli.
+      locations: ["global", "europe-west4", "europe-west1", "us-central1", "us-east4"]
     clip:
       model: "veo-3.1-generate-preview"
       duration: 8
@@ -980,14 +1002,6 @@ assets:
           out: "images/medium/bourse.png"
           prompt: >-
             Un sac de toile marron clair rempli à ras bord de pièces d'or rondes et épaisses, certaines tombées autour de la base du sac, le tout détouré sur fond transparent. Les pièces sont dorées avec un bord argenté et un motif d'étoile gravé, le sac est fermé par un cordon noué. Style de peinture numérique détaillé, avec des textures riches, des ombres douces et des reflets réalistes sur les pièces, éclairage diffus.
-
-        # Item cree par `bundles apply` : un prompt ecrit depuis
-        # la console demande une declaration a lui.
-        historique_donjon_fairy_tile:
-          kind: image
-          out: "images/medium/fairy_tile.png"
-          prompt: >-
-            Une fée souriante aux longs cheveux argentés, vêtue d'une robe de femme de chambre avec un tablier et une bouteille de spray, tient une boîte cadeau scintillante dans chaque main, ses ailes translucides parsemées de bulles et d'étoiles. Le personnage est en pleine longueur, dans un style anime détaillé et lumineux, avec des couleurs pastel douces et un éclairage féerique, détouré sur fond transparent.
 
         # Item cree par `bundles apply` : un prompt ecrit depuis
         # la console demande une declaration a lui.
@@ -3585,29 +3599,6 @@ assets:
           prompt: >-
             Un portefeuille en cuir marron, usé et texturé, est rempli de billets de banque stylisés, ressemblant à des parchemins anciens avec des motifs médiévaux comme des boucliers, des épées et des flacons, le tout détouré sur fond transparent. Le style est celui d'une illustration de jeu vidéo, avec des couleurs chaudes et terreuses, des ombres douces et un éclairage diffus qui met en valeur les textures du cuir et des billets.
 
-        # Item cree par `bundles apply` : un prompt ecrit depuis
-        # la console demande une declaration a lui.
-        traitements_historiques_fairy_nobg:
-          kind: image
-          out: "images/big/fairy_nobg.png"
-          # Repris du joker : sans ces lignes, la regeneration
-          # rendrait le dessin sans son traitement.
-          traitements:
-            - { outil: remove_bg, fonction: remove_background }
-          prompt: >-
-            Une fée souriante aux longs cheveux clairs, vêtue d'une robe de soubrette grise et d'un tablier blanc, tient dans chaque main une petite boîte cadeau lumineuse, tandis que des bulles et des étoiles scintillantes l'entourent. Le personnage est représenté dans un style anime détaillé, avec des couleurs pastel douces et un éclairage lumineux, sur un fond transparent.
-
-        # Item cree par `bundles apply` : un prompt ecrit depuis
-        # la console demande une declaration a lui.
-        traitements_historiques_frost_frame_nobg:
-          kind: image
-          out: "images/big/frost_frame_nobg.png"
-          # Repris du joker : sans ces lignes, la regeneration
-          # rendrait le dessin sans son traitement.
-          traitements:
-            - { outil: remove_bg, fonction: remove_background }
-          prompt: >-
-            Un cadre fin et irrégulier, comme des éclairs ou des branches stylisées, entoure les bords d'une image. Le cadre est de couleur bleu clair et est détouré sur fond transparent.
 
         # Item cree par `bundles apply` : un prompt ecrit depuis
         # la console demande une declaration a lui.
@@ -3716,6 +3707,69 @@ assets:
             - { outil: remove_bg, fonction: remove_background }
           prompt: >-
             Un jeton de jeu vidéo en métal, de forme ovale, avec un centre doré gravé des lettres "XP" dans un style rustique et usé, entouré d'un anneau métallique plus foncé et riveté, le tout détouré sur fond transparent. Le style est celui d'une illustration numérique détaillée, avec des textures réalistes de métal vieilli, des éraflures et une patine verdâtre sur les lettres, éclairé de manière à accentuer les reliefs et les reflets métalliques.
+
+    # =========================================================================
+    # LA FEE, COMMUNE A TOUS LES THEMES (2026-10-12)
+    # =========================================================================
+    # Ses trois images et sa musique ont quitte la racine donjon pour `general` :
+    # la fee est la meme sous donjon, X et dino (sa scene, ses textes et ses
+    # vibrations vivent dans general/layers/fairy-base-global.yml). Les trois items
+    # s'appelaient historique_donjon_fairy_tile, traitements_historiques_fairy_nobg et
+    # traitements_historiques_frost_frame_nobg : memes prompts, memes traitements.
+    - name: fee_generale
+      enabled: true
+      dir: "resources_cloud/general"
+      items:
+        # La musique de la venue (pointer backend general/music/fairy.mp3).
+        general_musique_fee: { kind: source, out: "music/Fairy_General_V1.mp3" }
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        general_fairy_tile:
+          kind: image
+          out: "images/medium/fairy_tile.png"
+          prompt: >-
+            Une fée souriante aux longs cheveux argentés, vêtue d'une robe de femme de chambre avec un tablier et une bouteille de spray, tient une boîte cadeau scintillante dans chaque main, ses ailes translucides parsemées de bulles et d'étoiles. Le personnage est en pleine longueur, dans un style anime détaillé et lumineux, avec des couleurs pastel douces et un éclairage féerique, détouré sur fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        general_fairy_nobg:
+          kind: image
+          out: "images/big/fairy_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Une fée souriante aux longs cheveux clairs, vêtue d'une robe de soubrette grise et d'un tablier blanc, tient dans chaque main une petite boîte cadeau lumineuse, tandis que des bulles et des étoiles scintillantes l'entourent. Le personnage est représenté dans un style anime détaillé, avec des couleurs pastel douces et un éclairage lumineux, sur un fond transparent.
+
+        # Item cree par `bundles apply` : un prompt ecrit depuis
+        # la console demande une declaration a lui.
+        general_frost_frame_nobg:
+          kind: image
+          out: "images/big/frost_frame_nobg.png"
+          # Repris du joker : sans ces lignes, la regeneration
+          # rendrait le dessin sans son traitement.
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un cadre fin et irrégulier, comme des éclairs ou des branches stylisées, entoure les bords d'une image. Le cadre est de couleur bleu clair et est détouré sur fond transparent.
+
+    # =========================================================================
+    # LES VITRINES DES THÈMES (2026-10-13)
+    # =========================================================================
+    # Les deux images de l'écran de choix du thème à la création du clan (theme_pick_page,
+    # registry_clan_join.yml). Rangées dans `general` : l'écran s'affiche avant que la racine
+    # du thème non actif ne soit téléchargée. `source` : aucun prompt, elles sont composées
+    # sans IA par le script E:\Deva\tmp\dino\vitrines.py (décor du thème, une tâche typique,
+    # la mascotte), qu'il suffit de relancer pour les refaire.
+    - name: vitrines_themes
+      enabled: true
+      dir: "resources_cloud/general/images/big"
+      items:
+        general_theme_vitrine_donjon: { kind: source, out: "theme_vitrine_donjon.png" }
+        general_theme_vitrine_dino:   { kind: source, out: "theme_vitrine_dino.png" }
+
     # =========================================================================
     - name: evenements
       enabled: true
@@ -3794,6 +3848,1926 @@ assets:
             Une fiole de verre en forme de cœur remplie d'un liquide rouge lumineux, fermée par un
             bouchon de liège et un petit ruban, avec une étiquette de parchemin, entourée de
             quelques étincelles dorées.
+
+    # =========================================================================
+    # THÈME « GENTILS DINOSAURES » : PLANCHE D'ESSAI (2026-10-12)
+    # =========================================================================
+    # Dix images seulement, pour valider le STYLE avant de payer la série entière
+    # (~300 images). Les sorties sont les VRAIS fichiers du thème (mêmes noms que
+    # donjon, sous resources_cloud/dino) : validées, elles restent et ne seront pas
+    # refaites ; refusées, on les efface, on corrige le style, on relance.
+    #
+    # Public : les plus jeunes (3-7 ans). Moins chargé que donjon pour ne pas accaparer
+    # l'attention, toujours ludique. Mêmes mécaniques que donjon : une tâche = s'occuper
+    # d'un dinosaure, le butin = un œuf qui éclot, jamais de combat ni de peur.
+    - name: dino_essai
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      style: >-
+        Illustration pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, grandes
+        formes rondes, contours épais et souples, aplats de couleurs pastel chaudes avec à peine
+        d'ombrage, très peu de détails, beaucoup d'air. Préhistoire tendre : une famille de
+        Cro-Magnon souriante vêtue de peaux et de feuilles, et de gentils dinosaures aux grands
+        yeux brillants, aux joues roses, sans dents pointues ni griffes, jamais effrayants.
+        Lisible même tout petit. Aucun texte, aucune lettre, aucun logo, aucun cadre.
+      items:
+        # --- les deux références de la série (hors bucket) ----------------------
+        dino_ref_famille:
+          kind: image
+          aspect: "3:2"
+          out: "../../../resources_others/dino/ref_famille.png"
+          prompt: >-
+            Planche de personnages sur fond uni crème : une famille de Cro-Magnon de quatre
+            personnes, debout côte à côte, en pied, de face. Un papa barbu et costaud au grand
+            sourire, une maman aux longs cheveux tressés avec une fleur, un petit garçon aux
+            cheveux bruns en bataille et une petite fille aux couettes rousses. Tenues simples
+            en peau beige, colliers de coquillages, pieds nus.
+        dino_ref_diplo:
+          kind: image
+          aspect: "1:1"
+          out: "../../../resources_others/dino/ref_diplo.png"
+          prompt: >-
+            Un bébé diplodocus vert tendre, tout rond et potelé, long cou et petite queue,
+            grands yeux brillants, joues roses, petites taches vert clair sur le dos, assis et
+            tourné de trois quarts, qui sourit. Seul, en entier, centré, sur un fond magenta
+            uni parfaitement plat (#FF00FF), sans ombre portée.
+        dino_diplo_marche_a:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/marche_a.png"
+          prompt: >-
+            Exactement le même personnage que la référence, mêmes couleurs et mêmes
+            proportions, vu de profil, en train de marcher vers la droite, une patte avant
+            levée. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF),
+            sans ombre portée.
+
+        # --- deux tâches (les « monstres » de donjon deviennent des dinos à chouchouter)
+        dino_dt_t_animaux_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_animaux_01.png"
+          prompt: >-
+            Le petit garçon de la référence verse des baies et des feuilles d'un panier tressé
+            dans un grand bol en pierre, pour un bébé tricératops orange tout rond qui ouvre
+            grand la bouche, ravi, les yeux fermés de bonheur. Fond uni crème.
+        dino_dt_t_cuisine_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_01.png"
+          prompt: >-
+            La petite fille de la référence balaie le sol de la grotte avec un balai fait d'une
+            branche feuillue, pendant qu'un bébé ankylosaure gris-bleu tout poussiéreux éternue
+            un petit nuage de poussière en riant. Fond uni crème.
+
+        # --- icône de domaine, avatar, œuf, victoire, splash ----------------------
+        dino_task_animaux_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_animaux_nobg.png"
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Une grosse tête de bébé dinosaure vert, ronde et souriante, qui croque une baie
+            rouge, posée devant un médaillon rond en pierre claire gravé d'une feuille. Fond
+            uni gris moyen parfaitement plat.
+        dino_chest_item_nobg:
+          kind: image
+          aspect: "16:9"
+          out: "big/chest_item_nobg.png"
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: >-
+            Un gros œuf de dinosaure crème à grosses taches vertes et orange, posé dans un nid
+            douillet de paille et de feuilles, avec une petite fêlure d'où s'échappe une douce
+            lumière dorée. Fond uni gris moyen parfaitement plat.
+        dino_victory_nobg:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "big/victory_nobg.png"
+          # unbg_flat + trim et non remove_bg : sur ce dessin en aplats, remove_bg laissait des
+          # taches sombres dans les personnages (planche d'essai du 2026-10-12).
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: >-
+            La famille de la référence saute de joie, bras en l'air, avec un bébé diplodocus vert
+            qui sautille au milieu d'eux, sous une pluie de petites feuilles et d'étoiles. Fond
+            uni gris moyen parfaitement plat.
+        dino_splash:
+          kind: image
+          aspect: "2:3"
+          out: "splashs/splash.png"
+          prompt: >-
+            Une vallée préhistorique paisible au lever du soleil : de grandes fougères, une
+            rivière bleue, une grotte accueillante avec un feu de camp qui fume doucement, deux
+            longs cous de diplodocus au loin et un bébé tricératops qui joue près de l'eau. Ciel
+            pastel, grandes formes simples, beaucoup de calme, place libre au centre pour un
+            titre. Aucun personnage humain.
+
+    # THÈME DINO : les dinos de tâches (un par feuille de tâche). Prompts DÉRIVÉS des textes dino
+    # (tâche réelle + réaction du dino du récit de réussite) par E:\Deva\tmp\_dino_04_series.py.
+    - name: dino_taches
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      style: >-
+        Illustration pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, grandes formes rondes, contours épais et souples, aplats de couleurs pastel chaudes avec à peine d'ombrage, très peu de détails, beaucoup d'air. Préhistoire tendre : une famille de Cro-Magnon souriante vêtue de peaux et de feuilles, et de gentils dinosaures aux grands yeux brillants, aux joues roses, sans dents pointues ni griffes, jamais effrayants. Lisible même tout petit. Aucun texte, aucune lettre, aucun chiffre, aucun logo, aucun cadre.
+      items:
+        dino_dt_t_animaux_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_animaux_02.png"
+          prompt: "La tâche « Changer l'eau de l'animal ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le dino trinque. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_animaux_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_animaux_03.png"
+          prompt: "La tâche « Nettoyer le coin de l'animal ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et le dino est ravi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_animaux_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_animaux_05.png"
+          prompt: "La tâche « Nettoyer ou brosser les poils de l'animal ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure veut aussi la brosse. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_balcon_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_balcon_01.png"
+          prompt: "La tâche « Balayer le balcon ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle s'y pose en souriant. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_balcon_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_balcon_02.png"
+          prompt: "La tâche « Laver le balcon ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle bat des ailes, flap flap. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_bureau_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_bureau_01.png"
+          prompt: "La tâche « Aspirer ou balayer ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le bébé tricératops saute de joie. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_bureau_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_bureau_02.png"
+          prompt: "La tâche « Faire les poussières ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus n'éternue plus, ouf. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_bureau_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_bureau_03.png"
+          prompt: "La tâche « Laver le sol ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure y glisse, wiii. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_bureau_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_bureau_04.png"
+          prompt: "La tâche « Nettoyer les vitres ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle salue. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_bureau_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_bureau_05.png"
+          prompt: "La tâche « Nettoyer le plan de travail ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le bébé tricératops peut dessiner. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_bureau_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_bureau_06.png"
+          prompt: "La tâche « Ranger ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et l'iguanodon retrouve ses crayons. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_01.png"
+          prompt: "La tâche « Aspirer ou balayer ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure fait des roulades. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_02.png"
+          prompt: "La tâche « Faire les poussières ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus n'éternue plus. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_03.png"
+          prompt: "La tâche « Laver le sol ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops y glisse, wiii. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_04.png"
+          prompt: "La tâche « Nettoyer les vitres ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle rit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_05.png"
+          prompt: "La tâche « Nettoyer le miroir ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure fait des grimaces. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_06.png"
+          prompt: "La tâche « Ranger ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops fait un câlin. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_09:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_09.png"
+          prompt: "La tâche « Changer les draps ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le bébé diplodocus saute sur le lit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_10:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_10.png"
+          prompt: "La tâche « Laver les murs ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et plus une trace, le stégosaure jubile. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_enfant_11:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_enfant_11.png"
+          prompt: "La tâche « Retourner ou aérer le matelas ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et le dino fait boing boing. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_01.png"
+          prompt: "La tâche « Aspirer ou balayer ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus fait un grand sourire. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_02.png"
+          prompt: "La tâche « Faire les poussières ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure n'éternue plus, ouf. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_03.png"
+          prompt: "La tâche « Laver le sol ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops danse. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_04.png"
+          prompt: "La tâche « Nettoyer les vitres ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle salue. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_05.png"
+          prompt: "La tâche « Nettoyer le miroir ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops s'y trouve très beau. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_06.png"
+          prompt: "La tâche « Ranger ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'iguanodon fait un gros câlin. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_08:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_08.png"
+          prompt: "La tâche « Changer les draps ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et tout frais, le diplodocus sourit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_09:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_09.png"
+          prompt: "La tâche « Retourner ou aérer le matelas ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et il sent bon, le stégosaure renifle, mmm. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_chambre_parentale_10:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_chambre_parentale_10.png"
+          prompt: "La tâche « Laver les murs ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et plus une trace, le brachiosaure applaudit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_couloir_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_couloir_01.png"
+          prompt: "La tâche « Aspirer ou balayer le couloir ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le bébé diplodocus y court, youpi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_couloir_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_couloir_02.png"
+          prompt: "La tâche « Faire les poussières du couloir ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure passe sans éternuer. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_couloir_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_couloir_03.png"
+          prompt: "La tâche « Laver le sol du couloir ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops y glisse, wiii. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_couloir_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_couloir_04.png"
+          prompt: "La tâche « Laver les murs du couloir ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et plus une trace, le brachiosaure est ravi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_courses_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_courses_01.png"
+          prompt: "La tâche « Faire les courses ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus en salive déjà. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_courses_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_courses_02.png"
+          prompt: "La tâche « Porter les courses ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et le brachiosaure trouve ça fort. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_courses_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_courses_03.png"
+          prompt: "La tâche « Ranger les courses ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et le dino trouve ses biscuits. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_courses_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_courses_04.png"
+          prompt: "La tâche « Faire la liste des courses ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un petit T. rex rose tout doux qui l'aide ou la regarde, et le dino ajoute des fraises. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_courses_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_courses_05.png"
+          prompt: "La tâche « Faire une petite course ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé parasaurolophe turquoise qui l'aide ou la regarde, et le bébé dino dit merci. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_03.png"
+          prompt: "La tâche « Laver le sol ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure danse, ça ne colle plus. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_04.png"
+          prompt: "La tâche « Nettoyer les vitres ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle fait coucou. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_05.png"
+          prompt: "La tâche « Nettoyer le plan de travail ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et plus de gras, le T. rex peut couper ses légumes. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_06.png"
+          prompt: "La tâche « Nettoyer l'évier ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le bébé diplodocus y fait des bulles. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_07:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_07.png"
+          prompt: "La tâche « Nettoyer les placards ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure les ouvre en souriant. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_08:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_08.png"
+          prompt: "La tâche « Vider les restes du frigo ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un petit T. rex rose tout doux qui l'aide ou la regarde, et le dino renifle, mmm. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_09:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_09.png"
+          prompt: "La tâche « Nettoyer le micro-ondes ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et le bébé ankylosaure peut y chauffer son lait. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_10:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_10.png"
+          prompt: "La tâche « Nettoyer la hotte ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et plus de gras, le brachiosaure est ravi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_11:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_11.png"
+          prompt: "La tâche « Nettoyer l'intérieur du four ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le T. rex va cuire ses gâteaux. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_12:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_12.png"
+          prompt: "La tâche « Nettoyer la plaque de cuisson ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé parasaurolophe turquoise qui l'aide ou la regarde, et plus de croûtes, le parasaurolophe trompette, pouêt. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_13:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_13.png"
+          prompt: "La tâche « Nettoyer l'intérieur du réfrigérateur ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops renifle, ça sent le frais. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_15:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_15.png"
+          prompt: "La tâche « Détartrer la bouilloire ou la cafetière ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus boit une tisane. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_18:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_18.png"
+          prompt: "La tâche « Détartrer la robinetterie ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et ils brillent, le bébé stégosaure s'y voit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_cuisine_19:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_cuisine_19.png"
+          prompt: "La tâche « Nettoyer l'extérieur du réfrigérateur ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le bébé tricératops y colle son dessin. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_dechets_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_dechets_01.png"
+          prompt: "La tâche « Sortir les poubelles ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'ankylosaure fait au revoir aux sacs. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_dechets_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_dechets_02.png"
+          prompt: "La tâche « Changer les sacs poubelle ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops trouve le coin des déchets tout propre. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_dechets_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_dechets_03.png"
+          prompt: "La tâche « Trier les déchets ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure applaudit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_dechets_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_dechets_04.png"
+          prompt: "La tâche « Descendre le verre ou le recyclage au point de collecte ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus est fier. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_dechets_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_dechets_05.png"
+          prompt: "La tâche « Vider les bio-déchets dans le composteur ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'iguanodon fait la fête. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_dechets_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_dechets_06.png"
+          prompt: "La tâche « Vider les corbeilles et petites poubelles ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le bébé diplodocus fait une ronde. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_dechets_07:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_dechets_07.png"
+          prompt: "La tâche « Nettoyer la poubelle ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'ankylosaure n'en croit pas son nez. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_entree_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_entree_01.png"
+          prompt: "La tâche « Aspirer ou balayer l'entrée ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops entre tout content. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_entree_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_entree_02.png"
+          prompt: "La tâche « Faire les poussières de l'entrée ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus entre sans éternuer. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_entree_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_entree_03.png"
+          prompt: "La tâche « Laver le sol de l'entrée ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure entre à petits pas. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_entree_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_entree_04.png"
+          prompt: "La tâche « Laver les murs de l'entrée ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et plus une trace, le brachiosaure sourit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_extras_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_extras_01.png"
+          prompt: "La tâche « Arroser les plantes d'intérieur ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure leur fait un bisou. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_extras_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_extras_02.png"
+          prompt: "La tâche « Ramasser le courrier ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle dit merci. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_extras_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_extras_03.png"
+          prompt: "La tâche « Vider et nettoyer l'aspirateur ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et il ronronne de joie. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_extras_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_extras_04.png"
+          prompt: "La tâche « Changer une ampoule ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops fait des ombres chinoises. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_extras_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_extras_05.png"
+          prompt: "La tâche « Nettoyer les interrupteurs ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et clic, clac, le tricératops applaudit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_extras_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_extras_06.png"
+          prompt: "La tâche « Nettoyer les portes ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure est ravi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_extras_07:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_extras_07.png"
+          prompt: "La tâche « Aérer la maison ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus respire, ahhh. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_extras_08:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_extras_08.png"
+          prompt: "La tâche « Rendre un service ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le dino dit merci, pouêt. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_garage_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_garage_01.png"
+          prompt: "La tâche « Balayer ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'ankylosaure remue la queue. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_garage_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_garage_02.png"
+          prompt: "La tâche « Nettoyer le sol ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'ankylosaure glisse dessus, wiii. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_garage_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_garage_03.png"
+          prompt: "La tâche « Ranger l'établi ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le bébé tricératops retrouve son marteau. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_garage_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_garage_04.png"
+          prompt: "La tâche « Désencombrer ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et le brachiosaure y entre. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_garage_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_garage_05.png"
+          prompt: "La tâche « Nettoyer les outils ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'ankylosaure sourit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_garage_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_garage_06.png"
+          prompt: "La tâche « Aider un parent à bricoler ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops applaudit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_jardin_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_jardin_01.png"
+          prompt: "La tâche « Ramasser les feuilles tombées ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le bébé diplodocus saute dans le tas. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_jardin_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_jardin_02.png"
+          prompt: "La tâche « Tondre la pelouse ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops s'y roule. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_jardin_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_jardin_03.png"
+          prompt: "La tâche « Arroser les plantes ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure fait glou glou. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_jardin_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_jardin_04.png"
+          prompt: "La tâche « Nettoyer les allées ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'iguanodon chantonne. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_jardin_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_jardin_05.png"
+          prompt: "La tâche « Désherber ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure plante une fleur. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_jardin_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_jardin_06.png"
+          prompt: "La tâche « Tailler les haies ou les plantes ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et le brachiosaure trouve ça beau. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_01.png"
+          prompt: "La tâche « Trier le linge sale ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un petit T. rex rose tout doux qui l'aide ou la regarde, et le dino range les chaussettes. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_02.png"
+          prompt: "La tâche « Lancer une machine à laver ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure regarde le linge tourner. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_02_alt:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_02_alt.png"
+          prompt: "La tâche « Emporter le linge à la laverie ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus dit merci. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_03.png"
+          prompt: "La tâche « Étendre le linge ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé parasaurolophe turquoise qui l'aide ou la regarde, et le parasaurolophe souffle, fffff. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_04.png"
+          prompt: "La tâche « Ramasser le linge sec ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le dino fait un câlin. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_05.png"
+          prompt: "La tâche « Plier le linge ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure admire les piles. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_06.png"
+          prompt: "La tâche « Ranger le linge ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le dino ferme les tiroirs. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_08:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_08.png"
+          prompt: "La tâche « Repasser le linge ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et plus un pli, l'ankylosaure est ravi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_linge_09:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_linge_09.png"
+          prompt: "La tâche « Entretenir la machine à laver (joint, bac, cycle à vide) ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et elle sent bon, le stégosaure renifle. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_moto_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_moto_01.png"
+          prompt: "La tâche « Nettoyer la moto ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'ankylosaure veut faire un tour, vroum. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_repas_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_repas_06.png"
+          prompt: "La tâche « Cuisiner un plat simple ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le T. rex dit miam. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_repas_07:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_repas_07.png"
+          prompt: "La tâche « Réchauffer un plat ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le bébé diplodocus souffle dessus et se régale. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_repas_10:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_repas_10.png"
+          prompt: "La tâche « Faire un plat du quotidien ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et la tribu se régale, le tricératops lèche son bol. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_repas_11:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_repas_11.png"
+          prompt: "La tâche « Faire un repas gastronomique ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et le T. rex danse de joie. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_01.png"
+          prompt: "La tâche « Aspirer ou balayer ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le bébé tricératops n'éternue plus. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_02.png"
+          prompt: "La tâche « Faire les poussières ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure brille comme neuf. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_03.png"
+          prompt: "La tâche « Laver le sol ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le bébé diplodocus fait des glissades. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_04.png"
+          prompt: "La tâche « Nettoyer les vitres ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle fait coucou. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_05.png"
+          prompt: "La tâche « Nettoyer le lavabo ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure s'y lave les pattes. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_06.png"
+          prompt: "La tâche « Nettoyer le miroir ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops fait des grimaces. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_07:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_07.png"
+          prompt: "La tâche « Nettoyer la douche ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus y chante, lalala. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_08:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_08.png"
+          prompt: "La tâche « Nettoyer la baignoire ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et le bébé ankylosaure plonge, plouf. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_10:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_10.png"
+          prompt: "La tâche « Changer les serviettes ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure s'enroule dedans comme un burrito. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_11:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_11.png"
+          prompt: "La tâche « Nettoyer les joints et le carrelage ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le bébé tricératops joue à la marelle. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salle_de_bain_12:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salle_de_bain_12.png"
+          prompt: "La tâche « Détartrer la robinetterie ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé parasaurolophe turquoise qui l'aide ou la regarde, et le parasaurolophe s'y voit et trompette, pouêt. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_01.png"
+          prompt: "La tâche « Aspirer ou balayer ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops saute de joie. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_02.png"
+          prompt: "La tâche « Faire les poussières ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus n'éternue plus, ouf. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_03.png"
+          prompt: "La tâche « Laver le sol ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure y danse. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_04.png"
+          prompt: "La tâche « Nettoyer les vitres ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le ptérodactyle voit tout. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_05.png"
+          prompt: "La tâche « Laver les murs ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et le brachiosaure trouve la grotte jolie. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_06.png"
+          prompt: "La tâche « Nettoyer le miroir ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le bébé tricératops s'y fait un bisou. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_07:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_07.png"
+          prompt: "La tâche « Ranger ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure fait un gros câlin. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_08:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_08.png"
+          prompt: "La tâche « Aspirer ou dépoussiérer le canapé ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et l'ankylosaure s'y affale, tout doux. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_salon_09:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_salon_09.png"
+          prompt: "La tâche « Shampouiner ou nettoyer le canapé ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops s'y pelotonne. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_terrasse_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_terrasse_01.png"
+          prompt: "La tâche « Balayer la terrasse ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ptérodactyle bleu ciel qui l'aide ou la regarde, et le bébé iguanodon y fait la roue. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_terrasse_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_terrasse_02.png"
+          prompt: "La tâche « Laver la terrasse ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops s'y allonge au soleil. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_terrasse_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_terrasse_03.png"
+          prompt: "La tâche « Arroser les plantes ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure renifle les fleurs, mmm. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_toilettes_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_toilettes_01.png"
+          prompt: "La tâche « Aspirer ou balayer ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus applaudit avec sa queue. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_toilettes_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_toilettes_02.png"
+          prompt: "La tâche « Faire les poussières ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le bébé stégosaure n'éternue plus. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_toilettes_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_toilettes_03.png"
+          prompt: "La tâche « Laver le sol ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le tricératops sent la fleur. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_toilettes_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_toilettes_04.png"
+          prompt: "La tâche « Nettoyer la cuvette ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et le bébé ankylosaure applaudit, bravo. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_toilettes_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_toilettes_06.png"
+          prompt: "La tâche « Nettoyer les murs ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure fait un grand sourire. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_01.png"
+          prompt: "La tâche « Faire une petite vaisselle ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le bébé tricératops retrouve son bol, youpi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_02.png"
+          prompt: "La tâche « Faire une grosse vaisselle ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé brachiosaure jaune qui l'aide ou la regarde, et plus de montagne, le brachiosaure n'en revient pas. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_03.png"
+          prompt: "La tâche « Remplir le lave-vaisselle ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le bébé stégosaure ferme la porte, clac. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_04.png"
+          prompt: "La tâche « Vider le lave-vaisselle ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et les assiettes brillent, le tricératops dit bravo. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_05.png"
+          prompt: "La tâche « Sécher la vaisselle ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et plus une goutte, le diplodocus applaudit. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_06.png"
+          prompt: "La tâche « Ranger la vaisselle ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé stégosaure violet qui l'aide ou la regarde, et le stégosaure ferme les portes, ravi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_07:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_07.png"
+          prompt: "La tâche « Mettre la table ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un petit T. rex rose tout doux qui l'aide ou la regarde, et le T. rex s'assoit, serviette au cou. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_08:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_08.png"
+          prompt: "La tâche « Débarrasser la table ». La maman de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et le diplodocus est ravi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_vaisselle_09:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_vaisselle_09.png"
+          prompt: "La tâche « Entretenir le lave-vaisselle ». Le papa de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé ankylosaure gris-bleu qui l'aide ou la regarde, et il ronronne, le bébé ankylosaure aussi. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_voiture_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_voiture_01.png"
+          prompt: "La tâche « Nettoyer l'intérieur de la voiture ». Le petit garçon de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé tricératops orange qui l'aide ou la regarde, et le dino monte. Aucune écriture, aucune onomatopée, aucune bulle. Fond uni crème."
+        dino_dt_t_voiture_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "medium/dt_t_voiture_02.png"
+          prompt: "La tâche « Nettoyer l'extérieur de la voiture ». La petite fille de la référence la fait, l'objet réel bien reconnaissable, à côté d'un bébé diplodocus vert qui l'aide ou la regarde, et elle brille, le bébé diplodocus s'y voit. Fond uni crème."
+    # THÈME DINO : les icônes de domaine, détourées sur fond uni (unbg_flat + trim).
+    - name: dino_domaines
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      style: >-
+        Illustration pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, grandes formes rondes, contours épais et souples, aplats de couleurs pastel chaudes avec à peine d'ombrage, très peu de détails, beaucoup d'air. Préhistoire tendre : une famille de Cro-Magnon souriante vêtue de peaux et de feuilles, et de gentils dinosaures aux grands yeux brillants, aux joues roses, sans dents pointues ni griffes, jamais effrayants. Lisible même tout petit. Aucun texte, aucune lettre, aucun chiffre, aucun logo, aucun cadre.
+      items:
+        dino_task_balcon_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_balcon_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé stégosaure violet), ronde et souriante, à côté de une jardinière de fleurs et un petit arrosoir, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_bureau_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_bureau_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé ankylosaure gris-bleu), ronde et souriante, à côté de une tablette de pierre et un crayon de charbon, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_chambre_enfant_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_chambre_enfant_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé diplodocus vert), ronde et souriante, à côté de un petit lit de feuilles et une peluche en forme de dino, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_chambre_parentale_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_chambre_parentale_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé brachiosaure jaune), ronde et souriante, à côté de un grand lit de fourrure bien bordé, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_couloir_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_couloir_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (petit T. rex rose tout doux), ronde et souriante, à côté de un petit tapis tressé et une lanterne en pierre, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_courses_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_courses_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé parasaurolophe turquoise), ronde et souriante, à côté de un panier tressé plein de fruits, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_cuisine_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_cuisine_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé ptérodactyle bleu ciel), ronde et souriante, à côté de une marmite en pierre qui fume doucement, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_dechets_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_dechets_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé tricératops orange), ronde et souriante, à côté de un panier de tri plein de feuilles et de coquilles, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_entree_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_entree_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé stégosaure violet), ronde et souriante, à côté de l'entrée ronde d'une grotte avec un paillasson de feuilles, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_extras_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_extras_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé ankylosaure gris-bleu), ronde et souriante, à côté de un plumeau en plumes de ptérodactyle, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_garage_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_garage_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé diplodocus vert), ronde et souriante, à côté de une brouette en bois et des outils de pierre, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_jardin_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_jardin_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé brachiosaure jaune), ronde et souriante, à côté de un râteau en bois et une pousse de fougère, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_linge_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_linge_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (petit T. rex rose tout doux), ronde et souriante, à côté de une corde à linge avec des petites tuniques en peau, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_repas_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_repas_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé parasaurolophe turquoise), ronde et souriante, à côté de une table en pierre avec des bols et des fruits, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_salle_de_bain_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_salle_de_bain_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé ptérodactyle bleu ciel), ronde et souriante, à côté de un bain dans une coquille géante avec des bulles de savon, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_salon_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_salon_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé tricératops orange), ronde et souriante, à côté de un coussin de mousse et un tapis de feuilles, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_terrasse_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_terrasse_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé stégosaure violet), ronde et souriante, à côté de une grande pierre plate au soleil avec un parasol de feuille, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_toilettes_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_toilettes_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé ankylosaure gris-bleu), ronde et souriante, à côté de un petit pot en pierre et un rouleau de feuilles douces, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_vaisselle_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_vaisselle_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé diplodocus vert), ronde et souriante, à côté de une pile de bols en pierre et une éponge, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_task_vehicules_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "medium/task_vehicules_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une grosse tête de bébé dinosaure (bébé brachiosaure jaune), ronde et souriante, à côté de un petit chariot en bois à roues de pierre, le tout posé devant un médaillon rond en pierre claire gravé d'une feuille. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+    # THÈME DINO : les images uniques (œuf, endormi, médailles, statuts, événements, boutique…).
+    # Les icônes d'interface neutres (adm_*, tb_* au trait, qr-code, log-out, guides…) ne sont pas
+    # redessinées : elles retombent sur donjon par la cascade.
+    - name: dino_divers
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      style: >-
+        Illustration pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, grandes formes rondes, contours épais et souples, aplats de couleurs pastel chaudes avec à peine d'ombrage, très peu de détails, beaucoup d'air. Préhistoire tendre : une famille de Cro-Magnon souriante vêtue de peaux et de feuilles, et de gentils dinosaures aux grands yeux brillants, aux joues roses, sans dents pointues ni griffes, jamais effrayants. Lisible même tout petit. Aucun texte, aucune lettre, aucun chiffre, aucun logo, aucun cadre.
+      items:
+        dino_CoffreRitual:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "big/CoffreRitual.png"
+          prompt: "La famille de la référence assise en cercle dans la grotte, émerveillée, autour d'un gros œuf de dinosaure à taches qui éclot dans un nid de paille, avec de petites étoiles dorées qui s'en échappent. Fond crème."
+        dino_chest:
+          kind: image
+          aspect: "1:1"
+          out: "big/chest.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un gros œuf de dinosaure crème à grosses taches vertes et orange, entier et bien fermé, posé dans un nid douillet de paille et de feuilles. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_gameover:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "big/gameover.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Le petit garçon de la référence qui s'est endormi d'ennui, assis contre un caillou, la tête qui penche, un petit « Zzz » en bulles au-dessus de lui, un bébé diplodocus vert qui le regarde avec tendresse. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_no_paiement_nobg:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "big/no_paiement_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "La petite fille de la référence, un peu déçue, qui montre un panier tressé vide, à côté d'un bébé tricératops qui lui fait un câlin pour la consoler. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_skull_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "big/skull_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une petite lune ronde endormie, bonnet de nuit en feuille sur la tête, qui fait « Zzz » avec trois petites bulles. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_titre_clan:
+          kind: image
+          aspect: "1:1"
+          out: "big/titre_clan.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une médaille ronde en pierre claire gravée d'une empreinte de patte de dinosaure, suspendue à un ruban vert tressé. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_titre_perso:
+          kind: image
+          aspect: "1:1"
+          out: "big/titre_perso.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une médaille ronde en bois poli gravée d'un petit dinosaure souriant, suspendue à un ruban orange tressé. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_adult:
+          kind: image
+          aspect: "1:1"
+          out: "small/adult.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un bébé dinosaure vert à gauche et le même dinosaure devenu grand à droite, reliés par une flèche courbe bleue. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_byebye_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "small/byebye_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un bébé dinosaure vert vu de dos qui s'en va en trottinant, un petit baluchon en feuille noué au bout d'un bâton. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_cadeau:
+          kind: image
+          aspect: "1:1"
+          out: "small/cadeau.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un bébé dinosaure orange assis, tout content, qui tient une boîte cadeau emballée dans une feuille avec un ruban. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_chef_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "small/chef_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un bébé dinosaure vert assis, fier et souriant, une couronne de fleurs et de feuilles sur la tête. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_chestip:
+          kind: image
+          aspect: "1:1"
+          out: "small/chestip.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un gros œuf de dinosaure à taches qui tremble dans son nid, avec de petits traits de mouvement autour. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_crown:
+          kind: image
+          aspect: "1:1"
+          out: "small/crown.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une couronne de fleurs colorées et de feuilles tressées. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_flamme_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "small/flamme_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un petit feu de camp tout rond et joyeux sur trois bûches, flammes orange douces. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_flee_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "small/flee_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un bébé dinosaure vert qui s'éloigne sur la pointe des pattes, un doigt sur la bouche, tout discret. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_heart_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "small/heart_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un gros cœur rouge tout doux, rond et brillant, avec un petit sourire. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_nomore_chef:
+          kind: image
+          aspect: "1:1"
+          out: "small/nomore_chef.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un bébé dinosaure vert assis qui pose à côté de lui une couronne de fleurs, une grande croix rouge douce en travers de la couronne. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_pharma:
+          kind: image
+          aspect: "1:1"
+          out: "small/pharma.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une feuille verte en forme de cœur avec une petite goutte de jus de baies dessus, symbole doux de soin. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_poubelle:
+          kind: image
+          aspect: "1:1"
+          out: "small/poubelle.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une corbeille tressée en osier pleine de feuilles sèches et de coquilles d'œufs. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_switch_nobg:
+          kind: image
+          aspect: "1:1"
+          out: "small/switch_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Deux bébés dinosaures, un vert et un orange, qui échangent leur place en se tenant la patte, entourés d'une flèche circulaire bleue. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_bourse:
+          kind: image
+          aspect: "1:1"
+          out: "medium/bourse.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une petite bourse en peau nouée, pleine de jolis coquillages colorés qui en débordent. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_chestok:
+          kind: image
+          aspect: "1:1"
+          out: "medium/chestok.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un œuf de dinosaure éclos dans son nid, la coquille ouverte en deux, d'où sortent des surprises : coquillages, fruits, une petite plume et des étoiles dorées. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_ecu_combat:
+          kind: image
+          aspect: "1:1"
+          out: "medium/ecu_combat.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un écusson rond en feuilles tressées marqué d'une grosse empreinte de patte de dinosaure dorée, avec une petite étoile au-dessus. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_nounours:
+          kind: image
+          aspect: "1:1"
+          out: "medium/nounours.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une peluche toute douce en forme de bébé diplodocus vert, cousue main, assise. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_evt_souris:
+          kind: image
+          aspect: "1:1"
+          out: "medium/evt_souris.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un petit lézard vert souriant, debout sur ses pattes arrière, avec un minuscule tablier de feuille et un plumeau, qui salue d'une patte et tend de l'autre une petite étoile scintillante. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_evt_piege:
+          kind: image
+          aspect: "1:1"
+          out: "medium/evt_piege.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un bébé dinosaure farceur caché derrière une flaque de mousse de savon, qui rit en se cachant la bouche, un seau renversé à côté. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_evt_gobelin:
+          kind: image
+          aspect: "1:1"
+          out: "medium/evt_gobelin.png"
+          traitements:
+            - iconify
+          prompt: "Le portrait en buste d'un petit ptérodactyle bleu ciel curieux qui regarde à travers une grosse loupe avec un sourire malicieux. Fond uni crème."
+        dino_evt_changelin:
+          kind: image
+          aspect: "1:1"
+          out: "medium/evt_changelin.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un caméléon farceur aux couleurs qui changent, un faux masque souriant à la main, qui s'enfuit en riant en laissant derrière lui un petit nuage d'étoiles. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_evt_potion:
+          kind: image
+          aspect: "1:1"
+          out: "medium/evt_potion.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une jolie gourde ronde en calebasse pleine de jus de baies rouge, bouchée par une feuille, avec un petit ruban. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_annonce:
+          kind: image
+          aspect: "1:1"
+          out: "splashs/annonce.png"
+          prompt: "Deux bébés ptérodactyles souriants qui tiennent chacun un coin d'une grande banderole en feuille claire vide, vue de face, sur un ciel pastel de lever du soleil."
+        dino_tb_combat:
+          kind: image
+          aspect: "1:1"
+          out: "small/tb_combat.png"
+          prompt: "Une grosse empreinte de patte de dinosaure dorée, simple et lisible, au centre d'un disque noir uni."
+    # THÈME DINO : les icônes d'OBJETS, avec un style SANS personnage (le style commun des autres
+    # étapes décrit la famille, et le modèle la dessinait jusque dans l'écu de niveau, 2026-10-13).
+    - name: dino_objets
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      style: >-
+        Icône d'objet pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, formes rondes, contours épais et souples, aplats de couleurs pastel chaudes, très peu de détails. UN SEUL OBJET, AUCUN PERSONNAGE, AUCUN ANIMAL, AUCUN DINOSAURE. Aucun texte, aucune lettre, aucun cadre.
+      items:
+        dino_obj_shield:
+          kind: image
+          aspect: "1:1"
+          out: "medium/shield.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un petit caillou rond et lisse, gris clair tirant sur le beige, posé à plat, avec un reflet doux. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_obj_icon_edit:
+          kind: image
+          aspect: "1:1"
+          out: "medium/icon_edit.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Un burin en pierre et un petit maillet en bois posés en croix sur une pierre plate où l'on a commencé à graver un trait. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_obj_argent_poche:
+          kind: image
+          aspect: "1:1"
+          out: "big/argent_poche_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une petite bourse en cuir brun, fermée par un lien tressé, bien rebondie. Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_obj_scroll:
+          kind: image
+          aspect: "1:1"
+          out: "small/scroll_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Une tablette de pierre plate et arrondie, gravée de petits dessins simples (un soleil, une empreinte, une feuille). Seul, en entier, centré, sur un fond uni gris moyen parfaitement plat, sans ombre portée."
+        dino_obj_marchand:
+          kind: image
+          aspect: "1:1"
+          out: "medium/icon_Marchand.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Un petit étal préhistorique vu de face : un comptoir en bois sous un auvent de grandes feuilles, avec des paniers de fruits, des colliers et des coquillages bien rangés. Aucun personnage, aucun animal. Fond uni crème."
+    # AVATARS DU THÈME DINO (2026-10-13). Rangés dans `general` et non `dino` : un avatar se GARDE d'un
+    # thème à l'autre, il doit donc être servi par tous les thèmes. Nommés icon_dino_02_* (thème dino,
+    # clan 02, distinct du 01 de donjon) : l'explorateur range par thème puis par clan (worker_avatars).
+    # Comme donjon : UN clan, 4 avatars de clan (la famille entière) et chaque membre en 6 poses
+    # (papa P_01-06, maman P_07-12, garçon P_13-18, fille P_19-24). Anneau : tools/anneau.py.
+    - name: dino_avatars
+      enabled: true
+      dir: "resources_cloud/general/images/medium"
+      style: >-
+        Portrait pour un jeu d'enfants de 3 à 7 ans, dans le style exact des personnages de la référence : dessin animé simple et doux, formes rondes, contours épais et souples, aplats de couleurs pastel chaudes. Cadrage SERRÉ EN BUSTE : de la tête jusqu'à la taille, le visage grand et bien visible, de face ou de trois quarts. Fond uni crème parfaitement plat, sans décor. Aucun texte.
+      items:
+        dino_icon_dino_02_C_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_C_01.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Les quatre membres de la famille de la référence (le papa, la maman, le garçon et la fille), serrés les uns contre les autres, souriants, en buste."
+        dino_icon_dino_02_C_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_C_02.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "La famille de la référence en buste, le papa et la maman derrière, les deux enfants devant, avec un bébé diplodocus vert qui passe la tête entre eux."
+        dino_icon_dino_02_C_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_C_03.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "La famille de la référence en buste qui rit ensemble, la fille sur les épaules du papa."
+        dino_icon_dino_02_C_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_C_04.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "La famille de la référence en buste qui fait coucou, joue contre joue, un petit tricératops orange dans les bras du garçon."
+        dino_icon_dino_02_P_01:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_01.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le papa barbu de la référence, seul, qui sourit et fait coucou de la main."
+        dino_icon_dino_02_P_02:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_02.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le papa barbu de la référence, seul, qui serre dans ses bras un bébé dinosaure vert tout doux."
+        dino_icon_dino_02_P_03:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_03.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le papa barbu de la référence, seul, qui rit aux éclats, les yeux plissés."
+        dino_icon_dino_02_P_04:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_04.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le papa barbu de la référence, seul, qui tient un panier tressé plein de fruits."
+        dino_icon_dino_02_P_05:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_05.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le papa barbu de la référence, seul, qui réfléchit, un doigt sur le menton, l'air malicieux."
+        dino_icon_dino_02_P_06:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_06.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le papa barbu de la référence, seul, qui lève le pouce, fier, une petite feuille dans les cheveux."
+        dino_icon_dino_02_P_07:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_07.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la maman de la référence, longue tresse et fleur dans les cheveux, seul, qui sourit et fait coucou de la main."
+        dino_icon_dino_02_P_08:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_08.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la maman de la référence, longue tresse et fleur dans les cheveux, seul, qui serre dans ses bras un bébé dinosaure vert tout doux."
+        dino_icon_dino_02_P_09:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_09.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la maman de la référence, longue tresse et fleur dans les cheveux, seul, qui rit aux éclats, les yeux plissés."
+        dino_icon_dino_02_P_10:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_10.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la maman de la référence, longue tresse et fleur dans les cheveux, seul, qui tient un panier tressé plein de fruits."
+        dino_icon_dino_02_P_11:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_11.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la maman de la référence, longue tresse et fleur dans les cheveux, seul, qui réfléchit, un doigt sur le menton, l'air malicieux."
+        dino_icon_dino_02_P_12:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_12.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la maman de la référence, longue tresse et fleur dans les cheveux, seul, qui lève le pouce, fier, une petite feuille dans les cheveux."
+        dino_icon_dino_02_P_13:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_13.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le petit garçon de la référence, cheveux bruns en bataille, seul, qui sourit et fait coucou de la main."
+        dino_icon_dino_02_P_14:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_14.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le petit garçon de la référence, cheveux bruns en bataille, seul, qui serre dans ses bras un bébé dinosaure vert tout doux."
+        dino_icon_dino_02_P_15:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_15.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le petit garçon de la référence, cheveux bruns en bataille, seul, qui rit aux éclats, les yeux plissés."
+        dino_icon_dino_02_P_16:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_16.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le petit garçon de la référence, cheveux bruns en bataille, seul, qui tient un panier tressé plein de fruits."
+        dino_icon_dino_02_P_17:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_17.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le petit garçon de la référence, cheveux bruns en bataille, seul, qui réfléchit, un doigt sur le menton, l'air malicieux."
+        dino_icon_dino_02_P_18:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_18.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de le petit garçon de la référence, cheveux bruns en bataille, seul, qui lève le pouce, fier, une petite feuille dans les cheveux."
+        dino_icon_dino_02_P_19:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_19.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la petite fille de la référence, une enfant d'environ six ans aux cheveux ORANGE VIF coiffés en DEUX COUETTES HAUTES de chaque côté de la tête (pas de cheveux châtains, pas de tresse : ce n'est pas la maman), seul, qui sourit et fait coucou de la main."
+        dino_icon_dino_02_P_20:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_20.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la petite fille de la référence, une enfant d'environ six ans aux cheveux ORANGE VIF coiffés en DEUX COUETTES HAUTES de chaque côté de la tête (pas de cheveux châtains, pas de tresse : ce n'est pas la maman), seul, qui serre contre sa joue un bébé dinosaure vert tout doux. Cadrage SERRÉ : seulement la tête, les épaules et le bébé dinosaure, pas les jambes."
+        dino_icon_dino_02_P_21:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_21.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la petite fille de la référence, une enfant d'environ six ans aux cheveux ORANGE VIF coiffés en DEUX COUETTES HAUTES de chaque côté de la tête (pas de cheveux châtains, pas de tresse : ce n'est pas la maman), seul, qui rit aux éclats, les yeux plissés."
+        dino_icon_dino_02_P_22:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_22.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la petite fille de la référence, une enfant d'environ six ans aux cheveux ORANGE VIF coiffés en DEUX COUETTES HAUTES de chaque côté de la tête (pas de cheveux châtains, pas de tresse : ce n'est pas la maman), seul, qui tient un panier tressé plein de fruits."
+        dino_icon_dino_02_P_23:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_23.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la petite fille de la référence, une enfant d'environ six ans aux cheveux ORANGE VIF coiffés en DEUX COUETTES HAUTES de chaque côté de la tête (pas de cheveux châtains, pas de tresse : ce n'est pas la maman), seul, qui réfléchit, un doigt sur le menton, l'air malicieux."
+        dino_icon_dino_02_P_24:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_famille]
+          out: "icon_dino_02_P_24.png"
+          traitements:
+            - { outil: anneau, fonction: anneau }
+          prompt: "Le portrait en buste de la petite fille de la référence, une enfant d'environ six ans aux cheveux ORANGE VIF coiffés en DEUX COUETTES HAUTES de chaque côté de la tête (pas de cheveux châtains, pas de tresse : ce n'est pas la maman), seul, qui lève le pouce, fier, une petite feuille dans les cheveux."
+    # THÈME DINO : les poses de Pistache, le bébé diplodocus (mini-thème mascot-diplo). Rendues sur fond
+    # magenta HORS BUCKET ; E:\Deva\tmp\dino\prepare_diplo.py les détoure, les met à l'échelle et écrit
+    # la racine mascot_diplo/ et sa couche.
+    - name: dino_diplo
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      style: >-
+        Illustration pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, grandes formes rondes, contours épais et souples, aplats de couleurs pastel chaudes avec à peine d'ombrage, très peu de détails, beaucoup d'air. Préhistoire tendre : une famille de Cro-Magnon souriante vêtue de peaux et de feuilles, et de gentils dinosaures aux grands yeux brillants, aux joues roses, sans dents pointues ni griffes, jamais effrayants. Lisible même tout petit. Aucun texte, aucune lettre, aucun chiffre, aucun logo, aucun cadre.
+      items:
+        dino_diplo_cligne:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/cligne.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, exactement la même pose que la référence, mais les deux yeux fermés en un clin d'œil. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_aide:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/aide.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, la tête penchée sur le côté, une patte avant un peu levée comme pour proposer son aide. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_assis:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/assis.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, de face, qui regarde droit devant avec attention. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_appelle:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/appelle.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, de face, le cou tendu vers le haut, la bouche grande ouverte, qui appelle joyeusement. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_mange:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/mange.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, qui croque une grande feuille verte avec gourmandise. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_pose:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/pose.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, debout sur ses quatre pattes, de trois quarts tourné vers la gauche. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_marche_b:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/marche_b.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, de profil, en train de marcher vers la droite, l'autre patte avant levée. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_baille:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/baille.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, qui bâille énormément, la bouche grande ouverte et les yeux fermés. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_etire:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/etire.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, qui s'étire comme un chat, pattes avant allongées vers l'avant, l'arrière relevé. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_gratte:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/gratte.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, qui se gratte derrière la tête avec une patte arrière. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_queue:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/queue.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, qui tourne la tête pour regarder le bout de sa queue avec curiosité. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_dort:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/dort.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, couché en boule, qui dort paisiblement, la queue enroulée autour de lui. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_saute:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/saute.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, qui saute de joie en l'air, les quatre pattes décollées du sol. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_rit:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/rit.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, qui rit aux éclats, les yeux plissés. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_surpris:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/surpris.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, très surpris : yeux grands ouverts, petite bouche ronde. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_bulle:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/bulle.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, qui souffle fièrement une grosse bulle de savon irisée. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_roule:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/roule.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, couché sur le dos, ventre en l'air, les quatre pattes en l'air, qui gigote en riant. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_coucou:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/coucou.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, qui fait coucou avec enthousiasme, une patte avant levée bien haut. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_timide:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/timide.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, assis, timide, qui se cache les yeux derrière ses deux pattes avant. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_diplo_dos:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_diplo]
+          out: "../../../resources_others/dino/diplo/dos.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs et mêmes proportions, vu de dos, assis, qui regarde au loin. Seul, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+
+    # THÈME DINO : les poses de Trixie (« Triceratops Pusilla »), le bébé tricératops ROSE du premier
+    # plan du splash dino (mini-thème mascot-trixie, rattaché à AUCUN thème pour le moment, comme le
+    # phénix). Calquée sur dino_diplo, mais la référence vit ici : elle part du splash (dino_splash,
+    # étape dino_essai) et toutes les poses partent d'elle. Rendues sur fond magenta HORS BUCKET ;
+    # E:\Deva\tmp\dino\prepare_trixie.py les détoure, les met à l'échelle et écrit la racine
+    # mascot_trixie/ et sa couche.
+    - name: dino_trixie
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      style: >-
+        Illustration pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, grandes formes rondes, contours épais et souples, aplats de couleurs pastel chaudes avec à peine d'ombrage, très peu de détails, beaucoup d'air. Préhistoire tendre : une famille de Cro-Magnon souriante vêtue de peaux et de feuilles, et de gentils dinosaures aux grands yeux brillants, aux joues roses, sans dents pointues ni griffes, jamais effrayants. Lisible même tout petit. Aucun texte, aucune lettre, aucun chiffre, aucun logo, aucun cadre.
+      items:
+        dino_ref_trixie:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_splash]
+          out: "../../../resources_others/dino/ref_trixie.png"
+          prompt: "Exactement le bébé tricératops ROSE du premier plan de l'image de référence (celui qui joue au bord de la rivière), et lui seul : mêmes couleurs (corps rose poudré, collerette d'un rose plus soutenu bordée de petites bosses crème, trois petites cornes crème bien arrondies, ventre plus clair), mêmes taches rose foncé sur le dos et les flancs, mêmes joues roses, mêmes grands yeux brillants, même style de dessin. Assise, de trois quarts, tournée vers la gauche, qui sourit. Rien du décor (ni rivière, ni herbe, ni plantes). Seule, en entier, centrée, sur un fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_marche_a:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/marche_a.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), de profil, en train de marcher vers la droite, une patte avant levée. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_cligne:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/cligne.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), exactement la même pose que la référence, mais les deux yeux fermés en un clin d'œil. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_aide:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/aide.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, la tête penchée sur le côté, une patte avant un peu levée comme pour proposer son aide. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_assis:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/assis.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, de face, qui regarde droit devant avec attention. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_appelle:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/appelle.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, de face, la tête levée vers le ciel, la bouche grande ouverte, qui appelle joyeusement. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_mange:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/mange.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, qui croque une grande feuille de fougère avec gourmandise. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_pose:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/pose.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), debout sur ses quatre pattes, de trois quarts tournée vers la gauche. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_marche_b:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/marche_b.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), de profil, en train de marcher vers la droite, l'autre patte avant levée. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_baille:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/baille.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, qui bâille énormément, la bouche grande ouverte et les yeux fermés. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_etire:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/etire.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), qui s'étire comme un chat, pattes avant allongées vers l'avant, l'arrière relevé. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_gratte:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/gratte.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, qui se gratte derrière la collerette avec une patte arrière. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_queue:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/queue.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, qui tourne la tête pour regarder le bout de sa petite queue avec curiosité. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_dort:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/dort.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), couchée en boule, qui dort paisiblement, la queue enroulée autour d'elle. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_saute:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/saute.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), qui fait un petit bond de joie, les quatre pattes décollées du sol. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_rit:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/rit.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, qui rit aux éclats, les yeux plissés. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_surpris:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/surpris.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, très surprise : yeux grands ouverts, petite bouche ronde. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_bulle:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/bulle.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, qui souffle fièrement une grosse bulle de savon irisée. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_roule:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/roule.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), couchée sur le dos, ventre en l'air, les quatre pattes en l'air, qui gigote en riant. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_coucou:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/coucou.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, qui fait coucou avec enthousiasme, une patte avant levée bien haut. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_timide:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/timide.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), assise, timide, qui se cache les yeux derrière ses deux pattes avant. Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+        dino_trixie_dos:
+          kind: image
+          aspect: "1:1"
+          refs: [dino_ref_trixie]
+          out: "../../../resources_others/dino/trixie/dos.png"
+          prompt: "Exactement le même personnage que la référence, mêmes couleurs, mêmes taches et mêmes proportions (collerette et trois petites cornes arrondies comprises), vue de dos, assise, qui regarde au loin (on voit l'arrière de sa collerette). Seule, en entier, sur le même fond magenta uni parfaitement plat (#FF00FF), sans ombre portée."
+
+    # THÈME DINO : pas de sons propres (décision utilisateur du 2026-10-13) : ceux de donjon collent
+    # au thème, sauf les épées pendant une tâche (batte_swords), que l'utilisateur remplacera lui-même.
 
     - name: captures
       enabled: true

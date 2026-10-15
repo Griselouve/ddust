@@ -524,10 +524,11 @@ extension Worker_multiclan on worker {
                                     } catch (_) {}
                                     final visit = DateTime.tryParse(c["last_visit"] ?? "")?.toLocal();
                                     final armed = _switchArmed == id;
+                                    final armedColor = armed ? await _armedColorOf("my_clans_page/list") : "";
                                     rows.add({
                                         "id":    id,
                                         "label": name.isNotEmpty ? name : TranslationRegistry.translate("my_clans_unnamed"),
-                                        if (armed) "color": "0xFFCC4444",
+                                        if (armed) "color": armedColor,
                                         // Bascule armée (tâche en cours) : l'avertissement remplace la date.
                                         "desc":  armed ? TranslationRegistry.translate("my_clans_task_warn")
                                                : visit == null ? "" : TranslationRegistry.translate("my_clans_last_visit")
@@ -1506,6 +1507,7 @@ extension Worker_multiclan on worker {
                                     final w = await _asGuardianOf(_wardChild);
                                     final g = w?.$1;
                                     final clans = _mcMap(g?.get("clans"));
+                                    final armedColor = await _armedColorOf("ward_pick_page/list");
                                     {
                                         clans.forEach((k, v) {
                                             if (v is! Map) return;
@@ -1522,7 +1524,7 @@ extension Worker_multiclan on worker {
                                                         .replaceAll("{chief}", v["chief_name"]?.toString() ?? ""),
                                                 "icon":    origin ? "face" : "block",
                                                 "enabled": !origin,
-                                                if (armed) "color": "0xFFCC4444",
+                                                if (armed) "color": armedColor,
                                             });
                                         });
                                     }

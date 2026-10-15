@@ -1,0 +1,90 @@
+# -----------------------------------------------------------------------------
+# --- La TRANSITION de thème (module dvtheme, `_transition`).
+# --- Un calque au-dessus du Navigator : il survit au hot reload de la page pendant que le
+# --- thème bascule sous l'interlude. La vue ne déclare PAS `scene:` : dvtheme y pose celle
+# --- du thème d'arrivée (catalogue `theme.themes.<nom>.transition.scene`), et une clé
+# --- présente ici serait remise à null par le hot reload, en pleine scène.
+# --- Les interludes et les scènes viennent des thèmes intermédiaires (racines
+# --- x_transition, donjon_transition) : rien de propre à un thème ici.
+# -----------------------------------------------------------------------------
+conf:
+
+  registry:
+    orb:
+      registry:
+      - theme_transition_layer
+
+    theme_transition_layer:
+      class: DvLayer
+      registry:
+      - theme/transition_view
+      - theme/transition_cancel
+      - theme/transition_message
+
+    theme/transition_view:
+      class: DvSceneView
+      layer: front
+      shape:
+        x: 0
+        y: 0
+        w: 100%
+        h: 100%
+
+    # Apparaît après `cancel_after` s si le téléchargement traîne. Annuler rend l'ancien
+    # thème, le téléchargement du nouveau continue.
+    theme/transition_cancel:
+      masks:
+        - commons/donjon_button
+      class: DvLabel
+      layer: front
+      shape:
+        x: 30%
+        y: 82%
+        w: 40%
+        h: 6%
+        label: "@@@T:theme_transition_cancel@@@"
+        text_align: CENTER
+        font_size: 16.0
+        font_color: "amber_200"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: dvtheme.transition_cancel
+
+    theme/transition_message:
+      masks:
+        - commons/donjon_button
+      class: DvLabel
+      layer: front
+      shape:
+        x: 10%
+        y: 70%
+        w: 80%
+        h: 9%
+        label: "@@@T:theme_transition_failed@@@"
+        text_align: CENTER
+        font_size: 14.0
+        font_color: "amber_200"
+        visible: false
+
+  lang:
+    translations:
+      theme_transition_cancel:
+        fr: "Annuler"
+        en: "Cancel"
+        es: "Cancelar"
+        de: "Abbrechen"
+        it: "Annulla"
+        pt: "Cancelar"
+        br: "Cancelar"
+        nl: "Annuleren"
+      theme_transition_failed:
+        fr: "Le nouveau thème n'est pas encore arrivé. Réessaie dans un moment !"
+        en: "The new theme hasn't arrived yet. Try again in a moment!"
+        es: "El nuevo tema aún no ha llegado. ¡Vuelve a intentarlo en un momento!"
+        de: "Das neue Thema ist noch nicht da. Versuch es gleich noch einmal!"
+        it: "Il nuovo tema non è ancora arrivato. Riprova tra un momento!"
+        pt: "O novo tema ainda não chegou. Tenta outra vez daqui a pouco!"
+        br: "O novo tema ainda não chegou. Tente de novo daqui a pouco!"
+        nl: "Het nieuwe thema is er nog niet. Probeer het zo meteen opnieuw!"

@@ -11,6 +11,14 @@ tenant: global
 # Qui la trouve et la touche choisit entre les deux cadeaux qu'elle tend dans ses mains ; elle
 # disparaît alors pour tout le clan.
 #
+# TOUTE la fée est ici, et pas seulement ses réglages : sa scène dvflame, ses vibrations, son
+# son, ses textes et le branchement de son écran (registry fairy_page/*). Elle est la même dans
+# TOUS les thèmes (donjon, X, dino...) : cette couche n'a pas de tag, elle reste chargée quel que
+# soit le thème actif, et ses images (fairy_nobg, fairy_tile, frost_frame_nobg) comme sa musique
+# (music/fairy.mp3 → Fairy_General_V1.mp3, pointer backend) vivent dans la racine `general`. Un
+# thème qui voudrait sa propre fée n'a qu'à redéfinir ces clés (sa couche est chargée après) ou
+# ces fichiers sous sa racine (la cascade des manifestes le fait gagner).
+#
 # Ce layer vit dans la racine « general » du bucket : régler la cadence, les montants ou la liste
 # des cadeaux est un UPLOAD, pas une release store. Une copie est embarquée dans l'apk (build.yml →
 # onboard) pour que le tout premier lancement dispose déjà de ces valeurs.
@@ -116,3 +124,434 @@ data:
         weight: 10
         action: "worker.fairy_boss"
         label: "@@@T:fairy_gift_boss@@@"
+
+  # --- Textes -----------------------------------------------------------------------
+  lang:
+    translations:
+      #------------- La fée -----------------------------------------
+      # Elle prend la place d'une monstre-tâche pendant dix minutes, au plus une fois par mois,
+      # et PERSONNE n'est prévenu tant qu'elle est là : la trouver EST la récompense. Rien de ce
+      # bloc ne s'affiche donc avant que quelqu'un ne l'ait touchée — sauf `fairy_tile`, le
+      # libellé sous sa tuile dans le tiroir.
+      #
+      # Libellé de la tuile : volontairement muet sur ce qu'elle est. Il faut la reconnaître à
+      # son image, pas la lire.
+      fairy_tile:
+        fr: "?"
+        en: "?"
+        es: "?"
+        de: "?"
+        it: "?"
+        pt: "?"
+        br: "?"
+        nl: "?"
+
+      # Les deux cadeaux, écrits en vert lumineux dans les mains de la fée (fairy_page). Courts
+      # par nécessité : ils tiennent dans une main. Le montant n'est JAMAIS annoncé — on choisit
+      # une promesse, pas un chiffre.
+      fairy_gift_xp_self:
+        fr: "De l'expérience\npour toi"
+        en: "Experience\nfor you"
+        es: "Experiencia\npara ti"
+        de: "Erfahrung\nfür dich"
+        it: "Esperienza\nper te"
+        pt: "Experiência\npara ti"
+        br: "Experiência\npara você"
+        nl: "Ervaring\nvoor jou"
+      fairy_gift_xp_other:
+        fr: "De l'expérience\npour un autre"
+        en: "Experience\nfor another"
+        es: "Experiencia\npara otro"
+        de: "Erfahrung\nfür jemand anderen"
+        it: "Esperienza\nper un altro"
+        pt: "Experiência\npara outro"
+        br: "Experiência\npara outro"
+        nl: "Ervaring\nvoor een ander"
+      fairy_gift_xp_clan:
+        fr: "De l'expérience\npour tout le clan"
+        en: "Experience\nfor the whole clan"
+        es: "Experiencia\npara todo el clan"
+        de: "Erfahrung\nfür den ganzen Clan"
+        it: "Esperienza\nper tutto il clan"
+        pt: "Experiência\npara todo o clã"
+        br: "Experiência\npara todo o clã"
+        nl: "Ervaring\nvoor de hele clan"
+      fairy_gift_heal_self:
+        fr: "La santé\npour toi"
+        en: "Health\nfor you"
+        es: "Salud\npara ti"
+        de: "Gesundheit\nfür dich"
+        it: "Salute\nper te"
+        pt: "Saúde\npara ti"
+        br: "Saúde\npara você"
+        nl: "Gezondheid\nvoor jou"
+      fairy_gift_heal_other:
+        fr: "La santé\npour un autre"
+        en: "Health\nfor another"
+        es: "Salud\npara otro"
+        de: "Gesundheit\nfür jemand anderen"
+        it: "Salute\nper un altro"
+        pt: "Saúde\npara outro"
+        br: "Saúde\npara outro"
+        nl: "Gezondheid\nvoor een ander"
+      fairy_gift_heal_clan:
+        fr: "La santé\npour tout le clan"
+        en: "Health\nfor the whole clan"
+        es: "Salud\npara todo el clan"
+        de: "Gesundheit\nfür den ganzen Clan"
+        it: "Salute\nper tutto il clan"
+        pt: "Saúde\npara todo o clã"
+        br: "Saúde\npara todo o clã"
+        nl: "Gezondheid\nvoor de hele clan"
+      fairy_gift_boss:
+        fr: "Réveiller\nun boss"
+        en: "Wake\na boss"
+        es: "Despertar\na un jefe final"
+        de: "Einen Boss\nwecken"
+        it: "Svegliare\nun boss"
+        pt: "Acordar\num boss"
+        br: "Acordar\num boss"
+        nl: "Een boss\nwekken"
+
+      # Notification envoyée à tout le clan SAUF à l'intéressé, une fois le cadeau choisi
+      # (worker._notifyClanFairy). {name} = le joueur, substitué en code.
+      # Elle ne dit PAS quel cadeau a été pris : c'est le journal du clan qui le raconte.
+      fairy_notif:
+        fr: "{name} a rencontré une fée !"
+        en: "{name} has met a fairy!"
+        es: "¡{name} se ha encontrado con un hada!"
+        de: "{name} hat eine Fee getroffen!"
+        it: "{name} ha incontrato una fata!"
+        pt: "{name} encontrou uma fada!"
+        br: "{name} encontrou uma fada!"
+        nl: "{name} heeft een fee ontmoet!"
+
+      # Journal du clan. {gift} = le libellé du cadeau reçu (les \n des libellés ci-dessus sont
+      # remplacés par une espace avant substitution — une ligne de récit ne se coupe pas).
+      # L'APPARITION de la fée ne s'écrit jamais au journal : la ligne la trahirait en temps réel
+      # à qui l'ouvre. Une fée qui repart sans être touchée ne laisse donc aucune trace.
+      log_fairy_gift:
+        fr: "Une fée est apparue au détour d'une corvée, et @@@session.user.name@@@ l'a touchée. Elle a offert : {gift}."
+        en: "A fairy appeared in the middle of a chore, and @@@session.user.name@@@ reached out. Her gift: {gift}."
+        es: "Un hada apareció en plena faena, y @@@session.user.name@@@ la tocó. Su regalo: {gift}."
+        de: "Mitten in einer Hausarbeit ist eine Fee erschienen, und @@@session.user.name@@@ hat sie berührt. Ihr Geschenk: {gift}."
+        it: "Una fata è apparsa nel bel mezzo di una faccenda, e @@@session.user.name@@@ l'ha toccata. Il suo dono: {gift}."
+        pt: "Uma fada apareceu a meio de uma tarefa, e @@@session.user.name@@@ tocou-lhe. O seu presente: {gift}."
+        br: "Uma fada apareceu no meio de uma tarefa, e @@@session.user.name@@@ tocou nela. O presente dela: {gift}."
+        nl: "Midden in een klusje verscheen een fee, en @@@session.user.name@@@ raakte haar aan. Haar geschenk: {gift}."
+
+  # --- Son ---------------------------------------------------------------------------
+  sound:
+    preload:
+      # Venue de la fée. Jouée EN BOUCLE (dvsound.loop), et non en one-shot : contrairement à
+      # toutes les autres célébrations, celle-ci ne se termine pas toute seule — elle dure
+      # aussi longtemps que le joueur met à choisir entre les deux cadeaux.
+      anim_fairy: "music/fairy.mp3"
+
+  # --- Vibrations dvvibrations --------------------------------------------------------
+  # `tick` et `pause_100` sont des atomiques ddust, déclarés aussi par le thème donjon (qui s'en
+  # sert ailleurs) : RECOPIÉS ici à l'identique pour que la fée vibre sous un thème qui ne les
+  # déclarerait pas. Deux déclarations identiques fusionnent sans conflit ; un thème qui les
+  # redéfinirait l'emporte (couche chargée après), et la fée suivrait.
+  vibrations:
+    tick: { duration: 30, intensity: 90 } # grain sec
+    pause_100: { duration: 100, intensity: 0 } # silence (intensity 0 = attente pure)
+    # -- Scène "fairy" (venue de la fée) ----------------------------------------------
+    # Deux beats seulement, et tous deux DOUX : la fée n'est ni un combat ni une mort, elle
+    # ne cogne pas. Le premier est le frisson du froid quand l'écran se ferme ; le second,
+    # l'éblouissement quand la lumière a tout inondé — juste avant qu'elle ne paraisse.
+    fairy_chill: { children: [tick, pause_100, tick, pause_100, gentle] } # 0,36 s — le froid qui prend
+    fairy_reveal: { children: [gentle, pause_100, medium] } # 0,40 s — la lumière éblouit
+
+  # --- Scènes dvflame ----------------------------------------------------------------
+  flame:
+    scenes:
+      # Scène "fairy" : la venue de la fée. Elle est L'EXCEPTION du fichier — toutes les
+      # autres scènes sont des PARENTHÈSES qui rendent l'écran ; celle-ci ne le rend pas.
+      # Quand sa timeline est finie, la fée RESTE, la neige continue de flotter, la musique
+      # tourne, et l'écran attend que le joueur choisisse l'une des deux mains.
+      #
+      # >>> Ce n'est pas un effet de bord, c'est le contrat du moteur : `reportSequenceEnd`
+      # marque la scène `finished` mais ne met JAMAIS le game en pause — seul `dvflame.stop`
+      # appelle `pauseEngine()` (dvscene_motor). Une scène mortelle finie garde donc sa
+      # dernière pose ET continue de tourner tant qu'une vue lui est attachée : les émissions
+      # laissées à un taux non nul continuent d'émettre. C'est exactement ce qu'on veut ici,
+      # et c'est pourquoi les actes n'ÉTEIGNENT PAS la neige à la fin (contrairement à
+      # `gameover.act5_cendres` ou `butin.act7_*`, qui sont des parenthèses, eux).
+      #
+      # Le fondu de sortie n'est donc pas dans la timeline : il est tiré à la demande, quand
+      # le cadeau est choisi, par des `dvflame.trigger` (effets ponctuels hors timeline, qui
+      # fonctionnent sur une scène finie puisque le game tourne toujours).
+      #
+      # Cinq actes, 8,8 s en tout :
+      #   1. (2,0 s) NOIR — l'écran se ferme, rien d'autre
+      #   2. (0,3 s) la neige se lève : éclats de cristal qui FLOTTENT (aucune gravité)
+      #   3. (1,5 s / 3,0 s) les bords se givrent PENDANT que la lumière centrale inonde tout
+      #   4. (2,0 s) la fée paraît en fondu par-dessus la lumière
+      fairy:
+        lifecycle: mortal
+        autostart: false
+        # Pas de `dvinterlude.finished` ici : la fée n'est pas un interlude. Rien à rendre,
+        # rien à dégeler — l'écran lui appartient jusqu'au choix du joueur.
+        objects:
+          # Le noir naît OPAQUE (opacity: 1, pas d'acte pour l'y amener) : la page s'ouvre déjà
+          # fermée. Un fondu au noir aurait laissé voir le tiroir une fraction de seconde.
+          noir:
+            type: fill
+            order: 5
+            color: "#000000"
+            position: { x: 0, y: 0 }
+            anchor: top_left
+            size: { w: "100%", h: "100%" }
+            opacity: 1
+
+          # Éclats de cristal / neige. `acceleration` à ZÉRO et vitesse minuscule : ils
+          # FLOTTENT, ils ne tombent pas — c'est toute la différence avec les cendres de
+          # `gameover` (qui, elles, portent acceleration.y = 90). `angle_var: 180` couvre le
+          # tour complet : la dérive n'a aucune direction privilégiée.
+          # Émission à 0 au départ : l'acte 2 l'ouvre, et PLUS RIEN ne la referme.
+          neige:
+            type: particles
+            order: 40
+            particle_shape: cross
+            position: { x: "50%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "100%", h: "100%" } }
+            lifetime: { min: 6.0, max: 11.0 }
+            velocity: { angle: -90, angle_var: 180, speed: 7, speed_var: 5 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 2, peak: 13, end: 2, peak_at: 0.5 }
+            size_var: 0.6
+            opacity_var: 0.65
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00E1F5FF" } # naît transparent (apparition douce)
+              c2: { order: 2, color: "#FFFFFF" }   # scintille en plein
+              c3: { order: 3, color: "#00BBDEFB" } # s'éteint en bleu glacé transparent
+
+          # Le cadre givré. Image PORTRAIT étirée à l'écran (STRETCH et non RATIO_IN) : le
+          # givre est une texture organique, l'étirement ne se voit pas, et c'est le seul
+          # cadrage qui garantit que les quatre bords soient couverts sur tous les formats.
+          givre:
+            type: sprite_static
+            order: 30
+            image: "images/big/frost_frame_nobg.png"
+            position: { x: 0, y: 0 }
+            anchor: top_left
+            size: { w: "100%", h: "100%" }
+            stretch: "STRETCH"
+            opacity: 0
+
+          # Ce qui fait VIVRE le givre : quatre bandes de particules le long des bords, très
+          # lentes, qui scintillent sur le PNG. Zone `rect` large et plate (ou haute et fine)
+          # centrée sur chaque bord.
+          givre_haut:
+            type: particles
+            order: 31
+            particle_shape: cross
+            position: { x: "50%", y: "4%" }
+            emission: { rate: 0, zone: { shape: rect, w: "100%", h: "12%" } }
+            lifetime: { min: 1.6, max: 3.2 }
+            velocity: { angle: -90, angle_var: 180, speed: 4, speed_var: 3 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 1, peak: 8, end: 1, peak_at: 0.5 }
+            size_var: 0.5
+            opacity_var: 0.6
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00FFFFFF" }
+              c2: { order: 2, color: "#E1F5FE" }
+              c3: { order: 3, color: "#00E1F5FE" }
+          givre_bas:
+            type: particles
+            order: 31
+            particle_shape: cross
+            position: { x: "50%", y: "96%" }
+            emission: { rate: 0, zone: { shape: rect, w: "100%", h: "12%" } }
+            lifetime: { min: 1.6, max: 3.2 }
+            velocity: { angle: -90, angle_var: 180, speed: 4, speed_var: 3 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 1, peak: 8, end: 1, peak_at: 0.5 }
+            size_var: 0.5
+            opacity_var: 0.6
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00FFFFFF" }
+              c2: { order: 2, color: "#E1F5FE" }
+              c3: { order: 3, color: "#00E1F5FE" }
+          givre_gauche:
+            type: particles
+            order: 31
+            particle_shape: cross
+            position: { x: "3%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "10%", h: "100%" } }
+            lifetime: { min: 1.6, max: 3.2 }
+            velocity: { angle: -90, angle_var: 180, speed: 4, speed_var: 3 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 1, peak: 8, end: 1, peak_at: 0.5 }
+            size_var: 0.5
+            opacity_var: 0.6
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00FFFFFF" }
+              c2: { order: 2, color: "#E1F5FE" }
+              c3: { order: 3, color: "#00E1F5FE" }
+          givre_droite:
+            type: particles
+            order: 31
+            particle_shape: cross
+            position: { x: "97%", y: "50%" }
+            emission: { rate: 0, zone: { shape: rect, w: "10%", h: "100%" } }
+            lifetime: { min: 1.6, max: 3.2 }
+            velocity: { angle: -90, angle_var: 180, speed: 4, speed_var: 3 }
+            acceleration: { x: 0, y: 0 }
+            particle_size: { start: 1, peak: 8, end: 1, peak_at: 0.5 }
+            size_var: 0.5
+            opacity_var: 0.6
+            blur: 1
+            colors:
+              c1: { order: 1, color: "#00FFFFFF" }
+              c2: { order: 2, color: "#E1F5FE" }
+              c3: { order: 3, color: "#00E1F5FE" }
+
+          # L'étoile lointaine. Même montage que le voile de `heal` (fill circle ancré au
+          # centre dont on anime la taille), mais pris à l'envers : là-bas le blanc SOULAGE,
+          # ici il RÉVÈLE. Ellipse 220 % × 140 % : elle atteint les quatre bords d'un écran
+          # portrait au même instant. `order: 20` → sous la fée, au-dessus du noir.
+          lumiere:
+            type: fill
+            shape: circle
+            order: 20
+            color: "#FFFFFF"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: 0, h: 0 }
+            opacity: 0.15
+
+          # La fée. RATIO_IN : l'image est carrée, l'écran est portrait — sans lui elle serait
+          # étirée en hauteur. Elle occupe donc toute la largeur, centrée verticalement.
+          # `order: 50` : au-dessus de tout, y compris de la neige, qui passe derrière elle.
+          fee:
+            type: sprite_static
+            order: 50
+            image: "images/big/fairy_nobg.png"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: "100%", h: "100%" }
+            stretch: "RATIO_IN"
+            opacity: 0
+
+        effects:
+          # -- Acte 1 (2,0 s) : le noir, et rien d'autre -----------------------------
+          act1_haptic: # beat t=0 (hold parallèle, cf. burn/heal) : le frisson du froid
+            {
+              order: 1,
+              type: hold,
+              duration: 0.05,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.fairy_chill" } },
+            }
+          act1_noir: { order: 1, type: hold, duration: 2.0 }
+
+          # -- Acte 2 (0,3 s) : la neige se lève, et ne se recouchera pas -------------
+          act2_neige:
+            { order: 2, target: neige.emission.rate, to: 55, duration: 0.3 }
+          act2_givre_haut:
+            { order: 2, target: givre_haut.emission.rate, to: 26, duration: 0.3 }
+          act2_givre_bas:
+            { order: 2, target: givre_bas.emission.rate, to: 26, duration: 0.3 }
+          act2_givre_gauche:
+            { order: 2, target: givre_gauche.emission.rate, to: 30, duration: 0.3 }
+          act2_givre_droite:
+            { order: 2, target: givre_droite.emission.rate, to: 30, duration: 0.3 }
+
+          # -- Acte 3 : les bords se givrent PENDANT que la lumière monte -------------
+          # Les deux vivent dans le même cran d'`order` (donc en parallèle) mais pas sur la
+          # même durée : le givre se pose vite (1,5 s), la lumière prend ses 3 s pleines. Le
+          # cran ne s'achève qu'au dernier effet fini — c'est bien 3 s au total.
+          # `ease_in` : elle démarre à peine (l'étoile lointaine) et finit par tout avaler.
+          act3_givre:
+            { order: 3, target: givre.opacity, from: 0, to: 1, duration: 1.5 }
+          act3_lum_w:
+            {
+              order: 3,
+              target: lumiere.size.w,
+              from: 0,
+              to: "220%",
+              duration: 3.0,
+              curve: ease_in,
+            }
+          act3_lum_h:
+            {
+              order: 3,
+              target: lumiere.size.h,
+              from: 0,
+              to: "140%",
+              duration: 3.0,
+              curve: ease_in,
+            }
+          act3_lum_op:
+            {
+              order: 3,
+              target: lumiere.opacity,
+              from: 0.15,
+              to: 1,
+              duration: 3.0,
+              curve: ease_in,
+              on_end:
+                { vib: { order: 1, action: "dvvibrations.start.fairy_reveal" } },
+            }
+
+          # -- Acte 4 (2,0 s) : la fée paraît, et RESTE ------------------------------
+          # `on_end` révèle les deux cadeaux. Ancré sur l'ACTE et non sur un délai en dur :
+          # si l'on retouche les durées ci-dessus, la révélation suit toute seule.
+          act4_fee:
+            {
+              order: 4,
+              target: fee.opacity,
+              from: 0,
+              to: 1,
+              duration: 2.0,
+              on_end: { ready: { order: 1, action: "worker.on_fairy_ready" } },
+            }
+
+      # Halo vert des deux cadeaux (une vue par main, MÊME scène — dvflame partage une scène
+      # entre toutes ses vues). Copie de `notehalo` en vert lumineux : c'est ce qui fait
+      # « briller » le libellé du cadeau au lieu de le poser à plat sur l'image.
+      # Immortelle et SANS `effects` de scène : rien qui puisse finir, elle respire tant que
+      # l'écran est là.
+      fairyglow:
+        lifecycle: immortal
+        objects:
+          halo:
+            type: fill
+            shape: circle
+            order: 10
+            color: "#69F0AE"
+            position: { x: "50%", y: "50%" }
+            anchor: center
+            size: { w: "80%", h: "80%" }
+            opacity: 0.3
+            effects:
+              souffle:  { type: oscillate, target: opacity, from: 0.16, to: 0.46,  period: 2.2 }
+              gonfle_w: { type: oscillate, target: size.w,  from: "68%", to: "94%", period: 2.2 }
+              gonfle_h: { type: oscillate, target: size.h,  from: "68%", to: "94%", period: 2.2 }
+
+  # --- Branchement de l'écran (client/config/registry_fairy.yml) ----------------------
+  # Les scènes et le style des deux cadeaux. Un thème peut retoucher le style (X le fait).
+  registry:
+    fairy_page/scene:
+      scene: fairy
+    fairy_page/glow_left:
+      scene: fairyglow
+    fairy_page/glow_right:
+      scene: fairyglow
+    fairy_page/gift_left:
+      shape:
+        font_size: 17.0
+        font_color: "#69F0AE"
+        font_weight: "bold"
+    fairy_page/gift_right:
+      shape:
+        font_size: 17.0
+        font_color: "#69F0AE"
+        font_weight: "bold"

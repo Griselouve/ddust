@@ -1,0 +1,13 @@
+# FICHIER GÉNÉRÉ, Ne pas modifier, sera écrasé au prochain build
+# Source: E:/Deva/projects/suites/ddust/build/resources_cloud\x\layers\decisiontree-x-global.yml
+# Couche VIDE, gardée exprès : les appareils qui ont testé l'ancien thème X (libellés préfixés
+# « X ») en ont une copie persistée dans leur répertoire de couches, chargée au démarrage tant
+# que le tag theme-x est actif. Publiée vide, elle remplace cette copie au prochain chargement
+# du thème (dvtheme._loadThemeLayers, idempotence par hash). Les libellés de l'arbre de décision
+# sont ceux de donjon. À retirer du catalogue une fois tous les appareils de test passés.
+name: decisiontree-x
+above: decisiontree-donjon
+strategy: force
+tenant: global
+tags: [theme-x]
+data: {}
