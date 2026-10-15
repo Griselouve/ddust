@@ -279,30 +279,6 @@ lots:
     reviewed: true
     taches:
       - {"id":"eb23bbe947dbb357","reviewed":true}
-  - id: "81291102e209"
-    nom: "quêtes II"
-    mvp: false
-    reviewed: true
-    taches:
-      - {"id":"d4266729b41a33e9"}
-  - id: "09a10ee9b42d"
-    nom: "potions II"
-    mvp: false
-    reviewed: true
-    taches:
-      - {"id":"d7a362b7a50ea442"}
-  - id: "1c1703f9c5bd"
-    nom: "minijeux"
-    mvp: false
-    reviewed: true
-    taches:
-      - {"id":"f211fb5f7ecf470e"}
-  - id: "cbe53f2e0c9b"
-    nom: "routine"
-    mvp: false
-    reviewed: true
-    taches:
-      - {"id":"d7d7b68c4ff2c8e3"}
   - id: "32329fd13dae"
     nom: "socle"
     mvp: false
@@ -516,6 +492,30 @@ lots:
       - {"id":"eb0ba28864678b96","livre":"2026-08-22"}
       - {"id":"f067df1bd222050a","livre":"2026-08-22"}
       - {"id":"31e51506079cdbb1","livre":"2026-08-22"}
+  - id: "81291102e209"
+    nom: "quêtes II"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"d4266729b41a33e9"}
+  - id: "09a10ee9b42d"
+    nom: "potions II"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"d7a362b7a50ea442"}
+  - id: "1c1703f9c5bd"
+    nom: "minijeux"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"f211fb5f7ecf470e"}
+  - id: "cbe53f2e0c9b"
+    nom: "routine"
+    mvp: false
+    reviewed: true
+    taches:
+      - {"id":"d7d7b68c4ff2c8e3"}
   - id: "13a9e8d0a1b9"
     nom: "devoirs faits"
     mvp: false
