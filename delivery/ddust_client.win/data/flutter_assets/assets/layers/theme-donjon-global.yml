@@ -5990,80 +5990,6 @@ data:
         br: "Tema Pirata"
         nl: "Piratenthema"
 
-      # Bouton de test de la boutique (worker_store._shopThemeButton) : fait tourner le clan sur
-      # ses thèmes possédés. Le libellé nomme le SUIVANT : shop_theme_<id sans « theme- »>.
-      shop_theme_x:
-        fr: "Thème X"
-        en: "X Theme"
-        es: "Tema X"
-        de: "X-Thema"
-        it: "Tema X"
-        pt: "Tema X"
-        br: "Tema X"
-        nl: "X-thema"
-
-      shop_theme_donjon:
-        fr: "Thème Donjon"
-        en: "Dungeon Theme"
-        es: "Tema Mazmorra"
-        de: "Verlies-Thema"
-        it: "Tema Dungeon"
-        pt: "Tema Masmorra"
-        br: "Tema Masmorra"
-        nl: "Kerkerthema"
-
-      shop_theme_dino:
-        fr: "Thème Dino"
-        en: "Dino Theme"
-        es: "Tema Dino"
-        de: "Dino-Thema"
-        it: "Tema Dino"
-        pt: "Tema Dino"
-        br: "Tema Dino"
-        nl: "Dinothema"
-
-      # Bouton de test de la boutique (worker_store._shopMascotButton) : fait tourner le clan sur
-      # ses mascottes possédées. Le libellé nomme la SUIVANTE : shop_mascot_<id sans « mascot- »>.
-      shop_mascot_phoenix:
-        fr: "Mascotte Phénix"
-        en: "Phoenix Mascot"
-        es: "Mascota Fénix"
-        de: "Phönix-Maskottchen"
-        it: "Mascotte Fenice"
-        pt: "Mascote Fénix"
-        br: "Mascote Fênix"
-        nl: "Feniks-mascotte"
-
-      shop_mascot_dragon:
-        fr: "Mascotte Dragon"
-        en: "Dragon Mascot"
-        es: "Mascota Dragón"
-        de: "Drachen-Maskottchen"
-        it: "Mascotte Drago"
-        pt: "Mascote Dragão"
-        br: "Mascote Dragão"
-        nl: "Draak-mascotte"
-
-      shop_mascot_diplo:
-        fr: "Mascotte Diplodocus"
-        en: "Diplodocus Mascot"
-        es: "Mascota Diplodocus"
-        de: "Diplodocus-Maskottchen"
-        it: "Mascotte Diplodoco"
-        pt: "Mascote Diplódoco"
-        br: "Mascote Diplódoco"
-        nl: "Diplodocus-mascotte"
-
-      shop_mascot_trixie:
-        fr: "Mascotte Trixie"
-        en: "Trixie Mascot"
-        es: "Mascota Trixie"
-        de: "Trixie-Maskottchen"
-        it: "Mascotte Trixie"
-        pt: "Mascote Trixie"
-        br: "Mascote Trixie"
-        nl: "Trixie-mascotte"
-
       #------------- Titres de joueur (1 nouveau titre toutes les 5 niveaux) ----------
       player_title_0:
         fr: "Apprenti Dépoussiéreur"
@@ -10848,21 +10774,6 @@ data:
     create_player_screen/consent:
       shape:
         font_size: 10
-    shop/coming_soon:
-      shape:
-        font_size: 14.0
-        font_weight: "bold"
-    shop/settings_menu:
-      shape:
-        background_color: "0xF01A1A1A"
-        border_color: "amber_200"
-        border_size: 1.0
-        border_radius: 10.0
-        font_color: "amber_200"
-        font_size: 15.0
-      options:
-        tutorials:
-          image: "images/medium/nope.png"
     locked_page/background:
       shape:
         background_color: black
@@ -11124,13 +11035,7 @@ data:
     rename_task/confirm:
       shape:
         font_weight: "bold"
-    shop/mascot_test:
-      shape:
-        font_weight: "bold"
     shop/mock_close:
-      shape:
-        font_weight: "bold"
-    shop/theme_test:
       shape:
         font_weight: "bold"
     welcome_child_screen/scan:
@@ -11219,3 +11124,50 @@ data:
                   image: "images/big/skull_nobg.png"
                 cure:
                   image: "images/small/cure_nobg.png"
+
+  # Habillage de la boutique (dvshop) : couleurs, polices, page d'entrée. Validé sur
+  # maquette (E:/Deva/tmp/shop_poc). Le catalogue et l'interface sont ailleurs.
+  shop:
+    style:
+      title_font: "MedievalSharp"
+      body_font: ""
+      background: "#141210"
+      card: "#211c15"
+      card_locked: "#191510"
+      card_border: "#5a4a2a"
+      card_radius: 6
+      square: "#2f6fe0"
+      accent: "#C8A84B"
+      on_accent: "#1a1a1a"
+      text: "#f1e6c8"
+      text_dim: "#99864E"
+      chip_bg: "#2a241a"
+      price_bg: "#2a241a"
+      price_fg: "#D4AF37"
+      owned_bg: "#1f2a18"
+      owned_fg: "#a9d18e"
+      activate_bg: "#B07328"
+      activate_fg: "#ffffff"
+      disabled_bg: "#1c1915"
+      panel_gradient: ["#4a3418", "#140f0a"]
+      panel_border: "#C8A84B"
+      panel_title: "#D4AF37"
+      panel_subtitle: "#d8c9a0"
+      caption_bg: "#B3000000"
+      overlay_icon: "#CCFFFFFF"
+      arrows: "#CCD4AF37"
+      dots_off: "#5599864E"
+      error: "#CC4444"
+      flag_colors:
+        popular: "#B11226"
+        new: "#3F7A3A"
+        discount: "#B07328"
+        advantage: "#6b4fa0"
+        timer: "#CC4444"
+      hub:
+        tile_bg: "#CC141210"
+        tile_border: "#C8A84B"
+        tile_title: "#D4AF37"
+        tile_text: "#d8c9a0"
+        giftwrap: ["#B11226", "#7a0c1a"]
+        ribbon: "#D4AF37"

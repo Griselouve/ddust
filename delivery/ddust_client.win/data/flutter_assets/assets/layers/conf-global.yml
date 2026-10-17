@@ -390,7 +390,6 @@ data:
       eu-ai_generate: https://eu-ai-generate-bltizpaxaq-od.a.run.app
       eu-autover: https://eu-autover-bltizpaxaq-od.a.run.app
       eu-beta_signup: https://eu-beta-signup-bltizpaxaq-od.a.run.app
-      eu-clan_owned: https://eu-clan-owned-bltizpaxaq-od.a.run.app
       eu-clan_purge: https://eu-clan-purge-bltizpaxaq-od.a.run.app
       eu-count_sessions: https://eu-count-sessions-bltizpaxaq-od.a.run.app
       eu-ddust_autover: https://eu-ddust-autover-bltizpaxaq-od.a.run.app
@@ -400,6 +399,7 @@ data:
       eu-pulse_sweeper: https://eu-pulse-sweeper-bltizpaxaq-od.a.run.app
       eu-referral: https://eu-referral-bltizpaxaq-od.a.run.app
       eu-referral_sweeper: https://eu-referral-sweeper-bltizpaxaq-od.a.run.app
+      eu-shop: https://eu-shop-bltizpaxaq-od.a.run.app
       eu-store_admin: https://eu-store-admin-bltizpaxaq-od.a.run.app
       eu-store_claim: https://eu-store-claim-bltizpaxaq-od.a.run.app
       eu-store_eligibility: https://eu-store-eligibility-bltizpaxaq-od.a.run.app
@@ -414,7 +414,6 @@ data:
       eut-ai_generate: https://eut-ai-generate-bltizpaxaq-od.a.run.app
       eut-autover: https://eut-autover-bltizpaxaq-od.a.run.app
       eut-beta_signup: https://eut-beta-signup-bltizpaxaq-od.a.run.app
-      eut-clan_owned: https://eut-clan-owned-bltizpaxaq-od.a.run.app
       eut-clan_purge: https://eut-clan-purge-bltizpaxaq-od.a.run.app
       eut-count_sessions: https://eut-count-sessions-bltizpaxaq-od.a.run.app
       eut-ddust_autover: https://eut-ddust-autover-bltizpaxaq-od.a.run.app
@@ -424,6 +423,7 @@ data:
       eut-pulse_sweeper: https://eut-pulse-sweeper-bltizpaxaq-od.a.run.app
       eut-referral: https://eut-referral-bltizpaxaq-od.a.run.app
       eut-referral_sweeper: https://eut-referral-sweeper-bltizpaxaq-od.a.run.app
+      eut-shop: https://eut-shop-bltizpaxaq-od.a.run.app
       eut-store_admin: https://eut-store-admin-bltizpaxaq-od.a.run.app
       eut-store_claim: https://eut-store-claim-bltizpaxaq-od.a.run.app
       eut-store_eligibility: https://eut-store-eligibility-bltizpaxaq-od.a.run.app
@@ -4654,6 +4654,303 @@ data:
         it: 'Unitevi a noi in Donjons & Savons! Quando create il vostro clan, inserite il nostro codice in «Ho un padrino»:'
         nl: 'Doe mee met ons in Donjons & Savons! Voer bij het maken van jullie clan onze code in bij "Ik heb een peetouder":'
         pt: 'Juntem-se a nós em Donjons & Savons! Ao criar o vosso clã, introduzam o nosso código em «Tenho um padrinho»:'
+      shop_activate:
+        br: Ativar
+        de: Aktivieren
+        en: Activate
+        es: Activar
+        fr: Activer
+        it: Attiva
+        nl: Activeren
+        pt: Ativar
+      shop_activated:
+        br: '{item} ativado para todo o grupo'
+        de: '{item} für die ganze Gruppe aktiviert'
+        en: '{item} activated for the whole group'
+        es: '{item} activado para todo el grupo'
+        fr: '{item} activé pour tout le groupe'
+        it: '{item} attivato per tutto il gruppo'
+        nl: '{item} geactiveerd voor de hele groep'
+        pt: '{item} ativado para todo o grupo'
+      shop_active:
+        br: Ativo
+        de: Aktiv
+        en: Active
+        es: Activo
+        fr: Actif
+        it: Attivo
+        nl: Actief
+        pt: Ativo
+      shop_already_active:
+        br: Já é esse!
+        de: Das ist schon aktiv!
+        en: That's already the one!
+        es: ¡Ya es ese!
+        fr: C'est déjà celui-là !
+        it: È già quello!
+        nl: Dat is hem al!
+        pt: Já é esse!
+      shop_already_owned:
+        br: Você já tem!
+        de: Das hast du schon!
+        en: You already have it!
+        es: ¡Ya lo tienes!
+        fr: Tu l'as déjà !
+        it: Ce l'hai già!
+        nl: Die heb je al!
+        pt: Já o tens!
+      shop_badge_gift:
+        br: 1 presente
+        de: 1 Geschenk
+        en: 1 gift
+        es: 1 regalo
+        fr: 1 cadeau
+        it: 1 regalo
+        nl: 1 cadeau
+        pt: 1 presente
+      shop_badge_gifts:
+        br: '{n} presentes'
+        de: '{n} Geschenke'
+        en: '{n} gifts'
+        es: '{n} regalos'
+        fr: '{n} cadeaux'
+        it: '{n} regali'
+        nl: '{n} cadeaus'
+        pt: '{n} presentes'
+      shop_bought:
+        br: '{item}: é seu!'
+        de: '{item}: gehört dir!'
+        en: '{item}: it''s yours!'
+        es: '{item}: ¡es tuyo!'
+        fr: '{item} : c''est à toi !'
+        it: '{item}: è tuo!'
+        nl: '{item}: is van jou!'
+        pt: '{item}: é teu!'
+      shop_confirm:
+        br: Confirmar?
+        de: Bestätigen?
+        en: Confirm?
+        es: ¿Confirmar?
+        fr: Confirmer ?
+        it: Confermi?
+        nl: Bevestigen?
+        pt: Confirmar?
+      shop_delay_d:
+        br: '{d} d'
+        de: '{d} T.'
+        en: '{d}d'
+        es: '{d} d'
+        fr: '{d} j'
+        it: '{d} g'
+        nl: '{d} d'
+        pt: '{d} d'
+      shop_delay_dh:
+        br: '{d} d {h} h'
+        de: '{d} T. {h} Std.'
+        en: '{d}d {h}h'
+        es: '{d} d {h} h'
+        fr: '{d} j {h} h'
+        it: '{d} g {h} h'
+        nl: '{d} d {h} u'
+        pt: '{d} d {h} h'
+      shop_delay_h:
+        br: '{h} h'
+        de: '{h} Std.'
+        en: '{h}h'
+        es: '{h} h'
+        fr: '{h} h'
+        it: '{h} h'
+        nl: '{h} u'
+        pt: '{h} h'
+      shop_delay_m:
+        br: '{m} min'
+        de: '{m} Min.'
+        en: '{m} min'
+        es: '{m} min'
+        fr: '{m} min'
+        it: '{m} min'
+        nl: '{m} min'
+        pt: '{m} min'
+      shop_empty:
+        br: Nada para ver aqui por enquanto.
+        de: Hier gibt es gerade nichts.
+        en: Nothing to see here for now.
+        es: Nada que ver aquí por ahora.
+        fr: Rien à voir ici pour l'instant.
+        it: Niente da vedere per ora.
+        nl: Hier is nu niets te zien.
+        pt: Nada para ver aqui por agora.
+      shop_error:
+        br: Não deu certo. Tente de novo daqui a pouco.
+        de: Das hat nicht geklappt. Versuch es gleich noch einmal.
+        en: That didn't work. Try again in a moment.
+        es: No ha funcionado. Inténtalo de nuevo en un momento.
+        fr: Ça n'a pas marché. Réessaie dans un instant.
+        it: Non ha funzionato. Riprova tra poco.
+        nl: Dat lukte niet. Probeer het zo opnieuw.
+        pt: Não resultou. Tenta de novo daqui a pouco.
+      shop_flag_lot:
+        br: -{pct}% o lote
+        de: -{pct}% im Paket
+        en: -{pct}% bundle
+        es: -{pct}% el lote
+        fr: -{pct}% le lot
+        it: -{pct}% il lotto
+        nl: -{pct}% bundel
+        pt: -{pct}% o lote
+      shop_flag_new:
+        br: NOVO
+        de: NEU
+        en: NEW
+        es: NUEVO
+        fr: NOUVEAU
+        it: NUOVO
+        nl: NIEUW
+        pt: NOVO
+      shop_flag_popular:
+        br: POPULAR
+        de: BELIEBT
+        en: POPULAR
+        es: POPULAR
+        fr: POPULAIRE
+        it: POPOLARE
+        nl: POPULAIR
+        pt: POPULAR
+      shop_free:
+        br: Grátis
+        de: Gratis
+        en: Free
+        es: Gratis
+        fr: Gratuit
+        it: Gratis
+        nl: Gratis
+        pt: Grátis
+      shop_locked:
+        br: Bloqueado
+        de: Gesperrt
+        en: Locked
+        es: Bloqueado
+        fr: Verrouillé
+        it: Bloccato
+        nl: Vergrendeld
+        pt: Bloqueado
+      shop_owned:
+        br: Adquirido
+        de: Im Besitz
+        en: Owned
+        es: Adquirido
+        fr: Possédé
+        it: Posseduto
+        nl: In bezit
+        pt: Adquirido
+      shop_period:
+        br: Já pego neste período
+        de: Für diesen Zeitraum schon geholt
+        en: Already taken for this period
+        es: Ya lo tienes en este periodo
+        fr: Déjà pris pour cette période
+        it: Già preso per questo periodo
+        nl: Voor deze periode al gehaald
+        pt: Já obtido neste período
+      shop_period_month:
+        br: Já pego este mês
+        de: Diesen Monat schon geholt
+        en: Already taken this month
+        es: Ya lo tienes este mes
+        fr: Déjà pris ce mois-ci
+        it: Già preso questo mese
+        nl: Deze maand al gehaald
+        pt: Já obtido este mês
+      shop_refused_cooldown:
+        br: Mais um pouco de paciência
+        de: Noch ein bisschen Geduld
+        en: A little more patience
+        es: Un poco más de paciencia
+        fr: Encore un peu de patience
+        it: Ancora un po' di pazienza
+        nl: Nog even geduld
+        pt: Mais um pouco de paciência
+      shop_refused_forbidden:
+        br: Isso não é para você
+        de: Das ist nichts für dich
+        en: This isn't for you
+        es: Esto no es para ti
+        fr: Ce n'est pas pour toi
+        it: Non è per te
+        nl: Dit is niet voor jou
+        pt: Isto não é para ti
+      shop_refused_funds:
+        br: Ouro insuficiente
+        de: Nicht genug Gold
+        en: Not enough gold
+        es: No tienes suficiente oro
+        fr: Pas assez d'or
+        it: Oro insufficiente
+        nl: Niet genoeg goud
+        pt: Ouro insuficiente
+      shop_refused_locked:
+        br: Primeiro é preciso outra coisa
+        de: Dafür fehlt noch etwas
+        en: Something else is needed first
+        es: Primero hace falta otra cosa
+        fr: Il faut d'abord autre chose
+        it: Prima serve altro
+        nl: Eerst is iets anders nodig
+        pt: Primeiro é preciso outra coisa
+      shop_refused_owned:
+        br: Você já tem!
+        de: Das hast du schon!
+        en: You already have it!
+        es: ¡Ya lo tienes!
+        fr: Tu l'as déjà !
+        it: Ce l'hai già!
+        nl: Die heb je al!
+        pt: Já o tens!
+      shop_refused_period:
+        br: Já pego neste período
+        de: Für diesen Zeitraum schon geholt
+        en: Already taken for this period
+        es: Ya lo tienes en este periodo
+        fr: Déjà pris pour cette période
+        it: Già preso per questo periodo
+        nl: Voor deze periode al gehaald
+        pt: Já obtido neste período
+      shop_reserved:
+        br: Reservado
+        de: Reserviert
+        en: Reserved
+        es: Reservado
+        fr: Réservé
+        it: Riservato
+        nl: Gereserveerd
+        pt: Reservado
+      shop_soon:
+        br: Em breve
+        de: Demnächst
+        en: Coming soon
+        es: Próximamente
+        fr: Bientôt
+        it: Presto
+        nl: Binnenkort
+        pt: Em breve
+      shop_until:
+        br: Só faltam {delay}
+        de: Nur noch {delay}
+        en: Only {delay} left
+        es: Solo quedan {delay}
+        fr: Plus que {delay}
+        it: Ancora {delay}
+        nl: Nog maar {delay}
+        pt: Só faltam {delay}
+      shop_wait:
+        br: Em {delay}
+        de: In {delay}
+        en: In {delay}
+        es: En {delay}
+        fr: Dans {delay}
+        it: Tra {delay}
+        nl: Over {delay}
+        pt: Em {delay}
       store_already_pending:
         br: Já existe uma mudança de assinatura prevista para a próxima renovação.
         de: Ein Abo-Wechsel ist zum nächsten Verlängerungstermin bereits geplant.
@@ -6347,6 +6644,8 @@ data:
     - layers/tasks-base-global.yml
     - layers/items-base-global.yml
     - layers/store-base-global.yml
+    - layers/shop-catalog-global.yml
+    - layers/shop-base-global.yml
     - layers/fairy-base-global.yml
     - layers/events-base-global.yml
     - layers/autover-global.yml
@@ -13088,6 +13387,7 @@ data:
       - testme
       - profile
       - shop
+      - shop_store_page
       - clan_page
       - tutoriels
       - log_page
@@ -14596,11 +14896,7 @@ data:
       - commons/splash_background
       - shop/icon
       - shop/label
-      - shop/coming_soon
-      - shop/theme_test
-      - shop/mascot_test
-      - shop/settings
-      - shop/settings_menu
+      - shop/hub
       - shop/mock_badge
       - shop/mock_scrim
       - shop/mock_text
@@ -14608,17 +14904,14 @@ data:
       show_appbar: true
       show_back: false
       title: '@@@T:Boutique@@@'
-    shop/coming_soon:
+    shop/hub:
+      class: DvShopHub
       layer: content
-      masks:
-      - commons/btn_wide
       shape:
-        h: 50%
-        label: '@@@T:coming_soon@@@'
-        text_align: CENTER
+        h: 58%
         w: 90%
         x: 5%
-        y: 30%
+        y: 28%
     shop/icon:
       class: DvLabel
       shape:
@@ -14637,21 +14930,6 @@ data:
         w: 90%
         x: 5%
         y: 16%
-    shop/mascot_test:
-      layer: content
-      masks:
-      - commons/btn_medium
-      shape:
-        actions:
-          tap: worker.on_shop_mascot_test
-        events:
-          tap: true
-        h: 8%
-        label: '@@@T:shop_mascot_phoenix@@@'
-        visible: false
-        w: 60%
-        x: 20%
-        y: 70%
     shop/mock_badge:
       masks:
       - commons/store_mock_badge
@@ -14694,68 +14972,28 @@ data:
         text_align: CENTER
         visible: false
         y: 30%
-    shop/settings:
-      button_style: commons/donjon_button
-      class: DvMenuButton
-      layer: content
-      menu: shop/settings_menu
-      menu_enabled: true
-      shape:
-        border: false
-        h: 5%
-        w: 10%
-        x: 67%
-        y: 9%
-    shop/settings_menu:
-      class: DvMenu
-      layer: popup
-      options:
-        store_code:
-          actions:
-            tap: navigate_new.giftcode_page
-          desc: '@@@T:giftcode_menu_desc@@@'
-          icon: redeem
-          shape:
-            label: '@@@T:giftcode_menu@@@'
-        store_manage:
-          actions:
-            tap: worker.store_manage_or_tiers
-          desc: '@@@T:store_manage_desc@@@'
-          icon: manage_accounts
-          shape:
-            label: '@@@T:store_manage@@@'
-        store_mock_id:
-          actions:
-            tap: worker.on_store_mock_id
-          desc: '@@@T:store_mock_id_desc@@@'
-          icon: badge
-          shape:
-            label: '@@@T:store_mock_id@@@'
-        tutorials:
-          actions:
-            tap: navigate_new.tutoriels
-          desc: '@@@T:clan_menu_tutorials_desc@@@'
-          shape:
-            label: '@@@T:clan_menu_tutorials@@@'
-      selector: worker.shop_settings_selector
-      shape:
-        w: 55%
-      show_label: false
-    shop/theme_test:
-      layer: content
+    shop_store_page:
+      actions:
+        appear: worker.on_shop_store_appear
       masks:
-      - commons/btn_medium
+      - page_taskbar
+      registry:
+      - shop_store_page/store
+      - shop_store_page/mock_badge
+      show_appbar: true
+      show_back: true
+      title: '@@@T:Boutique@@@'
+    shop_store_page/mock_badge:
+      masks:
+      - commons/store_mock_badge
+    shop_store_page/store:
+      class: DvShopStore
+      layer: content
       shape:
-        actions:
-          tap: worker.on_shop_theme_test
-        events:
-          tap: true
-        h: 8%
-        label: '@@@T:shop_theme_x@@@'
-        visible: false
-        w: 60%
-        x: 20%
-        y: 60%
+        h: 88%
+        w: 100%
+        x: 0%
+        y: 0%
     showcase_page:
       actions:
         appear: dvshowcase.home_appear
@@ -16842,6 +17080,139 @@ data:
         @@@T:share_site_link@@@'
     testmessage:
       text: '@@@T:create_clan_confirm@@@'
+  shop:
+    actions:
+      on_change: worker.on_shop_change
+      on_message: ''
+      on_purchase: ''
+    catalog:
+      currencies:
+        gold:
+          doc: clans_players/{scope}/players/{actor}
+          field: gold
+          symbol: 🪙
+      items:
+        theme-dino:
+          after_purchase: owned
+          default: true
+          image: images/big/theme_vitrine_dino.png
+          label: '@@@T:shop_it_theme_dino@@@'
+          policy: once
+          price:
+            kind: free
+          rank: 2
+          section: themes
+          subtitle: '@@@T:shop_it_theme_dino_sub@@@'
+          tags:
+          - chef
+          toggle_group: theme
+        theme-donjon:
+          after_purchase: owned
+          default: true
+          image: images/big/theme_vitrine_donjon.png
+          label: '@@@T:shop_it_theme_donjon@@@'
+          policy: once
+          price:
+            kind: free
+          rank: 1
+          section: themes
+          subtitle: '@@@T:shop_it_theme_donjon_sub@@@'
+          tags:
+          - chef
+          toggle_default: true
+          toggle_group: theme
+        theme-x:
+          retired: true
+          toggle_group: theme
+      tags:
+        chef:
+          contains: '{actor}'
+          doc: clans/{scope}
+          field: admins
+        essai:
+          deva: store.mock.available
+        majeur:
+          deva: worker.player_is_adult
+      version: 1
+    depends:
+      invoke:
+        cloud: true
+    function: shop
+    play_action: worker.shop_buy_play
+    projection:
+      collection: clans_shop
+      database: workers
+    scope_action: worker.store_scope
+    style:
+      accent: '#C8A84B'
+      activate_bg: '#B07328'
+      activate_fg: '#ffffff'
+      arrows: '#CCD4AF37'
+      background: '#141210'
+      body_font: ''
+      caption_bg: '#B3000000'
+      card: '#211c15'
+      card_border: '#3a3125'
+      card_locked: '#191510'
+      card_radius: 8
+      chip_bg: '#2a241a'
+      disabled_bg: '#1c1915'
+      dots_off: '#5599864E'
+      error: '#CC4444'
+      flag_colors:
+        advantage: '#6b4fa0'
+        discount: '#B07328'
+        new: '#3F7A3A'
+        popular: '#B11226'
+        timer: '#CC4444'
+      hub:
+        giftwrap:
+        - '#B11226'
+        - '#7a0c1a'
+        ribbon: '#D4AF37'
+        tile_bg: '#CC141210'
+        tile_border: '#C8A84B'
+        tile_text: '#d8c9a0'
+        tile_title: '#D4AF37'
+      on_accent: '#1a1a1a'
+      overlay_icon: '#CCFFFFFF'
+      owned_bg: '#1f2a18'
+      owned_fg: '#a9d18e'
+      panel_border: '#C8A84B'
+      panel_gradient:
+      - '#4a3418'
+      - '#140f0a'
+      panel_subtitle: '#d8c9a0'
+      panel_title: '#D4AF37'
+      price_bg: '#2a241a'
+      price_fg: '#D4AF37'
+      square: '#2f6fe0'
+      text: '#f1e6c8'
+      text_dim: '#99864E'
+      title_font: ''
+    ui:
+      display:
+        columns: 3
+        confirm_seconds: 4
+        highlight_height: 310
+        min_advantage: 0.05
+        min_discount: 0.05
+        unpriced: soon
+      highlights: []
+      hub:
+        badges:
+        - free
+        - new
+        - discount
+        - advantage
+        empty: '@@@T:shop_soon@@@'
+        soon: '@@@T:shop_soon@@@'
+        tile_height_ratio: 0.46
+        tiles: []
+      page: ''
+      sections: []
+      shops: {}
+      texts: {}
   showcase:
     capture:
       h: 1236

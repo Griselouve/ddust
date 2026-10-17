@@ -109,6 +109,8 @@ data:
       # arrivé aux traductions store_* du thème.
       - "layers/theme-donjon-global.yml"    # libellés + décor de tous les écrans
       - "layers/store-base-global.yml"      # catalogue de la boutique
+      - "layers/shop-catalog-global.yml"    # boutique dvshop : catalogue (généré du build.yml)
+      - "layers/shop-base-global.yml"       # boutique dvshop : interface et libellés
       - "layers/fairy-base-global.yml"      # cadence et catalogue des cadeaux de la fée
       - "layers/events-base-global.yml"     # événements aléatoires (souris, piège, gobelin...)
       - "images/small/tb_boutique.png"      # taskbar dashboard (écran 10)
@@ -248,6 +250,8 @@ data:
         # Les mascottes du thème (mini-thèmes, groupe mascot), la première par défaut. Le phénix
         # n'appartient à aucun thème pour l'instant : gardé, mais jamais affiché (2026-10-13).
         mascots: [mascot-dragon]
+        # Image du splash de démarrage (dvtheme._poserSplash) : embarquée pour le thème par défaut.
+        splash: "assets/images/splashs/splash.png"
         layers:
           - "layers/theme-donjon-global.yml"
           - "layers/decisiontree-donjon-global.yml"
@@ -271,6 +275,8 @@ data:
       # dragon) retombe sur donjon par la cascade.
       theme-dino:
         mascots: [mascot-diplo]
+        # Image du bucket : recopiée par dvtheme dans un fichier local au splash suivant.
+        splash: "images/splashs/splash.png"
         layers:
           - "layers/theme-dino-global.yml"
           - "layers/decisiontree-dino-global.yml"

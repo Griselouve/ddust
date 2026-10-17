@@ -13,6 +13,16 @@ tags: [theme-dino]
 data:
   lang:
     translations:
+      # Boutique (dvshop) : le clan s'appelle « tribu » chez les dinosaures.
+      shop_tile_themes_sub:
+        fr: "Habille ta tribu"
+        en: "Dress up your tribe"
+        es: "Viste a tu tribu"
+        de: "Gestalte deinen Stamm"
+        it: "Vesti la tua tribù"
+        pt: "Veste a tua tribo"
+        br: "Vista sua tribo"
+        nl: "Kleed je stam aan"
       it_t_titre_perso:
         fr: Surnom de personnage
         en: Character nickname
@@ -7288,6 +7298,10 @@ data:
     catalog:
       gobelin:
         image: images/medium/evt_ptero.png
+  items:
+    butin:
+      image: images/big/oeuf_item_nobg.png
+      span_y: 2
   registry:
     orb:
       theme_color: '0xFF6DAA4C'
@@ -8308,26 +8322,6 @@ data:
         font_color: '0xFFFFFFFF'
         background_color: '0xFF6DAA4C'
         opacity: 1.0
-    shop/coming_soon:
-      shape:
-        background_color: '0x99F6EBD3'
-        border: true
-        border_color: '0xFFE3CFAE'
-        border_size: 1.5
-        border_radius: 18.0
-        font_color: '0xFF5A3E2B'
-        opacity: 1.0
-        font_size: 14.0
-        font_color_hover: '0xFF5A3E2B'
-        border_color_hover: '0xFFE3CFAE'
-    shop/settings_menu:
-      shape:
-        background_color: '0xFFF6EBD3'
-        border_color: '0xFFE3CFAE'
-        border_size: 1.5
-        border_radius: 16.0
-        font_color: '0xFF5A3E2B'
-        font_size: 15.0
     shop/mock_scrim:
       shape:
         background_color: '0xE6FFF8EC'
@@ -9382,3 +9376,50 @@ data:
         font_color: '0xFF8A6F55'
         background_color: '0x00000000'
         opacity: 1.0
+
+  # Habillage de la boutique (dvshop) : couleurs, polices, page d'entrée. Validé sur
+  # maquette (E:/Deva/tmp/shop_poc). Le catalogue et l'interface sont ailleurs.
+  shop:
+    style:
+      title_font: ""
+      body_font: ""
+      background: "#F6EBD3"
+      card: "#FFF8EC"
+      card_locked: "#EFE3CB"
+      card_border: "#E3CFAE"
+      card_radius: 18
+      square: "#2f6fe0"
+      accent: "#6DAA4C"
+      on_accent: "#ffffff"
+      text: "#5A3E2B"
+      text_dim: "#8A6F55"
+      chip_bg: "#E3CFAE"
+      price_bg: "#F6EBD3"
+      price_fg: "#3F7A3A"
+      owned_bg: "#E4F0D8"
+      owned_fg: "#3F7A3A"
+      activate_bg: "#6DAA4C"
+      activate_fg: "#ffffff"
+      disabled_bg: "#EFE3CB"
+      panel_gradient: ["#A9D18E", "#3F7A3A"]
+      panel_border: "#E3CFAE"
+      panel_title: "#FFF8EC"
+      panel_subtitle: "#F6EBD3"
+      caption_bg: "#995A3E2B"
+      overlay_icon: "#E6FFFFFF"
+      arrows: "#E6FFF8EC"
+      dots_off: "#555A3E2B"
+      error: "#C24F38"
+      flag_colors:
+        popular: "#E07A5F"
+        new: "#3F7A3A"
+        discount: "#D9823B"
+        advantage: "#7a5cbf"
+        timer: "#C24F38"
+      hub:
+        tile_bg: "#D9FFF8EC"
+        tile_border: "#E3CFAE"
+        tile_title: "#5A3E2B"
+        tile_text: "#8A6F55"
+        giftwrap: ["#E07A5F", "#C24F38"]
+        ribbon: "#FFF8EC"
