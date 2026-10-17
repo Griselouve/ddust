@@ -222,20 +222,25 @@ lots:
     mvp: false
     reviewed: false
     taches:
-      - {"id":"23293c9a71de1e03","reviewed":false}
-      - {"id":"c28c4f4162861583","reviewed":false}
-      - {"id":"368e672525dde7e0","reviewed":false}
-      - {"id":"172ab3ed187a1023","reviewed":false}
-      - {"id":"4031c27c5459cc56","reviewed":false}
-      - {"id":"8bc6b261b73aa805","reviewed":false}
-      - {"id":"8955725f3ed32ef6","reviewed":true}
-      - {"id":"308b459357e9ebbf","reviewed":false}
-      - {"id":"6bf501023d3db942","reviewed":false}
       - {"id":"0653dcd84b52c394","reviewed":false}
+      - {"id":"368e672525dde7e0","reviewed":false}
+      - {"id":"c28c4f4162861583","reviewed":false}
+      - {"id":"172ab3ed187a1023","reviewed":false}
       - {"id":"e773fbdb4a6019f9","livre":"2026-10-11","reviewed":false}
       - {"id":"feffd032f793f303","livre":"2026-10-11","reviewed":false}
       - {"id":"cb8eab16077df4c1","livre":"2026-10-13","reviewed":false}
       - {"id":"267f273eba6799ca","livre":"2026-10-13","reviewed":false}
+      - {"id":"23293c9a71de1e03","livre":"2026-10-17","reviewed":false}
+  - id: "0c8dcd9394b3"
+    nom: "promotion"
+    actif: true
+    mvp: false
+    reviewed: false
+    taches:
+      - {"id":"6bf501023d3db942","reviewed":false}
+      - {"id":"4031c27c5459cc56","reviewed":false}
+      - {"id":"8bc6b261b73aa805","reviewed":false}
+      - {"id":"308b459357e9ebbf","reviewed":false}
   - id: "32329fd13dae"
     nom: "socle"
     mvp: false
