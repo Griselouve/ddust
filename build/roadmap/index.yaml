@@ -4,7 +4,7 @@ projet: "ddust"
 cadence:
   premier_lot_semaines: 5
   intervalle_mois: 2
-catalog_sequence: ["5a19492a3aa7","3df87efd34d2","a6728b19f4b1","0877dd1dcfb0","71b889d2505e","ecb38169ab68","81291102e209","09a10ee9b42d","1c1703f9c5bd","cbe53f2e0c9b","13a9e8d0a1b9","5b617e0e5480","0ab7912989d0","4333deadd8b3","258ff7d2b854","b4483c2704e7","0b7c8f278959","649f985be717","1521505a498c"]
+catalog_sequence: ["5a19492a3aa7"]
 projection: {"app_surcharges":{"lassitude":{"delai":{"bas":1.5,"central":3,"haut":6},"pente":{"bas":0.03,"central":0.06,"haut":0.12}}},"domaines":{"education":0.15,"jeu":0.35,"productivite":0.1,"sante":0.4},"editeur":"indie","facteur_acquisition":1.08,"marches":{"bresil":{"langue":"A"},"ca":{"langue":"A"},"ch":{"langue":{"A":0.93,"B":0.07}},"eun":{"langue":"B"},"euo":{"langue":{"A":0.99,"B":0.01}},"eus":{"langue":"A"},"eux":{"langue":{"B":0.43,"C":0.57}},"fr":{"langue":"A"},"hispam":{"langue":"A"},"oceanie":{"langue":"A"},"uk":{"langue":"A"},"us":{"langue":"A"}},"modele":"abonnement_freemium","motivations":{"collection":0.5,"communaute":1,"defi":0.5,"faire_grandir":0.5,"histoire":0.5,"progres":0.5},"moyens":["rendez_vous_quotidien"],"prix":{"annuel":25,"mensuel":3.05},"public":{"femmes":0.6,"plus_de_36":0.5,"type":"enfant_parent"}}
 lots:
   - id: "2fb66c075ba3"
@@ -459,12 +459,14 @@ lots:
       - {"id":"31e51506079cdbb1","livre":"2026-08-22"}
   - id: "3df87efd34d2"
     nom: "validations automatiques"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"4ea4acfe53087097","reviewed":true}
   - id: "a6728b19f4b1"
     nom: "defis"
+    actif: false
     mvp: false
     reviewed: true
     taches:
@@ -474,6 +476,7 @@ lots:
       - {"id":"369468b290c6a6c0"}
   - id: "0877dd1dcfb0"
     nom: "loots"
+    actif: false
     mvp: false
     reviewed: true
     taches:
@@ -489,6 +492,7 @@ lots:
       - {"id":"0836f40e7a30a95d","reviewed":false}
   - id: "71b889d2505e"
     nom: "quetes I"
+    actif: false
     mvp: false
     date_fiable: false
     reviewed: true
@@ -496,6 +500,7 @@ lots:
       - {"id":"57e135e987b88aa2","reviewed":true}
   - id: "ecb38169ab68"
     nom: "potions I"
+    actif: false
     mvp: false
     date_fiable: false
     reviewed: true
@@ -503,72 +508,84 @@ lots:
       - {"id":"eb23bbe947dbb357","reviewed":true}
   - id: "81291102e209"
     nom: "quêtes II"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"d4266729b41a33e9"}
   - id: "09a10ee9b42d"
     nom: "potions II"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"d7a362b7a50ea442"}
   - id: "1c1703f9c5bd"
     nom: "minijeux"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"f211fb5f7ecf470e"}
   - id: "cbe53f2e0c9b"
     nom: "routine"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"d7d7b68c4ff2c8e3"}
   - id: "13a9e8d0a1b9"
     nom: "devoirs faits"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"106d61bb5f514c6b","reviewed":true}
   - id: "5b617e0e5480"
     nom: "classes"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"0e236eb080cf7a87"}
   - id: "0ab7912989d0"
     nom: "quêtes III"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"93e71aaaf4cf66ee"}
   - id: "4333deadd8b3"
     nom: "potions III"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"b81d32946901e9ef"}
   - id: "258ff7d2b854"
     nom: "pack bricolage"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"1a7c51e345ac71f3"}
   - id: "b4483c2704e7"
     nom: "theme_casanostra"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"50712fef96c2bf55"}
   - id: "0b7c8f278959"
     nom: "theme_pirates"
+    actif: false
     mvp: false
     reviewed: true
     taches:
       - {"id":"9673c86ab30dfff8","reviewed":true}
   - id: "649f985be717"
     nom: "theme_noel"
+    actif: false
     mvp: false
     date_fiable: false
     reviewed: true
@@ -577,6 +594,7 @@ lots:
       - {"id":"a1274854ed11a9c4","reviewed":true}
   - id: "1521505a498c"
     nom: "theme_starsweep"
+    actif: false
     mvp: false
     reviewed: true
     taches:
