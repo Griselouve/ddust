@@ -222,8 +222,6 @@ lots:
     mvp: false
     reviewed: false
     taches:
-      - {"id":"0a54c6eea1e7c7a8","reviewed":false}
-      - {"id":"0653dcd84b52c394","reviewed":false}
       - {"id":"076d99b241b46b59","reviewed":false}
       - {"id":"588dba9d70159b18","reviewed":false}
       - {"id":"368e672525dde7e0","reviewed":false}
@@ -234,6 +232,8 @@ lots:
       - {"id":"cb8eab16077df4c1","livre":"2026-10-13","reviewed":false}
       - {"id":"267f273eba6799ca","livre":"2026-10-13","reviewed":false}
       - {"id":"23293c9a71de1e03","livre":"2026-10-17","reviewed":false}
+      - {"id":"0a54c6eea1e7c7a8","livre":"2026-10-20","reviewed":false}
+      - {"id":"0653dcd84b52c394","livre":"2026-10-20","reviewed":false}
   - id: "0c8dcd9394b3"
     nom: "promotion"
     actif: true
