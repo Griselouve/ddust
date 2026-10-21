@@ -220,15 +220,15 @@ lots:
   - id: "5a19492a3aa7"
     nom: "go-live"
     mvp: false
+    date_fiable: false
     reviewed: false
+    backlog_complet: true
     taches:
       - {"id":"b914cd866fcd0e06","reviewed":false}
       - {"id":"368e672525dde7e0","reviewed":false}
-      - {"id":"c28c4f4162861583","reviewed":false}
       - {"id":"792bd9fc171bb201","reviewed":false}
       - {"id":"8ef716f243956ab9","reviewed":false}
       - {"id":"69f265b1b1d08b34","reviewed":false}
-      - {"id":"569a00790efbc459","reviewed":false}
       - {"id":"e773fbdb4a6019f9","livre":"2026-10-11","reviewed":false}
       - {"id":"feffd032f793f303","livre":"2026-10-11","reviewed":false}
       - {"id":"cb8eab16077df4c1","livre":"2026-10-13","reviewed":false}
@@ -239,6 +239,7 @@ lots:
       - {"id":"076d99b241b46b59","livre":"2026-10-20","reviewed":false}
       - {"id":"588dba9d70159b18","livre":"2026-10-20","reviewed":false}
       - {"id":"172ab3ed187a1023","livre":"2026-10-21","reviewed":false}
+      - {"id":"569a00790efbc459","livre":"2026-10-21","reviewed":false}
   - id: "0c8dcd9394b3"
     nom: "promotion"
     actif: true
@@ -249,6 +250,7 @@ lots:
       - {"id":"4031c27c5459cc56","reviewed":false}
       - {"id":"8bc6b261b73aa805","reviewed":false}
       - {"id":"308b459357e9ebbf","reviewed":false}
+      - {"id":"c28c4f4162861583","reviewed":false}
   - id: "32329fd13dae"
     nom: "socle"
     mvp: false
