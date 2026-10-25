@@ -1,0 +1,34 @@
+test: PRO-02
+titre: Boss recommandé puis validé
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:combat]
+etapes:
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: clanId, non_vide: true, delai: 120}
+  # « Recommander » est une option du menu admin du tiroir (DvMenu) : son action, avec la
+  # charge {id} de l'icône (worker_admin.dart:434-470).
+  - papa: {action: worker.on_recommend_task, event: {id: vaisselle_01}}
+  - papa: {attend_journal: "[admin] tâche recommandée (boss): vaisselle_01", delai: 60}
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: recommended, non_vide: true, delai: 60}
+  - enfant: {macro: tache_faire, tache: vaisselle_01}
+  - papa:   {macro: tache_juger, tache: vaisselle_01, verdict: ok, attendu: "[combat] verdict ACCEPTÉ: vaisselle_01"}
+  # XP boostée tirée chez le chef (_bossPlayerXp, worker_verdict.dart:311-317), animation
+  # « coup de pouce » et consommation chez l'enfant (worker_celebrations.dart:469-475).
+  - enfant: {attend_journal: "[boss] tâche recommandée validée", delai: 240}
+  - enfant: {attend_journal: "[boss] récompense consommée : drapeau joueur effacé (vaisselle_01)", delai: 90}
+verifs:
+  - journal: {telephone: papa, contient: "[admin] tâche recommandée (boss): vaisselle_01"}
+  - journal: {telephone: papa, contient: "[boss] vaisselle_01 : xp 21 →"}
+  - journal: {telephone: enfant, contient: "→ coup de pouce"}
+  # Le verdict accepté efface la recommandation (worker_verdict.dart:179-186).
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: recommended, egal: ""}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: last_task_boss, egal: ""}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedOk}, champ: data.boss, egal: true}

@@ -1,0 +1,65 @@
+test: BOU-04
+titre: Bandeau d'impayé (phases simulées)
+criticite: majeur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# La phase est posée par le balayage serveur dans clans_store.dunning_phase ; le client la
+# recopie (dvstore_motor.dart:784, 1394) et le dashboard la montre aux chefs adultes
+# (worker_store.dart:530-580). helpers/bou_impaye.py écrit ce que le balayage écrirait ;
+# une relance fait relire la projection.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:clan_page
+  - ecran:dashboard
+  - ecran:testme
+  - ecran:tiers_page
+  - overlay:commons/store
+etapes:
+  # Grâce (J0-9) : rien ne s'affiche, d'où l'absence de bandeau sans phase.
+  - papa: {verifie: {shape: commons/store_dunning, visible: false}}
+  # soft (J10-19).
+  - outil: {nom: bou_impaye, telephone: papa, phase: soft}
+  - papa: {relance: true}
+  - papa: {attend: dashboard, delai: 120}
+  - papa: {attend_journal: "[store] rappel de cotisation : phase=soft", delai: 60}
+  - papa: {attend_shape: commons/store_dunning, delai: 30}
+  - papa: {verifie: {shape: commons/store_dunning, contient: "Bourse un peu légère"}}
+  # Jamais bloquant : la navigation reste libre, le bandeau suit sur les écrans de jeu.
+  - papa: {tap: clan_open}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {verifie: {shape: commons/store_dunning}}
+  # firm (J20-39).
+  - outil: {nom: bou_impaye, telephone: papa, phase: firm}
+  - papa: {relance: true}
+  - papa: {attend: dashboard, delai: 120}
+  - papa: {attend_journal: "[store] rappel de cotisation : phase=firm", delai: 60}
+  - papa: {verifie: {shape: commons/store_dunning, contient: "La cotisation n'est pas passée"}}
+  # last (J40-49) : jamais `locked` (J50), ce serait le gel du donjon.
+  - outil: {nom: bou_impaye, telephone: papa, phase: last}
+  - papa: {relance: true}
+  - papa: {attend: dashboard, delai: 120}
+  - papa: {attend_journal: "[store] rappel de cotisation : phase=last", delai: 60}
+  - papa: {verifie: {shape: commons/store_dunning, contient: "Le grimoire va se refermer"}}
+  - papa: {tap: testme_open}
+  - papa: {attend: testme, delai: 60}
+  # Le tap du bandeau ouvre les paliers, non bloquants (worker.store_open_subscription).
+  - papa: {tap: commons/store_dunning}
+  - papa: {attend: tiers_page, delai: 60}
+  - papa: {verifie: {shape: tiers_page/defer, visible: false}}
+  # Régularisé : la phase tombe, le bandeau aussi.
+  - outil: {nom: bou_impaye, telephone: papa, phase: ""}
+  - papa: {relance: true}
+  - papa: {attend: dashboard, delai: 120}
+  # Au lancement, l'état vient du cache disque (« amorcé depuis le disque : hold ») ; la
+  # projection du cloud arrive ensuite, parfois au bout d'une minute (vu le 2026-10-18).
+  - papa: {attend_absent: commons/store_dunning, delai: 150}
+verifs:
+  - papa: {page: dashboard}
+  - papa: {shape: commons/store_dunning, visible: false}
+  - journal: {telephone: papa, absent: "[store] clan gelé"}

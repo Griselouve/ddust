@@ -1,0 +1,27 @@
+test: ONB-01
+titre: Onboarding adulte complet jusqu'au choix du clan
+criticite: critique
+enabled: true
+telephones: [papa]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+etapes:
+  - papa: {macro: onboarding_adulte, nom: Papa}
+verifs:
+  - papa: {page: new_or_pick_clan}
+  - journal: {telephone: papa, contient: "_flushOnboarding: onboarding inscrit en base"}
+  - journal: {telephone: papa, contient: "player name saved"}

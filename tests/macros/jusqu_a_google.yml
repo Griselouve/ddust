@@ -1,0 +1,13 @@
+# Un adulte neuf, du premier écran jusqu'à l'écran de liaison Google (link_account_screen),
+# SANS se connecter : c'est onboarding_adulte arrêté avant `link_account/google_button`.
+# Sert aux tests qui jouent la liaison eux-mêmes (ONB-05 conflit, ONB-07 app tuée).
+macro: jusqu_a_google
+parametres: {annee: 1985, pays: FR}
+etapes:
+  - {macro: seuil}
+  # Date + confirmation en un geste (cf. onboarding_adulte.yml).
+  - {action: documents.set, event: {country: "{pays}", birthdate: "{annee}-06-15"}}
+  - {attend: parentalgate_screen, delai: 60}
+  - outil: {nom: porte_parentale}
+  - {macro: cgu}
+  - {attend: link_account_screen, delai: 60}

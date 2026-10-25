@@ -1,0 +1,46 @@
+test: BOU-02
+titre: Code cadeau accepté puis refusé
+criticite: majeur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:giftcode_page, ecran:shop, overlay:giftcode_page/ok]
+etapes:
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan}
+  # Un code d'un mois, écrit dans eut-store/store_codes/{sha256} (helpers/code_test.py).
+  - outil: {nom: code_test, telephone: papa, mois: 1, garde: code}
+  # Tuile « Code cadeau » de la boutique (t_cadeau → navigate_new.giftcode_page) : les tuiles
+  # de DvShopHub ne sont pas des shapes, on appelle leur action.
+  - papa: {tap: shop_open}
+  - papa: {attend: shop, delai: 60}
+  - papa: {action: navigate_new.giftcode_page}
+  - papa: {attend: giftcode_page, delai: 30}
+  # Forme affichée XXXX-XXXX-XXXX : les tirets tombent à la normalisation (pustore l. 1151-1157).
+  - papa: {ecrit: giftcode_page/code, texte: "{code}"}
+  - papa: {tap: giftcode_page/confirm}
+  - papa: {attend_journal: "[store] code accepté : +1 mois offerts", delai: 60}
+  - papa: {attend_shape: giftcode_page/ok_close, delai: 30}
+  - papa: {tap: giftcode_page/ok_close}
+  # Le même code, le même clan : « déjà ouvert » (status used, pustore l. 1347).
+  - papa: {action: navigate_new.giftcode_page}
+  - papa: {attend: giftcode_page, delai: 30}
+  - papa: {ecrit: giftcode_page/code, texte: "{code}"}
+  - papa: {tap: giftcode_page/confirm}
+  - papa: {attend_journal: "[store] code refusé : used", delai: 60}
+  - papa: {verifie: {shape: giftcode_page/error, contient: "déjà ouvert ce coffre"}}
+  # Un code inconnu : status invalid (et un essai compté, store_code_attempts).
+  - papa: {ecrit: giftcode_page/code, texte: "ZZZZ-ZZZZ-ZZZZ"}
+  - papa: {tap: giftcode_page/confirm}
+  - papa: {attend_journal: "[store] code refusé : invalid", delai: 60}
+verifs:
+  - papa: {page: giftcode_page}
+  - papa: {shape: giftcode_page/error, contient: "n'ouvre aucun coffre"}
+  # applyGrant (pustore l. 1008-1046) : la réserve de mois offerts du clan.
+  - firestore: {doc: "clans_store/{clan}", champ: credit_months, egal: 1}
+  - firestore: {doc: "clans_store/{clan}", champ: credit_active, egal: true}

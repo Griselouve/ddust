@@ -1,0 +1,48 @@
+test: ROS-08
+titre: Un adulte non chef quitte le clan de lui-même
+criticite: majeur
+# Compte A2 absent de la réserve (plan § 2) : repasser à true une fois A2 créé.
+enabled: false
+telephones: [papa, maman]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:clan_page
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - macro: couple
+  - maman: {action: navigate_new.clan_page}
+  - maman: {attend: clan_page, delai: 60}
+  - maman: {attend_libre: true, delai: 60}
+  # Sur SA tuile, un adulte non chef n'a qu'une option : « A quitté le clan »
+  # (worker_screen_clan.dart:531-539), puis on appelle son action (option de DvMenu).
+  - outil: {nom: roster_menu, telephone: maman, cible: {id: "{maman_id}", name: Maman, legal_state: a, admin: false, founder: false, original_clan: "{clan}", no_account: false}, present: [revoke_player], absent: [promote_chief, player_log], strict: true}
+  - maman: {action: worker.revoke_player, event: {id: "{maman_id}", name: Maman}}
+  - maman: {attend_journal: "[roster] revoke_player : Maman ({maman_id}) a quitté le clan", delai: 60}
+  # Départ volontaire → _leaveClanLocal → decisiontree (worker_members.dart:1296, 1872).
+  - maman: {attend: decisiontree, delai: 90}
+verifs:
+  - maman: {page: decisiontree}
+  - firestore: {doc: "clans_players/{clan}/players/{maman_id}", champ: enabled, egal: false}
+  # Acteur = la partante elle-même (worker_members.dart:1285-1290).
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: MemberRevoked}, champ: adminId, egal: "{maman_id}"}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: MemberRevoked}, champ: userId, egal: "{maman_id}"}
+  - firestore: {doc: "clans/{clan}", champ: enabled, different: false}

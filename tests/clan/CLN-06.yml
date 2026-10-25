@@ -1,0 +1,47 @@
+test: CLN-06
+titre: "Plafond gratuit : un 3e joueur (enfant sans compte, après E1) est refusé, tiers_page"
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# PAS de code_cadeau ici, c'est le sujet : le palier gratuit tient 2 joueurs (plan § 1).
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:clan_page
+  - ecran:create_player_screen
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:tiers_page
+  - ecran:welcome_child_screen
+etapes:
+  - enfant: {macro: onboarding_mineur}
+  # 2e joueur : E1, accueilli par son QR code.
+  - macro: accueillir_enfant
+    nom_enfant: Kid
+  # 3e joueur : un enfant sans téléphone. La confirmation passe d'abord le plafond du palier
+  # (worker_forms.dart:1183 → _storeRefuseMember, worker_store.dart:894-909), qui ouvre la
+  # page des paliers au lieu de créer le joueur.
+  - papa: {macro: creer_joueur, nom_joueur: Lou}
+  - papa: {attend: tiers_page, delai: 60}
+verifs:
+  - papa: {page: tiers_page}
+  # worker_store.dart:898 (la ligne porte un tiret long entre les deux morceaux).
+  - journal: {telephone: papa, contient: "[store] place refusée"}
+  - journal: {telephone: papa, contient: "plafond du palier atteint"}
+  - journal: {telephone: papa, absent: "[clan] create_player : Lou"}
+  - firestore: {collection: players, groupe: true, ou: {champ: name, egal: Lou}, existe: false}

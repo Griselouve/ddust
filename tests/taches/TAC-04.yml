@@ -1,0 +1,56 @@
+test: TAC-04
+titre: "Validation croisée : un chef ne valide pas sa tâche"
+criticite: majeur
+# Compte A2 absent de la réserve (plan § 2) : repasser à true une fois A2 créé.
+enabled: false
+telephones: [papa, maman]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:combat
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - macro: couple
+  # Maman promue chef (option de menu → action, worker_members.dart:891). Deux chefs adultes :
+  # l'auto-validation solo ne s'applique plus (_adminCount > 1, worker_combat.dart:325-327).
+  - papa: {action: worker.promote_chief, event: {id: "{maman_id}", name: Maman}}
+  - papa: {attend_journal: "[roster] promote_chief : Maman ({maman_id}) promu chef", delai: 60}
+  - outil: {nom: firestore_attend, doc: "clans_players/{clan}/players/{maman_id}", champ: is_admin, egal: true, delai: 60}
+  # Papa fait la tâche comme un joueur : photo, « validating ».
+  - papa: {macro: tache_faire, tache: vaisselle_01}
+  # 1) Le verdict d'un chef sur SA tâche est refusé au cœur (_verdictRefusal « self_validation »,
+  #    worker_verdict.dart:631-653), même par le bouton de notification
+  #    (worker.on_notif_validate_ok, l. 735-760, charge {data: {taskId, assignee}}).
+  - papa: {action: worker.on_notif_validate_ok, event: {data: {taskId: vaisselle_01, assignee: "{papa_id}"}}}
+  - papa: {attend_journal: "[combat] _applyVerdict: refusé (self_validation) task=vaisselle_01", delai: 60}
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: status, egal: validating, delai: 30}
+  # Sur la tuile, sa propre tâche en cours ne s'ouvre pas en revue (worker_tasks.dart:1186-1191).
+  - papa: {action: seltask.vaisselle_01}
+  - papa: {attend_journal: "[combat] sélection ignorée, tâche déjà en cours", delai: 30}
+  # 2) L'autre chef valide.
+  - maman: {macro: tache_juger, tache: vaisselle_01, verdict: ok, attendu: "[combat] verdict ACCEPTÉ: vaisselle_01"}
+  - papa: {attend_journal: "[combat] résolution = libération (status=dead): vaisselle_01", delai: 240}
+verifs:
+  - journal: {telephone: papa, contient: "refusé (self_validation) task=vaisselle_01"}
+  - journal: {telephone: papa, absent: "[combat] auto-validation admin: vaisselle_01"}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: status, egal: dead}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedOk}, champ: adminId, egal: "{maman_id}"}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedOk}, champ: userId, egal: "{papa_id}"}

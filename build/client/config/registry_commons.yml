@@ -24,28 +24,19 @@ conf:
         # profil). Sans cette ligne, documents.view_doc naviguerait vers une page inconnue.
         - documents_view_screen
         - kid_assent_screen
-        # La réponse de l'enfant, transmise au parent (QR code, lien), et le point d'où il
-        # reçoit l'invitation en retour. Sans cette ligne, le « oui » ne mènerait nulle part.
-        - kid_assent_share
+        # L'écran qui montre patte blanche (QR code + code), pour l'adulte comme pour l'enfant
+        # (worker_join.dart). Sans cette ligne, « Rejoindre un clan » ne mènerait nulle part.
+        - join_show_screen
         - link_account_screen
-        # L'adhésion en attente : invitation acceptée, le chef doit encore confirmer. L'attente
-        # survit à la fermeture du jeu (users.pending_join, worker.on_join_wait_appear).
-        - join_wait
         - new_or_pick_clan
         - create_clan
         - decisiontree
         # Le choix de l'ambiance du clan (thème), par son fondateur seul, entre la quête et
         # le dashboard (pas `decisiontree`, routeur worker.decisiontree_route).
         - theme_pick_page
-        - invite_clan
-        # L'invitation à distance, côté chef (code + lien) et côté invité (saisie). Absentes
-        # de cette liste jusqu'au 2026-09-22 : tout le parcours à distance était inatteignable,
-        # navigate_new compris.
-        - invite_clan_pin
-        - enter_invite_pin
-        - accept_invitation_clan
-        - kid_wants_clan
-        # `accept_request_clan` RETIRÉ le 2026-09-22 avec tout le parcours « demande d'entrée ».
+        # `invite_clan`, `invite_clan_pin`, `enter_invite_pin`, `kid_wants_clan`, `kid_assent_share`
+        # et `join_wait` RETIRÉS le 2026-10-18 avec l'ancien modèle d'invitation : le candidat
+        # montre désormais son QR code au chef (join_show_screen, welcome_child_screen).
         - dashboard
         - testme
         #- burn_page
@@ -88,15 +79,20 @@ conf:
         - give_page
         - item_view_page
         - create_player_screen
+        # Le code de la prise de place (take_place) : définis dans registry_clan_page.yml mais
+        # jamais déclarés ici, ils menaient à « route introuvable » (moteur de test, 2026-10-18).
+        - imp_pin_set
+        - imp_pin_ask
         - welcome_child_screen
         - invite_consent_screen
         - claim_pick_page
         # Multiclan (registry_multiclan.yml) : changer de clan, les gestes d'un représentant
-        # légal, et le QR code des échanges entre adultes.
+        # légal, et le QR code (ou le lien et le code) du co-représentant.
         - my_clans_page
         - guardian_hub_page
         - ward_pick_page
         - guardian_qr_page
+        - guardian_pin_page
         - butin_notes_page
         - butin_tale_page
         # La fée (registry_fairy.yml). On n'y arrive que par sa tuile, apparue dix minutes
@@ -195,6 +191,13 @@ conf:
         - commons/evt_image
         - commons/evt_text
         - commons/evt_ok
+        # Chef seul qui touche une tâche (worker_tasks._soloChiefNotice). solo_scrim AVANT les
+        # boutons → ils reçoivent leurs taps.
+        - commons/solo_scrim
+        - commons/solo_panel
+        - commons/solo_text
+        - commons/solo_guide
+        - commons/solo_play
         # Porte close : le consentement parental de CE joueur vient d'être retiré. Listé en DERNIER
         # et borné à h:100% (et non 88% comme l'overlay de mort) — c'est la seule surface du jeu qui
         # recouvre la taskbar, parce qu'elle est la seule à devoir tout fermer, navigation comprise.
@@ -332,6 +335,9 @@ conf:
       class: DvLabel
       layer: content
       shape:
+        # DvLabel est GRAS par défaut (dvlabel.dart) : un texte courant le dit en clair, sinon
+        # l'écran entier passe en gras (relevé par la vitrine, 2026-10-21). Le gras = boutons, titres.
+        font_weight: normal
         x: 5%
         w: 90%
         h: 5%
@@ -387,13 +393,11 @@ conf:
     #//------------------------------- CONSENTEMENT PARENTAL (modèle partagé) -------------
     # Mise en page commune des mentions de consentement affichées à l'adulte au moment où il
     # fait entrer quelqu'un dans son clan : création d'un profil joueur (create_player_screen),
-    # invitation d'un membre (invite_consent_screen/notice) ou acceptation d'une adhésion
-    # (accept_invitation_clan). Le consentement RGPD art. 8 doit être éclairé AU MOMENT de
-    # l'acte, pas seulement dans les CGU acceptées à l'installation.
+    # ou invitation d'un membre (invite_consent_screen/notice). Le consentement RGPD art. 8
+    # doit être éclairé AU MOMENT de l'acte, pas seulement dans les CGU acceptées à l'installation.
     # Le LIBELLÉ par défaut est celui de la CRÉATION d'un profil, seul cas où le déclarant est
-    # forcément le responsable légal de l'enfant. Les écrans d'invitation et d'admission, où
-    # l'on ignore qui viendra (adulte ? enfant déjà rattaché à un autre clan ?), surchargent
-    # `label` avec invite_consent_notice — cf. CGU art. 6.
+    # forcément le responsable légal de l'enfant. L'écran de déclaration de l'accueil
+    # (invite_consent_screen) pose le sien selon qui se présente (invite_consent_notice_*).
     # Le segment (( … | documents.open_doc?cgu@a )) est un lien inline : il ouvre les CGU
     # ADULTE (@a) de la région et de la langue de la session dans le navigateur.
     # Chaque écran ne surcharge que son `y`.
@@ -506,6 +510,9 @@ conf:
       class: DvLabel
       layer: content
       shape:
+        # DvLabel est GRAS par défaut (dvlabel.dart) : un texte courant le dit en clair, sinon
+        # l'écran entier passe en gras (relevé par la vitrine, 2026-10-21). Le gras = boutons, titres.
+        font_weight: normal
         x: 5%
         y: 5%
         w: 90%
@@ -1226,6 +1233,93 @@ conf:
           tap: true
         actions:
           tap: worker.on_event_ok
+
+    #//------------------------- CHEF SEUL : LES AVENTURIERS SONT LES ENFANTS ---------------
+    # Un chef dont le clan est encore seul touche une tâche (une fois par lancement) : ce sont
+    # les enfants qui combattent, lui mène le clan. Même idiome que le panneau « Noter et
+    # partager » : overlay, tout visible:false, révélé par show(), refermé par hide(). JAMAIS de
+    # popup modale. Le voile referme sans rien lancer (worker.on_solo_chief_close).
+    # « J'ajoute mon enfant » envoie la mascotte montrer « Accueillir un joueur » ; « Jouer quand
+    # même » lance la tâche touchée.
+    commons/solo_scrim:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 0%
+        y: 0%
+        w: 100%
+        h: 100%
+        border: false
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_solo_chief_close
+
+    commons/solo_panel:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 8%
+        y: 20%
+        w: 84%
+        h: 56%
+        label: ""
+        border: true
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.noop # un tap sur le cadre ne referme pas le panneau
+
+    commons/solo_text:
+      class: DvLabel
+      layer: overlay
+      shape:
+        x: 12%
+        y: 23%
+        w: 76%
+        h: 30%
+        text_align: CENTER
+        valign: CENTER
+        border: false
+        scrollable: true
+        label: "@@@T:solo_chief_text@@@"
+        visible: false
+
+    commons/solo_guide:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        x: 15%
+        y: 56%
+        w: 70%
+        h: 8%
+        text_align: CENTER
+        label: "@@@T:solo_chief_guide@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_solo_chief_guide
+
+    commons/solo_play:
+      masks:
+        - commons/btn_wide
+      layer: overlay
+      shape:
+        x: 25%
+        y: 66%
+        w: 50%
+        h: 7%
+        text_align: CENTER
+        label: "@@@T:solo_chief_play@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_solo_chief_play
 
     #//------------------------- PORTE CLOSE (retrait du consentement) ---------------------
     # Le tuteur d'un joueur mineur a retiré son consentement : pendant le délai de rétractation,

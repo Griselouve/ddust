@@ -1,0 +1,33 @@
+# Le préambule des tests à deux téléphones papa + enfant : papa onboardé, son clan créé,
+# l'enfant onboardé (mineur) puis accueilli (macros/accueillir_enfant.yml). Fin : les deux
+# téléphones sur le tableau de bord, et dans les variables du test :
+#   {clan} le clan, {papa_id} et {kid} les userId métier (docId de clans_players).
+# `creation` : la macro de création du clan (creer_clan passe le questionnaire ;
+# creer_clan_questionnaire y répond, pour les tâches « multiple », TAC-07).
+macro: famille
+parametres: {nom: Papa, clan: Les Testeurs, nom_enfant: Kid, creation: creer_clan}
+etapes:
+  - papa:   {macro: onboarding_adulte, nom: "{nom}"}
+  - papa:   {macro: "{creation}", clan: "{clan}"}
+  - enfant: {macro: onboarding_mineur}
+  - macro: accueillir_enfant
+    nom_enfant: "{nom_enfant}"
+  # Le chef est resté sur l'écran de déclaration (« C'est fait ! ») : retour au tableau de
+  # bord (navigate_reset.<page>, dvorb.dart:656).
+  - papa: {action: navigate_reset.dashboard}
+  - papa: {attend: dashboard, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  # Le secret de représentation de l'enfant ne se rattache qu'à l'ouverture de l'écran Clan
+  # (_reconcileGuardianPending, worker_screen_clan.dart:52) : sans ce passage, le parent ne
+  # voit aucune demande multiclan (MUL-02, 03, 05).
+  - papa: {action: navigate_new.clan_page}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  # La représentation de l'enfant ne se rattache qu'à l'ouverture de l'écran Clan, quelques
+  # secondes après (_reconcileGuardianPending) : avant, un geste de représentant est refusé.
+  - papa: {attend_journal: " rattachée (adhésion", delai: 90}
+  - papa: {action: navigate_reset.dashboard}
+  - papa: {attend: dashboard, delai: 60}
+  - outil: {nom: identite, telephone: papa,   champ: clan,   garde: clan}
+  - outil: {nom: identite, telephone: papa,   champ: userId, garde: papa_id}
+  - outil: {nom: identite, telephone: enfant, champ: userId, garde: kid}

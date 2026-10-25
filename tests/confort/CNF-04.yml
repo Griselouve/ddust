@@ -1,0 +1,38 @@
+test: CNF-04
+titre: Réglages de notifications
+criticite: mineur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Pas d'écran ni d'interrupteur : des options exclusives du menu avancé de Personnage
+# (registry_personnage.yml:361-388), non tapables, appelées par leurs actions
+# (worker_multiclan.dart:108-111). Persistées sur la fiche de l'APPAREIL, dans
+# eut-messaging/msgregistry/{deviceId} (dvmessaging_motor.dart:740-762), lue par
+# helpers/cnf_notif.py (`exige: true` en étape : échoue si non conforme).
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:dashboard, ecran:personnage]
+etapes:
+  - papa: {tap: personnage_open}
+  - papa: {attend: personnage, delai: 60}
+  # Couper ce clan, puis tout.
+  - papa: {action: worker.notif_clan_off}
+  - papa: {attend_journal: "setMute: muted=true scope=", delai: 30}
+  - papa: {action: worker.notif_all_off}
+  - papa: {attend_journal: "setMute: muted=true scope=(tout)", delai: 30}
+  - outil: {nom: cnf_notif, telephone: papa, muted: true, clan_coupe: true, exige: true}
+  # Persisté hors de l'app : une relance ne le perd pas.
+  - papa: {relance: true}
+  - papa: {attend: dashboard, delai: 120}
+  - outil: {nom: cnf_notif, telephone: papa, muted: true, clan_coupe: true, exige: true}
+  # Rallumer.
+  - papa: {action: worker.notif_clan_on}
+  - papa: {attend_journal: "setMute: muted=false scope=", delai: 30}
+  - papa: {action: worker.notif_all_on}
+  - papa: {attend_journal: "setMute: muted=false scope=(tout)", delai: 30}
+verifs:
+  - outil: {nom: cnf_notif, telephone: papa, muted: false, clan_coupe: false}

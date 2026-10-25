@@ -1,0 +1,46 @@
+test: ENF-08
+titre: Retrait du consentement puis annulation
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page, ecran:dashboard, overlay:clan_page/consent]
+etapes:
+  - papa: {action: navigate_new.clan_page}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  # La représentation a été rattachée au test d'origine (E2E-02), elle est dans la photo.
+  # RETRAIT. Option du menu de la tuile (DvRoster, non tapable) : son action, avec la ligne
+  # du roster (worker_screen_clan.dart:367-399). Enfant AVEC compte : geste de représentant,
+  # overlay de confirmation sur l'écran Clan (worker_members.dart:1334-1381).
+  - papa: {action: worker.withdraw_consent, event: {id: "{kid}", name: Kid, legal_state: k, no_account: false}}
+  - papa: {attend_shape: clan_page/consent_yes, delai: 30}
+  - papa: {tap: clan_page/consent_yes}
+  # worker_members.dart:1506
+  - papa: {attend_journal: "[consent] withdraw posé dans la représentation de Kid ({kid}) ok=true", delai: 60}
+  # L'app de l'enfant pose consent_due sur ses fiches (worker_multiclan.dart:1103-1107).
+  # Relancée pour ne pas dépendre de sa vigilance.
+  - enfant: {relance: true}
+  - outil: {nom: firestore_attend, doc: "clans_players/{clan}/players/{kid}", champ: consent_due, non_vide: true, delai: 180}
+  # ANNULATION pendant le délai : même overlay, mode « restore » (worker_members.dart:1340-1343).
+  - papa: {action: worker.restore_consent, event: {id: "{kid}", name: Kid, legal_state: k, no_account: false, consent_pending: true}}
+  - papa: {attend_shape: clan_page/consent_yes, delai: 30}
+  - papa: {tap: clan_page/consent_yes}
+  - papa: {attend_journal: "[consent] restore posé dans la représentation de Kid ({kid}) ok=true", delai: 60}
+  # L'app de l'enfant efface consent_due (worker_multiclan.dart:1108-1112), la porte se rouvre.
+  - enfant: {relance: true}
+  - outil: {nom: firestore_attend, doc: "clans_players/{clan}/players/{kid}", champ: consent_due, egal: "", delai: 180}
+  - enfant: {attend: dashboard, delai: 120}
+verifs:
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: consent_due, egal: ""}
+  # Rien n'a été supprimé : le joueur est toujours actif.
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: enabled, different: false}
+  - firestore: {doc: "users/{kid}", existe: true}
+  - enfant: {page: dashboard}
+  - journal: {telephone: papa, absent: "[consent] échéance atteinte sur {kid}"}

@@ -34,11 +34,14 @@ build:
     - dvautover
     - dvqrcode
     - dvqrcodereader
-    - dvcamera
+    # La caméra SANS SON (preuves muettes) : variante de dvcamera, qu'elle tire. Plugin iOS
+    # sans code micro, RECORD_AUDIO retiré sur Android.
+    - dvcamera_nosound
     - dvdeeplink
+    # La sonde du moteur de test : inerte hors de l'APK de test (`make-apk-test`).
+    - dvtestprobe
     - dvvibrations
     - dvsound
-    - dvpops
     - dvsteps
     - dvsession
     - dvflame
@@ -51,6 +54,9 @@ build:
     # La boutique (page d'entrée à tuiles, boutiques dédiées) : après dvstore, qui
     # achète en argent réel pour elle.
     - dvshop
+    # La boîte d'adhésion à un clan (worker_join.dart) : le dépôt du chef, chiffré pour le
+    # seul téléphone du candidat.
+    - dvsealbox
     - worker
     # LA VITRINE : inerte en lancement normal. En mode `showcase` (config/showcase.yml),
     # elle rejoue les écrans avec des données bidons et les photographie par langue.
@@ -99,6 +105,74 @@ build:
       camera: true
       notifications: true
     orientation: portrait
+    # Les liens ddust:// (invitation à distance, accord de l'enfant) ouvrent l'app : le
+    # builder pose l'intent-filter Android et le CFBundleURLTypes iOS (appsettings).
+    deeplink_schemes: [ddust]
+    # iOS (2026-10-17) : les phrases que l'iPhone affiche quand l'app demande un accès,
+    # dans les langues de la suite. Elles remplacent les phrases génériques des modules
+    # (dvcamera, dvqrcodereader, dvdevicelock, dvsocialshare) : Apple refuse les phrases
+    # vagues, et l'app PLANTE si l'une manque.
+    ios:
+      usages:
+        NSCameraUsageDescription:
+          fr: "L'appareil photo sert à photographier ou filmer (sans son) une tâche accomplie, en preuve pour l'adulte du clan, et à scanner le code QR d'une invitation."
+          en: "The camera is used to take a photo or a silent video of a completed task, as proof for the clan's adult, and to scan an invitation QR code."
+          es: "La cámara sirve para fotografiar o grabar (sin sonido) una tarea cumplida, como prueba para el adulto del clan, y para escanear el código QR de una invitación."
+          it: "La fotocamera serve a fotografare o filmare (senza audio) un compito svolto, come prova per l'adulto del clan, e a scansionare il codice QR di un invito."
+          de: "Die Kamera dient dazu, eine erledigte Aufgabe zu fotografieren oder (ohne Ton) zu filmen, als Nachweis für den Erwachsenen des Clans, und den QR-Code einer Einladung zu scannen."
+          pt: "A câmara serve para fotografar ou filmar (sem som) uma tarefa cumprida, como prova para o adulto do clã, e para ler o código QR de um convite."
+          br: "A câmera serve para fotografar ou filmar (sem som) uma tarefa concluída, como prova para o adulto do clã, e para ler o código QR de um convite."
+          nl: "De camera dient om een voltooide taak te fotograferen of (zonder geluid) te filmen, als bewijs voor de volwassene van de clan, en om de QR-code van een uitnodiging te scannen."
+        NSFaceIDUsageDescription:
+          fr: "Face ID confirme que vous êtes le propriétaire de cet appareil pour reprendre votre compte."
+          en: "Face ID confirms you are the owner of this device so you can take your account back."
+          es: "Face ID confirma que eres el propietario de este dispositivo para recuperar tu cuenta."
+          it: "Face ID conferma che sei il proprietario di questo dispositivo per riprendere il tuo account."
+          de: "Face ID bestätigt, dass du der Besitzer dieses Geräts bist, um dein Konto zurückzuholen."
+          pt: "O Face ID confirma que és o proprietário deste dispositivo para recuperares a tua conta."
+          br: "O Face ID confirma que você é o dono deste dispositivo para recuperar sua conta."
+          nl: "Face ID bevestigt dat je de eigenaar van dit apparaat bent om je account terug te nemen."
+        NSPhotoLibraryAddUsageDescription:
+          fr: "Pour enregistrer dans vos photos une image du jeu que vous partagez."
+          en: "To save a game image you share to your photos."
+          es: "Para guardar en tus fotos una imagen del juego que compartes."
+          it: "Per salvare nelle tue foto un'immagine del gioco che condividi."
+          de: "Um ein Spielbild, das du teilst, in deinen Fotos zu speichern."
+          pt: "Para guardar nas tuas fotografias uma imagem do jogo que partilhas."
+          br: "Para salvar nas suas fotos uma imagem do jogo que você compartilha."
+          nl: "Om een afbeelding uit het spel die je deelt in je foto's te bewaren."
+      # LE MANIFESTE DE CONFIDENTIALITÉ (PrivacyInfo.xcprivacy), tenu D'ACCORD AVEC LE
+      # REGISTRE DES TRAITEMENTS (grisloup/docs/registre_traitements.md). Au sens d'Apple,
+      # « collecté » = qui quitte l'appareil : les photos et vidéos de preuve n'en sont
+      # pas (stockage privé de l'appareil, effacées au verdict, T2). Aucun pistage, aucun
+      # identifiant publicitaire (annexe C).
+      privacy:
+        tracking: false
+        collected:
+          - type: UserID              # uid Firebase, identifiant de jeu (T1)
+            linked: true
+            purposes: [AppFunctionality]
+          - type: EmailAddress        # e-mail du compte Google, s'il est lié (T1)
+            linked: true
+            purposes: [AppFunctionality]
+          - type: DeviceID            # identifiant de l'appareil (T1)
+            linked: true
+            purposes: [AppFunctionality]
+          - type: GameplayContent     # progression, objets, combats, journal (T2)
+            linked: true
+            purposes: [AppFunctionality]
+          - type: OtherUserContent    # noms de personnage, de clan, de tâches ; textes par IA (T2, T5)
+            linked: true
+            purposes: [AppFunctionality]
+          - type: PurchaseHistory     # abonnements et achats, adultes seulement (T6)
+            linked: true
+            purposes: [AppFunctionality]
+          - type: OtherDiagnosticData # trace de connexion, journaux techniques (T1, T9)
+            linked: true
+            purposes: [AppFunctionality]
+        accessed_apis:
+          - type: UserDefaults        # préférences de l'app (shared_preferences)
+            reasons: [CA92.1]
   cloud:
     enabled: true
     oauth:
@@ -106,6 +180,10 @@ build:
       - android
       - web
   flutterspecs:
+    flutter_launcher_icons:
+      flutter_launcher_icons:
+        # iOS : la couleur qui remplace la transparence de l'icone (App Store, cf. dvorb).
+        background_color_ios: "#000000"
     pubspec:
       dependencies:
         flutter_localizations:

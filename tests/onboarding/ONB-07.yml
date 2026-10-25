@@ -1,0 +1,31 @@
+test: ONB-07
+titre: "App tuée avant la connexion Google : retour à awake"
+criticite: mineur
+enabled: true
+telephones: [papa]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+etapes:
+  - papa: {macro: jusqu_a_google}
+  # Tuée sur l'écran de liaison : la session anonyme ne vit qu'en mémoire (config.yml:124-128),
+  # rien n'est écrit avant la liaison (registry_onboarding.yml:1287-1290).
+  - papa: {relance: true}
+  - papa: {attend: awake, delai: 90}
+verifs:
+  - papa: {page: awake}
+  # Aucune donnée : ni entrée Firebase Auth pour ce compte Google, ni inscription.
+  - outil: {nom: compte_firebase, telephone: papa, existe: false}
+  - journal: {telephone: papa, absent: "_flushOnboarding: onboarding inscrit en base"}

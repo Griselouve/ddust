@@ -1,0 +1,26 @@
+# Un adulte neuf, jusqu'au choix du clan (new_or_pick_clan).
+macro: onboarding_adulte
+parametres: {nom: Papa, annee: 1985, pays: FR}
+etapes:
+  - {macro: seuil}
+  # La date ET la confirmation en un geste : `documents.set` fait ce que fait le bouton
+  # « C'est parti ! » apres le choix de la date. Ne pas taper le bouton en plus : la porte
+  # parentale s'ouvrirait deux fois.
+  - {action: documents.set, event: {country: "{pays}", birthdate: "{annee}-06-15"}}
+  - {attend: parentalgate_screen, delai: 120}
+  - outil: {nom: porte_parentale}
+  - {macro: cgu}
+  - {attend: link_account_screen, delai: 120}
+  - {tap: link_account/google_button}
+  # DÉFAUT CONNU (2026-10-18) : de temps en temps l'app reste sur link_account_screen après
+  # une liaison réussie (« userindexes trouvé », puis plus rien). Contournement documenté : on
+  # relance l'app comme un joueur coincé ; le test est alors compté « ok* » dans le rapport.
+  - attend: player_name_screen
+    delai: 120
+    raison: "blocage après la liaison du compte (défaut connu)"
+    si_echec:
+      - {relance: true}
+      - {attend: player_name_screen, delai: 180}
+  - {ecrit: player_name_screen/name, texte: "{nom}"}
+  - {tap: player_name_screen/confirm}
+  - {attend: new_or_pick_clan, delai: 180}

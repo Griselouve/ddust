@@ -44,6 +44,9 @@ conf:
       layer: content
       shape:
         border: false
+        # DvLabel est GRAS par défaut (dvlabel.dart) : un texte courant le dit en clair, sinon
+        # l'écran entier passe en gras (relevé par la vitrine, 2026-10-21). Le gras = boutons, titres.
+        font_weight: normal
         text_align: LEFT
         font_color: "0xFFFFF3D6"
         font_size: 15.0
@@ -1482,9 +1485,10 @@ conf:
         - tiers/txt
       shape:
         x: 5%
-        y: 88%
+        # Deux lignes en 12 : 3,5 % les tassait en 8,8 (vitrine, 2026-10-21).
+        y: 85%
         w: 90%
-        h: 3.5%
+        h: 7%
         text_align: CENTER
         font_size: 12.0
         font_color: "0xFF8F836F"

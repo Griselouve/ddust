@@ -28,6 +28,10 @@ part of 'worker.dart';
 // --- Globals shortcuts and miscellaneous
 // -----------------------------------------------------------------------------
 
+// L'intro a été vue sur cet appareil (layer `device`, cf. on_start_adventure). Le moteur de
+// test (dvtest) pose la même clé avant de lancer l'app.
+const String _kIntroSeen = "worker.intro_seen";
+
 // -----------------------------------------------------------------------------
 // --- worker extension — L'accueil et la mise en scène du tunnel
 // -----------------------------------------------------------------------------
@@ -559,6 +563,15 @@ extension Worker_onboarding on worker {
                                 if (_introPlaying) return;      // double tap sur un bouton qui ne gèle qu'un lead
                                 _introPlaying = true;
 
+                                // DÉJÀ VUE SUR CET APPAREIL : on enchaîne comme à la fin de l'intro (la
+                                // bascule sous le rideau, puis le rangement), sans la jouer.
+                                if ((await Deva.instance.get(_kIntroSeen))?.toString() == "true") {
+                                    deva_log("info", "[intro] déjà vue sur cet appareil : accueil sauté");
+                                    await on_intro_reveal(null, null);
+                                    await on_intro_finished(null, null);
+                                    return;
+                                }
+
                                 // Rien à précharger : chaque tableau charge SA réplique à son beat,
                                 // sous le même et unique surnom. Les fichiers sont dans le paquet,
                                 // donc c'est instantané.
@@ -615,9 +628,15 @@ extension Worker_onboarding on worker {
     // ⚠ IL N'Y A PAS DE SAUT, et c'est délibéré. Un voile tapable a existé ici, puis on
     //   l'a retiré : ces trente secondes sont le seul moment où le jeu explique de quoi
     //   il parle avant de commencer à demander, et elles n'arrivent qu'une fois par
-    //   installation. Laisser passer outre, c'est laisser arriver au premier formulaire
+    //   appareil. Laisser passer outre, c'est laisser arriver au premier formulaire
     //   quelqu'un qui ne sait toujours pas où il est — précisément ce qu'on corrige.
     //   L'interlude garde donc le gel `quiet` de dvinterlude (`freeze` au défaut).
+    //
+    // ⚠ « UNE FOIS PAR APPAREIL » EST ÉCRIT SUR LE DISQUE AVANT TOUT LOGIN (2026-10-17),
+    //   exception assumée à la règle « rien sur le disque avant login », comme le thème et
+    //   la fenêtre desktop : un booléen de l'APPAREIL, dans le layer `device`, sans rien du
+    //   joueur. Jusque-là, faute de mémoire, l'intro revenait à chaque lancement tant que
+    //   personne ne s'était connecté, et à chaque déconnexion.
 
     // Fin de l'accueil (normale, sautée, ou terminée par le garde-fou) : on range, et on
     // entre dans l'onboarding.
@@ -630,6 +649,13 @@ extension Worker_onboarding on worker {
     Future<void> on_intro_finished(dynamic caller, dynamic event) async {
 
                                 _introPlaying = false;
+
+                                // Vue (ou sautée parce que déjà vue) : elle ne reviendra plus sur cet
+                                // appareil. `store()` tout de suite, `Deva.set` n'écrit qu'en mémoire.
+                                if ((await Deva.instance.get(_kIntroSeen))?.toString() != "true") {
+                                    await Deva.instance.set(_kIntroSeen, "true", layer: "device");
+                                    await Deva.instance.store();
+                                }
 
                                 ActionRegistry.get("dvsound.stop.intro_voice")?.call(null, null);
                                 // ⚠ LA NAVIGATION A DÉJÀ EU LIEU, sous le rideau (worker.on_intro_reveal,

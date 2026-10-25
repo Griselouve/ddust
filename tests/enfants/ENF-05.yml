@@ -1,0 +1,70 @@
+test: ENF-05
+titre: "Un autre adulte saisit le code de l'enfant : l'enfant refuse, puis son parent l'accueille"
+criticite: critique
+# Compte A2 absent de la réserve (plan § 2) : repasser à true une fois A2 créé.
+enabled: false
+telephones: [papa, maman, enfant]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Le cas du code deviné, ou lu par-dessus l'épaule : maman (chef de son propre clan) saisit le
+# code de l'enfant et l'accueille. Le dépôt arrive par CODE : l'enfant voit « Le clan Les
+# Voisins, mené par Maman, t'accueille. C'est bien ta famille ? » et répond non. Puis le bon
+# parent (papa) l'accueille par son QR code : la boîte neuve n'a pas été abîmée par le refus.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - maman:  {macro: onboarding_adulte, nom: Maman}
+  - maman:  {macro: creer_clan, clan: Les Voisins}
+  - enfant: {macro: onboarding_mineur}
+  - outil:  {nom: mul_code, telephone: enfant, shape: join_show_screen/code, motif: join, garde: code1}
+  - maman:  {action: worker.on_welcome_player}
+  - maman:  {attend: welcome_child_screen, delai: 30}
+  - maman:  {tap: welcome_child_screen/remote}
+  - maman:  {attend_shape: welcome_child_screen/code, delai: 10}
+  - maman:  {ecrit: welcome_child_screen/code, texte: "{code1}"}
+  - maman:  {tap: welcome_child_screen/code_go}
+  - maman:  {attend: invite_consent_screen, delai: 60}
+  - maman:  {attend_libre: true, delai: 30}
+  - maman:  {tap: invite_consent_screen/reads}
+  # Un tap arrivé avant que l'écran soit prêt est ignoré : s'il reste visible, on retouche.
+  - maman: {pause: 2}
+  - maman: {si_visible: "invite_consent_screen/reads", alors: [{tap: "invite_consent_screen/reads"}]}
+  - maman:  {tap: invite_consent_screen/yes}
+  - enfant: {attend_shape: join_show_screen/family_no, delai: 60}
+  - enfant: {verifie: {shape: join_show_screen/status, contient: "Les Voisins"}}
+  - enfant: {tap: join_show_screen/family_no}
+  - enfant: {attend_journal: "[join] le candidat ne reconnaît pas le clan", delai: 30}
+  # Le bon parent, avec la boîte neuve.
+  - macro: accueillir_enfant
+    nom_enfant: Kid
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan_papa}
+  - outil: {nom: identite, telephone: maman, champ: clan, garde: clan_maman}
+  - outil: {nom: identite, telephone: enfant, champ: userId, garde: kid}
+verifs:
+  - enfant: {page: dashboard}
+  # L'enfant est entré chez papa, pas chez maman.
+  - firestore: {doc: "clans_players/{clan_papa}/players/{kid}", existe: true}
+  - firestore: {doc: "clans_players/{clan_maman}/players/{kid}", existe: false}

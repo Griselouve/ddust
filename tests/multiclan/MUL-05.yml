@@ -1,0 +1,62 @@
+test: MUL-05
+titre: "Co-représentant à distance : le lien ddust://cogpin et son code"
+criticite: mineur
+# Compte A2 absent de la réserve (plan § 2) : repasser à true une fois créé.
+enabled: false
+telephones: [papa, maman, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Maman (adulte du clan) demande à devenir co-représentante de Kid, à distance : son QR code
+# devient un lien + un code (on_guardian_qr_remote). Papa, représentant, ouvre le lien
+# (guardian_pin_page), tape le code, choisit Kid ; Maman reçoit le secret et confirme.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:guardian_hub_page
+  - ecran:guardian_pin_page
+  - ecran:guardian_qr_page
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:ward_pick_page
+  - ecran:welcome_child_screen
+etapes:
+  - outil: {nom: code_cadeau, telephone: papa, palier: ddust_tribu}
+  - maman: {macro: onboarding_adulte, nom: Maman}
+  - macro: inviter_adulte
+  - maman: {action: worker.open_guardian_hub}
+  - maman: {attend: guardian_hub_page, delai: 30}
+  - maman: {action: worker.on_guardian_hub_pick, event: {id: cog_become}}
+  - maman: {attend: guardian_qr_page, delai: 30}
+  - maman: {tap: guardian_qr_page/remote}
+  - outil: {nom: mul_code, telephone: maman, shape: guardian_qr_page/code, garde: pin}
+  - maman: {tap: guardian_qr_page/share, puis: 2}
+  - maman: {lit: worker.guardian_out_token, garde: jeton}
+  - maman: {touche: KEYCODE_BACK}
+  - papa:  {action: navigate_reset.dashboard}
+  - papa:  {attend: dashboard, delai: 60}
+  - papa:  {lien: "ddust://cogpin?token={jeton}"}
+  - papa:  {attend: guardian_pin_page, delai: 60}
+  - papa:  {ecrit: guardian_pin_page/pin, texte: "{pin}"}
+  - papa:  {tap: guardian_pin_page/confirm}
+  - papa:  {attend: ward_pick_page, delai: 60}
+  - papa:  {action: worker.on_ward_pick, event: {id: "{kid}"}}
+  - maman: {attend_shape: guardian_qr_page/confirm, delai: 120}
+  - maman: {tap: guardian_qr_page/confirm}
+  - outil: {nom: identite, telephone: maman, champ: userId, garde: maman_id}
+verifs:
+  - firestore: {doc: "guardianship/{kid}", champ: guardians, contient: "{maman_id}"}

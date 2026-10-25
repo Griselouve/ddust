@@ -1,0 +1,30 @@
+test: ONB-04
+titre: "Mauvaise porte : compte inconnu par « Retrouver mon héros »"
+criticite: majeur
+enabled: true
+telephones: [papa]
+# A1 vierge : le moteur a effacé ses données et son entrée Firebase Auth (reset_comptes).
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:awake, ecran:home, ecran:lang_choice, overlay:home/rejected]
+etapes:
+  - papa: {tap: awake/tap}
+  - papa: {attend: lang_choice}
+  - papa: {action: worker.on_lang_chosen, event: fr}
+  - papa: {attend: home, delai: 60}
+  - papa: {tap: home/already_have_account}
+  # Compte Google valide mais sans héros : verify_account rend `not_found`
+  # (worker_session.dart:927), dvcloud purge l'entrée Auth (config.yml:146) et tire
+  # worker.on_account_rejected (worker_session.dart:944-949) : overlay sur `home`.
+  - papa: {attend_shape: home/rejected_text, delai: 120}
+  - papa: {verifie: {shape: home/rejected_text, contient: "Aucun héros n'est rattaché à ce compte Google"}}
+  - papa: {capture: overlay}
+  - papa: {tap: home/rejected_close}
+  - papa: {attend_absent: home/rejected_text, delai: 30}
+verifs:
+  - papa: {page: home}
+  - papa: {shape: home/rejected_text, visible: false}
+  # La porte de gauche reste offerte après fermeture de l'overlay (worker_session.dart:973-976).
+  - papa: {shape: home/connect}
+  # Se tromper de bouton ne laisse aucune trace : entrée Firebase Auth supprimée.
+  - outil: {nom: compte_firebase, telephone: papa, existe: false}

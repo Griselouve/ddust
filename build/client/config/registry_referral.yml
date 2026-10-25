@@ -48,7 +48,7 @@ conf:
     # Gros et centré : un code qu'on dicte au téléphone ou qu'on recopie.
     referral_page/code:
       masks:
-        - commons/nobordershape
+        - commons/intro_text   # le panneau commun (fond + bordure du thème), pas le texte nu sur l'illustration
       class: DvLabel
       layer: content
       shape:
@@ -60,8 +60,8 @@ conf:
         text_align: CENTER
         valign: CENTER
         font_size: 26.0
-        font_family: "MedievalSharp"
-        font_color: "amber_200"
+        # Police et couleur : celles du THÈME (le MedievalSharp ambre n'est que celui du donjon).
+        font_weight: bold
 
     referral_page/copy:
       masks:
@@ -95,26 +95,31 @@ conf:
     # Une ligne brève : « code copié », « nouveau code créé », ou un refus du serveur.
     referral_page/info:
       masks:
-        - commons/nobordershape
+        - commons/intro_text   # le panneau commun (fond + bordure du thème), pas le texte nu sur l'illustration
       class: DvLabel
       layer: content
       shape:
+        # Texte courant : DvLabel est gras par défaut (vitrine, 2026-10-21).
+        font_weight: normal
         x: 5%
-        y: 31%
+        # Deux lignes (une erreur réseau) : 4 % les tassait en 8,7 (vitrine, 2026-10-21).
+        y: 30.5%
         w: 90%
-        h: 4%
+        h: 5.5%
         label: ""
         text_align: CENTER
-        font_size: 13.0
+        font_size: 12.0
         visible: false
 
     # Les deux titres, chacun avec son prochain palier (« encore 2 clans »).
     referral_page/titles:
       masks:
-        - commons/nobordershape
+        - commons/intro_text   # le panneau commun (fond + bordure du thème), pas le texte nu sur l'illustration
       class: DvLabel
       layer: content
       shape:
+        # Texte courant : DvLabel est gras par défaut (vitrine, 2026-10-21).
+        font_weight: normal
         x: 5%
         y: 36%
         w: 90%
@@ -126,10 +131,12 @@ conf:
     # Compteurs et mois : lignée, lignée vivante, mois gagnés, stock / plafond.
     referral_page/stats:
       masks:
-        - commons/nobordershape
+        - commons/intro_text   # le panneau commun (fond + bordure du thème), pas le texte nu sur l'illustration
       class: DvLabel
       layer: content
       shape:
+        # Texte courant : DvLabel est gras par défaut (vitrine, 2026-10-21).
+        font_weight: normal
         x: 5%
         y: 54%
         w: 90%
@@ -143,10 +150,12 @@ conf:
     # remboursement, la fraude, le droit de suspendre l'offre.
     referral_page/conditions:
       masks:
-        - commons/shape
+        - commons/intro_text   # le panneau commun (fond + bordure du thème), pas le texte nu sur l'illustration
       class: DvLabel
       layer: content
       shape:
+        # Texte courant : DvLabel est gras par défaut (vitrine, 2026-10-21).
+        font_weight: normal
         x: 5%
         y: 69%
         w: 90%

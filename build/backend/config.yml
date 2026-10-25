@@ -536,54 +536,63 @@ conf:
                  || (resource != null
                      && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[docId].clanSecret == resource.data.ownerId));
               allow create, update, delete: if false;
-          # Invitation ouverte par un chef : doc-id = lobbyId (généré par le chef lui-même,
-          # AVANT `virtuallobby.create_management`). Champs : ownerId (UID Firebase du chef
-          # qui invite), clanId, ack (la déclaration scellée), kind, created_at, expires_at
-          # (72 h, comme le lobby), published_at (posé quand le secret a été publié au
-          # candidat), expiration (cf. TTL ci-dessous).
+          # Boîte d'adhésion : doc-id = le CODE à 5 caractères que le candidat affiche sous son
+          # QR code (worker_join.dart). Le candidat la crée en ouvrant l'écran « Rejoindre un
+          # clan » ; le chef qui scanne le QR (ou saisit le code) la RÉCLAME, puis y DÉPOSE le
+          # secret du clan, chiffré par la clé publique du candidat (dvsealbox). Elle vit
+          # 15 minutes et le candidat l'efface dès qu'il a lu le dépôt, ou en quittant l'écran.
           #
-          # POURQUOI UN DOCUMENT À PART. Un enregistrement de lobby `virtuallobby` peut être
-          # créé et accepté par N'IMPORTE QUEL compte connecté qui connaît l'identifiant du
-          # clan, et cet identifiant figure dans chaque QR code. La reprise des invitations
-          # au redémarrage du chef ne publie donc le secret du clan que pour un lobby qui a
-          # SON document ici, écrit par un chef : c'est ce document, et non l'enregistrement
-          # de lobby, qui prouve qu'une invitation a réellement été ouverte.
+          # Trois phases, un seul document :
+          #   * `open`      (candidat) : ownerId, v, pk (clé publique X25519), legal (a|k),
+          #                 assent (accord de l'enfant), cloud_region, has_clan, ward,
+          #                 created_at, expires_at, expiration ;
+          #   * `seen`      (le premier chef qui réclame) : by (SON uid), seen_at, expiration
+          #                 repoussée, pour qu'il lise les conditions sans course à l'horloge ;
+          #   * `done` | `cancelled` (CE chef seul) : sealed (le dépôt chiffré), done_at.
           #
-          # Règle explicite plutôt que `isolation: strict` nue, et pour la même raison que
-          # `userindexes` : le `get` généré par strict (`request.auth != null`) laisserait
-          # n'importe quel compte connecté lire la déclaration scellée d'autrui à partir du
-          # seul lobbyId. On garde l'ÉCRITURE de strict (ownerId == UID de l'auteur, seul
-          # l'auteur modifie ou supprime), et on resserre la LECTURE à l'auteur et aux
-          # membres du clan visé (un second chef doit pouvoir reprendre l'invitation).
-          #
-          # ⚠ UN SECOND CHEF LIT, IL N'ÉCRIT PAS. S'il publie à la reprise, son écriture de
-          #   `published_at` est refusée : la publication suivante se rejouera, ce qui est
-          #   sans conséquence (le secret est réécrit à l'identique).
-          #
-          # ⚠ LE TTL PORTE SUR `expiration`, PAS SUR `expires_at`. pufirestore fige le nom
-          #   du champ TTL (cf. pufirestore/brick.py), et Firestore n'efface que sur un
-          #   champ de type TIMESTAMP. Le client doit donc écrire `expiration` (un DateTime,
-          #   que dvcloud sérialise en timestamp) au même instant que `expires_at` (chaîne
-          #   ISO, que le code relit). Sans lui, la politique serait posée et n'effacerait
-          #   rien, sans que rien ne le signale.
-          clans_invites:
+          # ⚠ AUCUNE DONNÉE PERSONNELLE, PAS D'UID DU CANDIDAT. Un enfant crée sa boîte avant
+          #   tout consentement, sous une session anonyme en mémoire : la boîte ne dit rien de
+          #   lui (état légal, métadonnées de l'accord, clé publique, région). D'où un
+          #   effacement ouvert à tout compte connecté, comme guardian_drops : au pire, un code
+          #   deviné fait tirer un nouveau code au candidat.
+          # ⚠ USAGE UNIQUE PAR LES RÈGLES. Un seul passage open→seen (le premier qui réclame
+          #   gagne, un second chef reçoit un refus), un seul seen→done. Un code échu refuse
+          #   la réclamation et le dépôt même si le TTL (jusqu'à 24 h de retard) ne l'a pas
+          #   encore effacé.
+          # ⚠ LE CODE DÉSIGNE LA BOÎTE, IL NE PROTÈGE PAS LE SECRET. Celui qui devine un code
+          #   lit une clé publique ; il ne lit jamais un dépôt, scellé pour la clé privée qui
+          #   ne quitte pas la mémoire du candidat.
+          # ⚠ `ownerId` CONSTANT ("join"), comme guardian_drops : dvcloud pose ownerId à chaque
+          #   écriture et filtre les lectures dessus. Deux auteurs (candidat, chef) écrivent le
+          #   même document : un ownerId qui changerait à chaque écriture serait refusé.
+          # ⚠ LE TTL PORTE SUR `expiration` (timestamp), PAS SUR `expires_at` (ISO, relu par
+          #   le code) : cf. pufirestore/brick.py.
+          clans_joins:
             ttl: true
             rule: |
-              allow list: if request.auth != null && resource.data.ownerId == request.auth.uid;
-              allow get: if request.auth != null
-                && (resource == null
-                    || resource.data.ownerId == request.auth.uid
-                    || get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[resource.data.clanId].clanSecret != null);
+              allow list: if false;
+              allow get: if request.auth != null;
               allow create: if request.auth != null
-                && request.resource.data.ownerId == request.auth.uid
-                && get(/databases/{database}/documents/userindexes/$(request.auth.uid)).data.clans[request.resource.data.clanId].clanSecret != null
-                && clanUnlocked(request.resource.data.clanId);
+                && docId.matches('^[A-HJKMNP-Z2-9]{5}$')
+                && request.resource.data.ownerId == 'join'
+                && request.resource.data.status == 'open'
+                && request.resource.data.keys().hasOnly(['ownerId', 'v', 'pk', 'legal', 'assent', 'cloud_region', 'has_clan', 'ward', 'status', 'created_at', 'expires_at', 'expiration'])
+                && request.resource.data.expiration is timestamp
+                && request.resource.data.expiration < request.time + duration.value(20, 'm');
               allow update: if request.auth != null
-                && resource.data.ownerId == request.auth.uid
-                && request.resource.data.ownerId == request.auth.uid
-                && request.resource.data.clanId == resource.data.clanId
-                && clanUnlocked(resource.data.clanId);
-              allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+                && request.time < resource.data.expiration
+                && request.resource.data.ownerId == 'join'
+                && ((resource.data.status == 'open'
+                     && request.resource.data.status == 'seen'
+                     && request.resource.data.by == request.auth.uid
+                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'by', 'seen_at', 'expiration'])
+                     && request.resource.data.expiration is timestamp
+                     && request.resource.data.expiration < request.time + duration.value(20, 'm'))
+                 || (resource.data.status == 'seen'
+                     && resource.data.by == request.auth.uid
+                     && request.resource.data.status in ['done', 'cancelled']
+                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'sealed', 'done_at'])));
+              allow delete: if request.auth != null;
 
   svcaccounts:
     enabled: true
@@ -1897,18 +1906,9 @@ conf:
                   const q = await srcM.collection('msgregistry').where('ownerId', 'in', part).get();
                   for (const x of q.docs) await x.ref.delete();
                 }
-                // Éphémères : purgés au départ, jamais déménagés (le secret du clan y circule).
-                const inv = await db.collection('clans_invites').where('clanId', '==', clanId).get();
-                for (const x of inv.docs) await x.ref.delete();
-                try {
-                  const vl = dbOf(from, 'virtuallobby');
-                  const recs = await vl.collection('virtuallobbymanagement').doc(clanId).collection('records').get();
-                  for (const r of recs.docs) await vl.collection('virtuallobbysecret').doc(r.id).delete();
-                  await vl.recursiveDelete(vl.collection('virtuallobbymanagement').doc(clanId));
-                } catch (e: any) {
-                  console.warn('ddust_autover: purge virtuallobby incomplète : ' + (e && e.message ? e.message : e));
-                }
-
+                // Rien d'éphémère à purger : les boîtes d'adhésion (clans_joins) ne portent pas
+                // l'identifiant du clan et ne vivent que 15 minutes ; le secret n'y circule que
+                // scellé pour un seul candidat.
                 await dw.collection('clans').doc(clanId).update({ locked_until: FieldValue.delete() });
                 await setPhase('done');
               }
@@ -3052,7 +3052,7 @@ conf:
              "texts":{
                "fr":{"onboarding_empty":"Votre donjon vous attend, mais il est encore vide. Ajoutez votre première tâche en trente secondes.",
                      "onboarding_idle":"Les tâches sont prêtes, le donjon aussi. Il ne manque plus qu'un premier aventurier pour s'y lancer.",
-                     "onboarding_alone":"Votre donjon tourne, mais vous y êtes seul. Pour faire entrer votre enfant, installez le jeu sur son téléphone : il vous montrera un code à scanner avec « Accueillir un enfant », dans l'onglet Clan.",
+                     "onboarding_alone":"Votre donjon tourne, mais vous y êtes seul. Pour faire entrer votre enfant, installez le jeu sur son téléphone : il vous montrera un code à scanner avec « Accueillir un joueur », dans l'onglet Clan.",
                      "validation":"Une tâche a été menée à son terme et attend votre verdict pour être récompensée.",
                      "validation_open":"Une tâche a été menée à son terme et attend votre verdict. Touchez pour l'ouvrir.",
                      "chest_full":"Le coffre du clan déborde. Une cérémonie d'ouverture ferait des heureux.",
@@ -3063,7 +3063,7 @@ conf:
                      "sleep_notice":"Votre clan dort depuis près de deux ans. Sans retour d'ici un mois, il sera effacé. Ouvrir le jeu suffit à le garder."},
                "en":{"onboarding_empty":"Your dungeon awaits, but it is still empty. Add your first task in thirty seconds.",
                      "onboarding_idle":"The tasks are ready and so is the dungeon. All it needs is a first adventurer to set off.",
-                     "onboarding_alone":"Your dungeon is running, but you are alone in it. To bring your child in, install the game on their phone: they will show you a code to scan with “Welcome a child”, in the Clan tab.",
+                     "onboarding_alone":"Your dungeon is running, but you are alone in it. To bring your child in, install the game on their phone: they will show you a code to scan with “Welcome a player”, in the Clan tab.",
                      "validation":"A task has been completed and is waiting for your verdict to be rewarded.",
                      "validation_open":"A task has been completed and is waiting for your verdict. Tap to open it.",
                      "chest_full":"The clan chest is overflowing. An opening ceremony would make someone very happy.",
@@ -3074,7 +3074,7 @@ conf:
                      "sleep_notice":"Your clan has been asleep for almost two years. If nobody comes back within a month, it will be erased. Opening the game is enough to keep it."},
                "es":{"onboarding_empty":"Tu mazmorra te espera, pero todavía está vacía. Añade tu primera tarea en treinta segundos.",
                      "onboarding_idle":"Las tareas están listas y la mazmorra también. Solo falta un primer aventurero que se lance.",
-                     "onboarding_alone":"Tu mazmorra funciona, pero estás solo en ella. Para que entre tu hijo, instala el juego en su teléfono: te mostrará un código que escanearás con «Acoger a un niño», en la pestaña Clan.",
+                     "onboarding_alone":"Tu mazmorra funciona, pero estás solo en ella. Para que entre tu hijo, instala el juego en su teléfono: te mostrará un código que escanearás con «Acoger a un jugador», en la pestaña Clan.",
                      "validation":"Una tarea ha llegado a su fin y espera tu veredicto para ser recompensada.",
                      "validation_open":"Una tarea ha llegado a su fin y espera tu veredicto. Toca para abrirla.",
                      "chest_full":"El cofre del clan está rebosando. Una ceremonia de apertura haría feliz a alguien.",
@@ -3085,7 +3085,7 @@ conf:
                      "sleep_notice":"Tu clan lleva casi dos años dormido. Si nadie vuelve en un mes, se borrará. Basta con abrir el juego para conservarlo."},
                "de":{"onboarding_empty":"Dein Kerker wartet auf dich, aber er ist noch leer. Füge in dreißig Sekunden deine erste Aufgabe hinzu.",
                      "onboarding_idle":"Die Aufgaben sind bereit, der Kerker auch. Es fehlt nur noch ein erster Abenteurer, der loszieht.",
-                     "onboarding_alone":"Dein Kerker läuft, aber du bist allein darin. Damit dein Kind beitritt, installiere das Spiel auf seinem Handy: Es zeigt dir einen Code, den du mit „Ein Kind aufnehmen“ im Tab Clan scannst.",
+                     "onboarding_alone":"Dein Kerker läuft, aber du bist allein darin. Damit dein Kind beitritt, installiere das Spiel auf seinem Handy: Es zeigt dir einen Code, den du mit „Einen Spieler aufnehmen“ im Tab Clan scannst.",
                      "validation":"Eine Aufgabe wurde erledigt und wartet auf dein Urteil, um belohnt zu werden.",
                      "validation_open":"Eine Aufgabe wurde erledigt und wartet auf dein Urteil. Tippe, um sie zu öffnen.",
                      "chest_full":"Die Clantruhe quillt über. Eine Öffnungszeremonie würde jemanden glücklich machen.",
@@ -3096,7 +3096,7 @@ conf:
                      "sleep_notice":"Dein Clan schläft seit fast zwei Jahren. Kommt innerhalb eines Monats niemand zurück, wird er gelöscht. Das Spiel zu öffnen genügt, um ihn zu behalten."},
                "it":{"onboarding_empty":"Il tuo dungeon ti aspetta, ma è ancora vuoto. Aggiungi il tuo primo compito in trenta secondi.",
                      "onboarding_idle":"I compiti sono pronti, e anche il dungeon. Manca solo un primo avventuriero che si lanci.",
-                     "onboarding_alone":"Il tuo dungeon funziona, ma ci sei da solo. Per far entrare tuo figlio, installa il gioco sul suo telefono: ti mostrerà un codice da scansionare con «Accogli un bambino», nella scheda Clan.",
+                     "onboarding_alone":"Il tuo dungeon funziona, ma ci sei da solo. Per far entrare tuo figlio, installa il gioco sul suo telefono: ti mostrerà un codice da scansionare con «Accogli un giocatore», nella scheda Clan.",
                      "validation":"Un compito è stato portato a termine e aspetta il tuo verdetto per essere ricompensato.",
                      "validation_open":"Un compito è stato portato a termine e aspetta il tuo verdetto. Tocca per aprirlo.",
                      "chest_full":"Lo scrigno del clan trabocca. Una cerimonia di apertura renderebbe felice qualcuno.",
@@ -3107,7 +3107,7 @@ conf:
                      "sleep_notice":"Il tuo clan dorme da quasi due anni. Se nessuno torna entro un mese, sarà cancellato. Basta aprire il gioco per tenerlo."},
                "pt":{"onboarding_empty":"A tua masmorra espera por ti, mas ainda está vazia. Adiciona a tua primeira tarefa em trinta segundos.",
                      "onboarding_idle":"As tarefas estão prontas, e a masmorra também. Só falta um primeiro aventureiro que se lance.",
-                     "onboarding_alone":"A tua masmorra está a funcionar, mas estás sozinho nela. Para o teu filho entrar, instala o jogo no telemóvel dele: ele vai mostrar-te um código para digitalizares com «Acolher uma criança», no separador Clã.",
+                     "onboarding_alone":"A tua masmorra está a funcionar, mas estás sozinho nela. Para o teu filho entrar, instala o jogo no telemóvel dele: ele vai mostrar-te um código para digitalizares com «Acolher um jogador», no separador Clã.",
                      "validation":"Uma tarefa foi concluída e espera o teu veredicto para ser recompensada.",
                      "validation_open":"Uma tarefa foi concluída e espera o teu veredicto. Toca para a abrir.",
                      "chest_full":"O baú do clã está a transbordar. Uma cerimónia de abertura faria alguém feliz.",
@@ -3118,7 +3118,7 @@ conf:
                      "sleep_notice":"O teu clã está adormecido há quase dois anos. Se ninguém voltar dentro de um mês, será apagado. Basta abrir o jogo para o manter."},
                "br":{"onboarding_empty":"Sua masmorra está esperando por você, mas ainda está vazia. Adicione sua primeira tarefa em trinta segundos.",
                      "onboarding_idle":"As tarefas estão prontas, e a masmorra também. Só falta um primeiro aventureiro para começar.",
-                     "onboarding_alone":"Sua masmorra está funcionando, mas você está sozinho nela. Para seu filho entrar, instale o jogo no celular dele: ele vai mostrar um código para você escanear com “Acolher uma criança”, na aba Clã.",
+                     "onboarding_alone":"Sua masmorra está funcionando, mas você está sozinho nela. Para seu filho entrar, instale o jogo no celular dele: ele vai mostrar um código para você escanear com “Acolher um jogador”, na aba Clã.",
                      "validation":"Uma tarefa foi concluída e aguarda seu veredito para ser recompensada.",
                      "validation_open":"Uma tarefa foi concluída e aguarda seu veredito. Toque para abri-la.",
                      "chest_full":"O baú do clã está transbordando. Uma cerimônia de abertura deixaria alguém muito feliz.",
@@ -3129,7 +3129,7 @@ conf:
                      "sleep_notice":"Seu clã está dormindo há quase dois anos. Se ninguém voltar em um mês, ele será apagado. Basta abrir o jogo para mantê-lo."},
                "nl":{"onboarding_empty":"Je kerker wacht op je, maar hij is nog leeg. Voeg in dertig seconden je eerste taak toe.",
                      "onboarding_idle":"De taken staan klaar, de kerker ook. Er ontbreekt alleen nog een eerste avonturier die erin duikt.",
-                     "onboarding_alone":"Je kerker draait, maar je bent er alleen. Om je kind erbij te halen, installeer je het spel op zijn telefoon: het toont je een code die je scant met ‘Een kind verwelkomen’, in het tabblad Clan.",
+                     "onboarding_alone":"Je kerker draait, maar je bent er alleen. Om je kind erbij te halen, installeer je het spel op zijn telefoon: het toont je een code die je scant met ‘Een speler verwelkomen’, in het tabblad Clan.",
                      "validation":"Een taak is voltooid en wacht op jouw oordeel om beloond te worden.",
                      "validation_open":"Een taak is voltooid en wacht op jouw oordeel. Tik om ze te openen.",
                      "chest_full":"De clankist puilt uit. Een openingsceremonie zou iemand heel blij maken.",
@@ -4060,7 +4060,7 @@ conf:
               const count = (key: string, n = 1) => { out[key] = (out[key] || 0) + n; };
               for (const k of ['orphans_candidates', 'orphans_eligible', 'orphans_erased',
                                'orphans_skipped_has_clan', 'orphans_skipped_active',
-                               'orphans_skipped_pending', 'orphans_skipped_no_date',
+                               'orphans_skipped_no_date',
                                'orphans_skipped_raced', 'orphans_auth_deleted',
                                'orphans_auth_kept_shared', 'orphans_proofs_closed',
                                'orphans_errors']) out[k] = out[k] || 0;
@@ -4102,14 +4102,6 @@ conf:
                   if (!seen) return 'orphans_skipped_no_date';
                   if (seen >= cutoffMs) return 'orphans_skipped_active';
 
-                  // Adhésion en attente : l'invitation est acceptée, le chef n'a pas
-                  // encore confirmé. Seul un OBJET compte ("" ou autre = absent) ; une
-                  // échéance illisible vaut « encore valide » (même règle du doute).
-                  const pj = u.pending_join;
-                  if (pj && typeof pj === 'object' && !Array.isArray(pj)) {
-                      const exp = msOf(pj.expires_at);
-                      if (!exp || exp > now) return 'orphans_skipped_pending';
-                  }
                   return '';
               };
 

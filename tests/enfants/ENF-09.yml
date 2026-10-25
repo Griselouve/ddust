@@ -1,0 +1,41 @@
+test: ENF-09
+titre: Retrait du consentement à échéance (horloge)
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page, ecran:dashboard, overlay:clan_page/consent]
+etapes:
+  - papa: {action: navigate_new.clan_page}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  # La représentation a été rattachée au test d'origine (E2E-02), elle est dans la photo.
+  # Retrait, comme ENF-08 (worker_members.dart:1334-1381, 1478-1506).
+  - papa: {action: worker.withdraw_consent, event: {id: "{kid}", name: Kid, legal_state: k, no_account: false}}
+  - papa: {attend_shape: clan_page/consent_yes, delai: 30}
+  - papa: {tap: clan_page/consent_yes}
+  - papa: {attend_journal: "[consent] withdraw posé dans la représentation de Kid ({kid}) ok=true", delai: 60}
+  # Les 3 jours de rétractation passent : guardianship.consent.withdrawn_at et consent_due
+  # reculés (helpers/horloge.py, quoi: consentement).
+  - outil: {nom: horloge, telephone: enfant, quoi: consentement}
+  # Au login du représentant, l'échéance passée est exécutée par le serveur
+  # (_sweepGuardianConsents, worker_session.dart:469 → worker_multiclan.dart:1333-1353 :
+  # callable delete_user_data, porte `consentTarget`, backend config.yml:2267-).
+  - papa: {relance: true}
+  - papa: {attend_journal: "[consent] échéance atteinte sur {kid} → suppression réclamée", delai: 120}
+  - papa: {attend: dashboard, delai: 90}
+verifs:
+  # worker_multiclan.dart:1347 (ou worker_members.dart:1635 si le roster l'a vu d'abord).
+  - journal: {telephone: papa, contient: "[consent] échéance atteinte sur {kid} → suppression réclamée (ok=true"}
+  # La cascade de delete_user_data : fiche tombstonée (backend config.yml, `tombstone`),
+  # représentation close et datée (`closeGuardianship`), index désactivé.
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: status, egal: deleted}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: enabled, egal: false}
+  - firestore: {doc: "guardianship/{kid}", champ: closed_at, existe: true}
+  - firestore: {doc: "guardianship/{kid}", champ: deleted_at, existe: true}

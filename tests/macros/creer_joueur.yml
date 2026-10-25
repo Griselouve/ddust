@@ -1,0 +1,21 @@
+# Le chef (sur le tableau de bord, clan créé) crée un joueur SANS téléphone (enfant sans
+# compte), jusqu'au retour sur l'écran Clan.
+#   - Les icônes de la barre du bas ne sont pas des shapes tapables : l'écran Clan s'ouvre
+#     par l'action de son icône (registry_commons.yml:576, `navigate_new.clan_page`).
+#   - « Ajouter un enfant sans téléphone » est une option de DvMenu (clan_page/settings_menu,
+#     registry_clan_page.yml) : on appelle son action, `worker.create_player`
+#     (worker_forms.dart).
+# ⚠ Le plafond du palier gratuit (2 joueurs) s'applique : au-delà, la confirmation ouvre
+#   tiers_page au lieu de créer le joueur (worker_forms.dart:1183).
+macro: creer_joueur
+parametres: {nom_joueur: Lou}
+etapes:
+  - {action: navigate_new.clan_page}
+  - {attend: clan_page, delai: 60}
+  - {attend_libre: true, delai: 60}
+  - {action: worker.create_player}
+  - {attend: create_player_screen, delai: 60}
+  # `ecrit` tire l'événement `changed` du DvEntry, qui allume le bouton
+  # (worker_forms.dart:1148-1157).
+  - {ecrit: create_player_screen/name, texte: "{nom_joueur}"}
+  - {tap: create_player_screen/confirm}

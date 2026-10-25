@@ -1,0 +1,29 @@
+test: CNF-03
+titre: Couper puis rallumer l'IA du clan
+criticite: mineur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Options « Couper l'IA » / « Rallumer l'IA » du menu avancé du Clan (registry_clan_page.yml:
+# 454-467) : options de DvMenu, non tapables, on appelle leurs actions (worker_clan.dart:680-707).
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page]
+etapes:
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan}
+  - papa: {tap: clan_open}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {action: worker.clan_ai_off}
+  - papa: {attend_journal: "[clan] IA coupée pour le clan", delai: 30}
+  - outil: {nom: firestore_attend, doc: "clans/{clan}", champ: ai_enabled, egal: "False", delai: 30}
+  - papa: {verifie: {valeur: worker.clan_ai_enabled, egal: "false"}}
+  - papa: {action: worker.clan_ai_on}
+  - papa: {attend_journal: "[clan] IA rallumée pour le clan", delai: 30}
+verifs:
+  - firestore: {doc: "clans/{clan}", champ: ai_enabled, egal: true}
+  - papa: {valeur: worker.clan_ai_enabled, egal: "true"}
+  - journal: {telephone: papa, absent: "REFUSÉ : non-chef"}

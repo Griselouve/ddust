@@ -1,0 +1,16 @@
+# Un chef rend son verdict sur la tâche {tache} en attente de validation.
+#   - seltask.<id> sur une tâche « validating » ouvre la revue chez un chef
+#     (worker_tasks.dart:1233-1260) ;
+#   - {verdict} : ok | partial | ko → bouton combat/validate_{verdict}
+#     (registry_combat.yml:171-219, worker_verdict.dart:863-869) ;
+#   - {attendu} : la ligne de journal du verdict (_writeVerdict, worker_verdict.dart:196/214).
+macro: tache_juger
+parametres: {tache: vaisselle_01, verdict: ok, attendu: "[combat] verdict ACCEPTÉ: vaisselle_01"}
+etapes:
+  - {action: "seltask.{tache}"}
+  - {attend_journal: "[combat] admin ouvre la validation: {tache}", delai: 60}
+  - {attend: combat, delai: 60}
+  - {attend_shape: "combat/validate_{verdict}", delai: 60}
+  - {attend_libre: true, delai: 60}
+  - {tap: "combat/validate_{verdict}"}
+  - {attend_journal: "{attendu}", delai: 90}

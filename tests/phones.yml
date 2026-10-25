@@ -1,0 +1,59 @@
+# Les téléphones du moteur de test (dvtest), pour ddust. Format : deva/python/modules/dvtest/readme.md
+#
+# Un émulateur par téléphone, dans cet ordre (ports 5580, 5582). Chaque téléphone porte UN
+# compte de la réserve (Firestore asura-888 / deva / apps_tests/ddust) : il le garde d'une
+# exécution à l'autre, la connexion à Google ne se fait qu'une fois.
+# Réserve au 2026-10-17 : A1 (adulte) et E1 (mineur). Un test qui demande un autre compte
+# est en `enabled: false` (plan_de_test.md, § 2).
+
+app: client
+
+telephones:
+  papa:   {compte: A1}
+  enfant: {compte: E1}
+  # A2 (adulte invité, second chef) : absent de la réserve au 2026-10-17. Les tests qui le
+  # demandent sont en `enabled: false` ; l'émulateur n'est démarré que s'ils sont joués.
+  maman:  {compte: A2}
+  # A3 (adulte, chef d'un second clan : multiclan) : absent de la réserve au 2026-10-17, même
+  # règle que A2 (MUL-01, MUL-02 en `enabled: false`).
+  tonton: {compte: A3}
+
+# La cible d'essai : projet Firebase de ddust, bases `eut-*`. Le moteur refuse toute autre base.
+firestore:
+  projet: dvddust
+  base: eut-workers
+  prefixe_essai: eut-
+
+# Les rappels qui peuvent surgir par-dessus le jeu (dvtuto, bienvenue) : fermés d'office
+# pendant toute attente. `visible` : la shape qui signale le rappel ; `tap` : celle qui le
+# ferme (la même par défaut).
+surgissants: []
+
+# Posées dans l'app au lancement de chaque test (un test peut les redéfinir, `poses:`).
+#  - dvtuto.suspended : pas de leçon ni de rappel dvtuto par-dessus le jeu (ils gèlent la
+#    page) ; CNF-01, qui teste les guides, la repasse à false.
+#  - documents.session.test_servers : la case « serveurs de test » cochée (bases eut-*).
+poses:
+  dvtuto.suspended: true
+  documents.session.test_servers: "true"
+
+# LE CATALOGUE DES ITEMS (deva/python/modules/dvtest/catalogue.py) : écrans, surcouches,
+# interludes, leçons, événements, partages, notifications de l'app, lus dans sa conf et ses
+# calques de thème (motifs relatifs au dossier du projet). Les tests les citent dans `items`.
+catalogue:
+  conf: [build/client/config/*.yml, build/client/config.yml]
+  calques: [build/resources_cloud/*/layers/*.yml]
+
+# Les PHOTOS (deva/python/modules/dvtest/photo.py) : un test `photo: <nom>` repart de l'état
+# Firestore pris à la fin du test qui déclare `photo_exporte: <nom>` (catégorie bout_en_bout).
+# Chaque téléphone de la photo retrouve son joueur par cette macro, sur une app neuve.
+photo:
+  connexion: reprise_photo
+
+# Le mode IA « exploration » (run-tests explorer="...").
+explorateur:
+  projet: asura-888
+  region: europe-west4
+  modele: gemini-3.5-flash-lite
+  tours: 40
+  telephone: papa

@@ -1,0 +1,54 @@
+test: ROS-05
+titre: Supprimer son compte (adulte membre)
+criticite: critique
+# Compte A2 absent de la réserve (plan § 2) : repasser à true une fois A2 créé.
+enabled: false
+telephones: [papa, maman]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:personnage
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+  - overlay:personnage/delete
+etapes:
+  - macro: couple
+  # « Supprimer mon compte » est une option de DvMenuButton (non tapable) : son action
+  # worker.death_open_delete ouvre l'écran Personnage puis le panneau
+  # (registry_commons.yml:1001-1006, worker_session.dart:1842-1850).
+  - maman: {action: worker.death_open_delete}
+  - maman: {attend: personnage, delai: 60}
+  - maman: {attend_shape: personnage/delete_yes, delai: 30}
+  # Trois avertissements, trois « Continuer » ; le troisième appelle delete_user_data
+  # (worker_session.dart:1985-2009, _deleteWarnKeys worker.dart:660-662).
+  - maman: {tap: personnage/delete_yes, puis: 2}
+  - maman: {tap: personnage/delete_yes, puis: 2}
+  - maman: {tap: personnage/delete_yes, puis: 2}
+  - maman: {attend_journal: "[delete_account] compte supprimé → déconnexion", delai: 120}
+  # dvcloud.do_logout → on_logout → awake (worker_session.dart:2035-2041).
+  - maman: {attend: awake, delai: 90}
+verifs:
+  - maman: {page: awake}
+  # Soft delete du serveur : fiche tombstonée, compte désactivé (backend delete_user_data).
+  - firestore: {doc: "clans_players/{clan}/players/{maman_id}", champ: status, egal: deleted}
+  - firestore: {doc: "clans_players/{clan}/players/{maman_id}", champ: enabled, egal: false}
+  - firestore: {doc: "users/{maman_id}", champ: enabled, egal: false}
+  # Membre non chef : le clan survit.
+  - firestore: {doc: "clans/{clan}", champ: enabled, different: false}

@@ -81,23 +81,25 @@ extension Worker_multiclan on worker {
                                 ActionRegistry.register("worker.on_guardian_hub_appear",   on_guardian_hub_appear);
                                 ActionRegistry.register("worker.on_guardian_hub_pick",     on_guardian_hub_pick);
 
-                                // Écran QR des échanges entre adultes : le chef de B qui accueille un enfant
-                                // d'un autre clan, l'adulte qui demande à devenir co-représentant.
-                                ActionRegistry.register("worker.on_welcome_guest_child",   on_welcome_guest_child);
+                                // Écran QR du co-représentant : l'adulte qui demande à le devenir.
                                 ActionRegistry.register("worker.on_guardian_qr_appear",    on_guardian_qr_appear);
                                 ActionRegistry.register("worker.on_guardian_qr_remote",    on_guardian_qr_remote);
                                 ActionRegistry.register("worker.on_guardian_qr_share",     on_guardian_qr_share);
                                 ActionRegistry.register("worker.on_guardian_qr_confirm",   on_guardian_qr_confirm);
                                 ActionRegistry.register("worker.on_guardian_qr_leave",     on_guardian_qr_leave);
 
-                                // Choix de l'enfant par le représentant (autoriser un clan, ajouter un
+                                // Choix de l'enfant par le représentant (demandes d'autres clans, ajouter un
                                 // co-représentant, voir ses clans et l'en retirer).
                                 ActionRegistry.register("worker.on_ward_pick_appear",      on_ward_pick_appear);
                                 ActionRegistry.register("worker.on_ward_pick",             on_ward_pick);
 
-                                // Enfant déjà membre d'un clan qui en demande un autre : retour à son clan
-                                // depuis l'écran de partage de sa demande.
-                                ActionRegistry.register("worker.on_kid_assent_leave",      on_kid_assent_leave);
+                                // Co-représentant à distance : le lien et le code (guardian_pin_page).
+                                ActionRegistry.register("worker.on_guardian_pin_link",     on_guardian_pin_link);
+                                ActionRegistry.register("worker.on_guardian_pin_appear",   on_guardian_pin_appear);
+                                ActionRegistry.register("worker.on_guardian_pin_confirm",  on_guardian_pin_confirm);
+
+                                // Un enfant qui a demandé un autre clan : ses représentants ont répondu.
+                                ActionRegistry.register("worker.on_guest_decided",         on_guest_decided);
 
                                 // Crochets de dvmessaging (D11, § 6.4) : filtrer un message à la réception,
                                 // basculer vers le clan qu'il nomme avant d'exécuter son action.
@@ -160,19 +162,6 @@ extension Worker_multiclan on worker {
     bool _isActiveMemberOf(Dvidle? session, String clanId) =>
         clanId.isNotEmpty && _activeClans(session).any((c) => c["id"] == clanId);
 
-    // Refus d'une adhésion AVANT de l'accepter (lien, QR, code) : déjà membre, plafond atteint.
-    // Rend "" si l'adhésion peut se faire, sinon la clef du message.
-    Future<String> _joinRefusal(String groupId) async {
-
-                                final region = await _homeRegion();
-                                if (region.isEmpty) return "";
-                                Dvidle? session;
-                                try { session = await _readSession(region); } catch (_) {}
-                                if (_isActiveMemberOf(session, groupId)) return "join_already_member";
-                                if (_activeClans(session).length >= _kMaxClans) return "join_clans_cap";
-                                return "";
-    }
-
     // -----------------------------------------------------------------------
     // --- Changer de clan (D3)
     // -----------------------------------------------------------------------
@@ -185,7 +174,6 @@ extension Worker_multiclan on worker {
                                 _stopValidationPolling();
                                 _stopPlayerVigilance();
                                 _resetOpening();
-                                _invitesQuietAt = null;
                                 // Rôles : chef et adulte sont PAR CLAN (D12).
                                 _isAdmin = false; _adminCount = 0; _isAdminClanId = ""; _isAdminUserId = "";
                                 _isAdult = false; _isAdultClanId = ""; _isAdultUserId = "";
@@ -212,19 +200,10 @@ extension Worker_multiclan on worker {
                                 await Deva.instance.set("session.clan.id", "");
                                 await Deva.instance.set("session.active_task", "");
                                 await Deva.instance.set("session.active_proof", "");
-                                // Invitations en cours côté chef : elles visaient le clan quitté.
-                                _pendingAssent    = null;
-                                _pendingClaimId   = "";
-                                _pendingClaimName = "";
-                                _claimRows        = [];
-                                _inviteAsChief    = false;
-                                _inviteAssent     = null;
-                                _assentRejected   = false;
-                                _inviteLinkParams = "";
-                                _outgoingGroupId  = "";
-                                _outgoingLobbyId  = "";
-                                _outgoingRegion   = "";
-                                _outgoingPinToken = "";
+                                // Accueil en cours côté chef : il visait le clan quitté. La boîte réclamée
+                                // est rendue au candidat.
+                                await _welcomeCancel();
+                                _inviteResetMemory();
                                 // La porte close (retrait du consentement) est un état du clan courant :
                                 // l'entrée dans l'autre clan la réévalue.
                                 await _applyConsentClosed(false);
@@ -547,6 +526,15 @@ extension Worker_multiclan on worker {
                                     "enabled": !full,
                                 });
                                 ActionRegistry.get("dvlist.set_rows")?.call(null, {"page": "my_clans_page", "rows": rows});
+                                // Une adhésion à un autre clan qui n'a pas abouti, ou une demande partie chez
+                                // les parents : le panneau de tête le dit, une fois.
+                                final hint = DvOrb.get_shape_by_id("my_clans_page/hint");
+                                if (hint != null) {
+                                    hint.set("shape.label", TranslationRegistry.translate(_joinNotice.isNotEmpty ? _joinNotice : "my_clans_hint"));
+                                    if (hint is DvLabel) await hint.computeDisplay();
+                                    hint.refreshUI();
+                                }
+                                _joinNotice = "";
     }
 
     Future<void> on_my_clans_pick(dynamic caller, dynamic event) async {
@@ -597,44 +585,17 @@ extension Worker_multiclan on worker {
                                 await _switchToClan(id);
     }
 
-    // « Rejoindre un autre clan ». Un adulte suit le parcours d'adhésion habituel (QR du chef,
-    // ou lien + code). Un enfant fait une DEMANDE, comme à son inscription : le « je veux jouer »
-    // et son code, que le chef de l'autre clan scanne. Son appareil vérifiera ensuite que l'un de
-    // ses représentants a bien autorisé ce clan (§ 5.2).
+    // « Rejoindre un autre clan » : le même écran que pour le premier, qui montre patte blanche.
+    // Un enfant répond d'abord à SA question (il parle le premier) ; son appareil vérifiera ensuite
+    // que l'un de ses représentants a autorisé ce clan, ou le leur demandera (§ 5.2).
     Future<void> _openJoinOther() async {
 
                                 final region  = await _homeRegion();
                                 final session = region.isNotEmpty ? await _readSession(region) : null;
                                 if (_activeClans(session).length >= _kMaxClans) return;
                                 final legal = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "k";
-                                if (_gameplayLegal(legal) == "a") {
-                                    DvOrb.navigate_new("kid_wants_clan");
-                                    return;
-                                }
-                                _kidAssentCode = _newAssentCode();
-                                _kidAssentLink = await _buildKidAssentLink();
-                                DvOrb.navigate_new("kid_assent_share");
-    }
-
-    // Enfant déjà membre d'un clan, sur l'écran de sa demande : retour à son clan.
-    Future<void> on_kid_assent_leave(dynamic caller, dynamic event) async {
-
-                                _kidAssentCode = "";
-                                _kidAssentLink = "";
-                                DvOrb.navigate_reset("dashboard");
-    }
-
-    // L'écran de partage de la demande sert aussi à l'enfant DÉJÀ membre d'un clan : il y gagne
-    // une sortie (il n'a plus de parcours d'inscription derrière lui).
-    Future<void> _syncKidAssentLeave() async {
-
-                                final region  = await _homeRegion();
-                                Dvidle? session;
-                                try { session = region.isNotEmpty ? await _readSession(region) : null; } catch (_) {}
-                                final hasClan = _activeClans(session).isNotEmpty;
-                                final leave  = await DvOrb.wait_for_shape("kid_assent_share/leave");
-                                leave?..set("shape.visible", hasClan)..refreshUI();
-                                if (hasClan) _hideShapes(["kid_assent_share/notice"]);
+                                _joinAssent = null;
+                                DvOrb.navigate_new(_gameplayLegal(legal) == "a" ? "join_show_screen" : "kid_assent_screen");
     }
 
     // -----------------------------------------------------------------------
@@ -888,21 +849,22 @@ extension Worker_multiclan on worker {
     // --- guardianship : naissance (adhésion d'origine d'un enfant)
     // -----------------------------------------------------------------------
 
-    // CÔTÉ PARENT, à l'invitation d'un enfant : tire le secret de représentation et le range dans
-    // SON index en ATTENTE, sous l'identifiant du lobby. Le parent ne connaît pas encore
-    // l'identifiant de l'enfant (l'accord n'en porte aucun, à dessein) : il le rattachera quand
-    // l'enfant apparaîtra dans le clan avec la marque `guardian_lobby` (_reconcileGuardianPending).
-    Future<String> _newGuardianPending(String lobbyId, String clanId) async {
+    // CÔTÉ PARENT, à l'accueil d'un enfant : tire le secret de représentation et le range dans
+    // SON index en ATTENTE, sous l'identifiant de l'adhésion (joinId). Le parent ne connaît pas
+    // encore l'identifiant de l'enfant (la boîte n'en porte aucun, à dessein) : il le rattachera
+    // quand l'enfant apparaîtra dans le clan avec la marque `guardian_join`
+    // (_reconcileGuardianPending).
+    Future<String> _newGuardianPending(String joinId, String clanId) async {
 
                                 final uid    = _cloud?.currentUser()?.providerUid ?? "";
                                 final region = await _homeRegion();
-                                if (uid.isEmpty || region.isEmpty || lobbyId.isEmpty) return "";
+                                if (uid.isEmpty || region.isEmpty || joinId.isEmpty) return "";
                                 final secret = _generateUuid();
                                 try {
                                     final ix = Dvidle({});
-                                    ix.set("guardianships_pending.$lobbyId.secret", secret);
-                                    ix.set("guardianships_pending.$lobbyId.clanId", clanId);
-                                    ix.set("guardianships_pending.$lobbyId.at",     DateTime.now().toUtc().toIso8601String());
+                                    ix.set("guardianships_pending.$joinId.secret", secret);
+                                    ix.set("guardianships_pending.$joinId.clanId", clanId);
+                                    ix.set("guardianships_pending.$joinId.at",     DateTime.now().toUtc().toIso8601String());
                                     await _cloud?.write("workers", "userindexes", uid, ix, region: region);
                                     return secret;
                                 } catch (e) {
@@ -912,7 +874,7 @@ extension Worker_multiclan on worker {
     }
 
     // CÔTÉ PARENT : les secrets en attente dont l'enfant est apparu dans le clan (sa fiche porte
-    // `guardian_lobby`) passent sous `guardianships.{childId}`. Les attentes échues sont oubliées.
+    // `guardian_join`) passent sous `guardianships.{childId}`. Les attentes échues sont oubliées.
     // Appelée au rafraîchissement du roster, qui a déjà toutes les fiches en main.
     Future<void> _reconcileGuardianPending(String clanId, List<Dvidle> players) async {
 
@@ -925,25 +887,25 @@ extension Worker_multiclan on worker {
                                 final patch = Dvidle({});
                                 var dirty = false;
                                 final limit = DateTime.now().toUtc().subtract(const Duration(days: _kGuardianPendingDays));
-                                pen.forEach((lobby, v) {
+                                pen.forEach((join, v) {
                                     if (v is! Map) return;
                                     final secret = v["secret"]?.toString() ?? "";
                                     final at     = DateTime.tryParse(v["at"]?.toString() ?? "");
                                     if (secret.isEmpty) return;
                                     if (v["clanId"]?.toString() == clanId) {
                                         for (final p in players) {
-                                            if (p.get("guardian_lobby")?.toString() != lobby.toString()) continue;
+                                            if (p.get("guardian_join")?.toString() != join.toString()) continue;
                                             final childId = p.get("id")?.toString() ?? "";
                                             if (childId.isEmpty) continue;
                                             patch.set("guardianships.$childId.secret", secret);
-                                            patch.set("guardianships_pending.$lobby", "");
+                                            patch.set("guardianships_pending.$join", "");
                                             dirty = true;
-                                            deva_log("info", "[guardian] représentation de $childId rattachée (lobby $lobby)");
+                                            deva_log("info", "[guardian] représentation de $childId rattachée (adhésion $join)");
                                             return;
                                         }
                                     }
                                     if (at != null && at.isBefore(limit)) {
-                                        patch.set("guardianships_pending.$lobby", "");
+                                        patch.set("guardianships_pending.$join", "");
                                         dirty = true;
                                     }
                                 });
@@ -959,7 +921,7 @@ extension Worker_multiclan on worker {
     // le secret reçu dans son index, PUIS crée le document (la règle lit l'index).
     Future<void> _gshipCreateOrigin({required String childId, required String secret, required String adminId,
                                      required String adminName, required String clanId, required String clanName,
-                                     required String region, required String lobbyId}) async {
+                                     required String region, required String joinId}) async {
 
                                 final uid = _cloud?.currentUser()?.providerUid ?? "";
                                 if (uid.isEmpty || childId.isEmpty || secret.isEmpty) return;
@@ -983,7 +945,7 @@ extension Worker_multiclan on worker {
                                     // La marque qui permet au parent de rattacher le secret à cet enfant.
                                     final m = Dvidle({});
                                     m.set("id", childId);
-                                    m.set("guardian_lobby", lobbyId);
+                                    m.set("guardian_join", joinId);
                                     final clanSecret = (await _readSession(region))?.get("clans.$clanId.clanSecret")?.toString() ?? "";
                                     if (clanSecret.isNotEmpty) {
                                         await _cloud?.write("workers", "clans_players/$clanId/players", childId, m,
@@ -1129,6 +1091,10 @@ extension Worker_multiclan on worker {
                                     // 3. JOURNAL : chaque geste une fois dans le clan d'origine.
                                     await _gshipLogHistory(g, me, secret, fresh);
 
+                                    // 3 bis. DEMANDES D'AUTRES CLANS : un oui met le dépôt gardé de côté pour
+                                    //   l'entrée (consommée plus bas, ou par _enterClan au démarrage).
+                                    await _gshipJoinRequests(g, me, secret);
+
                                     // 4. CLAN D'ORIGINE DISPARU (dissous au départ de son représentant) : le
                                     //    clan d'un co-représentant, où l'enfant est membre, devient l'origine.
                                     await _gshipRehome(g, fresh);
@@ -1146,6 +1112,9 @@ extension Worker_multiclan on worker {
                                     return false;
                                 } finally {
                                     _gshipApplying = false;
+                                    // Un clan autorisé par un représentant : l'entrée, maintenant. Au démarrage,
+                                    // c'est _enterClan qui la fait, une fois tout le reste en place.
+                                    if (_joinDeposit != null && !_gshipEntering) unawaited(_consumeJoinDeposit());
                                 }
     }
 
@@ -1323,7 +1292,13 @@ extension Worker_multiclan on worker {
                                 final me = _authUserId.isNotEmpty ? _authUserId : _userId;
                                 final secret = (await _gshipSecrets())[me] ?? "";
                                 if (secret.isEmpty) return false;
-                                final left = await _applyGuardianship();
+                                _gshipEntering = true;
+                                bool left;
+                                try {
+                                    left = await _applyGuardianship();
+                                } finally {
+                                    _gshipEntering = false;
+                                }
                                 if (!left) _startGshipVigilance(secret);
                                 return left;
     }
@@ -1368,13 +1343,19 @@ extension Worker_multiclan on worker {
                                 final wards = await _myWards();
                                 final has   = wards.isNotEmpty;
                                 String desc(String key) => TranslationRegistry.translate(has ? key : "guardian_hub_no_ward");
+                                final pending = has ? (await _wardRequests()).length : 0;
                                 final rows = <Map<String, dynamic>>[
-                                    {"id": "guest_auth", "label": TranslationRegistry.translate("guardian_hub_guest_auth"),
-                                     "desc": desc("guardian_hub_guest_auth_desc"), "icon": "face", "enabled": has},
+                                    {"id": "guest_requests", "label": TranslationRegistry.translate("guardian_hub_guest_requests"),
+                                     "desc": has ? TranslationRegistry.translate(pending > 0 ? "guardian_hub_guest_requests_n" : "guardian_hub_guest_requests_none")
+                                                       .replaceAll("{n}", pending.toString())
+                                                 : TranslationRegistry.translate("guardian_hub_no_ward"),
+                                     "icon": "face", "enabled": has},
                                     {"id": "ward_clans", "label": TranslationRegistry.translate("guardian_hub_ward_clans"),
                                      "desc": desc("guardian_hub_ward_clans_desc"), "icon": "face", "enabled": has},
                                     {"id": "cog_add",    "label": TranslationRegistry.translate("guardian_hub_cog_add"),
                                      "desc": desc("guardian_hub_cog_add_desc"), "icon": "group_add", "enabled": has},
+                                    {"id": "cog_add_code", "label": TranslationRegistry.translate("guardian_hub_cog_add_code"),
+                                     "desc": desc("guardian_hub_cog_add_code_desc"), "icon": "link", "enabled": has},
                                     {"id": "cog_become", "label": TranslationRegistry.translate("guardian_hub_cog_become"),
                                      "desc": TranslationRegistry.translate("guardian_hub_cog_become_desc"), "icon": "share"},
                                 ];
@@ -1385,9 +1366,19 @@ extension Worker_multiclan on worker {
 
                                 final id = (event is Map ? event["id"]?.toString() : null) ?? "";
                                 switch (id) {
-                                    case "guest_auth":
+                                    case "guest_requests":
+                                        _guardReq  = null;
+                                        _wardMode  = "requests";
+                                        _wardChild = "";
+                                        _wardArmed = "";
+                                        DvOrb.navigate_new("ward_pick_page");
+                                        break;
                                     case "cog_add":
-                                        await _scanGuardianRequest(id == "guest_auth" ? "guest" : "cog");
+                                        await _scanGuardianRequest("cog");
+                                        break;
+                                    case "cog_add_code":
+                                        _gpinToken = "";
+                                        DvOrb.navigate_new("guardian_pin_page");
                                         break;
                                     case "ward_clans":
                                         _guardReq  = null;
@@ -1402,8 +1393,8 @@ extension Worker_multiclan on worker {
                                 }
     }
 
-    // Le représentant scanne le QR code montré par l'autre adulte (chef de B, ou candidat
-    // co-représentant). Un code qui n'est pas du type attendu est ignoré, avec un message.
+    // Le représentant scanne le QR code montré par le candidat co-représentant. Un code qui
+    // n'est pas du type attendu est ignoré, avec un message.
     Future<void> _scanGuardianRequest(String expected) async {
 
                                 await deva_set("commons.qrcodereader.result", "");
@@ -1420,13 +1411,13 @@ extension Worker_multiclan on worker {
                                 await _openGuardianRequest(req);
     }
 
-    // Décode ddust://guestreq?d=… ou ddust://cogreq?d=… (base64url d'un JSON). Rend null si ce
-    // n'en est pas un, s'il est incomplet ou échu.
+    // Décode ddust://cogreq?d=… (base64url d'un JSON). Rend null si ce n'en est pas un, s'il est
+    // incomplet ou échu.
     Map<String, dynamic>? _parseGuardianUri(String content) {
 
                                 final uri = Uri.tryParse(content.trim());
                                 if (uri == null || uri.scheme != "ddust") return null;
-                                if (uri.host != "guestreq" && uri.host != "cogreq") return null;
+                                if (uri.host != "cogreq") return null;
                                 try {
                                     final d   = uri.queryParameters["d"] ?? "";
                                     final raw = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(d))));
@@ -1442,10 +1433,6 @@ extension Worker_multiclan on worker {
                                 final t = p["t"]?.toString() ?? "";
                                 final exp = DateTime.tryParse(p["exp"]?.toString() ?? "");
                                 if (exp != null && DateTime.now().toUtc().isAfter(exp.toUtc())) return null;
-                                if (t == "guest") {
-                                    if ((p["c"]?.toString() ?? "").isEmpty) return null;
-                                    return p;
-                                }
                                 if (t == "cog") {
                                     if ((p["u"]?.toString() ?? "").isEmpty || (p["d"]?.toString() ?? "").isEmpty
                                         || (p["k"]?.toString() ?? "").isEmpty) return null;
@@ -1454,7 +1441,7 @@ extension Worker_multiclan on worker {
                                 return null;
     }
 
-    // Une demande d'adulte reçue (QR scanné, ou lien + code) : choix de l'enfant.
+    // La demande d'un candidat co-représentant (QR scanné, ou lien + code) : choix de l'enfant.
     Future<void> _openGuardianRequest(Map<String, dynamic> req) async {
 
                                 final region = await _homeRegion();
@@ -1478,10 +1465,8 @@ extension Worker_multiclan on worker {
 
                                 final req = _guardReq;
                                 String hint;
-                                if (_wardMode == "guest" && req != null) {
-                                    hint = TranslationRegistry.translate("ward_pick_guest_hint")
-                                        .replaceAll("{clan}",  req["n"]?.toString() ?? "")
-                                        .replaceAll("{chief}", req["h"]?.toString() ?? "");
+                                if (_wardMode == "requests") {
+                                    hint = TranslationRegistry.translate("ward_requests_hint");
                                 } else if (_wardMode == "cog" && req != null) {
                                     hint = TranslationRegistry.translate("ward_pick_cog_hint")
                                         .replaceAll("{name}", req["n"]?.toString() ?? "");
@@ -1502,7 +1487,28 @@ extension Worker_multiclan on worker {
     Future<void> _pushWardRows() async {
 
                                 final rows = <Map<String, dynamic>>[];
-                                if (_wardMode == "clans" && _wardChild.isNotEmpty) {
+                                if (_wardMode == "requests") {
+                                    // Une ligne par demande en attente : l'enfant, le clan qui l'accueille.
+                                    final reqs = await _wardRequests();
+                                    for (final r in reqs) {
+                                        final req = r["req"] as Map<String, dynamic>;
+                                        final at  = DateTime.tryParse(req["requested_at"]?.toString() ?? "")?.toLocal();
+                                        rows.add({
+                                            "id":    "${r["childId"]}|${r["joinId"]}",
+                                            "label": TranslationRegistry.translate("ward_request_row")
+                                                .replaceAll("{name}", (r["name"] as String).isNotEmpty ? r["name"] as String : "?")
+                                                .replaceAll("{clan}", req["clan_name"]?.toString() ?? ""),
+                                            "desc":  TranslationRegistry.translate("ward_request_row_desc")
+                                                .replaceAll("{chief}", req["chief_name"]?.toString() ?? "")
+                                                .replaceAll("{date}",  at == null ? "" : _storeShortDate(at)),
+                                            "icon":  "face",
+                                        });
+                                    }
+                                    if (reqs.isEmpty) {
+                                        rows.add({"id": "", "label": TranslationRegistry.translate("ward_requests_none"),
+                                                  "icon": "face", "enabled": false});
+                                    }
+                                } else if (_wardMode == "clans" && _wardChild.isNotEmpty) {
                                     // Les clans de l'enfant choisi : tap = armer le retrait, second tap = retirer.
                                     final w = await _asGuardianOf(_wardChild);
                                     final g = w?.$1;
@@ -1541,7 +1547,20 @@ extension Worker_multiclan on worker {
                                 final id = (event is Map ? event["id"]?.toString() : null) ?? "";
                                 if (id.isEmpty) return;
                                 switch (_wardMode) {
-                                    case "guest": await _authorizeGuestClan(id); break;
+                                    case "requests":
+                                        // La demande s'ouvre dans la déclaration (deux boutons, puis
+                                        // « J'accepte » / « Je refuse »), en mode représentant.
+                                        // `{enfant}|{joinId}` ; l'identifiant de l'enfant seul désigne sa
+                                        // première demande en attente (le moteur de test ne connaît pas joinId).
+                                        final parts = id.split("|");
+                                        final r = (await _wardRequests()).where((x) => x["childId"] == parts[0]
+                                            && (parts.length < 2 || x["joinId"] == parts[1])).firstOrNull;
+                                        if (r == null) { await _pushWardRows(); return; }
+                                        _inviteResetMemory();
+                                        _wardReq    = r;
+                                        _inviteMode = "ward_pick";
+                                        await _openInviteConsent();
+                                        break;
                                     case "cog":   await _addCoGuardian(id);      break;
                                     case "clans":
                                         if (_wardChild.isEmpty) {
@@ -1562,29 +1581,341 @@ extension Worker_multiclan on worker {
                                 }
     }
 
-    // AUTORISER UN CLAN (§ 5.1) : guest_auth.{clanB}, 7 jours pour entrer. Rien ne repart vers B.
-    Future<void> _authorizeGuestClan(String childId) async {
+    // -----------------------------------------------------------------------
+    // --- Un enfant demande un autre clan : la demande va à ses représentants
+    // -----------------------------------------------------------------------
+    //
+    // L'enfant, déjà membre d'un clan A, montre patte blanche à l'adulte d'un clan B, qui l'accueille
+    // sans rien décider pour lui (acquittement `guest`). Le dépôt arrive sur le téléphone de
+    // l'enfant ; son app y voit qu'aucun représentant n'a encore autorisé B, et RELAIE la demande
+    // dans sa représentation (guardianship/{childId}.join_requests.{joinId}). Le représentant la
+    // reçoit (notification), la lit quand il veut (« Mes enfants » → « Demandes d'autres clans »),
+    // et décide : son oui écrit l'autorisation (guest_auth, 7 jours) et sa déclaration ; l'app de
+    // l'enfant, qui applique les gestes de ses représentants, entre alors dans B avec le dépôt
+    // qu'elle a gardé.
+    //
+    // ⚠ LE CLAN B N'ACCÈDE JAMAIS À LA REPRÉSENTATION. C'est l'app de l'enfant, qui en détient le
+    //   secret, qui écrit la demande, et qui prévient le chef de B de l'issue (ses appareils
+    //   voyagent dans le dépôt).
+    // ⚠ LE DÉPÔT EST GARDÉ SUR LE TÉLÉPHONE DE L'ENFANT (worker.guest_joins.{joinId}) : il est
+    //   connecté, son layer de compte peut le porter, et la décision peut prendre des jours. Le
+    //   secret de B qu'il contient est celui de tout membre de B.
 
-                                final req = _guardReq;
-                                if (req == null) return;
-                                final w = await _asGuardianOf(childId);
-                                if (w == null) return;
-                                final clanB = req["c"]?.toString() ?? "";
+    // CÔTÉ ENFANT : le dépôt d'un clan pas encore autorisé.
+    Future<void> _guestJoinPark(Map<String, dynamic> d) async {
+
+                                final me      = _authUserId.isNotEmpty ? _authUserId : _userId;
+                                final joinId  = d["joinId"]?.toString() ?? "";
+                                final clanB   = d["clanId"]?.toString() ?? "";
+                                final secret  = (await _gshipSecrets())[me] ?? "";
+                                if (secret.isEmpty || joinId.isEmpty || clanB.isEmpty) {
+                                    await _joinRefused("kid_needs_guardian_auth");
+                                    return;
+                                }
+                                await deva_set("worker.guest_joins.$joinId", jsonEncode(d));
+                                await Deva.instance.store();
                                 final now   = DateTime.now().toUtc();
-                                final me    = _authUserId.isNotEmpty ? _authUserId : _userId;
                                 final patch = Dvidle({});
-                                patch.set("guest_auth.$clanB.clan_name",  req["n"]?.toString() ?? "");
-                                patch.set("guest_auth.$clanB.chief_name", req["h"]?.toString() ?? "");
-                                patch.set("guest_auth.$clanB.region",     req["r"]?.toString() ?? "");
-                                patch.set("guest_auth.$clanB.by",         me);
-                                patch.set("guest_auth.$clanB.at",         now.toIso8601String());
-                                patch.set("guest_auth.$clanB.expires_at", now.add(const Duration(days: _kGuestAuthDays)).toIso8601String());
-                                patch.set("guest_auth.$clanB.used_at",    "");
-                                patch.set("guest_auth.$clanB.revoked_at", "");
-                                final ok = await _gshipGesture(childId, w.$2, "guest_authorized", clanId: clanB, patch: patch);
-                                _guardReq = null;
+                                patch.set("join_requests.$joinId.clan_id",      clanB);
+                                patch.set("join_requests.$joinId.clan_name",    d["clanName"]?.toString() ?? "");
+                                patch.set("join_requests.$joinId.chief_id",     d["adminId"]?.toString() ?? "");
+                                patch.set("join_requests.$joinId.chief_name",   d["adminName"]?.toString() ?? "");
+                                patch.set("join_requests.$joinId.region",       d["region"]?.toString() ?? "");
+                                patch.set("join_requests.$joinId.requested_at", now.toIso8601String());
+                                patch.set("join_requests.$joinId.expires_at",
+                                    now.add(const Duration(days: _kGuestAuthDays)).toIso8601String());
+                                if (_joinAssent != null) patch.set("join_requests.$joinId.assent", _joinAssent);
+                                if ((d["ack"]?.toString() ?? "").isNotEmpty) patch.set("join_requests.$joinId.guest_ack", d["ack"]);
+                                patch.set("join_requests.$joinId.status",       "pending");
+                                final ok = await _gshipGesture(me, secret, "guest_requested", clanId: clanB, patch: patch);
+                                if (ok) {
+                                    await _notifyGuardians(me, secret, "guest_request_notif", {
+                                        "name": (await Deva.instance.get("session.user.name"))?.toString() ?? "",
+                                        "clan": d["clanName"]?.toString() ?? "",
+                                    });
+                                }
+                                _joinAssent = null;
+                                deva_log("info", "[guardian] demande d'entrée dans $clanB relayée aux représentants (ok=$ok)");
+                                _joinNotice = ok ? "join_guest_waiting" : "ward_error";
+                                DvOrb.navigate_reset("dashboard");
+                                DvOrb.navigate_new("my_clans_page");
+    }
+
+    // Le dépôt gardé pour une demande, ou null.
+    Future<Map<String, dynamic>?> _guestJoinLocal(String joinId) async {
+
+                                final raw = (await deva_get("worker.guest_joins.$joinId"))?.toString() ?? "";
+                                if (raw.isEmpty) return null;
+                                try {
+                                    final m = jsonDecode(raw);
+                                    return m is Map ? Map<String, dynamic>.from(m) : null;
+                                } catch (_) {
+                                    return null;
+                                }
+    }
+
+    Future<void> _guestJoinDrop(String joinId) async {
+
+                                await deva_set("worker.guest_joins.$joinId", "");
+                                await Deva.instance.store();
+    }
+
+    // CÔTÉ ENFANT (dans _applyGuardianship) : l'issue de ses demandes. Un oui → le dépôt gardé est
+    // mis de côté pour l'entrée (_joinDeposit, consommée par l'appelant) ; un non ou un délai
+    // passé → le dépôt est jeté, et le chef du clan qui l'accueillait est prévenu.
+    Future<void> _gshipJoinRequests(Dvidle g, String me, String secret) async {
+
+                                final reqs = _mcMap(g.get("join_requests"));
+                                final now  = DateTime.now().toUtc();
+                                for (final e in reqs.entries) {
+                                    final id = e.key.toString();
+                                    final v  = e.value;
+                                    if (v is! Map) continue;
+                                    final status = v["status"]?.toString() ?? "";
+                                    if (status != "pending" && status != "accepted" && status != "refused") continue;
+                                    final local = await _guestJoinLocal(id);
+                                    final mark  = Dvidle({});
+                                    if (status == "accepted") {
+                                        if (local == null) {
+                                            // Décidé, mais le dépôt n'est plus là (réinstallation, autre
+                                            // appareil) : il faudra que le chef accueille de nouveau.
+                                            mark.set("join_requests.$id.status", "lost");
+                                            await _gshipWrite(me, secret, mark);
+                                            _joinNotice = "join_guest_lost";
+                                            continue;
+                                        }
+                                        if (_joinDeposit != null || _joinAdmitting) continue;   // une entrée à la fois
+                                        _joinDeposit = local;
+                                        _joinRepAck  = v["ack"]?.toString() ?? "";
+                                        _joinGuestId = id;
+                                        continue;
+                                    }
+                                    final expired = status == "pending"
+                                        && (DateTime.tryParse(v["expires_at"]?.toString() ?? "")?.isBefore(now) ?? false);
+                                    if (status == "pending" && !expired) continue;
+                                    mark.set("join_requests.$id.status", status == "refused" ? "closed" : "expired");
+                                    await _gshipWrite(me, secret, mark);
+                                    if (status != "refused") await _audit("guest_expired", {"childId": me, "clanId": v["clan_id"] ?? ""});
+                                    if (local != null) {
+                                        await _notifyGuestChief(local, status == "refused" ? "guest_refused_notif" : "guest_expired_notif");
+                                        await _guestJoinDrop(id);
+                                    }
+                                    _joinNotice = status == "refused" ? "join_guest_refused" : "join_guest_expired";
+                                }
+    }
+
+    // Après l'entrée autorisée : la demande a servi.
+    Future<void> _guestJoinDone(String joinId) async {
+
+                                final me     = _authUserId.isNotEmpty ? _authUserId : _userId;
+                                final secret = (await _gshipSecrets())[me] ?? "";
+                                if (secret.isNotEmpty) {
+                                    final mark = Dvidle({});
+                                    mark.set("join_requests.$joinId.status", "used");
+                                    await _gshipWrite(me, secret, mark);
+                                }
+                                await _guestJoinDrop(joinId);
+    }
+
+    // Le tap sur « ta famille a répondu » : la représentation est relue, l'entrée suit.
+    Future<void> on_guest_decided(dynamic caller, dynamic event) async {
+
+                                await _applyGuardianship();
+    }
+
+    // CÔTÉ ENFANT : prévient ses représentants (leurs appareils, lus sur leurs fiches dans les
+    // clans qu'il partage avec eux), chacun dans SA langue.
+    Future<void> _notifyGuardians(String childId, String secret, String key, Map<String, String> vars) async {
+
+                                try {
+                                    final g = await _gshipRead(childId, secret);
+                                    final reps = _gshipReps(g);
+                                    if (reps.isEmpty) return;
+                                    final region  = await _homeRegion();
+                                    final session = await _readSession(region);
+                                    final done    = <String>{};
+                                    for (final c in _activeClans(session)) {
+                                        for (final rep in reps) {
+                                            if (done.contains(rep)) continue;
+                                            Dvidle? f;
+                                            try {
+                                                f = await _cloud?.read("workers", "clans_players/${c["id"]}/players", rep,
+                                                    ownerId: c["secret"], region: region);
+                                            } catch (_) {}
+                                            if (f == null || f.get("enabled") == false) continue;
+                                            done.add(rep);
+                                            await _notifyDevices(f, key, vars, c["id"]!, open: "worker.open_guardian_hub");
+                                        }
+                                    }
+                                } catch (e) {
+                                    deva_log("warning", "[guardian] _notifyGuardians: $e");
+                                }
+    }
+
+    // CÔTÉ REPRÉSENTANT : prévient l'enfant (ses appareils, sur sa fiche dans un clan commun).
+    Future<void> _notifyWard(String childId, Dvidle g, String key, Map<String, String> vars) async {
+
+                                try {
+                                    final region  = await _homeRegion();
+                                    final session = await _readSession(region);
+                                    final kidClans = _mcMap(g.get("clans"));
+                                    for (final c in _activeClans(session)) {
+                                        final k = kidClans[c["id"]];
+                                        if (k is! Map || (k["left_at"]?.toString() ?? "").isNotEmpty) continue;
+                                        Dvidle? f;
+                                        try {
+                                            f = await _cloud?.read("workers", "clans_players/${c["id"]}/players", childId,
+                                                ownerId: c["secret"], region: region);
+                                        } catch (_) {}
+                                        if (f == null) continue;
+                                        await _notifyDevices(f, key, vars, c["id"]!, open: "worker.on_guest_decided");
+                                        return;
+                                    }
+                                } catch (e) {
+                                    deva_log("warning", "[guardian] _notifyWard: $e");
+                                }
+    }
+
+    // CÔTÉ ENFANT : prévient le chef du clan qui l'accueillait (appareils et langue reçus dans le
+    // dépôt) que ses parents ont refusé, ou n'ont pas répondu à temps.
+    Future<void> _notifyGuestChief(Map<String, dynamic> d, String key) async {
+
+                                final devices = List<dynamic>.from(d["chief_devices"] as List? ?? const [])
+                                    .map((x) => x.toString()).where((x) => x.isNotEmpty).toList();
+                                if (devices.isEmpty) return;
+                                final f = Dvidle({"devices": devices, "lang": d["chief_lang"]?.toString() ?? "fr"});
+                                await _notifyDevices(f, key, {
+                                    "name": (await Deva.instance.get("session.user.name"))?.toString() ?? "",
+                                    "clan": d["clanName"]?.toString() ?? "",
+                                }, d["clanId"]?.toString() ?? "", prefix: d["clanName"]?.toString() ?? "");
+    }
+
+    // Une notification vers les appareils d'une fiche, dans la langue de cette fiche, au nom du
+    // clan [clanId] (scope et data.clanId : le tap y bascule, le silence du clan l'écarte).
+    Future<void> _notifyDevices(Dvidle fiche, String key, Map<String, String> vars, String clanId,
+                                {String open = "", String prefix = ""}) async {
+
+                                final devices = List<dynamic>.from(fiche.get("devices") as List? ?? const [])
+                                    .map((d) => d.toString()).where((d) => d.isNotEmpty).toList();
+                                if (devices.isEmpty) return;
+                                final lang = fiche.get("lang")?.toString() ?? "fr";
+                                var text = (await deva_get("lang.translations.$key.$lang"))?.toString() ?? "";
+                                if (text.isEmpty) text = (await deva_get("lang.translations.$key.fr"))?.toString() ?? "";
+                                if (text.isEmpty) return;
+                                vars.forEach((k, v) => text = text.replaceAll("{$k}", v));
+                                if (prefix.isNotEmpty) text = "[$prefix] $text";
+                                try {
+                                    final m = dvmsg(range: 'global', label: text, recipes: devices, category: 'clan',
+                                        actions: open.isEmpty ? null : {'open': {'action': open, 'wakeup': true}});
+                                    if (clanId.isNotEmpty) {
+                                        m.set("scope", clanId);
+                                        m.set("data.clanId", clanId);
+                                    }
+                                    final r = await _messaging?.send(m);
+                                    deva_log("info", "[guardian] notif $key → ${devices.length} appareil(s) sent=${r?.get('sent')}");
+                                } catch (e) {
+                                    deva_log("warning", "[guardian] notif $key FAILED: $e");
+                                }
+    }
+
+    // CÔTÉ REPRÉSENTANT : les demandes en attente, pour l'écran de choix (mode « requests »).
+    Future<List<Map<String, dynamic>>> _wardRequests() async {
+
+                                final out = <Map<String, dynamic>>[];
+                                final now = DateTime.now().toUtc();
+                                for (final w in await _myWards()) {
+                                    final g = w["g"] as Dvidle;
+                                    _mcMap(g.get("join_requests")).forEach((id, v) {
+                                        if (v is! Map || v["status"]?.toString() != "pending") return;
+                                        final exp = DateTime.tryParse(v["expires_at"]?.toString() ?? "");
+                                        if (exp != null && exp.isBefore(now)) return;
+                                        out.add({"childId": w["id"], "name": w["name"], "secret": w["secret"],
+                                                 "joinId": id.toString(), "req": Map<String, dynamic>.from(v)});
+                                    });
+                                }
+                                return out;
+    }
+
+    // Le panneau de tête de la déclaration du représentant : qui, quel clan, quand, et ce que
+    // l'enfant a lu.
+    String _wardHead() {
+
+                                final w   = _wardReq;
+                                final req = w?["req"] is Map ? Map<String, dynamic>.from(w!["req"] as Map) : <String, dynamic>{};
+                                final d   = DateTime.tryParse(req["requested_at"]?.toString() ?? "")?.toLocal();
+                                final when = d == null ? "" :
+                                    "${_storeShortDate(d)} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}";
+                                final assent = _mcMap(req["assent"]);
+                                final key    = assent["text_key"]?.toString() ?? "";
+                                final shown  = _kAssentTextKeys.contains(key) ? TranslationRegistry.processLabel("@@@T:$key@@@") : "";
+                                return TranslationRegistry.processLabel("@@@T:ward_request_head@@@")
+                                    .replaceAll("{name}",  (w?["name"] as String?)?.isNotEmpty == true ? w!["name"] as String : "?")
+                                    .replaceAll("{clan}",  req["clan_name"]?.toString() ?? "")
+                                    .replaceAll("{chief}", req["chief_name"]?.toString() ?? "")
+                                    .replaceAll("{date}",  when)
+                                    .replaceAll("{text}",  shown);
+    }
+
+    // CÔTÉ REPRÉSENTANT : « J'accepte » / « Je refuse ».
+    Future<void> _wardDecide(bool accept) async {
+
+                                final w = _wardReq;
+                                if (w == null) return;
+                                final childId = w["childId"].toString();
+                                final joinId  = w["joinId"].toString();
+                                final req     = Map<String, dynamic>.from(w["req"] as Map);
+                                final clanB   = req["clan_id"]?.toString() ?? "";
+                                final mine    = await _asGuardianOf(childId);
+                                if (mine == null || clanB.isEmpty) return;
+                                final me    = _authUserId.isNotEmpty ? _authUserId : _userId;
+                                final now   = DateTime.now().toUtc();
+                                final patch = Dvidle({});
+                                bool ok;
+                                if (accept) {
+                                    // La déclaration du représentant, avec l'accord de l'enfant qui l'a
+                                    // précédée (et le numéro de la demande) : elle se colle à la preuve de
+                                    // l'enfant à son entrée, et s'enregistre ici, sous son compte.
+                                    final sealed = await _inviteSeal("guardian", _inviteReading,
+                                        assent: <String, dynamic>{..._mcMap(req["assent"]), "n": joinId});
+                                    if (sealed.isEmpty) return;
+                                    if (!await _recordDecision(sealed)) {
+                                        await _revealLabel("invite_consent_screen/notice", "ward_error");
+                                        return;
+                                    }
+                                    patch.set("guest_auth.$clanB.clan_name",  req["clan_name"]?.toString() ?? "");
+                                    patch.set("guest_auth.$clanB.chief_name", req["chief_name"]?.toString() ?? "");
+                                    patch.set("guest_auth.$clanB.region",     req["region"]?.toString() ?? "");
+                                    patch.set("guest_auth.$clanB.by",         me);
+                                    patch.set("guest_auth.$clanB.at",         now.toIso8601String());
+                                    patch.set("guest_auth.$clanB.expires_at", now.add(const Duration(days: _kGuestAuthDays)).toIso8601String());
+                                    patch.set("guest_auth.$clanB.used_at",    "");
+                                    patch.set("guest_auth.$clanB.revoked_at", "");
+                                    patch.set("join_requests.$joinId.status",     "accepted");
+                                    patch.set("join_requests.$joinId.ack",        sealed);
+                                    patch.set("join_requests.$joinId.decided_by", me);
+                                    patch.set("join_requests.$joinId.decided_at", now.toIso8601String());
+                                    ok = await _gshipGesture(childId, mine.$2, "guest_authorized", clanId: clanB, patch: patch);
+                                } else {
+                                    patch.set("join_requests.$joinId.status",     "refused");
+                                    patch.set("join_requests.$joinId.decided_by", me);
+                                    patch.set("join_requests.$joinId.decided_at", now.toIso8601String());
+                                    ok = await _gshipGesture(childId, mine.$2, "guest_refused", clanId: clanB, patch: patch);
+                                }
+                                if (ok) {
+                                    await _notifyWard(childId, mine.$1, accept ? "guest_decided_yes_notif" : "guest_decided_no_notif",
+                                        {"clan": req["clan_name"]?.toString() ?? ""});
+                                }
+                                _wardReq = null;
+                                _inviteResetMemory();
                                 DvOrb.navigate_back();
-                                await _revealLabel("guardian_hub_page/error", ok ? "ward_guest_done" : "ward_error");
+                                final h = await DvOrb.wait_for_shape("ward_pick_page/hint");
+                                if (h != null) {
+                                    h.set("shape.label", TranslationRegistry.translate(
+                                        !ok ? "ward_error" : accept ? "ward_request_done" : "ward_request_refused"));
+                                    if (h is DvLabel) await h.computeDisplay();
+                                    h.refreshUI();
+                                }
+                                await _pushWardRows();
     }
 
     // RETIRER L'ENFANT D'UN CLAN (§ 6.1) : revoked_at ; l'app de l'enfant fait le reste.
@@ -1645,16 +1976,8 @@ extension Worker_multiclan on worker {
     // --- Écran QR des échanges entre adultes
     // -----------------------------------------------------------------------
 
-    // Chef de B : « Accueillir un enfant d'un autre clan ».
-    Future<void> on_welcome_guest_child(dynamic caller, dynamic event) async {
-
-                                if ((await _clanIdIfChief("on_welcome_guest_child")).isEmpty) return;
-                                await _openGuardianQr("guest");
-    }
-
     Future<void> _openGuardianQr(String mode) async {
 
-                                _gqrMode  = mode;
                                 _gqrToken = "";
                                 _gqrDrop  = null;
                                 if (mode == "cog") {
@@ -1664,19 +1987,13 @@ extension Worker_multiclan on worker {
                                 DvOrb.navigate_new("guardian_qr_page");
     }
 
-    // Construit la charge du QR code selon le mode. Aucune donnée d'enfant : le chef de B ne
-    // sait pas qui viendra, le candidat ne connaît pas encore l'enfant.
+    // Construit la charge du QR code du candidat co-représentant. Aucune donnée d'enfant : il ne
+    // connaît pas encore l'enfant.
     Future<Map<String, dynamic>> _gqrPayload() async {
 
                                 final region = await _homeRegion();
                                 final name   = (await Deva.instance.get("session.user.name"))?.toString() ?? "";
                                 final exp    = DateTime.now().toUtc().add(const Duration(hours: 72)).toIso8601String();
-                                if (_gqrMode == "guest") {
-                                    final session = await _readSession(region);
-                                    final clanId  = session?.get("steps.clan.clanId")?.toString() ?? "";
-                                    final clanN   = (await Deva.instance.get("session.clan.name"))?.toString() ?? "";
-                                    return {"v": 1, "t": "guest", "c": clanId, "n": clanN, "h": name, "r": region, "exp": exp};
-                                }
                                 final me = _authUserId.isNotEmpty ? _authUserId : _userId;
                                 return {"v": 1, "t": "cog", "u": me, "n": name, "d": _gqrDropId, "k": _gqrDropKey, "r": region, "exp": exp};
     }
@@ -1684,23 +2001,22 @@ extension Worker_multiclan on worker {
     Future<void> on_guardian_qr_appear(dynamic caller, dynamic event) async {
 
                                 final p    = await _gqrPayload();
-                                final host = _gqrMode == "guest" ? "guestreq" : "cogreq";
                                 final d    = base64Url.encode(utf8.encode(jsonEncode(p))).replaceAll("=", "");
                                 final qr   = await DvOrb.wait_for_shape("guardian_qr_page/qrcode");
-                                qr?..set("shape.content", "ddust://$host?d=$d")..refreshUI();
+                                qr?..set("shape.content", "ddust://cogreq?d=$d")..refreshUI();
                                 final intro = DvOrb.get_shape_by_id("guardian_qr_page/intro");
                                 if (intro != null) {
-                                    intro.set("shape.label", TranslationRegistry.translate(
-                                        _gqrMode == "guest" ? "guardian_qr_guest_intro" : "guardian_qr_cog_intro"));
+                                    intro.set("shape.label", TranslationRegistry.translate("guardian_qr_cog_intro"));
                                     if (intro is DvLabel) await intro.computeDisplay();
                                     intro.refreshUI();
                                 }
                                 _hideShapes(["guardian_qr_page/code", "guardian_qr_page/share", "guardian_qr_page/confirm"]);
-                                if (_gqrMode == "cog") _startDropWatch();
+                                _startDropWatch();
     }
 
     // À distance : un code à 6 chiffres affiché, à dicter, et un lien à partager
-    // (ddust://invitepin?token=…, le même que l'invitation d'un clan). Le code n'est jamais dans le lien.
+    // (ddust://cogpin?token=…, saisi par le représentant sur guardian_pin_page). Le code n'est
+    // jamais dans le lien.
     Future<void> on_guardian_qr_remote(dynamic caller, dynamic event) async {
 
                                 final lobby = ModuleRegistry.create("dvvirtuallobby");
@@ -1735,13 +2051,18 @@ extension Worker_multiclan on worker {
                                 _stopDropWatch();
                                 final id = _gqrDropId;
                                 if (id.isEmpty) return;
-                                _homeRegion().then((region) {
+                                _homeRegion().then((region) async {
                                     if (region.isEmpty) return;
                                     _dropVigilance = _cloud?.watch("workers", "guardian_drops", id, (doc, reason) {
                                         if (doc == null) return;
                                         _onDropArrived(doc);
                                     }, region: region, ownerId: "drop",
                                        strategy: DvWatchStrategy.fibonacci(baseMs: 3000, maxMs: 20000));
+                                    // Une vigilance ne rapporte jamais ce qui était là avant elle.
+                                    try {
+                                        final doc = await _cloud?.read("workers", "guardian_drops", id, region: region, ownerId: "drop");
+                                        if (doc != null) await _onDropArrived(doc);
+                                    } catch (_) {}
                                 });
     }
 
@@ -1803,6 +2124,55 @@ extension Worker_multiclan on worker {
                                 _stopDropWatch();
                                 _gqrToken = "";
                                 _gqrDrop  = null;
+    }
+
+    // -----------------------------------------------------------------------
+    // --- Co-représentant à distance : le lien et le code (guardian_pin_page)
+    // -----------------------------------------------------------------------
+    //
+    // Le candidat co-représentant qui n'est pas à côté du représentant partage un lien
+    // (ddust://cogpin?token=…) et dicte un code à six chiffres (on_guardian_qr_remote). Le
+    // représentant ouvre le lien (ou colle le lien) sur cet écran, tape le code, puis choisit
+    // l'enfant. C'est le seul échange à distance par lien qui reste : l'adhésion à un clan passe
+    // par la boîte d'adhésion (worker_join.dart).
+
+    Future<void> on_guardian_pin_link(dynamic caller, dynamic event) async {
+
+                                final token = (event is Map ? event["token"]?.toString() : null) ?? "";
+                                if (token.isEmpty) return;
+                                _gpinToken = token;
+                                if (!(_cloud?.isReady() ?? false) || _anon || _userId.isEmpty) return;
+                                DvOrb.navigate_new("guardian_pin_page");
+    }
+
+    Future<void> on_guardian_pin_appear(dynamic caller, dynamic event) async {
+
+                                _hideShapes(["guardian_pin_page/error"]);
+                                if (_gpinToken.isEmpty) return;
+                                final field = await DvOrb.wait_for_shape("guardian_pin_page/token");
+                                if ((field?.get("shape.value")?.toString() ?? "").isNotEmpty) return;
+                                field?..set("shape.value", _gpinToken)..refreshUI();
+    }
+
+    Future<void> on_guardian_pin_confirm(dynamic caller, dynamic event) async {
+
+                                var token = DvOrb.get_shape_by_id("guardian_pin_page/token")?.get("shape.value")?.toString().trim() ?? "";
+                                if (token.isEmpty) token = _gpinToken;
+                                // Le champ peut contenir le jeton brut OU le lien complet.
+                                final fromUri = Uri.tryParse(token)?.queryParameters["token"];
+                                if (fromUri != null && fromUri.isNotEmpty) token = fromUri;
+                                final pin = DvOrb.get_shape_by_id("guardian_pin_page/pin")?.get("shape.value")?.toString().trim() ?? "";
+                                final lobby = ModuleRegistry.create("dvvirtuallobby");
+                                final payload = (token.isEmpty || pin.isEmpty || lobby == null)
+                                    ? null : (lobby as dynamic).openInvite(token, pin) as Map?;
+                                final req = payload == null ? null : _checkGuardianPayload(Map<String, dynamic>.from(payload));
+                                if (req == null || req["t"] != "cog") {
+                                    await _revealLabel("guardian_pin_page/error", "pin_wrong");
+                                    return;
+                                }
+                                _gpinToken = "";
+                                DvOrb.navigate_back();
+                                await _openGuardianRequest(req);
     }
 
     // -----------------------------------------------------------------------

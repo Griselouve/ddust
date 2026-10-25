@@ -1,0 +1,34 @@
+test: TAC-08
+titre: Abandonner une tâche
+criticite: mineur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:combat]
+etapes:
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: clanId, non_vide: true, delai: 120}
+  - enfant: {action: seltask.vaisselle_01}
+  - enfant: {attend: combat, delai: 60}
+  - enfant: {attend_journal: "[combat] tâche assignée: vaisselle_01 → {kid}", delai: 60}
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: status, egal: assigned, delai: 60}
+  - enfant: {attend_shape: combat/cancel, delai: 60}
+  - enfant: {attend_libre: true, delai: 60}
+  # « Retraite ! » (registry_combat.yml:137-151) → _releaseTask (worker_verdict.dart:100-130).
+  - enfant: {tap: combat/cancel}
+  - enfant: {attend_journal: "[combat] tâche libérée: vaisselle_01", delai: 60}
+  - enfant: {attend_shape: combat/tiroir, delai: 60}
+verifs:
+  - enfant: {page: combat}
+  - enfant: {shape: combat/tiroir}
+  - enfant: {valeur: session.active_task, egal: ""}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: status, egal: alive}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: assignee, egal: ""}
+  - firestore: {doc: "users/{kid}", champ: active_task, egal: ""}
+  # Rien de crédité.
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: xp, egal: 0}

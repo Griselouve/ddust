@@ -132,3 +132,5 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 !/build/
 /build/builds/
+# Livraisons du builder (exe, ipa, apk) : des sorties, pas du code (2026-10-25)
+delivery/

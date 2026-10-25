@@ -89,9 +89,7 @@ data:
     # (écran 10). Images légères → parallèle, sans faire attendre. Elle démarre désormais
     # tout de suite après le choix du royaume, plus rien ne la précède.
     critical:
-      - "images/medium/intro_little_elfe.png"  # overlay pop écrans 3/4/7/9
-      - "images/medium/intro_little_hobbit.png"
-      - "images/medium/intro_little_knight.png"
+      # (les trois personnages des pops ont quitté la vague le 2026-10-21 avec dvpops)
       - "music/ambiant1.mp3"                # ambiance lancée en quittant l'écran de l'âge
       - "sounds/anim_burn.mp3"              # son de la scène burn = célébration bienvenue
                                             # clan, jouée dès le 1er dashboard (écran 10)

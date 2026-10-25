@@ -402,40 +402,27 @@ conf:
             panel:
               title: "@@@T:tuto_clan_menu_admin_title@@@"
               rows:
-                # Refonte du kebab du 2026-10-11 : le menu de base ne montre plus que ces trois gestes de
-                # chef ; « Ajouter mon enfant » ouvre le choix téléphone / pas de téléphone, et le reste
-                # (invitation à distance, enfants d'autres clans, IA du clan, parrainage…) est sous
-                # « Options avancées… ».
-                clan_qr:   { icon: "qr_code",   name: "@@@T:clan_menu_qr@@@",        desc: "@@@T:clan_menu_qr_desc@@@" }
-                add_child: { icon: "group_add", name: "@@@T:clan_menu_add_child@@@", desc: "@@@T:clan_menu_add_child_desc@@@" }
+                # Refonte du 2026-10-18 : une seule porte d'entrée, « Accueillir un joueur » (le candidat
+                # montre son QR code, le chef le scanne), puis l'enfant sans téléphone ; le reste (enfants
+                # d'autres clans, IA du clan, parrainage…) est sous « Options avancées… ».
+                welcome:       { icon: "face",      name: "@@@T:clan_menu_welcome@@@",       desc: "@@@T:clan_menu_welcome_desc@@@" }
+                create_player: { icon: "group_add", name: "@@@T:clan_menu_create_player@@@", desc: "@@@T:clan_menu_create_player_desc@@@" }
                 advanced:  { icon: "widgets",   name: "@@@T:clan_menu_advanced@@@",  desc: "@@@T:clan_menu_advanced_desc@@@" }
-          # Le couple « QR Code du clan » / « Créer un joueur », dans cet ordre : la RÈGLE d'abord,
-          # l'exception ensuite. C'est le geste que les parents ratent le plus. Le tutoriel détaillait
-          # « Créer un joueur » (l'enfant sans téléphone, le cas rare) et taisait le QR code, qui est
-          # pourtant le cas nominal de la cible — un ado a un téléphone. Les deux étapes se lisent
-          # comme une paire : sans la première, la seconde se fait passer pour la voie normale.
+          # « Accueillir un joueur » / « Créer un joueur sans téléphone », dans cet ordre : la RÈGLE
+          # d'abord, l'exception ensuite. C'est le geste que les parents ratent le plus.
           #
-          # ⚠ DEUX PAVES, UN SEUL TAP. Le commentaire ci-dessus le disait deja : « les deux
-          #   etapes se lisent comme une paire ». Elles les separaient pourtant par un tap,
-          #   et aucune des deux ne designait quoi que ce soit a l'ecran. `text` accepte une
-          #   LISTE : chaque entree devient un pave, empile sous le precedent.
+          # ⚠ DEUX PAVES, UN SEUL TAP. `text` accepte une LISTE : chaque entrée devient un pavé,
+          #   empilé sous le précédent. Deux cas distincts, le nominal et le rare : deux pavés de
+          #   cinq lignes se lisent là où un pavé de dix se saute.
           #
-          # ⚠ DEUX PAVES ET NON UN TEXTE FUSIONNE : ce sont deux cas distincts, le nominal
-          #   et le rare. Les couler dans un seul bloc de dix lignes les melangerait, et un
-          #   pave de dix lignes se saute la ou deux paves de cinq se lisent.
-          #
-          # ⚠ TROIS PAVES DEPUIS LE 2026-09-22, et l'enfant en tete. « QR Code du clan » ne fait
-          #   plus entrer qu'un adulte : un enfant n'entre qu'avec son accord, qu'il donne d'abord
-          #   sur son propre telephone et que le chef scanne avec « Accueillir un enfant ». Dire
-          #   encore « montre le QR code a ton enfant » enverrait les parents droit sur la seule
-          #   porte qui ne s'ouvre plus pour lui. L'ordre reste celui de la regle : le cas normal
-          #   d'une famille (l'enfant qui a un telephone), puis l'adulte, puis l'exception.
+          # ⚠ DEPUIS LE 2026-10-18, LE CANDIDAT MONTRE ET LE CHEF SCANNE, adulte comme enfant. Il n'y
+          #   a plus de « QR Code du clan » à montrer : dire « montre le QR code à ton enfant »
+          #   enverrait les parents vers un geste qui n'existe plus.
           recrutement:
             order: 64
             requires: { worker.is_chief: "true" }
             text:
-              - "@@@T:tuto_clan_welcome_child@@@"
-              - "@@@T:tuto_clan_qr@@@"
+              - "@@@T:tuto_clan_welcome@@@"
               - "@@@T:tuto_clan_create_player@@@"
 
       # Leçon « Créer un joueur » : MANUELLE (jamais jouée à l'arrivée sur clan_page) — worker.create_player

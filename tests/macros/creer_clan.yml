@@ -1,0 +1,11 @@
+# Depuis new_or_pick_clan : créer le clan, RÉPONDRE au questionnaire, thème donjon, jusqu'au
+# tableau de bord.
+#
+# ⚠ DÉFAUT DE L'APP CONSTATÉ LE 2026-10-18 : « Passer » le questionnaire ne crée AUCUNE tâche
+#   (« storetasks: session decisiontree vide », worker_tasks.dart:390) : le clan démarre vide.
+#   La macro y répond donc (creer_clan_questionnaire), faute de quoi tout test de tâche, de
+#   progression ou de butin n'aurait rien à faire.
+macro: creer_clan
+parametres: {clan: Les Testeurs}
+etapes:
+  - {macro: creer_clan_questionnaire, clan: "{clan}"}

@@ -403,9 +403,16 @@ build:
           # La boutique du clan (projection du callable `shop`, dvshop). Même raison que
           # clans_store : un clan recréé hériterait des possessions et du thème du précédent.
           - clans_shop
-          # Invitations privées des chefs (worker._publishInvite). Absentes de cette
-          # liste, elles survivraient au reset, avec la déclaration scellée que chacune porte.
+          # Boîtes d'adhésion (worker_join.dart). Le TTL les efface en 15 minutes, mais
+          # avec jusqu'à 24 h de retard : un reset les purge tout de suite.
+          - clans_joins
+          # Invitations privées du chef (ancien modèle à PIN, remplacé par clans_joins) :
+          # plus personne ne les écrit, purgées tant que des restes peuvent exister.
           - clans_invites
+          # Marques d'actif du mois ({AAAAMM}_{userId}) : elles alimentent le compteur
+          # d'actifs qui pilote le budget automatique. Absentes de cette liste, les joueurs
+          # d'avant le reset compteraient encore comme actifs jusqu'à leur TTL.
+          - stats_active
           # Représentation des enfants (multiclan). Absente, un enfant recréé après un reset
           # hériterait des représentants et des gestes d'un enfant qui n'existe plus.
           - guardianship
@@ -427,9 +434,37 @@ build:
           # part avec son parent.
           - store_codes
           - store_code_attempts
+          # Résumés des lots de codes : ils compteraient des codes et des usages disparus.
+          - store_batches
+          - store_batches_meta
+          # Déduplication des notifications Play (TTL) et mois offerts demandés par un
+          # autre module, rangés par scope : rien à garder une fois les clans effacés.
+          - store_rtdn_index
+          - store_month_grants
+          # Indicateurs du jour et état de la veille de chaque scope : sans cette purge,
+          # le prochain store_kpis compterait chaque clan effacé comme un départ.
+          - store_kpis
+          - store_kpi_state
           # Acquisitions de la boutique (dvshop) : purgées avec leur projection
           # (clans_shop), sinon un clan neuf retrouverait les achats d'un clan disparu.
           - shop_records
+          # Parrainage (pureferral) : codes, liens, états des parrains et essais ratés,
+          # tous rangés par scope, donc par clan effacé.
+          - referral_codes
+          - referral_links
+          - referral_scopes
+          - referral_attempts
+          # Faux Google Play (pustoremock, cible d'essai seulement : à vide en production) :
+          # la liste des clans branchés, leurs faux achats et le journal du pilotage.
+          - store_mock_clans
+          - storemock_purchases
+          - storemock_journal
+          # VOLONTAIREMENT ABSENTES : `store_config` (réglages commerciaux et liste vivante
+          # des admins, réécrits par pucatalog et admins_push, pas par un build ordinaire),
+          # `referral_config` (table lettre → région, qui ne fait que s'allonger),
+          # `referral_state` (curseur temporel du balayage, toujours valide) et
+          # `store_raw_log` (réponses brutes de Google gardées 90 jours pour recaler le
+          # faux store : ce n'est pas un état de jeu).
       - project: dvddust
         database: eu-virtuallobby
         collections: &lobby_collections
@@ -438,6 +473,19 @@ build:
           - virtuallobbysubmission
           - virtuallobbyexit
           - virtuallobbysecret
+          - records
+      # Verrous dvlock (TTL) : un verrou d'avant le reset bloquerait sa ressource
+      # jusqu'à son échéance.
+      - project: dvddust
+        database: eu-locks
+        collections: &locks_collections
+          - locks
+      # L'état de migration de chaque clan (dvautover, doc-id = clanId). JAMAIS
+      # `autover` : son document `version` est écrit par le builder, pas par le jeu.
+      - project: dvddust
+        database: eu-autover
+        collections: &autover_collections
+          - migrations
       # documents_sessions a pour doc-id l'uid Firebase, stable pour un compte Google donné :
       # sans cette purge un compte réutilisé après un reset retrouve sa région, son état légal
       # et ses CGU acceptées, et saute une partie de l'onboarding alors que son héros n'existe plus.
@@ -458,6 +506,10 @@ build:
         database: eu-sessions
         collections: &sessions_collections
           - sessions
+    # Bases VOLONTAIREMENT ABSENTES : `eu-secrets` (secrets d'infrastructure : hosting,
+    # identifiants OAuth, posés par Pulumi), `eu-aimodel` (module puvertexai), `budgets`
+    # (pubudget, non régionale), et `beta_signups` dans eu-workers (des prospects, pas
+    # des données de jeu).
     # NEUTRALISE pour le grand reset d'avant-beta : ces buckets ne portent AUCUNE donnee
     # de joueur (layers YAML du catalogue, images, sons), seulement du contenu republie
     # par un build. Les vider sans enchainer un build+deploy laisserait l'app installee
@@ -739,13 +791,25 @@ listing:
   # copie plus ; sans `assets_dir:` il les copierait dans build/assets/) :
   #   icône 512x512      hosting/web/icon-512.png
   #   feature 1024x500   resources_cloud/donjon/images/big/playstore.png
-  #   captures 1 à 8     resources_others/showcase/en/ : combat-01, salon_tasks, combat,
-  #                      clan_page, avatar_explorer, new_or_pick_clan,
-  #                      butin_open_page-02, money_page (.png)
+  #   captures 1 à 8     `captures` ci-dessous
   # Captures prises par la vitrine (`builder.py suite=ddust run-showcase`), 720x1236. Play
   # impose côté court ≥ 320 px et ratio ≤ 2:1. Ni `personnage` (« Coming soon ») ni
   # `butin_page` (grille de prix) : une fiche ne montre pas un écran vide ni un tarif
   # qui peut bouger.
+  #
+  # ⚠ `captures` EST LU PAR LA VITRINE, PAS PAR LE BUILD (2026-10-25) : la vitrine écrit
+  #   ses prises dans le workspace, et seules celles qu'un lecteur cite sont recopiées
+  #   dans resources_others/showcase/ (deva/python/modules/dvshowcase/publier.py). Une
+  #   capture de la fiche absente de cette liste disparaît du dépôt au passage suivant.
+  captures:
+    - resources_others/showcase/en/combat-01.png
+    - resources_others/showcase/en/salon_tasks.png
+    - resources_others/showcase/en/combat.png
+    - resources_others/showcase/en/clan_page.png
+    - resources_others/showcase/en/avatar_explorer.png
+    - resources_others/showcase/en/new_or_pick_clan.png
+    - resources_others/showcase/en/butin_open_page-02.png
+    - resources_others/showcase/en/money_page.png
 
   # ---------------------------------------------------------------------------
   # TEXTES

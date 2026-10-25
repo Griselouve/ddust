@@ -1,0 +1,34 @@
+test: ROS-06
+titre: "Suppression refusée : seul représentant d'un enfant"
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:personnage, overlay:personnage/delete]
+etapes:
+  # Papa accueille Kid : il devient son seul représentant.
+  # Panneau de suppression (worker_session.dart:1842-1850), trois « Continuer ».
+  - papa: {action: worker.death_open_delete}
+  - papa: {attend: personnage, delai: 60}
+  - papa: {attend_shape: personnage/delete_yes, delai: 30}
+  - papa: {tap: personnage/delete_yes, puis: 2}
+  - papa: {tap: personnage/delete_yes, puis: 2}
+  - papa: {tap: personnage/delete_yes, puis: 2}
+  # Le serveur refuse (HttpsError 'Sole guardian', build/backend/config.yml:2406) ; l'app
+  # affiche delete_account_sole_guardian avec le prénom (worker_session.dart:2010-2018).
+  - papa: {attend_journal: "[delete_account] appel cloud échoué", delai: 120}
+  - papa: {pause: 2}
+verifs:
+  - papa: {page: personnage}
+  - papa: {shape: personnage/delete_panel, contient: "Tu es le seul représentant légal de : Kid"}
+  - journal: {telephone: papa, absent: "[delete_account] compte supprimé"}
+  # Rien n'a été supprimé.
+  - firestore: {doc: "users/{papa_id}", champ: enabled, different: false}
+  - firestore: {doc: "clans/{clan}", champ: enabled, different: false}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: enabled, different: false}

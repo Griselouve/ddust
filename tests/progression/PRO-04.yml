@@ -1,0 +1,40 @@
+test: PRO-04
+titre: Résurrection par le chef
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page, ecran:dashboard, overlay:commons/death]
+etapes:
+  - outil: {nom: horloge, telephone: enfant, quoi: mort}
+  - enfant: {relance: true}
+  - enfant: {attend: dashboard, delai: 120}
+  - enfant: {attend_shape: commons/death_skull, delai: 90}
+  - outil: {nom: firestore_attend, doc: "clans_players/{clan}/players/{kid}", champ: status, egal: dead, delai: 60}
+  # « Guérir » : option du menu de la tuile (DvMenu) → worker.revive_player avec la ligne du
+  # roster (worker_members.dart:516-577). On passe par l'écran Clan pour que le roster
+  # connaisse l'enfant mort (option proposée seulement si `dead`, worker_screen_clan.dart:570-573).
+  - papa: {action: navigate_new.clan_page}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  - outil: {nom: roster_menu, telephone: papa, cible: {id: "{kid}", name: Kid, legal_state: k, admin: false, founder: false, original_clan: "{clan}", no_account: false, dead: true, has_device: true, xp: 0}, present: [revive_player], strict: true}
+  - papa: {action: worker.revive_player, event: {id: "{kid}", name: Kid}}
+  - papa: {attend_journal: "[roster] revive_player Kid ({kid}): visé=", delai: 60}
+  - outil: {nom: firestore_attend, doc: "clans_players/{clan}/players/{kid}", champ: status, egal: alive, delai: 60}
+  # Côté enfant : au prochain tableau de bord, plus de crâne (_evaluateDeath → _applyDeath(false)).
+  - enfant: {relance: true}
+  - enfant: {attend: dashboard, delai: 120}
+  - enfant: {attend_absent: commons/death_skull, delai: 90}
+verifs:
+  - enfant: {shape: commons/death_skull, visible: false}
+  - journal: {telephone: papa, contient: "(damage=0) alive"}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: status, egal: alive}
+  # Journal du clan (worker_members.dart:557-560).
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: PlayerResurrected}, champ: userId, egal: "{kid}"}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: PlayerResurrected}, champ: adminId, egal: "{papa_id}"}

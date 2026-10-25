@@ -2,16 +2,17 @@
 # --- Fragment de conf.registry : le MULTICLAN (worker_multiclan.dart).
 # --- Dossier de conception : tmp/design_multiclan.md.
 # -----------------------------------------------------------------------------
-# Quatre écrans AUTONOMES (hors dvsteps, comme give_page / claim_pick_page), tous inscrits dans
+# Cinq écrans AUTONOMES (hors dvsteps, comme give_page / claim_pick_page), tous inscrits dans
 # registry_commons.yml (conf.registry.orb.registry) : un écran absent de cette liste est
 # inatteignable, y compris par navigate_new.
 #
 #   my_clans_page      « Mes clans » : changer de clan, en rejoindre un autre (bouton aux deux
 #                      flèches de l'écran Clan, clan_page/switch).
 #   guardian_hub_page  « Mes enfants » : les gestes d'un représentant légal (menu Clan, adultes).
-#   ward_pick_page     choix de l'enfant (autoriser un clan, co-représentant), puis ses clans.
-#   guardian_qr_page   QR code des échanges entre adultes : le chef qui accueille un enfant
-#                      d'un autre clan, l'adulte qui demande à devenir co-représentant.
+#   ward_pick_page     les demandes d'autres clans, le choix de l'enfant (co-représentant), ses
+#                      clans.
+#   guardian_qr_page   QR code de l'adulte qui demande à devenir co-représentant.
+#   guardian_pin_page  le même, à distance : son lien et son code.
 #
 # ⚠ LES DvList SONT ALIMENTÉES PAR LA FORME ADRESSÉE de dvlist.set_rows ({page, rows}) : ces
 #   écrans s'empilent (hub → choix de l'enfant), la forme globale écraserait la liste du dessous.
@@ -138,10 +139,11 @@ conf:
         visible: false
 
     #//------------------ Choix de l'enfant (représentant) ------------------------------
-    # Trois modes (worker._wardMode) : autoriser le clan d'un autre chef (« guest »), faire d'un
-    # autre adulte un co-représentant (« cog »), voir les clans d'un enfant et l'en retirer
-    # (« clans » : premier tap = l'enfant, puis ses clans ; un tap arme le retrait, le second
-    # retire). Le panneau de tête dit ce qui va être fait, avec les noms.
+    # Trois modes (worker._wardMode) : les demandes d'autres clans en attente (« requests » : un
+    # tap ouvre la déclaration, invite_consent_screen en mode représentant), faire d'un autre
+    # adulte un co-représentant (« cog »), voir les clans d'un enfant et l'en retirer (« clans » :
+    # premier tap = l'enfant, puis ses clans ; un tap arme le retrait, le second retire). Le
+    # panneau de tête dit ce qui va être fait, avec les noms.
     ward_pick_page:
       masks:
         - page
@@ -179,12 +181,12 @@ conf:
         icon_size: 40.0
         border: true
 
-    #//------------------ QR code des échanges entre adultes ----------------------------
-    # Le QR code ne porte AUCUNE donnée d'enfant : le chef qui accueille ne sait pas encore
-    # qui viendra, le candidat co-représentant ne connaît pas encore l'enfant. « À distance » :
-    # un code à 6 chiffres à dicter, et un lien à partager (ddust://invitepin?token=…, le même
-    # écran de saisie que l'invitation d'un clan). Pour le candidat, l'écran attend ensuite le
-    # secret de représentation et se change en déclaration (« je suis représentant légal de… »).
+    #//------------------ QR code du candidat co-représentant -----------------------------
+    # Le QR code ne porte AUCUNE donnée d'enfant : le candidat co-représentant ne connaît pas
+    # encore l'enfant. « À distance » : un code à 6 chiffres à dicter, et un lien à partager
+    # (ddust://cogpin?token=…, saisi par le représentant sur guardian_pin_page). L'écran attend
+    # ensuite le secret de représentation et se change en déclaration (« je suis représentant
+    # légal de… »). `quit` coupe l'attente.
     guardian_qr_page:
       masks:
         - page
@@ -193,6 +195,7 @@ conf:
       title: "@@@T:guardian_qr_title@@@"
       actions:
         appear: worker.on_guardian_qr_appear
+        quit: worker.on_guardian_qr_leave
       registry:
         - commons/splash_background
         - guardian_qr_page/intro
@@ -204,7 +207,7 @@ conf:
 
     guardian_qr_page/intro:
       masks:
-        - commons/nobordershape
+        - commons/intro_text   # le panneau commun (fond + bordure du thème), pas le texte nu sur l'illustration
       class: DvLabel
       layer: content
       shape:
@@ -227,7 +230,7 @@ conf:
 
     guardian_qr_page/code:
       masks:
-        - commons/nobordershape
+        - commons/intro_text   # le panneau commun (fond + bordure du thème), pas le texte nu sur l'illustration
       class: DvLabel
       layer: content
       shape:
@@ -284,3 +287,74 @@ conf:
           tap: true
         freezing_actions:
           tap: worker.on_guardian_qr_confirm
+
+    #//------------------ Co-représentant à distance : le lien et le code ---------------
+    # Le représentant reçoit le lien du candidat co-représentant (ddust://cogpin?token=…, ouvert
+    # tout seul ou collé ici) et tape le code à six chiffres qu'il lui dicte. Puis il choisit
+    # l'enfant (ward_pick_page), comme après un scan. Ouvert par le lien (worker.on_guardian_pin_link)
+    # ou par « Mes enfants » → « Il est loin ? Saisir son lien et son code ».
+    guardian_pin_page:
+      masks:
+        - page
+      show_appbar: true
+      show_back: true
+      title: "@@@T:guardian_pin_title@@@"
+      actions:
+        appear: worker.on_guardian_pin_appear
+      registry:
+        - commons/splash_background
+        - guardian_pin_page/token
+        - guardian_pin_page/pin
+        - guardian_pin_page/confirm
+        - guardian_pin_page/error
+
+    guardian_pin_page/token:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 22%
+        w: 90%
+        h: 10%
+        type: TEXT
+        hint: "@@@T:guardian_pin_token_hint@@@"
+
+    guardian_pin_page/pin:
+      masks:
+        - commons/entry
+      shape:
+        x: 5%
+        y: 40%
+        w: 90%
+        h: 10%
+        type: INTEGER
+        hint: "@@@T:guardian_pin_pin_hint@@@"
+        text_align: CENTER
+
+    guardian_pin_page/confirm:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 10%
+        y: 60%
+        w: 80%
+        h: 8%
+        label: "@@@T:guardian_pin_confirm@@@"
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_guardian_pin_confirm
+
+    guardian_pin_page/error:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        x: 5%
+        y: 72%
+        w: 90%
+        h: 6%
+        label: "@@@T:pin_wrong@@@"
+        text_align: CENTER
+        visible: false

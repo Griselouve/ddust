@@ -1,0 +1,35 @@
+test: BUT-04
+titre: Donner un item
+criticite: mineur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# ⚠ Aucun type du catalogue ne propose l'option « Donner » (items-base-global.yml : titres,
+#   coffre, bourse, potion, aucun `item_give`) : dans l'app, le menu ne la montre jamais. Le
+#   test appelle l'action de l'option directement ; il éprouve le don, pas son accès.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:give_page, ecran:testme]
+etapes:
+  - outil: {nom: but_objet, telephone: papa, type: potion_pv, cout: 5, garde: objet}
+  # L'onglet Items recharge le miroir local des objets (worker_items.dart:138-160).
+  - papa: {tap: testme_open}
+  - papa: {attend: testme, delai: 60}
+  # Option « Donner » d'un objet (registry_items.yml:57-61) : la charge du menu est l'objet
+  # {id, type, name} (worker_items.dart:484-492). Ouvre give_page.
+  - papa: {action: worker.item_give, event: {id: "{objet}", type: potion_pv, name: ""}}
+  - papa: {attend: give_page, delai: 30}
+  - papa: {attend_journal: "[items] don: 1 destinataire(s) possible(s)", delai: 30}
+  # Les lignes de give_page/list ne sont pas tapables : la ligne {id, label} est remise à
+  # l'action de la liste (worker_items.dart:531-579).
+  - papa: {action: worker.give_to_player, event: {id: "{kid}", label: Kid}}
+  - papa: {attend: testme, delai: 30}
+verifs:
+  - journal: {telephone: papa, contient: "' donné à Kid ({kid})"}
+  - firestore: {doc: "clans_items/{clan}/items/{objet}", champ: owner, egal: "{kid}"}
+  # Le don est public : ItemGiven au journal du clan (worker_items.dart:562-568).
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: ItemGiven}, champ: data.to_id, egal: "{kid}"}

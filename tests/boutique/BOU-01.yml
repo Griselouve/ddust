@@ -1,0 +1,53 @@
+test: BOU-01
+titre: S'abonner par le faux store (porte parentale incluse)
+criticite: critique
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Le seul test qui passe par l'écran d'achat. Faux Google Play de la cible d'essai
+# (pustoremock), compilé dans l'APK de test (--dart-define=DV_STOREMOCK=on). Les deux gestes
+# humains du pilotage storemock_ui (mettre le clan au faux store, « Payer » sur la feuille)
+# sont joués par helpers/bou_faux_store.py. Prérequis : pustoremock déployé sur eut.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:dashboard, ecran:parentalgate_screen, ecran:shop, ecran:tiers_page]
+etapes:
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan}
+  # « Mon ID » (tuile t_essai de la boutique, worker.on_store_mock_id) montre ce code :
+  # « <clan>:<uid> », publié par dvstore (dvstore_motor.dart:1376-1380).
+  - papa: {tap: shop_open}
+  - papa: {attend: shop, delai: 60}
+  - papa: {action: worker.on_store_mock_id}
+  - papa: {attend_journal: "[store] Mon ID copié :", delai: 30}
+  - papa: {lit: store.mock.code, garde: mock_code}
+  - outil: {nom: bou_faux_store, telephone: papa, quoi: inscrire, code: "{mock_code}"}
+  # Le canal d'achat se décide au lancement (dvstore_motor.dart:420-445) : on relance.
+  - papa: {relance: true}
+  - papa: {attend: dashboard, delai: 120}
+  - papa: {attend_journal: "clan au FAUX Google Play de la cible d'essai", delai: 90}
+  # Boutique → tuile « Mon abonnement » (t_abo) : ses tuiles (DvShopHub) ne sont pas des
+  # shapes, on appelle son action. Clan non abonné → tiers_page (worker_store.dart:683).
+  - papa: {tap: shop_open}
+  - papa: {attend: shop, delai: 60}
+  - papa: {action: worker.store_manage_or_tiers}
+  - papa: {attend: tiers_page, delai: 60}
+  - papa: {attend_journal: "[store] paliers : vitrine", delai: 60}
+  # « Continuer » (registry_store_tiers.yml:485-503) → porte parentale (worker_store.dart:2712).
+  - papa: {tap: tiers_page/cta}
+  - papa: {attend: parentalgate_screen, delai: 30}
+  - outil: {nom: porte_parentale, telephone: papa}
+  - papa: {attend_journal: "[store] contrôle parental franchi → achat de", delai: 30}
+  # Fausse feuille de paiement : elle attend la décision du pilotage (dvstore_billing.dart:404-505).
+  - outil: {nom: bou_faux_store, telephone: papa, quoi: payer}
+  # store_verify écrit la projection, dvstore la relit (worker_store.dart:422).
+  - papa: {attend_journal: "[store] abonnement actif:", delai: 120}
+verifs:
+  - journal: {telephone: papa, contient: "[store] abonnement actif: ddust_"}
+  - papa: {valeur: store.channel, egal: storemock}
+  - firestore: {doc: "clans_store/{clan}", champ: state, egal: active}
+  - firestore: {doc: "clans_store/{clan}", champ: tier, existe: true}
+  - firestore: {doc: "clans_store/{clan}", champ: simulated, egal: true}

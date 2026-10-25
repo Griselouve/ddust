@@ -18,6 +18,7 @@ conf:
       class: DvLayer
       registry:
       - theme/transition_view
+      - theme/transition_loading
       - theme/transition_cancel
       - theme/transition_message
 
@@ -29,6 +30,26 @@ conf:
         y: 0
         w: 100%
         h: 100%
+
+    # Montré par dvtheme pendant tout le chargement du thème (après 1 s, pour qu'un thème
+    # déjà en cache ne le fasse pas clignoter), au-dessus de la scène ou, sans scène, de
+    # l'écran courant. Retiré à la bascule, ou après `max_wait` s si le réseau ne rend rien.
+    # Même place que le message d'échec, qui ne paraît qu'une fois celui-ci retiré.
+    theme/transition_loading:
+      masks:
+        - commons/donjon_button
+      class: DvLabel
+      layer: front
+      shape:
+        x: 10%
+        y: 70%
+        w: 80%
+        h: 9%
+        label: "@@@T:theme_transition_loading@@@"
+        text_align: CENTER
+        font_size: 16.0
+        font_color: "amber_200"
+        visible: false
 
     # Apparaît après `cancel_after` s si le téléchargement traîne. Annuler rend l'ancien
     # thème, le téléchargement du nouveau continue.
@@ -70,6 +91,15 @@ conf:
 
   lang:
     translations:
+      theme_transition_loading:
+        fr: "Ton thème se charge…"
+        en: "Your theme is loading…"
+        es: "Tu tema se está cargando…"
+        de: "Dein Thema wird geladen…"
+        it: "Il tuo tema si sta caricando…"
+        pt: "O teu tema está a carregar…"
+        br: "Seu tema está carregando…"
+        nl: "Je thema wordt geladen…"
       theme_transition_cancel:
         fr: "Annuler"
         en: "Cancel"

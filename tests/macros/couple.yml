@@ -1,0 +1,16 @@
+# Le préambule des tests papa + maman (compte A2, adulte) : papa onboardé, son clan créé,
+# maman onboardée puis entrée en montrant son QR code au chef (macros/inviter_adulte.yml). Fin : les deux
+# sur le tableau de bord ; variables {clan}, {papa_id}, {maman_id}.
+macro: couple
+parametres: {nom: Papa, clan: Les Testeurs, nom_adulte: Maman}
+etapes:
+  - papa:  {macro: onboarding_adulte, nom: "{nom}"}
+  - papa:  {macro: creer_clan, clan: "{clan}"}
+  - maman: {macro: onboarding_adulte, nom: "{nom_adulte}"}
+  - macro: inviter_adulte
+  - papa: {action: navigate_reset.dashboard}
+  - papa: {attend: dashboard, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  - outil: {nom: identite, telephone: papa,  champ: clan,   garde: clan}
+  - outil: {nom: identite, telephone: papa,  champ: userId, garde: papa_id}
+  - outil: {nom: identite, telephone: maman, champ: userId, garde: maman_id}

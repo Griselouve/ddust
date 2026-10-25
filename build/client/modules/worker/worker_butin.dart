@@ -1776,6 +1776,9 @@ extension Worker_butin on worker {
                                     final ok = await DvOrb.wait_for_shape("butin_notes_page/ok");
                                     await _syncVisible(ok, "butin_notes_page/ok", false);
 
+                                    // La vue d'abord (idiome chestaura de clan_page) : démarrée avant que
+                                    // butin_notes_page/halo soit montée, la scène tournerait sans être peinte.
+                                    await DvOrb.wait_for_shape("butin_notes_page/halo");
                                     ActionRegistry.get("dvflame.start.notehalo")?.call(null, null);
 
                                     final tick = ++_butinNotesTick;

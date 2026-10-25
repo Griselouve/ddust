@@ -1,6 +1,8 @@
 build:
   modules:
   - dvcloud
+  # La boîte d'adhésion à un clan (worker_join.dart) : X25519 + ChaCha20-Poly1305.
+  - dvsealbox
   # url_launcher : ouverture de la fiche Play depuis le panneau « Noter et partager »
   # (worker_rate.dart).
   flutterspecs:

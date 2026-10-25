@@ -1,0 +1,52 @@
+test: ENF-04
+titre: Jouer à la place de l'enfant puis revenir (PIN)
+criticite: majeur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:clan_page
+  - ecran:create_player_screen
+  - ecran:dashboard
+  - ecran:imp_pin_ask
+  - ecran:imp_pin_set
+etapes:
+  - papa: {macro: creer_joueur, nom_joueur: Lou}
+  - papa: {attend: clan_page, delai: 60}
+  - outil: {nom: firestore_cherche, collection: players, groupe: true, champ: name, egal: Lou, lire: id, garde: lou}
+  # « Jouer à sa place » est une option du menu de la tuile (DvRoster, non tapable). Son
+  # action reçoit la ligne du roster, {id, name, ...} (worker_screen_clan.dart:367-399) ;
+  # take_place n'en lit que id et name (worker_members.dart:665-686).
+  - papa: {action: worker.take_place, event: {id: "{lou}", name: Lou, no_account: true, legal_state: k}}
+  # Étape 1 : choisir son code (imp_pin_set). Les touches du DvNumpad ne sont pas des
+  # shapes : on appelle son `submit` avec le code entier (registry_clan_page.yml:1366,
+  # worker_members.dart:297-317, 4 chiffres l. 45).
+  - papa: {attend: imp_pin_set, delai: 30}
+  - papa: {action: worker.on_imp_pin_set, event: "1234"}
+  - papa: {attend: dashboard, delai: 60}
+  - papa: {attend_journal: "[roster] take_place → incarne Lou ({lou})", delai: 30}
+  - papa: {verifie: {valeur: worker.impersonating, egal: "true"}}
+  # Retour : le bandeau « vous incarnez Lou » ouvre la demande du code
+  # (worker.open_imp_pin_ask, worker_members.dart:331-335).
+  - papa: {action: worker.open_imp_pin_ask}
+  - papa: {attend: imp_pin_ask, delai: 30}
+  # Un code faux d'abord : on reste sur l'écran (worker_members.dart:369-378).
+  - papa: {action: worker.on_imp_pin_ask, event: "9999"}
+  - papa: {pause: 1}
+  - papa: {verifie: {page: imp_pin_ask}}
+  # Puis le bon : restore_self (worker_members.dart:763).
+  - papa: {action: worker.on_imp_pin_ask, event: "1234"}
+  - papa: {attend_journal: "[roster] restore_self → retour au compte Papa", delai: 30}
+  - papa: {attend: dashboard, delai: 60}
+verifs:
+  - papa: {page: dashboard}
+  - papa: {valeur: worker.impersonating, egal: "false"}
+  # worker_members.dart:754 puis 817.
+  - journal: {telephone: papa, contient: "[roster] take_place → incarne Lou ({lou})"}
+  - journal: {telephone: papa, contient: "[roster] restore_self → retour au compte Papa ("}

@@ -1,0 +1,34 @@
+test: ONB-06
+titre: "Porte parentale : mauvaise réponse puis bonne"
+criticite: mineur
+enabled: true
+telephones: [papa]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:lang_choice
+  - ecran:parentalgate_screen
+  - ecran:region_screen
+etapes:
+  - papa: {macro: seuil}
+  # Date adulte + confirmation en un geste (cf. macros/onboarding_adulte.yml).
+  - papa: {action: documents.set, event: {country: FR, birthdate: "1985-06-15"}}
+  - papa: {attend: parentalgate_screen, delai: 60}
+  - papa: {attend_shape: parentalgate/expression, delai: 30}
+  # Les touches du DvNumpad ne sont pas des shapes : la réponse part par l'action du pavé
+  # (dvparentalgate.dart:69-72). « 0 » est toujours faux : produit de deux entiers de 3 à 9
+  # (dvparentalgate_motor.dart:63-65). Une mauvaise réponse ne ferme rien (l. 89-97).
+  - papa: {action: parentalgate._on_submit, event: "0"}
+  - papa: {pause: 2}
+  - papa: {verifie: {page: parentalgate_screen}}
+  # Puis la bonne réponse, lue sur l'écran (helper du moteur).
+  - outil: {nom: porte_parentale, telephone: papa}
+  - papa: {attend: documents_acceptance_screen, delai: 60}
+verifs:
+  - papa: {page: documents_acceptance_screen}
+  # dvparentalgate_motor.dart:161
+  - journal: {telephone: papa, contient: "gate passé, proof=defi_calcul:"}

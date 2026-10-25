@@ -1,0 +1,53 @@
+test: TAC-07
+titre: "Tâches multiples : clones par joueur"
+criticite: mineur
+enabled: true
+telephones: [papa, enfant]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:clan_page
+  - ecran:combat
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  # Le questionnaire doit être RÉPONDU : passé, il ne persiste rien et aucune tâche
+  # « multiple » n'est activée (macros/creer_clan_questionnaire.yml).
+  - macro: famille
+    creation: creer_clan_questionnaire
+  # Domaine chambre_enfant « multiple: k » (un clone par mineur), tâches véhicules
+  # « multiple: a » (un clone par adulte) : tasks-base-global.yml:21, 1656-1684.
+  # Le clone de l'enfant naît à son entrée (_createMyClones, worker_clan.dart:1889).
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/chambre_enfant_01__{kid}", champ: owner, egal: "{kid}", delai: 120}
+  # L'enfant prend SON clone (seltask.<clone>, worker_tasks.dart:1556).
+  - enfant: {action: "seltask.chambre_enfant_01__{kid}"}
+  - enfant: {attend: combat, delai: 60}
+  - enfant: {attend_journal: "[combat] tâche assignée: chambre_enfant_01__{kid} → {kid}", delai: 60}
+verifs:
+  - firestore: {doc: "clans_tasks/{clan}/tasks/chambre_enfant_01__{kid}", champ: original, egal: chambre_enfant_01}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/chambre_enfant_01__{kid}", champ: assignee, egal: "{kid}"}
+  # Pas de doc de base partagé, pas de clone pour l'adulte (k seulement).
+  - firestore: {doc: "clans_tasks/{clan}/tasks/chambre_enfant_01", existe: false}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/chambre_enfant_01__{papa_id}", existe: false}
+  # Véhicules : clone du fondateur adulte (_persistTaskResults, worker_tasks.dart:466-477),
+  # aucun pour l'enfant.
+  - firestore: {doc: "clans_tasks/{clan}/tasks/voiture_01__{papa_id}", champ: owner, egal: "{papa_id}"}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/voiture_01__{kid}", existe: false}
+  - firestore: {doc: "clans/{clan}", champ: enabled_multiple, contient: chambre_enfant_01}

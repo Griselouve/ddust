@@ -1,0 +1,48 @@
+test: ENF-07
+titre: Déclarer l'enfant majeur
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:clan_page
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+etapes:
+  # « Déclarer majeur » est une option du menu de la tuile (DvRoster, non tapable) : son
+  # action, avec la ligne du roster (worker_screen_clan.dart:367-399). Geste de REPRÉSENTANT,
+  # écrit dans la guardianship de l'enfant (worker_members.dart:1043-1066).
+  - papa: {action: navigate_new.clan_page}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  # La représentation a été rattachée au test d'origine (E2E-02), elle est dans la photo.
+  - papa: {action: worker.promote_adult, event: {id: "{kid}", name: Kid, legal_state: k, no_account: false}}
+  # worker_members.dart:1058
+  - papa: {attend_journal: "[roster] promote_adult : majorité de Kid ({kid}) déclarée dans sa représentation", delai: 60}
+  # L'app de l'enfant applique la représentation (legal_state « t » sur ses fiches,
+  # worker_multiclan.dart:1113-1116) puis impose la CGU adulte au login
+  # (_checkAdultTransition, worker_session.dart:425 ; worker_members.dart:1740-1770). On
+  # relance pour ne pas dépendre de la vigilance.
+  - enfant: {relance: true}
+  - outil: {nom: firestore_attend, doc: "clans_players/{clan}/players/{kid}", champ: legal_state, egal: t, delai: 180}
+  # Célébration puis rideau, la CGU adulte s'ouvre dessous (worker_members.dart:1799-1818).
+  - enfant: {attend: documents_acceptance_screen, delai: 180}
+  - enfant: {macro: cgu}
+  # on_acceptance_complete commit « a » puis tableau de bord (worker_session.dart:587-627).
+  - enfant: {attend: dashboard, delai: 120}
+verifs:
+  - enfant: {page: dashboard}
+  # worker_members.dart:1753
+  - journal: {telephone: enfant, contient: "[legal] transition adulte détectée → CGU adulte imposée"}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: legal_state, egal: a}
+  - firestore: {doc: "users/{kid}", champ: steps.legal_state.result, egal: a}

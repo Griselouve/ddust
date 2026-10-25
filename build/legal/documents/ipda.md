@@ -109,9 +109,9 @@ ans de consentir seul en France (politique `fr`, § 4).
   par exemple), membres ou non du clan d'origine ;
 - **membres des autres clans** d'un enfant qui joue dans plusieurs clans (8 au plus) : ils voient
   son nom, son avatar et le titre qu'il porte, rien d'autre ;
-- **enfant qui a dit vouloir jouer** mais n'a pas encore été invité par un adulte : rien n'est
-  enregistré à son sujet tant qu'il ne s'est pas connecté ; sa réponse, sans donnée personnelle,
-  n'est enregistrée qu'avec la décision de l'adulte.
+- **enfant qui a dit vouloir jouer** mais n'a pas encore été accueilli par un adulte : rien n'est
+  enregistré à son nom tant qu'il ne s'est pas connecté ; sa réponse, sans donnée personnelle, ne
+  passe que par la boîte d'adhésion temporaire, et n'est conservée qu'avec la décision de l'adulte.
 
 ### 2.4 Données traitées
 
@@ -124,10 +124,11 @@ Tableau complet : `child_interest.md`, section 6.1, et registre, fiches T1 à T7
 | Pays, région, langue, décalage horaire | | Le décalage horaire sert à n'écrire qu'à des heures convenables |
 | Identité de jeu | Nom de personnage **libre**, description, avatar ; nom public de substitution | Le nom libre **peut contenir un prénom réel** |
 | Profil partagé entre clans | Nom, avatar et titre porté, les mêmes dans chaque clan du joueur | Visibles des membres de chacun de ses clans ; le reste (niveau, journal, objets, tâches) reste propre à chaque clan |
-| Dossier de représentation d'un enfant | Représentant et co-représentants ; clans de l'enfant (nom du clan, nom du chef, adulte qui l'y a fait entrer, date) ; autorisations données à d'autres clans ; historique des gestes des représentants | Visible de l'enfant et de ses représentants seuls ; c'est une preuve (5 ans) |
+| Boîte d'adhésion | Désignée par le code du candidat : clé publique à usage unique, statut légal, région, souhait de l'enfant, puis la réponse chiffrée du chef | Aucune donnée personnelle ; inutilisable à 15 minutes, effacée à la fin de l'échange ou, à défaut, après son expiration |
+| Dossier de représentation d'un enfant | Représentant et co-représentants ; clans de l'enfant (nom du clan, nom du chef, adulte qui l'y a fait entrer, date) ; demandes d'entrée dans d'autres clans (nom du clan, nom de son chef, dates, réponse) et autorisations données à ces clans ; historique des gestes des représentants | Visible de l'enfant et de ses représentants seuls ; c'est une preuve (5 ans) |
 | Progression et vie du clan | Expérience, niveau, points de vie, objets, rôle, clan d'origine | |
 | Journal du clan | Tâches jugées, niveaux, coffres, cadeaux, datés | Lisible par toute la famille |
-| Preuves d'acceptation | Versions acceptées, dates, déclaration du chef, réponse de l'enfant (date, langue, région, version du texte montré, code de la demande tiré au hasard) ; autorisation d'un autre clan donnée par un représentant ; déclaration d'un co-représentant | Conservées 5 ans après clôture |
+| Preuves d'acceptation | Versions acceptées, dates, déclaration du chef, réponse de l'enfant (date, langue, région, texte montré, version des conditions) ; déclaration du chef qui accueille un enfant d'un autre clan ; autorisation de ce clan donnée par un représentant ; déclaration d'un co-représentant | Conservées 5 ans après clôture |
 | Traces d'audit des actes qui engagent | Entrée dans un clan, départ (de soi-même ou retrait d'un enfant par un représentant), dissolution d'un clan par son fondateur, chaque geste d'un représentant, création de la représentation d'un enfant ; auteur, enfant ou clan concerné, date, contexte de la session (région, langue, état légal), rien d'autre | Sous le compte de l'auteur, au même endroit que les preuves d'acceptation ; closes à la suppression du compte, conservées 5 ans |
 | Réglage de réception des notifications | Notifications coupées pour le clan courant ou pour tous les clans, rangé avec l'inscription de l'appareil | Aucune autre donnée ; le serveur n'envoie plus rien à ce téléphone |
 | Notifications | Jeton d'envoi, texte (peut contenir un nom de personnage) | |
@@ -203,13 +204,13 @@ historique d'achat 2 ans ; historique des connexions 90 jours.
 | Principe | Comment il est respecté | Référence |
 |---|---|---|
 | **Finalité déterminée** | Une finalité unique, sans publicité, profilage ni revente | `child_interest.md`, 2 et 3.2 |
-| **Base légale** | Contrat pour l'adulte ; consentement du tuteur pour le mineur, donné **au moment de l'acte** (inviter, après avoir lu le souhait de jouer de l'enfant ; créer un profil) et scellé dans la preuve d'acceptation | `child_interest.md`, 5.8 ; politique `fr`, § 3 et 4 |
+| **Base légale** | Contrat pour l'adulte ; consentement du tuteur pour le mineur, donné **au moment de l'acte** (accueillir l'enfant, après avoir lu son souhait de jouer ; créer un profil) et scellé dans la preuve d'acceptation | `child_interest.md`, 5.8 ; politique `fr`, § 3 et 4 |
 | **Minimisation** | Nom de personnage plutôt que prénom ; date de naissance oubliée ; aucune localisation ; aucune photo ni vidéo envoyée ; aucun son enregistré (pas de permission micro) ; nom et photo Google exclus ; statistiques et identifiant publicitaire désactivés | `child_interest.md`, 6.1 |
 | **Exactitude** | Le statut d'enfant reste acquis, dans tous ses clans, jusqu'à ce qu'un de ses représentants légaux (et non un autre chef du clan d'origine) déclare l'enfant majeur, qui doit alors accepter les conditions adultes : l'erreur possible va dans le sens de la protection | `child_interest.md`, 6.1 |
 | **Durées limitées** | Calendrier en trois temps ; durées longues pour les clans justifiées dans l'intérêt de l'enfant (son histoire ne se reconstitue pas) | `child_interest.md`, 6.3 |
 | **Information** | Conditions et politique rédigées pour l'enfant ; politique adulte par marché ; guide parent intégré | `child_interest.md`, 5.8 |
 | **Droits des personnes** | Suppression depuis l'application ou le site, **y compris par un mineur seul** ; retrait du consentement pour un seul enfant, dans tous ses clans ; retrait d'un enfant d'un seul clan par son représentant ; autres droits par courriel sous un mois | `child_interest.md`, 5.10 ; politique `fr`, § 9 |
-| **Avis de l'enfant** | L'enfant dit s'il veut jouer **avant la décision de l'adulte**, et avant toute écriture, sur son téléphone comme en base ; sa réponse, sans donnée personnelle, est transmise à l'adulte (code QR ou lien) et enregistrée avec sa décision ; son code, tiré au hasard, lie l'invitation de l'adulte à cette réponse et à nulle autre | `child_interest.md`, 5.8 |
+| **Avis de l'enfant** | L'enfant dit s'il veut jouer **avant la décision de l'adulte**, et avant toute écriture, sur son téléphone comme en base ; sa réponse, sans donnée personnelle, est montrée à l'adulte (code QR à usage unique, ou code de cinq caractères lu à distance) et enregistrée avec sa décision ; la réponse de l'adulte revient chiffrée pour le seul téléphone de l'enfant, dans une boîte qui ne sert qu'une fois | `child_interest.md`, 5.8 |
 | **Sous-traitance** | Google, sous contrat de traitement ; engagement contractuel de non-entraînement des modèles | Registre, annexe A |
 | **Transferts** | Garanties par marché | Registre, annexe B |
 
@@ -261,15 +262,15 @@ vie domestique (qui fait quoi, quand).
 | Mesure | Statut |
 |---|---|
 | Aucun annuaire, aucune recherche de clan ou de joueur, aucune messagerie, aucune interaction entre clans | Livrée |
-| Entrée dans un clan uniquement par un chef (QR code, lien protégé par un code à six chiffres) ; pour un enfant, seulement en réponse au souhait de jouer qu'il a d'abord montré ou envoyé, porteur de son code ; invitation expirée à 72 heures, secret effacé à la première utilisation | Livrée |
-| Invitation marquée « enfant » (avec le code de la demande de l'enfant) ou « adulte » : le téléphone d'un enfant refuse, avant toute connexion, une invitation d'adulte ou faite pour la demande d'un autre enfant, et revérifie le code scellé avec la déclaration à l'entrée ; celui d'un adulte refuse une invitation d'enfant. Le code ne vit qu'en mémoire : application fermée pendant l'attente = nouvelle demande | Livrée (code du 2026-09-22, à vérifier au build) |
+| Entrée dans un clan uniquement par un chef, et c'est le candidat qui commence : il montre un code QR à usage unique, ou lit à distance le code de cinq caractères affiché dessous (valable 15 minutes, écran ouvert) ; ni lien, ni code envoyé par un tiers, ni réseau social. Pour un enfant, le chef ne décide qu'après avoir vu son souhait de jouer | Livrée (code du 2026-10-18, à vérifier au build) |
+| Boîte d'échange à usage unique : un seul chef peut la réclamer, sa réponse est chiffrée pour le seul téléphone du candidat (clé privée en mémoire, jamais écrite) et liée au code de la boîte ; si le code a été dicté, le candidat voit le nom du clan et de son chef et confirme avant d'entrer (« c'est bien ta famille ? »). Application fermée avant la réponse = boîte effacée, nouveau code | Livrée (code du 2026-10-18, à vérifier au build) |
 | Cloisonnement par clan dans les règles d'accès (secret d'appartenance) ; collections sensibles en lecture seule pour les clients | Livrée |
 | Hors du clan, seul un nom public de substitution existe, sauf dans les autres clans du joueur, qui voient son nom, son avatar et son titre ; aucun écran ne montre un autre clan, hormis le nom des clans d'un enfant et de leur chef, montrés à ses seuls représentants | Livrée (exceptions : code du 2026-09-27, à vérifier au build) |
 | Aucune adresse, photo, vidéo, localisation ni contact n'est détenu : « il y a peu à obtenir » | Livrée |
 | Preuve d'une tâche (photo ou courte vidéo de 15 s au plus) jamais envoyée ; **vidéo de preuve sans son : pas de permission micro**, retirée du manifeste au build, donc aucune piste sonore et aucune voix d'un tiers | Livrée (code du 2026-09-26, à vérifier au build) |
 | Accès aux consoles Google Cloud et Firebase réservé au responsable ; échanges chiffrés | Livrée |
 | Lien de responsabilité attaché au clan d'origine, non transférable : le représentant légal est l'adulte qui a consenti à l'entrée de l'enfant dans ce clan (sa déclaration est la preuve de référence) ; un co-représentant n'est reconnu que par un échange avec lui, où il déclare lui-même, sur son appareil, être représentant légal | Livrée (code du 2026-09-27, à vérifier au build) |
-| **Entrée dans un autre clan sur autorisation préalable vérifiée** : un enfant déjà membre d'un clan n'entre dans un autre que si l'un de ses représentants a autorisé ce clan (QR code en présence, ou lien et code à six chiffres), pour 7 jours ; l'application de l'enfant vérifie l'autorisation avant toute admission. **Un adulte extérieur ne peut plus faire entrer seul un enfant dans son clan** : jusqu'ici, la déclaration du chef d'accueil (« j'agis avec l'accord de son responsable légal ») n'était vérifiée nulle part | Livrée (code du 2026-09-27, à vérifier au build) |
+| **Entrée dans un autre clan sur autorisation vérifiée d'un représentant** : un enfant déjà membre d'un clan montre son code à l'adulte qui l'accueille comme pour toute entrée ; cet adulte déclare seulement accueillir un enfant d'un autre clan. L'application de l'enfant transmet la demande à ses représentants (notification), l'un d'eux accepte ou refuse, sans réponse la demande tombe à 7 jours ; la réponse du clan d'accueil attend sur le téléphone de l'enfant, rien n'est écrit à son nom dans ce clan avant l'accord. L'application de l'enfant vérifie l'autorisation avant toute admission : **un adulte extérieur ne peut pas faire entrer seul un enfant dans son clan** | Livrée (code du 2026-09-27, revu le 2026-10-18, à vérifier au build) |
 | **Le représentant garde la main** : il voit les clans de l'enfant (nom du clan et nom de son chef, rien d'autre), peut l'en retirer à tout moment sauf du clan d'origine (notifications de ce clan coupées dès la réception, fiche effacée comme celle de tout membre parti) ; retrait du consentement et déclaration de majorité réservés aux représentants ; chaque geste est tracé dans le dossier de représentation | Livrée (code du 2026-09-27, à vérifier au build) |
 | Profil partagé limité au nom, à l'avatar et au titre porté ; rien d'autre ne passe d'un clan à l'autre (ni niveau, ni journal, ni objets, ni tâches) ; 8 clans au plus ; un enfant sans téléphone reste dans un seul clan | Livrée (code du 2026-09-27, à vérifier au build) |
 | Dossier de représentation protégé comme un clan, par un secret que seuls l'enfant et ses représentants détiennent | Livrée (code du 2026-09-27, à vérifier au build) |
@@ -450,7 +451,7 @@ consentement ou à la dissolution du clan.
 | Le seul représentant d'un enfant ne peut pas supprimer son compte (il ajoute d'abord un co-représentant ou supprime le compte de l'enfant) ; un enfant qui garde un co-représentant n'est pas emporté par la cascade | Livrée (code du 2026-09-27, à vérifier au build) |
 | Dossier de représentation clos à la majorité ou à la suppression du compte de l'enfant, avec sa date d'effacement à 5 ans | Livrée (code du 2026-09-27, à vérifier au build) ; l'effacement lui-même relève de E2 |
 | Preuve (photo ou vidéo) effacée au verdict, au plus tard à l'ouverture suivante ; sauvegarde Android désactivée | Livrée |
-| Invitations à 72 heures, jetons de notification, historique des connexions : effacement automatique | Livrée |
+| Boîtes d'adhésion à 15 minutes, jetons de notification, historique des connexions : effacement automatique | Livrée (boîtes : code du 2026-10-18, à vérifier au build) |
 | **Effacement définitif à 30 jours** (comptes, fiches, clans dissous et journaux, compte d'authentification), jeton d'achat vidé en fin d'abonnement, preuves à 5 ans | **Prévue** (registre, écart E2) |
 | Démarrage du calendrier de blocage après résiliation ou fin des mois offerts | **Prévue** (registre, écart E3) |
 
@@ -546,8 +547,8 @@ Mesures qui servent plusieurs risques à la fois.
 
 | Mesure | Statut |
 |---|---|
-| Aucune donnée de jeu avant l'avis de l'enfant et l'autorisation de l'adulte ; l'avis précède la décision et lui est transmis ; rien n'est enregistré avant la connexion de l'enfant, seule subsiste une entrée d'authentification anonyme vide, effacée par la plateforme à 30 jours | Livrée (code du 2026-09-22, à vérifier au build) |
-| Onboarding en session anonyme tenue en mémoire : ni écriture en base ni fichier sur l'appareil avant la connexion à un compte, langue comprise ; la déconnexion vide la mémoire de tout ce qui appartient au compte | Livrée (code du 2026-09-22, à vérifier au build) |
+| Aucune donnée de jeu avant l'avis de l'enfant et l'autorisation de l'adulte ; l'avis précède la décision et lui est transmis ; rien n'est enregistré au nom de l'enfant avant sa connexion : seules existent la boîte d'adhésion, sans donnée personnelle, effacée à la fin de l'échange ou après 15 minutes, et une entrée d'authentification anonyme vide, effacée par la plateforme à 30 jours | Livrée (code des 2026-09-22 et 2026-10-18, à vérifier au build) |
+| Onboarding en session anonyme tenue en mémoire : aucun fichier sur l'appareil et, hors la boîte d'adhésion, aucune écriture en base avant la connexion à un compte, langue comprise ; la déconnexion vide la mémoire de tout ce qui appartient au compte | Livrée (code du 2026-09-22, à vérifier au build) |
 | Comptes de service distincts par usage, aux droits limités | Livrée |
 | Alertes de budget | Livrée |
 | Registre des incidents ; notification à la CNIL sous 72 heures en cas de risque, aux personnes si le risque est élevé | Livrée (procédure, registre annexe D) |
@@ -633,6 +634,7 @@ Réexaminer cette AIPD, et en changer la version, dès que :
 | 0 | 22 septembre 2026 | Parcours du mineur réordonné : l'enfant dit d'abord s'il veut jouer, sa réponse (sans donnée personnelle) est transmise à l'adulte et enregistrée avec sa décision ; plus d'enregistrement avant la connexion, ni en base ni sur l'appareil ; mémoire vidée à la déconnexion (sections 2.3, 2.4, 3 et 6). Le même jour : la réponse porte un code tiré au hasard, et l'invitation est marquée « enfant » (avec ce code) ou « adulte » (sections 2.4, 3 et 5.1) |
 | 0 | 27 septembre 2026 | Multiclan : un joueur peut appartenir à 8 clans ; nom, avatar et titre porté partagés entre ses clans. Un enfant n'entre dans un autre clan qu'avec l'autorisation préalable de son représentant, vérifiée par son application ; co-représentants ; retrait d'un clan ; retrait du consentement étendu à tous les clans et exécuté par le serveur ; dossier de représentation, preuve conservée 5 ans ; le seul représentant ne peut pas supprimer son compte (sections 2.3, 2.4, 2.7, 3, 4, 5.1 et 5.6). Le même jour : traces d'audit des actes qui engagent, rangées et conservées comme les preuves d'acceptation ; notifications coupées par clan ou pour tous (sections 2.4 et 2.7) |
 | 0 | 11 octobre 2026 | Assistant d'aide réservé aux adultes : filtres au seuil `BLOCK_ONLY_HIGH` (profil `guide` de la fonction serveur) au lieu du plus strict, qui bloquait presque toutes les questions ordinaires ; mesures, pistes écartées et justification (sections 2.5 et 5.2). CGU et politiques adultes complétées dans les 12 marchés et les 8 langues |
+| 0 | 18 octobre 2026 | Adhésion refondue : c'est toujours le candidat qui montre un code QR à usage unique, ou lit à distance un code de cinq caractères ; plus de lien d'invitation ni de code à six chiffres. Boîte d'échange temporaire sans donnée personnelle, réponse du chef chiffrée pour le seul téléphone du candidat, confirmation du clan quand le code a été dicté. Multiclan : la demande d'un enfant est transmise à ses représentants, qui acceptent ou refusent (7 jours) ; le chef d'accueil ne déclare plus d'autorisation préalable (sections 2.3, 2.4, 3, 5.1, 5.6 et 6) |
 
 ---
 

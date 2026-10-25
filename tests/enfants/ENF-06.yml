@@ -1,0 +1,56 @@
+test: ENF-06
+titre: "L'enfant ferme l'application avant de lier son compte : rien n'est écrit à son nom"
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Le parent a validé l'accueil ; le dépôt attend en mémoire, sur link_account_screen. L'enfant
+# tue l'application : le dépôt est perdu (rien sur le disque avant le login), la boîte, elle, a
+# déjà été effacée. Il repart du seuil ; seule la décision du parent est enregistrée, sous SON
+# compte.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:welcome_child_screen
+etapes:
+  - enfant: {macro: onboarding_mineur}
+  - outil:  {nom: mul_code, telephone: enfant, shape: join_show_screen/code, motif: join, garde: code}
+  - outil:  {nom: qr_lire, telephone: enfant, motif: "^ddust://join", garde: patte}
+  - papa:   {action: worker.on_welcome_player}
+  - papa:   {attend: welcome_child_screen, delai: 30}
+  # QR donné comme par le lecteur intégré (action de ddust://join), pas par un lien Android.
+  - outil: {nom: lien_event, url: "{patte}", garde: patte_ev}
+  - papa:   {action: worker.on_join_link, event: "{patte_ev}"}
+  - papa:   {attend: invite_consent_screen, delai: 60}
+  - papa:   {attend_libre: true, delai: 30}
+  - papa:   {tap: invite_consent_screen/reads}
+  # Un tap arrivé avant que l'écran soit prêt est ignoré : s'il reste visible, on retouche.
+  - papa: {pause: 2}
+  - papa: {si_visible: "invite_consent_screen/reads", alors: [{tap: "invite_consent_screen/reads"}]}
+  - papa:   {tap: invite_consent_screen/yes}
+  - enfant: {attend: link_account_screen, delai: 120}
+  - enfant: {relance: true}
+  - enfant: {attend: awake, delai: 90}
+  - outil:  {nom: identite, telephone: papa, champ: clan, garde: clan}
+verifs:
+  - enfant: {page: awake}
+  - firestore: {doc: "clans_joins/{code}", existe: false}
+  # Le clan n'a toujours que son chef.
+  - firestore: {collection: "clans_players/{clan}/players", ou: {champ: legal_state, egal: k}, existe: false}
+  - journal: {telephone: enfant, absent: "_flushOnboarding: onboarding inscrit en base"}

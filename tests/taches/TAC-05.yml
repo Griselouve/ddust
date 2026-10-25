@@ -1,0 +1,29 @@
+test: TAC-05
+titre: Enfant fait une tâche, parent valide
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:combat]
+etapes:
+  # vaisselle_01 : mortelle, XP 21 (cf. TAC-01). La preuve est une vraie photo (preuve_photo,
+  # dans tache_faire) ; tache_faire constate assigned puis validating.
+  - enfant: {macro: tache_faire, tache: vaisselle_01}
+  - papa:   {macro: tache_juger, tache: vaisselle_01, verdict: ok, attendu: "[combat] verdict ACCEPTÉ: vaisselle_01 type=mortelle status=dead"}
+  - enfant: {attend_journal: "[combat] résolution = libération (status=dead): vaisselle_01", delai: 240}
+verifs:
+  - journal: {telephone: enfant, contient: "[camera] photo enregistrée"}
+  - journal: {telephone: papa, contient: "[combat] +21 XP → {kid}"}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: status, egal: dead}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: assignee, egal: ""}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: xp, egal: 21}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskDone}, champ: userId, egal: "{kid}"}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedOk}, champ: userId, egal: "{kid}"}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedOk}, champ: adminId, egal: "{papa_id}"}
+  - firestore: {doc: "users/{kid}", champ: active_task, egal: ""}

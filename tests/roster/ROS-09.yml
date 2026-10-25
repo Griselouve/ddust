@@ -1,0 +1,31 @@
+test: ROS-09
+titre: Un enfant non chef ne voit pas « A quitté le clan » sur sa tuile
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page]
+etapes:
+  - enfant: {action: navigate_new.clan_page}
+  - enfant: {attend: clan_page, delai: 60}
+  - enfant: {attend_libre: true, delai: 60}
+  # Non chef, mineur, sur sa propre tuile : menu vide (worker_screen_clan.dart:531-541,
+  # « A quitté le clan » réservé aux adultes "a"). Le menu du roster est un DvMenu non
+  # tapable : on interroge son sélecteur worker.clan_selector (outil roster_menu).
+  - outil: {nom: roster_menu, telephone: enfant, cible: {id: "{kid}", name: Kid, legal_state: k, admin: false, founder: false, original_clan: "{clan}", no_account: false, dead: false, has_device: true}, vide: true, strict: true}
+  # La garde redoublée de l'action : un enfant qui l'appellerait quand même est refusé
+  # (worker_members.dart:1257-1261).
+  - enfant: {action: worker.revoke_player, event: {id: "{kid}", name: Kid}}
+  - enfant: {attend_journal: "[roster] revoke_player refusé : non-chef, cible={kid}", delai: 60}
+verifs:
+  - outil: {nom: roster_menu, telephone: enfant, cible: {id: "{kid}", name: Kid, legal_state: k, admin: false, founder: false, original_clan: "{clan}", no_account: false, dead: false, has_device: true}, vide: true, absent: [revoke_player]}
+  # Un menu vide peut aussi venir d'une erreur du sélecteur (repli `empty`, l. 710-712).
+  - journal: {telephone: enfant, absent: "[roster] clan_selector failed"}
+  - enfant: {page: clan_page}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: enabled, different: false}

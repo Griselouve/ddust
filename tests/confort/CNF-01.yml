@@ -1,0 +1,66 @@
+test: CNF-01
+titre: Ouvrir les guides parent et enfant
+criticite: mineur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Les leçons dvtuto jouent sur un voile (OverlayEntry) qui n'est pas une shape, et la page
+# est gelée pendant la leçon : aucune action n'avance une étape. Le voile avance d'un TAP
+# N'IMPORTE OÙ (dvtuto_overlay.dart:232-254, hold 0,3 s) ; un panneau trop long défile
+# d'abord. On tape donc au milieu de l'écran, par adb, plus de fois qu'il n'y a d'étapes
+# (4 panneaux chacun) ; les taps de trop tombent sur le dashboard, sans rien dessus.
+# ⚠ Coordonnées pour un écran de 1080 px de large (émulateurs dvtest) : à ajuster sinon.
+poses:
+  dvtuto.suspended: false
+  # Les leçons du dashboard, lancées à la fin de la bienvenue, occupaient le tutoriel au
+  # moment du rejeu du guide enfant, qui était ignoré (2026-10-18) : marquées vues.
+  dvtuto.seen.dashboard_intro: true
+  dvtuto.seen.recruit_dashboard: true
+  dvtuto.seen.safety_adult: true
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [tuto:guide_enfant, tuto:guide_parent]
+etapes:
+  # La leçon exige worker.player_is_adult = "true" (dvtuto.yml:163), publié par _ensureIsAdult
+  # à l'apparition du dashboard (_storeCanBuy). On reste sur le dashboard : la leçon joue
+  # sur l'écran courant, et les taps de trop n'y touchent rien.
+  - papa: {attend_libre: true, delai: 60}
+  # Publié un peu après l'arrivée sur le dashboard (vu 12 s trop tôt le 2026-10-18).
+  - papa: {attend_journal: "[store] isAdult=true", delai: 120}
+  - papa: {verifie: {valeur: worker.player_is_adult, egal: "true"}}
+  # Option « Guide du parent » du kebab Personnage (registry_personnage.yml:281-287) :
+  # options de DvMenu non tapables, on appelle leur action.
+  - papa: {action: dvtuto.play.guide_parent}
+  - papa: {attend_journal: "dvtuto: début", delai: 30}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {attend_journal: "dvtuto: leçon 'guide_parent' vue (persistée)", delai: 30}
+  # Le guide de l'enfant : `play` respecte les `requires` de la leçon (adulte → refusé) ;
+  # le rejeu de l'écran Tutoriels (`dvtuto.replay`) les court-circuite au niveau leçon
+  # (dvtuto.yml:11-17), et ses étapes n'en ont pas.
+  - papa: {attend_libre: true, delai: 30}
+  - papa: {action: dvtuto.replay.guide_enfant}
+  - papa: {attend_journal: "guide_enfant(", delai: 30}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {tape_xy: [540, 700]}
+  - papa: {attend_journal: "dvtuto: leçon 'guide_enfant' vue (persistée)", delai: 30}
+verifs:
+  - papa: {valeur: dvtuto.seen.guide_parent, egal: true}
+  - papa: {valeur: dvtuto.seen.guide_enfant, egal: true}
+  - papa: {valeur: tuto.playing, different: true}

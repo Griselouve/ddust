@@ -1,0 +1,39 @@
+test: TAC-02
+titre: Verdict partiel puis refusé
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:combat]
+etapes:
+  # salon_01 : immortelle, effort 3, recharge 72 h → XP de base 3 × (10 + 72/12) = 48
+  # (worker_tuning.dart:71-74). Partiel = moitié, 24 (worker_verdict.dart:544), tâche
+  # « alive » à moitié régénérée (l. 161-167). Deux verdicts acceptés au plus : le mur de
+  # première cotisation (3 validations à deux) n'est pas atteint, pas de code_cadeau.
+  - enfant: {macro: tache_faire, tache: salon_01}
+  - papa:   {macro: tache_juger, tache: salon_01, verdict: partial, attendu: "[combat] verdict PARTIEL: salon_01"}
+  - enfant: {attend_journal: "[combat] résolution = libération (status=alive): salon_01", delai: 240}
+  - enfant: {attend_libre: true, delai: 90}
+  - outil: {nom: firestore_attend, doc: "clans_players/{clan}/players/{kid}", champ: xp, egal: 24, delai: 60}
+  # Second tour sur la même tâche : journaux vidés, pour que les attentes de journal ne
+  # retrouvent pas les lignes du premier tour.
+  - outil: {nom: journal_vide, telephone: enfant}
+  - outil: {nom: journal_vide, telephone: papa}
+  - enfant: {macro: tache_faire, tache: salon_01}
+  - papa:   {macro: tache_juger, tache: salon_01, verdict: ko, attendu: "[combat] verdict REFUSÉ: salon_01 → assigned ({kid})"}
+  # Refus : la tâche reste à l'enfant, seule la preuve est abandonnée (worker_watch.dart:327-335).
+  - enfant: {attend_journal: "[combat] résolution = refus → preuve abandonnée: salon_01", delai: 240}
+verifs:
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedPartial}, champ: data.xp, egal: 24}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedPartial}, champ: userId, egal: "{kid}"}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedKo}, champ: data.xp, egal: 0}
+  # XP conforme : le refus ne crédite rien.
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: xp, egal: 24}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/salon_01", champ: status, egal: assigned}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/salon_01", champ: assignee, egal: "{kid}"}

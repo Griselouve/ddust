@@ -28,6 +28,16 @@ part of 'worker.dart';
 // --- Globals shortcuts and miscellaneous
 // -----------------------------------------------------------------------------
 
+// Les shapes du panneau du chef seul (commons/solo_*, injectées par page_taskbar). Une seule
+// liste pour ouvrir et refermer, comme le panneau « Noter et partager ».
+const List<String> _kSoloChiefShapes = <String>[
+    "commons/solo_scrim",
+    "commons/solo_panel",
+    "commons/solo_text",
+    "commons/solo_guide",
+    "commons/solo_play",
+];
+
 // -----------------------------------------------------------------------------
 // --- worker extension — Tâches du clan
 // -----------------------------------------------------------------------------
@@ -46,8 +56,14 @@ extension Worker_tasks on worker {
                                 // Sélection générique : un seul handler préfixé remplace ~150 registrations
                                 // de tâches feuilles. Action "seltask.<taskId>" (ex: seltask.voiture_01).
                                 ActionRegistry.register_prefix("seltask", (String taskId, dynamic caller, dynamic event) async {
+                                    if (await _soloChiefNotice(taskId)) return;
                                     await _selectTask(taskId);
                                 });
+                                // Panneau du chef seul (commons/solo_*) : la mascotte montre « Accueillir
+                                // un joueur », ou la tâche touchée part quand même, ou le voile referme.
+                                ActionRegistry.register("worker.on_solo_chief_guide",       on_solo_chief_guide);
+                                ActionRegistry.register("worker.on_solo_chief_play",        on_solo_chief_play);
+                                ActionRegistry.register("worker.on_solo_chief_close",       on_solo_chief_close);
 
                                 // Ouverture du sous-tiroir d'un domaine : "seldomain.<domaine>" (ex: seldomain.cuisine).
                                 // Remplace les ~19 task_<domaine>_select. Vérifie domains.<domaine>.enabled avant nav.
@@ -1079,6 +1095,84 @@ extension Worker_tasks on worker {
     //   - "seldomain.<dom>"   -> ouvre l'écran "<dom>_tasks" si le domaine est enabled
 
     //-----------------------------------------------------------------------
+    //-- Chef seul : les aventuriers, ce sont les enfants -------------------
+    //-----------------------------------------------------------------------
+    //
+    // Un chef dont le clan est encore SEUL (worker.clan_alone, posé par le roster) touche une
+    // tâche : un panneau lui dit que ce sont les enfants qui combattent, et lui propose
+    // « J'ajoute mon enfant » (la mascotte fait le chemin jusqu'à « Accueillir un joueur ») ou
+    // « Jouer quand même » (la tâche touchée part). Une fois par lancement : un parent qui veut
+    // vraiment jouer n'est arrêté qu'une fois, et sa place hors concours reste la sienne.
+    //
+    // ⚠ SEUL LE TOUCHER passe ici, jamais `_selectTask` : la démonstration du tutoriel prend
+    //   sa tâche sans être interrompue. Un joueur emprunté (prise de place) n'est pas concerné.
+
+    // Rend true si le panneau s'est ouvert (la tâche attend la réponse).
+    Future<bool> _soloChiefNotice(String taskId) async {
+
+                                if (_impersonating || _userId.isEmpty || _soloNoticeFor == _userId) return false;
+                                if ((await deva_get("worker.clan_alone"))?.toString() != "true") return false;
+                                // Mort ou déjà en combat : _selectTask a sa propre réponse.
+                                if ((await deva_get("session.player_dead")) == true) return false;
+                                if (((await Deva.instance.get("session.active_task"))?.toString() ?? "").isNotEmpty) return false;
+                                if (DvOrb.get_shape_by_id("commons/solo_panel") == null) return false;
+                                try {
+                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
+                                    final session    = await _readSession(region);
+                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
+                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
+                                    if (!await _ensureIsAdmin(clanId, clanSecret, region)) return false;
+                                } catch (e) {
+                                    // Une lecture en échec ne retient jamais une tâche.
+                                    deva_log("warning", "[solo] contrôle de chef en échec ($e), la tâche part");
+                                    return false;
+                                }
+                                _soloNoticeFor   = _userId;
+                                _soloPendingTask = taskId;
+                                deva_log("info", "[solo] chef seul, tâche $taskId : panneau des aventuriers");
+                                for (final id in _kSoloChiefShapes) {
+                                    DvOrb.get_shape_by_id(id)?.show();
+                                }
+                                return true;
+    }
+
+    void _soloChiefHide() {
+
+                                for (final id in _kSoloChiefShapes) {
+                                    DvOrb.get_shape_by_id(id)?.hide();
+                                }
+                                _soloPendingTask = "";
+    }
+
+    // « J'ajoute mon enfant » : la mascotte fait le chemin jusqu'à « Accueillir un joueur »
+    // (destination générée depuis le menu du clan, cf. dvmascot.yml guide.menus). Sans mascotte,
+    // l'écran Clan, où sont le menu et la bannière d'appel au recrutement.
+    Future<void> on_solo_chief_guide(dynamic caller, dynamic event) async {
+
+                                _soloChiefHide();
+                                var guide = false;
+                                try {
+                                    final r = ActionRegistry.get("dvmascot.guide")?.call(caller, "clan_welcome");
+                                    guide = (r is Future ? await r : r) == true;
+                                } catch (e) {
+                                    deva_log("warning", "[solo] guidage de la mascotte en échec ($e)");
+                                }
+                                if (!guide) DvOrb.navigate_reset("clan_page");
+    }
+
+    Future<void> on_solo_chief_play(dynamic caller, dynamic event) async {
+
+                                final taskId = _soloPendingTask;
+                                _soloChiefHide();
+                                if (taskId.isNotEmpty) await _selectTask(taskId);
+    }
+
+    Future<void> on_solo_chief_close(dynamic caller, dynamic event) async {
+
+                                _soloChiefHide();
+    }
+
+    //-----------------------------------------------------------------------
     //-- Tache de DEMONSTRATION (tutoriel « ta tache en cours ») ------------
     //-----------------------------------------------------------------------
     //
@@ -1665,6 +1759,9 @@ extension Worker_tasks on worker {
 
                             // Clone → on résout l'image de l'original (point A : même icône que l'original).
                             taskId = _originalOf(taskId);
+                            // Sans tâche (écran ouvert sans passer par adm_edit, ex. la vitrine) : aucune
+                            // image plutôt que `images/task__nobg.png`, qui n'existe pas.
+                            if (taskId.isEmpty) return "";
                             // Image stockée sur le doc (tâche user-created ou image éditée) : prioritaire, car
                             // ces tâches n'ont aucune entrée `icons.<id>.image` en config.
                             final stored = (await deva_get("tasks.$taskId.image"))?.toString() ?? "";

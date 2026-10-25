@@ -1,0 +1,93 @@
+test: MUL-02
+titre: "Enfant accueilli dans le clan d'un autre adulte : son représentant accepte"
+criticite: majeur
+# Compte A3 absent de la réserve (plan § 2) : repasser à true une fois créé.
+enabled: false
+telephones: [papa, tonton, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Parcours (refonte du 2026-10-18) : Kid, déjà dans le clan de Papa, montre son QR code à Tonton
+# (chef du clan B), qui l'accueille sans rien décider pour lui (mode `guest`). L'app de Kid
+# relaie la demande dans sa représentation et prévient Papa, son représentant ; Papa accepte
+# depuis « Mes enfants » ; l'app de Kid entre dans B avec le dépôt gardé.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:clan_page
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:guardian_hub_page
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:my_clans_page
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:ward_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - tonton: {macro: onboarding_adulte, nom: Tonton}
+  - tonton: {macro: creer_clan, clan: Les Cousins}
+  - outil:  {nom: identite, telephone: tonton, champ: clan, garde: clan_b}
+  # 1. Kid : « Mes clans » → « Rejoindre un autre clan » : sa question d'abord, puis son QR code.
+  - enfant: {action: navigate_new.clan_page}
+  - enfant: {attend: clan_page, delai: 60}
+  - enfant: {action: worker.open_my_clans}
+  - enfant: {attend: my_clans_page, delai: 30}
+  - enfant: {action: worker.on_my_clans_pick, event: {id: __join}}
+  - enfant: {attend: kid_assent_screen, delai: 60}
+  - enfant: {tap: kid_assent/go}
+  - enfant: {attend: join_show_screen, delai: 60}
+  - outil:  {nom: qr_lire, telephone: enfant, motif: "^ddust://join", garde: patte_b}
+  # 2. Tonton : « Accueillir un joueur », le QR code ; l'écran dit que ses parents décideront.
+  - tonton: {action: worker.on_welcome_player}
+  - tonton: {attend: welcome_child_screen, delai: 30}
+  # QR donné comme par le lecteur intégré (action de ddust://join), pas par un lien Android.
+  - outil: {nom: lien_event, url: "{patte_b}", garde: patte_b_ev}
+  - tonton: {action: worker.on_join_link, event: "{patte_b_ev}"}
+  - tonton: {attend: invite_consent_screen, delai: 60}
+  - tonton: {attend_libre: true, delai: 30}
+  - tonton: {verifie: {shape: invite_consent_screen/notice, contient_un: ["Ses parents recevront la demande", "invite_consent_notice_guest"]}}
+  - tonton: {tap: invite_consent_screen/yes}
+  # 3. Kid : la demande part chez Papa ; il revient à son clan (« Mes clans » le dit).
+  - enfant: {attend_journal: "relayée aux représentants (ok=true)", delai: 120}
+  - outil:  {nom: firestore_attend, doc: "guardianship/{kid}", champ: "history", non_vide: true, delai: 60}
+  # 4. Papa : « Mes enfants » → « Demandes d'autres clans » → la demande de Kid (l'identifiant
+  #    de l'enfant seul désigne sa première demande en attente) → les deux boutons → J'accepte.
+  - papa:   {action: worker.open_guardian_hub}
+  - papa:   {attend: guardian_hub_page, delai: 30}
+  - papa:   {action: worker.on_guardian_hub_pick, event: {id: guest_requests}}
+  - papa:   {attend: ward_pick_page, delai: 30}
+  - papa:   {action: worker.on_ward_pick, event: {id: "{kid}"}}
+  - papa:   {attend: invite_consent_screen, delai: 30}
+  - papa:   {attend_libre: true, delai: 30}
+  - papa:   {tap: invite_consent_screen/reads}
+  # Un tap arrivé avant que l'écran soit prêt est ignoré : s'il reste visible, on retouche.
+  - papa: {pause: 2}
+  - papa: {si_visible: "invite_consent_screen/reads", alors: [{tap: "invite_consent_screen/reads"}]}
+  - papa:   {tap: invite_consent_screen/yes}
+  - papa:   {attend: ward_pick_page, delai: 30}
+  # 5. Kid : sa vigilance sur sa représentation voit le oui, l'entrée se fait d'elle-même.
+  - enfant: {attend_journal: "[join] attach_ack", delai: 180}
+  - enfant: {attend: dashboard, delai: 120}
+  - enfant: {attend_libre: true, delai: 60}
+verifs:
+  - enfant: {page: dashboard}
+  - firestore: {doc: "guardianship/{kid}", champ: "guest_auth.{clan_b}.by", existe: true}
+  # L'autorisation a servi (used_at posé à l'entrée).
+  - firestore: {doc: "guardianship/{kid}", champ: "guest_auth.{clan_b}.used_at", different: ""}
+  - firestore: {doc: "clans_players/{clan_b}/players/{kid}", champ: legal_state, egal: k}

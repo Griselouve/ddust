@@ -1,0 +1,81 @@
+test: MUL-01
+titre: Adulte dans deux clans, bascule
+criticite: majeur
+# Comptes A2 et A3 absents de la réserve (plan § 2) : repasser à true une fois créés.
+enabled: false
+telephones: [papa, maman, tonton]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Plafond gratuit de 2 joueurs : chaque clan n'a ici que son chef et Maman.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:clan_page
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:my_clans_page
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - tonton: {macro: onboarding_adulte, nom: Tonton}
+  - tonton: {macro: creer_clan, clan: Les Cousins}
+  - maman:  {macro: onboarding_adulte, nom: Maman}
+  # 1er clan : celui de Papa (macros/inviter_adulte.yml : papa chef, maman montre son QR code).
+  - macro: inviter_adulte
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan_a}
+  - outil: {nom: identite, telephone: tonton, champ: clan, garde: clan_b}
+  - outil: {nom: identite, telephone: maman, champ: userId, garde: maman_id}
+  # 2e clan : « Mes clans » (clan_page/switch → my_clans_page), ligne « Rejoindre un autre
+  # clan » (id __join) : un adulte arrive sur join_show_screen (_openJoinOther). Les lignes de
+  # DvList ne sont pas tapables.
+  - maman:  {action: navigate_new.clan_page}
+  - maman:  {attend: clan_page, delai: 60}
+  - maman:  {action: worker.open_my_clans}
+  - maman:  {attend: my_clans_page, delai: 30}
+  - maman:  {action: worker.on_my_clans_pick, event: {id: __join}}
+  - maman:  {attend: join_show_screen, delai: 60}
+  - outil:  {nom: qr_lire, telephone: maman, motif: "^ddust://join", garde: patte_b}
+  - tonton: {action: worker.on_welcome_player}
+  - tonton: {attend: welcome_child_screen, delai: 30}
+  # QR donné comme par le lecteur intégré (action de ddust://join), pas par un lien Android.
+  - outil: {nom: lien_event, url: "{patte_b}", garde: patte_b_ev}
+  - tonton: {action: worker.on_join_link, event: "{patte_b_ev}"}
+  - tonton: {attend: invite_consent_screen, delai: 60}
+  - tonton: {attend_libre: true, delai: 30}
+  - tonton: {tap: invite_consent_screen/yes}
+  - maman:  {attend: dashboard, delai: 240}
+  - maman:  {attend_libre: true, delai: 60}
+  # Maman est entrée dans le clan B (pointeur steps.clan déplacé). Bascule vers le clan A :
+  # rideau passage_switch puis _switchToClan.
+  - maman:  {action: navigate_new.clan_page}
+  - maman:  {attend: clan_page, delai: 60}
+  - maman:  {action: worker.open_my_clans}
+  - maman:  {attend: my_clans_page, delai: 30}
+  - maman:  {action: worker.on_my_clans_pick, event: {id: "{clan_a}", label: Les Testeurs}}
+  - maman:  {attend_journal: "[multiclan] bascule vers {clan_a}", delai: 60}
+  - maman:  {attend: dashboard, delai: 120}
+  - maman:  {attend_libre: true, delai: 60}
+verifs:
+  - maman: {page: dashboard}
+  - maman: {valeur: session.clan.name, egal: Les Testeurs}
+  - firestore: {doc: "users/{maman_id}", champ: steps.clan.clanId, egal: "{clan_a}"}
+  - firestore: {doc: "users/{maman_id}", champ: "clans.{clan_b}.enabled", egal: true}
+  - journal: {telephone: maman, absent: "[multiclan] bascule refusée"}

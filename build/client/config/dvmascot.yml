@@ -42,7 +42,7 @@ conf:
       - documents_acceptance_screen
       - documents_view_screen
       - kid_assent_screen
-      - kid_assent_share
+      - join_show_screen
       - link_account_screen
       - new_or_pick_clan
       - new_or_pick_clan_minor
@@ -50,9 +50,6 @@ conf:
       - decisiontree
       # Le choix du thème : deux grandes cartes pleine largeur, rien à couvrir.
       - theme_pick_page
-      - join_wait
-      - enter_invite_pin
-      - kid_wants_clan
       # La cérémonie de la fée : un écran-événement, la mascotte n'y a pas sa place.
       - fairy_page
     style:
@@ -146,10 +143,6 @@ conf:
           id: clan
           where: "Écran Clan, menu « … »"
           via: [{page: clan_page}, {tap: clan_page/settings}]
-        - menu: clan_page/add_child_menu
-          id: clan_enfant
-          where: "Écran Clan, menu « … », « Ajouter mon enfant »"
-          via: [{page: clan_page}, {tap: clan_page/settings}, {option: "clan_page/settings_menu#add_child"}]
         - menu: clan_page/advanced_menu
           id: clan_avance
           where: "Écran Clan, menu « … », « Options avancées… »"

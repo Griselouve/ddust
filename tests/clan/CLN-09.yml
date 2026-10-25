@@ -1,0 +1,60 @@
+test: CLN-09
+titre: "Par code, « non, je ne les connais pas » : personne n'entre"
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# Le cas qu'un code deviné ouvrirait : un adulte saisit le code d'un enfant qui n'est pas le sien.
+# Le dépôt est arrivé par CODE (sans l'aléa du QR) : l'enfant doit confirmer, et il refuse.
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - papa:   {macro: onboarding_adulte, nom: Papa}
+  - papa:   {macro: creer_clan, clan: Les Inconnus}
+  - enfant: {macro: onboarding_mineur}
+  - outil:  {nom: mul_code, telephone: enfant, shape: join_show_screen/code, motif: join, garde: code}
+  - papa:   {action: worker.on_welcome_player}
+  - papa:   {attend: welcome_child_screen, delai: 30}
+  - papa:   {tap: welcome_child_screen/remote}
+  - papa:   {attend_shape: welcome_child_screen/code, delai: 10}
+  - papa:   {ecrit: welcome_child_screen/code, texte: "{code}"}
+  - papa:   {tap: welcome_child_screen/code_go}
+  - papa:   {attend: invite_consent_screen, delai: 60}
+  - papa:   {attend_libre: true, delai: 30}
+  - papa:   {tap: invite_consent_screen/reads}
+  # Un tap arrivé avant que l'écran soit prêt est ignoré : s'il reste visible, on retouche.
+  - papa: {pause: 2}
+  - papa: {si_visible: "invite_consent_screen/reads", alors: [{tap: "invite_consent_screen/reads"}]}
+  - papa:   {tap: invite_consent_screen/yes}
+  - enfant: {attend_shape: join_show_screen/family_no, delai: 60}
+  - enfant: {verifie: {shape: join_show_screen/status, contient_un: ["C'est bien ta famille ?", "join_show_family"]}}
+  - enfant: {tap: join_show_screen/family_no}
+  - enfant: {attend_journal: "[join] le candidat ne reconnaît pas le clan", delai: 30}
+  # La nouvelle boîte s'ouvre ensuite (quelques secondes), puis le message « code neuf ».
+  - enfant: {attend_texte: join_show_screen/status, contient_un: ["Voici un nouveau code", "join_show_new_code"], delai: 60}
+verifs:
+  - enfant: {page: join_show_screen}
+  - enfant: {shape: join_show_screen/status, contient_un: ["Voici un nouveau code", "join_show_new_code"]}
+  - journal: {telephone: enfant, contient: "[join] dépôt reçu ({code}, par code)"}
+  # Il n'a pas lié de compte, il n'est entré nulle part.
+  - journal: {telephone: enfant, absent: "_flushOnboarding: onboarding inscrit en base"}
+  - firestore: {doc: "clans_joins/{code}", existe: false}

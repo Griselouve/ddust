@@ -1,0 +1,35 @@
+test: ONB-02
+titre: "Onboarding mineur jusqu'à l'écran qui montre patte blanche"
+criticite: critique
+enabled: true
+telephones: [enfant]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+etapes:
+  - enfant: {macro: onboarding_mineur}
+  - outil:  {nom: mul_code, telephone: enfant, shape: join_show_screen/code, motif: join, garde: code}
+verifs:
+  - enfant: {page: join_show_screen}
+  - enfant: {shape: join_show_screen/qrcode, champ: content, contient: "ddust://join?c={code}"}
+  - outil:  {nom: qr_lire, telephone: enfant, motif: "^ddust://join"}
+  # La boîte existe, ouverte, sans donnée personnelle : l'état légal et l'accord de l'enfant.
+  - firestore: {doc: "clans_joins/{code}", champ: status, egal: open}
+  - firestore: {doc: "clans_joins/{code}", champ: legal, egal: k}
+  - firestore: {doc: "clans_joins/{code}", champ: assent.text_key, egal: kid_assent_question}
+  # Rien d'autre n'est écrit avant la décision du parent.
+  - journal: {telephone: enfant, absent: "_flushOnboarding: onboarding inscrit en base"}
+  # Le code est AFFICHÉ (« Ton code : 48E-D8 »), pas la clé brute : défaut constaté le
+  # 2026-10-18 (thème du bucket de production chargé avant le choix du royaume).
+  - enfant: {shape: join_show_screen/code, different: "join_show_code"}

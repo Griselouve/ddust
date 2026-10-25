@@ -1,0 +1,33 @@
+test: ENF-02
+titre: Enfant sans compte créé par le chef
+criticite: critique
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page, ecran:create_player_screen]
+etapes:
+  # « Ajouter mon enfant » → « il n'a pas de téléphone » (macros/creer_joueur.yml). La
+  # confirmation écrit la fiche dans clans_players sans users ni userindexes, puis revient à
+  # l'écran Clan et rafraîchit le roster (worker_forms.dart:1164-1204).
+  - papa: {macro: creer_joueur, nom_joueur: Lou}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_journal: "[clan] create_player : Lou (", delai: 60}
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan}
+  - outil: {nom: firestore_cherche, collection: players, groupe: true, champ: name, egal: Lou, lire: id, garde: lou}
+verifs:
+  - papa: {page: clan_page}
+  # worker_forms.dart:1199
+  - journal: {telephone: papa, contient: "[clan] create_player : Lou ({lou}) créé dans {clan}"}
+  # La fiche du joueur sans compte : no_account, mineur (worker_clan.dart:2681-2685).
+  - firestore: {doc: "clans_players/{clan}/players/{lou}", champ: no_account, egal: true}
+  - firestore: {doc: "clans_players/{clan}/players/{lou}", champ: legal_state, egal: k}
+  # Pas de compte : aucun doc users à son nom.
+  - firestore: {doc: "users/{lou}", existe: false}
+  # Journal du clan : MemberCreated (worker_forms.dart:1196).
+  - firestore: {collection: logs, groupe: true, ou: {champ: userId, egal: "{lou}"}, champ: event, egal: MemberCreated}

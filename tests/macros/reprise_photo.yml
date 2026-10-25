@@ -1,0 +1,24 @@
+# La reprise d'une PHOTO (moteur : phones.yml `photo.connexion`) : jouée par chaque
+# téléphone de la photo, sur une app NEUVE dont le joueur existe déjà en base (documents
+# réimportés par le moteur). Le chemin d'un joueur qui réinstalle l'app, celui d'ONB-03 :
+# seuil, langue, « Retrouver mon héros » (dvcloud.do_login_existing → worker.verify_account
+# → worker.on_login → dashboard). L'intro est marquée vue par le moteur.
+macro: reprise_photo
+etapes:
+  # Le salut vocal du premier dashboard sur ce téléphone (worker.dashboard_greeted) : déjà
+  # entendu par ce joueur au test d'origine. Posé avant le login, versé au compte ensuite.
+  - pose: worker.dashboard_greeted
+    valeur: "true"
+  # Le réveil passe parfois seul au choix de la langue (comme macros/seuil.yml).
+  - {attend: [awake, lang_choice], delai: 120}
+  - {si_visible: awake/tap, alors: [{tap: awake/tap}]}
+  - attend: lang_choice
+  - action: worker.on_lang_chosen
+    event: fr
+  - attend: home
+    delai: 120
+  - tap: home/already_have_account
+  - attend: dashboard
+    delai: 180
+  - attend_libre: true
+    delai: 60

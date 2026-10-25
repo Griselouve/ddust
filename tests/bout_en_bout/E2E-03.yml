@@ -1,0 +1,27 @@
+test: E2E-03
+titre: "Reprise d'une photo : chef et enfant retrouvent leur clan sur une app neuve"
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# Le mécanisme dont dépendent les tests raccourcis : la photo « famille » réimportée (dates
+# décalées), assets préchargés depuis le workspace, puis chaque téléphone par « Retrouver
+# mon héros » (macros/reprise_photo.yml). Rien d'autre : s'il échoue, les tests
+# `photo: famille` ne disent plus rien de l'app.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:dashboard, ecran:documents_acceptance_screen]
+etapes:
+  - papa: {attend: dashboard, delai: 30}
+  - enfant: {attend: dashboard, delai: 30}
+verifs:
+  - journal: {telephone: papa, contient: "verify_account: compte reconnu en région"}
+  - journal: {telephone: enfant, contient: "verify_account: compte reconnu en région"}
+  # Aucune seconde inscription, aucune CGU à réaccepter.
+  - journal: {telephone: papa, absent: "_flushOnboarding: onboarding inscrit en base"}
+  - journal: {telephone: papa, absent: "navigate_reset vers : /documents_acceptance_screen"}
+  - papa: {valeur: worker.is_chief, egal: "true"}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: legal_state, egal: k}
+  - firestore: {doc: "guardianship/{kid}", existe: true}

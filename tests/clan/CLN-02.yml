@@ -1,0 +1,61 @@
+test: CLN-02
+titre: Accueillir un adulte par son QR code
+criticite: critique
+# Compte A2 absent de la réserve (plan § 2) : repasser à true une fois A2 créé.
+enabled: false
+telephones: [papa, maman]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:welcome_child_screen
+etapes:
+  - maman: {macro: onboarding_adulte, nom: Maman}
+  # L'invitée montre patte blanche ; son code est gardé pour vérifier que la boîte disparaît.
+  - maman: {tap: new_or_pick_clan/join}
+  - maman: {attend: join_show_screen, delai: 60}
+  - outil: {nom: mul_code, telephone: maman, shape: join_show_screen/code, motif: join, garde: code}
+  - outil: {nom: qr_lire, telephone: maman, motif: "^ddust://join", garde: patte}
+  # Le chef : « Accueillir un joueur », puis le QR code (lien profond ddust://join).
+  - papa: {action: worker.on_welcome_player}
+  - papa: {attend: welcome_child_screen, delai: 30}
+  # Le QR donné au chef comme par son lecteur intégré (l'action de la route ddust://join) :
+  # le lien Android passe par une pause de l'app et n'est pas toujours servi (2026-10-18).
+  - outil: {nom: lien_event, url: "{patte}", garde: patte_ev}
+  - papa: {action: worker.on_join_link, event: "{patte_ev}"}
+  - papa: {attend: invite_consent_screen, delai: 60}
+  - papa: {attend_libre: true, delai: 30}
+  - papa: {tap: invite_consent_screen/yes}
+  - maman: {attend: dashboard, delai: 240}
+  - maman: {attend_libre: true, delai: 60}
+  - outil: {nom: identite, telephone: maman, champ: userId, garde: maman_id}
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan}
+verifs:
+  - maman: {page: dashboard}
+  # worker_join.dart : le chef dépose, l'invitée lit le dépôt passé par le QR code.
+  - journal: {telephone: papa, contient: "[join] boîte {code} réclamée, mode adult"}
+  - journal: {telephone: papa, contient: "[join] dépôt fait ({code}"}
+  - journal: {telephone: maman, contient: "[join] dépôt reçu ({code}, par QR code)"}
+  # La boîte a servi : effacée par l'invitée.
+  - firestore: {doc: "clans_joins/{code}", existe: false}
+  # Sa fiche dans le clan du chef, et l'entrée MemberJoined du journal du clan.
+  - firestore: {doc: "clans_players/{clan}/players/{maman_id}", champ: name, egal: Maman}
+  - firestore: {collection: logs, groupe: true, ou: {champ: userId, egal: "{maman_id}"}, champ: event, egal: MemberJoined}

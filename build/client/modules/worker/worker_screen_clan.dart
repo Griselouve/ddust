@@ -169,12 +169,6 @@ extension Worker_screen_clan on worker {
                                 } catch (e) {
                                     deva_log("error", "[clan] on_clan_appear FAILED: $e");
                                 }
-                                // Invitations acceptées pendant que le jeu du chef était fermé (chef
-                                // seulement, cf. _resumeInvites). Ici, un clan plein ouvre la page des
-                                // paliers, comme au chemin vivant : c'est l'écran où le chef s'attend à
-                                // gérer son clan, et le login, lui, n'a rien affiché. Si l'on est parti vers
-                                // les paliers, pas de leçon derrière.
-                                if (await _resumeInvites(navigate: true)) return;
                                 // La leçon APRÈS l'appear, et non en parallèle depuis la liste `appear:`
                                 // (non attendue) : elle lisait un rôle pas encore établi (celui d'un autre
                                 // compte, parfois) et montrait les étapes des chefs à un joueur. Le roster
@@ -503,7 +497,8 @@ extension Worker_screen_clan on worker {
     // Sélecteur du DvMenu clan_page/roster_menu : reçoit `data` = infos du joueur cliqué
     // (poussées au roster) et retourne {"selectable": [...], "disabled": [...]} (les grisées
     // sont affichées mais non cliquables).
-    //  - non-admin, ou soi-même                    → rien (menu non ouvert)
+    //  - non-admin                                 → rien, sauf « A quitté le clan » sur sa propre
+    //                                                tuile pour un adulte, et les gestes de représentant
     //  - « guérir » : uniquement si le joueur est mort ; grisée si cooldown cure < 3 j
     //  - « coup de pouce » : uniquement pour le(s) joueur(s) NON ADMIN le(s) moins gradé(s) en
     //    XP du clan ; grisée si cooldown boost < 3 j
@@ -528,6 +523,14 @@ extension Worker_screen_clan on worker {
                                     // qu'il représente (consentement, majorité), chef de ce clan ou non.
                                     final ward = isSelf ? null : await _wardRosterOptions(m);
                                     if (!isAdmin) {
+                                        // DÉPART VOLONTAIRE D'UN ADULTE NON CHEF (2026-10-17) : sa propre tuile
+                                        // lui offre « A quitté le clan ». Avant, le menu d'un non-chef était vide
+                                        // et un adulte ne pouvait sortir d'un clan qu'en supprimant son compte.
+                                        // Adultes seulement ("a") : un mineur ne quitte pas seul le clan qui
+                                        // répond de lui ; revoke_player redouble la garde.
+                                        if (isSelf && (m["legal_state"]?.toString() ?? "") == "a" && m["founder"] != true) {
+                                            return {"selectable": ["revoke_player"], "disabled": [], "single": ""};
+                                        }
                                         if (ward == null) return empty;
                                         return {"selectable": ward["selectable"], "disabled": [], "single": ""};
                                     }

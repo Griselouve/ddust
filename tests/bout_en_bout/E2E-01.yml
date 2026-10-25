@@ -1,0 +1,44 @@
+test: E2E-01
+titre: "De zéro : onboarding du chef, son clan, son thème (photo « papa_clan »)"
+criticite: critique
+enabled: true
+telephones: [papa]
+# BOUT EN BOUT (ex CLN-01) : app neuve, RIEN de préchargé (`assets: reseau` : les assets
+# viennent du bucket, comme chez un joueur), compte neuf. À la fin, la photo « papa_clan »
+# (papa onboardé, son clan « Les Testeurs », au tableau de bord) dont repartent les tests
+# `photo: papa_clan`. Le moteur le joue avant eux si sa photo manque ou date d'avant l'APK.
+assets: reseau
+photo_exporte: papa_clan
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - papa: {macro: onboarding_adulte, nom: Papa}
+  - papa: {macro: creer_clan, clan: Les Testeurs}
+  - outil: {nom: identite, telephone: papa, champ: clan,   garde: clan}
+  - outil: {nom: identite, telephone: papa, champ: userId, garde: papa_id}
+verifs:
+  - papa: {page: dashboard}
+  - journal: {telephone: papa, contient: "clan créé → firestore OK"}
+  - journal: {telephone: papa, contient: "[theme] le fondateur a choisi theme-donjon"}
+  # Les assets téléchargés depuis le bucket : le questionnaire a trouvé son fichier.
+  - journal: {telephone: papa, contient: "question(s) chargées depuis"}
+  - journal: {telephone: papa, absent: "asset introuvable après 3 tentatives: configs/"}
+  - firestore: {doc: "clans/{clan}", champ: founder, egal: "{papa_id}"}

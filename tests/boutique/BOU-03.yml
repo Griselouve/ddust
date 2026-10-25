@@ -1,0 +1,53 @@
+test: BOU-03
+titre: Mur de première cotisation, report
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Le seuil (3 validations à deux) est posé dans Firestore (helpers/bou_cotisation.py) plutôt
+# que joué par trois tâches : le parcours des tâches est celui de la catégorie `taches`.
+# Un report se compte à la PRÉSENTATION, une fois par session (worker_store.dart:1160-1207) :
+# trois relances usent les trois reports, la quatrième présentation est le mur.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:dashboard, ecran:tiers_page]
+etapes:
+  - outil: {nom: bou_cotisation, telephone: papa, validations: 3, ancre: 0}
+  # 1re présentation, au passage au dashboard (worker_screen_tiroir.dart:135-145).
+  - papa: {relance: true}
+  - papa: {attend: tiers_page, delai: 120}
+  - papa: {attend_journal: "[store] première cotisation due (validations=3", delai: 30}
+  - papa: {attend_shape: tiers_page/defer, delai: 30}
+  - papa: {tap: tiers_page/defer}
+  - papa: {attend: dashboard, delai: 30}
+  - outil: {nom: firestore_attend, doc: "clans/{clan}", champ: pitch_defers, egal: 1, delai: 30}
+  # 2e et 3e sessions.
+  - papa: {relance: true}
+  - papa: {attend: tiers_page, delai: 120}
+  - papa: {attend_shape: tiers_page/defer, delai: 30}
+  - papa: {tap: tiers_page/defer}
+  - papa: {attend: dashboard, delai: 30}
+  - papa: {relance: true}
+  - papa: {attend: tiers_page, delai: 120}
+  # Dernier report : « Plus tard (dernière fois) » (tiers_defer_last).
+  - papa: {attend_shape: tiers_page/defer, delai: 30}
+  - papa: {tap: tiers_page/defer}
+  - papa: {attend: dashboard, delai: 30}
+  - outil: {nom: firestore_attend, doc: "clans/{clan}", champ: pitch_defers, egal: 3, delai: 30}
+  # 4e session : reports épuisés, le mur (tiers_page racine de pile, sans « Plus tard »).
+  - outil: {nom: journal_vide, telephone: papa}
+  - papa: {relance: true}
+  - papa: {attend: tiers_page, delai: 120}
+  - papa: {attend_journal: "mur (reports épuisés)", delai: 30}
+verifs:
+  - papa: {page: tiers_page}
+  - papa: {shape: tiers_page/defer, visible: false}
+  - journal: {telephone: papa, contient: "[store] paliers en écran bloquant (racine de pile)"}
+  # Réservé aux chefs adultes : l'enfant n'a jamais vu l'écran (worker_store.dart:1016).
+  - enfant: {page: dashboard}
+  - journal: {telephone: enfant, absent: "[store] première cotisation"}
+  - firestore: {doc: "clans/{clan}", champ: pitch_due_since, different: ""}

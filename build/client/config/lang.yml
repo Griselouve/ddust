@@ -21,6 +21,48 @@ conf:
 
   lang:
     translations:
+      # --- CHEF SEUL QUI TOUCHE UNE TÂCHE (commons/solo_*, worker_tasks._soloChiefNotice) :
+      # ce sont les enfants qui combattent. « J'ajoute mon enfant » envoie la mascotte vers
+      # « Accueillir un joueur ».
+      solo_chief_text:
+        fr: "Dans Donjons & Savons, ce sont les enfants qui partent à l'aventure et affrontent les tâches. Toi, tu mènes le clan : tu valides leurs exploits et tu partages le butin. Ton clan n'a encore aucun aventurier : fais-les entrer !"
+        en: "In Donjons & Savons, children are the ones who go on adventures and take on the tasks. You lead the clan: you approve their feats and share out the loot. Your clan has no adventurers yet: bring them in!"
+        es: "En Donjons & Savons, son los niños quienes salen de aventura y se enfrentan a las tareas. Tú diriges el clan: validas sus hazañas y repartes el botín. Tu clan aún no tiene aventureros: ¡haz que entren!"
+        de: "In Donjons & Savons ziehen die Kinder auf Abenteuer aus und stellen sich den Aufgaben. Du führst den Clan: Du bestätigst ihre Heldentaten und verteilst die Beute. Dein Clan hat noch keine Abenteurer: Hol sie herein!"
+        it: "In Donjons & Savons sono i bambini a partire all'avventura e ad affrontare i compiti. Tu guidi il clan: convalidi le loro imprese e dividi il bottino. Il tuo clan non ha ancora avventurieri: falli entrare!"
+        pt: "Em Donjons & Savons, são as crianças que partem à aventura e enfrentam as tarefas. Tu lideras o clã: validas as suas proezas e repartes o saque. O teu clã ainda não tem aventureiros: fá-los entrar!"
+        br: "Em Donjons & Savons, são as crianças que saem em aventura e enfrentam as tarefas. Você lidera o clã: valida as façanhas delas e divide o tesouro. Seu clã ainda não tem aventureiros: chame-os para entrar!"
+        nl: "In Donjons & Savons gaan de kinderen op avontuur en nemen zij de taken op zich. Jij leidt de clan: je keurt hun heldendaden goed en verdeelt de buit. Je clan heeft nog geen avonturiers: haal ze binnen!"
+      solo_chief_guide:
+        fr: "J'ajoute mon enfant"
+        en: "I'm adding my child"
+        es: "Añado a mi hijo"
+        de: "Ich füge mein Kind hinzu"
+        it: "Aggiungo mio figlio"
+        pt: "Adiciono o meu filho"
+        br: "Adiciono meu filho"
+        nl: "Ik voeg mijn kind toe"
+      solo_chief_play:
+        fr: "Jouer quand même"
+        en: "Play anyway"
+        es: "Jugar de todos modos"
+        de: "Trotzdem spielen"
+        it: "Gioca comunque"
+        pt: "Jogar na mesma"
+        br: "Jogar mesmo assim"
+        nl: "Toch spelen"
+      # --- L'ADHÉSION À UN CLAN (2026-10-18) : le candidat montre patte blanche (QR code +
+      #     code), le chef l'accueille, le représentant décide en différé (worker_join.dart).
+      tuto_clan_welcome:
+        fr: "Pour faire entrer quelqu'un, adulte ou enfant, touche « Accueillir un joueur » : il te montre son QR code (ou te lit son code), tu le scannes, et tu vois tout de suite si c'est un adulte ou un enfant avant de décider."
+        en: "To let someone in, adult or child, tap “Welcome a player”: they show you their QR code (or read you their code), you scan it, and you see straight away whether it is an adult or a child before you decide."
+        es: "Para dejar entrar a alguien, adulto o niño, toca «Acoger a un jugador»: te enseña su código QR (o te lee su código), lo escaneas y ves enseguida si es un adulto o un niño antes de decidir."
+        de: "Um jemanden hereinzulassen, ob Erwachsener oder Kind, tippe auf „Einen Spieler aufnehmen“: Er zeigt dir seinen QR-Code (oder liest dir seinen Code vor), du scannst ihn und siehst sofort, ob es ein Erwachsener oder ein Kind ist, bevor du entscheidest."
+        it: "Per far entrare qualcuno, adulto o bambino, tocca «Accogli un giocatore»: ti mostra il suo codice QR (o ti legge il suo codice), lo scansioni e vedi subito se è un adulto o un bambino prima di decidere."
+        pt: "Para deixares entrar alguém, adulto ou criança, toca em «Acolher um jogador»: mostra-te o código QR (ou lê-te o código), digitalizas e vês logo se é um adulto ou uma criança antes de decidires."
+        br: "Para deixar alguém entrar, adulto ou criança, toque em “Acolher um jogador”: a pessoa mostra o QR Code (ou lê o código para você), você escaneia e vê na hora se é um adulto ou uma criança antes de decidir."
+        nl: "Om iemand binnen te laten, volwassene of kind, tik je op ‘Een speler verwelkomen’: hij laat je zijn QR-code zien (of leest zijn code voor), jij scant hem en ziet meteen of het een volwassene of een kind is voordat je beslist."
+
       # --- LE SEUIL (ecran `awake`) -------------------------------------------
       # ⚠ COMPILEE, ET PAS DANS LE THEME. Tout le reste des libelles vit dans le layer
       #   cloud, pour pouvoir etre corrige sans rebuild — mais cette phrase-ci est peinte
@@ -89,42 +131,6 @@ conf:
         br: "Também será chefe do clã"
         nl: "Wordt ook clanleider"
       # welcome_child_screen : l'explication avant la caméra.
-      welcome_child_intro:
-        fr: "Installez le jeu sur le téléphone de votre enfant.\n\nLorsqu'il sera prêt à rejoindre votre clan, scannez le QR code qu'il affichera."
-        en: "Install the game on your child's phone.\n\nWhen they're ready to join your clan, scan the QR code their phone shows."
-        es: "Instale el juego en el teléfono de su hijo.\n\nCuando esté listo para unirse a su clan, escanee el código QR que mostrará."
-        de: "Installieren Sie das Spiel auf dem Handy Ihres Kindes.\n\nSobald es bereit ist, Ihrem Clan beizutreten, scannen Sie den QR-Code, den es anzeigt."
-        it: "Installate il gioco sul telefono di vostro figlio.\n\nQuando sarà pronto a unirsi al vostro clan, scansionate il codice QR che mostrerà."
-        pt: "Instale o jogo no telemóvel do seu filho.\n\nQuando ele estiver pronto para entrar no seu clã, digitalize o código QR que ele mostrar."
-        br: "Instale o jogo no celular do seu filho.\n\nQuando ele estiver pronto para entrar no seu clã, escaneie o QR code que ele mostrar."
-        nl: "Installeer het spel op de telefoon van uw kind.\n\nZodra het klaar is om bij uw clan te komen, scant u de QR-code die het laat zien."
-      welcome_child_scan:
-        fr: "Scanner son QR code"
-        en: "Scan their QR code"
-        es: "Escanear su código QR"
-        de: "QR-Code scannen"
-        it: "Scansiona il suo codice QR"
-        pt: "Digitalizar o código QR"
-        br: "Escanear o QR code"
-        nl: "QR-code scannen"
-      clan_menu_add_child:
-        fr: "Ajouter mon enfant"
-        en: "Add my child"
-        es: "Añadir a mi hijo"
-        de: "Mein Kind hinzufügen"
-        it: "Aggiungi mio figlio"
-        pt: "Adicionar o meu filho"
-        br: "Adicionar meu filho"
-        nl: "Mijn kind toevoegen"
-      clan_menu_add_child_desc:
-        fr: "Ton enfant rejoint le clan, qu'il ait son propre téléphone ou non."
-        en: "Your child joins the clan, whether or not they have their own phone."
-        es: "Tu hijo se une al clan, tenga o no su propio teléfono."
-        de: "Dein Kind tritt dem Clan bei, ob es ein eigenes Handy hat oder nicht."
-        it: "Tuo figlio entra nel clan, che abbia o no un telefono suo."
-        pt: "O teu filho entra no clã, tenha ou não telemóvel próprio."
-        br: "Seu filho entra no clã, tenha ou não celular próprio."
-        nl: "Je kind komt bij de clan, met of zonder eigen telefoon."
       clan_menu_advanced:
         fr: "Options avancées…"
         en: "Advanced options…"
@@ -718,17 +724,6 @@ conf:
         pt: "Ver o diário de todo o clã."
         br: "Ver o diário de todo o clã."
         nl: "Het dagboek van de hele clan bekijken."
-      # « Un adulte » depuis le 2026-09-22 : sans accord d'enfant joint, ce QR code ne propose
-      # plus que le cas adulte. Un enfant entre par « Accueillir un enfant ».
-      clan_menu_qr_desc:
-        fr: "Inviter un adulte par QR code."
-        en: "Invite an adult via QR code."
-        es: "Invitar a un adulto con un código QR."
-        de: "Einen Erwachsenen per QR-Code einladen."
-        it: "Invitare un adulto con un codice QR."
-        pt: "Convidar um adulto por código QR."
-        br: "Convidar um adulto por QR Code."
-        nl: "Een volwassene uitnodigen via QR-code."
       clan_menu_tutorials_desc:
         fr: "Revoir les tutoriels du jeu."
         en: "Replay the game tutorials."
@@ -1219,38 +1214,19 @@ conf:
         pt: "O menu Clã: várias opções para gerir o clã."
         br: "O menu Clã: várias opções para gerenciar o clã."
         nl: "Het menu Clan: diverse opties om de clan te beheren."
-      # Les trois étapes (chefs) qui suivent le panneau des options du clan, en un seul écran de
-      # tutoriel. L'ENFANT D'ABORD : c'est le cas normal d'une famille, et depuis le 2026-09-22
-      # sa seule porte (il dit oui sur son téléphone, le parent scanne cet accord). Puis le QR
-      # code du clan, qui ne fait plus entrer qu'un adulte. Puis « Créer un joueur », présenté
-      # comme l'exception : séparé, il se ferait passer pour la voie normale.
-      tuto_clan_welcome_child:
-        fr: "Pour faire entrer ton enfant, c'est lui qui commence : il installe Donjons & Savons sur son téléphone, dit qu'il a envie de jouer, et son écran affiche un QR code. Choisis « Ajouter mon enfant », scanne ce code, déclare que tu en es responsable, puis montre-lui l'invitation qui s'affiche : il la scanne à son tour. S'il n'est pas à côté de toi, il peut t'envoyer sa réponse, et tu l'invites à distance."
-        en: "To bring your child in, they go first: they install Donjons & Savons on their phone, say they want to play, and their screen shows a QR code. Choose « Add my child », scan that code, declare that you are responsible for them, then show them the invitation that appears: they scan it in turn. If they are not next to you, they can send you their answer, and you invite them remotely."
-        es: "Para que entre tu hijo, empieza él: instala Donjons & Savons en su teléfono, dice que tiene ganas de jugar y su pantalla muestra un código QR. Elige « Añadir a mi hijo », escanea ese código, declara que eres su responsable y luego enséñale la invitación que aparece: él la escanea a su vez. Si no está a tu lado, puede enviarte su respuesta y tú lo invitas a distancia."
-        de: "Damit dein Kind beitritt, fängt es selbst an: Es installiert Donjons & Savons auf seinem Handy, sagt, dass es spielen möchte, und sein Bildschirm zeigt einen QR-Code. Wähle „Mein Kind hinzufügen“, scanne diesen Code, erkläre, dass du für es verantwortlich bist, und zeig ihm dann die Einladung, die erscheint: Es scannt sie seinerseits. Ist es nicht bei dir, kann es dir seine Antwort schicken, und du lädst es aus der Ferne ein."
-        it: "Per far entrare tuo figlio, comincia lui: installa Donjons & Savons sul suo telefono, dice che ha voglia di giocare e il suo schermo mostra un codice QR. Scegli «Aggiungi mio figlio», scansiona quel codice, dichiara di esserne responsabile, poi mostragli l'invito che compare: lui lo scansiona a sua volta. Se non è accanto a te, può inviarti la sua risposta e tu lo inviti a distanza."
-        pt: "Para o teu filho entrar, é ele que começa: instala Donjons & Savons no telemóvel, diz que tem vontade de jogar e o ecrã dele mostra um código QR. Escolhe «Adicionar o meu filho», digitaliza esse código, declara que és responsável por ele e depois mostra-lhe o convite que aparece: ele digitaliza-o por sua vez. Se ele não estiver ao teu lado, pode enviar-te a resposta dele e tu convida-lo à distância."
-        br: "Para seu filho entrar, é ele quem começa: instala Donjons & Savons no celular, diz que está com vontade de jogar e a tela dele mostra um QR Code. Escolha \"Adicionar meu filho\", escaneie esse código, declare que você é responsável por ele e depois mostre a ele o convite que aparece: ele o escaneia em seguida. Se ele não estiver ao seu lado, pode enviar a resposta dele para você, e você o convida a distância."
-        nl: "Om je kind erbij te halen, begint het zelf: het installeert Donjons & Savons op zijn telefoon, zegt dat het zin heeft om te spelen, en zijn scherm toont een QR-code. Kies ‘Mijn kind toevoegen’, scan die code, verklaar dat je verantwoordelijk bent voor het kind en laat het daarna de uitnodiging zien die verschijnt: het scant die op zijn beurt. Is het niet bij je, dan kan het je zijn antwoord sturen en nodig jij het op afstand uit."
-      tuto_clan_qr:
-        fr: "« Inviter un adulte (QR code) », lui, fait entrer un adulte : l'autre parent, un grand frère majeur. Il installe le jeu, tu lui montres le QR code, il le scanne, et il est dans le clan."
-        en: "« Invite an adult (QR code) », for its part, brings in an adult: the other parent, a grown-up older brother or sister. They install the game, you show them the QR code, they scan it, and they are in the clan."
-        es: "« Invitar a un adulto (código QR) », en cambio, hace entrar a un adulto: el otro progenitor, un hermano mayor de edad. Instala el juego, le enseñas el código QR, lo escanea y ya está en el clan."
-        de: "„Einen Erwachsenen einladen (QR-Code)“ dagegen bringt einen Erwachsenen herein: den anderen Elternteil, ein volljähriges älteres Geschwister. Er installiert das Spiel, du zeigst ihm den QR-Code, er scannt ihn, und schon ist er im Clan."
-        it: "«Invita un adulto (codice QR)», invece, fa entrare un adulto: l'altro genitore, un fratello maggiorenne. Installa il gioco, gli mostri il codice QR, lo scansiona ed è nel clan."
-        pt: "«Convidar um adulto (código QR)», por sua vez, faz entrar um adulto: o outro pai ou mãe, um irmão mais velho maior de idade. Instala o jogo, mostras-lhe o código QR, ele digitaliza-o e já está no clã."
-        br: "\"Convidar um adulto (QR Code)\", por sua vez, faz entrar um adulto: o outro pai ou mãe, um irmão mais velho maior de idade. Ele instala o jogo, você mostra o QR Code, ele escaneia e já está no clã."
-        nl: "‘Een volwassene uitnodigen (QR-code)’ haalt daarentegen een volwassene binnen: de andere ouder, een meerderjarige oudere broer of zus. Die installeert het spel, jij laat de QR-code zien, hij scant hem en zit in de clan."
+      # Les deux étapes (chefs) qui suivent le panneau des options du clan, en un seul écran de
+      # tutoriel. « Accueillir un joueur » d'abord (tuto_clan_welcome) : c'est la seule porte,
+      # pour un adulte comme pour un enfant, depuis le 2026-10-18. Puis l'enfant sans téléphone,
+      # présenté comme l'exception : séparé, il se ferait passer pour la voie normale.
       tuto_clan_create_player:
-        fr: "S'il n'a pas de téléphone, ou s'il est trop jeune pour avoir un compte, choisis « Ajouter mon enfant » puis « Mon enfant n'a pas de téléphone » : tu crées son personnage et tu joues à sa place."
-        en: "If they have no phone, or are too young to have an account, choose « Add my child » then « My child has no phone »: you create their character and play in their place."
-        es: "Si no tiene teléfono, o es demasiado pequeño para tener una cuenta, elige « Añadir a mi hijo » y luego « Mi hijo no tiene teléfono »: creas su personaje y juegas en su lugar."
-        de: "Hat es kein Handy oder ist es zu jung für ein Konto, wähle „Mein Kind hinzufügen“ und dann „Mein Kind hat kein Handy“: Du erstellst seinen Charakter und spielst an seiner Stelle."
-        it: "Se non ha un telefono, o è troppo piccolo per avere un account, scegli «Aggiungi mio figlio» e poi «Mio figlio non ha un telefono»: crei il suo personaggio e giochi al suo posto."
-        pt: "Se não tiver telemóvel, ou for demasiado novo para ter conta, escolhe «Adicionar o meu filho» e depois «O meu filho não tem telemóvel»: crias o personagem dele e jogas no lugar dele."
-        br: "Se ele não tiver celular, ou for novo demais para ter conta, escolha \"Adicionar meu filho\" e depois \"Meu filho não tem celular\": você cria o personagem dele e joga no lugar dele."
-        nl: "Heeft het geen telefoon, of is het te jong voor een account, kies dan ‘Mijn kind toevoegen’ en daarna ‘Mijn kind heeft geen telefoon’: jij maakt zijn personage aan en speelt in zijn plaats."
+        fr: "S'il n'a pas de téléphone, ou s'il est trop jeune pour avoir un compte, choisis « Ajouter un enfant sans téléphone » : tu crées son personnage et tu joues à sa place."
+        en: "If they have no phone, or are too young to have an account, choose “Add a child without a phone”: you create their character and play in their place."
+        es: "Si no tiene teléfono, o es demasiado pequeño para tener una cuenta, elige «Añadir a un niño sin teléfono»: creas su personaje y juegas en su lugar."
+        de: "Hat es kein Handy oder ist es zu jung für ein Konto, wähle „Ein Kind ohne Handy hinzufügen“: Du erstellst seinen Charakter und spielst an seiner Stelle."
+        it: "Se non ha un telefono, o è troppo piccolo per avere un account, scegli «Aggiungi un bambino senza telefono»: crei il suo personaggio e giochi al suo posto."
+        pt: "Se não tiver telemóvel, ou for demasiado novo para ter conta, escolhe «Adicionar uma criança sem telemóvel»: crias o personagem dele e jogas no lugar dele."
+        br: "Se ele não tiver celular, ou for novo demais para ter conta, escolha “Adicionar uma criança sem celular”: você cria o personagem dele e joga no lugar dele."
+        nl: "Heeft het geen telefoon, of is het te jong voor een account, kies dan ‘Een kind zonder telefoon toevoegen’: jij maakt zijn personage aan en speelt in zijn plaats."
       # --- Reminders de recrutement (dvtuto.yml → recruit_dashboard / recruit_clan) ---
       # En-tête qui REMPLACE « TUTORIEL » sur ces deux écrans : ce n'est pas une leçon, c'est un
       # rappel d'action. Il s'affiche en ambre et non dans le bleu réservé aux tutoriels.
@@ -1274,17 +1250,17 @@ conf:
         br: "Parabéns, você acabou de fundar seu clã! Agora você precisa de uma equipe de aventureiros. Vá até a aba \"Clã\" e recrute seus heróis."
         nl: "Goed gedaan, je hebt net je clan opgericht! Nu heb je een team avonturiers nodig. Ga naar het tabblad ‘Clan’ en werf je helden."
       # Après clan_intro, flèche sur le kebab doré de l'en-tête.
-      # ⚠ DEUX PORTES DEPUIS LE 2026-09-22 : « QR Code du clan » ne fait plus entrer qu'un adulte,
-      #   un enfant entre par « Accueillir un enfant » (il dit d'abord oui sur son téléphone).
+      # ⚠ UNE SEULE PORTE DEPUIS LE 2026-10-18 : « Accueillir un joueur », pour un adulte comme pour
+      #   un enfant (le candidat montre son QR code, le chef le scanne).
       reminder_recruit_clan:
-        fr: "Ton clan a besoin de héros ! Ouvre ce menu : « Ajouter mon enfant » pour ton enfant, qui dit d'abord oui sur son téléphone, et « Inviter un adulte (QR code) » pour un adulte."
-        en: "Your clan needs heroes! Open this menu: « Add my child » for your child, who first says yes on their phone, and « Invite an adult (QR code) » for an adult."
-        es: "¡Tu clan necesita héroes! Abre este menú: « Añadir a mi hijo » para tu hijo, que primero dice que sí en su teléfono, y « Invitar a un adulto (código QR) » para un adulto."
-        de: "Dein Clan braucht Helden! Öffne dieses Menü: „Mein Kind hinzufügen“ für dein Kind, das zuerst auf seinem Handy Ja sagt, und „Einen Erwachsenen einladen (QR-Code)“ für einen Erwachsenen."
-        it: "Il tuo clan ha bisogno di eroi! Apri questo menu: «Aggiungi mio figlio» per tuo figlio, che prima dice di sì sul suo telefono, e «Invita un adulto (codice QR)» per un adulto."
-        pt: "O teu clã precisa de heróis! Abre este menu: «Adicionar o meu filho» para o teu filho, que primeiro diz que sim no telemóvel dele, e «Convidar um adulto (código QR)» para um adulto."
-        br: "Seu clã precisa de heróis! Abra este menu: \"Adicionar meu filho\" para seu filho, que primeiro diz sim no celular dele, e \"Convidar um adulto (QR Code)\" para um adulto."
-        nl: "Je clan heeft helden nodig! Open dit menu: ‘Mijn kind toevoegen’ voor je kind, dat eerst ja zegt op zijn telefoon, en ‘Een volwassene uitnodigen (QR-code)’ voor een volwassene."
+        fr: "Ton clan a besoin de héros ! Ouvre ce menu et touche « Accueillir un joueur » : adulte ou enfant, il te montre son QR code et tu le scannes."
+        en: "Your clan needs heroes! Open this menu and tap “Welcome a player”: adult or child, they show you their QR code and you scan it."
+        es: "¡Tu clan necesita héroes! Abre este menú y toca «Acoger a un jugador»: adulto o niño, te enseña su código QR y tú lo escaneas."
+        de: "Dein Clan braucht Helden! Öffne dieses Menü und tippe auf „Einen Spieler aufnehmen“: Ob Erwachsener oder Kind, er zeigt dir seinen QR-Code und du scannst ihn."
+        it: "Il tuo clan ha bisogno di eroi! Apri questo menu e tocca «Accogli un giocatore»: adulto o bambino, ti mostra il suo codice QR e tu lo scansioni."
+        pt: "O teu clã precisa de heróis! Abre este menu e toca em «Acolher um jogador»: adulto ou criança, mostra-te o código QR e tu digitalizas."
+        br: "Seu clã precisa de heróis! Abra este menu e toque em “Acolher um jogador”: adulto ou criança, a pessoa mostra o QR Code e você escaneia."
+        nl: "Je clan heeft helden nodig! Open dit menu en tik op ‘Een speler verwelkomen’: volwassene of kind, hij laat je zijn QR-code zien en jij scant hem."
       # --- Relances de PRUDENCE (dvtuto.yml → safety_child / safety_adult) ---
       # Le jeu ne classe aucune tâche par danger : il ne peut pas savoir ce qui convient à CET
       # enfant-là. Ces rappels portent ce que l'application ne peut pas garantir elle-même, et
@@ -3273,24 +3249,6 @@ conf:
         pt: "Mudar de clã, ou juntar-te a outro."
         br: "Trocar de clã, ou entrar em outro."
         nl: "Van clan wisselen, of je bij een andere aansluiten."
-      clan_menu_welcome_guest:
-        fr: "Accueillir un enfant d'un autre clan"
-        en: "Welcome a child from another clan"
-        es: "Acoger a un niño de otro clan"
-        de: "Ein Kind aus einem anderen Clan aufnehmen"
-        it: "Accogliere un bambino di un altro clan"
-        pt: "Acolher uma criança de outro clã"
-        br: "Receber uma criança de outro clã"
-        nl: "Een kind uit een andere clan verwelkomen"
-      clan_menu_welcome_guest_desc:
-        fr: "Montre ce code au parent de l'enfant : il autorise ton clan, puis l'enfant peut entrer."
-        en: "Show this code to the child's parent: they authorise your clan, then the child can join."
-        es: "Enseña este código al padre o la madre del niño: autoriza tu clan y luego el niño puede entrar."
-        de: "Zeig diesen Code einem Elternteil des Kindes: Es erlaubt deinen Clan, dann kann das Kind beitreten."
-        it: "Mostra questo codice al genitore del bambino: autorizza il tuo clan, poi il bambino può entrare."
-        pt: "Mostra este código ao pai ou à mãe da criança: autoriza o teu clã e depois a criança pode entrar."
-        br: "Mostre este código ao pai ou à mãe da criança: ele autoriza seu clã e depois a criança pode entrar."
-        nl: "Laat deze code zien aan de ouder van het kind: die geeft je clan toestemming, daarna kan het kind erbij."
       clan_menu_guardian_hub:
         fr: "Gérer les clans de mes enfants"
         en: "Manage my children's clans"
@@ -3364,14 +3322,14 @@ conf:
         br: "Entrar em outro clã"
         nl: "Bij een andere clan gaan"
       my_clans_join_desc:
-        fr: "Sur invitation de son chef, en personne ou à distance."
-        en: "By invitation from its chief, in person or remotely."
-        es: "Por invitación de su jefe, en persona o a distancia."
-        de: "Auf Einladung des Chefs, persönlich oder aus der Ferne."
-        it: "Su invito del suo capo, di persona o a distanza."
-        pt: "Por convite do chefe, em pessoa ou à distância."
-        br: "Por convite do chefe, pessoalmente ou a distância."
-        nl: "Op uitnodiging van het hoofd, persoonlijk of op afstand."
+        fr: "Montre ton QR code à son chef, ou lis-lui ton code."
+        en: "Show its chief your QR code, or read them your code."
+        es: "Enseña tu código QR a su jefe, o léele tu código."
+        de: "Zeig dem Chef deinen QR-Code oder lies ihm deinen Code vor."
+        it: "Mostra il tuo codice QR al suo capo, o leggigli il tuo codice."
+        pt: "Mostra o teu código QR ao chefe, ou lê-lhe o teu código."
+        br: "Mostre o seu QR Code ao chefe, ou leia o seu código para ele."
+        nl: "Laat het hoofd je QR-code zien, of lees je code voor."
       join_clans_cap:
         fr: "Tu fais déjà partie de 8 clans : c'est le maximum."
         en: "You are already in 8 clans: that is the maximum."
@@ -3400,24 +3358,15 @@ conf:
         br: "Este clã vive em outro reino: ainda não dá para entrar a partir do seu."
         nl: "Deze clan woont in een ander koninkrijk: vanuit het jouwe kun je er nog niet bij."
       kid_needs_guardian_auth:
-        fr: "Pour entrer dans ce clan, un de tes parents doit d'abord dire oui au chef de ce clan."
-        en: "To join this clan, one of your parents must first say yes to this clan's chief."
-        es: "Para entrar en este clan, uno de tus padres tiene que decirle que sí al jefe de este clan primero."
-        de: "Um diesem Clan beizutreten, muss zuerst einer deiner Eltern dem Chef dieses Clans Ja sagen."
-        it: "Per entrare in questo clan, uno dei tuoi genitori deve prima dire di sì al capo di questo clan."
-        pt: "Para entrares neste clã, um dos teus pais tem primeiro de dizer que sim ao chefe deste clã."
-        br: "Para entrar neste clã, um dos seus pais precisa primeiro dizer sim ao chefe deste clã."
-        nl: "Om bij deze clan te komen, moet een van je ouders eerst ja zeggen tegen het hoofd van deze clan."
+        fr: "Pour entrer dans ce clan, un de tes parents doit d'abord dire oui."
+        en: "To join this clan, one of your parents must say yes first."
+        es: "Para entrar en este clan, uno de tus padres tiene que decir que sí primero."
+        de: "Um diesem Clan beizutreten, muss zuerst einer deiner Eltern Ja sagen."
+        it: "Per entrare in questo clan, uno dei tuoi genitori deve prima dire di sì."
+        pt: "Para entrares neste clã, um dos teus pais tem primeiro de dizer que sim."
+        br: "Para entrar neste clã, um dos seus pais precisa primeiro dizer sim."
+        nl: "Om bij deze clan te komen, moet een van je ouders eerst ja zeggen."
       back_to_my_clan:
-        fr: "Revenir à mon clan"
-        en: "Back to my clan"
-        es: "Volver a mi clan"
-        de: "Zurück zu meinem Clan"
-        it: "Torna al mio clan"
-        pt: "Voltar ao meu clã"
-        br: "Voltar para o meu clã"
-        nl: "Terug naar mijn clan"
-      kid_assent_share_leave:
         fr: "Revenir à mon clan"
         en: "Back to my clan"
         es: "Volver a mi clan"
@@ -3453,24 +3402,6 @@ conf:
         pt: "Ainda não representas nenhuma criança."
         br: "Você ainda não representa nenhuma criança."
         nl: "Je vertegenwoordigt nog geen kind."
-      guardian_hub_guest_auth:
-        fr: "Autoriser un autre clan"
-        en: "Authorise another clan"
-        es: "Autorizar otro clan"
-        de: "Einen anderen Clan erlauben"
-        it: "Autorizzare un altro clan"
-        pt: "Autorizar outro clã"
-        br: "Autorizar outro clã"
-        nl: "Een andere clan toestaan"
-      guardian_hub_guest_auth_desc:
-        fr: "Scanne le QR code du chef qui veut accueillir ton enfant. Ton accord vaut 7 jours pour entrer."
-        en: "Scan the QR code of the chief who wants to welcome your child. Your agreement lasts 7 days to join."
-        es: "Escanea el código QR del jefe que quiere acoger a tu hijo. Tu permiso vale 7 días para entrar."
-        de: "Scanne den QR-Code des Chefs, der dein Kind aufnehmen möchte. Deine Zustimmung gilt 7 Tage für den Beitritt."
-        it: "Scansiona il codice QR del capo che vuole accogliere tuo figlio. Il tuo consenso vale 7 giorni per entrare."
-        pt: "Lê o código QR do chefe que quer acolher o teu filho. O teu acordo vale 7 dias para entrar."
-        br: "Escaneie o QR code do chefe que quer receber seu filho. Sua autorização vale 7 dias para entrar."
-        nl: "Scan de QR-code van het hoofd dat je kind wil verwelkomen. Je akkoord geldt 7 dagen om erbij te komen."
       guardian_hub_ward_clans:
         fr: "Les clans de mes enfants"
         en: "My children's clans"
@@ -3497,7 +3428,7 @@ conf:
         it: "Aggiungere un co-rappresentante"
         pt: "Adicionar um corresponsável"
         br: "Adicionar um corresponsável"
-        nl: "Een medevertegenwoordiger toevoegen"
+        nl: "Medevertegenwoordiger toevoegen"
       guardian_hub_cog_add_desc:
         fr: "L'autre parent, par exemple : il aura les mêmes droits que toi. Scanne son QR code."
         en: "The other parent, for example: they will have the same rights as you. Scan their QR code."
@@ -3508,23 +3439,23 @@ conf:
         br: "O outro pai ou mãe, por exemplo: terá os mesmos direitos que você. Escaneie o QR code dele."
         nl: "De andere ouder bijvoorbeeld: die krijgt dezelfde rechten als jij. Scan zijn of haar QR-code."
       guardian_hub_cog_become:
-        fr: "Devenir représentant légal d'un enfant"
+        fr: "Devenir représentant légal"
         en: "Become a child's legal guardian"
-        es: "Convertirme en responsable legal de un niño"
-        de: "Gesetzlicher Vertreter eines Kindes werden"
-        it: "Diventare rappresentante legale di un bambino"
-        pt: "Tornar-me representante legal de uma criança"
-        br: "Virar responsável legal de uma criança"
-        nl: "Wettelijke vertegenwoordiger van een kind worden"
+        es: "Ser responsable legal"
+        de: "Gesetzlicher Vertreter werden"
+        it: "Diventare tutore legale"
+        pt: "Ser representante legal"
+        br: "Virar responsável legal"
+        nl: "Vertegenwoordiger worden"
       guardian_hub_cog_become_desc:
-        fr: "Montre ton QR code à son représentant actuel : il te donnera les mêmes droits que lui."
-        en: "Show your QR code to their current guardian: they will give you the same rights."
-        es: "Enseña tu código QR a su responsable actual: te dará los mismos derechos que él."
+        fr: "Montre ton QR code à son représentant : il te donnera les mêmes droits."
+        en: "Show your QR code to their guardian: you get the same rights."
+        es: "Enseña tu código QR a su responsable: tendrás sus derechos."
         de: "Zeig deinen QR-Code seinem jetzigen Vertreter: Er gibt dir dieselben Rechte."
-        it: "Mostra il tuo codice QR al suo rappresentante attuale: ti darà gli stessi diritti."
-        pt: "Mostra o teu código QR ao representante atual: ele dá-te os mesmos direitos."
-        br: "Mostre seu QR code ao responsável atual: ele vai te dar os mesmos direitos."
-        nl: "Laat je QR-code zien aan de huidige vertegenwoordiger: die geeft je dezelfde rechten."
+        it: "Mostra il tuo QR al suo tutore: avrai gli stessi diritti."
+        pt: "Mostra o teu QR ao representante: terás os mesmos direitos."
+        br: "Mostre seu QR code ao responsável: você terá os mesmos direitos."
+        nl: "Toon je QR-code aan de vertegenwoordiger: je krijgt dezelfde rechten."
       guardian_scan_wrong:
         fr: "Ce QR code n'est pas celui qu'il faut ici."
         en: "This is not the right QR code here."
@@ -3543,15 +3474,6 @@ conf:
         pt: "Escolher a criança"
         br: "Escolher a criança"
         nl: "Het kind kiezen"
-      ward_pick_guest_hint:
-        fr: "Autoriser {clan} (chef : {chief}) à accueillir l'enfant que tu choisis. L'enfant aura 7 jours pour y entrer."
-        en: "Allow {clan} (chief: {chief}) to welcome the child you choose. The child will have 7 days to join."
-        es: "Autorizar a {clan} (jefe: {chief}) a acoger al niño que elijas. El niño tendrá 7 días para entrar."
-        de: "{clan} (Chef: {chief}) erlauben, das Kind aufzunehmen, das du auswählst. Das Kind hat 7 Tage Zeit beizutreten."
-        it: "Autorizzare {clan} (capo: {chief}) ad accogliere il bambino che scegli. Il bambino avrà 7 giorni per entrare."
-        pt: "Autorizar {clan} (chefe: {chief}) a acolher a criança que escolheres. A criança terá 7 dias para entrar."
-        br: "Autorizar {clan} (chefe: {chief}) a receber a criança que você escolher. A criança terá 7 dias para entrar."
-        nl: "{clan} (hoofd: {chief}) toestaan het kind te verwelkomen dat je kiest. Het kind heeft 7 dagen om erbij te komen."
       ward_pick_cog_hint:
         fr: "Faire de {name} un représentant légal de l'enfant que tu choisis, avec les mêmes droits que toi. C'est définitif."
         en: "Make {name} a legal guardian of the child you choose, with the same rights as you. This is permanent."
@@ -3606,15 +3528,6 @@ conf:
         pt: "Toca outra vez para retirar a criança deste clã."
         br: "Toque de novo para tirar a criança deste clã."
         nl: "Tik nog eens om het kind uit deze clan te halen."
-      ward_guest_done:
-        fr: "C'est fait : ce clan peut accueillir ton enfant pendant 7 jours."
-        en: "Done: this clan can welcome your child for 7 days."
-        es: "Hecho: este clan puede acoger a tu hijo durante 7 días."
-        de: "Erledigt: Dieser Clan kann dein Kind 7 Tage lang aufnehmen."
-        it: "Fatto: questo clan può accogliere tuo figlio per 7 giorni."
-        pt: "Feito: este clã pode acolher o teu filho durante 7 dias."
-        br: "Pronto: este clã pode receber seu filho durante 7 dias."
-        nl: "Klaar: deze clan kan je kind 7 dagen lang verwelkomen."
       ward_cog_done:
         fr: "C'est fait : il reste à l'autre adulte à confirmer sur son téléphone."
         en: "Done: the other adult now has to confirm on their phone."
@@ -3642,15 +3555,6 @@ conf:
         pt: "Entre adultos"
         br: "Entre adultos"
         nl: "Tussen volwassenen"
-      guardian_qr_guest_intro:
-        fr: "Montre ce QR code au parent de l'enfant que tu veux accueillir. Quand il l'aura scanné, l'enfant pourra entrer dans ton clan comme d'habitude."
-        en: "Show this QR code to the parent of the child you want to welcome. Once they have scanned it, the child can join your clan as usual."
-        es: "Enseña este código QR al padre o la madre del niño que quieres acoger. Cuando lo haya escaneado, el niño podrá entrar en tu clan como siempre."
-        de: "Zeig diesen QR-Code einem Elternteil des Kindes, das du aufnehmen möchtest. Sobald er ihn gescannt hat, kann das Kind wie gewohnt deinem Clan beitreten."
-        it: "Mostra questo codice QR al genitore del bambino che vuoi accogliere. Quando l'avrà scansionato, il bambino potrà entrare nel tuo clan come al solito."
-        pt: "Mostra este código QR ao pai ou à mãe da criança que queres acolher. Quando o tiver lido, a criança pode entrar no teu clã como de costume."
-        br: "Mostre este QR code ao pai ou à mãe da criança que você quer receber. Quando ele escanear, a criança poderá entrar no seu clã como sempre."
-        nl: "Laat deze QR-code zien aan de ouder van het kind dat je wilt verwelkomen. Zodra die hem heeft gescand, kan het kind zoals gewoonlijk bij je clan komen."
       guardian_qr_cog_intro:
         fr: "Montre ce QR code au représentant légal actuel de l'enfant. Il choisira l'enfant, puis tu confirmeras ici."
         en: "Show this QR code to the child's current legal guardian. They will choose the child, then you will confirm here."

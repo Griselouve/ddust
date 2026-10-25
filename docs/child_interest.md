@@ -464,25 +464,22 @@ tâches, et le fondateur du clan ne peut être ni exclu ni rétrogradé.
   écartée, parce qu'un annuaire interrogeable serait un vecteur d'abus dans une application
   destinée aux enfants.
 - **Il n'existe ni messagerie, ni discussion, ni aucune interaction entre clans.**
-- **On n'entre dans un clan que par un chef.** Pour un enfant, c'est lui qui commence : il dit sur
-  son téléphone qu'il a envie de jouer, et ce souhait, porteur de son code, est montré au chef en
-  code QR ou lui est envoyé par un lien (section 5.8). Le chef ne répond qu'ensuite, par une
-  invitation marquée pour ce code. Un adulte reçoit directement l'invitation. Elle voyage par deux
-  voies, et toutes deux passent par un adulte qui décide :
-  1. le **code QR** que le chef affiche sur son téléphone, scanné en personne. Le chef peut aussi
-     envoyer le lien correspondant à un proche ;
-  2. le **lien d'invitation protégé par un code à six chiffres** que le chef communique de vive voix.
-     Ce code est un frein contre les transferts accidentels, pas un coffre-fort.
-
-  Dans les deux cas, l'invitation n'est créée que sur l'appareil du chef et avec sa déclaration
-  (section 5.8). Un enfant **déjà membre d'un clan** n'entre en outre dans un autre qu'avec
-  l'autorisation préalable d'un de ses représentants légaux, que son téléphone vérifie (section 5.8,
-  « Plusieurs clans »). Pour un enfant, le chef ne peut déclarer qu'après avoir lu le souhait de jouer que
-  l'enfant lui a montré ou envoyé, et l'invitation ne vaut que pour la demande de cet enfant (son
-  code) ; sans ce souhait, une invitation ne vaut que pour un adulte. La
-  troisième voie qui existait jusqu'au 2026-09-22, la « demande » qu'un candidat envoyait à un chef,
-  a été supprimée : elle contournait la déclaration du chef. Une invitation expire au bout de
-  72 heures, et son secret est effacé dès sa première utilisation.
+- **On n'entre dans un clan que par un chef, et c'est le candidat qui commence.** Adulte ou enfant,
+  celui qui veut entrer affiche sur son téléphone un **code QR à usage unique** et le montre au
+  chef, qui le lit avec le sien ; à distance, il lui lit plutôt au téléphone le **code de cinq
+  caractères** affiché dessous, valable quinze minutes tant que l'écran reste ouvert. Il n'existe
+  plus de lien d'invitation, ni de code confidentiel envoyé par un tiers : un enfant qui n'a pas le
+  droit d'utiliser un réseau social ou une messagerie peut entrer quand même, et rien ne circule
+  hors des deux téléphones et de la base. Le chef ne décide qu'après avoir vu, pour un enfant, son
+  souhait de jouer (section 5.8) ; sa réponse, qui contient la clé du clan, est déposée chiffrée
+  pour le seul téléphone du candidat, dans une boîte qui ne sert qu'une fois. Quand le code a été
+  dicté, le téléphone du candidat lui montre le nom du clan et celui de son chef et lui demande de
+  confirmer : un code mal entendu ou repris par un inconnu ne fait entrer personne. Un enfant **déjà
+  membre d'un clan** n'entre en outre dans un autre qu'avec l'autorisation de l'un de ses
+  représentants légaux, que son téléphone vérifie (section 5.8, « Plusieurs clans »). La « demande »
+  qu'un candidat envoyait à un chef jusqu'au 2026-09-22, puis l'invitation affichée par le chef
+  (avec son lien et son code à six chiffres) jusqu'au 2026-10-18, ont été remplacées par ce seul
+  parcours, le même pour tous.
 - **Hors de son clan, un enfant n'est désigné que par un nom de substitution.** Chaque joueur et
   chaque clan ont deux identités : le nom que la famille emploie entre ses membres, et un nom public
   distinct, qui ne reprend pas le premier. Ni le pseudonyme, ni l'avatar, ni les résultats d'un
@@ -504,50 +501,48 @@ qu'un adulte de sa famille décidera ensuite, et lui demande s'il a envie de jou
 « Oui, je pars à l'aventure ! » ou revient en arrière. Ce choix a lieu **avant toute écriture**,
 en base comme sur le téléphone : un enfant qui ne répond pas ne laisse aucune donnée.
 
-**Sa réponse voyage jusqu'à l'adulte.** L'application l'affiche sous forme de code QR, que
-l'enfant montre à son parent, ou l'envoie par un lien. Elle ne contient aucune donnée personnelle :
-la date, la langue, la région, la version du texte montré à l'enfant et un code de six caractères
-tiré au hasard, rien d'autre, pas même un prénom, puisque le parent sait qui est devant lui. Ce
-code, affiché en grand sur le téléphone de l'enfant, est repris sur l'écran du parent, qui vérifie
-d'un coup d'œil qu'il est le même, puis dans l'invitation qu'il fait : le téléphone de l'enfant
-refuse toute invitation qui ne porte pas le code de sa demande, qu'elle ait été faite pour un
-adulte ou pour un autre enfant. Le code ne vit que dans la mémoire du téléphone : si l'application
-est fermée avant que l'enfant ait lu l'invitation de l'adulte, il envoie une nouvelle demande, avec
-un nouveau code (il n'y a pas de « reprise » d'une demande qui n'a pas encore reçu de réponse). Une
-fois l'invitation lue et l'enfant connecté, en revanche, l'attente de la confirmation du chef est
-enregistrée sur son compte (`users.pending_join`) : s'il ferme l'application, il retrouve l'écran
-d'attente en la rouvrant, jusqu'à l'expiration de l'invitation (72 heures). C'est l'ordre que fixe l'article
-2.2.2.25.2.9 du Decreto 1074 de 2015 (qui compile l'article 12 du Decreto 1377 de 2013) :
-l'autorisation du représentant légal intervient « *previo ejercicio del menor de su derecho a ser
-escuchado* ».
+**Sa réponse voyage jusqu'à l'adulte.** L'application l'affiche sous la forme d'un code QR à usage
+unique, que l'enfant montre à son parent ; si celui-ci est loin, l'enfant lui lit au téléphone le
+code de cinq caractères affiché dessous. Elle ne contient aucune donnée personnelle : la date, la
+langue, la région, le texte montré à l'enfant et la version des conditions qui lui sont destinées,
+rien d'autre, pas même un prénom, puisque le parent sait qui est devant lui. Le parent lit ce code
+QR, ou saisit le code, depuis « Accueillir un joueur » : il voit la réponse de l'enfant avant de
+décider. Sa propre réponse revient dans la même boîte, chiffrée pour le seul téléphone de l'enfant,
+qui l'attend tant que son écran est ouvert ; si l'enfant le referme, la boîte est effacée et il en
+ouvrira une nouvelle, avec un nouveau code (il n'y a pas de « reprise » d'une demande qui n'a pas
+encore reçu de réponse). C'est l'ordre que fixe l'article 2.2.2.25.2.9 du Decreto 1074 de 2015 (qui
+compile l'article 12 du Decreto 1377 de 2013) : l'autorisation du représentant légal intervient «
+*previo ejercicio del menor de su derecho a ser escuchado* ».
 
-**Rien n'est enregistré avant la connexion de l'enfant.** Tant que personne n'est connecté à un
-compte, l'application garde tout en mémoire : ni fichier sur le téléphone, ni écriture en base, pas
-même la langue choisie, et une application refermée repart du premier écran. Il n'existe plus de
-pré-enregistrement de l'enfant : la seule trace hors du téléphone est une entrée d'authentification
-anonyme, sans aucune donnée, que la plateforme efface d'elle-même au bout de trente jours.
+**Rien n'est enregistré au nom de l'enfant avant sa connexion.** Tant que personne n'est connecté à
+un compte, l'application garde tout en mémoire : ni fichier sur le téléphone, pas même la langue
+choisie, et une application refermée repart du premier écran. La seule écriture en base est la
+**boîte d'échange** décrite ci-dessus, désignée par le code et sans aucune donnée personnelle (une
+clé de chiffrement à usage unique, la région, le fait qu'il s'agit d'un enfant et sa réponse) : elle
+devient inutilisable au bout de quinze minutes et elle est effacée dès la fin de l'échange ou, à
+défaut, automatiquement après son expiration. Il n'existe plus de pré-enregistrement de l'enfant :
+la seule autre trace hors du téléphone est une entrée d'authentification anonyme, sans aucune
+donnée, que la plateforme efface d'elle-même au bout de trente jours.
 
 **Aucune donnée de jeu n'existe avant l'autorisation de l'adulte.** Un enfant n'entre dans un clan
-que sur l'invitation d'un chef qui a lu son souhait et déclaré, ou si un chef crée pour lui un
+que si un chef l'accueille après avoir lu son souhait et déclaré, ou si un chef crée pour lui un
 profil sans téléphone. Il n'existe aucune inscription autonome, et un mineur ne peut pas créer de
 clan.
 
 **L'autorisation est donnée au moment de l'acte**, et non une fois pour toutes à l'installation :
 
-- **en accueillant un enfant**, le chef, connecté à son propre compte, lit le souhait que l'enfant
-  lui a montré (option « Accueillir un enfant », qui lit le code QR) ou envoyé (lien), puis déclare,
-  en cochant une case, qu'il s'agit de son enfant (qui sait lire, ou à qui il lira les conditions à
-  voix haute). Déclarer un enfant, c'est consentir, en tant que responsable légal, à la collecte de
-  ses données de jeu. La déclaration est datée, scellée **avec le souhait de l'enfant**, et
-  enregistrée sous le compte du chef ; une déclaration ne sert qu'à une invitation, et cette
-  invitation est marquée « enfant », avec le code de la demande. L'enfant lit ensuite l'invitation
-  du chef (code QR, ou lien protégé par un code) ; son téléphone vérifie, avant toute connexion,
-  qu'elle porte bien le code de sa demande. Il se connecte alors avec son compte Google et entre
-  dans le clan : la déclaration et son souhait sont joints à sa preuve d'acceptation, après une
-  dernière vérification du code scellé avec la déclaration ;
-- **en invitant** un membre sans souhait d'enfant joint, le chef ne peut déclarer qu'un adulte ;
-  l'invitation est marquée « adulte », et le téléphone d'un enfant la refuse. À l'inverse, le
-  téléphone d'un adulte refuse une invitation marquée « enfant » ;
+- **en accueillant un enfant**, le chef, connecté à son propre compte, lit le code QR de l'enfant ou
+  saisit son code (option « Accueillir un joueur »), voit son souhait, puis choisit entre deux
+  boutons : « Mon enfant sait lire » (l'enfant lira lui-même les règles qui le concernent) ou « Mon
+  enfant ne sait pas encore lire » (le chef les lui lira à voix haute). Il déclare ensuite qu'il
+  s'agit de son enfant : c'est consentir, en tant que responsable légal, à la collecte de ses
+  données de jeu. La déclaration est datée, scellée **avec le souhait de l'enfant**, et enregistrée
+  sous le compte du chef ; elle ne sert qu'à cette boîte. L'enfant, après avoir confirmé que c'est
+  bien sa famille si le code a été dicté, se connecte avec son compte Google et entre dans le clan :
+  la déclaration et son souhait sont joints à sa preuve d'acceptation ;
+- **en accueillant un adulte**, le chef accepte les conditions qui s'appliquent à un membre adulte ;
+  la boîte indique si le candidat est adulte ou enfant, et le chef ne voit que le parcours qui lui
+  correspond ;
 - **en créant un profil sans téléphone**, le chef voit la mention du consentement parental ; la
   création est datée et inscrite au journal du clan.
 
@@ -563,22 +558,24 @@ supprimer le compte de l'enfant. **Un chef ne peut pas exclure un mineur de son 
 une exception près : le profil sans téléphone qu'il a lui-même créé, dont il est le seul à pouvoir
 décider. Aucun mineur ne peut ainsi se retrouver dans le système sans adulte responsable identifié.
 
-**Plusieurs clans : l'autorisation se donne entre adultes, et elle est vérifiée** (décision du
-27 septembre 2026). Un enfant peut jouer dans plusieurs clans, 8 au plus, par exemple celui de ses
-grands-parents ou celui d'un parent séparé, avec un personnage distinct dans chacun ; seuls son nom,
-son avatar et le titre qu'il porte le suivent d'un clan à l'autre. Un enfant déjà membre d'un clan
-n'entre dans un autre qu'après **l'autorisation préalable** de l'un de ses représentants, donnée à
-l'adulte qui l'accueille : en présence, en lisant le code QR affiché par le chef de ce clan, ou à
-distance, par un lien et un code à six chiffres. Le représentant voit alors le nom de ce clan et
-celui de son chef. L'autorisation vaut sept jours pour entrer, puis l'adhésion suit le parcours
-habituel (souhait de l'enfant, déclaration du chef). **Le téléphone de l'enfant vérifie
-l'autorisation avant toute admission** : le chef d'accueil ne peut pas la remplacer par une simple
-déclaration. C'est une amélioration nette : jusque-là, ce chef déclarait « agir avec l'accord du
-responsable légal », sans que rien le vérifie ; **un adulte extérieur ne peut plus faire entrer seul
-un enfant dans son clan**.
+**Plusieurs clans : l'autorisation vient d'un représentant, et elle est vérifiée** (décisions des 27
+septembre et 18 octobre 2026). Un enfant peut jouer dans plusieurs clans, 8 au plus, par exemple
+celui de ses grands-parents ou celui d'un parent séparé, avec un personnage distinct dans chacun ;
+seuls son nom, son avatar et le titre qu'il porte le suivent d'un clan à l'autre. Un enfant déjà
+membre d'un clan y entre comme partout : il montre son code QR, ou lit son code, à l'adulte du clan
+qui l'accueille. Cet adulte n'est pas son représentant : il déclare seulement accueillir un enfant
+d'un autre clan et accepter que ses parents décident. Le téléphone de l'enfant transmet alors la
+demande, dans son dossier de représentation, à ses représentants, qui en sont avertis par une
+notification ; l'un d'eux voit le nom de ce clan et celui de son chef, puis accepte ou refuse. Sans
+réponse dans les **sept jours**, la demande tombe. Pendant ce temps, la réponse du clan d'accueil
+attend sur le téléphone de l'enfant, et rien n'est écrit à son nom dans ce clan. **Le téléphone de
+l'enfant vérifie l'autorisation avant toute admission** : le chef d'accueil ne peut pas la remplacer
+par une simple déclaration, et **un adulte extérieur ne peut pas faire entrer seul un enfant dans
+son clan**. Si l'adulte qui accueille est lui-même l'un des représentants de l'enfant, aucune
+demande n'est nécessaire.
 
-Un autre adulte, l'autre parent par exemple, peut devenir **co-représentant** par un échange du même
-type : le représentant choisit l'enfant, et l'adulte déclare lui-même, sur son téléphone, être
+Un autre adulte, l'autre parent par exemple, peut devenir **co-représentant** par un échange de code QR en
+présence, ou d'un lien et d'un code à distance : le représentant choisit l'enfant, et l'adulte déclare lui-même, sur son téléphone, être
 représentant légal de l'enfant ; cette déclaration est enregistrée comme preuve. Les co-représentants
 ont les mêmes pouvoirs que le représentant d'origine (faire entrer l'enfant dans leur clan sans
 autorisation, autoriser un autre clan, l'en retirer, retirer ou rétablir le consentement, le déclarer
@@ -586,8 +583,8 @@ majeur) et le restent pour toujours. **Le représentant garde la main** : il voi
 de l'enfant et peut, à tout moment, l'en retirer, sauf de son clan d'origine. Le téléphone de
 l'enfant applique ce retrait : il ne reçoit plus rien de ce clan, notifications comprises, même
 avant d'avoir rouvert le jeu, et sa fiche dans ce clan est effacée comme celle de tout membre parti.
-Tout ce qui touche à la représentation (représentants, clans de l'enfant, autorisations, historique
-des gestes de chacun) est rangé dans un **dossier de représentation**, visible de l'enfant et de ses
+Tout ce qui touche à la représentation (représentants, clans de l'enfant, demandes d'autres clans,
+autorisations, historique des gestes de chacun) est rangé dans un **dossier de représentation**, visible de l'enfant et de ses
 seuls représentants, conservé comme une preuve (section 6.3). Un enfant sans téléphone reste dans un
 seul clan.
 
@@ -613,7 +610,7 @@ l'autorité : vérifier ce lien supposerait de collecter un état civil ou une p
 c'est-à-dire des données plus sensibles que toutes celles du jeu. La protection retenue repose sur
 trois éléments :
 
-1. **on n'entre pas seul** : il faut un chef qui invite et déclare, après avoir lu le souhait de
+1. **on n'entre pas seul** : il faut un chef qui accueille et déclare, après avoir lu le souhait de
    l'enfant ;
 2. **le lien de responsabilité ne se déplace pas** : il reste attaché au clan d'origine, et aucun
    autre clan n'accueille l'enfant sans l'autorisation vérifiée de l'un de ses représentants ;
@@ -687,13 +684,13 @@ d'un seul de ses clans, sauf du clan d'origine (section 5.8).
 | Statut légal | Enfant, en transition vers la majorité, adulte. **La date de naissance n'est jamais conservée** : saisie à l'inscription, elle sert à calculer le statut, puis est oubliée | Appliquer toutes les protections de ce document |
 | Pays et langue | Pays déclaré, région de stockage, langue, **enregistrés seulement après la connexion à un compte** | Appliquer le droit et les documents du pays, héberger les données dans la région correspondante |
 | Identité de jeu | Pseudonyme choisi librement, description du personnage, avatar, nom public de substitution ; nom, description et avatar du clan et leur nom public | C'est le jeu lui-même. Visibles du seul clan ; hors du clan, seul le nom public existe. Exception : le pseudonyme, l'avatar et le titre porté d'un joueur sont les mêmes dans tous ses clans (8 au plus) et visibles de leurs membres (section 5.8) |
-| Représentation d'un enfant | Représentant et co-représentants ; clans de l'enfant (nom du clan, nom du chef, adulte qui l'y a fait entrer, date) ; autorisations données à d'autres clans ; historique des gestes des représentants (retrait ou rétablissement du consentement, déclaration de majorité, autorisation ou retrait d'un clan, ajout d'un co-représentant et sa déclaration) | Garder la main des parents sur les clans de l'enfant, et pouvoir le prouver. Visible de l'enfant et de ses seuls représentants ; preuve conservée cinq ans (section 6.3) |
+| Représentation d'un enfant | Représentant et co-représentants ; clans de l'enfant (nom du clan, nom du chef, adulte qui l'y a fait entrer, date) ; demandes d'entrée dans d'autres clans (nom du clan, nom de son chef, dates, réponse) et autorisations données à ces clans ; historique des gestes des représentants (retrait ou rétablissement du consentement, déclaration de majorité, autorisation ou retrait d'un clan, ajout d'un co-représentant et sa déclaration) | Garder la main des parents sur les clans de l'enfant, et pouvoir le prouver. Visible de l'enfant et de ses seuls représentants ; preuve conservée cinq ans (section 6.3) |
 | Progression | Expérience, niveau, points de vie, titres, objets, argent de poche fictif, tâches et leur état | Le jeu |
 | Vie du clan | Rôle (chef ou non), clan d'origine, joueur sans appareil, mode hors concours, choix de recevoir ou non les rappels, retrait de consentement en cours | Appliquer les règles de responsabilité et de protection |
 | Journal du clan | Événements datés : tâches jugées, niveaux, coffres ouverts, cadeaux | Mémoire familiale et traçabilité des décisions |
 | Données techniques | Jeton de notification, version de l'application, date de dernière connexion, décalage horaire, historique des connexions | Acheminer les notifications à une heure adaptée au statut du joueur, servir la bonne version |
-| Invitations | Échange technique d'une invitation à distance, effacé au bout de 72 heures | Faire entrer un membre dans le clan |
-| Preuves d'acceptation | Version des conditions acceptées, date, pays, déclaration du chef, souhait de jouer de l'enfant (date, langue, région, version du texte montré, code de la demande tiré au hasard), autorisation de transfert international, autorisation d'un autre clan donnée par un représentant, déclaration d'un co-représentant | Prouver que le consentement a été donné, et quand |
+| Adhésion | Boîte d'échange temporaire, désignée par le code du candidat et sans donnée personnelle (clé de chiffrement à usage unique, région, statut légal, souhait de l'enfant), inutilisable au bout de quinze minutes et effacée à la fin de l'échange ou, à défaut, après son expiration. Pour un enfant déjà membre d'un clan, la réponse du clan qui l'accueille attend sur son téléphone, sept jours au plus, la décision de ses représentants | Faire entrer un membre dans le clan |
+| Preuves d'acceptation | Version des conditions acceptées, date, pays, déclaration du chef, souhait de jouer de l'enfant (date, langue, région, texte montré, version des conditions), autorisation de transfert international, déclaration du chef qui accueille un enfant d'un autre clan, autorisation de ce clan donnée par un représentant, déclaration d'un co-représentant | Prouver que le consentement a été donné, et quand |
 | Achats (adultes seulement) | Compte de l'acheteur, référence d'achat Google Play, produit, dates, état de l'abonnement, utilisation d'un code cadeau | Faire fonctionner l'abonnement du clan |
 | Adresse électronique | **Détenue par le service d'authentification**, pour la seule connexion au compte Google ; **jamais écrite dans les données de jeu** | Permettre au joueur de retrouver son personnage |
 | Preuve d'une tâche (photo ou courte vidéo sans son) | **Jamais envoyée**, jamais sauvegardée en ligne, effacée au verdict et au plus tard à l'ouverture suivante ; aucun son enregistré, l'application n'ayant pas la permission micro | Aucune image d'un enfant ou de son logement hors de l'appareil ; aucune voix de l'enfant ni de ses proches |
@@ -791,7 +788,7 @@ un journal de clan est effacé en entier.
 - **Enfant jamais invité** : rien n'a été enregistré, ni sur son téléphone ni en base ; la seule
   entrée d'authentification anonyme, vide, est effacée par la plateforme au bout de trente jours
   (section 5.8).
-- **Enfant connecté mais jamais admis dans un clan** (invitation expirée, abandon de l'attente) :
+- **Enfant connecté mais jamais admis dans un clan** (entrée interrompue après la connexion) :
   son compte n'a aucune donnée de jeu, puisque rien n'en existe avant l'entrée dans un clan. Au bout
   de **trente jours** sans ouvrir le jeu, il est effacé, compte de connexion compris. La preuve
   d'acceptation n'est pas effacée : elle est close, datée et conservée cinq ans, comme pour tout

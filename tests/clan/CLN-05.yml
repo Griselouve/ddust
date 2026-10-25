@@ -1,0 +1,49 @@
+test: CLN-05
+titre: "Accueil refusé : régions différentes"
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# ⚠ UN SEUL PAYS EST OUVERT (screens_meta.yml, `documents.regions` = France) : deux joueurs ne
+#   peuvent pas choisir deux datacenters différents par l'écran du royaume. Le test FORGE donc
+#   un QR code d'une autre contrée : le vrai QR de l'enfant, dont le paramètre `r` (posé par
+#   worker_join._joinPaint) est remplacé par `us`. C'est exactement ce que compare le contrôle
+#   (_inviteRegionMismatch, sur cloud_region), AVANT toute lecture de la boîte.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:welcome_child_screen
+etapes:
+  - enfant: {macro: onboarding_mineur}
+  - outil:  {nom: qr_lire, telephone: enfant, motif: "^ddust://join", garde: patte}
+  - outil:  {nom: url_param, url: "{patte}", param: r, valeur: us, garde: forge}
+  - papa:   {action: worker.on_welcome_player}
+  - papa:   {attend: welcome_child_screen, delai: 30}
+  # Le QR forgé est donné au chef comme le ferait son lecteur intégré (action de la route
+  # ddust://join), pas par un lien Android : celui-ci met l'app en pause et la réapparition
+  # de la page masque l'erreur (défaut à part, rapport du 2026-10-18).
+  - outil:  {nom: lien_event, url: "{forge}", garde: ev}
+  - papa:   {action: worker.on_join_link, event: "{ev}"}
+  - papa:   {attend_shape: welcome_child_screen/error, delai: 30}
+verifs:
+  - papa: {page: welcome_child_screen}
+  - papa: {shape: welcome_child_screen/error, contient_un: ["gardé dans une autre contrée du monde", "invite_wrong_region"]}
+  - journal: {telephone: papa, contient: "[worker] invitation région=us, session région="}
+  - journal: {telephone: papa, absent: "réclamée, mode"}
+  # L'enfant attend toujours, sa boîte intacte.
+  - enfant: {page: join_show_screen}

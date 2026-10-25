@@ -1,0 +1,72 @@
+test: BUT-02
+titre: Cérémonie d'ouverture à deux (jauge pleine par horloge)
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# ⚠ Le plan attend `clans_chest_history` : cette table n'est écrite par PERSONNE aujourd'hui
+#   (lue seulement, worker_chest.dart:74-96 ; worker.dart:1189-1194). Le constat porte sur le
+#   journal du clan (ButinOpened), la jauge recalée et les parts reçues.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:butin_open_page
+  - ecran:butin_page
+  - ecran:clan_page
+  - ecran:money_page
+  - ecran:testme
+etapes:
+  # Un objet au coffre : les objets ne vont qu'aux non-chefs (worker_butin.dart:1381-1384),
+  # donc à Kid.
+  - outil: {nom: but_objet, telephone: papa, type: potion_pv, cout: 20, garde: objet}
+  - papa: {tap: testme_open}
+  - papa: {attend: testme, delai: 60}
+  - papa: {action: worker.item_to_butin, event: {source_id: "{objet}", source_type: potion_pv}}
+  - papa: {attend_journal: "déposé dans le coffre", delai: 30}
+  # De l'argent promis, comme BUT-01 (le pavé n'est pas tapable, « 020 » s'affiche « 20 »).
+  - papa: {action: worker.butin_show}
+  - papa: {attend: butin_page, delai: 30}
+  - papa: {action: worker.on_butin_row_tap, event: {id: wallet}}
+  - papa: {attend: money_page, delai: 30}
+  - papa: {action: worker.on_money_digit, event: "020"}
+  - papa: {tap: money_page/ok}
+  - papa: {attend: butin_page, delai: 30}
+  - papa: {tap: butin_page/ok}
+  - papa: {attend: testme, delai: 30}
+  # Jauge pleine : clans.butin_xp = last_butin_xp + 500 (helpers/horloge.py). AVANT d'ouvrir
+  # l'écran Clan : c'est son appear qui relit le doc clan (worker_screen_clan.dart:148-158).
+  - outil: {nom: horloge, telephone: papa, quoi: butin}
+  - papa: {tap: clan_open}
+  - papa: {attend: clan_page, delai: 60}
+  # Le coffre doré n'est révélé qu'aux chefs, jauge au plafond.
+  - papa: {attend_shape: clan_page/butin_open, delai: 60}
+  - papa: {tap: clan_page/butin_open}
+  - papa: {attend: butin_open_page, delai: 30}
+  # Le meneur appelle le clan : pending_opening posé sur Kid (worker_butin.dart:765-818).
+  - papa: {tap: butin_open_page/ok}
+  - papa: {attend_journal: "[opening] clan appelé : 1 joueur(s) attendu(s)", delai: 30}
+  # Kid est appelé par sa vigilance ou par le push (worker_watch.dart:198, worker_notify.dart:1084).
+  - enfant: {attend: butin_open_page, delai: 90}
+  - enfant: {attend_journal: "[opening] appelé par le meneur : cérémonie ouverte", delai: 30}
+  - enfant: {tap: butin_open_page/ok}
+  - enfant: {attend_journal: "[opening] réponse envoyée :", delai: 30}
+  # Le meneur voit la réponse (vigilance fibonacci 2-10 s, ou push « prêt ») et distribue.
+  - papa:   {attend_journal: "[opening] clan au complet : ouverture du coffre", delai: 90}
+  - papa:   {attend_journal: "[butin] jauge recalée : last_butin_xp=", delai: 60}
+  # Chacun réclame sa part puis voit l'animation (worker_butin.dart:1497-1620).
+  - enfant: {attend_journal: "[butin] part reçue :", delai: 120}
+  - papa:   {attend_journal: "[butin] part reçue :", delai: 120}
+verifs:
+  - journal: {telephone: papa, contient: "[opening] verrou pris :"}
+  - journal: {telephone: papa, contient: "[butin] distribution : "}
+  - journal: {telephone: enfant, contient: "[butin] part reçue : "}
+  # Journal du clan : l'ouverture (worker_butin.dart:1275-1280).
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: ButinOpened}, existe: true}
+  # L'objet est allé à Kid et réclamé (owner = son userId, to_owner vidé).
+  - firestore: {doc: "clans_items/{clan}/items/{objet}", champ: owner, egal: "{kid}"}
+  # Plus de part en attente chez Kid.
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: pending_butin, egal: false}

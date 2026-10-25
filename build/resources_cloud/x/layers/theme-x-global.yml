@@ -14,10 +14,6 @@ data:
   registry:
 
     #------------------------------- 1. Titres : médiévale, un peu plus grands
-    accept_invitation_clan/title:
-      shape:
-        font_family: "MedievalSharp"
-        font_size: 22.0
     butin_tale_page/text:
       shape:
         font_family: "MedievalSharp"
@@ -63,9 +59,6 @@ data:
         font_size: 21.0
 
     #------------------------------- 2. Boutons : texte en gras
-    accept_invitation_clan/confirm:
-      shape:
-        font_weight: bold
     butin_note_page/ok:
       shape:
         font_weight: bold
@@ -150,7 +143,10 @@ data:
     documents/region_confirm:
       shape:
         font_weight: bold
-    enter_invite_pin/confirm:
+    guardian_pin_page/confirm:
+      shape:
+        font_weight: bold
+    welcome_child_screen/code_go:
       shape:
         font_weight: bold
     fairy_page/gift_left:
@@ -192,13 +188,10 @@ data:
     imp_pin_set/cancel:
       shape:
         font_weight: bold
-    invite_clan/share:
+    invite_consent_screen/reads:
       shape:
         font_weight: bold
-    invite_clan_pin/share:
-      shape:
-        font_weight: bold
-    invite_consent_screen/kind:
+    invite_consent_screen/aloud:
       shape:
         font_weight: bold
     invite_consent_screen/yes:
@@ -207,19 +200,10 @@ data:
     item_view_page/apply:
       shape:
         font_weight: bold
-    join_wait/giveup:
-      shape:
-        font_weight: bold
     kid_assent/go:
       shape:
         font_weight: bold
-    kid_assent_share/scan:
-      shape:
-        font_weight: bold
-    kid_assent_share/send:
-      shape:
-        font_weight: bold
-    kid_wants_clan/scan_qr:
+    join_show_screen/family_yes:
       shape:
         font_weight: bold
     link_account/conflict_cancel:

@@ -1,0 +1,42 @@
+test: PRO-01
+titre: Montée de niveau (XP par tâches)
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:combat, ecran:personnage]
+etapes:
+  # Niveau 2 à 200 XP (level_base 200, worker.dart:806, _xpForCurve worker_tuning.dart:80).
+  # Gain d'une tâche plafonné à max_xp + 20 × niveau = 100 + 20 = 120 au niveau 1
+  # (_creditXp worker_verdict.dart:249-252, config.yml:37-46). Deux grosses tâches :
+  #   salon_05 (mortelle, effort 4, recharge 720 h) : 4 × (10 + 60) = 280 → 120
+  #   salon_09 (mortelle, effort 5, recharge 336 h) : 5 × (10 + 28) = 190 → 120
+  # → 240 XP, niveau 1 → 2 à la seconde validation. Deux verdicts : sous le seuil du mur de
+  # première cotisation (3 validations à deux), pas de code_cadeau.
+  - enfant: {macro: tache_faire, tache: salon_05}
+  - papa:   {macro: tache_juger, tache: salon_05, verdict: ok, attendu: "[combat] verdict ACCEPTÉ: salon_05"}
+  - enfant: {attend_journal: "[combat] résolution = libération (status=dead): salon_05", delai: 240}
+  # Victoire jouée par-dessus le tiroir (interlude) : on attend qu'elle finisse.
+  - enfant: {attend_journal: "[victory] tâche validée", delai: 60}
+  - enfant: {attend_libre: true, delai: 90}
+  - enfant: {macro: tache_faire, tache: salon_09}
+  - papa:   {macro: tache_juger, tache: salon_09, verdict: ok, attendu: "[combat] verdict ACCEPTÉ: salon_09"}
+  # _celebrateAfterAccept → _checkPlayerLevelUp (worker_celebrations.dart:349-376, 500).
+  - enfant: {attend_journal: "[levelup] Kid : niveau 1 → 2", delai: 240}
+  - enfant: {attend_libre: true, delai: 90}
+  # L'écran Personnage affiche le niveau (personnage/lvl_label, worker_screen_personnage.dart:228).
+  - enfant: {action: navigate_new.personnage}
+  - enfant: {attend: personnage, delai: 60}
+  - enfant: {attend_libre: true, delai: 60}
+verifs:
+  - journal: {telephone: enfant, contient: "[levelup] Kid : niveau 1 → 2 (xp 120 → 240)"}
+  - enfant: {shape: personnage/lvl_label, egal: "2"}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: xp, egal: 240}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: PlayerLeveledUp}, champ: data.niveau, egal: 2}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: PlayerLeveledUp}, champ: userId, egal: "{kid}"}

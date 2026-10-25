@@ -1,0 +1,47 @@
+test: TAC-06
+titre: Créer et modifier une tâche (mode Admin)
+criticite: majeur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:cuisine_tasks, ecran:rename_task]
+etapes:
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan}
+  # Le sous-tiroir du domaine cuisine (page cuisine_tasks, navigate_new.<page>, dvorb.dart:644).
+  - papa: {action: navigate_new.cuisine_tasks}
+  - papa: {attend: cuisine_tasks, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  # La tuile « + » du tiroir n'est pas une shape : son action worker.adm_add_task
+  # (worker_admin.dart:529-543), qui exige d'être sur une page <domaine>_tasks.
+  - papa: {action: worker.adm_add_task}
+  - papa: {attend: rename_task, delai: 60}
+  - papa: {attend_libre: true, delai: 30}
+  - papa: {ecrit: rename_task/name, texte: "Ranger les épices"}
+  - papa: {ecrit: rename_task/desc, texte: "Tous les pots alignés, étiquettes devant."}
+  - papa: {tap: rename_task/confirm}
+  # _createNewTask : id cuisine_<micros>, user_created, relu après écriture (worker_forms.dart:708-770).
+  - papa: {attend_journal: "[admin] création tâche cuisine_", delai: 60}
+  - papa: {attend: cuisine_tasks, delai: 60}
+  - outil: {nom: firestore_cherche, collection: "clans_tasks/{clan}/tasks", champ: title, egal: "Ranger les épices", lire: __id__, garde: tache}
+  # Modifier : option « Modifier » du menu admin du tiroir (DvMenu) → worker.adm_edit avec la
+  # charge {id} de l'icône (worker_admin.dart:514-522).
+  - papa: {action: worker.adm_edit, event: {id: "{tache}"}}
+  - papa: {attend: rename_task, delai: 60}
+  - papa: {attend_libre: true, delai: 30}
+  - papa: {ecrit: rename_task/name, texte: "Ranger le placard à épices"}
+  - papa: {tap: rename_task/confirm}
+  - papa: {attend_journal: "[admin] tasks/{tache} édité (conf + runtime + firestore)", delai: 60}
+verifs:
+  - firestore: {doc: "clans_tasks/{clan}/tasks/{tache}", champ: title, egal: "Ranger le placard à épices"}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/{tache}", champ: acceptance, egal: "Tous les pots alignés, étiquettes devant."}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/{tache}", champ: user_created, egal: true}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/{tache}", champ: domain, egal: cuisine}
+  # Défauts de création : effort 3, recharge 72 h, immortelle (worker_forms.dart:716-718).
+  - firestore: {doc: "clans_tasks/{clan}/tasks/{tache}", champ: effort, egal: 3}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/{tache}", champ: type, egal: immortelle}

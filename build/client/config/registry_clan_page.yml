@@ -40,7 +40,6 @@ conf:
         - clan_page/roster_menu
         - clan_page/settings
         - clan_page/settings_menu
-        - clan_page/add_child_menu
         - clan_page/advanced_menu
         - clan_page/switch
         - clan_page/edit_toggle
@@ -276,7 +275,7 @@ conf:
       layer: content
       menu: clan_page/settings_menu
       # Sous-menus ouverts depuis ce menu : leurs icônes sont préparées avec les siennes.
-      submenus: [clan_page/add_child_menu, clan_page/advanced_menu]
+      submenus: [clan_page/advanced_menu]
       menu_enabled: true
       # Même cadre doré que les boutons du roster (fond noir ~60 % + cadre doré).
       button_style: commons/donjon_button
@@ -312,16 +311,14 @@ conf:
 
     # Menu du bouton settings de l'écran Clan : LES GESTES DE BASE, et rien d'autre.
     #
-    # ⚠ REFONTE DU 2026-10-11 (retours joueurs). Jusqu'à treize options d'affilée, dont trois
-    #   qui parlaient d'enfants : « Accueillir un enfant » (il a un téléphone), « Créer un
-    #   joueur » (il n'en a pas) et « Mes enfants » (gérer ses clans). Un parent qui voulait
-    #   ajouter son enfant touchait « Mes enfants » : logique, et mauvaise porte. Désormais :
-    #     - « Ajouter mon enfant » ouvre un second choix au même endroit, « il a son téléphone »
-    #       ou « il n'en a pas » (clan_page/add_child_menu) ;
-    #     - l'invitation d'un adulte par QR code passe en tête ;
-    #     - tout ce que peu de clans utilisent part sous « Options avancées… »
-    #       (clan_page/advanced_menu).
-    #   Le selector clan_settings_selector garde les mêmes gardes (chef, adulte).
+    # ⚠ REFONTE DU 2026-10-18 : UNE SEULE PORTE D'ENTRÉE. Le candidat, adulte ou enfant, montre son
+    #   QR code (ou dicte son code) et le chef l'accueille : « Accueillir un joueur ». Plus de « QR
+    #   code du clan », plus de « Ajouter mon enfant » à deux niveaux, plus d'« Inviter à distance »
+    #   ni d'« Accueillir un enfant d'un autre clan » : l'écran du chef dit lui-même s'il a affaire
+    #   à un adulte, à son enfant ou à l'enfant d'un autre foyer.
+    #   L'enfant sans téléphone garde son option, remontée ici : « Créer un joueur sans téléphone ».
+    #   Tout ce que peu de clans utilisent reste sous « Options avancées… »
+    #   (clan_page/advanced_menu). Le selector clan_settings_selector garde les mêmes gardes.
     # ⚠ Une option ajoutée ici est à reporter dans le panneau du tutoriel qui lui correspond
     #   (dvtuto.yml, menu_options ou menu_options_admin) : ils sont écrits à la main.
     clan_page/settings_menu:
@@ -332,24 +329,27 @@ conf:
       shape:
         w: 55%
       options:
-        # Fait entrer un ADULTE dans le clan par QR code (sans accord d'enfant joint, seul le cas
-        # adulte est proposé). Réservé au chef (clan_settings_selector), avec double garde dans
-        # worker.on_invite_clan.
-        clan_qr:
-          desc: "@@@T:clan_menu_qr_desc@@@"
+        # Accueillir un joueur : le candidat montre son QR code (ou dicte son code), le chef le
+        # scanne (ou le saisit), lit les conditions qui s'appliquent et valide. Réservé au chef
+        # (clan_settings_selector), double garde dans worker.on_welcome_player. Icône Material
+        # `face` (un visage, pas d'asset) : elle est dans la liste blanche de DvHelper.
+        welcome:
+          icon: "face"
+          desc: "@@@T:clan_menu_welcome_desc@@@"
           shape:
-            label: "@@@T:clan_menu_qr@@@"
+            label: "@@@T:clan_menu_welcome@@@"
           actions:
-            tap: worker.on_invite_clan
-        # Ajouter mon enfant : ouvre clan_page/add_child_menu au même endroit (worker.open_add_child_menu).
-        # Réservé au chef, comme les deux options qu'il remplace.
-        add_child:
+            tap: worker.on_welcome_player
+        # Créer un joueur enfant (sans téléphone ni compte Google), admis directement dans le
+        # clan. Réservé au chef (clan_settings_selector). Icône Material group_add (colorée par
+        # le thème, pas d'asset). Ouvre l'écran create_player_screen.
+        create_player:
           icon: "group_add"
-          desc: "@@@T:clan_menu_add_child_desc@@@"
+          desc: "@@@T:clan_menu_create_player_desc@@@"
           shape:
-            label: "@@@T:clan_menu_add_child@@@"
+            label: "@@@T:clan_menu_create_player@@@"
           actions:
-            tap: worker.open_add_child_menu
+            tap: worker.create_player
         clan_log:
           desc: "@@@T:clan_menu_log_desc@@@"
           shape:
@@ -372,41 +372,6 @@ conf:
           actions:
             tap: worker.open_clan_advanced
 
-    # « Ajouter mon enfant » : le second choix, ouvert au même endroit que le menu du clan.
-    # Les deux options sont celles d'avant (welcome_child, create_player) sous un libellé qui
-    # dit la seule question qui les distingue : l'enfant a-t-il son propre téléphone ?
-    clan_page/add_child_menu:
-      class: DvMenu
-      layer: popup
-      selector: worker.clan_add_child_selector
-      show_label: false
-      shape:
-        w: 55%
-      options:
-        # Accueillir un enfant : l'enfant a dit qu'il voulait jouer, son téléphone affiche un QR
-        # code ; le chef le scanne, voit cet accord, déclare, puis invite (QR ou à distance).
-        # C'est la SEULE porte d'un enfant : « QR Code du clan » et « Inviter à distance » ne
-        # proposent plus que le cas adulte. Réservé au chef (clan_settings_selector), double
-        # garde dans worker.on_welcome_child. Icône Material `face` (un visage, pas d'asset) :
-        # elle est dans la liste blanche de DvHelper, que `child_care` n'est pas.
-        welcome_child:
-          icon: "face"
-          desc: "@@@T:clan_menu_welcome_child_desc@@@"
-          shape:
-            label: "@@@T:clan_menu_welcome_child@@@"
-          actions:
-            tap: worker.on_welcome_child
-        # Créer un joueur enfant (sans téléphone ni compte Google), admis directement dans le
-        # clan. Réservé au chef (clan_settings_selector). Icône Material group_add (colorée par
-        # le thème, pas d'asset). Ouvre l'écran create_player_screen.
-        create_player:
-          icon: "group_add"
-          desc: "@@@T:clan_menu_create_player_desc@@@"
-          shape:
-            label: "@@@T:clan_menu_create_player@@@"
-          actions:
-            tap: worker.create_player
-
     # « Options avancées… » : ce que peu de clans utilisent, ouvert au même endroit que le menu
     # du clan. Gardes inchangées, arbitrées par clan_advanced_selector.
     clan_page/advanced_menu:
@@ -417,30 +382,9 @@ conf:
       shape:
         w: 55%
       options:
-        # Invitation à distance : lien chiffré par PIN, partagé sur les réseaux sociaux (pas de QR).
-        # Icône Material Flutter (partage) au lieu d'un asset — colorée par le thème du menu.
-        # Réservé au chef (clan_settings_selector), double garde dans worker.on_invite_clan_remote.
-        clan_invite_remote:
-          icon: "share"
-          desc: "@@@T:clan_menu_invite_remote_desc@@@"
-          shape:
-            label: "@@@T:clan_menu_invite_remote@@@"
-          actions:
-            tap: worker.on_invite_clan_remote
-        # MULTICLAN. Accueillir un enfant qui a DÉJÀ un clan : le chef montre un QR code (ou un
-        # lien + code) au représentant légal de l'enfant, qui autorise ce clan pour 7 jours.
-        # Réservé au chef adulte (clan_settings_selector), double garde dans
-        # worker.on_welcome_guest_child.
-        welcome_guest_child:
-          icon: "face"
-          desc: "@@@T:clan_menu_welcome_guest_desc@@@"
-          shape:
-            label: "@@@T:clan_menu_welcome_guest@@@"
-          actions:
-            tap: worker.on_welcome_guest_child
-        # MULTICLAN. « Mes enfants » : les gestes d'un représentant légal (autoriser un clan,
-        # voir les clans d'un enfant et l'en retirer, ajouter un co-représentant, le devenir).
-        # Pour tout adulte (clan_settings_selector).
+        # MULTICLAN. « Mes enfants » : les gestes d'un représentant légal (les demandes d'autres
+        # clans, voir les clans d'un enfant et l'en retirer, ajouter un co-représentant, le
+        # devenir). Pour tout adulte (clan_advanced_selector).
         guardian_hub:
           icon: "face"
           desc: "@@@T:clan_menu_guardian_hub_desc@@@"
@@ -499,11 +443,12 @@ conf:
         # Clan n'a plus à en parler, et l'on ne cherche plus son relevé de cotisation
         # sous un menu qui parle de recrutement et de tutoriels.
 
-    #//------------------------------- ECRAN d'AVANT le scan d'un enfant ----------------
-    # « Mon enfant a son téléphone » ouvrait la caméra sans un mot : le parent ne savait pas quoi
-    # viser (retour utilisateur du 2026-10-12). Cet écran dit d'abord ce qui doit se passer sur
-    # le téléphone de l'enfant ; la caméra ne s'ouvre qu'au toucher du bouton. Un scan abandonné
-    # ramène ici, un scan réussi remplace cet écran par la suite (worker.on_welcome_child_scan).
+    #//------------------------------- « ACCUEILLIR UN JOUEUR » (avant le scan) -----------
+    # Ce qui doit se passer sur le téléphone du candidat, d'abord ; la caméra ne s'ouvre qu'au
+    # toucher du bouton (retour utilisateur du 2026-10-12 : la caméra ouverte d'emblée laissait le
+    # parent sans savoir quoi viser). Un scan abandonné ramène ici ; un scan réussi (ou un code
+    # saisi) remplace cet écran par la déclaration (worker._welcomeOpenBox).
+    # « Il est loin ? Saisir son code » révèle la saisie du code à cinq caractères qu'il dicte.
     # Un ECRAN et non un overlay : comme invite_consent_screen, il couvre tout et se lit sur un
     # fond qui ne bouge pas.
     welcome_child_screen:
@@ -511,22 +456,28 @@ conf:
         - page
       show_appbar: true
       show_back: true
-      title: "@@@T:clan_menu_add_child@@@"
+      title: "@@@T:clan_menu_welcome@@@"
       registry:
         - commons/splash_background
         - welcome_child_screen/panel
         - welcome_child_screen/text
         - welcome_child_screen/scan
+        - welcome_child_screen/remote
+        - welcome_child_screen/code
+        - welcome_child_screen/code_go
+        - welcome_child_screen/error
         - welcome_child_screen/no
 
     welcome_child_screen/panel:
+      masks:
+        - commons/intro_text   # le panneau commun (fond + bordure du thème), pas le texte nu sur l'illustration
       class: DvLabel
       layer: content
       shape:
         x: 4%
         y: 2%
         w: 92%
-        h: 68%
+        h: 40%
         border: true
         label: ""
 
@@ -536,26 +487,93 @@ conf:
       class: DvLabel
       layer: content
       shape:
-        x: 10%
-        y: 20%
-        w: 80%
-        h: 36%
+        # Texte courant : DvLabel est gras par défaut (vitrine, 2026-10-21).
+        font_weight: normal
+        x: 8%
+        y: 5%
+        w: 84%
+        h: 34%
         text_align: CENTER
-        label: "@@@T:welcome_child_intro@@@"
+        label: "@@@T:welcome_intro@@@"
 
     welcome_child_screen/scan:
       masks:
         - commons/btn_wide
       layer: content
       shape:
-        y: 74%
-        h: 11%
+        y: 45%
+        h: 10%
         text_align: CENTER
-        label: "@@@T:welcome_child_scan@@@"
+        label: "@@@T:welcome_scan@@@"
         events:
           tap: true
         actions:
-          tap: worker.on_welcome_child_scan
+          tap: worker.on_welcome_scan
+
+    welcome_child_screen/remote:
+      masks:
+        # Un vrai bouton : en lien texte, il était vert sur le vert du décor dino.
+        - commons/btn_wide
+      class: DvLabel
+      layer: content
+      shape:
+        x: 10%
+        y: 56%
+        w: 80%
+        h: 7%
+        text_align: CENTER
+        label: "@@@T:welcome_remote@@@"
+        events:
+          tap: true
+        actions:
+          tap: worker.on_welcome_remote
+
+    # Le code dicté par le candidat (« 48E-D8 » ; tirets, espaces et minuscules acceptés).
+    welcome_child_screen/code:
+      masks:
+        - commons/entry
+      shape:
+        x: 15%
+        y: 63%
+        w: 45%
+        h: 8%
+        type: TEXT
+        text_align: CENTER
+        hint: "@@@T:welcome_code_hint@@@"
+        visible: false
+
+    welcome_child_screen/code_go:
+      masks:
+        - commons/btn_medium
+      shape:
+        x: 63%
+        y: 63%
+        w: 22%
+        h: 8%
+        label: "@@@T:welcome_code_go@@@"
+        visible: false
+        events:
+          tap: true
+        freezing_actions:
+          tap: worker.on_welcome_code_go
+
+    # Code inconnu ou échu, déjà pris par un autre chef, QR code qui n'est pas celui d'un candidat,
+    # autre contrée. Invisible par défaut, révélé par le worker : jamais de fenêtre modale.
+    welcome_child_screen/error:
+      masks:
+        - commons/nobordershape
+      class: DvLabel
+      layer: content
+      shape:
+        # Texte courant : DvLabel est gras par défaut (vitrine, 2026-10-21).
+        font_weight: normal
+        x: 5%
+        y: 73%
+        w: 90%
+        h: 12%
+        label: ""
+        text_align: CENTER
+        visible: false
 
     welcome_child_screen/no:
       masks:
@@ -569,34 +587,28 @@ conf:
         events:
           tap: true
         actions:
-          tap: worker.on_welcome_child_cancel
+          tap: worker.on_welcome_cancel
 
-    #//------------------------------- ECRAN de CONSENTEMENT du chef (recrutement) -------
-    # Ouvert par worker.on_invite_clan / on_invite_clan_remote / on_welcome_child / on_assent_link
-    # AVANT que le lobby ne soit cree :
-    # le chef qui recrute fait potentiellement entrer un enfant dans son clan, il doit avoir la
-    # mention de responsabilite legale et le lien vers les CGU adulte sous les yeux A CET INSTANT
-    # (RGPD art. 8 : le consentement doit etre eclaire au moment de l'acte, pas seulement a
-    # l'installation). Un seul point de passage pour le QR et pour l'invitation a distance : c'est
-    # la DEMANDE de recrutement qui est gardee, pas l'ecran qui en decoule.
+    #//------------------------------- ECRAN de DÉCLARATION du chef (accueil) ------------
+    # Ouvert par worker._welcomeOpenBox APRÈS que le chef a scanné le QR code du candidat (ou
+    # saisi son code) et réclamé sa boîte : le chef qui accueille fait peut-être entrer un enfant,
+    # il doit avoir la mention de responsabilité légale et le lien vers les CGU adulte sous les
+    # yeux A CET INSTANT (RGPD art. 8 : le consentement doit être éclairé au moment de l'acte).
+    # Le REPRÉSENTANT qui reçoit, en différé, la demande d'un autre clan (multiclan) passe par le
+    # même écran.
     #
-    # ⚠ UN ECRAN, ET NON PLUS UN OVERLAY. C'etait jusqu'au 2026-09-15 un voile noir a 80 % pose
-    #   sur clan_page. L'idiome maison proscrit la fenetre MODALE, pas la page : le voile laissait
-    #   le roster, la banniere de recrutement et le coffre transparaitre sous le texte, ce qui
-    #   donnait trois plans de lecture superposes pour un acte qui engage la responsabilite legale
-    #   du chef. Une declaration se lit sur un fond qui ne bouge pas.
-    #
-    # ⚠ LE RETOUR EST LIBRE (`show_back: true`). Renoncer a inviter ne demande aucune confirmation,
-    #   et `worker.pending_invite_kind` est repose a chaque ouverture : un retour sans passer par
-    #   « Pas maintenant » ne laisse donc rien derriere lui.
-    #
-    # DEUX MODES (worker.on_invite_consent_appear) :
-    #   * ENFANT, quand un accord d'enfant est joint (« Accueillir un enfant », lien ddust://assent) :
-    #     le panneau de tete montre ce que l'enfant a accepte, quand, et le texte qui lui a ete
-    #     montre ; les cases se limitent aux deux cas « enfant » ; le chef choisit ensuite QR code
-    #     ou invitation a distance (invite_consent_screen/kind) ;
-    #   * ADULTE, sinon : une seule case, « il s'agit d'un adulte », et le panneau de tete dit
-    #     comment faire entrer un enfant (ou, apres un scan rate, que ce n'etait pas un accord).
+    # ⚠ UN ECRAN, ET NON UN OVERLAY : une déclaration se lit sur un fond qui ne bouge pas.
+    # ⚠ PLUS DE CASES À COCHER (2026-10-18). Les phases (worker._inviteMode, worker_join.dart) :
+    #   * `adult`      : un adulte se présente ; ses conditions, la case « Il sera aussi chef » ;
+    #   * `child_pick` : un enfant se présente ; ce qu'il a dit, quand, puis DEUX BOUTONS
+    #                    (reads / aloud) : « Mon enfant sait lire » / « …ne sait pas encore lire » ;
+    #   * `child`      : les conditions qui suivent ce choix, et « J'ai compris, accueillons-le » ;
+    #   * `guest`      : un enfant d'un autre foyer ; l'adulte qui accueille ne décide rien pour
+    #                    lui, ses parents recevront la demande ;
+    #   * `ward_pick` / `ward` : le représentant ; les deux boutons, puis « J'accepte » / « Je refuse » ;
+    #   * `sent`       : c'est fait ; le bouton ramène au clan.
+    # ⚠ LE RETOUR EST LIBRE (`show_back: true`) : quitter l'écran sans valider rend la boîte au
+    #   candidat (`quit`, worker.on_invite_consent_quit), qui reçoit un code neuf.
     invite_consent_screen:
       masks:
         - page
@@ -605,24 +617,24 @@ conf:
       title: "@@@T:invite_consent_title@@@"
       # ⚠ `actions` A LA RACINE, et non sous `shape:`. C'est de la racine que l'appear d'une PAGE
       #   est tire ; declare sous `shape:`, il ne part jamais (cf. la correction du 2026-09-14 sur
-      #   douze pages). L'appear reconstruit les cases a neuf et rallume le bouton eteint.
+      #   douze pages).
       actions:
         appear:
           - worker.on_invite_consent_appear
+        quit: worker.on_invite_consent_quit
       registry:
         - commons/splash_background
         - invite_consent_screen/panel
         - invite_consent_screen/assent
         - invite_consent_screen/notice
-        - documents/ack_options
-        - invite_consent_screen/kind
+        - invite_consent_screen/reads
+        - invite_consent_screen/aloud
         - invite_consent_screen/chief
         - invite_consent_screen/yes
         - invite_consent_screen/no
 
-    # Fond du bloc de lecture. Sur l'overlay, c'est le voile noir qui portait le texte ; ici le
-    # decor de l'ecran passerait au travers et rendrait la mention illisible. Meme fond que les
-    # boutons du jeu (noir ~60 % + cadre dore) : l'ecran reste dans le donjon.
+    # Fond du bloc de lecture : le decor de l'ecran passerait au travers et rendrait la mention
+    # illisible. Meme fond que les boutons du jeu (noir ~60 % + cadre dore).
     invite_consent_screen/panel:
       class: DvLabel
       layer: content
@@ -634,14 +646,11 @@ conf:
         border: true
         label: ""
 
-    # En tete, ce qui a PRECEDE la decision du chef. En mode enfant : l'accord de l'enfant, sa
-    # date et le texte qu'on lui a montre (dans la langue du chef, qui doit le comprendre). En
-    # mode adulte : comment faire entrer un enfant, ou pourquoi le code scanne n'a pas suffi.
-    # Toujours rempli par le worker (on_invite_consent_appear), jamais vide a l'ecran.
-    # En mode enfant, la premiere ligne est le CODE de la demande (invite_consent_assent_code),
-    # en blanc (marqueurs [[ ]] + highlight_color) : le chef le compare a celui que l'enfant
-    # affiche en grand. Deux lignes de plus dans une case qui n'a pas grandi : `scrollable`,
-    # pour qu'une langue longue ne coupe jamais la fin du texte montre a l'enfant.
+    # En tete, QUI se presente : un adulte ; un enfant, avec ce qu'il a dit, quand, et le texte
+    # qu'on lui a montre (dans la langue du chef, qui doit le comprendre), puis le joueur qu'il
+    # reprend s'il y en a un ; la demande d'un autre clan pour le representant ; ou « c'est fait ».
+    # Toujours rempli par le worker, jamais vide a l'ecran. `scrollable` : une langue longue ne
+    # coupe jamais la fin du texte montre a l'enfant.
     invite_consent_screen/assent:
       masks:
         - commons/nobordershape
@@ -656,15 +665,10 @@ conf:
         text_align: LEFT
         label: ""
 
-    # Le masque commons/parental_consent fournit la mise en page (JUSTIFY, link_color, lien inline
-    # vers les CGU adulte) ; le LIBELLE, lui, est surcharge. Son texte par defaut est
-    # inconditionnel (« vous declarez etre son responsable legal »), ce qui n'est vrai que sur
-    # l'ecran de creation d'un profil d'enfant : ici, on ne sait pas qui scannera le QR — un
-    # adulte, un enfant sans clan, ou un enfant deja pris en charge par le chef d'un autre clan.
-    # invite_consent_notice enonce les trois cas et ne fait declarer que celui qui s'applique.
+    # Les conditions qui s'appliquent, selon la phase (invite_consent_notice_adult, _reads,
+    # _aloud, _guest), posees par le worker. Le masque commons/parental_consent fournit la mise en
+    # page (JUSTIFY, link_color, lien inline vers les CGU adulte).
     # ⚠️ Aucun events.tap ici : le GestureDetector de la shape capterait le tap avant le lien.
-    # Descendue sous le panneau de l'accord (2026-09-22), et resserree : les cases, elles, n'ont
-    # plus que deux lignes au plus.
     invite_consent_screen/notice:
       masks:
         - commons/parental_consent
@@ -673,55 +677,45 @@ conf:
         x: 7%
         y: 28%
         w: 86%
-        h: 20%
-        label: "@@@T:invite_consent_notice@@@"
+        h: 30%
+        label: ""
+        visible: false
 
-    # Les cas annonces par la mention ci-dessus (deux « enfant » avec un accord joint, « adulte »
-    # seul sinon : cf. les deux acquittements de screens_meta.yml), mais A COCHER : le chef ne se contente
-    # plus d'accuser reception, il declare CELUI qui s'applique — et cette declaration part avec
-    # l'invitation pour se coller a la preuve d'acceptation de celui qui entrera (cf.
-    # documents.acknowledgements dans screens_meta.yml).
-    # Les options ne sont PAS ecrites ici : documents.show_ack les pousse depuis la conf du
-    # module, coquille vide comme documents/region_menu.
-    documents/ack_options:
-      layer: content
-      shape:
-        x: 7%
-        y: 49%
-        w: 86%
-        h: 12%
-        row_height: 28.0
-        events:
-          change: true
-        actions:
-          change: worker.on_invite_ack_changed
-
-    # QR code ou invitation a distance, en mode ENFANT seulement : invisible ailleurs, ou
-    # l'option du menu a deja choisi. Un tap bascule (worker.on_invite_kind_toggle) ; le libelle
-    # dit le mode courant ET qu'on peut le changer. Le mode de depart suit la facon dont
-    # l'accord est arrive : scanne sur place → QR code, lien recu → a distance.
-    invite_consent_screen/kind:
+    # Les DEUX BOUTONS, en phase `child_pick` / `ward_pick` : le choix designe l'option de
+    # l'acquittement `guardian` (child_reads / child_read_aloud, screens_meta.yml), scellee par
+    # documents.seal_ack avec `chosen`.
+    invite_consent_screen/reads:
       masks:
         - commons/btn_wide
       layer: content
       shape:
-        x: 7%
-        y: 62%
-        w: 86%
-        h: 7%
+        y: 32%
+        h: 10%
         text_align: CENTER
-        label: ""
+        label: "@@@T:invite_consent_kid_reads@@@"
         visible: false
         events:
           tap: true
         actions:
-          tap: worker.on_invite_kind_toggle
+          tap: worker.on_invite_reads
 
-    # « Il sera aussi chef du clan », en mode ADULTE seulement : une CASE, juste sous « Il s'agit
-    # d'un adulte » (retour utilisateur du 2026-10-11 : un bouton « toucher pour changer » se lit
-    # mal, une case se comprend d'un coup d'œil). Décochée à chaque ouverture
-    # (worker.on_invite_consent_appear). HORS de documents/ack_options, et c'est voulu : cette
-    # liste est l'acquittement légal, et une case cochée y allume le bouton d'invitation.
+    invite_consent_screen/aloud:
+      masks:
+        - commons/btn_wide
+      layer: content
+      shape:
+        y: 45%
+        h: 10%
+        text_align: CENTER
+        label: "@@@T:invite_consent_kid_aloud@@@"
+        visible: false
+        events:
+          tap: true
+        actions:
+          tap: worker.on_invite_aloud
+
+    # « Il sera aussi chef du clan », en phase `adult` seulement : une CASE (retour utilisateur du
+    # 2026-10-11 : un bouton « toucher pour changer » se lit mal). Décochée à chaque accueil.
     invite_consent_screen/chief:
       class: DvCheck
       layer: content
@@ -737,9 +731,8 @@ conf:
         actions:
           change: worker.on_invite_chief_toggle
 
-    # Le bouton est ETEINT ET SOURD a l'ouverture de l'ecran, et ne s'allume qu'une fois une
-    # case cochee (worker._setInviteYesReady) : une invitation sans declaration ne part pas.
-    # `events.tap` est declare a true ici — c'est le worker qui le coupe et le retablit.
+    # Valider : son libelle suit la phase (« J'ai compris, accueillons-le », « J'accepte »,
+    # « Retour au clan »…). Cache tant que les deux boutons attendent leur reponse.
     invite_consent_screen/yes:
       masks:
         - commons/btn_wide
@@ -751,9 +744,10 @@ conf:
         label: "@@@T:invite_consent_yes@@@"
         events:
           tap: true
-        actions:
+        freezing_actions:
           tap: worker.on_confirm_invite_consent
 
+    # « Pas maintenant » (le candidat reçoit un code neuf), ou « Je refuse » pour le représentant.
     invite_consent_screen/no:
       masks:
         - commons/btn_wide
@@ -765,17 +759,18 @@ conf:
         label: "@@@T:invite_consent_no@@@"
         events:
           tap: true
-        actions:
+        freezing_actions:
           tap: worker.on_cancel_invite_consent
 
     #//------------------ Reprise d'un joueur sans telephone (claim_pick_page) -------------
     # Ecran AUTONOME (hors dvsteps, comme give_page), empile par worker._openClaimOrConsent
-    # quand un chef accueille un enfant (accord scanne ou recu par lien) ET que le clan compte
+    # quand un chef accueille un enfant (QR code scanne ou code saisi) ET que le clan compte
     # des joueurs sans telephone (no_account). La question : cet enfant est-il l'un d'eux ? Il
     # reprendra alors ce joueur sur son propre telephone (XP, butin, journal, avatar). C'est le
     # PARENT qui designe le joueur, jamais l'enfant. Un tap sur une ligne mene a la declaration
     # (invite_consent_screen) ; la derniere ligne, « C'est un nouveau joueur », garde le
-    # parcours d'avant. La fleche retour abandonne l'accueil, comme « Pas maintenant ».
+    # parcours d'avant. La fleche retour abandonne l'accueil, comme « Pas maintenant » : la boite
+    # du candidat lui est rendue (`quit`, worker.on_claim_pick_quit).
     claim_pick_page:
       masks:
         - page
@@ -785,6 +780,7 @@ conf:
       # `actions` A LA RACINE : c'est de la que l'appear d'une PAGE est tire.
       actions:
         appear: worker.on_claim_pick_appear
+        quit: worker.on_claim_pick_quit
       registry:
         - commons/splash_background
         - claim_pick_page/hint
@@ -1024,11 +1020,11 @@ conf:
     # uniquement derrière le kebab (5 taps, une icône de 10%×5% à deviner) — c'est le geste que les
     # parents ratent le plus, alors que c'est le seul qui compte à ce moment-là.
     #
-    # Le tap appelle `worker.on_invite_clan`, donc EXACTEMENT le même chemin que l'option du kebab :
-    # overlay de consentement RGPD d'abord (l'invitation peut faire entrer un enfant), lobby ensuite.
-    # Aucun raccourci sur le consentement, seulement sur la découverte.
+    # Le tap appelle `worker.on_welcome_player`, donc EXACTEMENT le même chemin que l'option du
+    # kebab : l'écran qui dit quoi faire sur le téléphone du candidat, puis le scan, puis la
+    # déclaration. Aucun raccourci sur la déclaration, seulement sur la découverte.
     #
-    # Visibilité pilotée par _syncInviteCta (worker_screen_clan.dart) et PERSISTÉE en config registry
+    # Visibilité pilotée par _syncVisible (worker_screen_clan.dart) et PERSISTÉE en config registry
     # (idiome écran born-filled) : la bannière naît dans le bon état au rebuild, sans clignoter.
     # Placée en bas de la zone du roster (qui court jusqu'à ~86%, taskbar à 88%) : avec une seule
     # tuile, tout le bas de l'écran est vide.
@@ -1050,7 +1046,7 @@ conf:
         events:
           tap: true
         actions:
-          tap: worker.on_invite_clan
+          tap: worker.on_welcome_player
 
     # Menu contextuel ouvert au clic sur une tuile joueur (worker.dvroster.tap appelle
     # act("show", {x,y})). Trigger invisible (show_label:false) : c'est un « fantôme »

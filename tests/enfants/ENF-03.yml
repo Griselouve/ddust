@@ -1,0 +1,80 @@
+test: ENF-03
+titre: Réclamer un joueur sans téléphone
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:claim_pick_page
+  - ecran:clan_page
+  - ecran:create_player_screen
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:welcome_child_screen
+etapes:
+  # Lou joue d'abord sur le téléphone de papa (joueur sans compte).
+  - papa: {macro: creer_joueur, nom_joueur: Lou}
+  - papa: {attend: clan_page, delai: 60}
+  - outil: {nom: firestore_cherche, collection: players, groupe: true, champ: name, egal: Lou, lire: id, garde: lou}
+  # Papa + Lou = 2 joueurs, le plafond gratuit : sans palier, l'accueil de l'enfant ouvrirait
+  # tiers_page (_clanIdIfChief).
+  - outil: {nom: code_cadeau, telephone: papa, palier: ddust_tribu}
+  - papa: {action: navigate_back.dashboard}
+  - papa: {attend: dashboard, delai: 60}
+  # L'enfant reçoit son téléphone : onboarding mineur, puis son QR code lu sur son écran.
+  - enfant: {macro: onboarding_mineur}
+  - outil: {nom: qr_lire, telephone: enfant, motif: "^ddust://join", garde: patte}
+  - papa: {action: worker.on_welcome_player}
+  - papa: {attend: welcome_child_screen, delai: 30}
+  # Le QR donné au chef comme par son lecteur intégré (l'action de la route ddust://join) :
+  # le lien Android passe par une pause de l'app et n'est pas toujours servi (2026-10-18).
+  - outil: {nom: lien_event, url: "{patte}", garde: patte_ev}
+  - papa: {action: worker.on_join_link, event: "{patte_ev}"}
+  # Un joueur sans téléphone existe : le parent choisit d'abord qui l'enfant reprend
+  # (_openClaimOrConsent). La ligne de la DvList n'est pas une shape : on appelle son action
+  # avec la ligne choisie (worker.on_claim_pick).
+  - papa: {attend: claim_pick_page, delai: 30}
+  - papa: {action: worker.on_claim_pick, event: {id: "{lou}", label: Lou}}
+  - papa: {attend: invite_consent_screen, delai: 30}
+  - papa: {attend_libre: true, delai: 30}
+  - papa: {tap: invite_consent_screen/reads}
+  # Un tap arrivé avant que l'écran soit prêt est ignoré : s'il reste visible, on retouche.
+  - papa: {pause: 2}
+  - papa: {si_visible: "invite_consent_screen/reads", alors: [{tap: "invite_consent_screen/reads"}]}
+  - papa: {tap: invite_consent_screen/yes}
+  - enfant: {attend: link_account_screen, delai: 120}
+  - enfant: {tap: link_account/google_button}
+  # Le joueur repris a déjà un nom : l'écran du nom est sauté (users/{claim} reçoit steps.name).
+  - enfant: {attend: dashboard, delai: 240}
+  - enfant: {attend_libre: true, delai: 60}
+  - outil: {nom: identite, telephone: enfant, champ: uid, garde: uid_enfant}
+  - outil: {nom: identite, telephone: papa, champ: clan, garde: clan}
+verifs:
+  - enfant: {page: dashboard}
+  - journal: {telephone: enfant, absent: "player name saved"}
+  - journal: {telephone: papa, contient: "on_claim_pick: reprise de {lou}"}
+  - journal: {telephone: enfant, contient: "_claimNoAccountPlayer: joueur {lou} repris ("}
+  # Le compte de l'enfant pointe désormais sur l'identité de jeu de Lou...
+  - firestore: {doc: "userindexes/{uid_enfant}", champ: userId, egal: "{lou}"}
+  - firestore: {doc: "users/{lou}", champ: ownerId, egal: "{uid_enfant}"}
+  # ... et l'ancien doc users de son inscription est effacé : un seul doc à son uid.
+  - firestore: {collection: users, ou: {champ: ownerId, egal: "{uid_enfant}"}, nombre: 1}
+  # La fiche de Lou n'est plus « sans compte », et porte l'adhésion qui l'a reprise.
+  - firestore: {doc: "clans_players/{clan}/players/{lou}", champ: no_account, egal: false}
+  - firestore: {doc: "clans_players/{clan}/players/{lou}", champ: claim_join, different: ""}

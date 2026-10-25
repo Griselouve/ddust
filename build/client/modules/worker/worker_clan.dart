@@ -35,8 +35,6 @@ extension Worker_clan on worker {
 
     void _register_clan() {
 
-                                ActionRegistry.register("worker.on_join_clan",               on_join_clan);
-
                                 ActionRegistry.register("worker.on_create_clan_complete",    on_create_clan_complete);
 
                                 ActionRegistry.register("worker.on_decisiontree_complete",    on_decisiontree_complete);
@@ -63,101 +61,30 @@ extension Worker_clan on worker {
 
                                 ActionRegistry.register("worker.on_cancel_create_clan",       on_cancel_create_clan);
 
-                                // Sortie « un autre parent a déjà créé le clan » → scan du QR (anti-doublon).
+                                // Sortie « un autre parent a déjà créé le clan » → rejoindre (anti-doublon).
                                 ActionRegistry.register("worker.on_create_clan_goto_join",    on_create_clan_goto_join);
 
-                                // Bouton « marche arrière » adulte sur l'écran de rejointe (kid_wants_clan).
-                                ActionRegistry.register("worker.on_kid_wants_clan_appear",    on_kid_wants_clan_appear);
-
-                                ActionRegistry.register("worker.on_back_to_choice",           on_back_to_choice);
-
-                                ActionRegistry.register("worker.on_scan_qr",                   on_scan_qr);
-
-                                // L'enfant parle d'abord : écran d'avis (la question), puis écran de
-                                // partage de sa réponse et de son code, d'où il scanne ou saisit
-                                // l'invitation du parent.
+                                // L'enfant parle d'abord : SA question (kid_assent_screen), puis l'écran qui
+                                // montre patte blanche (join_show_screen, worker_join.dart).
                                 ActionRegistry.register("worker.on_kid_assent_appear",         on_kid_assent_appear);
                                 ActionRegistry.register("worker.kid_assent_route",             kid_assent_route);
-                                ActionRegistry.register("worker.on_kid_assent_share_appear",   on_kid_assent_share_appear);
-                                ActionRegistry.register("worker.on_kid_assent_send",           on_kid_assent_send);
-                                ActionRegistry.register("worker.on_kid_scan_invite",           on_kid_scan_invite);
-                                ActionRegistry.register("worker.on_enter_invite_pin_appear",   on_enter_invite_pin_appear);
 
-                                // Le parent décide ensuite : option « Accueillir un enfant » (scan de
-                                // l'accord) et lien ddust://assent ouvert à distance.
-                                ActionRegistry.register("worker.on_welcome_child",             on_welcome_child);
-                                ActionRegistry.register("worker.on_welcome_child_scan",        on_welcome_child_scan);
-                                ActionRegistry.register("worker.on_welcome_child_cancel",      (c, e) async => DvOrb.navigate_back());
-                                ActionRegistry.register("worker.on_assent_link",               (c, e) async { if (e is Map) await on_assent_link(c, e); });
-                                ActionRegistry.register("worker.on_invite_kind_toggle",        on_invite_kind_toggle);
-                                ActionRegistry.register("worker.on_invite_chief_toggle",       on_invite_chief_toggle);
                                 // L'enfant jouait déjà sur le téléphone du parent : quel joueur reprend-il ?
                                 ActionRegistry.register("worker.on_claim_pick_appear",         on_claim_pick_appear);
                                 ActionRegistry.register("worker.on_claim_pick",                on_claim_pick);
 
-                                ActionRegistry.register("worker.on_invite_ack_changed",        on_invite_ack_changed);
-                                ActionRegistry.register("worker.on_invite_consent_appear",     on_invite_consent_appear);
-
-                                ActionRegistry.register("worker.on_virtuallobby_accepted",     (c, e) async { if (e is Map) await on_virtuallobby_accepted(c, e); });
-
-                                ActionRegistry.register("worker.on_submission_status_changed", (c, e) async { if (e is Map) await on_submission_status_changed(c, e); });
-
-                                ActionRegistry.register("worker.on_invite_clan",               (c, e) async { await on_invite_clan(c, e); });
-
-                                ActionRegistry.register("worker.on_management_created",      (c, e) async { if (e is Map) await on_management_created(c, e); });
-
-                                // Partage du lien d'invitation par QR code (écran invite_clan).
-                                ActionRegistry.register("worker.on_share_clan_invite",       on_share_clan_invite);
-
-                                ActionRegistry.register("worker.on_share_clan_invite_pin",   on_share_clan_invite_pin);
-
-                                ActionRegistry.register("worker.on_invite_clan_link",        (c, e) async { if (e is Map) await on_invite_clan_link(c, e); });
-
-                                ActionRegistry.register("worker.on_accept_invitation_clan",  (c, e) async { await on_accept_invitation_clan(c, e); });
-
-                                // Invitation à distance (lien chiffré par PIN, partage réseaux sociaux) — remplace le QR à distance.
-                                ActionRegistry.register("worker.on_invite_clan_remote",      on_invite_clan_remote);
-
-                                // Overlay de consentement du chef, révélé avant TOUT recrutement (QR comme PIN).
-                                ActionRegistry.register("worker.on_confirm_invite_consent",  on_confirm_invite_consent);
-
-                                ActionRegistry.register("worker.on_cancel_invite_consent",   on_cancel_invite_consent);
-
-                                ActionRegistry.register("worker.on_no_qr",                   on_no_qr);
-
-                                ActionRegistry.register("worker.on_invite_pin_link",         (c, e) async { if (e is Map) await on_invite_pin_link(c, e); });
-
-                                ActionRegistry.register("worker.on_confirm_pin",             on_confirm_pin);
-
-                                // Adhésion en attente (candidat connecté, invitation acceptée) : écran
-                                // join_wait, qui survit à la fermeture de l'application.
-                                ActionRegistry.register("worker.on_join_wait_appear",        on_join_wait_appear);
-                                ActionRegistry.register("worker.on_join_wait_giveup",        on_join_wait_giveup);
-                                // Message d'une attente abandonnée ou expirée, côté adulte.
+                                // Message d'une adhésion qui n'a pas abouti, côté adulte.
                                 ActionRegistry.register("worker.on_new_or_pick_clan_appear", on_new_or_pick_clan_appear);
 
-                                // Créer un joueur enfant (option clan « Créer un joueur », chef) : selector du
-                                // menu d'en-tête + écran de saisie du nom + création directe dans clans_players.
+                                // Menus du clan : les gestes de base, et les options avancées.
                                 ActionRegistry.register("worker.clan_settings_selector",    clan_settings_selector);
-                                ActionRegistry.register("worker.clan_add_child_selector",   clan_add_child_selector);
                                 ActionRegistry.register("worker.clan_advanced_selector",    clan_advanced_selector);
-                                ActionRegistry.register("worker.open_add_child_menu",       open_add_child_menu);
                                 ActionRegistry.register("worker.open_clan_advanced",        open_clan_advanced);
 
                                 ActionRegistry.register("worker.clan_ai_off",               clan_ai_off);
 
                                 ActionRegistry.register("worker.clan_ai_on",                clan_ai_on);
 
-    }
-
-    Future<void> on_join_clan(DvShape? caller, dynamic event) async {
-
-                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                if (region.isNotEmpty) await _writeStep(region, "clan", "joined");
-                                await Deva.instance.set("worker.session.clan_done", "true");
-                                // Bienvenue clan jouée à la 1re arrivée sur dashboard (cf. on_dashboard_appear).
-                                await deva_set("worker.pending_clan_welcome", "joined");
-                                DvOrb.navigate_reset("dashboard");
     }
 
     Future<String> on_create_clan_complete(DvShape? caller, dynamic event) async {
@@ -445,7 +372,7 @@ extension Worker_clan on worker {
                                 _setCreateConfirmVisible(false);
     }
 
-    // « Quelqu'un l'a déjà créé : je scanne son QR code. » LE garde-fou du clan en double, et il
+    // « Quelqu'un l'a déjà créé : je le rejoins. » LE garde-fou du clan en double, et il
     // fallait qu'il soit une ACTION, pas une question.
     //
     // Le foyer où deux parents installent l'app chacun de son côté est le cas d'erreur le plus
@@ -459,7 +386,7 @@ extension Worker_clan on worker {
 
                                 _setCreateConfirmVisible(false);
                                 // Même route que le bouton « rejoindre » de l'écran (steps.navigate.join
-                                // → kid_wants_clan), pour ne pas dupliquer la navigation d'onboarding.
+                                // → join_show_screen), pour ne pas dupliquer la navigation d'onboarding.
                                 final r = ActionRegistry.get("steps.navigate.join")?.call(caller, event);
                                 if (r is Future) await r;
     }
@@ -470,57 +397,6 @@ extension Worker_clan on worker {
                                 // Rejoue la navigation d'origine du bouton créer (step new_or_pick_clan, route create → create_clan).
                                 final r = ActionRegistry.get("steps.navigate.create")?.call(caller, event);
                                 if (r is Future) await r;
-    }
-
-    // --- Bouton « marche arrière » adulte sur l'écran de rejointe (kid_wants_clan) -----------------
-    // Invisible par défaut ; révélé uniquement pour l'adulte (venu de new_or_pick_clan via « Rejoindre »).
-    // Un mineur n'arrive plus ici pendant son inscription : il passe par kid_assent_share et se
-    // connecte AVANT d'entrer dans un clan. Seul un mineur déjà connecté et sans clan (admission
-    // qui n'a pas abouti) peut encore y venir, et il ne doit jamais atteindre l'option « créer ».
-    //
-    // ⚠ PLUS AUCUNE ÉCRITURE ICI. Cet écran inscrivait autrefois l'onboarding d'un mineur encore
-    //   anonyme, pour que le lobby puisse lui répondre sous un uid connu. C'était écrire en base
-    //   les données d'un enfant AVANT que son parent n'ait décidé ; le parcours a été retourné
-    //   pour que cela ne puisse plus arriver (cf. kid_assent_route).
-    // ⚠ `dynamic caller` ET NON `DvShape?` : l'`appear` d'une PAGE passe la page
-    //   elle-même, et une page est un DvView, pas un DvShape. Typer le paramètre
-    //   `DvShape?` faisait lever un `type 'DvPage' is not a subtype of 'DvShape?'` que
-    //   DvView attrape et journalise — l'écran naissait donc inerte, en silence.
-    Future<void> on_kid_wants_clan_appear(dynamic caller, dynamic event) async {
-
-                                final raw   = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "k";
-                                // Mineur connecté et sans clan : cet écran ne lui ouvre aucune porte, le
-                                // QR code d'un chef sans accord d'enfant ne fait entrer qu'un adulte. On le
-                                // ramène à SA question, d'où sa réponse repartira vers son parent.
-                                if (_gameplayLegal(raw) != "a") {
-                                    DvOrb.navigate_reset("kid_assent_screen");
-                                    return;
-                                }
-                                final back = await DvOrb.wait_for_shape("kid_wants_clan/back");
-                                // MULTICLAN : un adulte déjà membre vient de « Mes clans » ; la marche
-                                // arrière le ramène à son clan, pas au choix créer/rejoindre.
-                                final region  = await _homeRegion();
-                                Dvidle? session;
-                                try { session = region.isNotEmpty ? await _readSession(region) : null; } catch (_) {}
-                                if (_activeClans(session).isNotEmpty) {
-                                    back?.set("shape.label", TranslationRegistry.translate("back_to_my_clan"));
-                                    if (back is DvLabel) await back.computeDisplay();
-                                }
-                                back?.set("shape.visible", true);
-                                back?.set("shape.events.tap", true);
-                                back?.refreshUI();
-    }
-
-    Future<void> on_back_to_choice(DvShape? caller, dynamic event) async {
-
-                                final region  = await _homeRegion();
-                                Dvidle? session;
-                                try { session = region.isNotEmpty ? await _readSession(region) : null; } catch (_) {}
-                                if (_activeClans(session).isNotEmpty) {
-                                    DvOrb.navigate_reset("dashboard");
-                                    return;
-                                }
-                                DvOrb.navigate_back("new_or_pick_clan");
     }
 
     Future<void> on_create_clan_name_changed(DvShape caller, dynamic event) async {
@@ -566,9 +442,9 @@ extension Worker_clan on worker {
                                 });
     }
 
-    // Rôles de l'utilisateur dans le clan courant, relus à chaque ouverture d'un des trois menus
-    // du clan (de base, « Ajouter mon enfant », « Options avancées »). Lecture KO → tout à false :
-    // repli sûr, les options de chef et d'adulte restent cachées.
+    // Rôles de l'utilisateur dans le clan courant, relus à chaque ouverture d'un des deux menus
+    // du clan (de base, « Options avancées »). Lecture KO → tout à false : repli sûr, les options
+    // de chef et d'adulte restent cachées.
     Future<({bool admin, bool adult, bool canDeclare})> _clanMenuRoles() async {
 
                                 var isAdmin = false;
@@ -588,11 +464,10 @@ extension Worker_clan on worker {
                                 return (admin: isAdmin, adult: isAdult, canDeclare: canDeclare);
     }
 
-    // Selector du menu d'en-tête du clan : LES GESTES DE BASE (refonte du 2026-10-11, retours
-    // joueurs). Jusque-là treize options d'affilée, dont trois parlant d'enfants que les parents
-    // confondaient. Ordre :
-    //   1. « Inviter un adulte (QR code) », chef : le geste le plus naturel, en tête ;
-    //   2. « Ajouter mon enfant », chef : ouvre le choix « téléphone / pas de téléphone » ;
+    // Selector du menu d'en-tête du clan : LES GESTES DE BASE. Ordre :
+    //   1. « Accueillir un joueur », chef : le candidat, adulte ou enfant, montre son QR code
+    //      (ou dicte son code) et le chef le scanne. Une seule porte depuis le 2026-10-18 ;
+    //   2. « Créer un joueur sans téléphone », chef ;
     //   3. le journal et les tutoriels, pour tous ;
     //   4. « Options avancées… », seulement si ce second menu a quelque chose à montrer.
     //
@@ -603,18 +478,10 @@ extension Worker_clan on worker {
 
                                 final r = await _clanMenuRoles();
                                 final options = <String>[];
-                                if (r.admin) options.addAll(["clan_qr", "add_child"]);
+                                if (r.admin) options.addAll(["welcome", "create_player"]);
                                 options.addAll(["clan_log", "tutorials"]);
                                 if ((await _clanAdvancedOptions(r)).isNotEmpty) options.add("advanced");
                                 return options;
-    }
-
-    // « Ajouter mon enfant » : l'enfant a son téléphone (il donne son accord, le chef scanne) ou il
-    // n'en a pas (le chef crée son personnage). Réservé au chef, double garde dans chaque action.
-    Future<List<String>> clan_add_child_selector(dynamic caller, dynamic data) async {
-
-                                final r = await _clanMenuRoles();
-                                return r.admin ? <String>["welcome_child", "create_player"] : <String>[];
     }
 
     Future<List<String>> clan_advanced_selector(dynamic caller, dynamic data) async =>
@@ -624,11 +491,8 @@ extension Worker_clan on worker {
     Future<List<String>> _clanAdvancedOptions(({bool admin, bool adult, bool canDeclare}) r) async {
 
                                 final options = <String>[];
-                                if (r.admin) options.add("clan_invite_remote");
-                                // MULTICLAN : accueillir un enfant qui a déjà un clan (le chef montre un QR
-                                // code à son représentant) ; et, pour tout adulte, les clans des enfants
-                                // qu'il représente (autoriser un clan, co-représentants, retraits).
-                                if (r.admin && r.adult) options.add("welcome_guest_child");
+                                // MULTICLAN : pour tout adulte, les clans des enfants qu'il représente
+                                // (demandes d'autres clans, co-représentants, retraits).
                                 if (r.adult) options.add("guardian_hub");
                                 // L'IA du clan : UNE des deux options, selon l'état relu à frais.
                                 if (r.admin) options.add(await _iaDuClan() ? "clan_ai_off" : "clan_ai_on");
@@ -660,9 +524,6 @@ extension Worker_clan on worker {
                                     DvOrb.get_shape_by_id(menuId)?.act("show", {"x": anchor.dx, "y": anchor.dy});
                                 }
     }
-
-    Future<void> open_add_child_menu(dynamic caller, dynamic event) async =>
-                                _openClanSubMenu("clan_page/add_child_menu");
 
     Future<void> open_clan_advanced(dynamic caller, dynamic event) async =>
                                 _openClanSubMenu("clan_page/advanced_menu");
@@ -745,433 +606,65 @@ extension Worker_clan on worker {
                                 return true;
     }
 
-    Future<void> on_scan_qr(DvShape? caller, dynamic event) async {
-
-                                // Le lecteur ne vide JAMAIS son résultat : sans cette remise à blanc, un
-                                // scan abandonné relirait le code du scan précédent.
-                                await deva_set("commons.qrcodereader.result", "");
-                                final fut = ActionRegistry.get("qrcodereader.scan")?.call(caller, event);
-                                if (fut is Future) await fut;
-
-                                final content = (await deva_get("commons.qrcodereader.result"))?.toString() ?? "";
-                                if (content.isEmpty) return;
-
-                                final uri = Uri.tryParse(content);
-                                if (uri == null || uri.scheme != "ddust" || uri.host != "invite") return;
-
-                                final groupId = uri.queryParameters["group_id"] ?? "";
-                                final lobbyId = uri.queryParameters["lobby_id"] ?? "";
-                                final region  = uri.queryParameters["region"]   ?? "";
-                                if (groupId.isEmpty || lobbyId.isEmpty) return;
-
-                                // Les contrôles de région et de nature (adulte / enfant) sont faits par
-                                // on_invite_clan_link, commun au QR et au deeplink.
-                                await on_invite_clan_link(caller, {
-                                    "group_id": groupId,
-                                    "lobby_id": lobbyId,
-                                    "region":   region,
-                                    "k":        uri.queryParameters["k"] ?? "",
-                                    "n":        uri.queryParameters["n"] ?? "",
-                                });
-    }
-
-    // ⚠ LE PARCOURS « DEMANDE D'ENTRÉE » A ÉTÉ SUPPRIMÉ le 2026-09-22 (ddust://request,
-    //   accept_request_clan, share.clan_request). Le candidat y envoyait une demande, le chef
-    //   l'acceptait d'un tap : c'était la seule porte qui ne passait PAS par la déclaration du
-    //   chef (invite_consent_screen), et le lobby y réutilisait la dernière déclaration
-    //   scellée, faite pour quelqu'un d'autre. L'enfant qui veut entrer passe désormais par
-    //   son accord (kid_assent_share) et le chef par « Accueillir un enfant ».
-
     //-----------------------------------------------------------------------
-    //-- L'enfant parle d'abord (kid_assent_screen → kid_assent_share) -------
+    //-- L'enfant parle d'abord (kid_assent_screen → join_show_screen) -------
     //-----------------------------------------------------------------------
     //
     // ⚠ L'ORDRE EST LA RÈGLE, et il vient du droit. Le décret colombien 1377 de 2013 (art. 12)
     //   veut que l'enfant exprime sa volonté AVANT la décision de son représentant ; le RGPD
     //   (art. 8) qu'aucune de ses données ne soit enregistrée avant l'autorisation de ce
-    //   représentant. D'où ce parcours : l'enfant répond, sa réponse VOYAGE jusqu'au parent
-    //   (QR code ou lien, sans une donnée personnelle), le parent déclare et invite, et c'est
-    //   seulement alors que l'enfant se connecte et que quoi que ce soit s'écrit à son nom.
+    //   représentant. D'où ce parcours : l'enfant répond, puis MONTRE son QR code (ou dicte son
+    //   code) ; le parent le scanne, voit ce que l'enfant a dit et décide ; c'est seulement alors
+    //   que l'enfant se connecte et que quoi que ce soit s'écrit à son nom (worker_join.dart).
     //
-    // ⚠ RIEN N'EST ÉCRIT DE CE CÔTÉ, ni en base ni sur le disque. Avant le login, le
-    //   dictionnaire deva vit dans la couche `prelogin`, en mémoire : un enfant qui ferme
+    // ⚠ RIEN N'EST ÉCRIT DE CE CÔTÉ SUR LE DISQUE. Avant le login, le dictionnaire deva vit dans
+    //   la couche `prelogin`, en mémoire, comme l'accord (_joinAssent) : un enfant qui ferme
     //   l'application ne laisse aucune trace, et repart du tout premier écran.
 
-    // Liste blanche des textes qu'un accord peut désigner. Le chef AFFICHE le texte nommé par
-    // le QR code : sans cette liste, un QR fabriqué ferait lire au chef n'importe quelle
-    // phrase de l'application, au moment précis où il s'engage.
-    // ⚠ `kid_assent_question_again` A DISPARU (2026-09-22) avec la reconfirmation qu'il posait :
-    //   un accord qui le citerait ne vient plus d'une version en service.
-    static const List<String> _assentTextKeys = ["kid_assent_question"];
-
-    // Le code de l'accord : six caractères, sans ceux qu'on confond à l'œil ou à la voix
-    // (0/O, 1/I/L). Le parent le compare d'un coup d'œil entre deux écrans, il ne le tape pas.
-    static const String _assentCodeAlphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-    static final  RegExp _assentCodeFormat  = RegExp(r'^[A-HJKMNP-Z2-9]{6}$');
-
-    String _newAssentCode() {
-
-                                final rng = Random.secure();
-                                return List.generate(6,
-                                    (_) => _assentCodeAlphabet[rng.nextInt(_assentCodeAlphabet.length)]).join();
-    }
-
-    Future<bool> _kidHasPendingInvite() async {
-
-                                final group = (await deva_get("worker.pending_group_id"))?.toString()        ?? "";
-                                final token = (await deva_get("worker.pending_invite_token_in"))?.toString() ?? "";
-                                return group.isNotEmpty || token.isNotEmpty;
-    }
-
-    // Toute la mémoire d'une demande d'enfant, oubliée d'un coup : le code, le lien qui le
-    // porte, le message en attente et l'invitation mise de côté. Déconnexion, admission,
-    // parcours remis à zéro.
-    Future<void> _forgetKidAssent() async {
-
-                                _kidAssentCode   = "";
-                                _kidAssentLink   = "";
-                                _kidAssentNotice = "";
-                                await _clearPendingInvite();
-    }
-
-    // L'invitation peut-elle être retenue sur CET appareil ? Rend "" si oui, sinon la clef du
-    // message à afficher. `kind` absent (invitation faite par une version antérieure) = adulte.
-    //
-    //   * adulte (état légal "a") : refuse une invitation « enfant », faite pour un autre ;
-    //   * mineur : refuse une invitation « adulte » (le parent n'a rien déclaré pour lui), et
-    //     une invitation « enfant » qui ne porte pas SON code. Pas de code en mémoire
-    //     (application tuée pendant l'attente) = refus aussi : c'est la règle stricte, l'enfant
-    //     envoie une nouvelle demande, on ne lui fait pas reconfirmer une ancienne.
-    //
-    // État légal encore inconnu (lien ouvert application fermée, avant l'écran d'âge) : on ne
-    // peut pas juger, le contrôle est repoussé (kid_assent_route, _consumePendingInvite).
-    Future<String> _inviteKindRefusal(String kind, String code) async {
-
-                                final legalRaw = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "";
-                                if (legalRaw.isEmpty) return "";
-                                final isChild = kind == "child";
-                                if (_gameplayLegal(legalRaw) == "a") return isChild ? "invite_for_child" : "";
-                                if (!isChild) return "invite_needs_child_ack";
-                                if (_kidAssentCode.isEmpty || code != _kidAssentCode) return "kid_invite_not_mine";
-                                return "";
-    }
-
-    // Un mineur dont l'invitation vient d'être refusée hors de l'écran de partage : le message
-    // l'attend sur cet écran. S'il a un code, il y retourne (sa demande tient toujours) ; sinon
-    // il repart de sa question, qui en fera une nouvelle.
-    void _sendKidBackToAssent(String notice) {
-
-                                _kidAssentNotice = notice;
-                                DvOrb.navigate_reset(_kidAssentCode.isEmpty ? "kid_assent_screen" : "kid_assent_share");
-    }
-
     // L'écran d'avis pose UNE question, toujours la même : « as-tu envie de jouer ? ».
-    // ⚠ PLUS DE SECONDE QUESTION (2026-09-22). Un enfant arrivé ici avec une invitation déjà en
-    //   poche (lien ouvert application fermée) se voyait demander « c'est toujours ce que tu
-    //   veux ? », puis allait droit à la saisie du code. Une invitation porte désormais le code
-    //   de la demande à laquelle elle répond, et ce code est perdu avec le processus : une
-    //   invitation reçue avant ce oui ne peut pas y répondre (cf. kid_assent_route).
+    // Déjà connecté (enfant qui demande un autre clan, ou mineur sans clan après un refus) : la
+    // flèche mènerait aux conditions, acceptées depuis longtemps. Un enfant déjà membre d'un clan
+    // y gagne le retour à son clan (route `my_clan`) ; sinon elle disparaît.
     // ⚠ `dynamic caller` : l'appear d'une PAGE passe un DvPage, qui n'est pas une shape.
     Future<void> on_kid_assent_appear(dynamic caller, dynamic event) async {
 
-                                // Déjà connecté (mineur sans clan, ramené ici par kid_wants_clan ou par
-                                // un refus d'admission) : la flèche mènerait aux conditions, qu'il a
-                                // acceptées depuis longtemps. Elle disparaît.
-                                // (Après l'attente de la question : les shapes de la page existent alors.)
                                 await DvOrb.wait_for_shape("kid_assent/question");
-                                if (!_anon) _hideShapes(["kid_assent/back"]);
+                                if (_anon) return;
+                                final region = await _homeRegion();
+                                Dvidle? session;
+                                try { session = region.isNotEmpty ? await _readSession(region) : null; } catch (_) {}
+                                if (_activeClans(session).isEmpty) {
+                                    _hideShapes(["kid_assent/back"]);
+                                    return;
+                                }
+                                final back = DvOrb.get_shape_by_id("kid_assent/back");
+                                back?.set("shape.label", TranslationRegistry.translate("back_to_my_clan"));
+                                if (back is DvLabel) await back.computeDisplay();
+                                back?..set("shape.visible", true)..refreshUI();
     }
 
     // Routeur du pas kid_assent_screen (steps.yml). Reçoit la route demandée par le bouton
     // (`go` par l'interlude passage_assent, `back` par la flèche) :
-    //   * `back`  : retour aux conditions ;
-    //   * `go`    : l'écran qui transmet la réponse de l'enfant, et son code, au parent.
-    // ⚠ LES ROUTES `pin` ET `link` ONT DISPARU (2026-09-22) : elles menaient droit à la saisie
-    //   du code ou à la connexion avec une invitation reçue avant ce oui.
+    //   * `back`    : retour aux conditions, ou à son clan pour un enfant déjà connecté ;
+    //   * `go`      : l'écran qui montre patte blanche (join_show_screen).
+    // L'accord naît ICI, au moment exact du oui : c'est ce moment-là que sa date doit dire, pas
+    // celui où l'écran suivant se réaffiche. Un nouveau oui, c'est un nouvel accord.
     Future<String> kid_assent_route(DvShape? caller, dynamic event) async {
 
-                                if (event?.toString() == "back") return "back";
-
-                                // Le code et le lien « je veux jouer » naissent ICI, au moment exact du
-                                // oui : c'est ce moment-là que la date doit dire, pas celui où l'écran se
-                                // réaffiche. Un nouveau oui, c'est une nouvelle demande, donc un nouveau code.
-                                _kidAssentCode   = _newAssentCode();
-                                _kidAssentLink   = await _buildKidAssentLink();
-
-                                // Une invitation attend déjà (lien ouvert application fermée, ou en plein
-                                // parcours) : elle a été faite AVANT ce oui, elle ne peut pas porter ce
-                                // code. Refusée, et l'écran de partage dit pourquoi. Une invitation
-                                // « adulte » le dit à sa façon ; un lien à code, encore scellé, ne dit pas
-                                // ce qu'il est : il est traité comme une invitation pour un autre enfant.
-                                if (await _kidHasPendingInvite()) {
-                                    final group = (await deva_get("worker.pending_group_id"))?.toString() ?? "";
-                                    _kidAssentNotice = group.isNotEmpty && _pendingInviteKind != "child"
-                                        ? "invite_needs_child_ack"
-                                        : "kid_invite_not_mine";
-                                    deva_log("info", "[worker] kid_assent_route: invitation reçue avant ce oui → refusée");
-                                    await _clearPendingInvite();
-                                }
+                                if (event?.toString() == "back") return _anon ? "back" : "my_clan";
+                                _joinAssent = await _buildJoinAssent();
                                 return "go";
-    }
-
-    // Le contenu du QR code « je veux jouer » : ddust://assent?d=<base64url d'un JSON>.
-    //
-    // ⚠ AUCUNE DONNÉE PERSONNELLE, et c'est délibéré : la date du oui, la langue et le royaume
-    //   dans lesquels l'enfant a lu, le texte qu'on lui a montré et la version des conditions
-    //   qu'il vient d'accepter. Pas de prénom : le parent sait qui est devant lui, et ce lien
-    //   peut transiter par une messagerie.
-    // `n` : le code de la demande (_kidAssentCode), tiré au hasard, qui ne dit rien de l'enfant.
-    // L'application du parent le recopie dans son invitation, et c'est par lui que l'appareil
-    // de l'enfant reconnaît l'invitation faite pour SA demande.
-    Future<String> _buildKidAssentLink() async {
-
-                                if (_kidAssentCode.isEmpty) _kidAssentCode = _newAssentCode();
-                                final payload = <String, dynamic>{
-                                    "v":           1,
-                                    "n":           _kidAssentCode,
-                                    "date":        DateTime.now().toUtc().toIso8601String(),
-                                    "lang":        TranslationRegistry.currentLang,
-                                    "region":      (await Deva.instance.get("documents.session.region"))?.toString() ?? "",
-                                    "text_key":    "kid_assent_question",
-                                    "cgu_version": (await deva_get("documents.acceptance.cgu.version"))?.toString() ?? "",
-                                };
-                                // Sans le remplissage `=` : il n'a rien à faire dans un paramètre d'URL, et
-                                // _decodeAssent le rétablit (base64Url.normalize).
-                                final d = base64Url.encode(utf8.encode(jsonEncode(payload))).replaceAll("=", "");
-                                return "ddust://assent?d=$d";
-    }
-
-    // ⚠ `dynamic caller` : l'appear d'une PAGE passe un DvPage, qui n'est pas une shape.
-    Future<void> on_kid_assent_share_appear(dynamic caller, dynamic event) async {
-
-                                // Filet : l'écran n'est atteint que par kid_assent_route, qui pose les
-                                // deux. Un lien sans code (ou l'inverse) ne pourrait pas servir.
-                                if (_kidAssentCode.isEmpty || _kidAssentLink.isEmpty) {
-                                    _kidAssentCode = _newAssentCode();
-                                    _kidAssentLink = await _buildKidAssentLink();
-                                }
-                                final qr = await DvOrb.wait_for_shape("kid_assent_share/qrcode");
-                                qr?..set("shape.content", _kidAssentLink)..refreshUI();
-                                // Le code, en grand : le parent vérifie d'un coup d'œil que c'est le même
-                                // que sur son écran de déclaration (invite_consent_screen/assent).
-                                final code = DvOrb.get_shape_by_id("kid_assent_share/code");
-                                if (code != null) {
-                                    code.set("shape.label", TranslationRegistry.processLabel("@@@T:kid_assent_share_code@@@")
-                                        .replaceAll("{code}", _kidAssentCode));
-                                    if (code is DvLabel) await code.computeDisplay();
-                                    code.refreshUI();
-                                }
-                                if (_kidAssentNotice.isNotEmpty) {
-                                    await _revealLabel("kid_assent_share/error", _kidAssentNotice);
-                                    _kidAssentNotice = "";
-                                } else {
-                                    _hideShapes(["kid_assent_share/error"]);
-                                }
-                                // MULTICLAN : l'enfant déjà membre d'un clan peut revenir au sien.
-                                await _syncKidAssentLeave();
-    }
-
-    // « Envoyer ma réponse » : le modèle de partage share.kid_assent (screens_meta.yml) lit le
-    // lien dans le dictionnaire. Il n'y est posé que LE TEMPS DU PARTAGE, puis effacé : le
-    // lien porte le code de la demande, et le code ne vit qu'en mémoire du worker.
-    Future<void> on_kid_assent_send(DvShape? caller, dynamic event) async {
-
-                                if (_kidAssentLink.isEmpty) return;
-                                await deva_set("worker.kid_assent_link", _kidAssentLink);
-                                try {
-                                    final fut = ActionRegistry.get("share.kid_assent")?.call(caller, event);
-                                    if (fut is Future) await fut;
-                                } finally {
-                                    await deva_set("worker.kid_assent_link", "");
-                                }
-    }
-
-    // « Scanner l'invitation de mon parent ». N'accepte QUE ddust://invite : l'enfant scanne à
-    // côté de son parent, et le seul autre QR code du jeu qu'il puisse croiser est le sien.
-    Future<void> on_kid_scan_invite(DvShape? caller, dynamic event) async {
-
-                                // Le lecteur ne vide jamais son résultat : sans cette remise à blanc, un
-                                // scan abandonné relirait le code du scan précédent.
-                                await deva_set("commons.qrcodereader.result", "");
-                                final fut = ActionRegistry.get("qrcodereader.scan")?.call(caller, event);
-                                if (fut is Future) await fut;
-
-                                final content = (await deva_get("commons.qrcodereader.result"))?.toString() ?? "";
-                                if (content.isEmpty) return;   // scan abandonné : rien à dire
-
-                                final uri     = Uri.tryParse(content.trim());
-                                final isInv   = uri != null && uri.scheme == "ddust" && uri.host == "invite";
-                                final groupId = isInv ? (uri?.queryParameters["group_id"] ?? "") : "";
-                                final lobbyId = isInv ? (uri?.queryParameters["lobby_id"] ?? "") : "";
-                                if (groupId.isEmpty || lobbyId.isEmpty) {
-                                    await _revealLabel("kid_assent_share/error", "kid_assent_share_not_invite");
-                                    return;
-                                }
-                                _hideShapes(["kid_assent_share/error"]);
-                                await on_invite_clan_link(caller, {
-                                    "group_id": groupId,
-                                    "lobby_id": lobbyId,
-                                    "region":   uri?.queryParameters["region"] ?? "",
-                                    "k":        uri?.queryParameters["k"]      ?? "",
-                                    "n":        uri?.queryParameters["n"]      ?? "",
-                                });
-    }
-
-    // L'invitation mise de côté est jetée : refusée, consommée, ou parcours remis à zéro. Les
-    // quatre clefs vont ensemble, avec la nature et le code gardés en mémoire.
-    Future<void> _clearPendingInvite() async {
-
-                                await deva_set("worker.pending_group_id",       "");
-                                await deva_set("worker.pending_lobby_id",       "");
-                                await deva_set("worker.pending_invite_region",  "");
-                                await deva_set("worker.pending_invite_token_in", "");
-                                _pendingInviteKind = "";
-                                _pendingInviteCode = "";
-                                _pendingInviteFresh = false;
-    }
-
-    // L'écran de saisie du code pré-remplit le lien reçu, d'où qu'on y arrive : lien ouvert
-    // application ouverte, ou reprise après login. Le faire à
-    // l'appear évite à chaque appelant d'attendre la shape après sa navigation.
-    // ⚠ `dynamic caller` : l'appear d'une PAGE passe un DvPage, qui n'est pas une shape.
-    Future<void> on_enter_invite_pin_appear(dynamic caller, dynamic event) async {
-
-                                _hideShapes(["enter_invite_pin/error"]);
-                                final token = (await deva_get("worker.pending_invite_token_in"))?.toString() ?? "";
-                                if (token.isEmpty) return;
-                                final field = await DvOrb.wait_for_shape("enter_invite_pin/token");
-                                if ((field?.get("shape.value")?.toString() ?? "").isNotEmpty) return;
-                                field?..set("shape.value", token)..refreshUI();
-    }
-
-    //-----------------------------------------------------------------------
-    //-- Le parent décide ensuite (« Accueillir un enfant ») ----------------
-    //-----------------------------------------------------------------------
-
-    // Décode la charge d'un accord d'enfant. Rend null si ce n'en est pas un, ou s'il est
-    // incomplet : le chef ne doit jamais déclarer sur la foi d'un accord qu'on ne sait pas lire.
-    // Ne rend QUE les champs connus : ce qui voyage ensuite avec la déclaration du parent est
-    // ce que l'application de l'enfant a écrit, rien de plus.
-    Map<String, dynamic>? _decodeAssent(String d) {
-
-                                if (d.isEmpty) return null;
-                                try {
-                                    final raw = jsonDecode(utf8.decode(base64Url.decode(base64Url.normalize(d))));
-                                    if (raw is! Map) return null;
-                                    if (raw["v"]?.toString() != "1") return null;
-                                    final date    = raw["date"]?.toString()     ?? "";
-                                    final textKey = raw["text_key"]?.toString() ?? "";
-                                    // Le code est exigé : sans lui, l'invitation que le chef ferait
-                                    // serait refusée par l'appareil de l'enfant, après la déclaration.
-                                    // Autant le dire au chef avant qu'il ne déclare.
-                                    final code    = raw["n"]?.toString()        ?? "";
-                                    if (DateTime.tryParse(date) == null) return null;
-                                    if (!_assentTextKeys.contains(textKey)) return null;
-                                    if (!_assentCodeFormat.hasMatch(code)) return null;
-                                    return <String, dynamic>{
-                                        "v":           1,
-                                        "n":           code,
-                                        "date":        date,
-                                        "lang":        raw["lang"]?.toString()        ?? "",
-                                        "region":      raw["region"]?.toString()      ?? "",
-                                        "text_key":    textKey,
-                                        "cgu_version": raw["cgu_version"]?.toString() ?? "",
-                                    };
-                                } catch (_) {
-                                    return null;
-                                }
-    }
-
-    Map<String, dynamic>? _parseAssentUri(String content) {
-
-                                final uri = Uri.tryParse(content.trim());
-                                if (uri == null || uri.scheme != "ddust" || uri.host != "assent") return null;
-                                return _decodeAssent(uri.queryParameters["d"] ?? "");
-    }
-
-    // Option « Mon enfant a son téléphone » : d'abord l'écran qui dit quoi faire sur le téléphone
-    // de l'enfant (welcome_child_screen). La caméra ouverte d'emblée laissait le parent sans savoir
-    // quoi viser (2026-10-12).
-    Future<void> on_welcome_child(DvShape? caller, dynamic event) async {
-
-                                if ((await _clanIdIfChief("on_welcome_child")).isEmpty) return;
-                                DvOrb.navigate_new("welcome_child_screen");
-    }
-
-    // Le bouton de welcome_child_screen : l'enfant est à côté, il montre son QR code.
-    //
-    // Un code qui n'est pas un accord n'arrête PAS le chef : l'écran de déclaration s'ouvre quand
-    // même, limité au cas adulte, et dit en tête ce qui s'est passé. C'est l'idiome maison (pas
-    // de fenêtre modale), et c'est aussi le plus utile : un chef qui a scanné le mauvais code
-    // voit tout de suite pourquoi les cas « enfant » ne lui sont pas proposés.
-    //
-    // Un scan abandonné laisse le parent sur l'écran d'explication ; un scan lu le REMPLACE par
-    // la suite, pour qu'un retour depuis la déclaration ramène au clan et non à la caméra.
-    Future<void> on_welcome_child_scan(DvShape? caller, dynamic event) async {
-
-                                if ((await _clanIdIfChief("on_welcome_child_scan")).isEmpty) return;
-
-                                // Le lecteur ne vide jamais son résultat : sans cette remise à blanc, un
-                                // scan abandonné rejouerait l'accord scanné la fois précédente.
-                                await deva_set("commons.qrcodereader.result", "");
-                                final fut = ActionRegistry.get("qrcodereader.scan")?.call(caller, event);
-                                if (fut is Future) await fut;
-                                final content = (await deva_get("commons.qrcodereader.result"))?.toString() ?? "";
-                                if (content.isEmpty) return;   // scan abandonné : on reste sur l'explication
-
-                                DvOrb.navigate_back();
-                                _pendingAssent  = _parseAssentUri(content);
-                                _assentRejected = _pendingAssent == null;
-                                // L'enfant est à côté : l'invitation en QR est le chemin naturel. Le
-                                // chef peut encore basculer sur l'invitation à distance depuis l'écran.
-                                await deva_set("worker.pending_invite_kind", "qr");
-                                await _openClaimOrConsent();
-    }
-
-    // Le parent ouvre le lien que son enfant lui a envoyé (ddust://assent?d=…). Même traitement
-    // que le scan, mais l'enfant est loin : l'invitation à distance est proposée d'abord.
-    //
-    // Application fermée, le lien arrive AVANT que le compte ne soit chargé : l'accord est gardé
-    // en mémoire et on_login le reprend une fois le chef connecté (_openPendingAssent).
-    Future<void> on_assent_link(DvShape? caller, Map event) async {
-
-                                final assent = _decodeAssent(event["d"]?.toString() ?? "");
-                                if (assent == null) {
-                                    deva_log("warning", "[worker] on_assent_link: lien d'accord illisible, ignoré");
-                                    return;
-                                }
-                                _pendingAssent  = assent;
-                                _assentRejected = false;
-                                if (!(_cloud?.isReady() ?? false) || _anon || _userId.isEmpty) {
-                                    deva_log("info", "[worker] on_assent_link: accord gardé en mémoire jusqu'au login");
-                                    return;
-                                }
-                                await _openPendingAssent();
-    }
-
-    // Ouvre la déclaration pour l'accord en attente, si l'appelant est bien chef. Un accord reçu
-    // par quelqu'un qui ne l'est pas est oublié : il n'a rien à décider.
-    Future<void> _openPendingAssent() async {
-
-                                if (_pendingAssent == null) return;
-                                if ((await _clanIdIfChief("_openPendingAssent")).isEmpty) {
-                                    _pendingAssent = null;
-                                    return;
-                                }
-                                await deva_set("worker.pending_invite_kind", "pin");
-                                await _openClaimOrConsent();
     }
 
     // L'ENFANT JOUAIT DÉJÀ SUR LE TÉLÉPHONE D'UN PARENT (joueur sans compte, no_account, créé par
     // « Créer un joueur »). Il reçoit son propre téléphone : il doit retrouver CE joueur (XP,
     // butin, journal, avatar), pas en créer un second. La question est posée au PARENT, jamais à
     // l'enfant : c'est lui qui sait, et c'est lui seul qui désigne le joueur. Un enfant ne peut
-    // pas dire « je suis Léo » ; le choix voyage avec la déclaration du chef, dans l'invitation
-    // privée puis le secret du clan (claim), jusqu'à _handleClanJoin.
+    // pas dire « je suis Léo » ; le choix voyage avec la déclaration du chef, dans le dépôt scellé
+    // de la boîte d'adhésion (claim), jusqu'à _handleClanJoin.
     //
     // Posée seulement s'il y a de quoi choisir : un clan sans joueur sans téléphone va droit à
-    // la déclaration, comme avant. Le chemin adulte (sans accord) n'est pas concerné : un joueur
-    // sans compte est un enfant.
+    // la déclaration. Le chemin adulte n'est pas concerné : un joueur sans compte est un enfant.
     Future<void> _openClaimOrConsent() async {
 
                                 _pendingClaimId   = "";
@@ -1221,6 +714,9 @@ extension Worker_clan on worker {
     // courant reste à un tap, et le parent ne peut pas passer la question sans y répondre.
     Future<void> on_claim_pick_appear(dynamic caller, dynamic event) async {
 
+                                // L'écran est là : le quitter par la flèche rend la boîte au candidat
+                                // (on_claim_pick_quit), un choix fait mène à la déclaration.
+                                _welcomeAdvancing = false;
                                 final rows = <Map<String, dynamic>>[
                                     ..._claimRows,
                                     {
@@ -1245,26 +741,9 @@ extension Worker_clan on worker {
                                 _pendingClaimName = _pendingClaimId.isEmpty ? "" : (m["label"]?.toString() ?? "");
                                 _claimRows        = [];
                                 deva_log("info", "[worker] on_claim_pick: ${_pendingClaimId.isEmpty ? 'nouveau joueur' : 'reprise de $_pendingClaimId'}");
+                                _welcomeAdvancing = true;
                                 DvOrb.navigate_back();
                                 await _openInviteConsent();
-    }
-
-    // Bascule QR code ⇄ invitation à distance, en mode « enfant ». Dans les deux autres entrées
-    // (QR Code du clan, Inviter à distance), le mode est déjà choisi par l'option du menu.
-    Future<void> on_invite_kind_toggle(DvShape? caller, dynamic event) async {
-
-                                final kind = (await deva_get("worker.pending_invite_kind"))?.toString() ?? "qr";
-                                final next = kind == "pin" ? "qr" : "pin";
-                                await deva_set("worker.pending_invite_kind", next);
-                                await _revealLabel("invite_consent_screen/kind",
-                                    next == "pin" ? "invite_consent_kind_pin" : "invite_consent_kind_qr");
-    }
-
-    // Case « Il sera aussi chef du clan », en mode ADULTE seulement : un mineur n'est jamais chef
-    // (cf. la garde d'âge de promote_chief). `change` porte le nouvel état de la case.
-    Future<void> on_invite_chief_toggle(DvShape? caller, dynamic event) async {
-
-                                _inviteAsChief = event == true || caller?.get("shape.checked") == true;
     }
 
     // Le scellé de la déclaration est lisible par qui le transporte (base64url d'un JSON, cf.
@@ -1293,495 +772,188 @@ extension Worker_clan on worker {
                                 }
     }
 
-    // Acceptation d'un lobby, tirée par dvvirtuallobby : sur l'appareil du CHEF par sa
-    // surveillance (watch_management), sur celui du CANDIDAT par acceptInvitation.
+    // Admission du candidat, une fois le dépôt du chef lu (worker_join.dart). Appelée par l'écran
+    // qui montre patte blanche (candidat connecté), par on_login une fois le compte d'un enfant lié
+    // (_consumeJoinDeposit), et par l'app d'un enfant multiclan quand un représentant a autorisé
+    // le clan qui l'accueille.
     //
-    // ⚠ LE CANDIDAT N'EST PLUS ADMIS ICI (2026-09-22). Son attente est portée par l'écran
-    //   join_wait (users.pending_join, puis vigilance du secret), posée par _acceptAndWait
-    //   APRÈS l'acceptation. Cet évènement-ci n'est tiré que si le record était encore
-    //   « pending », il ne survit pas à un redémarrage, et il part avant même que pending_join
-    //   soit écrit : il ne peut rien porter de durable. Côté candidat, il n'y a donc rien à faire.
+    // [deposit] : le dépôt déchiffré {code, joinId, clanId, clanSecret, clanName, adminId,
+    // adminName, region, ack, as_chief?, claim?, guardianSecret?, guest?, chief_devices?,
+    // chief_lang?, vector}. [repAck] : la déclaration du représentant qui a autorisé ce clan
+    // (multiclan), collée à la preuve à côté de celle de l'adulte qui accueille.
     //
-    // « A un clan » se juge sur steps.clan.clanId NON VIDE, comme dans on_login. Un steps.clan
-    // présent mais vidé (joueur parti de son clan, cf. _leaveClanLocal) n'est pas un clan.
-    Future<void> on_virtuallobby_accepted(DvShape? caller, Map event) async {
+    // Rend true quand c'est fini : admis, refusé (un message attend le candidat), ou mis en
+    // attente de la décision d'un représentant.
+    //
+    // ⚠ L'ORDRE DES ÉCRITURES EST LA RÈGLE : users d'abord, puis userindexes (le secret du clan,
+    //   que les règles de clans_players lisent), puis clans_players.
+    Future<bool> _handleClanJoin(Map deposit, {String repAck = ""}) async {
 
-                                final groupId = event["group_id"]?.toString() ?? "";
-                                final lobbyId = event["lobby_id"]?.toString() ?? "";
-                                final region  = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                final session = region.isNotEmpty ? await _readSession(region) : null;
-                                final hasClan = (session?.get("steps.clan.clanId")?.toString() ?? "").isNotEmpty;
-
-                                deva_log("info", "[worker] on_virtuallobby_accepted: groupId=$groupId lobbyId=$lobbyId hasClan=$hasClan");
-
-                                if (!hasClan) {
-                                    deva_log("info", "[worker] on_virtuallobby_accepted: candidat, l'attente du secret est sur join_wait");
-                                    return;
-                                }
-                                // Chemin VIVANT du chef (application ouverte sur le QR code ou le code) :
-                                // même publication que la reprise, avec les mêmes gardes (_publishInvite).
-                                // Plafond de membres vérifié à CHAQUE admission et pas seulement à
-                                // l'ouverture du recrutement : c'est ici, sur l'appareil du chef, que le
-                                // clan s'agrandit réellement, le seul endroit qui connaisse l'effectif et
-                                // qui ait l'autorité de payer pour l'augmenter. Sans secret publié, le
-                                // candidat reste sur join_wait jusqu'à l'expiration de l'invitation : un
-                                // refus ici vaut mieux qu'un membre à moitié écrit.
-                                if (lobbyId.isNotEmpty) {
-                                    final r = await _publishInvite(groupId, lobbyId, navigate: true);
-                                    if (r == "full") {
-                                        deva_log("info", "[worker] on_virtuallobby_accepted: admission refusée (clan au complet)");
-                                        return;
-                                    }
-                                }
-                                DvOrb.navigate_reset("dashboard");
-    }
-
-    // Écrit l'invitation PRIVÉE du chef, workers/clans_invites/{lobbyId}, AVANT le lobby
-    // (on_confirm_invite_consent). C'est elle, et non le record de lobby, qui autorise la
-    // publication du secret du clan (cf. _publishInvite).
-    //
-    // La base `workers` est en isolation `strict` : dvcloud estampille `ownerId` avec l'uid
-    // FIREBASE du chef connecté, et les règles serveur exigent que ce chef détienne le secret du
-    // clan (userindexes/{uid}.clans.{clanId}.clanSecret). `adminUserId` est l'identifiant de JEU
-    // du chef (celui de clans.admins) : les deux ne se confondent pas, et c'est lui que la
-    // publication confronte à la liste des chefs.
-    //
-    // `ack` : la déclaration scellée du chef (et l'accord de l'enfant qu'elle embarque). Elle
-    // vivait dans `worker.pending_ack`, un emplacement UNIQUE : deux invitations ouvertes
-    // l'une après l'autre s'y écrasaient, et la seconde déclaration partait avec la première
-    // admission. Chaque invitation porte désormais la sienne.
-    //
-    // `expires_at` (ISO, lu par l'application) et `expiration` (timestamp) disent le même
-    // instant : la politique TTL posée par pufirestore ne regarde QUE un champ nommé
-    // `expiration`, de type timestamp. Sans lui, rien ne serait jamais effacé.
-    //
-    // Rend false si l'écriture a échoué : l'appelant n'ouvre alors pas le lobby, une invitation
-    // qui ne pourrait jamais être servie ne doit pas être affichée.
-    //
-    // `claim` : le joueur sans téléphone que l'enfant reprend (cf. _openClaimOrConsent), absent
-    // pour un nouveau joueur. Posé par le chef, relu par lui seul à la publication.
-    //
-    // `as_chief` : l'adulte invité sera aussi chef de clan, décision du chef à l'invitation.
-    // `guardian_secret` : le secret de représentation d'un enfant (multiclan), tiré par le parent
-    // quand l'invitation porte un accord d'enfant ; il voyage avec le secret du clan et sert à
-    // l'enfant à créer sa guardianship s'il n'en a pas encore (adhésion d'origine).
-    Future<bool> _writeClanInvite(String clanId, String lobbyId, String ack, String kind,
-                                  {String claim = "", bool asChief = false, String guardianSecret = ""}) async {
-
-                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                if (_cloud == null || region.isEmpty || clanId.isEmpty || lobbyId.isEmpty) {
-                                    deva_log("error", "[worker] _writeClanInvite: contexte incomplet (region=$region clanId=$clanId)");
-                                    return false;
-                                }
-                                final now     = DateTime.now().toUtc();
-                                final expires = now.add(Duration(hours: await _inviteTtlHours()));
+                                if (_joinAdmitting) return false;
+                                _joinAdmitting = true;
                                 try {
-                                    await _cloud?.write("workers", "clans_invites", lobbyId, Dvidle({
-                                        "clanId":       clanId,
-                                        "adminUserId":  _sessionDocId(),
-                                        "ack":          ack,
-                                        "kind":         kind,
-                                        if (claim.isNotEmpty) "claim": claim,
-                                        if (asChief)          "as_chief": true,
-                                        if (guardianSecret.isNotEmpty) "guardian_secret": guardianSecret,
-                                        "created_at":   now.toIso8601String(),
-                                        "expires_at":   expires.toIso8601String(),
-                                        "expiration":   expires,
-                                        "published_at": "",
-                                    }), region: region);
-                                    deva_log("info", "[worker] invitation privée écrite (lobbyId=$lobbyId kind=$kind)");
-                                    return true;
-                                } catch (e) {
-                                    deva_log("error", "[worker] _writeClanInvite FAILED: $e");
-                                    return false;
-                                }
-    }
-
-    // Publie le secret du clan pour UNE invitation acceptée. Seul point de publication, pour les
-    // deux chemins : le chemin vivant (on_virtuallobby_accepted, application du chef ouverte) et
-    // la reprise (_resumeInvites, au login et sur l'écran du clan).
-    //
-    // ⚠ UN RECORD DE LOBBY ACCEPTÉ NE SUFFIT PAS. Les règles de la base virtuallobby laissent
-    //   n'importe quel compte connecté créer un record dans un clan dont il connaît
-    //   l'identifiant (il figure dans chaque QR code), puis l'accepter lui-même. Publier pour
-    //   « tout record accepté » donnerait le secret du clan à un inconnu. On exige donc
-    //   l'invitation PRIVÉE du chef (_writeClanInvite). dvcloud ne rend un document d'une base
-    //   `strict` qu'à son auteur : lue ici, elle est donc de nous. Reste à vérifier qu'elle vise
-    //   ce clan, qu'elle n'a pas expiré, et que son auteur (adminUserId) figure toujours dans
-    //   clans.admins, tout comme le joueur courant (_ensureIsAdmin).
-    //   Conséquence assumée : un co-chef ne publie pas l'invitation d'un autre chef, elle attend
-    //   que son auteur rouvre l'application.
-    //
-    // Rend "published", "already" (déjà publiée), "full" (plus de place : rien n'est publié),
-    // "invalid" (aucune invitation valide : jamais servie) ou "error".
-    // [navigate] : clan plein → page des paliers (_storeRefuseMember) ; sinon rien d'affiché
-    // (_storeCapNotice) : c'est le cas du login, qui ne doit pas détourner le démarrage.
-    //
-    // Publier deux fois ne pose aucun problème : le secret est réécrit à l'identique.
-    Future<String> _publishInvite(String groupId, String lobbyId, {bool navigate = true}) async {
-
-                                final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                final session    = region.isNotEmpty ? await _readSession(region) : null;
-                                final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
-                                final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
-                                if (lobbyId.isEmpty || clanId.isEmpty || clanSecret.isEmpty) {
-                                    deva_log("error", "[worker] _publishInvite: clanId ou clanSecret absent de la session");
-                                    return "error";
-                                }
-                                if (groupId.isNotEmpty && groupId != clanId) {
-                                    deva_log("warning", "[worker] _publishInvite: record d'un autre clan ($groupId), rien n'est publié");
-                                    return "invalid";
-                                }
-
-                                // 1. L'invitation privée : existe, vise ce clan, pas expirée, auteur chef.
-                                Dvidle? invite;
-                                try {
-                                    invite = await _cloud?.read("workers", "clans_invites", lobbyId, region: region);
-                                } catch (e) {
-                                    deva_log("error", "[worker] _publishInvite: lecture de l'invitation FAILED: $e");
-                                    return "error";
-                                }
-                                if (invite == null) {
-                                    deva_log("warning", "[worker] _publishInvite: aucune invitation privée de ce chef pour lobbyId=$lobbyId "
-                                        "(record créé par un autre compte, ou invitation d'un autre chef) : rien n'est publié");
-                                    return "invalid";
-                                }
-                                if ((invite.get("clanId")?.toString() ?? "") != clanId) {
-                                    deva_log("warning", "[worker] _publishInvite: invitation d'un autre clan (lobbyId=$lobbyId), rien n'est publié");
-                                    return "invalid";
-                                }
-                                final expires = DateTime.tryParse(invite.get("expires_at")?.toString() ?? "");
-                                if (expires == null || DateTime.now().toUtc().isAfter(expires.toUtc())) {
-                                    deva_log("info", "[worker] _publishInvite: invitation expirée (lobbyId=$lobbyId), rien n'est publié");
-                                    return "invalid";
-                                }
-                                if ((invite.get("published_at")?.toString() ?? "").isNotEmpty) return "already";
-                                if (!await _ensureIsAdmin(clanId, clanSecret, region)) {
-                                    deva_log("warning", "[worker] _publishInvite: joueur courant non chef, rien n'est publié");
-                                    return "invalid";
-                                }
-                                final author = invite.get("adminUserId")?.toString() ?? "";
-                                try {
-                                    final clanDoc = await _cloud?.read("workers", "clans", clanId, ownerId: clanSecret, region: region);
-                                    final admins  = List<dynamic>.from(clanDoc?.get("admins") as List? ?? []);
-                                    if (author.isEmpty || !admins.contains(author)) {
-                                        deva_log("warning", "[worker] _publishInvite: l'auteur de l'invitation n'est plus chef (lobbyId=$lobbyId), rien n'est publié");
-                                        return "invalid";
-                                    }
-                                } catch (e) {
-                                    deva_log("error", "[worker] _publishInvite: lecture des chefs FAILED: $e");
-                                    return "error";
-                                }
-
-                                // 2. La place. Au login, on ne détourne rien : la page des paliers
-                                //    attendra le passage sur l'écran du clan.
-                                if (navigate) {
-                                    if (await _storeRefuseMember()) return "full";
-                                } else if ((await _storeCapNotice()).isNotEmpty) {
-                                    deva_log("info", "[worker] _publishInvite: clan au complet, publication différée (lobbyId=$lobbyId)");
-                                    return "full";
-                                }
-
-                                // 3. La publication. La déclaration du chef voyage avec le secret : c'est
-                                //    le seul canal qui serve les deux chemins de recrutement (QR et code),
-                                //    et sa charge est libre. L'appareil du nouvel entrant la colle à sa
-                                //    propre preuve d'acceptation des CGU, où lui seul peut écrire.
-                                final lobby = ModuleRegistry.create("dvvirtuallobby");
-                                if (lobby == null) return "error";
-                                final ack   = invite.get("ack")?.toString()   ?? "";
-                                // Le joueur sans téléphone que l'enfant reprend : même voyage que la
-                                // déclaration, qu'il complète (cf. _openClaimOrConsent).
-                                final claim = invite.get("claim")?.toString() ?? "";
-                                // L'adulte invité sera aussi chef (décision du chef à l'invitation).
-                                final asChief = invite.get("as_chief") == true;
-                                // MULTICLAN : le nom du chef (ligne de clan de la guardianship de l'enfant)
-                                // et, pour l'invitation d'un enfant, le secret de représentation.
-                                final adminName      = (await Deva.instance.get("session.user.name"))?.toString() ?? "";
-                                final clanName       = (await Deva.instance.get("session.clan.name"))?.toString() ?? "";
-                                final guardianSecret = invite.get("guardian_secret")?.toString() ?? "";
-                                final ok  = (await (lobby as dynamic).publishSecret(lobbyId, clanId, {
-                                    "clanId":     clanId,
-                                    "clanSecret": clanSecret,
-                                    "adminId":    _userId,
-                                    "adminName":  adminName,
-                                    "clanName":   clanName,
-                                    if (ack.isNotEmpty)   "ack":   ack,
-                                    if (claim.isNotEmpty) "claim": claim,
-                                    if (asChief)          "as_chief": true,
-                                    if (guardianSecret.isNotEmpty) "guardianSecret": guardianSecret,
-                                })) == true;
-                                if (!ok) return "error";
-
-                                // 4. Marquée publiée : la reprise ne la sert plus. UNE DÉCLARATION PAR
-                                //    INVITATION, une admission par invitation. Un échec d'écriture n'est pas
-                                //    grave : la reprise republiera à l'identique.
-                                try {
-                                    await _cloud?.write("workers", "clans_invites", lobbyId,
-                                        Dvidle({"published_at": DateTime.now().toUtc().toIso8601String()}), region: region);
-                                } catch (e) {
-                                    deva_log("warning", "[worker] _publishInvite: published_at non écrit ($e), la publication reste valable");
-                                }
-                                deva_log("info", "[worker] _publishInvite: secret publié (lobbyId=$lobbyId)");
-                                // Le clan s'agrandit réellement ici, sur l'appareil du chef : le rappel
-                                // de recrutement s'éteint TOUT DE SUITE.
-                                await _setClanAlone(false);
-                                return "published";
-    }
-
-    // Reprise des invitations acceptées pendant que l'application du chef était fermée : au login
-    // (branche « a un clan », [navigate] faux) et à chaque passage sur l'écran du clan
-    // ([navigate] vrai : un clan plein y ouvre la page des paliers, comme au chemin vivant).
-    // Chef seulement. Rend true si elle a navigué.
-    Future<bool> _resumeInvites({bool navigate = false}) async {
-
-                                if (_invitesResuming) return false;
-                                final quiet = _invitesQuietAt;
-                                if (quiet != null && DateTime.now().difference(quiet) < const Duration(minutes: 1)) return false;
-                                _invitesResuming = true;
-                                try {
-                                    final region     = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                    final session    = region.isNotEmpty ? await _readSession(region) : null;
-                                    final clanId     = session?.get("steps.clan.clanId")?.toString()     ?? "";
-                                    final clanSecret = session?.get("steps.clan.clanSecret")?.toString() ?? "";
-                                    if (clanId.isEmpty || clanSecret.isEmpty) return false;
-                                    if (!await _ensureIsAdmin(clanId, clanSecret, region)) return false;
-                                    final lobby = ModuleRegistry.create("dvvirtuallobby");
-                                    if (lobby == null) return false;
-                                    final records = await (lobby as dynamic).listManagement(clanId, status: "accepted");
-                                    var pending = 0;
-                                    for (final r in (records is List ? records : const [])) {
-                                        if (r is! Dvidle) continue;
-                                        final lobbyId = (r.get("lobbyId") ?? r.get("docId"))?.toString() ?? "";
-                                        if (lobbyId.isEmpty) continue;
-                                        final res = await _publishInvite(clanId, lobbyId, navigate: navigate);
-                                        deva_log("info", "[worker] _resumeInvites: $lobbyId → $res");
-                                        if (res == "full") return navigate;
-                                        if (res == "published" || res == "error") pending++;
-                                    }
-                                    // Rien à servir : répit d'une minute avant la prochaine requête.
-                                    _invitesQuietAt = pending == 0 ? DateTime.now() : null;
-                                } catch (e) {
-                                    deva_log("error", "[worker] _resumeInvites FAILED: $e");
+                                    return await _admitInClan(deposit, repAck);
                                 } finally {
-                                    _invitesResuming = false;
-                                }
-                                return false;
-    }
-
-    Future<void> on_submission_status_changed(DvShape? caller, Map event) async {
-
-                                // La submission du candidat est passée à « accepted » (surveillance
-                                // virtuallobby.watch_submission, que ddust n'arme plus). L'admission, elle,
-                                // attend le secret du clan : c'est l'affaire de join_wait. On se contente
-                                // de relancer un essai si l'attente est en cours.
-                                final status  = event["status"]?.toString()   ?? "";
-                                final lobbyId = event["lobby_id"]?.toString() ?? "";
-                                if (status == "accepted" && lobbyId.isNotEmpty && lobbyId == _joinLobbyId) {
-                                    ActionRegistry.get("virtuallobby.stop_watching")?.call(null, null);
-                                    final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                    await _tryJoin(lobbyId, region);
+                                    _joinAdmitting = false;
                                 }
     }
 
-    // Admission du candidat, une fois le secret du clan publié par le chef. Appelée par l'attente
-    // de join_wait (_tryJoin), jamais directement : c'est [pendingJoin] (users.pending_join) qui
-    // porte l'invitation acceptée, et le code de la demande de l'enfant.
-    //
-    // Rend true quand l'attente est terminée (admis, ou refusé et renvoyé ailleurs), false quand
-    // il faut continuer d'attendre (secret pas encore publié, écriture ratée).
-    //
-    // ⚠ SECRET ABSENT = ON ATTEND. On ne refuse plus, et le repli adulte qui écrivait steps.clan
-    //   SANS clanId, puis envoyait à decisiontree, a disparu : il produisait un joueur ni dedans
-    //   ni dehors.
-    //
-    // ⚠ L'ORDRE DES ÉCRITURES EST LA RÈGLE : users d'abord (pending_join vidé DANS LA MÊME
-    //   écriture, pour qu'aucun cache périmé ne vienne le réécrire), puis userindexes, puis
-    //   clans_players, et SEULEMENT ENSUITE la suppression du secret. Un plantage en route ne
-    //   perd plus le secret : au redémarrage, l'attente reprend et le relit.
-    Future<bool> _handleClanJoin(String groupId, String lobbyId, String region, Map pendingJoin) async {
+    Future<bool> _admitInClan(Map deposit, String repAck) async {
 
                                 // `var` : l'enfant qui reprend un joueur sans téléphone change d'identité
                                 // de jeu en route (cf. _claimNoAccountPlayer).
-                                var docId = _sessionDocId();
-                                if (docId.isEmpty || lobbyId.isEmpty || region.isEmpty || _cloud == null) return false;
-
-                                // 1. Le secret du clan, publié par le chef. Lu SANS être supprimé : il ne
-                                //    l'est qu'une fois tout écrit (cf. l'ordre ci-dessus).
-                                final lobby = ModuleRegistry.create("dvvirtuallobby");
-                                if (lobby == null) return false;
-                                Dvidle? secret;
-                                try {
-                                    secret = await (lobby as dynamic).readSecret(lobbyId) as Dvidle?;
-                                } catch (e) {
-                                    deva_log("error", "[worker] _handleClanJoin: lecture du secret FAILED: $e");
-                                    return false;
-                                }
-                                final clanId     = secret?.get("clanId")?.toString()     ?? "";
-                                final clanSecret = secret?.get("clanSecret")?.toString() ?? "";
-                                final adminId    = secret?.get("adminId")?.toString()    ?? "";
-                                if (clanId.isEmpty || clanSecret.isEmpty) {
-                                    deva_log("info", "[worker] _handleClanJoin: secret pas encore publié (lobbyId=$lobbyId), on attend");
-                                    return false;
-                                }
-                                if (groupId.isNotEmpty && clanId != groupId) {
-                                    deva_log("warning", "[worker] _handleClanJoin: secret d'un autre clan que l'invitation, ignoré");
+                                var docId        = _sessionDocId();
+                                final region     = deposit["region"]?.toString()     ?? "";
+                                final clanId     = deposit["clanId"]?.toString()     ?? "";
+                                final clanSecret = deposit["clanSecret"]?.toString() ?? "";
+                                final adminId    = deposit["adminId"]?.toString()    ?? "";
+                                final joinId     = deposit["joinId"]?.toString()     ?? "";
+                                final code       = deposit["code"]?.toString()       ?? "";
+                                final guest      = deposit["guest"] == true;
+                                if (docId.isEmpty || region.isEmpty || clanId.isEmpty || clanSecret.isEmpty || _cloud == null) {
+                                    deva_log("error", "[join] admission impossible : dépôt ou session incomplets");
                                     return false;
                                 }
 
-                                // Déclaration du chef, faite au moment d'ouvrir l'invitation. On la colle
-                                // à la preuve d'acceptation des CGU de CE joueur : la CGU a été acceptée
-                                // pendant l'inscription, donc bien avant d'arriver ici : dvdocuments
+                                // Déclaration de l'adulte qui accueille, faite au moment de valider. On la
+                                // colle à la preuve d'acceptation des CGU de CE joueur : la CGU a été acceptée
+                                // pendant l'inscription, donc bien avant d'arriver ici, et dvdocuments
                                 // complète la preuve existante (cf. documents.attach_ack).
-                                // Best-effort : une déclaration qu'on n'a pas su coller ne doit pas
-                                // empêcher une admission déjà acquise des deux côtés.
-                                final ack = secret?.get("ack")?.toString() ?? "";
+                                final ack = deposit["ack"]?.toString() ?? "";
 
-                                // MULTICLAN : déjà membre de ce clan (reprise après un plantage, autre
-                                // appareil) → l'attente est finie ; plafond de 8 clans ; clan d'une autre
-                                // région que la maison (pas encore possible : tout le client lit UNE région).
+                                // MULTICLAN : déjà membre de ce clan (autre appareil) ; plafond de 8 clans ;
+                                // clan d'une autre région que la maison (pas encore possible : tout le client
+                                // lit UNE région).
                                 final before = await _readSession(region);
                                 if (_isActiveMemberOf(before, clanId)) {
-                                    deva_log("info", "[worker] _handleClanJoin: déjà membre de $clanId");
-                                    await (lobby as dynamic).deleteSecret(lobbyId);
-                                    await _leaveJoin(region, notice: "join_already_member");
+                                    await _joinRefused("join_already_member");
                                     return true;
                                 }
                                 final homeRegion = await _homeRegion();
                                 final refusalMc = _activeClans(before).length >= _kMaxClans ? "join_clans_cap"
                                     : (homeRegion.isNotEmpty && region != homeRegion) ? "clan_other_region" : "";
                                 if (refusalMc.isNotEmpty) {
-                                    deva_log("warning", "[worker] _handleClanJoin: $refusalMc");
-                                    await (lobby as dynamic).deleteSecret(lobbyId);
-                                    await _leaveJoin(region, notice: refusalMc);
+                                    await _joinRefused(refusalMc);
                                     return true;
                                 }
                                 final hadClans = _activeClans(before).isNotEmpty;
 
-                                // UN ENFANT N'ENTRE QU'AVEC UN ACCORD. Sans accord d'enfant joint, l'écran
-                                // de déclaration du chef ne propose plus que « il s'agit d'un adulte » :
-                                // un mineur qui scanne un tel QR code (celui du menu, affiché pour un
-                                // adulte) entrerait sans que personne ait déclaré en être responsable.
-                                // C'est ici, et seulement ici, que les deux bouts se rencontrent (l'état
-                                // légal de l'entrant et la déclaration du chef), donc ici qu'on refuse,
-                                // AVANT la moindre écriture au nom de l'enfant dans le clan. Et seulement
-                                // quand le secret est là : avant, il n'y a rien à juger.
-                                //
-                                // DÉFENSE EN PROFONDEUR : la déclaration doit aussi répondre à SA demande.
-                                // L'appareil a déjà comparé le code de l'invitation avant le login
-                                // (on_invite_clan_link, on_confirm_pin) ; on compare ici celui que le
-                                // chef a SCELLÉ avec sa déclaration, le seul qui ait voyagé avec le secret.
-                                // Le code de l'enfant est relu dans pending_join, et non plus en mémoire :
-                                // la comparaison tient donc aussi après un redémarrage. Pas de code = refus.
+                                // UN ENFANT N'ENTRE QU'AVEC LA DÉCLARATION D'UN RESPONSABLE, faite pour LUI.
+                                // C'est ici, et seulement ici, que les deux bouts se rencontrent (l'état légal
+                                // de l'entrant et la déclaration de l'adulte), donc ici qu'on refuse, AVANT la
+                                // moindre écriture au nom de l'enfant dans le clan.
+                                // DÉFENSE EN PROFONDEUR : la déclaration porte le code de SA boîte (l'accord
+                                // scellé par le parent), le même que celui du dépôt.
                                 final legalRaw = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "k";
+                                final minor    = _gameplayLegal(legalRaw) != "a";
                                 _gateUsedAuth.clear();
-                                if (_gameplayLegal(legalRaw) != "a") {
-                                    final myCode  = pendingJoin["code"]?.toString() ?? "";
+                                if (minor) {
                                     String refusal = "";
-                                    if (!_ackIsGuardian(ack)) {
+                                    if (guest) {
+                                        // L'adulte d'un AUTRE clan l'accueille, sans rien décider pour lui : seule
+                                        // l'autorisation d'un représentant (guest_auth) le fait entrer.
+                                        refusal = hadClans ? await _guardianGate(docId, clanId, adminId, _gateUsedAuth)
+                                                           : "invite_needs_child_ack";
+                                    } else if (!_ackIsGuardian(ack)) {
                                         refusal = "invite_needs_child_ack";
-                                    } else {
-                                        final sealedCode = _ackAssentCode(ack);
-                                        if (myCode.isEmpty || sealedCode != myCode) refusal = "kid_invite_not_mine";
-                                    }
-                                    // MULTICLAN (§ 5.2) : un mineur qui a DÉJÀ un clan n'entre que si l'un
-                                    // de ses représentants a autorisé ce clan, ou si le chef qui l'accueille
-                                    // est lui-même son représentant. Vérifié par l'app de l'enfant, dans sa
-                                    // guardianship, AVANT toute écriture.
-                                    if (refusal.isEmpty && hadClans) {
+                                    } else if (_ackAssentCode(ack) != code) {
+                                        refusal = "kid_invite_not_mine";
+                                    } else if (hadClans) {
+                                        // MULTICLAN (§ 5.2) : déjà membre d'un clan, il n'entre que si l'adulte
+                                        // qui l'accueille est l'un de ses représentants, ou si l'un d'eux a
+                                        // autorisé ce clan.
                                         refusal = await _guardianGate(docId, clanId, adminId, _gateUsedAuth);
                                     }
+                                    // Pas encore autorisé, mais ses représentants peuvent le faire : la demande
+                                    // part chez eux, le dépôt attend sur ce téléphone (connecté : il peut le
+                                    // garder).
+                                    if (refusal == "kid_needs_guardian_auth" && hadClans && repAck.isEmpty) {
+                                        await _guestJoinPark(Map<String, dynamic>.from(deposit));
+                                        return true;
+                                    }
                                     if (refusal.isNotEmpty) {
-                                        deva_log("warning", "[worker] _handleClanJoin: mineur, déclaration absente ou faite pour une autre demande ($refusal) → non admis");
-                                        // Le secret ne lui était pas destiné : il ne reste pas en base.
-                                        await (lobby as dynamic).deleteSecret(lobbyId);
-                                        // Retour à SA question : c'est de là que repart une réponse que le
-                                        // parent pourra accueillir, avec un code neuf. Le message s'affiche
-                                        // sur l'écran de partage.
-                                        await _leaveJoin(region, notice: refusal);
+                                        await _joinRefused(refusal);
                                         return true;
                                     }
                                 }
 
-                                if (ack.isNotEmpty) {
-                                    final r = await ActionRegistry.get("documents.attach_ack")?.call(null, ack);
-                                    deva_log("info", "[worker] _handleClanJoin: attach_ack → ${r ?? 'action absente'}");
+                                for (final a in [ack, repAck]) {
+                                    if (a.isEmpty) continue;
+                                    final r = await ActionRegistry.get("documents.attach_ack")?.call(null, a);
+                                    deva_log("info", "[join] attach_ack → ${r ?? 'action absente'}");
                                 }
 
                                 // L'ENFANT REPREND UN JOUEUR SANS TÉLÉPHONE, désigné par le parent (claim,
-                                // cf. _openClaimOrConsent). Un mineur seulement : la reprise n'est proposée
-                                // qu'avec un accord d'enfant, et la déclaration vient d'être vérifiée. À
-                                // partir d'ici, l'identité de jeu est celle du joueur repris, et tout ce qui
-                                // suit (users, userindexes, clans_players) s'écrit sous elle.
-                                final claimId = _gameplayLegal(legalRaw) != "a"
-                                    ? (secret?.get("claim")?.toString() ?? "")
-                                    : "";
+                                // cf. _openClaimOrConsent). Un mineur seulement. À partir d'ici, l'identité de
+                                // jeu est celle du joueur repris, et tout ce qui suit s'écrit sous elle.
+                                final claimId = minor ? (deposit["claim"]?.toString() ?? "") : "";
                                 if (claimId.isNotEmpty) {
-                                    final r = await _claimNoAccountPlayer(clanId, clanSecret, claimId, lobbyId, region);
-                                    if (r == "retry") {
-                                        _scheduleJoinRetry(lobbyId, region);
-                                        return false;
+                                    var r = "retry";
+                                    for (var attempt = 0; attempt < 3 && r == "retry"; attempt++) {
+                                        if (attempt > 0) await Future.delayed(Duration(seconds: 2 * attempt));
+                                        r = await _claimNoAccountPlayer(clanId, clanSecret, claimId, joinId, region);
                                     }
-                                    if (r == "refused") {
-                                        await (lobby as dynamic).deleteSecret(lobbyId);
-                                        await _leaveJoin(region, notice: "kid_claim_gone");
+                                    if (r != "ok") {
+                                        await _joinRefused(r == "refused" ? "kid_claim_gone" : "join_show_error");
                                         return true;
                                     }
                                     docId = claimId;
                                 }
-                                // L'ADULTE INVITÉ COMME CHEF (décision du chef, portée par le secret qu'il
-                                // est seul à publier). Adulte seulement : c'est la garde d'âge de
+                                // L'ADULTE ACCUEILLI COMME CHEF (décision du chef, portée par le dépôt qu'il
+                                // est seul à pouvoir sceller). Adulte seulement : c'est la garde d'âge de
                                 // promote_chief, un mineur n'est jamais chef.
-                                final asChief = _gameplayLegal(legalRaw) == "a" && secret?.get("as_chief") == true;
+                                final asChief = !minor && deposit["as_chief"] == true;
 
-                                // 2. users, AVANT tout le reste, avec pending_join vidé dans la même
-                                //    écriture. Un échec ici laisse tout en place (secret compris) : on
-                                //    réessaie un peu plus tard, et au pire au prochain démarrage.
+                                // 1. users, AVANT tout le reste. Trois essais : au-delà, le candidat
+                                //    recommence (une boîte neuve, que le chef scannera de nouveau).
                                 final firebaseUid = _cloud?.currentUser()?.providerUid ?? "";
                                 // Clan d'origine à propager au doc membre (clans_players.original_clan) ; repli = ce clan.
                                 String firstClan = clanId;
-                                try {
-                                    final device      = await _cloud?.deviceId() ?? "";
-                                    final now         = DateTime.now().toUtc().toIso8601String();
-                                    final existing    = await _readSession(region) ?? Dvidle({});
-                                    existing.rem("docId");
-                                    // first_clan (users) = tout premier clan du joueur, figé s'il est vide.
-                                    if ((existing.get("first_clan")?.toString() ?? "").isEmpty)
-                                        existing.set("first_clan", clanId);
-                                    firstClan = existing.get("first_clan")?.toString() ?? clanId;
-                                    existing.set("ownerId",                     firebaseUid);
-                                    existing.set("userId",                      docId);
-                                    existing.set("last_clan",                   clanId);
-                                    existing.set("clans.$clanId.date",          now);
-                                    existing.set("clans.$clanId.clanSecret",    clanSecret);
-                                    // MULTICLAN : la liste des clans (users.clans) ; steps.clan ci-dessous
-                                    // n'est plus que le POINTEUR du clan courant, déplacé vers le nouveau.
-                                    existing.set("clans.$clanId.region",        region);
-                                    existing.set("clans.$clanId.last_visit",    now);
-                                    existing.set("clans.$clanId.enabled",       true);
-                                    existing.set("clans.$clanId.left_at",       "");
-                                    existing.set("steps.clan.clanId",           clanId);
-                                    existing.set("steps.clan.clanSecret",       clanSecret);
-                                    existing.set("steps.clan.status",           "done");
-                                    existing.set("steps.clan.date",             now);
-                                    existing.set("steps.clan.result",           "joined");
-                                    existing.set("steps.clan.device",           device);
-                                    existing.set("date",                        now);
-                                    // Effacement deep-merge : poser le champ à "" (convention dvcloud).
-                                    existing.set("pending_join",                "");
-                                    await _cloud?.write("workers", "users", docId, existing, region: region);
+                                var written = false;
+                                for (var attempt = 0; attempt < 3 && !written; attempt++) {
+                                    if (attempt > 0) await Future.delayed(Duration(seconds: 2 * attempt));
+                                    try {
+                                        final device      = await _cloud?.deviceId() ?? "";
+                                        final now         = DateTime.now().toUtc().toIso8601String();
+                                        final existing    = await _readSession(region) ?? Dvidle({});
+                                        existing.rem("docId");
+                                        // first_clan (users) = tout premier clan du joueur, figé s'il est vide.
+                                        if ((existing.get("first_clan")?.toString() ?? "").isEmpty)
+                                            existing.set("first_clan", clanId);
+                                        firstClan = existing.get("first_clan")?.toString() ?? clanId;
+                                        existing.set("ownerId",                     firebaseUid);
+                                        existing.set("userId",                      docId);
+                                        existing.set("last_clan",                   clanId);
+                                        existing.set("clans.$clanId.date",          now);
+                                        existing.set("clans.$clanId.clanSecret",    clanSecret);
+                                        // MULTICLAN : la liste des clans (users.clans) ; steps.clan ci-dessous
+                                        // n'est plus que le POINTEUR du clan courant, déplacé vers le nouveau.
+                                        existing.set("clans.$clanId.region",        region);
+                                        existing.set("clans.$clanId.last_visit",    now);
+                                        existing.set("clans.$clanId.enabled",       true);
+                                        existing.set("clans.$clanId.left_at",       "");
+                                        existing.set("steps.clan.clanId",           clanId);
+                                        existing.set("steps.clan.clanSecret",       clanSecret);
+                                        existing.set("steps.clan.status",           "done");
+                                        existing.set("steps.clan.date",             now);
+                                        existing.set("steps.clan.result",           "joined");
+                                        existing.set("steps.clan.device",           device);
+                                        existing.set("date",                        now);
+                                        await _cloud?.write("workers", "users", docId, existing, region: region);
+                                        written = true;
+                                    } catch (e) {
+                                        deva_log("error", "[join] users write FAILED (essai ${attempt + 1}): $e");
+                                    }
                                     _invalidateSessionCache();
-                                } catch (e) {
-                                    deva_log("error", "[worker] _handleClanJoin: users write FAILED: $e");
-                                    _invalidateSessionCache();
-                                    _scheduleJoinRetry(lobbyId, region);
-                                    return false;
                                 }
-                                // Admis (ou adulte) : l'attente est finie, la demande a servi. Code, lien
-                                // et invitation en attente sont oubliés ; un nouveau clan passerait par
-                                // une nouvelle demande.
-                                _stopJoinWatch();
-                                _joinPendingMem = null;
-                                await _forgetKidAssent();
+                                if (!written) {
+                                    await _joinRefused("join_show_error");
+                                    return true;
+                                }
+                                // Admis : l'accord et le dépôt ont servi. Un nouveau clan passerait par un
+                                // nouvel écran, une nouvelle boîte.
+                                _joinAssent = null;
+                                _joinFamily = null;
 
                                 // userindexes doit avoir le clanSecret avant le read/update du clan
                                 if (firebaseUid.isNotEmpty) {
@@ -1793,13 +965,13 @@ extension Worker_clan on worker {
                                         indexDoc.set("home_region",              homeRegion.isNotEmpty ? homeRegion : region);
                                         await _cloud?.write("workers", "userindexes", firebaseUid, indexDoc, region: region);
                                     } catch (e) {
-                                        deva_log("error", "[worker] _handleClanJoin: userindexes update FAILED: $e");
+                                        deva_log("error", "[join] userindexes update FAILED: $e");
                                     }
                                 }
 
-                                // 3. Ajouter le candidat comme membre : doc dédié dans clans_players.
+                                // 2. Le candidat devient membre : doc dédié dans clans_players.
                                 //    Le doc clan n'est lu que pour son nom d'affichage (internal.name).
-                                String clanName = "";
+                                String clanName = deposit["clanName"]?.toString() ?? "";
                                 Set<String> enabledMultiple = {};
                                 try {
                                     final clan = await _cloud?.read(
@@ -1807,7 +979,7 @@ extension Worker_clan on worker {
                                         ownerId: clanSecret, region: region,
                                     );
                                     if (clan != null) {
-                                        clanName = clan.get("internal.name")?.toString() ?? "";
+                                        clanName = clan.get("internal.name")?.toString() ?? clanName;
                                         final em = clan.get("enabled_multiple");
                                         if (em is List) enabledMultiple = em.map((e) => e.toString()).toSet();
                                     }
@@ -1818,6 +990,8 @@ extension Worker_clan on worker {
                                     await _audit("clan_joined", {
                                         "playerId": docId, "clanId": clanId, "clan_name": clanName,
                                         "via": adminId, "legal": _gameplayLegal(legalRaw),
+                                        "vector": deposit["vector"]?.toString() ?? "",
+                                        if (joinId.isNotEmpty) "join": joinId,
                                         if (claimId.isNotEmpty) "claim": claimId,
                                         if (_gateUsedAuth.isNotEmpty) "guest_auth": true,
                                     });
@@ -1831,26 +1005,22 @@ extension Worker_clan on worker {
                                     // d'origine, ou reprise d'un joueur sans téléphone) : l'enfant la crée avec
                                     // le secret tiré par le parent, qui en devient le représentant. Sinon : la
                                     // ligne de clan, quel que soit le chemin, visible de tous ses représentants.
-                                    if (_gameplayLegal(legalRaw) != "a") {
-                                        final gSecret   = secret?.get("guardianSecret")?.toString() ?? "";
-                                        final chiefName = secret?.get("adminName")?.toString() ?? "";
+                                    if (minor) {
+                                        final gSecret   = deposit["guardianSecret"]?.toString() ?? "";
+                                        final chiefName = deposit["adminName"]?.toString() ?? "";
                                         final hasGship  = ((await _gshipSecrets())[docId] ?? "").isNotEmpty;
                                         if (!hasGship && gSecret.isNotEmpty) {
                                             await _gshipCreateOrigin(childId: docId, secret: gSecret, adminId: adminId,
                                                 adminName: chiefName, clanId: clanId, clanName: clanName,
-                                                region: region, lobbyId: lobbyId);
+                                                region: region, joinId: joinId);
                                         } else if (hasGship) {
                                             await _gshipNoteEntry(docId, clanId, clanName, chiefName, region, adminId,
                                                 _gateUsedAuth.isNotEmpty);
                                         }
                                     }
                                 } catch (e) {
-                                    deva_log("error", "[worker] _handleClanJoin: clans_players update FAILED: $e");
+                                    deva_log("error", "[join] clans_players update FAILED: $e");
                                 }
-
-                                // 4. Tout est écrit : le secret a servi, il quitte la base. Un échec n'est
-                                //    pas grave, le TTL du lobby finira le ménage.
-                                await (lobby as dynamic).deleteSecret(lobbyId);
 
                                 // Annoncer l'arrivée aux membres déjà présents (notif push thème donjon).
                                 // Le nom n'est demandé qu'APRÈS la liaison du compte : à cet instant il est
@@ -1875,9 +1045,9 @@ extension Worker_clan on worker {
                                     try {
                                         await _notifyClanNewMember(clanId, clanSecret, region, docId, myName);
                                     } catch (e) {
-                                        deva_log("error", "[worker] _handleClanJoin: notif nouveau membre FAILED: $e");
+                                        deva_log("error", "[join] notif nouveau membre FAILED: $e");
                                     }
-                                    // Journal : un utilisateur a rejoint le clan (adminId = accepteur, via lobby).
+                                    // Journal : un utilisateur a rejoint le clan (adminId = celui qui l'a accueilli).
                                     await _writeClanLog(clanId, clanSecret, region, "MemberJoined",
                                         userId: docId, adminId: adminId, slug: myName,
                                         data: Dvidle({"userId": docId, "userName": myName, "adminId": adminId}));
@@ -1890,46 +1060,32 @@ extension Worker_clan on worker {
                                 try {
                                     await _createMyClones(clanId, clanSecret, region, enabledMultiple);
                                 } catch (e) {
-                                    deva_log("error", "[worker] _handleClanJoin: _createMyClones FAILED: $e");
+                                    deva_log("error", "[join] _createMyClones FAILED: $e");
                                 }
 
                                 // Charger l'état domaines/tâches du clan (miroir local + notif tiroirs),
                                 // comme on_login() le fait pour le propriétaire via _loadClanTasks().
-                                // `existing` est hors portée ici (déclaré dans le bloc region ci-dessus),
-                                // on relit donc la session persistée qui porte steps.clan.clanId/clanSecret.
-                                if (region.isNotEmpty) {
-                                    final joined = await _readSession(region);
-                                    if (joined != null) await _loadClanTasks(joined, region);
-                                }
+                                final joined = await _readSession(region);
+                                if (joined != null) await _loadClanTasks(joined, region);
 
                                 await Deva.instance.set("session.clan.name", clanName);
                                 await Deva.instance.set("worker.session.clan_done", "true");
                                 // Bienvenue clan jouée à la 1re arrivée sur dashboard (cf. on_dashboard_appear).
-                                // Invité comme chef : la bienvenue le lui dit (une seule animation, pas une
+                                // Accueilli comme chef : la bienvenue le lui dit (une seule animation, pas une
                                 // bienvenue suivie d'une promotion).
                                 await deva_set("worker.pending_clan_welcome", asChief ? "joined_chief" : "joined");
-                                // Le candidat attend sur join_wait depuis le 2026-09-22 : la navigation vers
-                                // le dashboard ci-dessous produit un `appear` qui consomme le drapeau. Le
-                                // cas « déjà sur le dashboard » (ancien flux, où l'on y atterrissait dès la
-                                // soumission) reste traité : la bienvenue est jouée ici même, et le tutoriel
-                                // s'ouvrira derrière la fin de l'animation (on_celebration_end), comme partout.
-                                //
-                                // Nom pas encore saisi : c'est le cas de TOUT nouveau venu depuis que le
-                                // mineur se connecte avant d'entrer (il n'y a plus d'admission anonyme, donc
-                                // plus d'écran de liaison après elle). Le nom passe avant tout le reste. La
-                                // cérémonie de bienvenue n'est PAS jouée ici : son drapeau reste armé et
-                                // on_dashboard_appear la jouera à l'arrivée, après le nom, dans son contexte
-                                // et avec le tutoriel derrière. La déclencher maintenant la ferait couper net
-                                // par la navigation.
-                                if (region.isNotEmpty && (await _readSession(region))?.get("steps.name") == null) {
+                                // Nom pas encore saisi (tout nouveau venu) : le nom passe avant tout le reste.
+                                // La cérémonie de bienvenue n'est PAS jouée ici : son drapeau reste armé et
+                                // on_dashboard_appear la jouera à l'arrivée, après le nom, avec le tutoriel
+                                // derrière. La déclencher maintenant la ferait couper net par la navigation.
+                                if (joined?.get("steps.name") == null) {
                                     DvOrb.navigate_reset("player_name_screen");
                                     return true;
                                 }
                                 if (DvOrb.get_current_page()?.dvid == "dashboard") {
                                     await _playPendingClanWelcome();
                                 } else {
-                                    // Depuis join_wait : route `default` → dashboard (steps.yml).
-                                    await ActionRegistry.get("steps.navigate")?.call(null, null);
+                                    DvOrb.navigate_reset("dashboard");
                                 }
                                 return true;
     }
@@ -1945,14 +1101,14 @@ extension Worker_clan on worker {
     // Rend "ok" (identité basculée), "refused" (plus rien à reprendre : joueur déjà repris,
     // révoqué, ou en cours de retrait du consentement) ou "retry" (échec d'écriture).
     //
-    // ⚠ L'ORDRE PERMET LA REPRISE APRÈS PLANTAGE. Le joueur est marqué repris (claim_lobby) en
-    //   premier : rejouée avec la même invitation, la reprise se reconnaît et continue, alors
-    //   qu'une autre invitation est refusée. users/{claimId} est écrit avant que l'index n'y
+    // ⚠ L'ORDRE PERMET LA REPRISE APRÈS PLANTAGE. Le joueur est marqué repris (claim_join) en
+    //   premier : rejouée avec la même adhésion, la reprise se reconnaît et continue, alors
+    //   qu'une autre adhésion est refusée. users/{claimId} est écrit avant que l'index n'y
     //   pointe, et l'ancien doc reçoit first_clan avant l'index : s'il survivait à un plantage,
     //   le balayage des comptes jamais admis (pulse_sweeper, piste orphans) ne le prendrait pas
     //   pour un orphelin, ce qui effacerait l'index et le compte de l'enfant avec lui.
     Future<String> _claimNoAccountPlayer(String clanId, String clanSecret, String claimId,
-                                         String lobbyId, String region) async {
+                                         String joinId, String region) async {
 
                                 final firebaseUid = _cloud?.currentUser()?.providerUid ?? "";
                                 final oldId       = _sessionDocId();
@@ -1970,7 +1126,7 @@ extension Worker_clan on worker {
                                     return "retry";
                                 }
 
-                                // 2. Le joueur : encore sans téléphone, ou déjà repris par CETTE invitation.
+                                // 2. Le joueur : encore sans téléphone, ou déjà repris par CETTE adhésion.
                                 Dvidle? player;
                                 try {
                                     player = await _cloud?.read("workers", "clans_players/$clanId/players", claimId,
@@ -1983,7 +1139,7 @@ extension Worker_clan on worker {
                                     || player.get("enabled") == false
                                     || (player.get("consent_due")?.toString() ?? "").isNotEmpty
                                     || (player.get("no_account") != true
-                                        && player.get("claim_lobby")?.toString() != lobbyId)) {
+                                        && player.get("claim_join")?.toString() != joinId)) {
                                     deva_log("warning", "[worker] _claimNoAccountPlayer: joueur $claimId plus disponible → refus");
                                     // Le secret ne sert plus à rien : il quitte l'index.
                                     try {
@@ -2001,7 +1157,7 @@ extension Worker_clan on worker {
                                     final mark = Dvidle({});
                                     mark.set("id",          claimId);
                                     mark.set("no_account",  false);
-                                    mark.set("claim_lobby", lobbyId);
+                                    mark.set("claim_join",  joinId);
                                     mark.set("claimed_at",  now);
                                     await _cloud?.write("workers", "clans_players/$clanId/players", claimId, mark,
                                         region: region, ownerId: clanSecret);
@@ -2087,306 +1243,8 @@ extension Worker_clan on worker {
                                 return "ok";
     }
 
-    //-----------------------------------------------------------------------
-    //-- Adhésion en attente (écran join_wait) ------------------------------
-    //-----------------------------------------------------------------------
-    //
-    // Le candidat (enfant ou adulte) s'est connecté et a accepté l'invitation : c'est au chef de
-    // publier le secret du clan, et son application peut être fermée. L'attente vit donc EN BASE,
-    // dans `users.pending_join` : {group_id, lobby_id, kind, code, region, accepted_at,
-    // expires_at}. Le joueur peut fermer le jeu : on_login le ramène sur join_wait, et
-    // l'attente reprend où elle en était.
-    //
-    // ⚠ "" OU AUTRE CHOSE QU'UNE MAP = PAS D'ATTENTE, partout. Vider un champ en deep merge,
-    //   c'est le poser à "" (convention dvcloud) : un pending_join vidé reste présent, en chaîne.
-    //
-    // ⚠ PAS D'ÉCRITURE AVANT LE LOGIN. pending_join n'est posé que sous le compte définitif,
-    //   après l'acceptation (_acceptAndWait). Avant, l'invitation attend en mémoire, comme
-    //   toujours.
-
-    // Le pending_join d'une session, ou null s'il est absent, vidé ("") ou incomplet.
-    Map<String, dynamic>? _pendingJoinOf(Dvidle? session) {
-
-                                final raw = session?.get("pending_join");
-                                dynamic m;
-                                if (raw is Dvidle) {
-                                    m = raw.toJson();
-                                } else if (raw is Map) {
-                                    m = raw;
-                                }
-                                if (m is! Map) return null;
-                                final out = <String, dynamic>{};
-                                m.forEach((k, v) => out[k.toString()] = v);
-                                if ((out["group_id"]?.toString() ?? "").isEmpty) return null;
-                                if ((out["lobby_id"]?.toString() ?? "").isEmpty) return null;
-                                return out;
-    }
-
-    // Une attente sans date lisible est tenue pour expirée : on ne garde pas un joueur devant
-    // un écran d'attente sans savoir jusqu'à quand.
-    bool _pendingJoinExpired(Map pj) {
-
-                                final exp = DateTime.tryParse(pj["expires_at"]?.toString() ?? "");
-                                return exp == null || DateTime.now().toUtc().isAfter(exp.toUtc());
-    }
-
-    // Durée de vie d'une invitation, la même que celle du lobby (screens_meta.yml,
-    // virtuallobby.ttl_hours).
-    Future<int> _inviteTtlHours() async {
-
-                                final n = int.tryParse((await deva_get("virtuallobby.ttl_hours"))?.toString() ?? "") ?? 72;
-                                return n > 0 ? n : 72;
-    }
-
-    // Accepte l'invitation SOUS LE COMPTE DÉFINITIF, inscrit l'attente en base, puis mène à
-    // join_wait. Commun à tous les chemins d'un candidat connecté : invitation gardée en mémoire
-    // avant le login (_consumePendingInvite), QR code ou lien reçu déjà connecté
-    // (on_invite_clan_link), code saisi (on_confirm_pin), écran accept_invitation_clan.
-    //
-    // ⚠ ON ATTEND LA FIN DE accept_invitation, et l'on se fie à ce qu'elle rend, pas à
-    //   on_accepted : une invitation déjà acceptée (second passage, reprise) ne tire rien.
-    //
-    // [kind] "child" / "adult". [code] : pour un enfant, le code de SA demande, déjà comparé à
-    // celui de l'invitation par l'appelant. Il est rangé dans pending_join parce que le code en
-    // mémoire (_kidAssentCode) meurt avec le processus : sans lui, un enfant qui ferme le jeu
-    // pendant l'attente serait refusé à l'admission.
-    //
-    // Une invitation qui ne peut pas être acceptée (expirée, annulée, déjà servie) renvoie le
-    // joueur vers sa demande (enfant) ou le choix du clan (adulte), avec le message
-    // `join_expired` : demander une nouvelle invitation est la seule issue.
-    // Rend true si elle a navigué (join_wait, ou sortie avec message).
-    Future<bool> _acceptAndWait(String groupId, String lobbyId, String kind, String code) async {
-
-                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                final docId  = _sessionDocId();
-                                if (groupId.isEmpty || lobbyId.isEmpty || region.isEmpty || docId.isEmpty || _anon || _cloud == null) {
-                                    deva_log("error", "[worker] _acceptAndWait: contexte incomplet (region=$region docId=${docId.isNotEmpty} anon=$_anon)");
-                                    return false;
-                                }
-                                var ok = false;
-                                final lobby = ModuleRegistry.create("dvvirtuallobby");
-                                try {
-                                    if (lobby != null) ok = (await (lobby as dynamic).acceptInvitation(lobbyId, groupId)) == true;
-                                } catch (e) {
-                                    deva_log("error", "[worker] _acceptAndWait: accept_invitation FAILED: $e");
-                                }
-                                if (!ok) {
-                                    deva_log("warning", "[worker] _acceptAndWait: invitation non acceptée (expirée, annulée ou déjà servie)");
-                                    await _leaveJoin(region, notice: "join_expired");
-                                    return true;
-                                }
-
-                                // Échéance : celle du record de lobby, qui disparaît avec son TTL (le chef
-                                // ne pourrait plus publier après), bornée par la durée d'une invitation.
-                                final now     = DateTime.now().toUtc();
-                                var   expires = now.add(Duration(hours: await _inviteTtlHours()));
-                                try {
-                                    final rec    = await _cloud?.read("virtuallobby", "virtuallobbymanagement/$groupId/records", lobbyId);
-                                    final raw    = rec?.get("expiration");
-                                    final recExp = raw is DateTime ? raw : DateTime.tryParse(raw?.toString() ?? "");
-                                    if (recExp != null && recExp.toUtc().isBefore(expires)) expires = recExp.toUtc();
-                                } catch (_) {}
-
-                                final pj = <String, dynamic>{
-                                    "group_id":    groupId,
-                                    "lobby_id":    lobbyId,
-                                    "kind":        kind == "child" ? "child" : "adult",
-                                    "code":        code,
-                                    "region":      region,
-                                    "accepted_at": now.toIso8601String(),
-                                    "expires_at":  expires.toIso8601String(),
-                                };
-                                // Gardée aussi en mémoire : si l'écriture échoue, l'attente tient au
-                                // moins jusqu'à la fermeture du jeu.
-                                _joinPendingMem = pj;
-                                try {
-                                    await _cloud?.write("workers", "users", docId, Dvidle({"pending_join": pj}), region: region);
-                                } catch (e) {
-                                    deva_log("error", "[worker] _acceptAndWait: pending_join non écrit ($e), attente en mémoire seulement");
-                                }
-                                _invalidateSessionCache();
-                                deva_log("info", "[worker] _acceptAndWait: invitation acceptée, attente du chef (lobbyId=$lobbyId kind=$kind)");
-                                DvOrb.navigate_reset("join_wait");
-                                return true;
-    }
-
-    // Fin d'une attente sans admission : « J'abandonne », invitation expirée, refus d'un mineur.
-    // pending_join est vidé, la demande de l'enfant oubliée, et chacun repart d'où l'on repart :
-    // l'enfant de sa question (kid_assent_screen, le message l'attend sur l'écran de partage),
-    // l'adulte du choix du clan (new_or_pick_clan, le message s'y affiche), ou de son nom s'il
-    // ne l'a pas encore donné. Rien à faire côté lobby : son TTL fait le ménage.
-    Future<void> _leaveJoin(String region, {String notice = ""}) async {
-
-                                _stopJoinWatch();
-                                _joinPendingMem = null;
-                                final docId = _sessionDocId();
-                                if (region.isNotEmpty && docId.isNotEmpty) {
-                                    try {
-                                        await _cloud?.write("workers", "users", docId, Dvidle({"pending_join": ""}), region: region);
-                                    } catch (e) {
-                                        deva_log("error", "[worker] _leaveJoin: pending_join non vidé ($e)");
-                                    }
-                                    _invalidateSessionCache();
-                                }
-                                await _forgetKidAssent();
-                                // MULTICLAN : le joueur a déjà un clan (il en demandait un autre) → retour à
-                                // son clan, le message sur l'écran « Mes clans ».
-                                Dvidle? mine;
-                                try { mine = region.isNotEmpty ? await _readSession(region) : null; } catch (_) {}
-                                if (_activeClans(mine).isNotEmpty) {
-                                    _joinNotice = notice;
-                                    DvOrb.navigate_reset("dashboard");
-                                    return;
-                                }
-                                final legalRaw = (await Deva.instance.get("documents.session.legalstate"))?.toString() ?? "k";
-                                if (_gameplayLegal(legalRaw) != "a") {
-                                    _kidAssentNotice = notice;
-                                    DvOrb.navigate_reset("kid_assent_screen");
-                                    return;
-                                }
-                                _joinNotice = notice;
-                                Dvidle? session;
-                                try { session = region.isNotEmpty ? await _readSession(region) : null; } catch (_) {}
-                                DvOrb.navigate_reset(session != null && session.get("steps.name") == null
-                                    ? "player_name_screen" : "new_or_pick_clan");
-    }
-
-    // Arme l'attente du secret : lecture immédiate (le secret a pu être publié pendant que le
-    // jeu était fermé, et une vigilance ne notifie jamais ce qui était là avant elle), puis
-    // vigilance du document virtuallobbysecret/{lobbyId}, sur le modèle de
-    // _startValidationPolling. Et une minuterie sur l'échéance : aucune écriture ne viendra
-    // dire que l'invitation a expiré.
-    void _startJoinWatch(Map pj, String region) {
-
-                                final lobbyId = pj["lobby_id"]?.toString() ?? "";
-                                if (lobbyId.isEmpty) return;
-                                // Déjà armée pour cette invitation (appear rejoué) : rien à refaire.
-                                if (_joinLobbyId == lobbyId && _joinExpiryTimer != null) return;
-                                _stopJoinWatch();
-                                _joinLobbyId = lobbyId;
-
-                                final left = DateTime.tryParse(pj["expires_at"]?.toString() ?? "")?.toUtc()
-                                    .difference(DateTime.now().toUtc());
-                                if (left == null || left.isNegative) {
-                                    _leaveJoin(region, notice: "join_expired");
-                                    return;
-                                }
-                                _joinExpiryTimer = Timer(left + const Duration(seconds: 1), () {
-                                    if (_joinLobbyId != lobbyId) return;
-                                    deva_log("info", "[worker] join_wait : invitation expirée pendant l'attente");
-                                    _leaveJoin(region, notice: "join_expired");
-                                });
-
-                                deva_log("info", "[worker] join_wait : attente du secret (lobbyId=$lobbyId)");
-                                _tryJoin(lobbyId, region).then((done) {
-                                    if (done || _joinLobbyId != lobbyId || _joinVigilance != null) return;
-                                    _joinVigilance = _cloud?.watch("virtuallobby", "virtuallobbysecret", lobbyId,
-                                        (doc, reason) {
-                                            if (reason != DvWatchReason.changed || doc == null) return;
-                                            _tryJoin(lobbyId, region);
-                                        },
-                                        // desktop only ; ignoré sur Android. Plafond : un chef qui rouvre
-                                        // son jeu des heures plus tard ne doit pas attendre une minute de plus.
-                                        strategy: DvWatchStrategy.fibonacci(baseMs: 2000, maxMs: 15000));
-                                });
-    }
-
-    void _stopJoinWatch() {
-
-                                _joinVigilance?.stop();
-                                _joinVigilance = null;
-                                _joinExpiryTimer?.cancel();
-                                _joinExpiryTimer = null;
-                                _joinRetryTimer?.cancel();
-                                _joinRetryTimer = null;
-                                _joinLobbyId = "";
-    }
-
-    // Nouvel essai après une écriture ratée de l'admission : le secret, lui, ne changera plus,
-    // la vigilance ne se redéclenchera donc pas d'elle-même.
-    void _scheduleJoinRetry(String lobbyId, String region) {
-
-                                _joinRetryTimer?.cancel();
-                                _joinRetryTimer = Timer(const Duration(seconds: 15), () {
-                                    if (_joinLobbyId == lobbyId) _tryJoin(lobbyId, region);
-                                });
-    }
-
-    // Un essai d'admission. Rend true quand l'attente est terminée. Garde de ré-entrance : la
-    // lecture initiale, la vigilance et un nouvel essai peuvent tomber ensemble.
-    Future<bool> _tryJoin(String lobbyId, String region) async {
-
-                                if (_joinInFlight) return false;
-                                _joinInFlight = true;
-                                try {
-                                    final session = await _readSession(region);
-                                    // Déjà admis (reprise après un plantage entre deux écritures, autre appareil).
-                                    // MULTICLAN : admis dans CE clan, et non « a un clan ».
-                                    final pjNow = _pendingJoinOf(session) ?? _joinPendingMem;
-                                    if (pjNow == null && (session?.get("steps.clan.clanId")?.toString() ?? "").isNotEmpty
-                                        || _isActiveMemberOf(session, pjNow?["group_id"]?.toString() ?? "")) {
-                                        _stopJoinWatch();
-                                        _joinPendingMem = null;
-                                        if (DvOrb.get_current_page()?.dvid == "join_wait") {
-                                            DvOrb.navigate_reset(session?.get("steps.name") == null ? "player_name_screen" : "dashboard");
-                                        }
-                                        return true;
-                                    }
-                                    final pj = _pendingJoinOf(session) ?? _joinPendingMem;
-                                    if (pj == null || pj["lobby_id"]?.toString() != lobbyId) {
-                                        // Attente abandonnée ou remplacée ailleurs : cette vigilance n'a plus d'objet.
-                                        deva_log("info", "[worker] _tryJoin: plus d'attente pour lobbyId=$lobbyId");
-                                        _stopJoinWatch();
-                                        return true;
-                                    }
-                                    return await _handleClanJoin(pj["group_id"]?.toString() ?? "", lobbyId, region, pj);
-                                } catch (e) {
-                                    deva_log("error", "[worker] _tryJoin FAILED: $e");
-                                    return false;
-                                } finally {
-                                    _joinInFlight = false;
-                                }
-    }
-
-    // ⚠ `dynamic caller` : l'appear d'une PAGE passe un DvPage, qui n'est pas une shape.
-    Future<void> on_join_wait_appear(dynamic caller, dynamic event) async {
-
-                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                Dvidle? session;
-                                try {
-                                    session = region.isNotEmpty ? await _readSession(region) : null;
-                                } catch (e) {
-                                    deva_log("error", "[worker] on_join_wait_appear: lecture session FAILED: $e");
-                                }
-                                if ((session?.get("steps.clan.clanId")?.toString() ?? "").isNotEmpty) {
-                                    _stopJoinWatch();
-                                    DvOrb.navigate_reset(session?.get("steps.name") == null ? "player_name_screen" : "dashboard");
-                                    return;
-                                }
-                                final pj = _pendingJoinOf(session) ?? _joinPendingMem;
-                                if (pj == null) {
-                                    // Session illisible (réseau) : on reste, « J'abandonne » est là. Session
-                                    // lue sans attente : rien à faire ici.
-                                    if (session != null) await _leaveJoin(region);
-                                    return;
-                                }
-                                if (_pendingJoinExpired(pj)) {
-                                    await _leaveJoin(region, notice: "join_expired");
-                                    return;
-                                }
-                                _startJoinWatch(pj, region);
-    }
-
-    // « J'abandonne » : l'attente est vidée, la demande de l'enfant oubliée.
-    Future<void> on_join_wait_giveup(DvShape? caller, dynamic event) async {
-
-                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                deva_log("info", "[worker] join_wait : le candidat abandonne l'attente");
-                                await _leaveJoin(region);
-    }
-
-    // Message d'une attente abandonnée ou expirée, côté adulte (l'enfant a le sien sur
-    // kid_assent_share). Consommé à l'affichage : il ne se montre qu'une fois.
+    // Message d'une adhésion qui n'a pas abouti, côté adulte, quand il revient au choix du
+    // clan. Consommé à l'affichage : il ne se montre qu'une fois.
     // ⚠ `dynamic caller` : l'appear d'une PAGE passe un DvPage, qui n'est pas une shape.
     Future<void> on_new_or_pick_clan_appear(dynamic caller, dynamic event) async {
 
@@ -2428,9 +1286,9 @@ extension Worker_clan on worker {
                                 if (asChief) await _announceJoinedChief(clanId, clanSecret, region, docId, name, adminId);
     }
 
-    // L'adulte invité comme chef s'inscrit lui-même dans clans.admins, dès son admission : la
-    // décision est celle du chef qui l'a invité, portée par le secret que lui seul publie
-    // (cf. _publishInvite). Mêmes écritures que promote_chief : la liste des chefs (source
+    // L'adulte accueilli comme chef s'inscrit lui-même dans clans.admins, dès son admission : la
+    // décision est celle du chef qui l'a accueilli, portée par le dépôt que lui seul peut sceller
+    // (cf. _welcomeDeposit). Mêmes écritures que promote_chief : la liste des chefs (source
     // d'autorisation) et le miroir is_admin sur son doc. La mémoire de la célébration est posée
     // à "true" : la bienvenue dit déjà qu'il est chef, la vigilance ne rejouera pas de promotion.
     // Journal et notification attendent son nom (_announceJoinedChief).
@@ -2932,183 +1790,8 @@ extension Worker_clan on worker {
     //-- Invitation clan ---------------------------------------------------
     //-----------------------------------------------------------------------
 
-    // --- Écran de consentement du chef au recrutement (invite_consent_screen) -----------------
-    //
-    // ⚠ UN ECRAN, ET NON PLUS UN OVERLAY. C'etait un voile noir a 80 % pose sur clan_page, et
-    //   l'idiome maison — jamais de fenetre modale — n'imposait pas cela : il proscrit la MODALE,
-    //   pas la page. Sous le voile, le roster, le coffre et la banniere de recrutement restaient
-    //   visibles : trois plans de lecture superposes pour un acte qui engage la responsabilite
-    //   legale du chef. Une declaration se lit sur un fond qui ne bouge pas.
-    //
-    // La remise a neuf des cases n'a plus sa place ici : elle est passee a l'`appear` de l'ecran
-    // (on_invite_consent_appear), le seul moment ou les shapes existent a coup sur.
-    Future<void> _openInviteConsent() async {
-
-                                DvOrb.navigate_new("invite_consent_screen");
-    }
-
-    // L'ecran vient de s'afficher : on repose la question A NEUF. Les cases sont reconstruites
-    // depuis la conf (donc decochees) par show_ack, et le bouton repart eteint avec elles — une
-    // declaration faite pour l'invitation precedente ne vaut pas pour celle-ci.
-    //
-    // ⚠ `dynamic caller` ET NON `DvShape?` : l'appear d'une PAGE passe un DvPage, qui n'est pas
-    //   une shape. Un handler type DvShape? leve un NoSuchMethodError silencieux (vecu le
-    //   2026-09-14 sur dix handlers d'onboarding).
-    //
-    // DEUX MODES, choisis par la présence d'un accord d'enfant (_pendingAssent) :
-    //   * avec accord : le panneau de tête montre ce que l'enfant a accepté, quand, et le texte
-    //     qui lui a été montré ; les cases sont celles de l'acquittement `guardian`, réduit aux
-    //     deux cas « enfant » ; le chef choisit ensuite QR code ou invitation à distance ;
-    //   * sans accord : l'acquittement `adult`, qui ne porte que « il s'agit d'un adulte », et
-    //     le panneau de tête dit comment faire entrer un enfant.
-    //
-    // ⚠ DEUX ACQUITTEMENTS EN CONF, ET NON UN FILTRE ICI. documents.show_ack pousse toutes les
-    //   options d'un acquittement, sans tri possible. Scinder la conf (screens_meta.yml) garde
-    //   le module ignorant de ddust et rend la règle lisible là où sont les cases.
-    Future<void> on_invite_consent_appear(dynamic caller, dynamic event) async {
-
-                                final assent = _pendingAssent;
-                                await ActionRegistry.get("documents.show_ack")?.call(null, assent != null ? "guardian" : "adult");
-                                _setInviteYesReady(false);
-
-                                // ⚠ MODE ADULTE : LA DÉCLARATION EST LE CHOIX DU MENU (2026-10-12). Le chef a
-                                //   touché « Inviter un adulte » : lui refaire cocher « Il s'agit d'un
-                                //   adulte », sous une mention qui parle d'enfants, le perdait. La case
-                                //   unique de l'acquittement `adult` est donc cochée d'office puis cachée,
-                                //   avec la mention : le scellé part toujours avec l'invitation
-                                //   (on_confirm_invite_consent), simplement sans geste redondant. Le mode
-                                //   enfant, lui, garde ses cases et sa mention, qu'on remontre.
-                                final ackList = DvOrb.get_shape_by_id("documents/ack_options");
-                                if (assent == null) {
-                                    if (ackList is DvChecklist) {
-                                        for (final item in ackList.items) {
-                                            if (!item.checked) ackList.toggleItem(item.id);
-                                        }
-                                    }
-                                    _hideShapes(["documents/ack_options", "invite_consent_screen/notice"]);
-                                    final fn = ActionRegistry.get("documents.ack_ready");
-                                    _setInviteYesReady(fn == null || (await fn(null, null))?.toString() == "true");
-                                } else {
-                                    for (final id in ["documents/ack_options", "invite_consent_screen/notice"]) {
-                                        DvOrb.get_shape_by_id(id)?..set("shape.visible", true)..refreshUI();
-                                    }
-                                }
-
-                                final head = await DvOrb.wait_for_shape("invite_consent_screen/assent");
-                                if (head != null) {
-                                    String text;
-                                    if (assent != null) {
-                                        final d    = DateTime.tryParse(assent["date"]?.toString() ?? "")?.toLocal();
-                                        final when = d == null ? "" :
-                                            "${_storeShortDate(d)} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}";
-                                        // Le texte est rendu dans la langue du CHEF, qui doit le comprendre ;
-                                        // celle dans laquelle l'enfant l'a lu voyage dans l'accord (`lang`).
-                                        final shown = TranslationRegistry.processLabel("@@@T:${assent["text_key"]}@@@");
-                                        // Le code de la demande en tête : le chef le compare à celui que
-                                        // l'enfant affiche en grand. C'est lui que l'invitation portera.
-                                        text = TranslationRegistry.processLabel("@@@T:invite_consent_assent_code@@@")
-                                                .replaceAll("{code}", assent["n"]?.toString() ?? "")
-                                            + "\n\n"
-                                            + TranslationRegistry.processLabel("@@@T:invite_consent_assent@@@")
-                                                .replaceAll("{date}", when)
-                                                .replaceAll("{text}", shown);
-                                        // Le joueur qu'il reprendra, choisi juste avant : relu ici, sous les
-                                        // yeux du parent, avant qu'il ne signe.
-                                        if (_pendingClaimId.isNotEmpty) {
-                                            text += "\n\n" + TranslationRegistry.processLabel("@@@T:invite_consent_claim@@@")
-                                                .replaceAll("{name}", _pendingClaimName);
-                                        }
-                                    } else {
-                                        text = TranslationRegistry.processLabel(_assentRejected
-                                            ? "@@@T:invite_consent_not_assent@@@"
-                                            : "@@@T:invite_consent_child_hint@@@");
-                                    }
-                                    head.set("shape.label", text);
-                                    if (head is DvLabel) await head.computeDisplay();
-                                    head.refreshUI();
-                                }
-
-                                // Le choix QR / à distance n'a de sens qu'en mode enfant : ailleurs, c'est
-                                // l'option du menu qui l'a déjà fait.
-                                if (assent != null) {
-                                    final kind = (await deva_get("worker.pending_invite_kind"))?.toString() ?? "qr";
-                                    await _revealLabel("invite_consent_screen/kind",
-                                        kind == "pin" ? "invite_consent_kind_pin" : "invite_consent_kind_qr");
-                                } else {
-                                    _hideShapes(["invite_consent_screen/kind"]);
-                                }
-                                // En mode adulte, la case « Il sera aussi chef du clan » : le chef peut faire
-                                // de l'invité un chef dès son arrivée. Décochée à chaque ouverture : une
-                                // décision prise pour l'invitation précédente ne vaut pas pour celle-ci.
-                                _inviteAsChief = false;
-                                if (assent == null) {
-                                    final chief = await DvOrb.wait_for_shape("invite_consent_screen/chief");
-                                    chief
-                                        ?..set("shape.checked", false)
-                                        ..set("shape.visible", true)
-                                        ..refreshUI();
-                                } else {
-                                    _hideShapes(["invite_consent_screen/chief"]);
-                                }
-    }
-
-    // Opacités du bouton « Invitons ! ». Deux valeurs et pas de mémoire : l'extension ne peut
-    // pas porter de champ, et relire l'opacité courante de la shape prendrait le bouton grisé
-    // pour la référence du bouton allumé dès la deuxième ouverture de l'overlay.
-    static const double _inviteYesOn  = 1.0;
-    static const double _inviteYesOff = 0.25;
-
-    // Bouton éteint ET sourd : `shape.events.tap` coupe le tap (idiome ddust d'un bouton hors
-    // service, cf. on_kid_wants_clan_appear), l'opacité dit pourquoi. Les deux vont ensemble —
-    // grisé sans être sourd, il laisserait passer un tap ; sourd sans être grisé, il
-    // n'expliquerait rien.
-    // ⚠ On ne le CACHE pas : un bouton éteint qui reste là dit qu'il manque quelque chose, un
-    //   bouton disparu laisse croire que l'écran est cassé.
-    //
-    // Appelee depuis l'`appear` de l'ecran ET a chaque changement de case : la shape peut donc
-    // ne pas encore exister au tout premier passage, d'ou le `?..` qui ne leve pas.
-    void _setInviteYesReady(bool ready) {
-
-                                DvOrb.get_shape_by_id("invite_consent_screen/yes")
-                                    ?..set("shape.opacity", ready ? _inviteYesOn : _inviteYesOff)
-                                    ..set("shape.events.tap", ready)
-                                    ..refreshUI();
-    }
-
-    // Le chef vient de cocher (ou décocher) l'un des trois cas.
-    Future<void> on_invite_ack_changed(DvShape? caller, dynamic event) async {
-
-                                final fn = ActionRegistry.get("documents.ack_ready");
-                                final ready = fn == null
-                                    ? true
-                                    : (await fn(null, null))?.toString() == "true";
-                                _setInviteYesReady(ready);
-    }
-
-    // Recruter est réservé au chef (double garde : clan_settings_selector cache déjà l'option).
-    //
-    // Le lobby n'est PAS créé ici : recruter, c'est potentiellement faire entrer un enfant dans
-    // son clan, et la mention de responsabilité légale doit être sous les yeux du chef AVANT
-    // l'acte (RGPD art. 8), pas seulement dans les CGU acceptées à l'installation. On révèle donc
-    // l'overlay de consentement ; on_confirm_invite_consent enchaîne sur create_management.
-    // Les gardes (clanId en session, statut de chef) restent AVANT l'overlay : on ne demande pas
-    // au chef d'assumer une responsabilité pour échouer juste après.
-    Future<void> on_invite_clan(DvShape? caller, dynamic event) async {
-
-                                if ((await _clanIdIfChief("on_invite_clan")).isEmpty) return;
-                                // Entrée « adulte » : aucun accord d'enfant ne doit traîner d'un scan
-                                // précédent resté sans suite, il ouvrirait les cas « enfant ».
-                                _pendingAssent    = null;
-                                _assentRejected   = false;
-                                _pendingClaimId   = "";
-                                _pendingClaimName = "";
-                                _inviteAsChief    = false;
-                                await deva_set("worker.pending_invite_kind", "qr");
-                                await _openInviteConsent();
-    }
-
-    // Contrôles communs aux deux modes de recrutement (QR et invitation à distance) : le clan doit
-    // être connu de la session et l'appelant doit en être chef. Rend le clanId, ou "" si refusé.
+    // Contrôles de tout accueil d'un joueur : le clan doit être connu de la session, l'appelant
+    // doit en être chef, et il doit rester de la place. Rend le clanId, ou "" si refusé.
     Future<String> _clanIdIfChief(String who) async {
 
                                 final region  = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
@@ -3137,111 +1820,6 @@ extension Worker_clan on worker {
                                     return "";
                                 }
                                 return groupId;
-    }
-
-    // Le chef a lu la mention et confirmé sa responsabilité : on crée enfin le lobby. Le mode
-    // mémorisé décide de la suite — invite_mode=pin fait bifurquer on_management_created vers
-    // l'écran PIN + partage au lieu du QR.
-    Future<void> on_confirm_invite_consent(DvShape? caller, dynamic event) async {
-
-                                // Le chef n'a pas dit DE QUI il s'agit : on ne bouge pas. Le bouton est
-                                // déjà sourd, cette garde est celle qui va avec.
-                                // ⚠ On interroge `ack_ready` et NON le scellé : une conf sans
-                                //   acquittement déclaré rend un scellé vide sans que rien ne manque,
-                                //   et bloquer là-dessus casserait le recrutement de toute application
-                                //   qui ne se sert pas du mécanisme.
-                                final readyFn = ActionRegistry.get("documents.ack_ready");
-                                if (readyFn != null && (await readyFn(null, null))?.toString() != "true") {
-                                    deva_log("info", "[worker] on_confirm_invite_consent: aucune déclaration cochée");
-                                    return;
-                                }
-                                // Voyage avec l'invitation jusqu'à la preuve d'acceptation de l'entrant
-                                // (cf. _writeClanInvite, puis _publishInvite → publishSecret).
-                                //
-                                // Avec un accord d'enfant, le scellé l'EMPORTE : la déclaration du parent et
-                                // la volonté de l'enfant qui l'a précédée ne se séparent plus, ni dans le
-                                // dossier de l'enfant (attach_ack), ni dans celui du parent (ci-dessous).
-                                final assent = _pendingAssent;
-                                final sealed = (await ActionRegistry.get("documents.seal_ack")?.call(null,
-                                    assent != null
-                                        ? <String, dynamic>{"id": "guardian", "assent": assent}
-                                        : "adult"))?.toString() ?? "";
-                                // Un accord d'enfant sans scellé ne ferait entrer personne : l'appareil de
-                                // l'enfant refuse une invitation sans déclaration de responsable.
-                                if (assent != null && sealed.isEmpty) {
-                                    deva_log("error", "[worker] on_confirm_invite_consent: scellé vide malgré l'accord d'enfant");
-                                    return;
-                                }
-                                if (assent != null) {
-                                    // La décision du parent, enregistrée SOUS SON PROPRE COMPTE : c'est lui
-                                    // qui décide, c'est donc à son nom que la preuve doit exister, que
-                                    // l'enfant entre un jour dans le clan ou non.
-                                    // ⚠ Un échec ARRÊTE l'invitation : sans cette trace, le parent aurait
-                                    //   autorisé sans que rien, de son côté, ne le prouve. Le bouton reste
-                                    //   là, il suffit de réessayer. (Une action absente, build sans le
-                                    //   module à jour, ne bloque pas : elle est journalisée.)
-                                    final fn = ActionRegistry.get("documents.record_guardian_decision");
-                                    if (fn == null) {
-                                        deva_log("warning", "[worker] documents.record_guardian_decision absente : décision non enregistrée côté parent");
-                                    } else {
-                                        dynamic r = fn(null, sealed);
-                                        if (r is Future) r = await r;
-                                        if (r == false || r?.toString() == "error" || r?.toString() == "false") {
-                                            deva_log("error", "[worker] on_confirm_invite_consent: décision du parent non enregistrée ($r)");
-                                            return;
-                                        }
-                                    }
-                                }
-                                // ⚠ PLUS DE `worker.pending_ack` (2026-09-22) : la déclaration part dans
-                                //   l'invitation privée de CE lobby (_writeClanInvite, plus bas), où la
-                                //   publication la relira. Un emplacement unique la laissait écraser par
-                                //   l'invitation suivante, et finissait sur le disque au premier store().
-                                // Consommé : un accord ne sert qu'à UNE invitation. Il ne reste en mémoire
-                                // que pour l'invitation à distance, dont la charge le porte aussi
-                                // (on_management_created).
-                                // Le joueur sans téléphone repris, s'il y en a un : seulement avec un accord
-                                // d'enfant (le choix n'est proposé que là), consommé comme lui.
-                                final claim = assent != null ? _pendingClaimId : "";
-                                // L'invité sera aussi chef : en mode adulte seulement, consommé de même.
-                                final asChief = assent == null && _inviteAsChief;
-                                _inviteAsChief = false;
-                                _pendingAssent    = null;
-                                _assentRejected   = false;
-                                _pendingClaimId   = "";
-                                _pendingClaimName = "";
-                                _inviteAssent     = assent;
-
-                                // On quitte l'ecran AVANT de creer le lobby : `create_management`
-                                // enchaine sur l'ecran QR (ou PIN), et il doit se poser sur
-                                // clan_page, pas par-dessus une declaration deja signee. Les deux
-                                // operations sont synchrones sur le meme Navigator : le pop est
-                                // acquis quand le push part.
-                                DvOrb.navigate_back();
-                                final kind = (await deva_get("worker.pending_invite_kind"))?.toString() ?? "qr";
-                                await deva_set("worker.pending_invite_kind", "");
-                                // Le clan est relu ici et pas conservé depuis la garde : entre le tap sur
-                                // l'option et la confirmation, rien ne garantit que la session n'a pas bougé.
-                                final groupId = await _clanIdIfChief("on_confirm_invite_consent");
-                                if (groupId.isEmpty) {
-                                    _inviteAssent = null;
-                                    return;
-                                }
-                                // Le lobbyId est tiré ICI, et non par dvvirtuallobby : l'invitation
-                                // privée doit exister AVANT le lobby qu'elle autorise. Sans elle, un
-                                // candidat accepterait un lobby qu'aucune publication ne servirait
-                                // jamais. Un échec d'écriture arrête donc l'invitation.
-                                final lobbyId = _generateUuid();
-                                // MULTICLAN : invitation d'un enfant → secret de représentation, rangé en
-                                // attente dans l'index du parent jusqu'à ce que l'enfant apparaisse.
-                                final guardianSecret = assent != null ? await _newGuardianPending(lobbyId, groupId) : "";
-                                if (!await _writeClanInvite(groupId, lobbyId, sealed, assent != null ? "child" : "adult",
-                                        claim: claim, asChief: asChief, guardianSecret: guardianSecret)) {
-                                    _inviteAssent = null;
-                                    return;
-                                }
-                                if (kind == "pin") await deva_set("worker.invite_mode", "pin");
-                                await _stampFirstInvite(groupId);
-                                await ActionRegistry.get("virtuallobby.create_management")?.call(null, {"group_id": groupId, "lobby_id": lobbyId});
     }
 
     // Horodate la PREMIÈRE invitation ouverte par le clan (`clans.first_invite_at`, écrit une seule
@@ -3274,432 +1852,6 @@ extension Worker_clan on worker {
                                 } catch (e) {
                                     deva_log("error", "[clan] _stampFirstInvite FAILED: $e");
                                 }
-    }
-
-    Future<void> on_cancel_invite_consent(DvShape? caller, dynamic event) async {
-
-                                // L'accord de l'enfant n'a pas servi : il est oublié. L'enfant pourra
-                                // le montrer de nouveau, il est toujours affiché sur son téléphone.
-                                _pendingAssent    = null;
-                                _assentRejected   = false;
-                                _pendingClaimId   = "";
-                                _pendingClaimName = "";
-                                _inviteAsChief    = false;
-                                await deva_set("worker.pending_invite_kind", "");
-                                DvOrb.navigate_back();
-    }
-
-    // Invitation à distance : même chemin que le QR (consentement puis create_management), mais le
-    // flag invite_mode=pin — posé par on_confirm_invite_consent — fait bifurquer
-    // on_management_created vers l'écran PIN + partage réseaux sociaux au lieu du QR.
-    // Réservé au chef, comme le QR (double garde avec clan_settings_selector).
-    Future<void> on_invite_clan_remote(DvShape? caller, dynamic event) async {
-
-                                if ((await _clanIdIfChief("on_invite_clan_remote")).isEmpty) return;
-                                // Entrée « adulte », comme on_invite_clan.
-                                _pendingAssent    = null;
-                                _assentRejected   = false;
-                                _pendingClaimId   = "";
-                                _pendingClaimName = "";
-                                _inviteAsChief    = false;
-                                await deva_set("worker.pending_invite_kind", "pin");
-                                await _openInviteConsent();
-    }
-
-    Future<void> on_management_created(DvShape? caller, Map event) async {
-
-                                final groupId = event["group_id"]?.toString() ?? "";
-                                final lobbyId = event["lobby_id"]?.toString() ?? "";
-                                if (groupId.isEmpty || lobbyId.isEmpty) return;
-
-                                deva_log("info", "[worker] on_management_created: groupId=$groupId lobbyId=$lobbyId");
-
-                                // ⚠ L'INVITATION SORTANTE RESTE EN MÉMOIRE (cf. _outgoingGroupId). Écrite
-                                //   dans `worker.pending_group_id`, elle ressemblait, au lancement suivant,
-                                //   à une invitation reçue : _consumePendingInvite la rejouait et le chef
-                                //   postulait dans son propre lobby.
-                                _outgoingGroupId = groupId;
-                                _outgoingLobbyId = lobbyId;
-
-                                // La région voyage avec l'invitation : le clan n'existe que dans la sienne,
-                                // et celui qui la reçoit doit pouvoir le savoir avant de tenter d'entrer.
-                                // Lue par le QR code ci-dessous et par le partage (on_share_clan_invite).
-                                final region = (await Deva.instance.get("documents.session.cloud_region"))?.toString() ?? "";
-                                _outgoingRegion = region;
-
-                                ActionRegistry.get("virtuallobby.watch_management")?.call(null, {"group_id": groupId, "lobby_id": lobbyId});
-                                deva_log("info", "[worker] watch_management démarré");
-
-                                // Mode « à distance » : sceau chiffré par PIN, écran PIN + partage (pas de QR).
-                                final mode = (await deva_get("worker.invite_mode"))?.toString() ?? "";
-                                // L'accord de l'enfant ne sert qu'à CETTE invitation : consommé ici, quel que
-                                // soit le mode.
-                                final assent = _inviteAssent;
-                                _inviteAssent = null;
-                                // L'INVITATION EST TYPÉE. « enfant » quand elle répond à un accord, avec
-                                // le code de cet accord ; « adulte » sinon. L'appareil de l'enfant refuse
-                                // une invitation « adulte », et une invitation « enfant » qui ne porte
-                                // pas le code de SA demande ; celui d'un adulte refuse une invitation
-                                // « enfant ». Sans `k` (version antérieure), l'invitation vaut « adulte ».
-                                final code = assent?["n"]?.toString() ?? "";
-                                final kind = assent != null ? "child" : "adult";
-                                _inviteLinkParams = kind == "child"
-                                    ? "&k=child&n=${Uri.encodeQueryComponent(code)}"
-                                    : "&k=adult";
-                                if (mode == "pin") {
-                                    await deva_set("worker.invite_mode", "");
-                                    final lobby = ModuleRegistry.create("dvvirtuallobby");
-                                    if (lobby == null) return;
-                                    final pin   = (lobby as dynamic).generatePin() as String? ?? "";
-                                    // La charge est libre (sealInvite) : elle porte aussi l'accord, pour que
-                                    // l'invitation dise d'elle-même à quelle réponse d'enfant elle répond.
-                                    // `k` et `n` à plat dans la charge : l'appareil de l'enfant les lit
-                                    // une fois le code PIN saisi (on_confirm_pin), avant toute connexion.
-                                    final token = (lobby as dynamic).sealInvite(<String, dynamic>{
-                                        "group_id": groupId,
-                                        "lobby_id": lobbyId,
-                                        "region":   region,
-                                        "k":        kind,
-                                        if (assent != null) "n":      code,
-                                        if (assent != null) "assent": assent,
-                                    }, pin) as String? ?? "";
-                                    _outgoingPinToken = token;
-
-                                    DvOrb.navigate_new("invite_clan_pin");
-                                    final pinShape = await DvOrb.wait_for_shape("invite_clan_pin/pin");
-                                    pinShape
-                                        ?..set("shape.label", pin)
-                                        ..refreshUI();
-                                    return;
-                                }
-
-                                DvOrb.navigate_new("invite_clan");
-
-                                final link       = "ddust://invite?group_id=$groupId&lobby_id=$lobbyId&region=$region$_inviteLinkParams";
-                                final qrcodeShape = await DvOrb.wait_for_shape("invite_clan/qrcode");
-                                qrcodeShape
-                                    ?..set("shape.content", link)
-                                    ..refreshUI();
-    }
-
-    // « Partager l'invitation » (écran invite_clan) : le modèle share.clan_invite lit le clan,
-    // le lobby, la région et la fin du lien (`&k=…&n=…`) dans le dictionnaire. Ils n'y sont
-    // posés que le temps du partage : le code d'un enfant n'a pas à finir sur le disque du chef
-    // au prochain store(), et l'invitation sortante non plus (cf. _outgoingGroupId).
-    // ⚠ Des clefs `worker.invite_out_*`, distinctes de `worker.pending_*` (l'invitation REÇUE) :
-    //   même si un store() tombait pendant le partage, rien ne pourrait passer pour une
-    //   invitation en attente au lancement suivant.
-    Future<void> on_share_clan_invite(DvShape? caller, dynamic event) async {
-
-                                if (_outgoingGroupId.isEmpty || _outgoingLobbyId.isEmpty) return;
-                                await deva_set("worker.invite_out_group_id", _outgoingGroupId);
-                                await deva_set("worker.invite_out_lobby_id", _outgoingLobbyId);
-                                await deva_set("worker.invite_out_region",   _outgoingRegion);
-                                await deva_set("worker.pending_invite_type", _inviteLinkParams);
-                                try {
-                                    final fut = ActionRegistry.get("share.clan_invite")?.call(caller, event);
-                                    if (fut is Future) await fut;
-                                } finally {
-                                    await deva_set("worker.invite_out_group_id", "");
-                                    await deva_set("worker.invite_out_lobby_id", "");
-                                    await deva_set("worker.invite_out_region",   "");
-                                    await deva_set("worker.pending_invite_type", "");
-                                }
-    }
-
-    // « Partager l'invitation » de l'écran invite_clan_pin : même règle que on_share_clan_invite.
-    // Le jeton scellé ne passe par le dictionnaire (lu par le modèle share.clan_invite_pin) que
-    // le temps du partage, sous une clef `invite_out_*` qui ne peut passer pour une invitation reçue.
-    Future<void> on_share_clan_invite_pin(DvShape? caller, dynamic event) async {
-
-                                if (_outgoingPinToken.isEmpty) return;
-                                await deva_set("worker.invite_out_pin_token", _outgoingPinToken);
-                                try {
-                                    final fut = ActionRegistry.get("share.clan_invite_pin")?.call(caller, event);
-                                    if (fut is Future) await fut;
-                                } finally {
-                                    await deva_set("worker.invite_out_pin_token", "");
-                                }
-    }
-
-    Future<void> on_invite_clan_link(DvShape? caller, Map event) async {
-
-                                final groupId = event["group_id"]?.toString() ?? "";
-                                final lobbyId = event["lobby_id"]?.toString() ?? "";
-                                if (groupId.isEmpty || lobbyId.isEmpty) return;
-
-                                // Point de contrôle unique de la région, pour le QR comme pour le deeplink.
-                                // Placé AVANT les deva_set : une invitation d'une autre région ne doit pas
-                                // être mise en attente, sinon on_login la rejouerait au prochain démarrage.
-                                // En cold start la session n'a pas encore de région et le contrôle laisse
-                                // passer ; l'invitation sera rejouée une fois la région connue.
-                                final region  = event["region"]?.toString() ?? "";
-                                final onShare = DvOrb.get_current_page()?.dvid == "kid_assent_share";
-                                final errorId = onShare ? "kid_assent_share/error" : "kid_wants_clan/region_error";
-                                if (await _inviteRegionMismatch(region, errorId)) return;
-
-                                // Nature de l'invitation, et code de la demande d'enfant qu'elle porte.
-                                // Contrôlées ICI, avant la moindre mise de côté : une invitation refusée
-                                // ne doit pas remplacer celle, valide, qui attendrait déjà.
-                                final kind    = event["k"]?.toString() == "child" ? "child" : "adult";
-                                final code    = event["n"]?.toString() ?? "";
-                                final refusal = await _inviteKindRefusal(kind, code);
-                                if (refusal.isNotEmpty) {
-                                    deva_log("info", "[worker] on_invite_clan_link: invitation $kind refusée ($refusal)");
-                                    if (onShare || refusal == "invite_for_child") {
-                                        // Sur place : l'enfant reste sur son écran de partage (son code
-                                        // tient toujours), l'adulte sur l'écran où il a scanné.
-                                        await _revealLabel(errorId, refusal);
-                                    } else {
-                                        // Mineur ailleurs (lien ouvert en plein parcours) : le message
-                                        // l'attend sur son écran de partage, sans l'arracher à l'étape
-                                        // en cours (des conditions pas encore acceptées, par exemple).
-                                        _kidAssentNotice = refusal;
-                                    }
-                                    return;
-                                }
-
-                                // Stocké inconditionnellement : on_login le consomme en cold start. La
-                                // région suit : c'est là seulement qu'on pourra la comparer, une fois le
-                                // royaume choisi. La nature et le code aussi, en mémoire : l'état légal
-                                // n'est pas toujours connu ici (lien ouvert application fermée), ils
-                                // seront revérifiés (kid_assent_route, _consumePendingInvite).
-                                await deva_set("worker.pending_group_id",      groupId);
-                                await deva_set("worker.pending_lobby_id",      lobbyId);
-                                await deva_set("worker.pending_invite_region", region);
-                                _pendingInviteKind = kind;
-                                _pendingInviteCode = code;
-                                _pendingInviteFresh = true;
-
-                                if (!(_cloud?.isReady() ?? false)) return;
-
-                                // AVANT LE LOGIN, ON NE REJOINT RIEN. Accepter ici, c'était soumettre une
-                                // candidature sous l'identifiant anonyme, donc écrire au nom d'un enfant
-                                // avant qu'il ne soit quelqu'un. L'invitation attend en mémoire ; la
-                                // connexion Google passe d'abord, et on_login l'accepte ensuite, sous le
-                                // compte définitif (_consumePendingInvite).
-                                // Hors de l'écran de partage (lien ouvert en plein parcours), rien ne
-                                // bouge. Un mineur qui n'a pas encore dit oui la verra refusée par
-                                // kid_assent_route : elle a été faite avant sa demande.
-                                if (_anon) {
-                                    if (onShare) await ActionRegistry.get("steps.navigate.link")?.call(caller, null);
-                                    return;
-                                }
-
-                                // Warm start : joueur déjà connecté → acceptation sous son compte, puis
-                                // attente du chef sur join_wait (_acceptAndWait).
-                                // Consommé : sans ce reset, un redémarrage à froid ultérieur rejoue
-                                // l'acceptation d'une adhésion déjà finalisée.
-                                await _clearPendingInvite();
-                                if (await _hasClanNow("on_invite_clan_link", groupId)) return;
-                                await _acceptAndWait(groupId, lobbyId, kind, code);
-    }
-
-    // L'invitation ne peut-elle PAS être acceptée ? MULTICLAN : un joueur peut avoir plusieurs
-    // clans ; on refuse seulement s'il est déjà membre de CE clan, ou s'il a atteint le plafond
-    // (l'accepter brûlerait le lobby pour rien).
-    Future<bool> _hasClanNow(String who, [String groupId = ""]) async {
-
-                                final refusal = await _joinRefusal(groupId);
-                                if (refusal.isNotEmpty) {
-                                    deva_log("info", "[worker] $who: invitation ignorée ($refusal)");
-                                    _joinNotice = refusal;
-                                }
-                                return refusal.isNotEmpty;
-    }
-
-    // Invitation laissée en attente avant le login (QR scanné ou lien ouvert par un enfant encore
-    // anonyme, lien reçu application fermée). Appelée par on_login, une fois le compte définitif
-    // chargé : c'est le premier moment où rejoindre un clan n'écrit plus sous un identifiant
-    // jetable. Rend true si elle a navigué (l'appelant ne doit alors pas router à son tour).
-    //
-    // [hasClan] : le joueur a déjà un clan (branche « session complète » d'on_login). Un refus ne
-    // le renvoie alors nulle part : il n'a pas de demande en cours à refaire.
-    //
-    // [ownClanId] : le clan du joueur, quand il en a un.
-    // ⚠ FILET POUR LES DISQUES D'AVANT LE CORRECTIF : on_management_created écrivait l'invitation
-    //   que le chef venait d'OUVRIR dans `worker.pending_group_id`, et le store() suivant la
-    //   gardait. Une invitation « en attente » vers son propre clan n'est donc jamais une
-    //   invitation reçue : c'est ce reste-là. Oubliée sans rien accepter.
-    Future<bool> _consumePendingInvite(DvShape? caller, dynamic event, {bool hasClan = false, String ownClanId = ""}) async {
-
-                                final pendingGroup = (await deva_get("worker.pending_group_id"))?.toString() ?? "";
-                                if (pendingGroup.isNotEmpty && ownClanId.isNotEmpty && pendingGroup == ownClanId) {
-                                    deva_log("info", "[worker] _consumePendingInvite: invitation vers son propre clan (reste côté chef), oubliée");
-                                    await _clearPendingInvite();
-                                    return false;
-                                }
-                                if (pendingGroup.isNotEmpty) {
-                                    // Revérifiée ici, sous le compte définitif : l'état légal pouvait être
-                                    // inconnu quand le lien a été ouvert (application fermée, avant
-                                    // l'écran d'âge), et le contrôle avait alors été repoussé.
-                                    final refusal = await _inviteKindRefusal(
-                                        _pendingInviteKind.isEmpty ? "adult" : _pendingInviteKind, _pendingInviteCode);
-                                    if (refusal.isNotEmpty) {
-                                        deva_log("info", "[worker] _consumePendingInvite: invitation refusée ($refusal)");
-                                        await _clearPendingInvite();
-                                        // Un adulte, ou un joueur qui a déjà son clan : rien à refaire,
-                                        // la suite ordinaire d'on_login reprend (tableau de bord, ou choix
-                                        // entre créer et rejoindre un clan).
-                                        if (refusal == "invite_for_child" || hasClan) return false;
-                                        _sendKidBackToAssent(refusal);
-                                        return true;
-                                    }
-                                    final pendingLobby = (await deva_get("worker.pending_lobby_id"))?.toString() ?? "";
-                                    final kind         = _pendingInviteKind.isEmpty ? "adult" : _pendingInviteKind;
-                                    final code         = _pendingInviteCode;
-                                    // Consommé : sans ce reset, une adhésion déjà acceptée est rejouée à
-                                    // chaque démarrage à froid (la submission n'accepte plus l'écriture).
-                                    // Le code de la demande part dans pending_join (_acceptAndWait) :
-                                    // _handleClanJoin le compare au code scellé par le chef, à l'admission,
-                                    // même après un redémarrage.
-                                    await _clearPendingInvite();
-                                    // MULTICLAN : un joueur qui a déjà un clan peut en rejoindre un autre,
-                                    // sauf s'il en est déjà membre ou a atteint le plafond.
-                                    if (hasClan && await _hasClanNow("_consumePendingInvite", pendingGroup)) return false;
-                                    return await _acceptAndWait(pendingGroup, pendingLobby, kind, code);
-                                }
-                                // Lien PIN reçu avant l'auth : écran de saisie, le jeton est pré-rempli
-                                // par son appear (on_enter_invite_pin_appear).
-                                final pendingToken = (await deva_get("worker.pending_invite_token_in"))?.toString() ?? "";
-                                if (pendingToken.isNotEmpty) {
-                                    DvOrb.navigate_new("enter_invite_pin");
-                                    return true;
-                                }
-                                return false;
-    }
-
-    // « Je n'ai pas le QR code » : saisie manuelle (coller le lien reçu + taper le PIN).
-    Future<void> on_no_qr(DvShape? caller, dynamic event) async {
-
-                                await deva_set("worker.pending_invite_token_in", "");
-                                DvOrb.navigate_new("enter_invite_pin");
-    }
-
-    // Deeplink ddust://invitepin?token=… : token chiffré reçu sur les réseaux sociaux.
-    Future<void> on_invite_pin_link(DvShape? caller, Map event) async {
-
-                                final token = event["token"]?.toString() ?? "";
-                                if (token.isEmpty) return;
-
-                                // Stocké inconditionnellement : on_login le consomme en cold start (un
-                                // adulte déjà connecté). Pour un enfant, un lien reçu application fermée
-                                // ne sert plus : le code de sa demande est mort avec le processus, et
-                                // kid_assent_route refuse le lien quand il dit oui de nouveau.
-                                await deva_set("worker.pending_invite_token_in", token);
-                                _pendingInviteFresh = true;
-
-                                if (!(_cloud?.isReady() ?? false)) return;
-                                // Enfant encore anonyme : on ne l'arrache à son parcours que s'il en est à
-                                // attendre l'invitation (écran de partage). Ailleurs, il n'a pas encore de
-                                // demande à laquelle ce lien puisse répondre : kid_assent_route le refusera.
-                                if (_anon && DvOrb.get_current_page()?.dvid != "kid_assent_share") return;
-                                // Écran de saisie du PIN, jeton pré-rempli par son appear.
-                                DvOrb.navigate_new("enter_invite_pin");
-    }
-
-    // Validation du PIN : déchiffre le token via dvvirtuallobby.openInvite, puis rejoint le clan
-    // par le chemin d'acceptation habituel (identique au flux QR).
-    Future<void> on_confirm_pin(DvShape? caller, dynamic event) async {
-
-                                final errShape = DvOrb.get_shape_by_id("enter_invite_pin/error");
-
-                                // Token : champ de saisie prioritaire (collé), sinon deeplink stocké.
-                                String tokenRaw = DvOrb.get_shape_by_id("enter_invite_pin/token")?.get("shape.value")?.toString().trim() ?? "";
-                                if (tokenRaw.isEmpty) {
-                                    tokenRaw = (await deva_get("worker.pending_invite_token_in"))?.toString() ?? "";
-                                }
-                                // Le champ peut contenir le token brut OU l'URL complète ddust://invitepin?token=…
-                                String token = tokenRaw;
-                                final uri = Uri.tryParse(tokenRaw);
-                                final uriToken = uri?.queryParameters["token"];
-                                if (uriToken != null && uriToken.isNotEmpty) token = uriToken;
-
-                                final pin = DvOrb.get_shape_by_id("enter_invite_pin/pin")?.get("shape.value")?.toString().trim() ?? "";
-
-                                if (token.isEmpty || pin.isEmpty) {
-                                    errShape?..set("shape.visible", true)..refreshUI();
-                                    return;
-                                }
-
-                                final lobby = ModuleRegistry.create("dvvirtuallobby");
-                                if (lobby == null) return;
-                                final payload = (lobby as dynamic).openInvite(token, pin) as Map?;
-                                // MULTICLAN : le même lien + code sert aux échanges entre adultes (un chef
-                                // qui accueille un enfant d'un autre clan, un candidat co-représentant).
-                                final gt = payload?["t"]?.toString() ?? "";
-                                if (gt == "guest" || gt == "cog") {
-                                    final req = _checkGuardianPayload(Map<String, dynamic>.from(payload!));
-                                    await deva_set("worker.pending_invite_token_in", "");
-                                    if (req == null || _anon) {
-                                        errShape?..set("shape.label", TranslationRegistry.processLabel("@@@T:pin_wrong@@@"))
-                                            ..set("shape.visible", true)..refreshUI();
-                                        return;
-                                    }
-                                    errShape?..set("shape.visible", false)..refreshUI();
-                                    DvOrb.navigate_back();
-                                    await _openGuardianRequest(req);
-                                    return;
-                                }
-                                final groupId = payload?["group_id"]?.toString() ?? "";
-                                final lobbyId = payload?["lobby_id"]?.toString() ?? "";
-                                if (groupId.isEmpty || lobbyId.isEmpty) {
-                                    deva_log("info", "[worker] on_confirm_pin: PIN incorrect ou lien expiré");
-                                    errShape
-                                        ?..set("shape.label", TranslationRegistry.processLabel("@@@T:pin_wrong@@@"))
-                                        ..set("shape.visible", true)
-                                        ..refreshUI();
-                                    return;
-                                }
-
-                                // Le PIN était bon : le lien est authentique, mais il peut venir d'une autre
-                                // région. Le message remplace alors « PIN incorrect », qui serait trompeur.
-                                if (await _inviteRegionMismatch(
-                                        payload?["region"]?.toString() ?? "", "enter_invite_pin/error")) return;
-
-                                // Le PIN était bon et la contrée la même : reste la nature de l'invitation
-                                // et, pour un enfant, le code de SA demande (cf. _inviteKindRefusal). Un
-                                // lien scellé par une version antérieure n'a pas de `k` : il vaut « adulte ».
-                                final kind    = payload?["k"]?.toString() == "child" ? "child" : "adult";
-                                final code    = payload?["n"]?.toString() ?? "";
-                                final refusal = await _inviteKindRefusal(kind, code);
-                                if (refusal.isNotEmpty) {
-                                    deva_log("info", "[worker] on_confirm_pin: invitation $kind refusée ($refusal)");
-                                    await deva_set("worker.pending_invite_token_in", "");
-                                    if (refusal == "invite_for_child") {
-                                        // Un adulte : le message sur place, il peut coller un autre lien.
-                                        await _revealLabel("enter_invite_pin/error", refusal);
-                                    } else {
-                                        // Un enfant : retour à sa demande (écran de partage, ou sa question
-                                        // s'il n'a plus de code), où le message l'attend.
-                                        _sendKidBackToAssent(refusal);
-                                    }
-                                    return;
-                                }
-
-                                errShape?..set("shape.visible", false)..refreshUI();
-                                await deva_set("worker.pending_invite_token_in", "");
-
-                                // Suite strictement identique au flux QR : acceptation + navigation.
-                                await deva_set("worker.pending_group_id", groupId);
-                                await deva_set("worker.pending_lobby_id",  lobbyId);
-                                _pendingInviteKind = kind;
-                                _pendingInviteCode = code;
-                                _pendingInviteFresh = true;
-                                // Avant le login (l'enfant) : l'invitation déchiffrée attend en mémoire,
-                                // la connexion Google passe d'abord (cf. on_invite_clan_link). Le code a
-                                // été vérifié ici, une fois pour toutes : on_login n'aura plus qu'à accepter.
-                                if (_anon) {
-                                    await ActionRegistry.get("steps.navigate.link")?.call(caller, null);
-                                    return;
-                                }
-                                // Consommé : sans ce reset, un redémarrage à froid ultérieur rejoue
-                                // l'acceptation d'une adhésion déjà finalisée.
-                                await _clearPendingInvite();
-                                if (await _hasClanNow("on_confirm_pin", groupId)) return;
-                                // Joueur connecté : acceptation sous son compte, puis attente du chef
-                                // sur join_wait.
-                                await _acceptAndWait(groupId, lobbyId, kind, code);
     }
 
     // Garantit que les infos du clan sont connues AVANT de jouer la bienvenue / afficher le dashboard :
@@ -3735,21 +1887,6 @@ extension Worker_clan on worker {
                                     }
                                     await Future.delayed(const Duration(milliseconds: 300));
                                 }
-    }
-
-    Future<void> on_accept_invitation_clan(DvShape? caller, dynamic event) async {
-
-                                final groupId = (await deva_get("worker.pending_group_id"))?.toString() ?? "";
-                                final lobbyId = (await deva_get("worker.pending_lobby_id"))?.toString()  ?? "";
-                                if (groupId.isEmpty || lobbyId.isEmpty) return;
-                                final kind = _pendingInviteKind.isEmpty ? "adult" : _pendingInviteKind;
-                                final code = _pendingInviteCode;
-
-                                // Consommé : sans ce reset, un redémarrage à froid ultérieur rejoue
-                                // l'acceptation d'une adhésion déjà finalisée.
-                                await _clearPendingInvite();
-                                if (_anon || await _hasClanNow("on_accept_invitation_clan", groupId)) return;
-                                await _acceptAndWait(groupId, lobbyId, kind, code);
     }
 
 }

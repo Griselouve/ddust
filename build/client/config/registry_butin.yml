@@ -467,7 +467,8 @@ conf:
     # où la phrase peut passer à trois lignes.
     butin_tale_page/text:
       masks:
-        - commons/btn_wide
+        # Le panneau de texte commun (il prenait le masque d'un BOUTON : police et taille à part).
+        - commons/intro_text
       shape:
         x: 5%
         y: 3%

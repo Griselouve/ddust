@@ -5491,9 +5491,344 @@ assets:
           traitements:
             - { outil: anneau, fonction: anneau }
           prompt: "Le portrait en buste de la petite fille de la référence, une enfant d'environ six ans aux cheveux ORANGE VIF coiffés en DEUX COUETTES HAUTES de chaque côté de la tête (pas de cheveux châtains, pas de tresse : ce n'est pas la maman), seul, qui lève le pouce, fier, une petite feuille dans les cheveux."
+    # THÈME DINO : l'INTERFACE qui retombait encore sur donjon (relevé de la vitrine, 2026-10-21) : les
+    # huit illustrations des guides, le logo, le fond de parchemin et 18 icônes. Mêmes chemins et mêmes
+    # noms que donjon : la cascade general → donjon → dino les prend à la place des originaux.
+    # Chaque item passe en référence, APRÈS la référence de style, l'original donjon qu'il remplace : le
+    # modèle y lit la composition (cadrage, gestes, symbole), le prompt lui interdit d'en garder l'habillage.
+    #
+    # Ici les dix images OPAQUES (comme leurs originaux), sans traitement. Les 18 détourées sont dans
+    # l'étape suivante, `dino_interface_detourees`, éteinte tant que ses outils ne se résolvent pas.
+    - name: dino_interface
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      # Le style commun des étapes dino, SANS « aucun texte » : le logo porte le nom du jeu. Les autres
+      # prompts de l'étape interdisent le texte eux-mêmes.
+      style: >-
+        Illustration pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, grandes formes rondes, contours épais et souples, aplats de couleurs pastel chaudes avec à peine d'ombrage, très peu de détails, beaucoup d'air. Préhistoire tendre : une famille de Cro-Magnon souriante vêtue de peaux et de feuilles, et de gentils dinosaures aux grands yeux brillants, aux joues roses, sans dents pointues ni griffes, jamais effrayants. Rien de médiéval : aucun chevalier, aucune épée, aucune arme, aucun château, aucun blason, aucun coffre au trésor.
+      items:
+        # -- Guide du parent (dvtuto guide_parent). Même ordre et même message que donjon : l'effort ouvre,
+        #    l'endormissement suit ; jamais de reproche. Le butin est l'œuf qui éclot, la mort l'ennui.
+        dino_guide_p1:
+          kind: image
+          aspect: "3:2"
+          refs: [dino_ref_famille, guide_p1]
+          out: "big/guide_p1.png"
+          prompt: "Reprends la composition de la référence 2 (même cadrage, mêmes gestes, mêmes places) avec les personnages de la référence 1 et dans le style décrit. Dans une chambre d'aujourd'hui, le petit garçon se tient fièrement à côté d'un lit à moitié fait et montre une photo sur un téléphone. La maman s'accroupit à sa hauteur, souriante, et montre du doigt la partie qui EST faite. Une peluche de bébé dinosaure vert est posée sur le lit. Encouragement, jamais de reproche. Fond crème clair, beaucoup d'espace vide. Aucun texte, aucune lettre, aucun chiffre, aucune bulle."
+        dino_guide_p2:
+          kind: image
+          aspect: "3:2"
+          refs: [dino_ref_famille]
+          out: "big/guide_p2.png"
+          prompt: "Avec les personnages de la référence, dans leurs tenues en peau, et dans le style décrit (dessin animé pastel, pas de croquis). Plan large, les deux personnages au centre. Dans un salon d'aujourd'hui esquissé en quelques traits, le petit garçon est assis par terre, les bras autour des genoux, son téléphone posé face contre le sol à côté de lui ; il regarde ailleurs, un peu éteint. Le papa s'assoit par terre à la même hauteur et se penche doucement vers lui pour lui demander ce qui se passe. Inquiétude et tendresse, ni colère ni doigt pointé. Au-dessus du téléphone flotte, toute petite comme une icône, une lune ronde endormie avec trois petites bulles de sommeil. Aucun crâne, aucun blason, aucun objet médiéval. Fond crème clair, beaucoup d'espace vide. Aucun texte, aucune lettre, aucun chiffre, aucune bulle de dialogue."
+        dino_guide_p3:
+          kind: image
+          aspect: "3:2"
+          refs: [dino_ref_famille, guide_p3]
+          out: "big/guide_p3.png"
+          prompt: "Reprends la composition de la référence 2 (même cadrage, mêmes gestes, mêmes places) avec les personnages de la référence 1 et dans le style décrit. La famille est assise sur un tapis de salon autour d'un gros œuf de dinosaure à taches, éclos dans un nid de paille. Au lieu de trésors, il en sort de petits symboles de temps passé ensemble : un panier de pique-nique, un jeu de société, deux tickets de cinéma, un ballon. Tout le monde se penche, ravi. Fond crème clair, beaucoup d'espace vide. Aucun texte, aucune lettre, aucun chiffre, aucune bulle."
+        dino_guide_p4:
+          kind: image
+          aspect: "3:2"
+          refs: [dino_ref_famille]
+          out: "big/guide_p4.png"
+          prompt: "Avec les personnages de la référence, TOUS dans leurs tenues en peau, et dans le style décrit (dessin animé pastel, pas de croquis). Plan large, le papa au centre. Dans un salon d'aujourd'hui esquissé en quelques traits, le papa barbu, très grand, porte une tour absurdement haute de linge plié, pendant que le petit garçon et la petite fille, bien plus petits, tiennent chacun une seule chaussette et le regardent. Le papa sourit et fait un pas de côté pour leur laisser la place. Humour tendre sur le déséquilibre. Fond crème clair, beaucoup d'espace vide. Aucun texte, aucune lettre, aucun chiffre, aucune bulle."
+
+        # -- Guide de l'enfant (dvtuto guide_enfant). Chaque page dit un DROIT : recommencer, refuser,
+        #    garder sa preuve, recevoir sa part.
+        dino_guide_k1:
+          kind: image
+          aspect: "3:2"
+          refs: [dino_ref_famille, guide_k1]
+          out: "big/guide_k1.png"
+          prompt: "Reprends la composition de la référence 2 (même cadrage, mêmes gestes, mêmes places) avec les personnages de la référence 1 et dans le style décrit. EXACTEMENT quatre personnes, la famille de la référence 1 et personne d'autre (le papa, la maman, le petit garçon, la petite fille), debout épaule contre épaule comme une petite tribu prête pour l'aventure, tiennent un balai, un plumeau et un arrosoir comme on tient un bâton de marche, et le papa porte un tapis roulé au-dessus de sa tête comme une bannière. Un bébé diplodocus vert se tient fièrement à leurs pieds. Souriants, prêts, unis. Fond crème clair, beaucoup d'espace vide. Aucun texte, aucune lettre, aucun chiffre, aucune bulle."
+        dino_guide_k2:
+          kind: image
+          aspect: "3:2"
+          refs: [dino_ref_famille, guide_k2]
+          out: "big/guide_k2.png"
+          prompt: "Reprends la composition de la référence 2 (même cadrage, mêmes gestes, mêmes places) avec les personnages de la référence 1 et dans le style décrit. Le petit garçon regarde un téléphone où une petite rangée de cœurs a pâli. De l'autre main il saisit un balai, et un cœur se rallume, plein et brillant. Un bébé diplodocus vert le regarde, plein d'espoir. Rassurant, jamais dramatique. Fond crème clair, beaucoup d'espace vide. Aucun texte, aucune lettre, aucun chiffre, aucune bulle."
+        dino_guide_k3:
+          kind: image
+          aspect: "3:2"
+          refs: [dino_ref_famille, guide_k3]
+          out: "big/guide_k3.png"
+          prompt: "Reprends la composition de la référence 2 (même cadrage, mêmes gestes, mêmes places) avec les personnages de la référence 1 et dans le style décrit. La petite fille recommence joyeusement une tâche depuis le début, manches retroussées, une pile de bols dans les bras ; la maman de la référence 1 (longue tresse, fleur dans les cheveux, tenue en peau), un peu en retrait, lève le pouce avec un grand sourire. Seulement ces deux personnes et un bébé dinosaure. Une douce flèche circulaire dessinée autour d'elles suggère qu'on refait un tour. Rien de triste, rien de honteux. Fond crème clair, beaucoup d'espace vide. Aucun texte, aucune lettre, aucun chiffre, aucune bulle."
+        dino_guide_k4:
+          kind: image
+          aspect: "3:2"
+          refs: [dino_ref_famille, guide_k4]
+          out: "big/guide_k4.png"
+          prompt: "Reprends la composition de la référence 2 (même cadrage, mêmes gestes, mêmes places) avec les personnages de la référence 1 et dans le style décrit. Au premier plan, le petit garçon serre un téléphone contre sa poitrine, écran tourné vers lui, avec le sourire fier d'un petit secret. Derrière lui, un peu flous, le papa, la maman et la petite fille fêtent l'éclosion d'un gros œuf de dinosaure à taches dans un nid de paille, d'où s'échappent des étoiles dorées. Fond crème clair, beaucoup d'espace vide. Aucun texte, aucune lettre, aucun chiffre, aucune bulle."
+
+        # -- Le logo : même composition que donjon (le personnage à gauche, le titre au centre, une
+        #    créature entrelacée derrière). Le nom « Donjons & Savons » ne se traduit jamais, et c'est le
+        #    SEUL texte de l'image.
+        dino_logo:
+          kind: image
+          aspect: "21:9"
+          refs: [dino_ref_diplo]
+          out: "big/logo.png"
+          prompt: "Un logo horizontal très large. À gauche, assis et souriant, le bébé diplodocus vert de la référence. Au centre, le titre écrit EXACTEMENT « Donjons & Savons » (cette orthographe, l'esperluette, une seule fois), en grosses lettres rondes et dodues couleur sable doré, au contour brun chaud, comme taillées dans une pierre claire ; PAS de lettres gothiques ni médiévales. Derrière le titre, de grandes feuilles de fougère et une branche s'entrelacent avec les lettres. AUCUN dragon, aucune aile, aucun serpent. Fond vert forêt profond et doux, uni, qui couvre toute l'image. Aucun autre texte, aucune autre lettre."
+
+        # -- Le fond des écrans de lecture : un support clair et calme qui reçoit du texte.
+        dino_parchment_bg:
+          kind: image
+          aspect: "2:3"
+          refs: [historique_donjon_parchment_bg]
+          out: "splashs/parchment_bg.png"
+          prompt: "Même cadrage que la référence : vue de face, à plat, qui remplit toute l'image. Une grande feuille épaisse de papier végétal fait main, couleur crème chaude, aux bords irréguliers et un peu effrangés, avec quelques fines fibres de feuilles et de très légères taches couleur sable sur les bords seulement ; le centre reste clair, uni et calme pour recevoir du texte. Aucun personnage, aucun dinosaure, aucun dessin, aucun texte, aucune lettre."
+
+    # THÈME DINO : les 18 icônes DÉTOURÉES de l'interface (fond transparent, comme leurs originaux donjon).
+    #
+    # Allumée le 2026-10-21, une fois `alpha_tools`/`remove_bg` revenus dans tools/traitements/.
+    # Historique : éteinte d'abord parce qu'aucun détourage ne se résolvait plus. assetgen cherche un
+    #   outil dans `<suite>/build/tools/<outil>.py` puis `<suite>/tools/<outil>.py` ; depuis la
+    #   réorganisation des outils en `tools/<outil>/main.py` (2026-10-14), `alpha_tools.py` et
+    #   `remove_bg.py` n'y sont plus (seule copie : E:\Deva\tmp\divers_materiel\tools\), et `anneau` vit à
+    #   `tools/crafting/anneau.py` (« crafting/anneau » se résout). L'allumer aujourd'hui ferait PAYER
+    #   chaque rendu puis l'arrêterait au traitement. À rallumer quand `alpha_tools`/`remove_bg` seront
+    #   de nouveau trouvables (les autres étapes dino en dépendent aussi, pour toute régénération).
+    #
+    # Deux détourages, selon la forme :
+    #   - `unbg_flat` (propagation depuis les BORDS) pour un symbole sans trou ;
+    #   - `remove_bg` pour un symbole qui ENFERME du fond (anneau, œil, cercle barré, contours fermés) :
+    #     la propagation n'atteint pas l'intérieur, qui resterait gris (c'est le cas de small/crown.png).
+    # `trim` seulement là où l'original remplit son carré ; les pictogrammes d'interface (adm_*, tb_*,
+    # log-out, qr-code) gardent la marge de leur original, demandée dans le prompt.
+    #
+    # TAILLE : ces pictogrammes font 256 px (adm_*, log-out, qr-code) et 384 px (tb_*) chez donjon.
+    # Le modèle rend 1024 px : le rendu va dans resources_others/dino/interface/ (hors bucket) et un
+    # `derive` le ramène à la largeur de l'original. Les autres gardent la taille native du modèle,
+    # comme les autres icônes dino (leurs originaux de 1536 à 2705 px ne gagneraient rien à grossir).
+    - name: dino_interface_detourees
+      enabled: true
+      dir: "resources_cloud/dino/images"
+      style: >-
+        Icône d'interface pour un jeu d'enfants de 3 à 7 ans : dessin animé simple et doux, formes rondes, contours épais et souples, aplats de couleurs chaudes, très peu de détails, lisible même toute petite. UN SEUL SYMBOLE, centré, en entier, sur un fond uni gris moyen parfaitement plat, sans dégradé ni ombre portée. Aucun personnage, aucun cadre, aucun texte en dehors de celui que le prompt demande. Rien de médiéval : aucun métal, aucun rivet, aucune épée, aucun bouclier.
+      items:
+        dino_nope:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_nope]
+          out: "medium/nope.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Comme la référence, un cadre rond avec un point d'interrogation au centre, mais le cadre est une couronne de DEUX branches feuillues vert tendre courbées en cercle, qui NE SE TOUCHENT PAS : un net espace vide entre leurs extrémités en haut et en bas. Au centre, un grand point d'interrogation dodu vert feuille au fin contour brun chaud. Aucune partie du fond n'est enfermée par le dessin."
+        dino_ring:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_ring]
+          out: "medium/ring.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Comme la référence, un cadre rond vide, mais fait d'une couronne de DEUX branches feuillues vert tendre courbées en cercle, au fin contour brun chaud, qui NE SE TOUCHENT PAS : un net espace vide entre leurs extrémités en haut et en bas. Le centre est vide, du même gris que le fond. Aucune partie du fond n'est enfermée par le dessin."
+        dino_adm_cross:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_adm_cross]
+          out: "../../../resources_others/dino/interface/adm_cross.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+          prompt: "Le même symbole que la référence, immédiatement reconnaissable : une grosse croix rouge douce en X, faite de deux branches arrondies comme deux bâtons, au contour brun foncé. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour."
+        dino_adm_disable:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_adm_disable]
+          out: "../../../resources_others/dino/interface/adm_disable.png"
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: "Le même symbole que la référence, immédiatement reconnaissable : un panneau d'interdiction, un épais cercle orange chaud barré d'une diagonale du haut gauche au bas droit, aux bords arrondis comme une branche lisse. L'intérieur du cercle est du même gris uni que le fond. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour."
+        dino_adm_enable:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_adm_enable]
+          out: "../../../resources_others/dino/interface/adm_enable.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+          prompt: "Le même symbole que la référence, immédiatement reconnaissable : une grosse coche vert feuille vif, épaisse et arrondie, avec une petite feuille qui pousse au bout de la grande branche. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour."
+        dino_adm_hide:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_adm_hide]
+          out: "../../../resources_others/dino/interface/adm_hide.png"
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: "Le même symbole que la référence, immédiatement reconnaissable : un grand œil rond et doux dessiné au trait épais rouge brique, avec de longs cils, barré d'une diagonale de la même couleur. Le blanc de l'œil est du même gris uni que le fond. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour."
+        dino_adm_show:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_adm_show]
+          out: "../../../resources_others/dino/interface/adm_show.png"
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: "Le même symbole que la référence, immédiatement reconnaissable : un grand œil rond et doux grand ouvert, dessiné au trait épais vert feuille vif, avec un iris rond et une pupille, et de longs cils. Le blanc de l'œil est du même gris uni que le fond. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour."
+        dino_log_out:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_log_out]
+          out: "../../../resources_others/dino/interface/log-out.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+          prompt: "Le même symbole que la référence, immédiatement reconnaissable : à gauche l'entrée d'une grotte dessinée comme un grand crochet ouvert vers la droite, et une grosse flèche horizontale qui en sort vers la droite. Trait épais, régulier et arrondi, d'une seule couleur sable doré. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour."
+        dino_qr_code:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_qr_code]
+          out: "../../../resources_others/dino/interface/qr-code.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            # Le fond que le dessin enferme (centre des carrés) : unbg_flat ne l'atteint pas.
+            - { outil: alpha_tools, fonction: unbg_couleur }
+          prompt: "Le même symbole que la référence, immédiatement reconnaissable : un pictogramme de code QR fait de formes PLEINES d'une seule couleur sable doré : trois carrés aux coins arrondis dans trois coins, ENTIÈREMENT REMPLIS de sable doré (aucun creux, aucun carré intérieur d'une autre couleur), et quelques petits carrés pleins et points éparpillés au centre et dans le quatrième coin, bien séparés les uns des autres. Le dessin ne contient AUCUN gris, aucune ombre, aucun halo, aucune lueur, aucun effet de relief : uniquement la couleur demandée, à plat. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour. Aucune partie du fond n'est enfermée par le dessin."
+        dino_notconnected_nobg:
+          kind: image
+          aspect: "1:1"
+          refs: [traitements_historiques_notconnected_nobg]
+          out: "small/notconnected_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Le même symbole que la référence, immédiatement reconnaissable : le symbole du wifi (un point et trois arcs qui s'élargissent vers le haut), bleu ciel doux au contour bleu plus foncé, barré d'une épaisse diagonale de la même couleur. Formes lisses et arrondies, sans métal ni rouille."
+        dino_cure_nobg:
+          kind: image
+          aspect: "1:1"
+          refs: [traitements_historiques_cure_nobg]
+          out: "small/cure_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Comme la référence, deux pansements croisés en X, mais en version préhistorique : deux larges feuilles vertes souples nouées en croix par un petit lien de fibre, avec une goutte de jus de baies rouge au centre."
+        dino_hand_nobg:
+          kind: image
+          aspect: "1:1"
+          refs: [traitements_historiques_hand_nobg]
+          out: "small/hand_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Le même symbole que la référence : un gros point d'exclamation rouge vif, dodu et arrondi, légèrement incliné vers la droite, au contour brun foncé, avec un petit reflet clair."
+        dino_tagXP_nobg:
+          kind: image
+          aspect: "1:1"
+          refs: [traitements_historiques_tagxp_nobg]
+          out: "small/tagXP_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            # Le fond enfermé entre le X et le P : unbg_flat ne l'atteint pas.
+            - { outil: alpha_tools, fonction: unbg_couleur }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Comme la référence, les deux lettres majuscules « XP » et rien d'autre, inclinées vers le haut et la droite, en grosses lettres rondes et dodues vert feuille vif au contour brun foncé épais. Le X et le P sont BIEN SÉPARÉS par un espace net, ils ne se touchent pas ; le P est entièrement plein, sans trou. Lettres plates, sans face latérale ni biseau. Le dessin ne contient AUCUN gris, aucune ombre, aucun halo, aucune lueur, aucun effet de relief : uniquement la couleur demandée, à plat. Aucune partie du fond n'est enfermée par le dessin."
+        dino_xp_nobg:
+          kind: image
+          aspect: "1:1"
+          refs: [traitements_historiques_xp_nobg]
+          out: "small/xp_nobg.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+            - { outil: alpha_tools, fonction: trim }
+          prompt: "Comme la référence, un gros jeton rond vu de face, mais en galet plat et lisse couleur sable clair, entouré d'un anneau de petites feuilles vertes, avec les deux lettres « XP » gravées en son centre en lettres rondes vert foncé, et rien d'autre d'écrit."
+        dino_tb_boutique:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_tb_boutique]
+          out: "../../../resources_others/dino/interface/tb_boutique.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+          prompt: "Comme la référence, un pictogramme d'échoppe, mais en SILHOUETTE PLEINE d'une seule couleur sable doré, sans aucun contour d'une autre couleur : un petit étal vu de face sous un auvent de grandes feuilles arrondies, le corps de l'étal est un bloc plein, sans fenêtre ni ouverture. Le dessin ne contient AUCUN gris, aucune ombre, aucun halo, aucune lueur, aucun effet de relief : uniquement la couleur demandée, à plat. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour. Aucune partie du fond n'est enfermée par le dessin."
+        dino_tb_clan:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_tb_clan]
+          out: "../../../resources_others/dino/interface/tb_clan.png"
+          traitements:
+            - { outil: remove_bg, fonction: remove_background }
+          prompt: "Comme la référence, un pictogramme au seul trait, sans remplissage : à la place du bouclier, une grosse empreinte de patte de dinosaure à trois doigts ronds, dessinée en contour. Trait épais, régulier et arrondi, d'une seule couleur sable doré. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour."
+        dino_tb_inventaire:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_tb_inventaire]
+          out: "../../../resources_others/dino/interface/tb_inventaire.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+          prompt: "Comme la référence, mais en formes PLEINES d'une seule couleur sable doré : une grande étoile scintillante pleine à quatre branches arrondies, un petit rond plein en bas à gauche et un petit signe plus en haut à droite. Le dessin ne contient AUCUN gris, aucune ombre, aucun halo, aucune lueur, aucun effet de relief : uniquement la couleur demandée, à plat. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour. Aucune partie du fond n'est enfermée par le dessin."
+        dino_tb_perso:
+          kind: image
+          aspect: "1:1"
+          refs: [historique_donjon_tb_perso]
+          out: "../../../resources_others/dino/interface/tb_perso.png"
+          traitements:
+            - { outil: alpha_tools, fonction: unbg_flat }
+          prompt: "Comme la référence, une silhouette de personne, mais en forme PLEINE d'une seule couleur sable doré : une tête ronde pleine avec une petite mèche ébouriffée, et des épaules en arc plein, séparées de la tête par un petit espace. Le symbole occupe environ les deux tiers de l'image, avec une marge tout autour. Aucune partie du fond n'est enfermée par le dessin."
+        # -- Les pictogrammes ramenés à la largeur de leur original donjon.
+        dino_adm_cross_taille:
+          kind: derive
+          refs: [dino_adm_cross]
+          out: "small/adm_cross.png"
+          width: 256
+        dino_adm_disable_taille:
+          kind: derive
+          refs: [dino_adm_disable]
+          out: "small/adm_disable.png"
+          width: 256
+        dino_adm_enable_taille:
+          kind: derive
+          refs: [dino_adm_enable]
+          out: "small/adm_enable.png"
+          width: 256
+        dino_adm_hide_taille:
+          kind: derive
+          refs: [dino_adm_hide]
+          out: "small/adm_hide.png"
+          width: 256
+        dino_adm_show_taille:
+          kind: derive
+          refs: [dino_adm_show]
+          out: "small/adm_show.png"
+          width: 256
+        dino_log_out_taille:
+          kind: derive
+          refs: [dino_log_out]
+          out: "small/log-out.png"
+          width: 256
+        dino_qr_code_taille:
+          kind: derive
+          refs: [dino_qr_code]
+          out: "small/qr-code.png"
+          width: 256
+        dino_tb_boutique_taille:
+          kind: derive
+          refs: [dino_tb_boutique]
+          out: "small/tb_boutique.png"
+          width: 384
+        dino_tb_clan_taille:
+          kind: derive
+          refs: [dino_tb_clan]
+          out: "small/tb_clan.png"
+          width: 384
+        dino_tb_inventaire_taille:
+          kind: derive
+          refs: [dino_tb_inventaire]
+          out: "small/tb_inventaire.png"
+          width: 384
+        dino_tb_perso_taille:
+          kind: derive
+          refs: [dino_tb_perso]
+          out: "small/tb_perso.png"
+          width: 384
     # THÈME DINO : les poses de Pistache, le bébé diplodocus (mini-thème mascot-diplo). Rendues sur fond
     # magenta HORS BUCKET ; E:\Deva\tmp\dino\prepare_diplo.py les détoure, les met à l'échelle et écrit
     # la racine mascot_diplo/ et sa couche.
+    # LES SONS DU THÈME DINO (2026-10-21) : recopiés du donjon à l'identique (l'utilisateur ne les
+    # trouve pas choquants chez les dinosaures, il remplacera lui-même ceux qu'il voudra).
+    - name: dino_sons
+      enabled: true
+      dir: "resources_cloud/dino"
+      items:
+        sons_dino: { kind: source, out: "sounds/*.mp3" }
+
     - name: dino_diplo
       enabled: true
       dir: "resources_cloud/dino/images"

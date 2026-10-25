@@ -1,0 +1,34 @@
+# Le chef (papa, sur le tableau de bord) accueille l'enfant (enfant, sur join_show_screen, encore
+# anonyme) : QR code de l'enfant lu sur son écran, ouvert chez le chef depuis « Accueillir un
+# joueur », l'un des deux boutons (« Mon enfant sait lire » / « …ne sait pas encore lire »), la
+# validation ; puis, chez l'enfant, la connexion Google, le nom, le tableau de bord.
+#   - `lecture` : `reads` (sait lire) ou `aloud` (ne sait pas encore lire), les deux boutons de
+#     invite_consent_screen (worker_join._invitePickReading).
+#   - Le clan ne doit pas avoir de joueur sans téléphone : sinon claim_pick_page s'intercale
+#     (ENF-03 le traite à part).
+#   - Fin : le chef est resté sur l'écran de déclaration (« C'est fait ! »).
+macro: accueillir_enfant
+parametres: {nom_enfant: Kid, lecture: reads}
+etapes:
+  - outil: {nom: qr_lire, telephone: enfant, motif: "^ddust://join", garde: patte}
+  - papa: {action: worker.on_welcome_player}
+  - papa: {attend: welcome_child_screen, delai: 60}
+  # Le QR donné au chef comme par son lecteur intégré (l'action de la route ddust://join) :
+  # le lien Android passe par une pause de l'app et n'est pas toujours servi (2026-10-18).
+  - outil: {nom: lien_event, url: "{patte}", garde: patte_ev}
+  - papa: {action: worker.on_join_link, event: "{patte_ev}"}
+  - papa: {attend: invite_consent_screen, delai: 120}
+  - papa: {attend_libre: true, delai: 60}
+  - papa: {tap: "invite_consent_screen/{lecture}"}
+  # Un tap arrivé avant que l'écran soit prêt est ignoré : s'il reste visible, on retouche.
+  - papa: {pause: 2}
+  - papa: {si_visible: "invite_consent_screen/{lecture}", alors: [{tap: "invite_consent_screen/{lecture}"}]}
+  - papa: {tap: invite_consent_screen/yes}
+  # Le dépôt lu, l'enfant anonyme part lier son compte (route `link` de join_show_screen).
+  - enfant: {attend: link_account_screen, delai: 120}
+  - enfant: {tap: link_account/google_button}
+  - enfant: {attend: player_name_screen, delai: 240}
+  - enfant: {ecrit: player_name_screen/name, texte: "{nom_enfant}"}
+  - enfant: {tap: player_name_screen/confirm}
+  - enfant: {attend: dashboard, delai: 120}
+  - enfant: {attend_libre: true, delai: 120}

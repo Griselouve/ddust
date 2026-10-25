@@ -1,0 +1,42 @@
+test: CLN-07
+titre: "Code échu (15 minutes, horloge) : le chef est refusé"
+criticite: mineur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:welcome_child_screen
+etapes:
+  - enfant: {macro: onboarding_mineur}
+  - outil:  {nom: mul_code, telephone: enfant, shape: join_show_screen/code, motif: join, garde: code}
+  # 15 minutes passent sur la boîte (sa minuterie locale, elle, n'a pas encore tourné).
+  - outil:  {nom: horloge, telephone: enfant, quoi: code_join, code: "{code}"}
+  - papa:   {action: worker.on_welcome_player}
+  - papa:   {attend: welcome_child_screen, delai: 30}
+  - papa:   {tap: welcome_child_screen/remote}
+  - papa:   {attend_shape: welcome_child_screen/code, delai: 10}
+  - papa:   {ecrit: welcome_child_screen/code, texte: "{code}"}
+  - papa:   {tap: welcome_child_screen/code_go}
+  - papa:   {attend_shape: welcome_child_screen/error, delai: 30}
+verifs:
+  - papa: {page: welcome_child_screen}
+  # Une boîte échue est traitée comme inconnue (worker_join._welcomeOpenBox).
+  - papa: {shape: welcome_child_screen/error, contient_un: ["il a expiré", "welcome_code_unknown"]}
+  - journal: {telephone: papa, absent: "[join] boîte {code} réclamée"}

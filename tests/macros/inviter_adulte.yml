@@ -1,0 +1,27 @@
+# L'invitée (maman, onboarding fait, sur new_or_pick_clan) montre patte blanche ; le chef (papa,
+# clan créé, sur le tableau de bord) lit son QR code et l'accueille, jusqu'au tableau de bord de
+# l'invitée (refonte du 2026-10-18 : le candidat montre, le chef scanne).
+#   - « Rejoindre un clan » : interlude passage_join, puis join_show_screen (steps.yml), qui
+#     ouvre la boîte d'adhésion (worker_join._joinOpenBox).
+#   - Le QR est lu sur l'écran de l'invitée (pas de caméra) et ouvert chez le chef comme un lien
+#     profond ddust://join (route dvdeeplink `join` → worker.on_join_link), depuis l'écran
+#     « Accueillir un joueur » (welcome_child_screen).
+#   - Le chef réclame la boîte, valide la déclaration adulte, dépose ; l'invitée lit le dépôt et
+#     entre. Pas de confirmation « c'est bien ton clan ? » : le dépôt est passé par le QR code.
+#   - Fin : le chef est resté sur l'écran de déclaration (« C'est fait ! »).
+macro: inviter_adulte
+etapes:
+  - maman: {tap: new_or_pick_clan/join}
+  - maman: {attend: join_show_screen, delai: 60}
+  - outil: {nom: qr_lire, telephone: maman, motif: "^ddust://join", garde: patte}
+  - papa: {action: worker.on_welcome_player}
+  - papa: {attend: welcome_child_screen, delai: 30}
+  # Le QR donné au chef comme par son lecteur intégré (l'action de la route ddust://join) :
+  # le lien Android passe par une pause de l'app et n'est pas toujours servi (2026-10-18).
+  - outil: {nom: lien_event, url: "{patte}", garde: patte_ev}
+  - papa: {action: worker.on_join_link, event: "{patte_ev}"}
+  - papa: {attend: invite_consent_screen, delai: 60}
+  - papa: {attend_libre: true, delai: 30}
+  - papa: {tap: invite_consent_screen/yes}
+  - maman: {attend: dashboard, delai: 240}
+  - maman: {attend_libre: true, delai: 60}

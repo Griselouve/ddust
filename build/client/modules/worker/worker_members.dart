@@ -1210,7 +1210,8 @@ extension Worker_members on worker {
                                 }
     }
 
-    // Action « A quitté le clan » (admin) : révocation d'un membre OU départ volontaire (cible = soi).
+    // Action « A quitté le clan » : révocation d'un membre par un chef OU départ volontaire (cible =
+    // soi, chef ou adulte non chef).
     // Pose enabled=false sur son doc clans_players (tombstone → ignoré partout : roster, XP/butin, coup
     // de pouce, notifs), le retire de `admins` s'il était chef (garde _adminCount juste), journalise.
     // Le FONDATEUR n'est jamais révocable (redoublé ici, admin à vie). Sur soi-même → éjection vers
@@ -1248,6 +1249,16 @@ extension Worker_members on worker {
                                         }
                                         deva_log("info", "[roster] revoke_player refusé : $name ($id) est le fondateur");
                                         return;
+                                    }
+
+                                    // UN NON-CHEF NE RETIRE QUE LUI-MÊME, ET SEULEMENT S'IL EST ADULTE. Le menu
+                                    // (clan_selector) ne lui propose rien d'autre ; la garde est ici parce qu'un
+                                    // menu n'est que du confort d'affichage.
+                                    if (!admins.contains(_userId)) {
+                                        if (id != _userId || !await _ensureIsAdult(clanId, clanSecret, region)) {
+                                            deva_log("info", "[roster] revoke_player refusé : non-chef, cible=$id");
+                                            return;
+                                        }
                                     }
 
                                     // Tombstone : enabled=false en deep-merge → préserve xp/pv/… du joueur.

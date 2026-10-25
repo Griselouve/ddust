@@ -27,6 +27,10 @@ conf:
         # ⚠ SEULEMENT CELLES QUI GÊNENT. Les autres (grille des domaines, tuiles
         #   de tâches) lisent la conf locale et remplissent précisément la vitrine.
         stubs:
+          # Le parrainage interroge le serveur : hors ligne, l'écran affichait « Le parrainage
+          # ne répond pas ». Réponse simulée ; ses valeurs sont posées par le feed de l'écran.
+          referral:
+            refresh: { status: ok }
           worker:
             # Sans session, le sélecteur ne voit pas de chef et rend « aucune
             # option » : le kebab des tuiles du roster disparaissait.
@@ -64,8 +68,69 @@ conf:
     # `br` (portugais du Brésil) depuis le 2026-09-16 : ses captures iront dans
     # `resources_others/showcase/br/` au prochain passage de la vitrine.
     langs: [fr, en, es, it, de, pt, br, nl]
+    # Les layers et images de resources_cloud, pas ceux du bucket : la vitrine relit le travail
+    # avant sa publication (sinon un texte neuf s'y montre en clé brute jusqu'au push-assets).
+    cloud_source: resources_cloud
+    # Les documents légaux lus en local (marché fr, adulte) : hors ligne et sans région, la
+    # vitrine n'atteint pas leur bucket, et l'acceptation des CGU s'affichait sans texte.
+    documents:
+      dir: legal/documents
+      prefix: fr-a
     # Les instantanés vont dans `resources_others/showcase/<langue>/` (défaut du
     # module). Aucun lien avec les captures du site : le choix se fera après.
+
+    # LES CAS : chaque combinaison thème + mascotte qu'un clan peut avoir, photographiée
+    # comme un tout. Noms du catalogue (general/layers/assets-global.yml : theme.themes,
+    # theme.minis). Donjon, cas par défaut, garde `resources_others/showcase/<langue>/`
+    # (lu par le site, Play et la vidéo) ; dino va sous `resources_others/showcase/dino/<langue>/`.
+    cases:
+      donjon:
+        themes: [theme-donjon, mascot-dragon]
+        default: true
+        # La boutique ne se montre ni vide ni avec un faux catalogue : hors vitrine.
+        skip: [shop]
+      dino:
+        themes: [theme-dino, mascot-diplo]
+        # Dino retombe sur donjon pour ce qu'il ne redéfinit pas : toute image servie
+        # depuis donjon/ sur une capture dino est signalée au rapport.
+        forbid_roots: [donjon, donjon_transition]
+        # L'ONBOARDING SE JOUE TOUJOURS EN DONJON (installation neuve ou nouveau joueur) : en
+        # dino, ces écrans mêleraient deux thèmes sur une prise que le store ou la presse
+        # pourraient reprendre. Restent joués : documents_acceptance_screen et
+        # parentalgate_screen, join_show_screen et kid_assent_screen, qui reviennent en cours de jeu (rejoindre un autre clan). La boutique : cf. donjon.
+        skip: [awake, lang_choice, home, region_screen, player_name_screen, age_screen,
+               link_account_screen, new_or_pick_clan, create_clan, decisiontree, theme_pick_page,
+               shop]
+        # Les avatars bidons des feeds sont ceux du donjon (chevaliers) : la tribu prend les siens
+        # (general/images/medium/icon_dino_02_* ; papa P_01-06, garçon P_13-18, fille P_19-24).
+        # ⚠ Clés SANS point : la conf lit un point comme un niveau (icon.png → {png: …}).
+        rewrite:
+          "icon_01_P_38": "icon_dino_02_P_01"
+          "icon_01_P_10": "icon_dino_02_P_19"
+          "icon_01_P_06": "icon_dino_02_P_13"
+          "icon_01_P_01": "icon_dino_02_P_02"
+          "icon_01_C_04": "icon_dino_02_C_04"
+        # Le nom bidon du clan, à la mode de la tribu (celui de `common` est de chevaliers).
+        common:
+          session:
+            clan:
+              name:
+                fr: "La Tribu du Balai"
+                en: "The Broom Tribe"
+                es: "La Tribu de la Escoba"
+                de: "Der Besenstamm"
+                it: "La Tribù della Scopa"
+                pt: "A Tribo da Vassoura"
+                br: "A Tribo da Vassoura"
+                nl: "De Bezemstam"
+
+    # LES CONTRÔLES (cf. dvshowcase) : rapport dans resources_others/showcase/_report/.
+    checks:
+      # Identiques dans toutes les langues, à raison : la marque.
+      allow: ["Donjons & Savons", "Donjons et Savons"]
+      # Contrôle métier : le vocabulaire de donjon chez les dinosaures (vocabulaire.yml).
+      scripts:
+        - "@@@python@@@ ../tools/showcase_checks/main.py"
 
     # CE QUI VAUT POUR TOUS LES ÉCRANS, posé avant chacun d'eux. Le nom du joueur
     # se lit sur l'écran Personnage ET dans les lignes du journal ; celui du clan sur
@@ -100,6 +165,35 @@ conf:
 
     # LES ÉCRANS DÉCLARÉS. Tous les autres écrans du registre sont photographiés nus.
     screens:
+      # L'acceptation des CGU, avec leur texte (cf. `documents` ci-dessus).
+      documents_acceptance_screen:
+        label: "Les conditions"
+        feed:
+          - action: documents.show_acceptance
+            payload: cgu
+          - wait: 800
+
+      # Un parrainage qui a déjà vécu : un code, un titre, une lignée (cf. referral-titles).
+      referral_page:
+        label: "Le parrainage"
+        feed:
+          - store:
+              referral:
+                code: "48E-D8"
+                title_lineage: { fr: "Mentor", en: "Mentor", es: "Mentor", de: "Mentor", it: "Mentore", pt: "Mentor", br: "Mentor", nl: "Mentor" }
+                next_lineage: 3
+                next_title_lineage: { fr: "Recruteur de clans", en: "Clan Recruiter", es: "Reclutador de clanes", de: "Clan-Werber", it: "Reclutatore di clan", pt: "Recrutador de clãs", br: "Recrutador de clãs", nl: "Clanwerver" }
+                title_active: { fr: "Parrain", en: "Sponsor", es: "Padrino", de: "Pate", it: "Padrino", pt: "Padrinho", br: "Padrinho", nl: "Peetouder" }
+                next_active: 1
+                next_title_active: { fr: "Mentor", en: "Mentor", es: "Mentor", de: "Mentor", it: "Mentore", pt: "Mentor", br: "Mentor", nl: "Mentor" }
+                lineage: 2
+                active: 2
+                active_max: 2
+                months_granted: 2
+                stock: 1
+                cap: 4
+          - wait: 300
+
       # LE TABLEAU DE BORD porte les deux guides (dvtuto.yml, guide_parent / guide_enfant),
       # triés sur `worker.player_is_adult`, que le worker éteint ne pose jamais.
       #   dashboard-tuto-* : joueur sans âge connu : présentation joueur + guide de l'aventurier

@@ -1,0 +1,32 @@
+test: PRO-03
+titre: Mort à J10 (horloge) et gage
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:dashboard, overlay:commons/death]
+etapes:
+  # Dernière tâche de l'enfant reculée à J-11 : PV affichés à 0 (helpers/horloge.py).
+  - outil: {nom: horloge, telephone: enfant, quoi: mort}
+  # La mort se constate à l'apparition du tableau de bord (_evaluateDeath,
+  # worker_celebrations.dart:115) : on relance l'app de l'enfant.
+  - enfant: {relance: true}
+  - enfant: {attend: dashboard, delai: 120}
+  - enfant: {attend_shape: commons/death_skull, delai: 90}
+  # status=dead + gage écrits après l'affichage (worker_celebrations.dart:283-287).
+  - outil: {nom: firestore_attend, doc: "clans_players/{clan}/players/{kid}", champ: status, egal: dead, delai: 60}
+verifs:
+  - enfant: {page: dashboard}
+  - enfant: {shape: commons/death_skull}
+  - enfant: {shape: commons/death_gage}
+  # Pas de bouton de résurrection pour un non-chef (réservé à l'admin seul, l. 264-266).
+  - enfant: {shape: commons/death_revive, visible: false}
+  - journal: {telephone: enfant, contient: "dead=true gage=gage_"}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: status, egal: dead}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: gage, contient: "gage_"}

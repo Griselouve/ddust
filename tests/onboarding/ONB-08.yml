@@ -1,0 +1,33 @@
+test: ONB-08
+titre: Intro jouée à la première ouverture, plus à la seconde
+criticite: majeur
+enabled: true
+telephones: [papa]
+# Le seul test qui ne marque PAS l'intro vue avant le lancement (plan § 1).
+intro: jouee
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:awake, ecran:home, ecran:lang_choice, interlude:intro]
+etapes:
+  # 1er lancement : l'intro se joue après le choix de la langue (worker_onboarding.dart:534-586).
+  - papa: {tap: awake/tap}
+  - papa: {attend: lang_choice}
+  - papa: {action: worker.on_lang_chosen, event: fr}
+  # dvinterlude_motor.dart:125 (interlude `intro`, worker_onboarding.dart:578).
+  - papa: {attend_journal: "Interlude 'intro' : scène", delai: 30}
+  - papa: {attend: home, delai: 150}
+  - papa: {attend_libre: true, delai: 60}
+  # Vue : marquée dans le layer `device` (worker_onboarding.dart:640-646).
+  - papa: {verifie: {valeur: worker.intro_seen, egal: "true"}}
+  # 2e lancement, journal vidé pour ne juger que lui.
+  - outil: {nom: journal_vide, telephone: papa}
+  - papa: {relance: true}
+  - papa: {tap: awake/tap}
+  - papa: {attend: lang_choice}
+  - papa: {action: worker.on_lang_chosen, event: fr}
+  - papa: {attend: home, delai: 60}
+verifs:
+  - papa: {page: home}
+  # worker_onboarding.dart:569
+  - journal: {telephone: papa, contient: "[intro] déjà vue sur cet appareil : accueil sauté"}
+  - journal: {telephone: papa, absent: "Interlude 'intro' : scène"}

@@ -1,0 +1,45 @@
+test: TAC-01
+titre: Un membre prend une tâche, le chef l'accepte
+criticite: critique
+# Compte A2 absent de la réserve (plan § 2) : repasser à true une fois A2 créé.
+enabled: false
+telephones: [papa, maman]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:combat
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - macro: couple
+  # vaisselle_01 : mortelle, effort 2, recharge 6 h, sans tag (tasks-base-global.yml) →
+  # XP = 2 × (10 + 6/12) = 21 (worker_tuning.dart:71-74), statut « dead » après acceptation.
+  # tache_faire constate assigned puis validating (firestore_attend).
+  - maman: {macro: tache_faire, tache: vaisselle_01}
+  - papa:  {macro: tache_juger, tache: vaisselle_01, verdict: ok, attendu: "[combat] verdict ACCEPTÉ: vaisselle_01 type=mortelle status=dead"}
+  # Côté membre : le poll voit le verdict et libère (worker_watch.dart:307, 344).
+  - maman: {attend_journal: "[combat] résolution = libération (status=dead): vaisselle_01", delai: 240}
+verifs:
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: status, egal: dead}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: assignee, egal: ""}
+  - firestore: {doc: "clans_players/{clan}/players/{maman_id}", champ: xp, egal: 21}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedOk}, champ: userId, egal: "{maman_id}"}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedOk}, champ: data.xp, egal: 21}
+  - journal: {telephone: papa, contient: "[combat] +21 XP → {maman_id}"}

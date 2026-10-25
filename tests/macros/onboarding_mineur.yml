@@ -1,0 +1,14 @@
+# Un mineur neuf, jusqu'à l'écran qui montre patte blanche (join_show_screen : son QR code et
+# son code). Il ne se connecte à Google qu'une fois accueilli (accueillir_enfant).
+macro: onboarding_mineur
+parametres: {annee: 2016, pays: FR}
+etapes:
+  - {macro: seuil}
+  # La date ET la confirmation en un geste : `documents.set` fait ce que fait le bouton
+  # « C'est parti ! » apres le choix de la date. Ne pas taper le bouton en plus : la porte
+  # parentale s'ouvrirait deux fois.
+  - {action: documents.set, event: {country: "{pays}", birthdate: "{annee}-06-15"}}
+  - {macro: cgu}
+  - {attend: kid_assent_screen, delai: 120}
+  - {tap: kid_assent/go}
+  - {attend: join_show_screen, delai: 120}

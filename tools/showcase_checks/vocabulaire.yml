@@ -1,0 +1,38 @@
+# -----------------------------------------------------------------------------
+# VOCABULAIRE INTERDIT PAR CAS DE LA VITRINE (cf. main.py)
+#
+# Par cas (nom de `showcase.cases`), par langue : des expressions régulières, cherchées
+# sans casse dans chaque texte affiché. Un mot de donjon chez les dinosaures, c'est un
+# texte commun que le thème dino n'a pas surchargé (lang.translations.<clé> à ajouter
+# dans theme-dino-global.yml).
+#
+# `allow` : des expressions retirées du texte AVANT la recherche (la marque).
+# -----------------------------------------------------------------------------
+allow:
+  - "Donjons?\\s*(&|et)\\s*Savons?"
+  - "Dungeons?\\s*(&|and)\\s*Dusting"
+  - "donjons\\.grisloup\\.com"
+  # Le NOM du thème donjon (theme_name_donjon, choix de thème) : jamais renommé selon le thème.
+  - "^\\s*(Donjon|Dungeon|Mazmorra|Verlies|Masmorra|Kerker)\\s*$"
+  # Le NOM d'un palier d'abonnement (store_clan : « Clan »), commun à tous les thèmes par
+  # décision de l'utilisateur (2026-10-21). Seul sur sa ligne, comme sur la carte du palier.
+  - "^\\s*(Clan|Clã)\\s*$"
+
+cases:
+  dino:
+    fr: ['\bclans?\b', '\bchefs? de clan', '\bbêtes?\b', '\bdonjons?\b', '\bchevaliers?\b',
+         '\bquêtes?\b', '\bbutins?\b', '\bdragons?\b', '\bgages?\b', '\baventurier(e|s|es)?\b']
+    en: ['\bclans?\b', '\bbeasts?\b', '\bdungeons?\b', '\bknights?\b', '\bquests?\b', '\bloot\b',
+         '\bdragons?\b', '\bforfeits?\b', '\badventurers?\b']
+    es: ['\bclan(es)?\b', '\bbestias?\b', '\bmazmorras?\b', '\bcaballeros?\b', '\bbotín\b',
+         '\bdrag(ón|ones)\b', '\baventurer[oa]s?\b']
+    it: ['\bclan\b', '\bbesti[ae]\b', '\bdungeon\b', '\bcavalier[ei]\b', '\bbottino\b',
+         '\bdrag(o|hi)\b', '\bavventurier[oiae]\b']
+    de: ['\bclans?', '\bbestien?\b', '\bverlies', '\bkerker', '\britter', '\bbeute\b',
+         '\bdrachen?\b', '\babenteurer']
+    pt: ['\bclãs?\b', '\bbestas?\b', '\bmasmorras?\b', '\bcavaleiros?\b', '\bsaque\b',
+         '\bdrag(ão|ões)\b', '\baventureir[oa]s?\b']
+    br: ['\bclãs?\b', '\bbestas?\b', '\bmasmorras?\b', '\bcavaleiros?\b', '\bsaque\b',
+         '\bdrag(ão|ões)\b', '\baventureir[oa]s?\b']
+    nl: ['\bclans?\b', '\bclanhoofd(en)?\b', '\bbeest(en)?\b', '\bkerkers?\b', '\bridders?\b',
+         '\bbuit\b', '\bdra(a)?k(en)?\b', '\bavonturiers?\b']

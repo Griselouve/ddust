@@ -1,0 +1,50 @@
+test: ONB-03
+titre: Retrouver son héros (compte existant, app réinstallée)
+criticite: critique
+enabled: true
+telephones: [papa]
+# Le héros doit EXISTER en base avant « Retrouver mon héros ». Choix robuste : le test le crée
+# lui-même (onboarding + clan), puis réinstalle l'app (helper `reinstalle`) pour repartir sans
+# AUCUNE donnée locale. `relance` ne suffirait pas (l'état local survit à un arrêt), et
+# `reset: false` dépendrait d'un test précédent. Le compte Google reste sur l'émulateur.
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - papa: {macro: onboarding_adulte, nom: Papa}
+  - papa: {macro: creer_clan, clan: Les Testeurs}
+  - outil: {nom: reinstalle, telephone: papa}
+  # Seuil et langue comme un nouveau venu (macros/seuil.yml), puis la porte de droite.
+  - papa: {tap: awake/tap}
+  - papa: {attend: lang_choice}
+  - papa: {action: worker.on_lang_chosen, event: fr}
+  - papa: {attend: home, delai: 60}
+  # « Retrouver mon héros » → dvcloud.do_login_existing (registry_onboarding.yml:87-101), qui
+  # vérifie le compte par worker.verify_account AVANT toute écriture (config.yml:142-146).
+  - papa: {tap: home/already_have_account}
+  - papa: {attend: dashboard, delai: 180}
+  - papa: {attend_libre: true, delai: 60}
+verifs:
+  - papa: {page: dashboard}
+  # worker_session.dart:919
+  - journal: {telephone: papa, contient: "verify_account: compte reconnu en région"}
+  # Le parcours neuf n'est pas rejoué : aucune seconde inscription (worker_session.dart:1096).
+  # (Le journal a été vidé par `reinstalle`.)
+  - journal: {telephone: papa, absent: "_flushOnboarding: onboarding inscrit en base"}

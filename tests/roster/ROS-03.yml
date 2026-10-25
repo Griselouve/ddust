@@ -1,0 +1,51 @@
+test: ROS-03
+titre: Un chef retire un membre
+criticite: majeur
+# Compte A2 absent de la réserve (plan § 2) : repasser à true une fois A2 créé.
+enabled: false
+telephones: [papa, maman]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:clan_page
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - macro: couple
+  - papa: {action: navigate_new.clan_page}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  # « A quitté le clan » : option du menu de la tuile → worker.revoke_player avec la ligne
+  # du roster (registry_clan_page.yml:1171-1176, worker_members.dart:1219).
+  - papa: {action: worker.revoke_player, event: {id: "{maman_id}", name: Maman}}
+  - papa: {attend_journal: "[roster] revoke_player : Maman ({maman_id}) a quitté le clan", delai: 60}
+  # Côté retirée : sa vigilance voit enabled=false et l'éjecte (_checkRevoked,
+  # worker_members.dart:1715-1733). _leaveClanLocal la renvoie sur `decisiontree`
+  # (worker_members.dart:1872), et non sur new_or_pick_clan comme le dit le plan.
+  - maman: {attend_journal: "[roster] joueur révoqué détecté → éjection vers decisiontree", delai: 180}
+  - maman: {attend: decisiontree, delai: 90}
+verifs:
+  - maman: {page: decisiontree}
+  - firestore: {doc: "clans_players/{clan}/players/{maman_id}", champ: enabled, egal: false}
+  # Journal du clan : userId = la partie, adminId = le chef (worker_members.dart:1287-1290).
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: MemberRevoked}, champ: userId, egal: "{maman_id}"}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: MemberRevoked}, champ: adminId, egal: "{papa_id}"}
+  # Son doc users ne pointe plus sur le clan (worker_members.dart:1846-1852).
+  - firestore: {doc: "users/{maman_id}", champ: steps.clan.clanId, egal: ""}

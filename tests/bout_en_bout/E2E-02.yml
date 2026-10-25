@@ -1,0 +1,45 @@
+test: E2E-02
+titre: "De zéro : la famille, chef et enfant accueilli par son QR code (photo « famille »)"
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# BOUT EN BOUT (ex ENF-01) : apps neuves, assets du bucket, comptes neufs. Papa onboardé et
+# son clan, Kid onboardé (mineur) puis accueilli par son QR code (« il sait lire »), les deux
+# au tableau de bord (macros/famille.yml). À la fin, la photo « famille » et ses variables
+# {clan}, {papa_id}, {kid}, dont repartent les tests `photo: famille`.
+assets: reseau
+photo_exporte: famille
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:clan_page
+  - ecran:create_clan
+  - ecran:dashboard
+  - ecran:decisiontree
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:theme_pick_page
+  - ecran:welcome_child_screen
+  - overlay:new_or_pick_clan/confirm
+etapes:
+  - macro: famille
+verifs:
+  - enfant: {page: dashboard}
+  - papa: {page: dashboard}
+  - journal: {telephone: papa, contient: "réclamée, mode child_pick"}
+  - journal: {telephone: enfant, contient: ", par QR code)"}
+  # La représentation de l'enfant, créée par son app avec le secret tiré par le parent.
+  - journal: {telephone: enfant, contient: "[guardian] représentation créée pour {kid}"}
+  - firestore: {doc: "guardianship/{kid}", existe: true}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: legal_state, egal: k}

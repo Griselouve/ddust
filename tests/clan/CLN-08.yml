@@ -1,0 +1,50 @@
+test: CLN-08
+titre: "« Pas maintenant » : la boîte est rendue, le candidat reçoit un code neuf"
+criticite: mineur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:welcome_child_screen
+etapes:
+  - enfant: {macro: onboarding_mineur}
+  - outil:  {nom: mul_code, telephone: enfant, shape: join_show_screen/code, motif: join, garde: code}
+  - outil:  {nom: qr_lire, telephone: enfant, motif: "^ddust://join", garde: patte}
+  - papa:   {action: worker.on_welcome_player}
+  - papa:   {attend: welcome_child_screen, delai: 30}
+  # QR donné comme par le lecteur intégré (action de ddust://join), pas par un lien Android.
+  - outil: {nom: lien_event, url: "{patte}", garde: patte_ev}
+  - papa:   {action: worker.on_join_link, event: "{patte_ev}"}
+  - papa:   {attend: invite_consent_screen, delai: 60}
+  # Le chef a réclamé la boîte : l'enfant voit le message d'attente.
+  - enfant: {attend_shape: join_show_screen/status, delai: 60}
+  - enfant: {verifie: {shape: join_show_screen/status, contient_un: ["Les anciens évaluent ta bravoure", "join_show_wait"]}}
+  - papa:   {tap: invite_consent_screen/no}
+  # « Pas maintenant » ramène le chef sur « Accueillir un joueur » (constaté le 2026-10-18),
+  # d'où il peut scanner à nouveau.
+  - papa:   {attend: [welcome_child_screen, dashboard], delai: 60}
+  - enfant: {attend_journal: "[join] le chef a renoncé ({code})", delai: 60}
+  - enfant: {attend_shape: join_show_screen/status, delai: 30}
+verifs:
+  - enfant: {page: join_show_screen}
+  - enfant: {shape: join_show_screen/status, contient_un: ["Voici un nouveau code", "join_show_new_code"]}
+  # L'ancienne boîte a disparu (effacée par l'enfant en ouvrant la nouvelle).
+  - firestore: {doc: "clans_joins/{code}", existe: false}

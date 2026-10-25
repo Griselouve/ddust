@@ -1,0 +1,53 @@
+test: CNF-02
+titre: Journal personnel, de clan, d'un joueur
+criticite: mineur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Les trois portes de log_page sont des options de menu (non tapables) : on appelle leurs
+# actions (worker_log.dart:106-137). Non vide = ni « … » (chargement) ni log_empty.
+# ⚠ MemberJoined ne donne aucune ligne de récit : le journal de Kid, fraîchement arrivé, est
+#   VIDE. ClanCreated (fondateur) en donne une : clan et Papa sont non vides dès la création.
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page, ecran:log_page, ecran:personnage]
+etapes:
+  # 1. Mon journal (kebab Personnage, option my_log).
+  - papa: {tap: personnage_open}
+  - papa: {attend: personnage, delai: 60}
+  - papa: {action: worker.open_my_log}
+  - papa: {attend: log_page, delai: 30}
+  - papa: {attend_journal: "[log] _buildLogStory:", delai: 30}
+  - papa: {pause: 2}
+  - papa: {verifie: {shape: log_page/story, different: "Aucune histoire à raconter pour l'instant."}}
+  - papa: {verifie: {shape: log_page/story, different: "…"}}
+  - papa: {touche: KEYCODE_BACK}
+  # 2. Journal du clan (kebab Clan, option clan_log).
+  - papa: {tap: clan_open}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {action: worker.open_clan_log}
+  - papa: {attend: log_page, delai: 30}
+  - papa: {attend_journal: "(clan) → ", delai: 30}
+  - papa: {pause: 2}
+  - papa: {verifie: {shape: log_page/story, different: "Aucune histoire à raconter pour l'instant."}}
+  - papa: {touche: KEYCODE_BACK}
+  # 3. Journal d'un joueur, vu par un autre : Kid ouvre celui de Papa (option player_log du
+  #    roster ; la tuile n'est pas tapable, la charge est la fiche {id, name}).
+  - enfant: {tap: clan_open}
+  - enfant: {attend: clan_page, delai: 60}
+  - enfant: {action: worker.open_player_log, event: {id: "{papa_id}", name: Papa}}
+  - enfant: {attend: log_page, delai: 30}
+  - enfant: {attend_journal: "({papa_id}) → ", delai: 30}
+  - enfant: {pause: 2}
+verifs:
+  - enfant: {page: log_page}
+  - enfant: {shape: log_page/story, different: "Aucune histoire à raconter pour l'instant."}
+  - journal: {telephone: papa, contient: "[log] open_my_log → "}
+  - journal: {telephone: papa, contient: "[log] open_clan_log → journal clan-large"}
+  - journal: {telephone: enfant, contient: "[log] open_player_log → Papa ({papa_id})"}
+  # Le partage est réservé aux adultes (worker_log.dart:228-233).
+  - enfant: {shape: log_page/share, visible: false}

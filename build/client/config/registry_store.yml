@@ -372,9 +372,9 @@ conf:
     # Le code n'est qu'une PORTE : il ne prouve rien tant que `store_claim` ne l'a pas
     # validé ET consommé. L'écran ne calcule donc aucun droit, il ne fait que présenter.
     #
-    # Gabarit repris de `enter_invite_pin` (registry_clan_join.yml), qui est déjà
-    # exactement cette forme : un champ, un bouton de validation, une ligne d'erreur
-    # cachée. `keyboard_scrollable` pour que le clavier virtuel ne vienne pas couvrir le
+    # Gabarit repris de l'ancien `enter_invite_pin` (retiré le 2026-10-18 ; guardian_pin_page,
+    # registry_multiclan.yml, a la même forme) : un champ, un bouton de validation, une ligne
+    # d'erreur cachée. `keyboard_scrollable` pour que le clavier virtuel ne vienne pas couvrir le
     # champ au moment où on tape dedans.
 
     giftcode_page:

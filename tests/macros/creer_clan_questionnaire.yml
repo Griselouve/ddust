@@ -1,0 +1,45 @@
+# Comme creer_clan, mais en RÉPONDANT au questionnaire au lieu de le passer.
+# Pourquoi : « Passer » laisse blacklist ET whitelist vides, et worker.storetasks s'arrête
+# alors (« storetasks: session decisiontree vide », worker_tasks.dart:390) : rien n'est
+# persisté par _persistTaskResults, donc ni `clans.enabled_multiple` ni clones des tâches
+# « multiple » (worker_tasks.dart:466-511, 1632). Le réconciliateur, lui, saute les tâches
+# multiple (worker_tasks.dart:684-685).
+# Réponses : à chaque question l'option « j'ai tout » (questions de
+# resources_cloud/general/configs/decisiontree.yml : dernière option des questions à 4
+# choix, première des questions à 2 choix) → que des whitelists, aucune tâche écartée.
+# Les boutons du questionnaire ne sont pas des shapes : méthodes start/selectOption.
+macro: creer_clan_questionnaire
+parametres: {clan: Les Testeurs}
+etapes:
+  - {attend: new_or_pick_clan}
+  - {tap: new_or_pick_clan/create}
+  - {tap: new_or_pick_clan/confirm_yes}
+  - {attend: create_clan, delai: 60}
+  - {ecrit: create_clan/name, texte: "{clan}"}
+  - {tap: create_clan/confirm}
+  - {attend: decisiontree, delai: 90}
+  # Les questions se chargent ~1 s APRÈS l'arrivée sur la page : un `start` plus tôt démarre un
+  # questionnaire vide, qui se croit fini sans rien déclencher, et tout le reste est ignoré
+  # (constaté en direct le 2026-10-18).
+  - {attend_journal: "question(s) chargées depuis", delai: 120}
+  - {attend_libre: true, delai: 60}
+  - {appelle: decisiontree, methode: start}
+  - {appelle: decisiontree, methode: selectOption, args: [3]}   # q_jardin_plantes
+  - {appelle: decisiontree, methode: selectOption, args: [3]}   # q_terrasse_balcon
+  - {appelle: decisiontree, methode: selectOption, args: [0]}   # q_bureau
+  - {appelle: decisiontree, methode: selectOption, args: [3]}   # q_lave_vaisselle_four
+  - {appelle: decisiontree, methode: selectOption, args: [3]}   # q_douche_baignoire
+  - {appelle: decisiontree, methode: selectOption, args: [3]}   # q_machine_etendoir
+  - {appelle: decisiontree, methode: selectOption, args: [0]}   # q_aspirateur
+  - {appelle: decisiontree, methode: selectOption, args: [0]}   # q_composteur
+  - {appelle: decisiontree, methode: selectOption, args: [3]}   # q_voiture_moto
+  - {appelle: decisiontree, methode: selectOption, args: [0]}   # q_garage
+  - {appelle: decisiontree, methode: selectOption, args: [0]}   # q_animal
+  # Certaines questions ne sont posées que si une réponse précédente les ouvre
+  # (ask_if_whitelisted) : le nombre réel varie. « Passer » clôt le questionnaire AVEC les
+  # réponses déjà données (DvDecisionTree.skip, sans effet s'il est déjà fini).
+  - {appelle: decisiontree, methode: skip}
+  - {attend: theme_pick_page, delai: 240}
+  - {tap: theme_pick_page/donjon_card}
+  - {attend: dashboard, delai: 120}
+  - {attend_libre: true, delai: 60}

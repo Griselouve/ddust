@@ -1,0 +1,39 @@
+test: ROS-07
+titre: "Suppression du chef unique : clan dissous, cascade enfants"
+criticite: critique
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page, ecran:create_player_screen, ecran:personnage, overlay:personnage/delete]
+etapes:
+  # Un enfant SANS compte (macros/creer_joueur.yml) : pas de représentation, donc pas de
+  # refus « seul représentant » ; mineur dont le clan d'origine est dissous → cascade.
+  - papa: {macro: creer_joueur, nom_joueur: Lou}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_journal: "[clan] create_player : Lou (", delai: 60}
+  - outil: {nom: identite, telephone: papa, champ: clan,   garde: clan}
+  - outil: {nom: identite, telephone: papa, champ: userId, garde: papa_id}
+  - outil: {nom: firestore_cherche, collection: players, groupe: true, champ: name, egal: Lou, lire: id, garde: lou}
+  - papa: {attend_libre: true, delai: 60}
+  - papa: {action: worker.death_open_delete}
+  - papa: {attend: personnage, delai: 60}
+  - papa: {attend_shape: personnage/delete_yes, delai: 30}
+  - papa: {tap: personnage/delete_yes, puis: 2}
+  - papa: {tap: personnage/delete_yes, puis: 2}
+  - papa: {tap: personnage/delete_yes, puis: 2}
+  - papa: {attend_journal: "[delete_account] compte supprimé → déconnexion", delai: 120}
+verifs:
+  # Chef unique → clan dissous (build/backend/config.yml:2453), membres tombstonés, le
+  # mineur sans compte supprimé en cascade (l. 2456-2475).
+  - firestore: {doc: "clans/{clan}", champ: enabled, egal: false}
+  - firestore: {doc: "clans/{clan}", champ: dissolved_at, existe: true}
+  - firestore: {doc: "clans_players/{clan}/players/{papa_id}", champ: status, egal: deleted}
+  - firestore: {doc: "clans_players/{clan}/players/{lou}", champ: enabled, egal: false}
+  - firestore: {doc: "clans_players/{clan}/players/{lou}", champ: status, egal: deleted}
+  - firestore: {doc: "users/{papa_id}", champ: enabled, egal: false}

@@ -1,0 +1,52 @@
+test: ONB-05
+titre: "Conflit de liaison : compte Google qui porte déjà un héros"
+criticite: majeur
+enabled: true
+telephones: [papa]
+# Le héros existant est créé par le test lui-même (onboarding complet), puis l'app est
+# réinstallée (helper `reinstalle`) : le second passage par « Je pars à l'aventure » ouvre
+# une session anonyme neuve, dont la liaison au même compte Google entre en conflit.
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:new_or_pick_clan
+  - ecran:parentalgate_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - overlay:link_account/conflict
+etapes:
+  - papa: {macro: onboarding_adulte, nom: Papa}
+  # L'identité du héros d'origine, pour constater qu'il survit à l'annulation.
+  - outil: {nom: identite, telephone: papa, champ: uid, garde: uid}
+  - outil: {nom: identite, telephone: papa, champ: userId, garde: heros}
+  - outil: {nom: reinstalle, telephone: papa}
+  - papa: {macro: jusqu_a_google}
+  - papa: {tap: link_account/google_button}
+  # dvcloud.do_link_account → on_link_conflict (config.yml:116) : overlay adoption / annulation
+  # (worker_session.dart:1034-1046).
+  - papa: {attend_shape: link_account/conflict_text, delai: 120}
+  - papa: {verifie: {shape: link_account/conflict_text, contient: "déjà lié à un autre héros"}}
+  - papa: {verifie: {shape: link_account/conflict_confirm}}
+  - papa: {capture: conflit}
+  # Annuler : l'overlay se referme, rien n'est écrit (worker_session.dart:1057-1063).
+  - papa: {tap: link_account/conflict_cancel}
+  - papa: {attend_absent: link_account/conflict_text, delai: 30}
+verifs:
+  - papa: {page: link_account_screen}
+  - papa: {shape: link_account/conflict_scrim, visible: false}
+  # Sans perte : l'index pointe toujours sur le héros d'origine, et son doc users existe.
+  - firestore: {doc: "userindexes/{uid}", champ: userId, egal: "{heros}"}
+  - firestore: {doc: "users/{heros}", existe: true}
+  # Une seule fiche users pour ce compte : le personnage abandonné n'a rien écrit.
+  - firestore: {collection: users, ou: {champ: ownerId, egal: "{uid}"}, nombre: 1}
+  # Journal vidé par `reinstalle` : aucune inscription au second passage.
+  - journal: {telephone: papa, absent: "_flushOnboarding: onboarding inscrit en base"}

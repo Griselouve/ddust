@@ -1,0 +1,23 @@
+# Un joueur NON CHEF (ou un chef d'un clan à deux chefs) prend la tâche {tache}, la déclare
+# vaincue et dépose sa preuve photo : la tâche passe « validating ». Variable {clan} requise.
+#   - La tuile de tâche d'un DvTiroir n'est pas une shape : on appelle son action
+#     `seltask.<id>` (worker_tasks.dart:48, _selectTask l. 1172), qui navigue vers combat.
+#   - La preuve : photo prise par l'outil preuve_photo (la caméra de l'émulateur existe et
+#     sa permission est accordée à l'installation : la preuve ne part pas « sans photo »).
+macro: tache_faire
+parametres: {tache: vaisselle_01}
+etapes:
+  # Le doc de la tâche est créé par le réconciliateur au chargement du clan
+  # (worker_tasks.dart:681-688) : on l'attend avant de la prendre.
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/{tache}", champ: clanId, non_vide: true, delai: 120}
+  - {action: "seltask.{tache}"}
+  - {attend: combat, delai: 60}
+  - {attend_journal: "[combat] tâche assignée: {tache} →", delai: 60}
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/{tache}", champ: status, egal: assigned, delai: 60}
+  - {attend_shape: combat/ok, delai: 60}
+  - {attend_libre: true, delai: 60}
+  # « J'ai vaincu le monstre ! » (registry_combat.yml:121) → caméra (worker_combat.dart:426).
+  - {tap: combat/ok}
+  - outil: {nom: preuve_photo, telephone: moi}
+  - {attend_journal: "[combat] tâche en validation: {tache} (proof=", delai: 90}
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/{tache}", champ: status, egal: validating, delai: 60}

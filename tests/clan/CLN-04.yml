@@ -1,0 +1,26 @@
+test: CLN-04
+titre: Code faux
+criticite: mineur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:welcome_child_screen]
+etapes:
+  - papa: {action: worker.on_welcome_player}
+  - papa: {attend: welcome_child_screen, delai: 30}
+  - papa: {tap: welcome_child_screen/remote}
+  - papa: {attend_shape: welcome_child_screen/code, delai: 10}
+  # Un code de bonne forme qui ne désigne aucune boîte (alphabet sans 0 O 1 I L).
+  - papa: {ecrit: welcome_child_screen/code, texte: "ZZZ-ZZ"}
+  - papa: {tap: welcome_child_screen/code_go}
+  - papa: {attend_shape: welcome_child_screen/error, delai: 30}
+verifs:
+  - papa: {page: welcome_child_screen}
+  - papa: {shape: welcome_child_screen/error, contient_un: ["Ce code ne mène à personne", "welcome_code_unknown"]}
+  - journal: {telephone: papa, absent: "[join] boîte ZZZZZ réclamée"}

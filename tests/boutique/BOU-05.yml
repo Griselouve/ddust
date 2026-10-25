@@ -1,0 +1,36 @@
+test: BOU-05
+titre: "Changer de thème : tous les appareils basculent"
+criticite: mineur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:dashboard, ecran:shop, ecran:shop_store_page]
+etapes:
+  # La vigilance de la boutique du clan (clans_shop) n'est armée chez Kid qu'après un passage
+  # au dashboard ou sur l'écran Clan (_syncClanTheme) : il y est, on le laisse.
+  # Chef : Boutique → Thèmes. Les cartes de DvShopStore ne sont pas des shapes : on appelle
+  # l'action de la carte, shop.toggle.<article> (dvshop.dart:96, préfixe).
+  - papa: {tap: shop_open}
+  - papa: {attend: shop, delai: 60}
+  - papa: {action: shop.open.themes}
+  - papa: {attend: shop_store_page, delai: 30}
+  - papa: {action: shop.toggle.theme-dino, garde: statut}
+  # Callable `shop` op toggle (pustore l. 5402-5415) → clans_shop/{clan}.active.theme ;
+  # chaque appareil reçoit le changement (worker.on_shop_change, worker_store.dart:1355).
+  - papa:   {attend_journal: "[theme] décision du clan reçue en direct : theme-dino", delai: 90}
+  - papa:   {attend_journal: "[theme] le clan est en theme-dino, bascule de l'appareil", delai: 120}
+  # Kid, sur un écran de jeu, bascule par sa vigilance (fibonacci 5-60 s, dvshop_motor.dart:304-317).
+  - enfant: {attend_journal: "[theme] le clan est en theme-dino, bascule de l'appareil", delai: 180}
+  # La bascule finit sous le rideau, sur le dashboard (worker_store.dart:1507-1530).
+  - enfant: {attend: dashboard, delai: 120}
+  - papa:   {attend: dashboard, delai: 120}
+verifs:
+  - journal: {telephone: enfant, contient: "[theme] décision du clan reçue en direct : theme-dino"}
+  - firestore: {doc: "clans_shop/{clan}", champ: active.theme, egal: theme-dino}
+  - enfant: {page: dashboard}

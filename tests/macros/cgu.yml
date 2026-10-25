@@ -1,0 +1,20 @@
+# L'écran des conditions : le document « lu jusqu'en bas », la case, « J'accepte ». Fin : la page
+# suivante (link_account_screen pour un adulte, après le pacte ; kid_assent_screen pour un mineur).
+macro: cgu
+etapes:
+  - {attend: documents_acceptance_screen, delai: 120}
+  - {attend_libre: true, delai: 60}
+  # La case reste sourde tant que le document n'a pas défilé jusqu'en bas (DvHtmlFrame).
+  - {action: documents.on_doc_scrolled}
+  - {si_visible: documents/acceptance_checkbox, contient: "☐", alors: [{tap: documents/acceptance_checkbox}]}
+  - {tap: documents/acceptance_accept}
+  # La validation est LENTE sur un PC chargé (plus d'une minute) : la retoucher trop tôt lance une
+  # seconde validation, dont la navigation renvoie plus tard en arrière (TAC-02, 2026-10-18). On
+  # n'y revient qu'après 4 minutes sans effet (ROS-06 : un vrai tap ignoré).
+  - attend: [link_account_screen, kid_assent_screen, player_name_screen, dashboard, join_show_screen]
+    delai: 240
+    raison: "« J'accepte » sans effet au premier tap"
+    si_echec:
+      - {action: documents.on_doc_scrolled}
+      - {si_visible: documents/acceptance_checkbox, contient: "☐", alors: [{tap: documents/acceptance_checkbox}]}
+      - {tap: documents/acceptance_accept}

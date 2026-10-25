@@ -1,0 +1,36 @@
+test: ROS-04
+titre: Fondateur seul dissout son clan
+criticite: majeur
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:clan_page, ecran:decisiontree]
+etapes:
+  - outil: {nom: identite, telephone: papa, champ: clan,   garde: clan}
+  - outil: {nom: identite, telephone: papa, champ: userId, garde: papa_id}
+  # L'écran Clan lit le roster et pose worker.clan_alone=true (worker_screen_clan.dart:438,
+  # 448-451), condition de l'option sur la tuile du fondateur (l. 689-692).
+  - papa: {action: navigate_new.clan_page}
+  - papa: {attend: clan_page, delai: 60}
+  - papa: {attend_journal: "[clan] roster: 1 membre(s) poussé(s)", delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  - outil: {nom: roster_menu, telephone: papa, cible: {id: "{papa_id}", name: Papa, legal_state: a, admin: true, founder: true, original_clan: "{clan}", no_account: false}, present: [revoke_player], strict: true}
+  # « A quitté le clan » sur sa propre tuile : fondateur seul → dissolution
+  # (worker_members.dart:1241-1249, _dissolveOwnClan l. 1190-1211).
+  - papa: {action: worker.revoke_player, event: {id: "{papa_id}", name: Papa}}
+  - papa: {attend_journal: "dissous par son fondateur, seul membre", delai: 60}
+  # Puis _leaveClanLocal → decisiontree (worker_members.dart:1872).
+  - papa: {attend: decisiontree, delai: 90}
+verifs:
+  - papa: {page: decisiontree}
+  - journal: {telephone: papa, contient: "[roster] clan {clan} dissous par son fondateur, seul membre"}
+  - firestore: {doc: "clans/{clan}", champ: enabled, egal: false}
+  - firestore: {doc: "clans/{clan}", champ: dissolved_at, existe: true}
+  - firestore: {doc: "clans_players/{clan}/players/{papa_id}", champ: enabled, egal: false}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: MemberRevoked}, champ: data.dissolved, egal: true}

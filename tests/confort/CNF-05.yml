@@ -1,0 +1,28 @@
+test: CNF-05
+titre: Notification de nouveau membre reçue
+criticite: majeur
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « famille » (bout_en_bout/E2E-02) : papa et Kid au tableau de
+# bord, variables {clan}, {papa_id}, {kid}. Assets préchargés depuis le workspace.
+photo: famille
+# C'est l'appareil de l'ARRIVANT qui envoie (worker_clan.dart:1866-1872 → _notifyClanNewMember,
+# worker_notify.dart:329-364), une fois son nom saisi (_flushPendingMemberJoined,
+# worker_clan.dart:2405-2427). Le chef, app au premier plan, la dessine lui-même
+# (dvmessaging_motor.dart:481) : « [<clan>] Un nouvel aventurier a rejoint l'aventure ! ... »
+# (new_member_notif, theme-donjon-global.yml:4313).
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-02]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [notif:clan]
+etapes:
+  - enfant: {attend_journal: "[worker] notif nouveau membre → {papa_id} (", delai: 120}
+  # Le préfixe « [<clan>] » est posé par _sendClanMsg (worker_multiclan.dart:346-348) : on ne
+  # lie pas le constat à sa forme exacte.
+  - papa:   {attend_journal: "Un nouvel aventurier a rejoint l'aventure", delai: 120}
+verifs:
+  - journal: {telephone: papa, contient: "notification affichée: "}
+  - journal: {telephone: enfant, absent: "notif nouveau membre → {papa_id} échec"}
+  - journal: {telephone: papa, contient: "Faites place à Kid"}
+  - journal: {telephone: papa, absent: "message écarté par le filtre de l'application"}

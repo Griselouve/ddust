@@ -1,0 +1,32 @@
+test: TAC-03
+titre: Auto-validation du chef seul
+criticite: critique
+enabled: true
+telephones: [papa]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items: [ecran:combat]
+etapes:
+  - outil: {nom: identite, telephone: papa, champ: clan,   garde: clan}
+  - outil: {nom: identite, telephone: papa, champ: userId, garde: papa_id}
+  - outil: {nom: firestore_attend, doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: clanId, non_vide: true, delai: 120}
+  # La tuile du tiroir n'est pas une shape : action seltask.<id> (worker_tasks.dart:48).
+  - papa: {action: seltask.vaisselle_01}
+  - papa: {attend: combat, delai: 60}
+  - papa: {attend_journal: "[combat] tâche assignée: vaisselle_01 →", delai: 60}
+  - papa: {attend_shape: combat/ok, delai: 60}
+  - papa: {attend_libre: true, delai: 60}
+  # Chef unique : pas de caméra, verdict « accepté » écrit d'office (worker_combat.dart:325-416).
+  - papa: {tap: combat/ok}
+  - papa: {attend_journal: "[combat] auto-validation admin: vaisselle_01 (xp=21)", delai: 90}
+verifs:
+  - journal: {telephone: papa, contient: "[combat] auto-validation admin: vaisselle_01"}
+  - journal: {telephone: papa, absent: "[camera]"}
+  - firestore: {doc: "clans_tasks/{clan}/tasks/vaisselle_01", champ: status, egal: dead}
+  - firestore: {doc: "clans_players/{clan}/players/{papa_id}", champ: xp, egal: 21}
+  - firestore: {collection: "clans_logs/{clan}/logs", ou: {champ: event, egal: TaskValidatedOk}, champ: adminId, egal: "{papa_id}"}

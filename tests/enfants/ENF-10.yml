@@ -1,0 +1,60 @@
+test: ENF-10
+titre: "Accueillir un enfant à distance : son code dicté, « il ne sait pas encore lire »"
+criticite: critique
+enabled: true
+telephones: [papa, enfant]
+# Départ : la photo « papa_clan » (bout_en_bout/E2E-01) : papa onboardé, son clan
+# « Les Testeurs », au tableau de bord. Assets préchargés depuis le workspace.
+photo: papa_clan
+# Joué avant, obligatoirement : il prend la photo de départ (sauté si elle est à jour).
+prerequisites: [E2E-01]
+# Les ITEMS exercés (écrans, surcouches, interludes, leçons... : catalogue.py),
+# relevés dans ses étapes et ses vérifications, macros comprises.
+items:
+  - ecran:age_screen
+  - ecran:awake
+  - ecran:dashboard
+  - ecran:documents_acceptance_screen
+  - ecran:home
+  - ecran:invite_consent_screen
+  - ecran:join_show_screen
+  - ecran:kid_assent_screen
+  - ecran:lang_choice
+  - ecran:link_account_screen
+  - ecran:player_name_screen
+  - ecran:region_screen
+  - ecran:welcome_child_screen
+etapes:
+  - enfant: {macro: onboarding_mineur}
+  - outil:  {nom: mul_code, telephone: enfant, shape: join_show_screen/code, motif: join, garde: code}
+  - papa:   {action: worker.on_welcome_player}
+  - papa:   {attend: welcome_child_screen, delai: 30}
+  - papa:   {tap: welcome_child_screen/remote}
+  - papa:   {attend_shape: welcome_child_screen/code, delai: 10}
+  - papa:   {ecrit: welcome_child_screen/code, texte: "{code}"}
+  - papa:   {tap: welcome_child_screen/code_go}
+  - papa:   {attend: invite_consent_screen, delai: 60}
+  - papa:   {attend_libre: true, delai: 30}
+  - papa:   {tap: invite_consent_screen/aloud}
+  # Un tap arrivé avant que l'écran soit prêt est ignoré : s'il reste visible, on retouche.
+  - papa: {pause: 2}
+  - papa: {si_visible: "invite_consent_screen/aloud", alors: [{tap: "invite_consent_screen/aloud"}]}
+  - papa:   {verifie: {shape: invite_consent_screen/notice, contient_un: ["à voix haute", "invite_consent_notice_aloud"]}}
+  - papa:   {tap: invite_consent_screen/yes}
+  # Par code : l'enfant confirme que c'est bien sa famille.
+  - enfant: {attend_shape: join_show_screen/family_yes, delai: 60}
+  - enfant: {tap: join_show_screen/family_yes}
+  - enfant: {attend: link_account_screen, delai: 120}
+  - enfant: {tap: link_account/google_button}
+  - enfant: {attend: player_name_screen, delai: 240}
+  - enfant: {ecrit: player_name_screen/name, texte: Kid}
+  - enfant: {tap: player_name_screen/confirm}
+  - enfant: {attend: dashboard, delai: 120}
+  - enfant: {attend_libre: true, delai: 60}
+  - outil:  {nom: identite, telephone: enfant, champ: userId, garde: kid}
+  - outil:  {nom: identite, telephone: papa, champ: clan, garde: clan}
+verifs:
+  - enfant: {page: dashboard}
+  - journal: {telephone: enfant, contient: "[join] dépôt reçu ({code}, par code)"}
+  - firestore: {doc: "clans_players/{clan}/players/{kid}", champ: legal_state, egal: k}
+  - firestore: {doc: "clans_joins/{code}", existe: false}

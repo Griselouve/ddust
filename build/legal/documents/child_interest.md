@@ -173,36 +173,46 @@ Tout verdict est inscrit au journal, que l'enfant peut consulter. Un travail sou
 1. **L'enfant est entendu d'abord.** Après avoir lu des conditions d'utilisation rédigées pour lui,
    l'enfant dit, sur son propre téléphone, s'il a envie de jouer : l'application lui explique que
    c'est lui qui commence et qu'un adulte de sa famille décidera ensuite. Sa réponse ne contient
-   aucune donnée personnelle : la date, la langue, la région, la version du texte qui lui a été
-   montré et un code de six caractères tiré au hasard, rien d'autre. Ce code, affiché en grand sur
-   son téléphone et repris sur celui de l'adulte, relie la réponse à l'invitation qui lui répondra.
-2. **Sa réponse voyage jusqu'à l'adulte, et rien n'est enregistré avant.** L'enfant la montre à
-   l'adulte sous forme de code QR, ou la lui envoie par un lien. Tant que l'enfant ne s'est pas
-   connecté à un compte, tout reste dans la mémoire de son téléphone : rien n'est écrit sur
-   l'appareil ni en base, pas même la langue choisie, et une application refermée repart du premier
-   écran. La seule trace hors du téléphone est une entrée d'authentification anonyme, sans aucune
-   donnée, que la plateforme efface d'elle-même au bout de trente jours.
+   aucune donnée personnelle : la date, la langue, la région, le texte qui lui a été montré et la
+   version des conditions qui lui sont destinées, rien d'autre.
+2. **Sa réponse voyage jusqu'à l'adulte, et rien n'est enregistré à son nom avant.** L'enfant la
+   montre à l'adulte sous la forme d'un code QR à usage unique ; si l'adulte est loin, l'enfant lui
+   lit au téléphone le code de cinq caractères affiché dessous, valable quinze minutes tant que
+   l'écran reste ouvert. Il n'y a ni lien à envoyer ni réseau social : un enfant qui n'a pas le
+   droit d'en utiliser peut jouer quand même. Pour cet échange, son téléphone ouvre en base une
+   boîte temporaire, désignée par ce code et sans aucune donnée personnelle (une clé de chiffrement
+   à usage unique, la région, le fait qu'il s'agit d'un enfant et sa réponse) ; elle devient
+   inutilisable au bout de quinze minutes et elle est effacée dès la fin de l'échange ou, à défaut,
+   automatiquement après son expiration. Tant que l'enfant ne s'est pas connecté à un compte, rien
+   d'autre n'est écrit, ni sur l'appareil ni en base, pas même la langue choisie, et une application
+   refermée repart du premier écran. La seule autre trace hors du téléphone est une entrée
+   d'authentification anonyme, sans aucune donnée, que la plateforme efface d'elle-même au bout de
+   trente jours.
 3. **L'adulte décide après avoir lu la réponse de l'enfant.** Un chef, connecté à son propre compte,
-   lit la réponse de l'enfant, puis déclare qu'il s'agit de son enfant et consent, en tant que
-   responsable légal, à la collecte de ses données de jeu. Sa décision et la réponse de l'enfant
-   sont enregistrées ensemble, sous le compte de l'adulte, et conservées comme preuve. L'enfant lit
-   ensuite l'invitation de l'adulte (code QR, ou lien protégé par un code), se connecte et entre
-   dans le clan ; la preuve est alors jointe à son dossier. Son téléphone refuse, avant toute
-   connexion, une invitation faite pour un adulte ou pour la demande d'un autre enfant (elle ne
-   porte pas le même code) ; si l'application a été fermée avant qu'il ait lu l'invitation, l'enfant
-   envoie une nouvelle demande ; une fois connecté, son attente de la confirmation du chef est
-   gardée sur son compte et reprend à la réouverture, jusqu'à l'expiration de l'invitation (72 h). Aucune donnée de jeu n'existe avant cette entrée. Un mineur ne peut ni
-   s'inscrire seul dans un clan, ni en créer un.
+   lit le code QR de l'enfant ou saisit son code, prend connaissance de sa réponse et indique si
+   l'enfant sait lire (il lira alors lui-même les règles qui le concernent) ou s'il les lui lira à
+   voix haute. Il déclare ensuite qu'il s'agit de son enfant et consent, en tant que responsable
+   légal, à la collecte de ses données de jeu. Sa décision et la réponse de l'enfant sont
+   enregistrées ensemble, sous le compte de l'adulte, et conservées comme preuve. La réponse du chef
+   est déposée dans la boîte, chiffrée pour le seul téléphone de l'enfant ; une boîte ne sert qu'une
+   fois, et un second adulte ne peut pas la reprendre. Si le code a été dicté, le téléphone de
+   l'enfant lui montre le nom du clan et celui de son chef et lui demande si c'est bien sa famille :
+   s'il répond non, personne n'entre et un nouveau code apparaît. L'enfant se connecte alors et
+   entre dans le clan ; la preuve est jointe à son dossier. S'il referme l'application avant de se
+   connecter, rien n'est conservé à son nom et il recommence. Aucune donnée de jeu n'existe avant
+   cette entrée. Un mineur ne peut ni s'inscrire seul dans un clan, ni en créer un.
 4. **La responsabilité ne se transfère pas.** Elle reste attachée au clan d'origine de l'enfant, qui
    ne peut pas l'en exclure, sauf s'il s'agit d'un profil sans téléphone créé par l'adulte lui-même.
    Le représentant légal de l'enfant est l'adulte qui a consenti à son entrée dans ce clan ; un autre
    adulte (l'autre parent, par exemple) peut devenir co-représentant, par un échange avec lui et en
    déclarant lui-même, sur son téléphone, être représentant légal de l'enfant.
 5. **Plusieurs clans, jamais sans l'accord des parents.** Un enfant peut jouer dans plusieurs clans
-   (8 au plus), par exemple celui de ses grands-parents. Il n'entre dans un autre clan qu'après
-   l'autorisation préalable d'un de ses représentants, donnée à l'adulte qui l'accueille et valable
-   sept jours ; son téléphone la vérifie avant toute admission. **Un adulte extérieur ne peut donc
-   plus faire entrer seul un enfant dans son clan.** Le représentant voit le nom des clans de
+   (8 au plus), par exemple celui de ses grands-parents. Il y entre de la même façon, en montrant
+   son code à l'adulte qui l'accueille ; son téléphone transmet alors la demande à ses
+   représentants, qui en sont avertis par une notification et voient le nom de ce clan et celui de
+   son chef. L'un d'eux accepte ou refuse ; sans réponse dans les sept jours, la demande tombe. Son
+   téléphone vérifie cette autorisation avant toute admission. **Un adulte extérieur ne peut donc
+   pas faire entrer seul un enfant dans son clan.** Le représentant voit le nom des clans de
    l'enfant et celui de leur chef, et peut l'en retirer à tout moment, sauf de son clan d'origine.
    Seuls le nom, l'avatar et le titre porté passent d'un clan à l'autre.
 6. **La majorité est déclarée, pas calculée.** La date de naissance n'est jamais conservée :
@@ -242,7 +252,7 @@ vidéo, ni localisation, ni moyen de le contacter.
 | Statut légal | enfant, en transition, adulte (jamais la date de naissance) | appliquer les protections des mineurs |
 | Pays et langue | pays déclaré, région de stockage, langue (enregistrés seulement après la connexion) | appliquer le droit du pays, héberger les données |
 | Jeu | pseudonyme, avatar, niveau, titres, tâches, argent de poche fictif, journal du clan | le jeu lui-même, visible du seul clan ; seuls le pseudonyme, l'avatar et le titre porté sont visibles dans chacun des clans du joueur |
-| Représentation | représentant et co-représentants, clans de l'enfant (nom, chef, adulte qui l'y a fait entrer, date), autorisations données à d'autres clans, historique des gestes des représentants | garder la main des parents sur les clans de l'enfant, et le prouver ; visible de l'enfant et de ses représentants seuls |
+| Représentation | représentant et co-représentants, clans de l'enfant (nom, chef, adulte qui l'y a fait entrer, date), demandes d'entrée dans d'autres clans et autorisations données à ces clans, historique des gestes des représentants | garder la main des parents sur les clans de l'enfant, et le prouver ; visible de l'enfant et de ses représentants seuls |
 | Technique | jeton de notification, version, dernière connexion, décalage horaire | notifier à une heure adaptée |
 | Preuves | conditions acceptées, date, déclaration de l'adulte, réponse de l'enfant, autorisation d'un autre clan, déclaration d'un co-représentant | prouver le consentement |
 | Achats (adultes) | référence d'achat, produit, dates | faire fonctionner l'abonnement |
