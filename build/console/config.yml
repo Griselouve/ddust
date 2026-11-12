@@ -31,3 +31,30 @@ conf:
           isolation: none
         autover:
           isolation: none
+
+  # --- Tableau de bord (brique dvdashboard, allumée par la suite projects/console) --
+  # Ce qui est propre à ddust : le nom, le payeur (un clan), les sections du budget,
+  # de l'usage et du coût de l'IA. Uniquement les fonctions du projet ddust, dans
+  # les régions de cette console : jamais le Firestore d'un autre projet.
+  # ⚠ budget_query et metrics_query ne sont pas encore déployées pour ddust (deva
+  #   d206) : leurs sections le disent à l'écran, cause et geste, sans rien bloquer.
+  dashboard:
+    lang: fr
+    project: "ddust"
+    store:
+      payer: clan
+      payers: clans
+    budget:
+      function: budget_query
+    usage:
+      function: metrics_query
+      series:
+        abonnes:
+          label: "Abonnés"
+          source: store_kpis
+          event_type: kpi_daily
+          field: total.subscribers
+          agg: last
+    inference:
+      # Clé du service d'IA dans le journal de pubudget (module puvertexai).
+      service: vertexai
