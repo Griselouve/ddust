@@ -58,3 +58,21 @@ conf:
     inference:
       # Clé du service d'IA dans le journal de pubudget (module puvertexai).
       service: vertexai
+    # Usage de l'app : les événements de dvanalytics (client/config.yml, analytics.events).
+    # ⚠ COUPÉE comme le module dans l'app : la section dit sa cause, rien n'est lu.
+    #   Allumer avec `analytics.enabled` de l'app et `metrics.ingest.enabled` du déploiement.
+    app:
+      enabled: false
+      function: metrics_query
+      app: ddust
+      cause: "le module d'analytics de ddust est coupé (analytics.enabled). C'est un nouveau traitement de données : il attend la politique de confidentialité, le registre des traitements et la durée de conservation des mesures (deva d196). Geste : répondre à d196, écrire le registre et la politique, puis allumer l'app, metrics_ingest et cette section ensemble."
+      events:
+        session_start:  { label: "Sessions ouvertes" }
+        loot_received:  { label: "Parts de butin reçues" }
+        loot_opened:    { label: "Butins ouverts" }
+        member_joined:  { label: "Arrivées dans un clan" }
+        member_left:    { label: "Départs d'un clan" }
+        clan_created:   { label: "Clans créés" }
+        member_created: { label: "Joueurs sans compte créés" }
+        member_claimed: { label: "Joueurs repris par leur compte" }
+        chief_promoted: { label: "Chefs nommés" }

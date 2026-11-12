@@ -13,6 +13,10 @@ build:
     - dvapp
     - dvtable
     - dvcloud
+    # Mesures d'usage (notre module, vers la table des événements du projet) : embarqué
+    # mais COUPÉ par sa conf (`analytics.enabled: false`, cf. config.yml). Jamais Firebase
+    # Analytics, jamais d'identifiant publicitaire.
+    - dvanalytics
     - dvcloudassets
     - dvlayers
     - dvtheme

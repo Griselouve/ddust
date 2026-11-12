@@ -85,6 +85,7 @@ part 'worker_multiclan.dart';
 part 'worker_join.dart';
 part 'worker_referral.dart';
 part 'worker_testkeys.dart';
+part 'worker_metrics.dart';
 
 
 // -----------------------------------------------------------------------------

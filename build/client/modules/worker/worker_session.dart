@@ -340,6 +340,10 @@ extension Worker_session on worker {
                                 //   Sur Android il était vide, et dvmascot, qui l'exige, ne montrait jamais
                                 //   le dragon (2026-10-12).
                                 await Deva.instance.set("worker.session.clan_done", "true");
+                                // Mesure d'usage : une session de jeu, celle d'un membre entré dans son
+                                // clan (donc CGU acceptées). Pas au changement de région (fromSwitch) :
+                                // c'est la même session.
+                                if (!fromSwitch) _metric("session_start");
                                 // Enregistre ce device dans le doc membre clans_players (cible
                                 // FCM) — idempotent : couvre le démarrage de l'app sur un nouveau
                                 // device pour un joueur déjà membre.

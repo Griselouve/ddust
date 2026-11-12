@@ -318,6 +318,9 @@ extension Worker_clan on worker {
                     } catch (e) {
                         deva_log("error", "[worker] _writeClanLog FAILED: $e");
                     }
+                    // Mesure d'usage : le NOM de l'action seulement (worker.metrics.clan_logs),
+                    // rien de `data`, ni l'auteur ni le joueur visé.
+                    unawaited(_metricClanLog(event));
     }
 
     //-----------------------------------------------------------------------

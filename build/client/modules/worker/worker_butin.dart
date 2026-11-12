@@ -1605,6 +1605,8 @@ extension Worker_butin on worker {
                                 // n'est empilée qu'après l'animation, quand `notes_shown` a pu changer.
                                 _butinNotesText = _buildButinNotesText(butinDoc);
                                 deva_log("info", "[butin] part reçue : $gained pièce(s), ${mine.length} objet(s)");
+                                // Mesure d'usage : la part reçue, en deux nombres (jamais les objets).
+                                _metric("loot_received", {"items": mine.length, "coins": gained});
 
                                 // La cérémonie a produit ce qu'elle devait produire : elle est finie pour
                                 // cet appareil, l'animation prend la suite et l'écran de rituel disparaîtra

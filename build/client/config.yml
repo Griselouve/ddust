@@ -99,6 +99,47 @@ conf:
       # réellement appliqué = clans.max_xp_butin + butin_gain_max_xp_per_level × niveau de clan :
       # 70 au niveau 1, 250 au niveau 10. Miroir exact de player_max_xp_per_level côté joueur, un
       # jeune clan remplit son coffre corvée après corvée, un clan aguerri peut le faire bondir.
+    # Mesures d'usage (dvanalytics) : quelles lignes du journal du clan (clans_logs, `event`)
+    # deviennent un événement d'usage, et lequel. Seulement le NOM de l'événement : ni
+    # l'auteur, ni le joueur visé, ni le clan, ni la tâche ne partent. Chaque cible doit
+    # être déclarée dans `analytics.events` (et dans ALLOWED_EVENTS du serveur).
+    metrics:
+      clan_logs:
+        ClanCreated:   clan_created
+        MemberJoined:  member_joined
+        MemberClaimed: member_claimed
+        MemberCreated: member_created
+        MemberRevoked: member_left
+        ChiefPromoted: chief_promoted
+        ChiefDemoted:  chief_demoted
+        ButinOpened:   loot_opened
+
+  # --- Mesures d'usage (dvanalytics, cf. son readme) ------------------------------
+  # ⚠ COUPÉ (`enabled: false`) : un nouveau traitement de données, qui doit entrer dans
+  #   la politique de confidentialité et le registre des traitements avant d'être allumé,
+  #   avec sa durée de conservation (deva d196, sans réponse). Allumer en même temps
+  #   `dashboard.app.enabled` de la console et `metrics.ingest.enabled` du déploiement.
+  # ⚠ APP D'ENFANTS : des événements nommés et des nombres, avec l'identifiant
+  #   d'installation pseudonyme du module ; rien de personnel. `drop` : rien n'est gardé
+  #   avant la connexion, et chaque événement est émis après l'entrée dans un clan, donc
+  #   après l'acceptation des CGU (par le tuteur pour un mineur).
+  # ⚠ La même liste dans ALLOWED_EVENTS de `metrics.ingest` (backend/config.yml) : c'est
+  #   elle qui fait foi.
+  analytics:
+    enabled: false
+    app: ddust
+    before_login: drop
+    events:
+      session_start: []           # un membre entre dans son clan au lancement de l'app
+      loot_received: [items, coins]  # sa part à l'ouverture du butin : objets, pièces
+      loot_opened: []             # un chef ouvre le butin du clan
+      clan_created: []
+      member_joined: []
+      member_claimed: []          # un enfant reprend son joueur avec son propre compte
+      member_created: []          # un chef crée un joueur sans compte
+      member_left: []             # un membre quitte le clan ou en est retiré
+      chief_promoted: []
+      chief_demoted: []
 
   # --- Cloud provider config (masque flutter/modules/dvcloud/config.yml) --------
   cloud:

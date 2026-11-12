@@ -1002,6 +1002,21 @@ conf:
           return read > 0 ? total : null;
         }
 
+  # --- Mesures d'usage de l'app (fonction d'écriture metrics_ingest de pumetrics) ---
+  # ⚠ COUPÉE, comme `analytics.enabled` de l'app (client/config.yml) : un nouveau
+  #   traitement, à porter à la politique de confidentialité et au registre avant
+  #   d'être allumé, avec sa durée de conservation (deva d196). Allumer les trois
+  #   ensemble : ici, l'app, et `dashboard.app.enabled` de la console.
+  # ⚠ LA LISTE QUI FAIT FOI : un événement, une propriété absents d'ici ne sont jamais
+  #   écrits. La même liste que `analytics.events` de l'app (un test la compare).
+  # ⚠ Écart connu (readme de dvdashboard) : les fonctions de pumetrics ne sont pas
+  #   encore branchées au déploiement des fonctions d'un projet.
+  metrics:
+    ingest:
+      enabled: false
+      environment:
+        ALLOWED_EVENTS: '{"ddust": {"session_start": [], "loot_received": ["items", "coins"], "loot_opened": [], "clan_created": [], "member_joined": [], "member_claimed": [], "member_created": [], "member_left": [], "chief_promoted": [], "chief_demoted": []}}'
+
   cloudfunctions:
     enabled: true
     require_app_check: false
